@@ -21,7 +21,6 @@
 package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
-import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -54,10 +53,10 @@ public class GraphPageUnidimensional extends GraphPage {
      * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
+     * @param loadPage if true, load the page; otherwise, don't load the page
      */
-    public GraphPageUnidimensional(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
-        super(driver, wait, target, id, phenotypePipelineDAO, baseUrl);
-        super.loadScalar();
+    public GraphPageUnidimensional(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, boolean loadPage) {
+        super(driver, wait, target, id, phenotypePipelineDAO, baseUrl, loadPage);
         if (graphType != ObservationType.unidimensional)
             throw new RuntimeException("ERROR: Expected unidimensional graph but found " + graphType.name());
     }
@@ -75,9 +74,11 @@ public class GraphPageUnidimensional extends GraphPage {
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param graphPage a parent <code>GraphPage</code> providing scalar
      * initialization values
+     * @param loadPage if true, load the page; otherwise, don't load the page
      */
-    public GraphPageUnidimensional(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, GraphPage graphPage) {
-        super(driver, wait, target, id, phenotypePipelineDAO, baseUrl);
+    public GraphPageUnidimensional(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, GraphPage graphPage, boolean loadPage) {
+        super(driver, wait, target, id, phenotypePipelineDAO, baseUrl, loadPage);
+        this.title = graphPage.title;
         this.alleleSymbol = graphPage.alleleSymbol;
         this.background = graphPage.background;
         this.geneSymbol = graphPage.geneSymbol;
@@ -95,114 +96,83 @@ public class GraphPageUnidimensional extends GraphPage {
             throw new RuntimeException("ERROR: Expected unidimensional graph but found " + graphType.name());
     }
     
-    /**
-     * Validates what is displayed on the page with the TSV and XLS download
-     * streams. Any errors are returned in a new <code>PageStatus</code> instance.
-     * Unidimensional graphs need to test the following:
-     * <ul><li>that the TSV and XLS links create a download stream</li>
-     * <li>that the graph page parameters, such as <code>pipeline name</code>,
-     * <code>pipelineStableId</code>, <code>parameterName</code>, etc. match</li>
-     * <li>that the HTML graph summary table row counts match the values in the
-     * continuousTable's <code>Count</code> column</li></ul>
-     * 
-     * @return validation results
-     */
-    public PageStatus validateDownload() {
-        PageStatus status = new PageStatus();
+    @Override
+    public PageStatus validate() {
+        boolean doGraphByDate = true;
+        return validate(doGraphByDate);
         
-        List<WebElement> weList;
-        
-        // Validate that the [required] <code>continuousTable</code> HTML table exists.
-        if ( ! getContinuousTable().hasContinuousTable()) {
-            status.addError("ERROR: unidimensional graph has no continuousTable.");
-        }
-        
-        try {
-            // Test the TSV.
-            // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            String downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDivGlobal']")).getAttribute("data-exporturl");
-            String downloadTargetTsv = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "tsv", "/export?");
-
-            // Get the download stream data.
-            URL url = new URL(downloadTargetTsv);
-            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-            String[][] downloadData = dataReaderTsv.getData();                          // Get all of the data
-            validateScalarDownload(downloadData, new DownloadGraphMapUnidimensional()); // ... and validate it
-
-            // Validate the counts.
-            validateCounts(downloadData);
-            
-            
-            // Test the XLS.
-            String downloadTargetXls = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "xls", "/export?");
-            
-            // Get the download stream and statistics.
-            url = new URL(downloadTargetXls);
-            DataReaderXls dataReaderXls = new DataReaderXls(url);
-            downloadData = dataReaderXls.getData();                                     // Get all of the data
-            validateScalarDownload(downloadData, new DownloadGraphMapUnidimensional()); // ... and validate it
-            
-            // Validate the counts.
-            validateCounts(downloadData);                                               // Specific Unidimensional 'continuousTable' validation
-        } catch (NoSuchElementException | TimeoutException te) {
-            String message = "Expected page for ID " + id + "(" + target + ") but found none.";
-            status.addError(message);
-        }  catch (Exception e) {
-            String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            status.addError(message);
-        }
-        
-        return status;
     }
-
-    public PageStatus validateGraphByDate() {
-        GraphContinuousTable originalContinuousTable = getContinuousTable();    // Save the original (non graph-by-date page) continuous table.
-        GraphGlobalTestTable originalGlobalTestTable = getGlobalTestTable();    // Save the original (non graph-by-date page) global test table.
-        PageStatus status = new PageStatus();
-        final String GRAPH_BY_DATE = "Graph by date";
-        GraphPageUnidimensional graphByDatePage = null;
+    
+    private PageStatus validate(boolean doGraphByDate) {
+        // Validate common graph elements: title and graph type.
+        PageStatus status = super.validate();
         
-        try {
-            String graphByDateUrl = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='section half']/a[text() = '" + GRAPH_BY_DATE+ "']"))).getAttribute("href");
-            graphByDatePage = new GraphPageUnidimensional(driver, wait, graphByDateUrl, id, phenotypePipelineDAO, baseUrl);
-            status.add(graphByDatePage.validateScalar());
-            if (title.compareTo(graphByDatePage.getTitle()) != 0) {
-                status.addError("ERROR: Expected title '" + title + "' but found '" + graphByDatePage.getTitle() + "'.");
-            }
-            // NOTE: Time Series graphs have the string 'MEAN ' prepended to the parameter name!!! Test accordingly.
-            // USE 'contains' because of prepended 'MEAN ' for time series graphs.
-            if ( ! parameterName.contains(graphByDatePage.getParameterName())) {
-                status.addError("ERROR: Expected parameter '" + parameterName + "' but found '" + graphByDatePage.getParameterName() + "'.");
-            }
-            if (parameterStableId.compareTo(graphByDatePage.getParameterStableId()) != 0) {
-                status.addError("ERROR: Expected parameterStableId '" + parameterStableId + "' but found '" + graphByDatePage.getParameterStableId() + "'.");
-            }
-        } catch (Exception e) {
-            status.addError("ERROR: This graph's '" + GRAPH_BY_DATE + "' threw an exception: " + e.getLocalizedMessage() + ".\nURL: " + target);
+        // Validate the HTML table and its contents.
+        GraphGlobalTestTable originalGlobalTestTable = getGlobalTestTable();
+        if ( ! originalGlobalTestTable.hasGlobalTestTable()) {
+            status.addError("ERROR: unidimensional graph has no globalTest table. URL: " + target);
         }
-
-        // Unidimensional graphs must have a globalTest table. Compare the two
-        // data objects; they should be exactly equal.
-        if (originalGlobalTestTable == null) {
-            status.addError("ERROR: Expected a globalTest HTML table but found none. " + target);
-        } else if (graphByDatePage == null)  {
-            status.addError("ERROR: Couldn't load graphByDatePage");
-        } else {
-            if ( ! originalGlobalTestTable.isEqual(graphByDatePage.getGlobalTestTable())) {
-                status.addError("ERROR: this graph's globalTest table and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + target + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.target);
-            }
+        status.add(originalGlobalTestTable.validate());
+        
+        // Validate there is an HTML table named continuousTable and validate it.
+        if ( ! getContinuousTable().hasContinuousTable()) {
+            status.addError("ERROR: unidimensional graph has no continuousTable. URL: " + target);
         }
+        
+        // Validate 'More statistics' drop-down. Clicking either the arrow or the link should toggle the toggle_table1 div.
+        WebElement toggle_table1 = driver.findElement(By.xpath("//div[@id='toggle_table1']"));
+        String style = toggle_table1.getAttribute("style");
+        if ( ! style.equals("display: none;"))
+            status.addError("ERROR: Expected 'More statistics' drop-down to start collapsed.");
+        WebElement i = driver.findElement(By.xpath("//i[@id='toggle_table_button1']"));
+        i.click();      // Click the link. That should open the toggle.
+        style = toggle_table1.getAttribute("style");
+        if ( ! style.contains("display: block;"))
+            status.addError("ERROR: Expected 'More statistics' drop-down to be expanded.");
+        i.click();      // Click the link again. That should close the toggle.
+        style = toggle_table1.getAttribute("style");
+        if ( ! style.contains("display: none;"))
+            status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");
+        
+        // Validate download streams.
+        status.add(validateDownload());
+        
+        if (doGraphByDate) {
+            // Validate there is a Graph by date link.
+            final String GRAPH_BY_DATE = "Graph by date";
+            GraphPageUnidimensional graphByDatePage = null;
+            try {
+                String graphByDateUrl = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='section half']/a[text() = '" + GRAPH_BY_DATE+ "']"))).getAttribute("href");
+                boolean loadPage = true;
+                graphByDatePage = new GraphPageUnidimensional(driver, wait, graphByDateUrl, id, phenotypePipelineDAO, baseUrl, loadPage);
+            } catch (Exception e) {
+                status.addError("ERROR: unidimensional graph has no Graph by date link. URL: " + target);
+            }
 
-        // Unidimensional graphs must have a continuousTable table. Compare the
-        // two data objects; they should be exactly equal.
-        if (originalContinuousTable == null) {
-            status.addError("ERROR: Expected a continuousTable HTML table but found none. " + target);
-        } else if (graphByDatePage == null) {
-            status.addError("ERROR: Couldn't load graphByDatePage");
-            if ( ! originalContinuousTable.isEqual(graphByDatePage.getContinuousTable())) {
-                status.addError("ERROR: this graph's continuousTable and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + target + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.target);
+            if (graphByDatePage != null) {
+                graphByDatePage.validate(false);
+            }
+            
+            // Unidimensional graphs must have a globalTest table. Compare the two
+            // data objects; they should be exactly equal.
+            if (graphByDatePage == null)  {
+                status.addError("ERROR: Couldn't load graphByDatePage");
+            } else {
+                if ( ! originalGlobalTestTable.isEqual(graphByDatePage.getGlobalTestTable())) {
+                    status.addError("ERROR: this graph's globalTest table and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + target + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.target);
+                }
+            }
+
+            // Unidimensional graphs must have a continuousTable table. Compare the
+            // two data objects; they should be exactly equal.
+            if (getContinuousTable() == null) {
+                status.addError("ERROR: Expected a continuousTable HTML table but found none. " + target);
+            } else if (graphByDatePage == null) {
+                status.addError("ERROR: Couldn't load graphByDatePage");
+            } else {
+                if ( ! getContinuousTable().isEqual(graphByDatePage.getContinuousTable())) {
+                    status.addError("ERROR: this graph's continuousTable and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + target + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.target);
+                }
             }
         }
         
@@ -213,6 +183,10 @@ public class GraphPageUnidimensional extends GraphPage {
     // SETTERS AND GETTERS
     
     
+    /**
+     * 
+     * @return The <code>GraphGlobalTestTable</code> instance, loaded with data.
+     */
     public GraphGlobalTestTable getGlobalTestTable() {
         if (globalTestTable == null) {
             globalTestTable = new GraphGlobalTestTable(driver);
@@ -221,6 +195,10 @@ public class GraphPageUnidimensional extends GraphPage {
         return globalTestTable;
     }
 
+    /**
+     * 
+     * @return The <code>GraphContinuousTable</code> instance, loaded with data.
+     */
     public GraphContinuousTable getContinuousTable() {
         if (continuousTable == null) {
             continuousTable = new GraphContinuousTable(driver);
@@ -242,7 +220,66 @@ public class GraphPageUnidimensional extends GraphPage {
         System.out.println("GraphPageUnidimensional implementation of validateGraphTable.");
         
         return status;
-    }    
+    }
     
+    /**
+     * Validates what is displayed on the page with the TSV and XLS download
+     * streams. Any errors are returned in a new <code>PageStatus</code> instance.
+     * Unidimensional graphs need to test the following:
+     * <ul><li>that the TSV and XLS links create a download stream</li>
+     * <li>that the graph page parameters, such as <code>pipeline name</code>,
+     * <code>pipelineStableId</code>, <code>parameterName</code>, etc. match</li>
+     * <li>that the HTML graph summary table row counts match the values in the
+     * continuousTable's <code>Count</code> column</li></ul>
+     * 
+     * @return validation results
+     */
+    private PageStatus validateDownload() {
+        PageStatus status = new PageStatus();
+        
+        // Validate that the [required] <code>continuousTable</code> HTML table exists.
+        if ( ! getContinuousTable().hasContinuousTable()) {
+            status.addError("ERROR: unidimensional graph has no continuousTable.");
+        }
+        
+        try {
+            // Test the TSV.
+            // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
+            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
+            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
+            String downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDivGlobal']")).getAttribute("data-exporturl");
+            String downloadTargetTsv = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "tsv", "/export?");
 
+            // Get the download stream data.
+            URL url = new URL(downloadTargetTsv);
+            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
+            String[][] downloadData = dataReaderTsv.getData();                                      // Get all of the data
+            status.add(super.validateDownload(downloadData, new DownloadGraphMapUnidimensional())); // ... and validate it
+            
+            // Validate the counts.
+            validateCounts(downloadData);
+            
+            
+            // Test the XLS.
+            String downloadTargetXls = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "xls", "/export?");
+            
+            // Get the download stream and statistics.
+            url = new URL(downloadTargetXls);
+            DataReaderXls dataReaderXls = new DataReaderXls(url);
+            downloadData = dataReaderXls.getData();                                                 // Get all of the data
+            status.add(super.validateDownload(downloadData, new DownloadGraphMapUnidimensional())); // ... and validate it
+            
+            // Validate the counts.
+            validateCounts(downloadData);                                               // Specific Unidimensional 'continuousTable' validation
+        } catch (NoSuchElementException | TimeoutException te) {
+            String message = "Expected page for ID " + id + "(" + target + ") but found none.";
+            status.addError(message);
+        }  catch (Exception e) {
+            String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            status.addError(message);
+        }
+        
+        return status;
+    }
+    
 }

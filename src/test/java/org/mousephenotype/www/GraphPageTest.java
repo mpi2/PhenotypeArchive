@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.GraphPage;
@@ -80,9 +81,9 @@ import uk.ac.ebi.phenotype.util.Utils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
-public class GraphTest {
+public class GraphPageTest {
     
-    public GraphTest() {
+    public GraphPageTest() {
     }
    
     @Autowired
@@ -155,10 +156,19 @@ public class GraphTest {
     
     
     @Test
+//@Ignore
     public void testCategoricalGraph() {
         String testName = "testCategoricalGraph";
         
         List<TestUtils.GraphData> graphUrls = TestUtils.getGraphUrls(solrUrl, ObservationType.categorical, 1000);
+        graphTestEngine(testName, graphUrls);
+    }
+    
+    @Test
+    public void testUnidimensionalGraph() {
+        String testName = "testUnidimensionalGraph";
+        
+        List<TestUtils.GraphData> graphUrls = TestUtils.getGraphUrls(solrUrl, ObservationType.unidimensional, 1000);
         graphTestEngine(testName, graphUrls);
     }
     
@@ -201,7 +211,7 @@ public class GraphTest {
             }
             
             target = baseUrl + "/genes/" + graph.getGeneId();
-            System.out.println("gene[" + i + "] URL: " + target);
+System.out.println("gene[" + i + "] URL: " + target);
             i++;
             
             try {
@@ -214,11 +224,11 @@ public class GraphTest {
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
                     Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE));
                     String graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
-                    if (pagePvalue != null) {
-                        System.out.println("Comparing '" + pagePvalue + "' to '" + graph.getpValue() + "' (difference: " + (pagePvalue - graph.getpValue()) + ")");
+                    if ((pagePvalue != null) && (pagePvalue > 0.0)) {
+//System.out.println("Comparing '" + pagePvalue + "' to '" + graph.getpValue() + "' (difference: " + (pagePvalue - graph.getpValue()) + ")");
                         if (TestUtils.equals(pagePvalue, graph.getpValue())) {
-                            System.out.println("Match!");
-                            System.out.println("Graph URL: " + graphUrl);
+//System.out.println("Match!");
+//System.out.println("Graph URL: " + graphUrl);
                             boolean loadPage = true;
                             GraphPage graphPage = new GraphPage(driver, wait, graphUrl, target, phenotypePipelineDAO, baseUrl, loadPage);
                             ObservationType graphType = graphPage.getGraphType();

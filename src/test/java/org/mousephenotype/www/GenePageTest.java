@@ -131,126 +131,6 @@ public class GenePageTest {
     public static void tearDownClass() {
     }
     
-
-    // PRIVATE METHODS
-    
-    
-    private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
-
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
-            
-        // Loop through all genes, testing each one for valid page load.
-        int i = 0;
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        for (String geneId : geneIds) {
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-            
-            target = baseUrl + "/genes/" + geneId;
-            System.out.println("gene[" + i + "] URL: " + target);
-            
-            try {
-                driver.get(target);
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
-                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
-                boolean phenotypesTableRequired = false;
-                genePage.validate(phenotypesTableRequired);
-            } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                errorList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
-            }  catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
-            }
-
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-            successList.add(message);
-            
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
-    }
-    
-    private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
-        // If no parameters were specified, set target to the default search page.
-        String target = baseUrl + "/search";
-        String fields = "";
-        if ( ! ((phenoStatus == null) && (prodCentre == null) && (phenoCentre == null))) {
-            target += "#fq=";
-            if (phenoStatus != null) {
-                switch(phenoStatus) {
-                    case "Complete":
-                        fields += "(latest_phenotype_status:\"Phenotyping Complete\")";
-                        break;
-
-                    case "Started":
-                        fields += "(latest_phenotype_status:\"Phenotyping Started\")";
-                        break;
-
-                    case "Attempt Registered":
-                        fields += "(latest_phenotype_status:\"Phenotype Attempt Registered\")";
-                        break;
-                        
-                    default:
-                        throw new RuntimeException("tick(): unknown phenotyping status '" + phenoStatus + "'.");
-                }
-            }
-            
-            if (prodCentre != null) {
-                if ( ! fields.isEmpty()) {
-                    fields += " AND ";
-                fields += "(latest_production_centre:\"" + prodCentre + "\")";
-                }
-            }
-            
-            if (phenoCentre != null) {
-                if ( ! fields.isEmpty()) {
-                    fields += " AND ";
-                fields += "(latest_phenotyping_centre:\"" + phenoCentre + "\")";
-                }
-            }
-            
-            target += fields + "&facet=gene";
-        }
-            
-        driver.get(target);
-                
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        String xpathSelector = "//span[@id=\"resultCount\"]/a";
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
-    }
-    
-    /**
-     * Given that the current page is the gene search page, returns the number
-     * sandwiched between the 'Found' and 'genes' terms; e.g., given the string
-     * 'Found 5 genes', returns the number 5. Returns 0 if there is no number
-     * or no such formatted string.
-     * @return gene count if found; 0 otherwise
-     */
-    private int getGeneCount() {
-        WebElement element = driver.findElement(By.xpath("//div[@id=\"resultMsg\"]/span[@id=\"resultCount\"]/a"));
-        
-        String s = element.getText().replace(" genes", "");
-        Integer i = Utils.tryParseInt(s);
-        return (i == null ? 0 : i);
-    }
-    
     
     // TESTS
     
@@ -650,5 +530,124 @@ public class GenePageTest {
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);
     }
     
-}
+
+    // PRIVATE METHODS
     
+    
+    private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+            
+        // Loop through all genes, testing each one for valid page load.
+        int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        for (String geneId : geneIds) {
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
+            target = baseUrl + "/genes/" + geneId;
+            System.out.println("gene[" + i + "] URL: " + target);
+            
+            try {
+                driver.get(target);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+                boolean phenotypesTableRequired = false;
+                genePage.validate(phenotypesTableRequired);
+            } catch (NoSuchElementException | TimeoutException te) {
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            }  catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            }
+
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
+            successList.add(message);
+            
+            TestUtils.sleep(thread_wait_in_ms);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
+    }
+    
+    private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
+        // If no parameters were specified, set target to the default search page.
+        String target = baseUrl + "/search";
+        String fields = "";
+        if ( ! ((phenoStatus == null) && (prodCentre == null) && (phenoCentre == null))) {
+            target += "#fq=";
+            if (phenoStatus != null) {
+                switch(phenoStatus) {
+                    case "Complete":
+                        fields += "(latest_phenotype_status:\"Phenotyping Complete\")";
+                        break;
+
+                    case "Started":
+                        fields += "(latest_phenotype_status:\"Phenotyping Started\")";
+                        break;
+
+                    case "Attempt Registered":
+                        fields += "(latest_phenotype_status:\"Phenotype Attempt Registered\")";
+                        break;
+                        
+                    default:
+                        throw new RuntimeException("tick(): unknown phenotyping status '" + phenoStatus + "'.");
+                }
+            }
+            
+            if (prodCentre != null) {
+                if ( ! fields.isEmpty()) {
+                    fields += " AND ";
+                fields += "(latest_production_centre:\"" + prodCentre + "\")";
+                }
+            }
+            
+            if (phenoCentre != null) {
+                if ( ! fields.isEmpty()) {
+                    fields += " AND ";
+                fields += "(latest_phenotyping_centre:\"" + phenoCentre + "\")";
+                }
+            }
+            
+            target += fields + "&facet=gene";
+        }
+            
+        driver.get(target);
+                
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        String xpathSelector = "//span[@id=\"resultCount\"]/a";
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
+    }
+    
+    /**
+     * Given that the current page is the gene search page, returns the number
+     * sandwiched between the 'Found' and 'genes' terms; e.g., given the string
+     * 'Found 5 genes', returns the number 5. Returns 0 if there is no number
+     * or no such formatted string.
+     * @return gene count if found; 0 otherwise
+     */
+    private int getGeneCount() {
+        WebElement element = driver.findElement(By.xpath("//div[@id=\"resultMsg\"]/span[@id=\"resultCount\"]/a"));
+        
+        String s = element.getText().replace(" genes", "");
+        Integer i = Utils.tryParseInt(s);
+        return (i == null ? 0 : i);
+    }
+    
+}

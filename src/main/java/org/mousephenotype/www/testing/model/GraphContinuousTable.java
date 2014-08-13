@@ -56,18 +56,24 @@ public class GraphContinuousTable {
         }
         hasContinuousTable = true;
         
-        List<WebElement> bodyRowsList = table.findElements(By.xpath("//tbody/tr"));
+        List<WebElement> bodyRowList = table.findElements(By.cssSelector("tbody tr"));
         
-        WebElement headerRow = table.findElement(By.xpath("//thead/tr"));       // Get the header row.
-        List<WebElement> colsList = headerRow.findElements(By.xpath("//td"));
-        data = new String[1 + bodyRowsList.size()][colsList.size()];            // Allocate space for the array elements (and one for the header).
+        WebElement headingRow = table.findElement(By.cssSelector("thead tr"));  // Get the heading row.
+        List<WebElement> headingElements = headingRow.findElements(By.cssSelector("th"));
+        data = new String[1 + bodyRowList.size()][headingElements.size()];      // Allocate space for the array elements (and one for the header).
+        
+        int colIndex = 0;
+        for (WebElement headingElement : headingElements) {                     // Save the column headeings.
+            data[0][colIndex] = headingElement.getText();
+            colIndex++;
+        }
 
         int rowIndex = 1;
-        for (WebElement bodyRow : bodyRowsList) {
-            List<WebElement> bodyColsList = bodyRow.findElements(By.xpath("//td"));
-            int colIndex = 0;
-            for (WebElement bodyCell : bodyColsList) {
-                data[rowIndex][colIndex] = bodyCell.getText();
+        for (WebElement bodyRow : bodyRowList) {
+            List<WebElement> bodyElements = bodyRow.findElements(By.cssSelector("td"));
+            colIndex = 0;
+            for (WebElement bodyElement : bodyElements) {                       // Save the column values.
+                data[rowIndex][colIndex] = bodyElement.getText();
                 colIndex++;
             }
             
@@ -91,10 +97,11 @@ public class GraphContinuousTable {
         if (data.length != otherTable.data.length)
             return false;
         for (int i = 0; i < data.length; i++) {
-            
             if (data[i].length != otherTable.data[i].length)
                 return false;
             for (int j = 0; j < data[i].length; j++) {
+                if ((data[i][j] == null) || (otherTable.data[i][j] == null))
+                    return false;
                 if ( ! data[i][j].equals(otherTable.data[i][j]))
                     return false;
             }

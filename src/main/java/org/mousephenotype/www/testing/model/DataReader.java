@@ -49,7 +49,7 @@ public abstract class DataReader {
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
      */
-    public String[][] getData() {
+    public String[][] getData() throws IOException {
         return getData(null);
     }
     
@@ -59,8 +59,9 @@ public abstract class DataReader {
      * @return <code>maxRows</code> rows of data (including headings) from the stream created by 
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
+     * @throws IOException
      */
-    public String[][] getData(Integer maxRows) {
+    public String[][] getData(Integer maxRows) throws IOException {
         
         if (maxRows == null)
             maxRows = lineCount();
@@ -84,13 +85,15 @@ public abstract class DataReader {
                 }
             }
         } catch (IOException e) {
-            System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+            System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
+            throw e;
         } finally {
             try {
                 if (dataReader != null)
                     dataReader.close();
             } catch (IOException e) {
-                System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+                System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
+            throw e;
             }
         }
         
@@ -100,8 +103,9 @@ public abstract class DataReader {
     /**
      * @return the number of lines in this <code>DataReader</code> stream,
      * including headings.
+     * @throws IOException
      */
-    public int lineCount() {
+    public int lineCount() throws IOException {
         int lineCount = 0;
         DataReader dataReader = null;
         try {
@@ -112,13 +116,15 @@ public abstract class DataReader {
                 lineCount++;
             }
         } catch (IOException e) {
-            System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+            System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
+            throw e;
         } finally {
             try {
                 if (dataReader != null)
                     dataReader.close();
             } catch (IOException e) {
-                System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+                System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
+                throw e;
             }
         }
         
