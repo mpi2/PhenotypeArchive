@@ -128,21 +128,19 @@
 
 			<entity name="biologicalData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
 				query="SELECT bs.id as bio_samp_id, bs.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id,
-				ls.date_of_birth as birthdate, ls.colony_id, ls.sex as sex, ls.colony_id, ls.zygosity, 
-				bms.biological_model_id as bmid,
-				strain.acc as strain_acc, strain.name as strain_name, 
-				CASE WHEN bma.allele_acc LIKE 'IMPC%' THEN CONCAT('NULL-', UPPER(SUBSTR(MD5(a.symbol),1,10))) ELSE bma.allele_acc END as allele_accession, a.symbol as allele_symbol, 
-				gf.acc as acc, gf.symbol as symbol 
-				FROM biological_sample bs
-				INNER JOIN organisation org ON bs.organisation_id=org.id
-				INNER JOIN live_sample ls ON bs.id=ls.id
-				INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id
-				INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id
-				INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc
-				LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bms.biological_model_id
-				LEFT OUTER JOIN biological_model_allele bma ON bma.biological_model_id=bms.biological_model_id
-				LEFT OUTER JOIN allele a ON (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id)
-				LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc"
+ls.date_of_birth as birthdate, ls.colony_id, ls.sex as sex, ls.colony_id, ls.zygosity, 
+bms.biological_model_id as bmid,
+strain.acc as strain_acc, strain.name as strain_name, 
+(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, 
+(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bms.biological_model_id)  as allele_symbol,
+(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bms.biological_model_id) as acc, 
+(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bms.biological_model_id)  as symbol
+FROM biological_sample bs
+INNER JOIN organisation org ON bs.organisation_id=org.id
+INNER JOIN live_sample ls ON bs.id=ls.id
+INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id
+INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id
+INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc"
 				where="bio_samp_id=observation.bsid">
 
 				<field column="bmid" name="biological_model_id" />

@@ -128,19 +128,8 @@ $(document).ready(function(){
             return retVal;
         }
 
-	 function _doDataExport(url, form){
-	    	$.ajax({
-				type: 'GET',
-				url: url,
-				cache: false,
-				data: $(form).serialize(),
-				success:function(data){    				
-					$(form).appendTo('body').submit().remove();
-				},
-				error:function(){
-					//alert("Oops, there is error during data export..");
-				}
-			});
+	 function _doDataExport(url, form){				
+		$(form).appendTo('body').submit().remove();
 	 }
 	function refreshPhenoTable(newUrl){
 		//alert(newUrl);

@@ -1,31 +1,15 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocumentList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -84,7 +63,7 @@ public class GenotypePhenotypeServiceTest {
 		List<Map<String,String>> dataset = null;
 		String resource = "IMPC";
 		try {
-			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME);
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
 			for (Map<String, String> map: dataset) {
 				for (String key: map.keySet()) {
 					System.out.println(key + ":" + map.get(key));
@@ -105,7 +84,7 @@ public class GenotypePhenotypeServiceTest {
 		List<Map<String,String>> dataset = null;
 		String resource = "IMPC";
 		try {
-			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeField.INTERMEDIATE_MP_TERM_NAME);
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME);
 			for (Map<String, String> map: dataset) {
 				for (String key: map.keySet()) {
 					System.out.println(key + ":" + map.get(key));
@@ -127,7 +106,7 @@ public class GenotypePhenotypeServiceTest {
 		List<Map<String,String>> dataset = null;
 		String resource = "IMPC";
 		try {
-			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.MP_TERM_ID, GenotypePhenotypeField.MP_TERM_NAME);
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME);
 			for (Map<String, String> map: dataset) {
 				for (String key: map.keySet()) {
 					System.out.println(key + ":" + map.get(key));

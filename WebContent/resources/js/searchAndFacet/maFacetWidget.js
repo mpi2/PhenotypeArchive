@@ -38,26 +38,15 @@
 	    _initFacet: function(){
 	    	var self = this;    	
 	    	
-	    	/*var queryParams = $.extend({}, {				
-		    	'fq': MPI2.searchAndFacetConfig.facetParams.maFacet.fq,
-				'rows': 0, // override default
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,
-				'facet.field': fecetField,
-				//'facet.field': 'annotated_or_inferred_higherLevelMaTermName',
-				'facet.sort': 'index',						
-				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams);
-	    		*/    
-	    	
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+	    	$.fn.setCurrentFq();
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
 	    	var facetField = 'selected_top_level_ma_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('ma', self.options.data.hashParams.q, oParams);
-	    	
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -67,17 +56,19 @@
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
-				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
+				'q.option': 'AND'
+				//'q' : self.options.data.hashParams.q
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
 	    	
+	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams);	 
 	    	
 	    	$.ajax({	
 	    		'url': solrUrl + '/ma/select',
-	    		'data': queryParams,						
+	    		'data': queryParamStr,						
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
-	    			console.log(json);
+	    			//console.log(json);
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			//$('div#maFacet span.facetCount').attr({title: 'total number of unique MA terms'}).text(json.response.numFound);
 	    				    			
@@ -114,19 +105,11 @@
 	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
+	        			MPI2.searchAndFacetConfig.update.filterAdded = true;
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	    			});   
 	        		
-	        		/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	    	
-	        		var oConf = self.options.data.hashParams;
-	    	    	oConf.core = self.options.data.core;
-	    	    	console.log(oConf);
-	    	    	
-	    	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	    			
+		    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
 	    		}		
 	    	});		    	
 	    	

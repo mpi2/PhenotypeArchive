@@ -18,9 +18,11 @@
  */
 $(document).ready(function(){
 	'use strict';	
+	alert('reload');
+	// back button will not see this js
+	MPI2.searchAndFacetConfig.update.pageReload = true;
 	
-	MPI2.searchAndFacetConfig.pageReload = true;
-	
+	//console.log('reload');
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
@@ -29,9 +31,10 @@ $(document).ready(function(){
 		
 	// default search when search page loads
 	if ( /search\/?$/.exec(location.href) ){
+		alert('default search load')
 		// do default gene search by * when search page loads	
 		oHashParams.q = '*:*';		
-		$.fn.fetchSolrFacetCount(oHashParams);
+		//$.fn.fetchSolrFacetCount(oHashParams);
 	}
 	else if ( window.location.search == '?q=' ){
 		// catches user hitting ENTER on search input box of homepage
@@ -60,17 +63,30 @@ $(document).ready(function(){
 	// search via ENTER
 	$('input#s').keyup(function (e) {		
 	    if (e.keyCode == 13) { // user hits enter
+	    	alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
+	    	var input = $('input#s').val().trim();
 	    	
-	    	var input = $('input#s').val();
+	    	MPI2.searchAndFacetConfig.update.kwSearch = true;
 	    	
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
+	    		
 	    	}
 	    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
-	    		document.location.href = baseUrl + '/search?q=' + input;
+	    		alert('enter-2');
+	    		//document.location.href = baseUrl + '/search?q=' + input;
+	    		window.location.search = 'q=' + input;
+	    	
+	    		delete window.location.hash;
+	    		var oHashParams = {};
+				oHashParams.noFq = true;
+				//$.fn.fetchSolrFacetCount(oHashParams); 
 	    	}
 	    	else {	
-	    		document.location.href = baseUrl + '/search?q=' + input + '#facet=' + MPI2.searchAndFacetConfig.matchedFacet; // handed over to hash change	    	
+	    		alert('enter-3');
+	    		//document.location.href = baseUrl + '/search?q=' + input + '#facet=' + MPI2.searchAndFacetConfig.matchedFacet; // handed over to hash change	    	
+	    		window.location.search = 'q=' + input;
+	    		window.location.hash = 'facet=' + MPI2.searchAndFacetConfig.matchedFacet;
 	    	}
 	    }
 	});

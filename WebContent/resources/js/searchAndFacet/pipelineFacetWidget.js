@@ -39,46 +39,39 @@
 	    _initFacet: function(){
 	   
 	    	var self = this;
-	    	    	
-	    	/*  	
-	    	var queryParams = $.extend({}, {	    		  		
-	    		//'fq': 'pipeline_stable_id:IMPC_001',
-	    		'fq': self.options.data.hashParams.fq,
-				'rows': 0,
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,				
-				'facet.sort': 'index',			
-				//'fl': 'parameter_name,parameter_stable_key,parameter_stable_id,procedure_name,procedure_stable_key,procedure_stable_id',				
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams);	    		    	
-	    	*/
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+	    	
+	    	$.fn.setCurrentFq();
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('pipeline', self.options.data.hashParams.q, oParams);
-	    	
-	    	var queryParams = $.extend({}, {				
+
+	        var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'index',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+				'facet.sort': 'index'					
+				//'q': $.fn.encodeQ(self.options.data.hashParams.q)
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
-	    	//console.log(queryParams);	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams)	    				
 	    				+ '&facet.field=pipeline_name'
 	    				+ '&facet.field=pipe_proc_sid';
 	    	
+	    	//console.log('PIPELINE WIDGET STR: '+ queryParamStr);	   
+
 	    	$.ajax({ 
 	    		'url': solrUrl + '/pipeline/select',
 	    		'data': queryParamStr,
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) { 
-	    			    			
+	    			//console.log(json);			
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			//$('div#pipelineFacet .facetCount').attr({title: 'total number of unique parameter terms'}).text(json.response.numFound);
 	        			    			
@@ -117,7 +110,7 @@
 		        			if (pipeName == currPipe ){	
 		        				//var pClass = 'procedure'+f + ' ' + proSid;
 		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
-		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ paramCount);		        			      		
+		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ count);		        			      		
 			        			
 			        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + proSid + '|' + count + '|' + pipeClass;
 			        			
@@ -133,7 +126,7 @@
 									procedureChkboxLblCnt[pipeName][procedure_name].pipeClass = pipeClass;
 									
 								}
-								procedureChkboxLblCnt[pipeName][procedure_name].fcount += count;								
+								procedureChkboxLblCnt[pipeName][procedure_name].fcount += count;
 		        			}	
 		        		}	        		   	
 		        		
@@ -153,7 +146,7 @@
 		        				
 		        				var fcount = $('<span></span>').attr({'class':'fcount'}).text(
 		        					procedureChkboxLblCnt[pipeline][procedure_name].fcount);
-		        						        				
+
 		        				if ( pipeline != 'IMPC Pipeline' ){		        					
 			        				liContainer.append(chkbox, flabel, fcount);			        				
 			        			}
@@ -184,17 +177,11 @@
 		    			
 		    			// // highlight the item in facet	    			
 		    			$(this).siblings('span.flabel').addClass('highlight');
+		    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 						$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-					});	  
-		    		
-		    		/*--------------------------------------------------------------------------------------------------------------------------*/
-			    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-			    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-		    		
-		    		var oConf = self.options.data.hashParams;
-			    	oConf.core = self.options.data.core;
-			    	
-			    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
+					});	
+
+		    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
 	    		}	    		
 	    	});	    	
 	    },	   

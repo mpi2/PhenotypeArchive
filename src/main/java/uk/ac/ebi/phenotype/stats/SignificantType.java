@@ -6,8 +6,8 @@ public enum SignificantType {
 	both_equally("Both genders equally"),
 	female_only("Female only"),
 	male_only("Male only"),
-	female_greater("Different size females greater"),
-	male_greater("Different size males greater"),
+	female_greater("Different effect size, females greater"),
+	male_greater("Different effect size, males greater"),
 	different_directions("Female and male different directions")
 	;
 

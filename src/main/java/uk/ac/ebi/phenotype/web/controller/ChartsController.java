@@ -63,9 +63,10 @@ import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.ImpressService;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
-import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.TableObject;
@@ -113,6 +114,9 @@ public class ChartsController {
 
     @Autowired
     private ExperimentService experimentService;
+    
+    @Autowired
+    private ImpressService is;
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -344,8 +348,9 @@ public class ChartsController {
                 log.error(ExceptionUtils.getFullStackTrace(e));
                 statsError = true;
             }
-
+                        
             model.addAttribute("pipeline", pipeline);
+            model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
             model.addAttribute("allelicCompositionString", allelicCompositionString);
             model.addAttribute("symbol", symbol);
             model.addAttribute("geneticBackgroundString", geneticBackgroundString);

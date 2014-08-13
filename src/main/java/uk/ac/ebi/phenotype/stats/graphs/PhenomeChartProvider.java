@@ -155,7 +155,7 @@ public class PhenomeChartProvider {
 		String chartString="	$(function () { \n"
 				+"  phenomeChart = new Highcharts.Chart({ \n"
 				+"     chart: {\n"
-				+"renderTo: 'chart" + phenotypingCenter +"',\n"
+				+"renderTo: 'phenomeChart',\n"
 				+"         type: 'scatter',\n"
 				+"         zoomType: 'xy',\n"
 				+"         height: 800\n"
@@ -350,7 +350,7 @@ public class PhenomeChartProvider {
 					dataPoint.put("alleleAccession", call.getAllele().getId().getAccession());
 					dataPoint.put("parameter_stable_id", call.getParameter().getStableId());
 					dataPoint.put("pipeline_stable_id", call.getPipeline().getStableId());
-					dataPoint.put("phenotyping_center", phenotypingCenter);
+					dataPoint.put("phenotyping_center", call.getPhenotypingCenter());
 					dataPoint.put("x", index);
 					dataPoint.put("y", call.getLogValue() + addJitter(call.getEffectSize()));
 					dataPoint.put("pValue", call.getpValue());
@@ -412,7 +412,8 @@ public class PhenomeChartProvider {
 			
 			StringBuilder pointFormat = new StringBuilder();
 			
-			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">procedure: {series.name}</td></tr>");
+			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">parameter: {point.name}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">procedure: {series.name}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">sex: {point.controlSex}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">zygosity: {point.zygosity}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">mutants: {point.femaleMutants}f:{point.maleMutants}m</td></tr>");

@@ -39,14 +39,16 @@
 	    _initFacet: function(){
 	    	var self = this;
 	    	
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+	    	$.fn.setCurrentFq();
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
 	    	var facetField = 'top_level_mp_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('mp', self.options.data.hashParams.q, oParams);
-	    	//console.log(self.options.data.hashParams.q);
-	    	var queryParams = $.extend({}, {				
+
+	        var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
@@ -55,12 +57,16 @@
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
-				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
-	    
+				'q.option': 'AND'
+				//'q' : $.fn.encodeQ(self.options.data.hashParams.q)
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+	    	
+	    	//console.log('MP WIDGET: '+ $.fn.stringifyJsonAsUrlParams(queryParams));
+	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams);
+	    	
 	    	$.ajax({	
 	    		'url': solrUrl + '/mp/select',
-	    		'data': queryParams,						
+	    		'data': queryParamStr,						
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
@@ -104,18 +110,12 @@
 	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
+	        			MPI2.searchAndFacetConfig.update.filterAdded = true;
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-	    			});    		
-	        		 
-	        		/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	        		//console.log('****page load for mp facet');
-	        		var oConf = self.options.data.hashParams;
-	    	    	oConf.core = self.options.data.core;
-	    	    	
-	    	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);		   			
-	    		}		
+	    			});  
+	        		
+		    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
+	    		}
 	    	});		    	
 	    },	   
 	    

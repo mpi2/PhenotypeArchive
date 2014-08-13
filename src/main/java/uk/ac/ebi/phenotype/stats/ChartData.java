@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 
 public class ChartData {
 	BiologicalModel expBiologicalModel;

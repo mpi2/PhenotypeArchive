@@ -3,8 +3,8 @@ package uk.ac.ebi.phenotype.stats.unidimensional;
 import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ChartData;
-import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 
 /**
  * UnidimensionalDataSet should represent one experimentDTO i.e. both sexes with one table or one sex and one table

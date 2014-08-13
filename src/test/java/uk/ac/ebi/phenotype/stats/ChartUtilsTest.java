@@ -10,6 +10,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+
 public class ChartUtilsTest {
 
 	@Before

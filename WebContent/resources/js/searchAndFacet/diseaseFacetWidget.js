@@ -37,28 +37,15 @@
 	    
 		_initFacet: function(){			
 	    	var self = this;
-	    	/*
-	    	var currentFq = {'fq' : MPI2.searchAndFacetConfig.currentFq};
-	    	var queryParams = $.extend({}, { 
-				'rows': 0,
-				'type': 'disease',
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,								
-				'facet.sort': 'count',					
-	    		'q': self.options.data.hashParams.q},
-	    		MPI2.searchAndFacetConfig.commonSolrParams,
-	    		MPI2.searchAndFacetConfig.currentFq ? currentFq :
-	    			MPI2.searchAndFacetConfig.facetParams.diseaseFacet.filterParams
-	    	);    	   	
-	    	*/
 	    	
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+	    	$.fn.setCurrentFq();
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
-	    	var oParams = {};		
+	    	var oParams = {};	
 	        oParams = $.fn.getSolrRelevanceParams('disease', self.options.data.hashParams.q, oParams);
-	    	
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -66,8 +53,9 @@
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+				'facet.sort': 'count'
+				//'q' : self.options.data.hashParams.q
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
 	    					  + '&facet.field=disease_classes'
@@ -78,6 +66,8 @@
 	    	                  + '&facet.field=human_curated'
 	    	                  + '&facet.field=mouse_curated'
 	    	                  + '&facet.field=disease_source';	    	
+	    	
+	    	//console.log('DISEASE WIDGET: ' + queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/disease/select',	    		
@@ -156,8 +146,8 @@
 	    		var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
 	    									   'subfacets':{'human_curated':'From human data (OMIM, Orphanet)', 'mouse_curated':'From mouse data (MGI)'}},
 	    						   'predicted':{'label':'With Predicted Gene Associations by Phenotype', 
-	    							   			'subfacets': {'impc_predicted':'From MGP data','impc_predicted_in_locus':'From MGP data in linkage locus',
-	    							   				          'mgi_predicted':'From MGI data','mgi_predicted_in_locus':'From MGI data in linkage locus'}}};
+	    							   			'subfacets': {'impc_predicted':'From IMPC data','impc_predicted_in_locus':'From IMPC data in linkage locus',
+	    							   				          'mgi_predicted':'From MGI data','mgi_predicted_in_locus':'From IMPC data in linkage locus'}}};
 	    			    		
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
@@ -206,31 +196,23 @@
     			var selectorBase = "div.flist li#disease";
 	    		// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
-	    		
+				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+				
 				// change cursor for grayout filter
     			$.fn.cursorUpdate('disease', 'not-allowed');
-    							
-				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
-    			
+    			    			
     			$.fn.initFacetToggles('disease');
 	    			    			    		
 	    		$('li#disease li.fcat input').click(function(){	 
 	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
+	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-				});   			
-    				  		
+				});  
+
+	    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
     		}
-	    	
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	
-	    	var oConf = self.options.data.hashParams;
-	    	oConf.core = self.options.data.core;
-	    	
-	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
 	    },	       
 	  
 	    destroy: function () {    	   

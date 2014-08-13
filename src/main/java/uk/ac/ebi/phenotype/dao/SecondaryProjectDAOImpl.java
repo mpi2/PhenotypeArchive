@@ -18,6 +18,8 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 		SecondaryProjectDAO {
 
 	@Autowired
-	private GeneService genesService;
+	private GeneService geneService;
 
 	@Autowired
 	private GenomicFeatureDAO genesDao;
@@ -88,7 +90,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 	}
 
 	@Override
-	public List<GeneRowForHeatMap> getGeneRowsForHeatMap()
+	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request)
 			throws SolrServerException {
 		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
 		List<BasicBean> parameters = this.getXAxisForHeatMap();
@@ -99,9 +101,9 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 			// headers
 			Set<String> accessions = this
 					.getAccessionsBySecondaryProjectId("idg");
-			Map<String, String> geneToMouseStatusMap = genesService
-					.getProductionStatusForGeneSet(accessions);
-			Map<String, List<String>> geneToTopLevelMpMap = genesService
+			Map<String, String> geneToMouseStatusMap = geneService
+					.getProductionStatusForGeneSet(accessions, request);
+			Map<String, List<String>> geneToTopLevelMpMap = geneService
 					.getTopLevelMpForGeneSet(accessions);
 			// for(String key: geneToMouseStatusMap.keySet()){
 			// System.out.println("key="+key+"  value="+geneToMouseStatusMap.get(key));

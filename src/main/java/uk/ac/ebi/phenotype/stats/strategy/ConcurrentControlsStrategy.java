@@ -9,7 +9,7 @@ package uk.ac.ebi.phenotype.stats.strategy;
 import java.util.List;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 
 /**
  * Implements the concurrent control selection strategy.

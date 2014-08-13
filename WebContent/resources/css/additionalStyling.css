@@ -133,3 +133,6 @@ button.exportButton{
 	font-size:80%;
 	color:#aaa;
 }
+.overviewSelect{
+	max-width: 100%;	
+}

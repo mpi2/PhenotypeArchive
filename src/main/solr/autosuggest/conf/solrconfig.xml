@@ -68,13 +68,13 @@
     implementation relies on the updateLog feature being enabled. -->
 
   <!-- Need this for dataimporthandler to work -->  
-  <requestHandler name="/dataimport" 
+ <!--  <requestHandler name="/dataimport" 
      class="org.apache.solr.handler.dataimport.DataImportHandler">
     <lst name="defaults">
       <str name="config">data-config.xml</str>
     </lst>
   </requestHandler>
-
+-->
 
   <requestHandler name="/get" class="solr.RealTimeGetHandler">
     <lst name="defaults">

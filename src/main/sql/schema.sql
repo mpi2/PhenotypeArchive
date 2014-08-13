@@ -531,6 +531,8 @@ CREATE TABLE experiment (
 	pipeline_stable_id         VARCHAR(30) NOT NULL,
     procedure_id               INT(10) UNSIGNED NOT NULL,
 	procedure_stable_id        VARCHAR(30) NOT NULL,
+	biological_model_id        INT(10) UNSIGNED NULL,
+    colony_id                  VARCHAR(100) NULL,
     metadata_combined          TEXT,
     metadata_group             VARCHAR(50) DEFAULT '',
 	procedure_status           VARCHAR(50) DEFAULT NULL,
@@ -575,7 +577,7 @@ CREATE TABLE observation (
 
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     db_id                      INT(10) UNSIGNED NOT NULL,
-	biological_sample_id       INT(10) UNSIGNED NOT NULL,
+	biological_sample_id       INT(10) UNSIGNED NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
 	parameter_stable_id        varchar(30) NOT NULL,
 	population_id              INT(10) UNSIGNED NOT NULL,
@@ -589,46 +591,6 @@ CREATE TABLE observation (
 	KEY parameter_idx(parameter_id),
 	KEY parameter_stable_idx(parameter_stable_id),
 	KEY population_idx(population_id)
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-
-/**
- * observation_population
- * An observation is a experimental parameter measurement (data point, image 
- * record, etc.) 
- * of a phenotype of a given control/experimental biological sample.
- * id: primary surrogate key for this table
- * population_id: grouping index for collection observations together
- * observation_id: the observation belonging to this population
- */
-CREATE TABLE observation_population (
-
-    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	observation_id             INT(10) UNSIGNED NOT NULL,
-	population_id              INT(10) UNSIGNED NOT NULL,
-
-	PRIMARY KEY(id),
-	KEY population_observation_idx(population_id, observation_id)
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-CREATE TABLE population (
-
-    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    parameter_id               INT(10) UNSIGNED NOT NULL,
-    organisation_id            INT(10) UNSIGNED NOT NULL,
-    acc                        VARCHAR(20) NOT NULL,
-    db_id                      INT(10) NOT NULL,
-    zygosity                   ENUM('homozygote', 'heterozygote', 'hemizygote'),
-    sex                        ENUM('female', 'hermaphrodite', 'male'),
-    control_batches            INT(10) UNSIGNED NOT NULL DEFAULT 0,
-    experimental_batches       INT(10) UNSIGNED NOT NULL DEFAULT 0,
-    concurrent_controls        TINYINT(1) DEFAULT 0,
-
-    PRIMARY KEY(id),
-    KEY parameter_idx(parameter_id),
-    KEY genomic_feature_idx (acc, db_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -1047,8 +1009,8 @@ CREATE TABLE phenotype_call_summary (
     mp_acc                    VARCHAR(20) NOT NULL,
     mp_db_id                  INT(10) NOT NULL,
     
-    p_value                   FLOAT NULL DEFAULT 1,
-    effect_size               FLOAT NULL DEFAULT 0,
+    p_value                   DOUBLE NULL DEFAULT 1,
+    effect_size               DOUBLE NULL DEFAULT 0,
 
     PRIMARY KEY (id),
     KEY parameter_call_idx (parameter_id),
@@ -1080,7 +1042,7 @@ CREATE TABLE image_record_observation (
 	file_type varchar(45) DEFAULT NULL,
 	media_sample_local_id varchar(45) DEFAULT NULL,
 	media_section_id varchar(45) DEFAULT NULL,
-	`omero_id` int(11) DEFAULT NULL,
+	omero_id int(11) DEFAULT NULL,
 	PRIMARY KEY (id)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
