@@ -1476,9 +1476,11 @@
 			}
 			return fqStr; // do not replace img_ if there is one, as this will replace the url fq
 		}
+		else if ( hashStr.indexOf('fq=') == -1 ){
+			return MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+		}
 		return '*:*';
 	};
-	
 	$.fn.setCurrentFq = function(){
 		
 		var hashStr = $(location).attr('hash');	
