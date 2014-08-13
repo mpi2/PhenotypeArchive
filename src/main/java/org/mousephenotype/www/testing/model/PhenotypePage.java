@@ -31,9 +31,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.data.impress.Utilities;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -214,89 +211,6 @@ public class PhenotypePage {
         }
         
         return status;
-    }
-    
-    /**
-     * Validates all the graph links on the [already loaded] pheno page. Validates
-     * that the graphs load and that their TSV and XLS download streams are correct. Any
-     * errors are returned in a new <code>PageStatus</code> instance.
-     * 
-     * @return page status instance
-     * @deprecated I don't think this test is needed, as we should be testing graphs
-     * in GraphPageTest using GraphPage by getting a list of graph links from the
-     * PhenotypePage or GenePage.
-     */
-    @Deprecated
-    public PageStatus validateGraphLinks() {
-        PageStatus phenoStatus = new PageStatus();
-        GridMap pageMap = ptPhenotype.load();                                       // Load all of the phenotypes table pageMap data.
-        
-        int sexIconCount = 0;
-        String cell;
-        for (String[] row : pageMap.getBody()) {
-            cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX];
-            if ((cell.equals("male")) || (cell.equals("female")))
-                sexIconCount++;
-            else if (cell.equals("both"))
-                sexIconCount += 2;
-            
-            //   Verify p value.
-            cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE];
-            if (cell == null) {
-                phenoStatus.addError("Missing or invalid P Value. URL: " + target);
-            }
-            
-            // Validate that the graph link is not missing.
-            cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH];
-            if ((cell == null) || (cell.trim().isEmpty())) {
-                phenoStatus.addError("Missing graph link. URL: " + target);
-            }
-        }
-        
-        // Verify resultsCount on page against the phenotype table's count of Sex icons.
-        if (sexIconCount != resultsCount) {
-            phenoStatus.addError("Result counts don't match. Result count = " + resultsCount + " but Sex icon count = " + sexIconCount + ". URL: " + target);
-        }
-            
-        // Validate the graphs.
-        for (String[] row : pageMap.getBody()) {
-            String graphUrl = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH];
-            System.out.println("\tValidating graph. URL: " + graphUrl);
-            GraphPage graphPage = new GraphPage(driver, wait, graphUrl, phenotypeId, phenotypePipelineDAO, baseUrl);
-            PageStatus graphStatus = graphPage.validateScalar();
-            if ( ! graphStatus.hasErrors()) {
-                ObservationType graphType = graphPage.getGraphType();
-                switch (graphType) {
-                    case categorical:
-                        
-                        
-    Parameter parameterObject = phenotypePipelineDAO.getParameterByStableId(graphPage.parameterStableId);
-
-    // Set the graph type from the parameterDAO.
-    graphType = Utilities.checkType(parameterObject, parameterObject.getDatatype());
-    System.out.println("graphType: " + graphType);
-                        
-                        GraphPageCategorical graphPageCategorical =
-                                new GraphPageCategorical(driver, wait, graphUrl, phenotypeId, phenotypePipelineDAO, baseUrl, graphPage);
-                        graphStatus.add(graphPageCategorical.validateDownload());
-                        break;
-                        
-                    case unidimensional:
-                        GraphPageUnidimensional graphPageUnidimensional =
-                                new GraphPageUnidimensional(driver, wait, graphUrl, phenotypeId, phenotypePipelineDAO, baseUrl, graphPage);
-                        graphStatus.add(graphPageUnidimensional.validateDownload());
-                        graphStatus.add(graphPageUnidimensional.validateGraphByDate());
-                        break;
-                        
-                    default:
-                        throw new RuntimeException("PhenoPage: Unsupported graph type '" + graphType + "'");
-                }
-            }
-        
-            phenoStatus.add(graphStatus);
-        }
-        
-        return phenoStatus;
     }
     
     

@@ -69,7 +69,7 @@ public class GraphPage {
     // Database parameter variables
     protected ObservationType graphType;
     protected Parameter parameterObject;
-    
+
     /**
      * Creates a new <code>GraphPage</code> instance
      * 
@@ -80,8 +80,9 @@ public class GraphPage {
      * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
+     * @param loadPage if true, load the page; otherwise, don't load the page (useful for when the page is already loaded)
      */
-    public GraphPage(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
+    public GraphPage(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, boolean loadPage) {
         this.driver = driver;
         this.wait = wait;
 ////////////target = "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2150037&zygosity=homozygote&allele_accession=MGI:4842891&parameter_stable_id=ESLIM_006_001_027&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI";
@@ -90,7 +91,9 @@ public class GraphPage {
         this.id = id;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
-        loadScalar();
+        
+        if (loadPage)
+            loadScalar();
     }
 
     /**
@@ -101,7 +104,8 @@ public class GraphPage {
      * <i>categorical</i>
      */
     public GraphPageCategorical createGraphPageCategorical() throws Exception {
-        return new GraphPageCategorical(driver, wait, target, id, phenotypePipelineDAO, baseUrl, this);
+        boolean loadPage = false;
+        return new GraphPageCategorical(driver, wait, target, id, phenotypePipelineDAO, baseUrl, this, loadPage);
     }
     
     /**
@@ -112,7 +116,8 @@ public class GraphPage {
      * <i>unidimensional</i>
      */
     public GraphPageUnidimensional createGraphPageUnidimensional() throws Exception {
-        return new GraphPageUnidimensional(driver, wait, target, id, phenotypePipelineDAO, baseUrl, this);
+        boolean loadPage = false;
+        return new GraphPageUnidimensional(driver, wait, target, id, phenotypePipelineDAO, baseUrl, this, loadPage);
     }
     
     /**
@@ -121,11 +126,11 @@ public class GraphPage {
      * 
      * @return status
      */
-    public PageStatus validateScalar() {
+    public PageStatus validate() {
         PageStatus status = new PageStatus();
         // Verify title contains 'Allele'.
-        if ( ! title.contains("Allele")) {
-            status.addError("ERROR: expected title to contain 'Allele'. Title is '" + title + "'. URL: " + target);
+        if ( ! title.startsWith("Allele -")) {
+            status.addError("ERROR: expected title to start with 'Allele -'. Title is '" + title + "'. URL: " + target);
         }
         
         // Verify parameter name on graph matches that in the Parameter instance.
@@ -143,6 +148,7 @@ public class GraphPage {
     
     // PROTECTED METHODS
     
+    
     /**
      * This protected method validates the scalar parts of the download - those
      * parts that appear in the graph heading, such as <i>allele, gene,
@@ -154,7 +160,7 @@ public class GraphPage {
      * <code>data</code>
      * @return validation status
      */
-    protected PageStatus validateScalarDownload(String[][] data, DownloadGraphMap graphMap) {
+    protected PageStatus validateDownload(String[][] data, DownloadGraphMap graphMap) {
         PageStatus status = new PageStatus();
         
         // Test graph page parameters against first [non-heading] download stream row.
@@ -273,7 +279,7 @@ public class GraphPage {
     /**
      * Load the page and its scalar variables (not collections).
      */
-    protected final void loadScalar() {
+    private void loadScalar() {
         try {
             // Wait for page to loadScalar.
             driver.get(target);
@@ -362,7 +368,7 @@ public class GraphPage {
     }
     
     private class Line2Parser {
-        private String metadataGroup;
+        private String metadataGroup = "";
         
         public Line2Parser() {
             final String match = "Metadata Group -";

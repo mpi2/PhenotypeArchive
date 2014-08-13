@@ -84,24 +84,8 @@ public class GraphGlobalTestTable {
      * failure counts and messages.
      */
     public final PageStatus validate() {
-        return validate(new PageStatus());
-    }
-    
-    /**
-     * Validates this <code>GraphRow</code> instance, using the caller-provided
-     * status instance.
-     * Validation Rules:
-     * <ul>
-     * <li>All graphs should have at least one Global Test value.</li>
-     * <li>All summary lines in a graph should have an Effect value.</li>
-     * <li>All summary lines in a graph should have a P Value.</li>
-     * </ul>
-     * 
-     * @param status caller-supplied status instance to be used
-     * @return the passed-in <code>PageStatus</code> status, updated with
-     * any failure counts and messages.
-     */
-    public final PageStatus validate(PageStatus status) {
+        PageStatus status = new PageStatus();
+        
         // Verify that there is at least one global test value.
         if (globalTestValue.isEmpty()) {
             status.addError("ERROR: Expected global test value.");

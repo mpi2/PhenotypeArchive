@@ -23,7 +23,6 @@
 package org.mousephenotype.www.testing.model;
 
 import static com.thoughtworks.selenium.SeleneseTestBase.fail;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,14 +32,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
-import org.openqa.selenium.By;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -102,7 +102,7 @@ public class TestUtils {
      *                     and no match was found for <i>testMethodName</i> in <code>testIterations.properties</code>
      * @return target count
      */
-    public int getTargetCount(String testMethodName, List<String> collection, Integer defaultCount) {
+    public int getTargetCount(String testMethodName, List collection, Integer defaultCount) {
         Integer targetCount = null;
         
         if (defaultCount != null)
@@ -150,6 +150,32 @@ public class TestUtils {
         }
         
         return false;
+    }
+    
+    private final static double EPSILON = 0.000000001;
+    /**
+     * Performs an approximate match between two doubles. Returns true if 
+     * the two values are within a difference of 0.000000001; false otherwise
+     * @param a first operand
+     * @param b second operand
+     * @return true if  the two values are within a difference of 0.000000001;
+     * false otherwise
+     */
+    public static boolean equals(double a, double b) {
+        return (a == b ? true : Math.abs(a - b) < EPSILON);
+    }
+    
+    /**
+     * Performs an approximate match between two doubles. Returns true if 
+     * the two values are within <code>epsilon</code>; false otherwise
+     * @param a first operand
+     * @param b second operand
+     * @param epsilon the difference within which both operands are considered
+     * equal
+     * @return true if  the two values are within <code>epsilon</code>; false otherwise
+     */
+    public static boolean equals(double a, double b, double epsilon) {
+        return (a == b ? true : Math.abs(a - b) < epsilon);
     }
     
     /**
@@ -302,5 +328,85 @@ public class TestUtils {
     public static void sleep(Integer threadWaitInMs) {
         if ((threadWaitInMs != null) && (threadWaitInMs > 0))
             try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
+    }
+    
+    /**
+     * Returns a list of <code>count</code> graph URLs of type <code>graphType</code>.
+     * @param solrUrl The solr URL as defined in the pom or the app-config.xml file
+     * @param graphType The desired <code>ObservationType</code>
+     * @param count The number of graph URLs to return
+     * @return A list of <code>count</code> graph URLs of type <code>graphType</code>.
+     */
+    public static List<GraphData> getGraphUrls(String solrUrl, ObservationType graphType, Integer count) {
+        List<GraphData> graphUrls = new ArrayList();
+        
+        String rowsPhrase = (count != null ? "&rows=" + count.toString() : "");
+        
+        String newQueryString = "/statistical-result/select?q=data_type:" + graphType.toString() + "&facet=true&facet.field=marker_accession_id&fl=data_type+p_value+marker_accession_id&fq=p_value%3A%5B*+TO+0.00001%5D&wt=json" + rowsPhrase;
+        JSONObject jsonData;
+        JSONArray docs = null;
+        try {
+            String url = solrUrl + newQueryString;
+            jsonData = JSONRestUtil.getResults(url);
+            docs = JSONRestUtil.getDocArray(jsonData);
+        } catch (Exception e) {
+            System.out.println("ERROR: JSON results are null for graph type '" + graphType + "'. Local error message:\n" + e.getLocalizedMessage());
+        }
+        
+        if (docs != null) {
+            for (int i = 0; i < docs.size(); i++) {
+                double pValue = docs.getJSONObject(i).getDouble("p_value");
+                String geneId = docs.getJSONObject(i).getString("marker_accession_id");
+                String observationType = docs.getJSONObject(i).getString("data_type");
+                GraphData graphData = new GraphData(geneId, observationType, pValue);
+                graphUrls.add(graphData);
+            }
+            
+            
+        }
+        
+        return graphUrls;
+    }
+    
+    public static class GraphData {
+        private double pValue;
+        private String geneId;
+        private ObservationType graphType;
+
+        public GraphData() {
+            this("", "", 0);
+        }
+        
+        public GraphData(String geneId, String observationType, double pValue) throws IllegalArgumentException {
+            this.geneId = geneId;
+            this.graphType = ObservationType.valueOf(observationType);
+            this.pValue = pValue;
+        }
+        
+        public double getpValue() {
+            return pValue;
+        }
+
+        public void setpValue(double pValue) {
+            this.pValue = pValue;
+        }
+
+        public String getGeneId() {
+            return geneId;
+        }
+
+        public void setGeneId(String geneId) {
+            this.geneId = geneId;
+        }
+
+        public ObservationType getGraphType() {
+            return graphType;
+        }
+
+        public void setGraphType(ObservationType graphType) {
+            this.graphType = graphType;
+        }
+        
+        
     }
 }

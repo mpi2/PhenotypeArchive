@@ -52,7 +52,7 @@ public class GraphCatTable {
         
         WebElement table;
         try {
-            table = driver.findElement(By.xpath("//table[@class='catTable']"));
+            table = driver.findElement(By.xpath("//table[@id='catTable']"));
         } catch (Exception e) {
             return;
         }
