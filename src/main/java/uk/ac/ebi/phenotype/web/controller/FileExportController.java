@@ -159,7 +159,7 @@ public class FileExportController {
         List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getId(), pipeline.getId(), geneAcc, sex, centerId, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
 
         List<String> rows = new ArrayList<>();
-        rows.add(StringUtils.join(new String[]{"Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value"}, ", "));
+        rows.add(StringUtils.join(new String[]{"Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value","Metadata"}, ", "));
 
         Integer i = 1;
 
@@ -191,6 +191,7 @@ public class FileExportController {
                 }
 
                 row.add(dataValue);
+                row.add(StringUtils.join(observation.getMetadata(), "::"));
 
                 rows.add(StringUtils.join(row, ", "));
             }
