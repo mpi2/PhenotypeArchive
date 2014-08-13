@@ -191,7 +191,7 @@ public class FileExportController {
                 }
 
                 row.add(dataValue);
-                row.add(StringUtils.join(observation.getMetadata(), "::"));
+                row.add("\"" + StringUtils.join(observation.getMetadata(), "::") + "\"");
 
                 rows.add(StringUtils.join(row, ", "));
             }
