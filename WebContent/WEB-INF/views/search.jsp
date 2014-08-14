@@ -210,7 +210,9 @@
        				
        				// no need to escape space - looks cleaner to the users 
        				// and it is not essential to escape space
-       				input = input.replace(/\\?%20/g, ' '); 
+					input = input.replace(/\\?%20/g, ' '); 
+       				
+       				var facet = MPI2.searchAndFacetConfig.matchedFacet;
        				
        		    	if (input == ''){
        		    		
@@ -224,7 +226,7 @@
        		    			window.location.search = 'q=' + q;
        		    		}
        		    	}
-       		    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
+       		    	else if (! facet){
        		    		// user hits enter before autosuggest pops up	
        		    		// ie, facet info is unknown
        		    		//alert('enter-2');
@@ -241,7 +243,9 @@
        		    	else {	
        		    		//alert('enter-3');
        		    		window.location.search = 'q=' + input;
-       		    		window.location.hash = 'facet=' + MPI2.searchAndFacetConfig.matchedFacet;
+       		    		
+       		    		var fqStr = $.fn.getCurrentFq(facet);
+       		    		window.location.hash = 'fq=' + fqStr + '&facet=' + facet;
        		    	}
        		    }
        		});
