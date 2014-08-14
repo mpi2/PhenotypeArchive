@@ -210,7 +210,9 @@
        				
        				// no need to escape space - looks cleaner to the users 
        				// and it is not essential to escape space
-       				input = input.replace(/\\?%20/g, ' '); 
+					input = input.replace(/\\?%20/g, ' '); 
+       				
+       				var facet = MPI2.searchAndFacetConfig.matchedFacet;
        				
        		    	if (input == ''){
        		    		
@@ -224,24 +226,25 @@
        		    			window.location.search = 'q=' + q;
        		    		}
        		    	}
-       		    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
+       		    	else if (! facet){
        		    		// user hits enter before autosuggest pops up	
        		    		// ie, facet info is unknown
        		    		//alert('enter-2');
-       		    		//document.location.href = baseUrl + '/search?q=' + input;
-       		    		window.location.search = 'q=' + input;
        		    		
-       		    		// if there is no existing facet filter, reload with q
        		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
-       		    			baseUrl + '/search?q=' + input;
+       		    			// if there is no existing facet filter, reload with q
+       		    			document.location.href = baseUrl + '/search?q=' + input;
        		    		}
-       		    		
-       		    		// handed over to hash change code
+       		    		else {
+       		    			// facet will be figured out by code
+       		    			var fqStr = $.fn.getCurrentFq(facet);
+           		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
+       		    		}
        		    	}
        		    	else {	
        		    		//alert('enter-3');
-       		    		window.location.search = 'q=' + input;
-       		    		window.location.hash = 'facet=' + MPI2.searchAndFacetConfig.matchedFacet;
+       		    		var fqStr = $.fn.getCurrentFq(facet);
+       		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr + '&facet=' + facet;
        		    	}
        		    }
        		});
@@ -453,7 +456,6 @@
     					$.fn.loadDataTable(oUrlParams);
     				}
     			}
-   				
    				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
    					//console.log('1. widget facet open');
    					
@@ -461,24 +463,6 @@
    					
    					// search by keyword (user's input) has no fq in url when hash change is detected
     				if ( oUrlParams.fq ){			
-    					
-    					if ( oUrlParams.coreName ){	    						
-    						oUrlParams.coreName += 'Facet'; 					
-    					}
-    					/* else {						
-    						// parse summary facet filters 
-    						var facet = oUrlParams.facetName;
-    						var aFilters = [];
-    						$('ul#facetFilter li.ftag a').each(function(){							
-    							aFilters.push($(this).text());
-    						});														
-    						
-    						//console.log(oUrlParams);		
-    						//oUrlParams.filters = aFilters;
-
-    						//oUrlParams.facetName = facet;	    						
-    					} */
-    					
     					$.fn.loadDataTable(oUrlParams);
     				}
    				} 
@@ -501,6 +485,16 @@
         				// when the url become ..../search
     					document.location.href = baseUrl + '/search';
         			}
+    				else if ( $(location).attr('hash').indexOf('facet=') == -1 ){
+    					// if facet on url is unknown, eg. users hit ENTER too fast. 
+    					// When this url is reached by back button, just replace it with
+    					// document.location.href = ...
+    					// caveat: back button clicks becomes a infinite loop
+    					
+    					// the new url will not work w/o reload, why?
+    					document.location.href = baseUrl + '/search'+ window.location.search + $(location).attr('hash');
+    					document.location.reload(true);
+    				}
     				else {
     					//rebuildFilters(oUrlParams); 
     					$.fn.rebuildFilters(oUrlParams);

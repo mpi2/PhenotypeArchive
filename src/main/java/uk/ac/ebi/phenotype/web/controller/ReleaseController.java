@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
+import uk.ac.ebi.phenotype.chart.utils.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
-import uk.ac.ebi.phenotype.stats.graphs.AnalyticsChartProvider;
 
 @Controller
 public class ReleaseController {

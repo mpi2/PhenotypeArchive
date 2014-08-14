@@ -44,6 +44,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import uk.ac.ebi.phenotype.chart.categorical.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.categorical.CategoricalResultAndCharts;
+import uk.ac.ebi.phenotype.chart.timeseries.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.unidimensional.ScatterChartAndData;
+import uk.ac.ebi.phenotype.chart.unidimensional.ScatterChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalDataSet;
+import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalStatsObject;
+import uk.ac.ebi.phenotype.chart.utils.ChartData;
+import uk.ac.ebi.phenotype.chart.utils.ChartType;
+import uk.ac.ebi.phenotype.chart.utils.GraphUtils;
+import uk.ac.ebi.phenotype.chart.utils.PipelineProcedureData;
+import uk.ac.ebi.phenotype.chart.utils.PipelineProcedureTablesCreator;
+import uk.ac.ebi.phenotype.chart.utils.TableObject;
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
@@ -65,20 +79,6 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ChartData;
-import uk.ac.ebi.phenotype.stats.ChartType;
-import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
-import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
-import uk.ac.ebi.phenotype.stats.TableObject;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
-import uk.ac.ebi.phenotype.stats.graphs.ScatterChartAndData;
-import uk.ac.ebi.phenotype.stats.graphs.ScatterChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalDataSet;
-import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalStatsObject;
 
 @Controller
 public class ChartsController {

@@ -58,6 +58,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.phenotype.chart.categorical.CategoricalDataObject;
+import uk.ac.ebi.phenotype.chart.categorical.CategoricalSet;
+import uk.ac.ebi.phenotype.chart.utils.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -66,9 +69,6 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.StackedBarsData;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 

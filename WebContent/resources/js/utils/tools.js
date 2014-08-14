@@ -1467,23 +1467,34 @@
 	};
 	
 	$.fn.getCurrentFq = function(facet){
+		
 		var hashStr = $(location).attr('hash');	
 		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
-			var fqStr = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+			
+			var fqStr;
+			if ( hashStr.indexOf('&facet=') == -1 ){
+				fqStr = hashStr.replace(/#fq=/,'');
+			}
+			else {
+				fqStr = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+			}
+			
 			if ( /.*:\*/.test(fqStr) ){  // default
 				// not all mega cores are the same, eg. pipeline and ma is different
 				return MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
 			}
 			return fqStr; // do not replace img_ if there is one, as this will replace the url fq
 		}
+		else if ( hashStr.indexOf('fq=') == -1 ){
+			return MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+		}
 		return '*:*';
 	};
 	
 	$.fn.setCurrentFq = function(){
-		
 		var hashStr = $(location).attr('hash');	
 		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
-			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&?/)[0].replace(/fq=|\&/g,'');
 		}
 		else {
 			MPI2.searchAndFacetConfig.currentFq = false;
