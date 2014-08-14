@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.phenotype.chart.utils.ColorCodingPalette;
+import uk.ac.ebi.phenotype.chart.utils.Constants;
+import uk.ac.ebi.phenotype.chart.utils.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
-import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
-import uk.ac.ebi.phenotype.stats.Constants;
-import uk.ac.ebi.phenotype.stats.graphs.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 @Controller
@@ -64,7 +64,7 @@ public class PhenomeStatsController {
 				Constants.SIGNIFICANT_P_VALUE);
 		
 		// generate a chart
-		String chart = phenomeChartProvider.generatePhenomeChart(
+		String chart = phenomeChartProvider.generatePhenomeChartByPhenotype(
 				results.getPhenotypeCallSummaries(),
 				phenotypingCenter,
 				Constants.SIGNIFICANT_P_VALUE);

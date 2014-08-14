@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import uk.ac.ebi.phenotype.chart.utils.ChartUtils;
+import uk.ac.ebi.phenotype.chart.utils.PercentileComputation;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })

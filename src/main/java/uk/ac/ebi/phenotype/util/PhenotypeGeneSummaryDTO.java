@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 
-import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
+import uk.ac.ebi.phenotype.chart.utils.ChartColors;
 
 public class PhenotypeGeneSummaryDTO {
 

@@ -22,6 +22,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.phenotype.chart.categorical.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.categorical.CategoricalSet;
+import uk.ac.ebi.phenotype.chart.timeseries.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.utils.ChartData;
+import uk.ac.ebi.phenotype.chart.utils.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl;
@@ -30,12 +36,6 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.stats.ChartData;
-import uk.ac.ebi.phenotype.stats.StackedBarsData;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
-import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 
 
 @Controller

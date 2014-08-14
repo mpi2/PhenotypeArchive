@@ -36,14 +36,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.utils.ColorCodingPalette;
+import uk.ac.ebi.phenotype.chart.utils.Constants;
+import uk.ac.ebi.phenotype.chart.utils.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.AlleleService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
-import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
-import uk.ac.ebi.phenotype.stats.Constants;
-import uk.ac.ebi.phenotype.stats.graphs.PhenomeChartProvider;
-import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 
 
 @Controller
@@ -88,17 +88,8 @@ public class SecondaryProjectController {
 			
 			System.out.println("LIST LENGTH " + results.size());
 			
-			ColorCodingPalette colorCoding = new ColorCodingPalette();
-	
-			colorCoding.generatePhenotypeCallSummaryColors(
-					results,
-					ColorCodingPalette.NB_COLOR_MAX, 
-					1, 
-					Constants.SIGNIFICANT_P_VALUE);
-			
-	
 			// generate a chart
-			String chart = phenomeChartProvider.generatePhenomeChart(
+			String chart = phenomeChartProvider.generatePhenomeChartByGenes(
 					results,
 					null,
 					Constants.SIGNIFICANT_P_VALUE);
