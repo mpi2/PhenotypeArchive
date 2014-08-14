@@ -64,19 +64,20 @@
 						 <div class="section" >
 								<h2 class="title"	id="section-associations"> Latest status for IDG gene set </h2>		
 		            <div class="inner">
-		            	<div  class="half">
-			            	<div id="phenotypeStatusChart">
-			            		<script type="text/javascript">
-													${phenotypeStatusChart.getChart()}
-											</script> 
-										</div>   
-									</div>
+		            	
 									<div  class="half">
 										<div id="genotypeStatusChart">
 			            		<script type="text/javascript">
 													${genotypeStatusChart.getChart()}
 											</script> 
 										</div>       	
+									</div>
+									<div  class="half">
+			            	<div id="phenotypeStatusChart">
+			            		<script type="text/javascript">
+													${phenotypeStatusChart.getChart()}
+											</script> 
+										</div>   
 									</div>
 		            	  <div class="clear"></div>   
 		            </div>
