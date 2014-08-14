@@ -51,7 +51,7 @@ public class DownloadGraphMapCategorical implements DownloadGraphMap {
     public final int EXTERNAL_SAMPLE_ID  = 18;
     public final int METADATA            = 19;
     public final int METADATA_GROUP      = 20;
-    public final int DATA_POINT          = 21;
+    public final int CATEGORY            = 21;
 
     @Override public int getColIndexAlleleSymbol()      { return ALLELE_SYMBOL; }
     @Override public int getColIndexBackground()        { return BACKGROUND; }

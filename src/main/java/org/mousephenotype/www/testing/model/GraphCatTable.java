@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -33,12 +35,10 @@ import org.openqa.selenium.WebElement;
  * components of a graph page 'catTable' HTML table.
  */
 public class GraphCatTable {
-    private String globalTestValue = "";
-//    private final List<String> pvalues = new ArrayList();
-//    private final List<String> effects = new ArrayList();
-    private int numBodyRows;
     public final String graphUrl;
     private boolean hasCatTable;
+    private ArrayList<Row> bodyRowsList = new ArrayList();
+    private ArrayList<String> headingList = new ArrayList();
     
     /**
      * Creates a new <code>GraphGlobalTestTable</code> instance initialized with
@@ -58,101 +58,95 @@ public class GraphCatTable {
         }
         hasCatTable = true;
         
-        List<WebElement> bodyRowsList = table.findElements(By.cssSelector("tbody tr"));
-        if ( ! bodyRowsList.isEmpty()) {
-            numBodyRows = bodyRowsList.size();
+        // Save the heading values.
+        List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
+        if ( ! headingElementList.isEmpty()) {
+            for (WebElement headingElement : headingElementList) {
+                headingList.add(headingElement.getText());
+            }
+        }
+        
+        // Save the body values.
+        List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
+        if ( ! bodyRowElementsList.isEmpty()) {
+            for (WebElement bodyRowElements : bodyRowElementsList) {
+                ArrayList<String> row = new ArrayList();
+                List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
+                for (WebElement bodyRowElement : bodyRowElementList) {
+                    row.add(bodyRowElement.getText());
+                }
+                bodyRowsList.add(new Row(row));
+            }
         }
     }
 
-    /**
-     * Validates this <code>GraphRow</code> instance
-     * @return a new <code>GraphParsingStatus</code> status instance containing
-     * failure counts and messages.
-     */
-    public final PageStatus validate() {
-        return validate(new PageStatus());
-    }
-    
-    /**
-     * Validates this <code>GraphRow</code> instance, using the caller-provided
-     * status instance.
-     * Validation Rules:
-     * <ul>
-     * <li>All graphs should have at least one Global Test value.</li>
-     * <li>All summary lines in a graph should have an Effect value.</li>
-     * <li>All summary lines in a graph should have a P Value.</li>
-     * </ul>
-     * 
-     * @param status caller-supplied status instance to be used
-     * @return the passed-in <code>PageStatus</code> status, updated with
-     * any failure counts and messages.
-     */
-    public final PageStatus validate(PageStatus status) {
-//        // Verify that there is at least one global test value.
-//        if (globalTestValue.isEmpty()) {
-//            status.addError("ERROR: Expected global test value.");
-//        }
-//        
-//        boolean hasError = false;
-//        // Verify that there is a P Value and an Effect for every body row in the table.
-//        if ((numBodyRows != pvalues.size()) && (numBodyRows != effects.size())) {
-//            hasError = true;
-//        }
-//        for (String pvalue : pvalues) {
-//            if (pvalue.trim().isEmpty()) {
-//                hasError = true;
-//            }
-//        }
-//        for (String effect : effects) {
-//            if (effect.trim().isEmpty()) {
-//                hasError = true;
-//            }
-//        }
-//        if (hasError) {
-//            status.addError("ERROR: Expected an Effect and a P Value for every result. URL: " + graphUrl);
-//        }
-        
-        return status;
+    public ArrayList<Row> getBodyRowsList() {
+        return bodyRowsList;
     }
 
-    public int getNumBodyRows() {
-        return numBodyRows;
+    public boolean isHasCatTable() {
+        return hasCatTable;
     }
-    
-    
-    public String getGlobalTestValue() {
-        return globalTestValue;
+
+    public ArrayList<String> getHeadingList() {
+        return headingList;
     }
 
     public boolean hasCatTable() {
         return hasCatTable;
     }
-
-
-
     
-//    /**
-//     * returns true if the effects and pvalues of this table and <code>otherTable
-//     * </code> are the same in count and value; false otherwise
-//     * @param otherTable the other table to compare against
-//     * @return true if the effects and pvalues of this table and <code>otherTable
-//     * </code> are the same in count and value; false otherwise
-//     */
-//    public boolean isEqual(GraphCatTable otherTable) {
-//        if (effects.size() != otherTable.effects.size())
-//            return false;
-//        if (pvalues.size() != otherTable.pvalues.size())
-//            return false;
-//        for (int i = 0; i < effects.size(); i++) {
-//            if ( ! effects.get(i).equals(otherTable.effects.get(i)))
-//                return false;
-//        }
-//        for (int i = 0; i < pvalues.size(); i++) {
-//            if ( ! pvalues.get(i).equals(otherTable.pvalues.get(i)))
-//                return false;
-//        }
-//        
-//        return true;
-//    }
+    public class Row {
+        public final ArrayList<String> row;
+        public final Sex sex;
+        public final Group group;
+        public final String zygosity;
+        private final HashMap<String, String> categoryHash;                     // key = category name. Value = category value.
+        
+        public Row(ArrayList<String> row) {
+            this.row = row;
+            
+            String[] controlHomHet = row.get(0).split(" ");
+            switch (controlHomHet[0]) {
+                case "Female":
+                    sex = Sex.FEMALE;
+                    break;
+                    
+                default:
+                    sex = Sex.MALE;
+            }
+            switch (controlHomHet[1]) {
+                case "Control":
+                    group = Group.CONTROL;
+                    zygosity = "";
+                    break;
+                    
+                default:
+                    group = Group.EXPERIMENTAL;
+                    zygosity = controlHomHet[1];
+            }
+            
+            categoryHash = new HashMap();
+            // Save each category and its value to the categoryHash. Skip these columns:
+            //     "Control/Hom/Het" (col 0), "P Value" (col n - 2), and "Effect Size" (col n - 1).
+            for (int i = 1; i < row.size() - 2; i++) {
+                categoryHash.put(headingList.get(i), row.get(i));
+            }
+        }
+
+        public HashMap<String, String> getCategoryHash() {
+            return categoryHash;
+        }
+    }
+    
+    public enum Sex {
+        FEMALE,
+        MALE
+    }
+    
+    public enum Group {
+        CONTROL,
+        EXPERIMENTAL
+    }
 
 }
