@@ -1115,6 +1115,7 @@ public class SolrIndex2 {
             hash.put("marker_symbol", jsonObject2.get("marker_symbol"));
             hash.put("allele_name", jsonObject2.get("allele_name"));
             hash.put("mgi_accession_id", jsonObject2.get("mgi_accession_id"));
+            hash.put("allele_type", jsonObject2.get("allele_type"));            
             list.add(hash);
             //    }
         }
@@ -1145,7 +1146,7 @@ public class SolrIndex2 {
             JSONObject jsonObject2 = (JSONObject) doc;
             String type = jsonObject2.getString("type");
 
-            if (type.equals("mouse")) {
+         //   if (type.equals("mouse")) {
                 Map<String, Object> hash = new HashMap<>();
                 String key = jsonObject2.get("marker_symbol") + "_" + jsonObject2.get("allele_name") + "_" + jsonObject2.get("mgi_accession_id");
                 if (clashes.containsKey(key)) {
@@ -1155,8 +1156,9 @@ public class SolrIndex2 {
                 hash.put("marker_symbol", jsonObject2.get("marker_symbol"));
                 hash.put("allele_name", jsonObject2.get("allele_name"));
                 hash.put("mgi_accession_id", jsonObject2.get("mgi_accession_id"));
+                hash.put("allele_type", jsonObject2.get("allele_type"));            
                 list.add(hash);
-            }
+      //      }
         }
 
         return list;

@@ -129,20 +129,39 @@ public class AllelesController {
         targetList.add("marker_symbol:Zfp111");
         targetList.add("marker_symbol:Arhgef6");
         targetList.add("marker_symbol:Heyl");
+        
+        targetList.add("marker_symbol:Selenbp2");
+        targetList.add("marker_symbol:Foxn4");
+        targetList.add("marker_symbol:Ccdc13");
 
         String qs = StringUtils.join(targetList, " OR ");
 
         HashMap<String, String> params1 = new HashMap<>();
 
-        String qs2 = URLEncoder.encode("(" + qs + ")" + " AND type:mouse");
+        //String qs2 = URLEncoder.encode("(" + qs + ")" + " AND type:mouse");
+        String qs2 = URLEncoder.encode("(" + qs + ")");
 
         params1.put("multi", qs2);
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
+        
+//        targetList = new ArrayList<>();
+//        targetList.add("marker_symbol:Selenbp2");
+//        List<Map<String, Object>> list2 = solrIndex2.getProductGeneDetails(params1);
+        
         List<Map<String, String>> list = new ArrayList<>();
 
         for (Map<String, Object> item : list1) {
-            list.add(makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id")));
+            log.info("#### alleles0: item: " + item.toString());
+            if(!item.get("marker_symbol").equals("Selenbp2") && !item.get("marker_symbol").equals("Foxn4") && !item.get("marker_symbol").equals("Ccdc13")) {
+                if(item.get("allele_type").equals("e")) {
+                    continue;
+                }
+            }
+            Map<String, String> i = makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id"));
+            if(i != null) {
+                list.add(i);
+            }
         }
 
         model.addAttribute("list", list);
