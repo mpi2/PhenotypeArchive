@@ -33,9 +33,11 @@ var config = MPI2.searchAndFacetConfig;
 
 config.currentFq    = false;
 config.matchedFacet = false;
+config.lastImgSumCount = 0;
 
 config.update = {};
 config.update.filterObj = [];
+
 config.update.widgetOpen   = false;
 config.update.pageReload   = false;
 config.update.hashChange 	= false;
@@ -43,8 +45,7 @@ config.update.rebuildSummaryFilterCount = 0;
 config.update.resetSummaryFacet = false;
 config.update.filterAdded = false;
 config.update.filterChange = false;
-config.update.dataTableLoaded  = false;
-config.update.kwSearch = false;
+config.update.notFound = false;
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
@@ -96,6 +97,15 @@ config.phenotypingStatusFq2Label = {
 		'imits_phenotype_started'  : 'Started',
 		'imits_phenotype_status'   : 'Attempt Registered'
 };
+
+config.summaryFilterVal2FqStr = {
+		'Phenotyping Complete'         : 'latest_phenotype_status:"Phenotyping Complete"', 
+	    'Phenotyping Started'          : 'latest_phenotype_status:"Phenotyping Started"', 
+	    'Phenotype Attempt Registered' : 'latest_phenotype_status:"Phenotype Attempt Registered"'
+	    	
+	    	
+};
+
 /*
 
 config.expName2ProcSidMapping = {
@@ -138,7 +148,7 @@ config.qfield2facet = {
 	'img_marker_type'                : 'images',
 	'img_top_level_mp_term'          : 'images',
 	'img_selected_top_level_ma_term' : 'images',
-	'img_procedure_stable_id'        : 'images'
+	'img_procedure_name'             : 'images'
 }
 config.facetFilterLabel = {
 	'phenotyping_center'         : 'phenotyping_center',
@@ -173,6 +183,16 @@ var commonSolrParams = {
 		'wt': 'json',
 		'rows': 0
 };
+
+config.coreQf = {
+	gene     : "mgi_accession_id marker_symbol marker_name marker_synonym",
+	mp       : "mp_id mp_term mp_term_synonym top_level_mp_id top_level_mp_term top_level_mp_term_synonym intermediate_mp_id intermediate_mp_term intermediate_mp_term_synonym child_mp_id child_mp_term child_mp_term_synonym",
+	disease  : "disease_id disease_term disease_alts",
+	ma 	     : "ma_id ma_term child_ma_term selected_top_level_ma_term",
+	pipeline : "auto_suggest",
+	images   : "auto_suggest"
+}
+
 config.commonSolrParams = commonSolrParams;
 
 config.facetParams = {	
@@ -186,12 +206,14 @@ config.facetParams = {
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',//undefined,
 		//centerFq: 'marker_type:* -marker_type:"heritable phenotypic marker" AND (production_center:* AND phenotyping_center:*)',
-		qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",
+		//qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",
+		qf:"auto_suggest",
 		gridName: 'geneGrid',
 		gridFields: '*', 
 		//filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',	
 		filterParams: {fq:'*:*',	
-			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
+			      //qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",
+			      qf:"auto_suggest",
 			      bq:'latest_phenotype_status:"Phenotyping Complete"^200 marker_type:"protein coding gene"^100'},
 		srchParams : $.extend({},				
 				 	commonSolrParams,
@@ -227,7 +249,7 @@ config.facetParams = {
 		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th></thead>', 
 		 subset: 'ontology_subset:*',
 		 //fq: 'ontology_subset:*', 
-		 fq: '*:*', 
+		 fq: 'top_level_mp_term:*', 
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -238,7 +260,7 @@ config.facetParams = {
 		 breadCrumbLabel: 'Phenotypes',		
 		 //filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
 		 //filterParams: {'fq': 'ontology_subset:*'},
-		 filterParams: {'fq': '*:*'},
+		 filterParams: {'fq': 'top_level_mp_term:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
 					{'fl': 'mp_id,mp_term,mp_term_synonym,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition'})
@@ -276,14 +298,17 @@ config.facetParams = {
 		 tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th><span class="main">Candidate Genes</span><span class="sub">by phenotype</span></th></thead>', 
 		 //tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th>Candidate Genes</th></thead>', 
 		 subset: '',
-		 fq: 'type:disease',		
+		 qf: 'auto_suggest', 
+		 //fq: 'type:disease',	
+		 fq: '*:*',
 		 wt: 'json',
 		 gridFields: 'disease_id,disease_term,disease_source,human_curated,mouse_curated,impc_predicted,impc_predicted_in_locus,mgi_predicted,mgi_predicted_in_locus',
 		 gridName: 'diseaseGrid',		
 		 ontology: 'disease',
 		 breadCrumbLabel: 'Diseases',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
-		 filterParams: {'fq': 'type:disease'},		 
+		 //filterParams: {'fq': 'type:disease'},
+		 filterParams: {'fq': '*:*'},
 		 srchParams: $.extend({},
 					commonSolrParams
 					)		
@@ -296,7 +321,8 @@ config.facetParams = {
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
 		 //fq: 'annotationTermId:M* OR expName:* OR symbol:*',	
-		 fq: 'top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*',
+		 //fq: 'top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*',
+		 fq: '*:*',
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -314,7 +340,9 @@ config.facetParams = {
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
-			 	  'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"},	
+			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
+			 'fq' : '*:*'
+		 },	
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)

@@ -69,7 +69,7 @@
 			<!-- Associations table -->
 			<c:if test="${chart != null}">
 				<!-- phenome chart here -->
-  				<div id="chart${param.phenotyping_center}">
+  				<div id="phenomeChart">
   				<a class="various" id="iframe" data-fancybox-type="iframe"></a></div>
 				<script type="text/javascript">
 					${chart}

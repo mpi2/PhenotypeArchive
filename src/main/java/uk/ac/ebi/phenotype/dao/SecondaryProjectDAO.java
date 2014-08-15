@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.solr.client.solrj.SolrServerException;
 
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -24,7 +26,7 @@ public interface SecondaryProjectDAO {
 
     Set<String> getAccessionsBySecondaryProjectId(String projectId)throws SQLException;
     
-    List<GeneRowForHeatMap> getGeneRowsForHeatMap() throws SolrServerException;
+    List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException;
     
     List<BasicBean> getXAxisForHeatMap();
     

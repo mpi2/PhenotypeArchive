@@ -38,12 +38,14 @@
 		_initFacet: function(){			
 	    	var self = this;
 	    	
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+	    	$.fn.setCurrentFq();
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
-	    	var oParams = {};		
+	    	var oParams = {};	
 	        oParams = $.fn.getSolrRelevanceParams('disease', self.options.data.hashParams.q, oParams);
-	    	
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -51,8 +53,8 @@
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',
-				'q' : self.options.data.hashParams.q
+				'facet.sort': 'count'
+				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
@@ -64,6 +66,8 @@
 	    	                  + '&facet.field=human_curated'
 	    	                  + '&facet.field=mouse_curated'
 	    	                  + '&facet.field=disease_source';	    	
+	    	
+	    	//console.log('DISEASE WIDGET: ' + queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/disease/select',	    		
@@ -207,9 +211,7 @@
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});  
 
-//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-//	    			$.fn.process_kwSearch(self);
-//	    		}	
+	    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
     		}
 	    },	       
 	  

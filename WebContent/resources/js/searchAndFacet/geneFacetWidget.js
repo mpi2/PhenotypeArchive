@@ -41,24 +41,27 @@
 		_initFacet: function(){
 	    	var self = this;
 	    
-	    	//console.log('current fq: '+MPI2.searchAndFacetConfig.currentFq);
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+	    	$.fn.setCurrentFq();
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
 	    	
-	    	var oParams = {};		
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
+	    	
+	    	var oParams = {};	
+	    	
 	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams); // has q 
 	        
+	        // json will decode special chars
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',	
-				'q' : self.options.data.hashParams.q	
+				'facet.sort': 'count'	
+				//'q' : $.fn.encodeQ(self.options.data.hashParams.q)
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
-	    	
-	    	
+
 	    	// facet on latest_phenotype_status 
 	    	/*
 	    	<int name="Phenotype Attempt Registered">1362</int>
@@ -76,7 +79,7 @@
 				  + '&facet.field=latest_production_centre'
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
-	    	//console.log('GENE: '+ queryParamStr);
+	    	//console.log('GENE WIDGET: '+ queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',	    		
@@ -116,7 +119,7 @@
 	    		
     			var phenoFieldList = json.facet_counts['facet_fields'][phenoStatusFacetField];	
     			
-    			if ( phenoFieldList.length != 0 ){
+    			if ( typeof phenoFieldList != 'undefined' && phenoFieldList.length != 0 ){
     				phenoCount = 1;
     				foundMatch.phenotyping++;
     	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
@@ -163,39 +166,43 @@
 	    		prodStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Mouse Production Status'));
 	    		
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
-	    		foundMatch.production = status_facets.length;
-	    		var status_count = {};
-	    		for ( var i=0; i<status_facets.length; i+=2 ){ 
-					var type = status_facets[i];
-					var count = status_facets[i+1];
-					status_count[type] = count; 
-	    		}    			
+	    		if ( typeof status_facets != 'undefined' ){
+		    		foundMatch.production = status_facets.length;
+		    		var status_count = {};
+		    		
+		    		for ( var i=0; i<status_facets.length; i+=2 ){ 
+						var type = status_facets[i];
+						var count = status_facets[i+1];
+						status_count[type] = count; 
+		    		}    			
+	    	
+		    		var prodUlContainer = $("<ul></ul>");
 	    		
-	    		var prodUlContainer = $("<ul></ul>");
+		    		// status ordered in hierarchy
+					for ( var i=0; i<MPI2.searchAndFacetConfig.geneStatuses.length; i++ ){
+						var status = MPI2.searchAndFacetConfig.geneStatuses[i];
+						var count = status_count[MPI2.searchAndFacetConfig.geneStatuses[i]];					
+						var isGrayout = count == 0 ? 'grayout' : '';
+						
+						if ( count !== undefined ){
+							var liContainer = $("<li></li>").attr({'class':'fcat production'});
+							
+							var coreField = 'gene|status|';
+							var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + status + '|' + count + '|production'});
+							liContainer.removeClass('grayout').addClass(isGrayout);
+							
+							liContainer.append(chkbox);
+							liContainer.append($('<span class="flabel">' +status + '</span>'));
+							liContainer.append($('<span class="fcount">' + count + '</span>'));
+							prodUlContainer.append(liContainer);
+							
+						}									
+					}	
+					prodStatusSect.append(prodUlContainer);
+		    		
+					$('div.flist li#gene > ul').append(prodStatusSect);						
+	    		}
 	    		
-	    		// status ordered in hierarchy
-				for ( var i=0; i<MPI2.searchAndFacetConfig.geneStatuses.length; i++ ){
-					var status = MPI2.searchAndFacetConfig.geneStatuses[i];
-					var count = status_count[MPI2.searchAndFacetConfig.geneStatuses[i]];					
-					var isGrayout = count == 0 ? 'grayout' : '';
-					
-					if ( count !== undefined ){
-						var liContainer = $("<li></li>").attr({'class':'fcat production'});
-						
-						var coreField = 'gene|status|';
-						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + status + '|' + count + '|production'});
-						liContainer.removeClass('grayout').addClass(isGrayout);
-						
-						liContainer.append(chkbox);
-						liContainer.append($('<span class="flabel">' +status + '</span>'));
-						liContainer.append($('<span class="fcount">' + count + '</span>'));
-						prodUlContainer.append(liContainer);
-						
-					}									
-				}	
-				prodStatusSect.append(prodUlContainer);
-				$('div.flist li#gene > ul').append(prodStatusSect);						
-				
 				// subfacet: IMPC mouse production/phenotyping centers
 				var centers = {
 						'productionCenter' : {'facet':'latest_production_centre', 'label':'IMPC Mouse Production Center'},
@@ -207,6 +214,8 @@
 		    		centerSect.append($('<span></span>').attr({'class':'flabel'}).text(centers[c].label));
 		    		
 		    		var center_facets = json.facet_counts['facet_fields'][centers[c].facet];
+		    		
+		    		
 		    		foundMatch[centers[c].facet] = center_facets.length;
 		    				    		
 		    		var centerUlContainer = $("<ul></ul>");
@@ -283,6 +292,9 @@
 	    		// change cursor for grayout filter
     			$.fn.cursorUpdate('gene', 'not-allowed');
     			
+    			// as the facet is open by default, we need to reset the value for widgetOpen
+    			MPI2.searchAndFacetConfig.update.widgetOpen = false;
+    			
 	    		$('li#gene li.fcat input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
@@ -291,12 +303,6 @@
 	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});	 
-	    		
-//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-//	    			alert('gene kw search');
-//	    			$.fn.process_kwSearch(self);
-//	    		}	
-	    		
     		}
 	    },	       
 	  

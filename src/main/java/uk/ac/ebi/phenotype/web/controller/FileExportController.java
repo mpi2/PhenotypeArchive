@@ -37,7 +37,6 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -66,6 +65,7 @@ import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Strain;
 import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
@@ -84,6 +84,9 @@ public class FileExportController {
     @Autowired
     private SolrIndex solrIndex;
 
+	@Autowired
+	private GeneService geneService;
+    
     @Autowired
     private PhenotypePipelineDAO ppDAO;
 
@@ -156,7 +159,7 @@ public class FileExportController {
         List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getId(), pipeline.getId(), geneAcc, sex, centerId, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
 
         List<String> rows = new ArrayList<>();
-        rows.add(StringUtils.join(new String[]{"Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value"}, ", "));
+        rows.add(StringUtils.join(new String[]{"Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value","Metadata"}, ", "));
 
         Integer i = 1;
 
@@ -188,6 +191,7 @@ public class FileExportController {
                 }
 
                 row.add(dataValue);
+                row.add("\"" + StringUtils.join(observation.getMetadata(), "::") + "\"");
 
                 rows.add(StringUtils.join(row, ", "));
             }
@@ -242,25 +246,24 @@ public class FileExportController {
         // Default to exporting 10 rows
         Integer length = 10;
 
-        ArrayList<Integer> phenotypingCenterIds = new ArrayList();
-        try {
-            for (int i = 0; i < phenotypingCenter.length; i ++) {
-                phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
-            }
-        } catch (NullPointerException e) {
-            log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
-        }
-
         panelName = panelName == null ? "" : panelName;
 
         if ( ! solrCoreName.isEmpty()) {
             if (dumpMode.equals("all")) {
                 rowStart = 0;
                 //length = parseMaxRow(solrParams); // this is the facetCount
-                length = 100000;
+                length = 10000000;
             }
 
             if (solrCoreName.equalsIgnoreCase("experiment")) {
+            	ArrayList<Integer> phenotypingCenterIds = new ArrayList<Integer>();
+                try {
+                    for (int i = 0; i < phenotypingCenter.length; i ++) {
+                        phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
+                    }
+                } catch (NullPointerException e) {
+                    log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
+                }
                 List<String> zygList = null;
                 if (zygosities != null) {
                     zygList = Arrays.asList(zygosities);
@@ -309,7 +312,7 @@ public class FileExportController {
                 String sheetName = fileName;
                 ExcelWorkBook Wb = null;
 
-				// Remove the title row (row 0) from the list and assign it to
+		// Remove the title row (row 0) from the list and assign it to
                 // the string array for the spreadsheet
                 String[] titles = dataRows.remove(0).split("\t");
                 Wb = new ExcelWorkBook(titles, composeXlsTableData(dataRows), sheetName);
@@ -450,9 +453,6 @@ public class FileExportController {
     }
 
     private List<String> composeImageDataTableRows(JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
-
-        String serverName = request.getServerName();
-
         String mediaBaseUrl = config.get("mediaBaseUrl");
 
         List<String> rowData = new ArrayList();
@@ -501,8 +501,8 @@ public class FileExportController {
 
             for (int i = start; i < end; i = i + 2) {
                 List<String> data = new ArrayList();
-				// array element is an alternate of facetField and facetCount	
-
+				// array element is an alternate of facetField and facetCount
+                
                 String[] names = sumFacets.get(i).toString().split("_");
                 if (names.length == 2) {  // only want facet value of xxx_yyy
                     String annotName = names[0];
@@ -516,8 +516,8 @@ public class FileExportController {
                     data.add(imgCount);
 
                     String facetField = hm.get("field");
-
-                    String imgSubSetLink = serverName + request.getAttribute("baseUrl") + "/images?" + solrParams + "q=*:*&fq=" + facetField + ":\"" + names[0] + "\"";
+                    
+                    String imgSubSetLink = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/images?" + solrParams + "q=*:*&fq=" + facetField + ":\"" + names[0] + "\"";
                     data.add(imgSubSetLink);
                     rowData.add(StringUtils.join(data, "\t"));
                 }
@@ -646,11 +646,11 @@ public class FileExportController {
 
             // ES/Mice production status			
             boolean toExport = true;
-            String prodStatus = solrIndex.deriveProductionStatusForEsCellAndMice(doc, request, toExport);
+            String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, request, toExport);
             data.add(prodStatus);
 
             // phenotyping status
-            data.add(solrIndex.deriveLatestPhenotypingStatus(doc));
+            data.add(geneService.getPhenotypingStatus(doc, request, toExport));
 
             // put together as tab delimited
             rowData.add(StringUtils.join(data, "\t"));
@@ -682,10 +682,10 @@ public class FileExportController {
     }
 
     private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters, HttpServletRequest request) {
-
         List<String> res = new ArrayList<>();
         List<PhenotypeCallSummary> phenotypeList = new ArrayList();
         PhenotypeFacetResult phenoResult;
+        String targetGraphUrl = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl");
 
         if (pageName.equalsIgnoreCase("gene")) {
 
@@ -696,16 +696,12 @@ public class FileExportController {
                 log.error("ERROR GETTING PHENOTYPE LIST");
                 e.printStackTrace();
                 phenotypeList = new ArrayList();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-
             ArrayList<GenePageTableRow> phenotypes = new ArrayList();
-
             for (PhenotypeCallSummary pcs : phenotypeList) {
-                GenePageTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString());
+                GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl);
                 phenotypes.add(pr);
             }
             Collections.sort(phenotypes);                                       // sort in same order as gene page.
@@ -734,7 +730,7 @@ public class FileExportController {
             ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
             res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
             for (PhenotypeCallSummary pcs : phenotypeList) {
-                PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, (String)request.getAttribute("baseUrl"));
+                PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl);
 
                 if (pr.getParameter() != null && pr.getProcedure() != null) {
                     phenotypes.add(pr);

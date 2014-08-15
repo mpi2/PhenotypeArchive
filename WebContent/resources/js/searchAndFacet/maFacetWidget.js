@@ -38,13 +38,15 @@
 	    _initFacet: function(){
 	    	var self = this;    	
 	    	
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+	    	$.fn.setCurrentFq();
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
 	    	var facetField = 'selected_top_level_ma_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('ma', self.options.data.hashParams.q, oParams);
-	    	
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -54,14 +56,15 @@
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
-				'q.option': 'AND',
-				'q' : self.options.data.hashParams.q
+				'q.option': 'AND'
+				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
 	    	
+	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams);	 
 	    	
 	    	$.ajax({	
 	    		'url': solrUrl + '/ma/select',
-	    		'data': queryParams,						
+	    		'data': queryParamStr,						
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
@@ -106,9 +109,7 @@
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	    			});   
 	        		
-//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-//		    			$.fn.process_kwSearch(self);
-//		    		}	
+		    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
 	    		}		
 	    	});		    	
 	    	

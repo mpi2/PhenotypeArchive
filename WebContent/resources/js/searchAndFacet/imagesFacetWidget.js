@@ -37,13 +37,16 @@
 	    
 	    _initFacet: function(){	   
 	    		    
-  	    	var self = this;  	    	
-  	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
-	    	
+  	    	var self = this;  
+  	    	
+  	    	$.fn.setCurrentFq();
+//  	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+  	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
+  	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('images', self.options.data.hashParams.q, oParams);
-	    	
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -52,8 +55,8 @@
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'index',	
-				'q' : self.options.data.hashParams.q,
 				'fl': 'annotationTermId,annotationTermName,expName,symbol'
+				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
@@ -66,8 +69,10 @@
   	    		+ "&facet.field=procedure_name"
   	    		+ "&facet.field=top_level_mp_term"
   	    		+ "&facet.field=selected_top_level_ma_term"
-  	    		+ "&facet.field=marker_type"
-  	    		    	
+  	    		+ "&facet.field=marker_type";
+  	    		
+  	    		//console.log('IMAGES WIDGET: ' + paramStr);	
+  	    		
   	    	$.ajax({	
   	    		'url': solrUrl + '/images/select',  	    		
   	    		'data': paramStr,  				
@@ -144,10 +149,7 @@
 	  	  				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	  	  			});
 
-
-//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-//		    			$.fn.process_kwSearch(self);
-//		    		}	
+		    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
 		    		
 	  	      		// when last facet is done
   	    	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);  	    			

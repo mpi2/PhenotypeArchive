@@ -15,8 +15,11 @@
  */
 package uk.ac.ebi.generic.util;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -65,19 +68,65 @@ public class Tools {
 	
 	public static String highlightMatchedStrIfFound(String qry, String target, String selector, String cssClass) {
 		// the works for multiple words in the qry; it will match multiple places in the target string
-		String kw;
+		
+		String kw = "";
+		
+		try {
+			kw = URLDecoder.decode(qry, "UTF-8");
+			//System.out.println("kw decoded: "+ kw);
+		}	
+		catch( Exception e){
+			System.out.println("Failed to decode " + qry);
+		}
+		
+		//kw = kw.replace("\\", "");
+		
 		if ( qry.equals("*:*") ) {
 			return target;	
 		}
-		else if ( qry.startsWith("%22") && qry.endsWith("%22") ) {
-			kw = qry.replaceAll("%22|\\*", "").replaceAll("%20"," ");
+		else if ( kw.startsWith("\"") && kw.endsWith("\"") ) {
+			// exact phrase search - with double quotes
+			kw = kw.replace("\"", "")
+				   .replace("(", "\\(")
+				   .replace(")", "\\)");
 		}
 		else {
-			kw = StringUtils.join(qry.split("%20"), "|").replaceAll("\\*","");
+			// non phrase search - split string into words and search using OR
+			// very loose match not using boundry: ie, matches anywhere in string -> less specificity
+			
+			StringBuffer patBuff = new StringBuffer();
+			int count = 0;
+			for ( String s : kw.split(" |,") ){
+				count++;
+				if ( count != kw.split(" ").length ){
+					patBuff.append(s+"|");
+				}
+				else {
+					patBuff.append(s);
+				}
+			}
+			//System.out.println("pattern: " + patBuff.toString());
+			kw = patBuff.toString();
 		}
-		//System.out.println("-------" + qry + " vs " + kw);
+		
+		kw = kw.replace("*","")
+				.replace("+", "\\+");
+				
+				//.replace("(", "\\(")
+				//.replace(")", "\\)");
+				//.replace("{", "\\{")
+				//.replace("}", "\\}");
+		
+		//working pattern: vang\-like|2|\\(van|gogh,|Drosophila\\)
+		
+		//System.out.println("encoded: " + qry + " vs pattern: " + kw);
+		//System.out.println("target: " + target);
+		//System.out.println(target.equals(kw));
+		
 		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
 		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration. 
-		return target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
+
+		String result = target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
+		return result;
 	}
 }

@@ -145,11 +145,19 @@
 				query="select mp.term_id, ti.term_id as ma_term_id, ti.name as ma_term_name from mp_mappings mp inner join ma_term_infos ti on mp.mapped_term_id=ti.term_id and mp.ontology='MA'"
 				where="term_id=mp_term_infos.term_id">
 				
-				<field column="ma_term_id" name="ma_id" />
 				<field column="ma_term_id" name="inferred_ma_id" />
-				
-				<field column="ma_term_name" name="ma_term" />
 				<field column="ma_term_name" name="inferred_ma_term" />
+				
+				<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+				<entity dataSource="ontodb" name="ma2Syn" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue"  
+					query="select term_id, syn_name from ma_synonyms"
+					where="term_id=mp_mappings.ma_term_id">
+						
+					<field column="syn_name" name="inferred_ma_term_synonym" />						
+					
+				</entity>
 				
 				<!-- selected higher level backtrace of this MA term -->           
 				<entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
@@ -159,9 +167,43 @@
 					where="term_id=mp_mappings.ma_term_id">
 				
 					<field column="term_id" name="inferred_selected_top_level_ma_id" />
-					<field column="name" name="inferred_selected_top_level_ma_term" /> 								
+					<field column="name" name="inferred_selected_top_level_ma_term" /> 
+													
+					<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+					<entity dataSource="ontodb" name="topMa2Syn" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue"  
+						query="select term_id, syn_name from ma_synonyms"
+						where="term_id=ma_node_2_selected_top_level_mapping.term_id">
+							
+						<field column="syn_name" name="inferred_selected_top_level_ma_term_synonym" />						
+						
+					</entity>
 				
 				</entity>	
+				
+				<!-- child MA term(s) of this MA term -->
+				<entity dataSource="ontodb" name="ma_child" 
+					query="select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id"
+					onError="continue"
+					processor="CachedSqlEntityProcessor" 
+					where="parent_ma_id=mp_mappings.ma_term_id">
+				
+					<field column="child_ma_id" name="inferred_child_ma_id" />
+					<field column="child_ma_term" name="inferred_child_ma_term" /> 		
+					
+					<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+					<entity dataSource="ontodb" name="childMa2Syn" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue"  
+						query="select term_id, syn_name from ma_synonyms"
+						where="term_id=ma_child.child_ma_id">
+							
+						<field column="syn_name" name="inferred_child_ma_term_synonym" />						
+						
+					</entity>
+				</entity>	
+				
 			</entity>
 				
 			<!-- MGI genes annotated to this MP term which has pipeline/procedure and allele/strain infos -->

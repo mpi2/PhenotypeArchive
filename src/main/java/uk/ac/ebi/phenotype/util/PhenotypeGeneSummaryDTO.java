@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 
-import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
+import uk.ac.ebi.phenotype.chart.utils.ChartColors;
 
 public class PhenotypeGeneSummaryDTO {
 
@@ -135,9 +135,9 @@ public class PhenotypeGeneSummaryDTO {
 				 		+ "size: 200, "
 				 		+ "allowPointSelect: true, "
 				 		+ "cursor: 'pointer', "
-				 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.1f} %', "
+				 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
 				 		+ "style: { color: '#666', width:'60px' }  }  },"
-				 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.1f}%'} }"
+				 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} }"
 				 + " },"
 			+ " series: [{  type: 'pie',   name: '',  "
 				+ "data: [ { name: 'Female only', y: " + femaleOnly + ", sliced: true, selected: true }, "

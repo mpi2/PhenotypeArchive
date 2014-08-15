@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.chart.utils.MouseDataPoint;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -46,7 +47,6 @@ import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
 import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 
 
 

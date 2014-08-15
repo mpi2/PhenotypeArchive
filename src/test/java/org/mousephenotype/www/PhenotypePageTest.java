@@ -27,9 +27,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.PageStatus;
+import org.mousephenotype.www.testing.model.PhenotypePage;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -41,6 +42,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -72,6 +74,9 @@ public class PhenotypePageTest {
     
     @Autowired
     protected GenotypePhenotypeService genotypePhenotypeService;
+    
+    @Autowired
+    private PhenotypePipelineDAO phenotypePipelineDAO;
     
     @Autowired
     protected MpService mpService;
@@ -214,52 +219,9 @@ public class PhenotypePageTest {
 //@Ignore
     public void testPageForEveryMPTermId() throws SolrServerException {
         String testName = "testPageForEveryMPTermId";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
         
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
-        
-        // Loop through the phenotype pages, testing each one for valid page load.
-        int i = 0;
-        for (String phenotypeId : phenotypeIds) {
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-
-            WebElement phenotypeLink = null;
-            
-            target = baseUrl + "/phenotypes/" + phenotypeId;
-            System.out.println("phenotype[" + i + "] URL: " + target);
-            
-            try {
-                driver.get(target);
-                phenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
-            } catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-            }
-            
-            if (phenotypeLink == null) {
-                message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                errorList.add(message);
-            } else {
-                message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". URL: " + target;
-                successList.add(message);
-            }
-            
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
+        phenotypeIdsTestEngine(testName, phenotypeIds);
     }
     
     /**
@@ -276,52 +238,9 @@ public class PhenotypePageTest {
 //@Ignore
     public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryTopLevelMPTermId";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllTopLevelPhenotypes());
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
-
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
-        // Loop through all phenotypes, testing each one for valid page load.
-        int i = 0;
-        for (String phenotypeId : phenotypeIds) {
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-
-            WebElement topLevelPhenotypeLink = null;
-            
-            target = baseUrl + "/phenotypes/" + phenotypeId;
-            System.out.println("phenotype[" + i + "] URL: " + target);
-            
-            try {
-                driver.get(target);
-                topLevelPhenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
-            } catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-            }
-            
-            if (topLevelPhenotypeLink == null) {
-                message = "Expected page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                    errorList.add(message);
-            } else {
-                message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". URL: " + target;
-                successList.add(message);
-            }
-            
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
+        phenotypeIdsTestEngine(testName, phenotypeIds);
     }
     
     /**
@@ -338,52 +257,9 @@ public class PhenotypePageTest {
 //@Ignore
     public void testPageForEveryIntermediateLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllIntermediateLevelPhenotypes());
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
-
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
-        // Loop through all phenotypes, testing each one for valid page load.
-        int i = 0;
-        for (String phenotypeId : phenotypeIds) {
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-
-            WebElement intermediateLevelPhenotypeLink = null;
-            
-            target = baseUrl + "/phenotypes/" + phenotypeId;
-            System.out.println("phenotype[" + i + "] URL: " + target);
-            
-            try {
-                driver.get(target);
-                intermediateLevelPhenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
-            } catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-            }
-            
-            if (intermediateLevelPhenotypeLink == null) {
-                message = "Expected page for INTERMEDIATE_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                    errorList.add(message);
-            } else {
-                message = "SUCCESS: INTERMEDIATE_MP_TERM_ID " + phenotypeId + ". URL: " + target;
-                successList.add(message);
-            }
-            
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
+        phenotypeIdsTestEngine(testName, phenotypeIds);
     }
     
     /**
@@ -439,6 +315,67 @@ public class PhenotypePageTest {
         }
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+    }
+    
+    
+    // PRIVATE METHODS
+    
+    
+    private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        Date start = new Date();
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+
+        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        
+        // Loop through all phenotypes, testing each one for valid page load.
+        int i = 0;
+        for (String phenotypeId : phenotypeIds) {
+            int errorCount = 0;
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+
+            WebElement mpLinkElement = null;
+            
+            target = baseUrl + "/phenotypes/" + phenotypeId;
+            System.out.println("phenotype[" + i + "] URL: " + target);
+            
+            try {
+                driver.get(target);
+                mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, phenotypePipelineDAO, baseUrl);
+                PageStatus status = phenotypePage.validate();
+                if (status.hasErrors()) {
+                    System.out.println(status.toStringErrorMessages());
+                    errorCount++;
+                }
+            } catch (Exception e) {
+                System.out.println("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
+                errorCount++;
+            }
+            
+            if (mpLinkElement == null) {
+                System.out.println("Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.");
+                errorCount++;
+            }
+            
+            if (errorCount > 0) {
+                errorList.add("FAIL: MP_TERM_ID " + phenotypeId + ". URL: " + target);
+            } else {
+                successList.add("SUCCESS: MP_TERM_ID " + phenotypeId + ". URL: " + target);
+            }
+            
+            TestUtils.sleep(100);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
     }
 
 }

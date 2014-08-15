@@ -38,6 +38,7 @@ import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.service.GeneService;
 
 @Controller
 public class DataTableController {
@@ -61,6 +63,9 @@ public class DataTableController {
 
 	@Autowired
 	private SolrIndex solrIndex;
+	
+	@Autowired
+	private GeneService geneService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -210,21 +215,11 @@ public class DataTableController {
 						
 			// ES cell/mice production status	
 			boolean toExport = false;
-			String prodStatus = solrIndex.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
+			String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
 			rowData.add(prodStatus);
 			
-			String phenoStatus = null;
-			if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("NA") ){
-				phenoStatus = "";
-			}
-			else if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("QC") ){
-				phenoStatus = "<a class='status qc' href='" + geneLink + "'><span>legacy data available</span></a>";
-			}
-			else {
-				phenoStatus = "<a class='status done' href='" + geneLink + "#section-associations'><span>phenotype data available</span></a>";
-			}
-			
-			rowData.add(phenoStatus);
+			String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, request, toExport);
+			rowData.add(phenotypeStatusHTMLRepresentation);
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {
@@ -250,7 +245,7 @@ public class DataTableController {
 			else {	
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 								+ "<i class='fa fa-sign-in'></i>"
-								+ "<a class='regInterest' href='/user/register'>&nbsp;Interest</a>"
+								+ "<a class='regInterest' href='/user/register?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
 								//+ "<a class='regInterest' href='#'>Interest</a>"
 								+ "</div>";
 				

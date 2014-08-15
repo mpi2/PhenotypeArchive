@@ -223,23 +223,17 @@
 
                                                 <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
                                                     <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                        <a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-                                                            <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                        </a>
-                                                    </c:if>
+                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+																										</c:if>
                                                 </c:forEach>
                                                 <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
                                                     <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                        <a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-                                                            <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                        </a>
+                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
                                                     </c:if>
                                                 </c:forEach>
                                                 <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
                                                     <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                        <a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-                                                            <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                        </a>
+                                                        <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
                                                     </c:if>
                                                 </c:forEach>
                                             </div>
@@ -360,6 +354,37 @@
                                 <div class="row-fluid dataset">
                                     <div class="alert"><strong>Warning!</strong>${imageErrors }</div>
                                 </div>
+                            </c:if>
+                            
+                            <!-- nicolas accordion for images here -->
+                            <c:if test="${not empty impcImages}">
+                                <div class="section">
+                                    <h2 class="title" id="section-images">Gene Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
+                                    <div class="inner">
+                                        
+                                            <div class="accordion-group">
+                                                <div class="accordion-heading">
+                                                   IMPC Images for Gene
+                                                </div>
+                                                <div class="accordion-body">
+                                                    <ul>
+                                                        <c:forEach var="image" items="${impcImages}">
+                                                            <li>
+                                                                <t:impcimgdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay>
+                                                                </li>
+                                                        </c:forEach>
+                                                    </ul>
+                                                    <div class="clear"></div>
+                                                    <c:if test="${totalImpcImages>5}">
+                                                        <p class="textright"><a href='${baseUrl}/impcImages?q=gene_accession_id:"${acc}"&fq=biological_sample_group:experimental'><i class="fa fa-caret-right"></i> show all ${totalImpcImages} images</a></p>
+                                                    </c:if>
+                                                </div><!--  end of accordion body -->
+                                            </div>
+                                       
+
+                                    </div><!--  end of inner -->
+                                </div> <!-- end of section -->
                             </c:if>
 
                             <!-- nicolas accordion for images here -->

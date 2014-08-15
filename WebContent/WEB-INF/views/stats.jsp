@@ -190,20 +190,7 @@
                         }
 
                         function _doDataExport(url, form) {
-                            $
-                                    .ajax({
-                                        type: 'GET',
-                                        url: url,
-                                        cache: false,
-                                        data: $(form).serialize(),
-                                        success: function(data) {
-                                            $(form).appendTo('body').submit()
-                                                    .remove();
-                                        },
-                                        error: function() {
-                                            //							alert("Oops, there is error during data export..");
-                                        }
-                                    });
+                        	$(form).appendTo('body').submit().remove();
                         }
                     });
             </script>	

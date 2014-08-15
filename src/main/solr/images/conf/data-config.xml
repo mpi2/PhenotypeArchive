@@ -31,7 +31,7 @@
 		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	
 	
-	<document name="komp2_indexing">
+<document name="komp2_indexing">
 		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
 		<!-- IMPC images (filter out the mouse necropsy images) -->
 		<entity dataSource="komp2ds" name="ima_image_record"
@@ -104,6 +104,7 @@
 							<entity dataSource="allele_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
 								processor="XPathEntityProcessor" forEach="/response/result/doc/" >	
 						
+								<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />    
 								<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
 			                    <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
 			                    <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
@@ -180,12 +181,69 @@
 					<field column="TERM_NAME" name="annotationTermName" />
 					<field column="TERM_ID" name="annotationTermId" />
 					<field column="TERM_ID" name="maTermId" />
+					<field column="TERM_NAME" name="ma_term" />
+					<field column="TERM_ID" name="ma_id" />
 
-					<entity dataSource="komp2ds" name="annotations" query="SELECT  h.TERM_NAME as higherTermName, concat(l.TERM_NAME, '_${maAnnotations.TERM_ID}') as lowerTermName, l.TERM_ID AS lowerId, HIGHER_TERM_ID FROM lower_to_higher_level_annotation l, higher_level_annotation h WHERE l.higher_term_id = h.term_id and  l.term_id='${maAnnotations.TERM_ID}'">
-						<field column="lowerTermName" name="maTermName" />
-						<field column=" lowerId" name="maAnnotationTermId" />
-						<field column="higherTermName" name="annotatedHigherLevelMaTermName" />
+					<entity dataSource="ontodb" name="ma_term_2Syn" 
+						onError="continue"  
+						processor="CachedSqlEntityProcessor"
+						query="select * from ma_synonyms"
+						where="term_id=maAnnotations.TERM_ID">
+												
+						<field column="syn_name" name="ma_term_synonym" />
+					
 					</entity>
+
+					<entity dataSource="komp2ds" name="annotations" query="SELECT h.TERM_NAME as higherTermName, concat(l.TERM_NAME, '_${maAnnotations.TERM_ID}') as lowerTermName, l.TERM_ID AS lowerId, HIGHER_TERM_ID FROM lower_to_higher_level_annotation l, higher_level_annotation h WHERE l.higher_term_id = h.term_id and  l.term_id='${maAnnotations.TERM_ID}'">
+						<field column="lowerTermName" name="maTermName" />
+						<field column="lowerId" name="maAnnotationTermId" />
+						<field column="higherTermName" name="annotatedHigherLevelMaTermName" />
+						
+					</entity>
+					
+					<!-- child MA term(s) of this MA term -->
+					<entity dataSource="ontodb" name="ma_child" 
+						query="select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id"
+						onError="continue"
+						processor="CachedSqlEntityProcessor" 
+						where="parent_ma_id=maAnnotations.TERM_ID">
+					
+						<field column="child_ma_id" name="child_ma_id" />
+						<field column="child_ma_term" name="child_ma_term" /> 		
+						
+						<!-- synonym of this MP term -->
+						<entity dataSource="ontodb" name="childMa_synonyms"
+							processor="CachedSqlEntityProcessor" 
+							query="select term_id, syn_name from ma_synonyms"
+							where="term_id=ma_child.child_ma_id">
+							
+							<field column="syn_name" name="child_ma_term_synonym" />
+						</entity>
+						
+					</entity>	
+					
+					<!-- selected higher level backtrace of this MA term -->           
+					<entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue"
+						query="select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"
+						where="term_id=maAnnotations.TERM_ID">
+					
+						<field column="term_id" name="selected_top_level_ma_id" />
+						<field column="name" name="selected_top_level_ma_term" /> 								
+					
+						<!-- synonym of this MP term -->
+						<entity dataSource="ontodb" name="topMa_synonyms"
+							processor="CachedSqlEntityProcessor" 
+							query="select term_id, syn_name from ma_synonyms"
+							where="term_id=ma_node_2_selected_top_level_mapping.term_id">
+							
+							<field column="syn_name" name="selected_top_level_ma_term_synonym" />
+						</entity>
+					
+					
+					</entity>	
+					
 				</entity>
 
 				<entity dataSource="komp2ds" name="mpAnnotations" query="select * from ANN_ANNOTATION where FOREIGN_KEY_ID=${tag.ID} and TERM_ID like 'MP%'">
@@ -193,6 +251,18 @@
 					<field column="TERM_ID" name="annotationTermId" />
 					<field column="TERM_NAME" name="mpTermName" />
 					<field column="TERM_ID" name="mpTermId" />
+					<field column="TERM_NAME" name="mp_term" />
+					<field column="TERM_ID" name="mp_id" />
+
+					<entity dataSource="ontodb" name="mp_term_2Syn" 
+						onError="continue"  
+						processor="CachedSqlEntityProcessor"
+						query="select * from mp_synonyms"
+						where="term_id=mpAnnotations.TERM_ID">
+												
+						<field column="syn_name" name="mp_term_synonym" />
+					
+					</entity>
 
 					<!-- disease annotated to this MP -->					
 					<!--<entity dataSource="disease_core" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mpAnnotations.TERM_ID}'">    
@@ -224,7 +294,87 @@
 							query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
 							<field column="name" name="annotatedHigherLevelMpTermName" />
 							<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
+							
+							<entity dataSource="ontodb" name="mp_term_infos2Syn" 
+								onError="continue"  
+								processor="CachedSqlEntityProcessor"
+								query="select * from mp_synonyms"
+								where="term_id=mphigher.mpTerm">
+														
+								<field column="syn_name" name="top_level_mp_term_synonym" />
+							
+							</entity>	
+							
 						</entity>
+					</entity>
+				
+					<!-- intermediate MP terms of this MP term -->
+					<entity dataSource="ontodb" name="mp_term_infos" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue" 
+						query="select node_id, term_id from mp_node2term"
+						where="term_id=mpAnnotations.TERM_ID">
+						
+						<entity dataSource="ontodb" name="intermediates" 
+							processor="CachedSqlEntityProcessor" 
+							onError="continue" 
+							query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+							where="child_node_id=mp_term_infos.node_id">
+						
+							<entity dataSource="ontodb" name="mpTermNode"	
+								processor="CachedSqlEntityProcessor" 
+								onError="continue" 		
+								query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+								where="node_id=intermediates.node_id">
+							
+								<field column="term_id"    name="intermediate_mp_id" />
+								<field column="name"       name="intermediate_mp_term" />
+								<!-- <field column="definition" name="intermediate_mp_definition" />	-->
+							
+								<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+								<entity dataSource="ontodb" name="parents2Syn" 
+									processor="CachedSqlEntityProcessor" 
+									onError="continue"  
+									query="select term_id, syn_name from mp_synonyms"
+									where="term_id=mpTermNode.term_id">
+										
+									<field column="syn_name" name="intermediate_mp_term_synonym" />						
+									
+								</entity>
+							</entity>
+						</entity>	
+					
+						<!-- child MP term of this MP term -->
+					
+						<entity dataSource="ontodb" name="allChildren" 
+							processor="CachedSqlEntityProcessor" 
+							onError="continue" 
+							query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+							where="node_id=mp_term_infos.node_id">
+							
+							<entity dataSource="ontodb" name="mpTermNode2"	
+								processor="CachedSqlEntityProcessor" 
+								onError="continue" 		
+								query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+								where="node_id=allChildren.child_node_id">
+								
+								<field column="term_id"    name="child_mp_id" />
+								<field column="name"       name="child_mp_term" />
+								<!-- <field column="definition" name="child_mp_definition" />	-->
+							
+								<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+								<entity dataSource="ontodb" name="parents2Syn2" 
+									processor="CachedSqlEntityProcessor" 
+									onError="continue"  
+									query="select term_id, syn_name from mp_synonyms"
+									where="term_id=mpTermNode2.term_id">
+										
+									<field column="syn_name" name="child_mp_term_synonym" />						
+									
+								</entity>
+							</entity>
+						</entity>
+					
 					</entity>
 				</entity>
 			</entity>

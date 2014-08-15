@@ -49,7 +49,7 @@ public class GeneHeatmapController {
 			RedirectAttributes attributes) throws SolrServerException{
 		System.out.println("calling heatmap controller method");
 		SecondaryProjectDAO secondaryProjectDAO=this.getSecondaryProjectDao(project);
-             List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap();
+             List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
              List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
             model.addAttribute("geneRows", geneRows);
             model.addAttribute("xAxisBeans", xAxisBeans);
