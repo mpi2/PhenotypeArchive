@@ -243,6 +243,8 @@ public class DataTableController {
 				}
 			} 
 			else {	
+				// use the login link instead of register link to avoid user clicking on tab which
+				// will strip out destination link that we don't want to see happened
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 								+ "<i class='fa fa-sign-in'></i>"
 								+ "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
