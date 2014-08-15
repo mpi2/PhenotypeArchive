@@ -334,10 +334,10 @@ public class GraphPageUnidimensional extends GraphPage {
             // Validate the counts.
             validateDownloadCounts(downloadData);                                               // Specific Unidimensional 'continuousTable' validation
         } catch (NoSuchElementException | TimeoutException te) {
-            String message = "Expected page for ID " + id + "(" + target + ") but found none.";
+            String message = "ERROR: GraphPageUnidimensional.validateDownload(): Expected page for ID " + id + "(" + target + ") but found none.";
             status.addError(message);
         }  catch (Exception e) {
-            String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            String message = "EXCEPTION GraphPageUnidimensional.validateDownload(): processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
         
