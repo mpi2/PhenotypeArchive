@@ -240,7 +240,7 @@ public class GenesController {
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
-			getImpcExperimentalImages(acc, model);
+			//getImpcExperimentalImages(acc, model);
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
 			log.info("images solr not available");
