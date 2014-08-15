@@ -61,7 +61,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.rest.controller.PhenotypePipelineController;
 import uk.ac.ebi.phenotype.util.Utils;
 /**
  *
@@ -248,7 +247,7 @@ public class SearchPageTest {
     
     
     @Test
-    @Ignore
+    //@Ignore
     public void autosuggestTest() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
@@ -278,7 +277,7 @@ public class SearchPageTest {
          }
     }
     
-    @Test
+    //@Test
     @Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
@@ -369,7 +368,7 @@ public class SearchPageTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "testQueryingRandomGeneSymbols";
@@ -444,7 +443,7 @@ public class SearchPageTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
@@ -510,31 +509,31 @@ public class SearchPageTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testPhrase() throws Exception {
         specialStrQueryTest("testPhrase", "grip strength");
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testPhraseInQuotes() throws Exception {
         specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testLeadingWildcard() throws Exception {
         specialStrQueryTest("testLeadingWildcard", "*rik");
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("testTrailingWildcard", "hox*");
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
@@ -601,7 +600,7 @@ public class SearchPageTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testFacetCounts() throws Exception {
         testCount++;
         System.out.println();
@@ -676,7 +675,7 @@ public class SearchPageTest {
      * @throws Exception 
      */
     @Test
-    @Ignore
+    //@Ignore
     public void testJiraMPII_806() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
@@ -777,7 +776,7 @@ public class SearchPageTest {
     }
     
     // 'None', 'Pre', 'Post', and 'Both' refer to the count/position of the wildcard '*' character(s).
-    public void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase) {
+    private void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase) {
         checkSpecialPhrase(wait, status, phrase, phrase);
         if ( ! phrase.equals("*")) {                                            // Special case: for "*", test only "*".
             checkSpecialPhrase(wait, status, phrase, "*" + phrase);
