@@ -245,7 +245,7 @@ public class DataTableController {
 			else {	
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 								+ "<i class='fa fa-sign-in'></i>"
-								+ "<a class='regInterest' href='/user/register?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
+								+ "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
 								//+ "<a class='regInterest' href='#'>Interest</a>"
 								+ "</div>";
 				
