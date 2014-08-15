@@ -165,6 +165,7 @@ public class GraphPageTest {
     }
     
     @Test
+//@Ignore
     public void testUnidimensionalGraph() {
         String testName = "testUnidimensionalGraph";
         
@@ -211,7 +212,7 @@ public class GraphPageTest {
             }
             
             target = baseUrl + "/genes/" + graph.getGeneId();
-System.out.println("gene[" + i + "] URL: " + target);
+            System.out.println("gene[" + i + "] URL: " + target);
             i++;
             
             try {
@@ -228,7 +229,6 @@ System.out.println("gene[" + i + "] URL: " + target);
 //System.out.println("Comparing '" + pagePvalue + "' to '" + graph.getpValue() + "' (difference: " + (pagePvalue - graph.getpValue()) + ")");
                         if (TestUtils.equals(pagePvalue, graph.getpValue())) {
 //System.out.println("Match!");
-//System.out.println("Graph URL: " + graphUrl);
                             boolean loadPage = true;
                             GraphPage graphPage = new GraphPage(driver, wait, graphUrl, target, phenotypePipelineDAO, baseUrl, loadPage);
                             ObservationType graphType = graphPage.getGraphType();

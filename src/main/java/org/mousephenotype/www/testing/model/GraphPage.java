@@ -167,8 +167,8 @@ public class GraphPage {
         if (data.length < 2) {
             status.addError(("ERROR: Expected at least one row of data."));
         } else {
-            String cellValue = data[1][graphMap.getColIndexAlleleSymbol()];
-            if (getAlleleSymbol().compareTo(cellValue) != 0) {
+            String cellValue = data[1][graphMap.getColIndexAlleleSymbol()].trim();
+            if (getAlleleSymbol().trim().compareTo(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page alleleSymbol: '" + getAlleleSymbol() + "'. Download alleleSymbol: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexBackground()];
