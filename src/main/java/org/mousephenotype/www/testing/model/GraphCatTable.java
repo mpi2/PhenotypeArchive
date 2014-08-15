@@ -84,10 +84,6 @@ public class GraphCatTable {
         return bodyRowsList;
     }
 
-    public boolean isHasCatTable() {
-        return hasCatTable;
-    }
-
     public ArrayList<String> getHeadingList() {
         return headingList;
     }

@@ -20,10 +20,12 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -36,6 +38,14 @@ public class GraphContinuousTable {
     public final String graphUrl;
     private String[][] data;
     private boolean hasContinuousTable;
+    private ArrayList<Row> bodyRowsList = new ArrayList();
+    private ArrayList<String> headingList = new ArrayList();
+    
+    // Column offsets
+    public final int COL_INDEX_CONTROL_HOM_HET = 0;
+    public final int COL_INDEX_MEAN = 1;
+    public final int COL_INDEX_STANDARD_ERROR = 2;
+    public final int COL_INDEX_COUNT = 3;
     
     /**
      * Creates a new <code>ContinuousGraphTable</code> instance initialized with
@@ -79,10 +89,47 @@ public class GraphContinuousTable {
             
             rowIndex++;
         }
+        
+        // Save the heading values.
+        List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
+        if ( ! headingElementList.isEmpty()) {
+            for (WebElement headingElement : headingElementList) {
+                headingList.add(headingElement.getText());
+            }
+        }
+        
+        // Save the body values.
+        List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
+        if ( ! bodyRowElementsList.isEmpty()) {
+            for (WebElement bodyRowElements : bodyRowElementsList) {
+                ArrayList<String> row = new ArrayList();
+                List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
+                for (WebElement bodyRowElement : bodyRowElementList) {
+                    row.add(bodyRowElement.getText());
+                }
+                bodyRowsList.add(new Row(row));
+            }
+        }
     }
 
     public String[][] getData() {
         return data;
+    }
+
+    public ArrayList<Row> getBodyRowsList() {
+        return bodyRowsList;
+    }
+
+    public ArrayList<String> getHeadingList() {
+        return headingList;
+    }
+    
+    /**
+     *
+     * @return true if a continuous table was found and initialized; false otherwise.
+     */
+    public boolean hasContinuousTable() {
+        return hasContinuousTable;
     }
     
     /**
@@ -110,18 +157,49 @@ public class GraphContinuousTable {
         return true;
     }
     
-    // Column offset getters
-    public int getColIndexControlHomHet() { return 0; }
-    public int getColIndexMean() { return 1; }
-    public int getColIndexSd() { return 2; }
-    public int getColIndexCount() { return 3; }
- 
+    public class Row {
+        public final ArrayList<String> row;
+        public final Sex sex;
+        public final Group group;
+        public final String zygosity;
+        public final int count;
+        
+        public Row(ArrayList<String> row) {
+            this.row = row;
+            
+            String[] controlHomHet = row.get(0).split(" ");
+            switch (controlHomHet[0]) {
+                case "Female":
+                    sex = Sex.FEMALE;
+                    break;
+                    
+                default:
+                    sex = Sex.MALE;
+            }
+            switch (controlHomHet[1]) {
+                case "Control":
+                    group = Group.CONTROL;
+                    zygosity = "";
+                    break;
+                    
+                default:
+                    group = Group.EXPERIMENTAL;
+                    zygosity = controlHomHet[1];
+            }
+            
+            Integer tempCount = Utils.tryParseInt(row.get(COL_INDEX_COUNT));
+            count = (tempCount == null ? 0 : tempCount);
+        }
+    }
     
-    // SETTERS AND GETTERS
+    public enum Sex {
+        FEMALE,
+        MALE
+    }
     
-    
-    public boolean hasContinuousTable() {
-        return hasContinuousTable;
+    public enum Group {
+        CONTROL,
+        EXPERIMENTAL
     }
     
 }

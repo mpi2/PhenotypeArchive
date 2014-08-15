@@ -130,11 +130,11 @@ public class GraphPageCategorical extends GraphPage {
     
     /**
      * Validates download counts against categorical graph page totals.
-     * @param data download data, including heading
+     * @param downloadData download data, including heading
      * @return validation status
      * 
      */
-    private PageStatus validateDownloadCounts(String[][] data) {
+    private PageStatus validateDownloadCounts(String[][] downloadData) {
         PageStatus status = new PageStatus();
         DownloadGraphMapCategorical map = new DownloadGraphMapCategorical();
         
@@ -159,13 +159,13 @@ public class GraphPageCategorical extends GraphPage {
         // Skip over heading (first row). Also, sometimes there are extra blank lines at the end of the stream.
         // lowercase the hash keys on put and use lowercase when retrieving.
         int colCountFirstRow = 0;
-        for (int i = 1; i < data.length; i++) {
+        for (int i = 1; i < downloadData.length; i++) {
             if (i == 1)
-                colCountFirstRow = data[i].length;                              // Save the column count, then check it each time. Skip rows with mismatched column counts.
-            if (data[i].length != colCountFirstRow)
+                colCountFirstRow = downloadData[i].length;                      // Save the column count, then check it each time. Skip rows with mismatched column counts.
+            if (downloadData[i].length != colCountFirstRow)
                 continue;
             
-            String[] row = data[i];
+            String[] row = downloadData[i];
             
             String zygosity = row[map.ZYGOSITY].toLowerCase();
             String sex = row[map.SEX].toLowerCase();
@@ -192,6 +192,7 @@ public class GraphPageCategorical extends GraphPage {
             }
             sexHash.put(sex, sexHash.get(sex) + 1);
         }
+        
         // We now have all the counts. Compare them against the page values.
         ArrayList<GraphCatTable.Row> rows = getCatTable().getBodyRowsList();
         for (GraphCatTable.Row row : rows) {                                    // For all of the Control/Hom/Het rows in catTable ...

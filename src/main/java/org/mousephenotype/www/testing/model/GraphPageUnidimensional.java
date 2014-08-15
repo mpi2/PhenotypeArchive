@@ -21,6 +21,8 @@
 package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -107,7 +109,7 @@ public class GraphPageUnidimensional extends GraphPage {
         // Validate common graph elements: title and graph type.
         PageStatus status = super.validate();
         
-        // Validate the HTML table and its contents.
+        // Validate the globalTest HTML table and its contents.
         GraphGlobalTestTable originalGlobalTestTable = getGlobalTestTable();
         if ( ! originalGlobalTestTable.hasGlobalTestTable()) {
             status.addError("ERROR: unidimensional graph has no globalTest table. URL: " + target);
@@ -134,8 +136,8 @@ public class GraphPageUnidimensional extends GraphPage {
         if ( ! style.contains("display: none;"))
             status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");
         
-        // Validate download streams.
-        status.add(validateDownload());
+        
+        status.add(validateDownload());                     // Validate download streams.
         
         if (doGraphByDate) {
             // Validate there is a Graph by date link.
@@ -211,14 +213,74 @@ public class GraphPageUnidimensional extends GraphPage {
     // PRIVATE METHODS
 
 
-    private PageStatus validateCounts(String[][] downloadData) {
+    private PageStatus validateDownloadCounts(String[][] downloadData) {
         PageStatus status = new PageStatus();
-//        status.addError("GraphPageUnidimensional.validateCounts() Not Implemented Yet.");
+        DownloadGraphMapUnidimensional map = new DownloadGraphMapUnidimensional();
+        
+        // key = "Control" or "Experimental". value is zygosity hash map.
+        HashMap<String, HashMap<String, HashMap<String, Integer>>> groupHash = new HashMap();
+        
+        // Walk the download stream summing the counts.
+        // Layout:      HashMap groupHash
+        //                  "Control"
+        //                  "Experimental"
+        //                                  HashMap zygosity
+        //                                      "Control"
+        //                                      "Homozygote"
+        //                                                      HashMap sex
+        //                                                          "Female"
+        //                                                          "Male"
+        //                                                                          Integer
+        
+        // Skip over heading (first row). Also, sometimes there are extra blank lines at the end of the stream.
+        // lowercase the hash keys on put and use lowercase when retrieving.
+        int colCountFirstRow = 0;
+        for (int i = 1; i < downloadData.length; i++) {
+            if (i == 1)
+                colCountFirstRow = downloadData[i].length;                      // Save the column count, then check it each time. Skip rows with mismatched column counts.
+            if (downloadData[i].length != colCountFirstRow)
+                continue;
+            
+            String[] row = downloadData[i];
+            
+            String zygosity = row[map.ZYGOSITY].toLowerCase();
+            String sex = row[map.SEX].toLowerCase();
+            String group = row[map.GROUP].toLowerCase();
+            
+            if ( ! groupHash.containsKey(group)) {
+                groupHash.put(group, new HashMap<String, HashMap<String, Integer>>());
+            }
+            HashMap<String, HashMap<String, Integer>> zygosityHash = groupHash.get(group);
+            // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
+            if (group.toLowerCase().equals("control"))
+                zygosity = group.toLowerCase();
+            if ( ! zygosityHash.containsKey(zygosity)) {
+                zygosityHash.put(zygosity, new HashMap<String, Integer>());
+            }
+            HashMap<String, Integer> sexHash = zygosityHash.get(zygosity);
+            if ( ! sexHash.containsKey(sex)) {
+                sexHash.put(sex, 0);
+            }
+            sexHash.put(sex, sexHash.get(sex) + 1);
+        }
+        
+        // We now have all the counts. Compare them against the page values.
+        ArrayList<GraphContinuousTable.Row> rows = getContinuousTable().getBodyRowsList();
+        for (GraphContinuousTable.Row row : rows) {                                    // For all of the Control/Hom/Het rows in continuousTable ...
+            Integer pageValue = row.count;
 
-        
-        
-        System.out.println("GraphPageUnidimensional implementation of validateGraphTable.");
-        
+            // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
+            String zygosityKey = (row.group == GraphContinuousTable.Group.CONTROL ? row.group.toString().toLowerCase() : row.zygosity.toLowerCase());
+            Integer downloadValue = groupHash
+                    .get(row.group.toString().toLowerCase())
+                    .get(zygosityKey)
+                    .get(row.sex.toString().toLowerCase());
+            downloadValue = (downloadValue == null ? 0 : downloadValue);    // 0 count values on the page have no hash entry (i.e. returned hash value is null).
+            if ( ! pageValue.equals(downloadValue)) {
+                status.addError("ERROR: validating " + row.group.toString() + "." + row.zygosity + "." + row.sex.toString() + ": " +
+                        "page value = '" + pageValue + "'. download value = '" + downloadValue + "'.");
+            }
+        }
         return status;
     }
     
@@ -257,7 +319,7 @@ public class GraphPageUnidimensional extends GraphPage {
             status.add(super.validateDownload(downloadData, new DownloadGraphMapUnidimensional())); // ... and validate it
             
             // Validate the counts.
-            validateCounts(downloadData);
+            validateDownloadCounts(downloadData);
             
             
             // Test the XLS.
@@ -270,7 +332,7 @@ public class GraphPageUnidimensional extends GraphPage {
             status.add(super.validateDownload(downloadData, new DownloadGraphMapUnidimensional())); // ... and validate it
             
             // Validate the counts.
-            validateCounts(downloadData);                                               // Specific Unidimensional 'continuousTable' validation
+            validateDownloadCounts(downloadData);                                               // Specific Unidimensional 'continuousTable' validation
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "Expected page for ID " + id + "(" + target + ") but found none.";
             status.addError(message);
