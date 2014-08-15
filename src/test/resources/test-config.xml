@@ -68,8 +68,12 @@
     </bean>
     
     <bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
-		<constructor-arg value="${internalSolrUrl}/impc_images" />
-	</bean>
+        <constructor-arg value="${internalSolrUrl}/impc_images" />
+    </bean>
+	
+    <bean id="alleleService" class="uk.ac.ebi.phenotype.service.AlleleService">
+        <constructor-arg value="${internalSolrUrl}/allele" />
+    </bean>
 
     <bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
         <constructor-arg ref="sessionFactory" />

@@ -20,8 +20,6 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

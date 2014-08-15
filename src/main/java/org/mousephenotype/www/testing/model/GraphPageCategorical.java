@@ -21,6 +21,10 @@
 package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -28,6 +32,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -123,13 +128,93 @@ public class GraphPageCategorical extends GraphPage {
     // PRIVATE METHODS
     
     
-    private PageStatus validateCounts(String[][] data) {
+    /**
+     * Validates download counts against categorical graph page totals.
+     * @param downloadData download data, including heading
+     * @return validation status
+     * 
+     */
+    private PageStatus validateDownloadCounts(String[][] downloadData) {
         PageStatus status = new PageStatus();
-        status.addError("GraphPageCategorical.validateCounts() Not Implemented Yet.");
+        DownloadGraphMapCategorical map = new DownloadGraphMapCategorical();
+        
+        // key = "Control" or "Experimental". value is zygosity hash map.
+        HashMap<String, HashMap<String, HashMap<String, HashMap<String, Integer>>>> groupHash = new HashMap();
+        
+        // Walk the download stream summing the counts.
+        // Layout:      HashMap groupHash
+        //                  "Control"
+        //                  "Experimental"
+        //                                  HashMap zygosity
+        //                                      "Control"
+        //                                      "Homozygote"
+        //                                                      HashMap category
+        //                                                          "Absent"
+        //                                                          "Present"
+        //                                                                          HashMap sex
+        //                                                                              "Female"
+        //                                                                              "Male"
+        //                                                                                          Integer
+        
+        // Skip over heading (first row). Also, sometimes there are extra blank lines at the end of the stream.
+        // lowercase the hash keys on put and use lowercase when retrieving.
+        int colCountFirstRow = 0;
+        for (int i = 1; i < downloadData.length; i++) {
+            if (i == 1)
+                colCountFirstRow = downloadData[i].length;                      // Save the column count, then check it each time. Skip rows with mismatched column counts.
+            if (downloadData[i].length != colCountFirstRow)
+                continue;
             
+            String[] row = downloadData[i];
+            
+            String zygosity = row[map.ZYGOSITY].toLowerCase();
+            String sex = row[map.SEX].toLowerCase();
+            String group = row[map.GROUP].toLowerCase();
+            String category = row[map.CATEGORY].toLowerCase();
+            
+            if ( ! groupHash.containsKey(group)) {
+                groupHash.put(group, new HashMap<String, HashMap<String, HashMap<String, Integer>>>());
+            }
+            HashMap<String, HashMap<String, HashMap<String, Integer>>> zygosityHash = groupHash.get(group);
+            // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
+            if (group.toLowerCase().equals("control"))
+                zygosity = group.toLowerCase();
+            if ( ! zygosityHash.containsKey(zygosity)) {
+                zygosityHash.put(zygosity, new HashMap<String, HashMap<String, Integer>>());
+            }
+            HashMap<String, HashMap<String, Integer>> categoryHash = zygosityHash.get(zygosity);
+            if ( ! categoryHash.containsKey(category)) {
+                categoryHash.put(category, new HashMap<String, Integer>());
+            }
+            HashMap<String, Integer> sexHash = categoryHash.get(category);
+            if ( ! sexHash.containsKey(sex)) {
+                sexHash.put(sex, 0);
+            }
+            sexHash.put(sex, sexHash.get(sex) + 1);
+        }
         
-        
-        System.out.println("GraphPageCategorical implementation of validateGraphTable.");
+        // We now have all the counts. Compare them against the page values.
+        ArrayList<GraphCatTable.Row> rows = getCatTable().getBodyRowsList();
+        for (GraphCatTable.Row row : rows) {                                    // For all of the Control/Hom/Het rows in catTable ...
+            Iterator<Entry<String, String>> categoryIt = row.getCategoryHash().entrySet().iterator();
+            while (categoryIt.hasNext()) {                                      // ... For all of the categories ...
+                Entry<String, String> entry = categoryIt.next();
+                Integer pageValue = Utils.tryParseInt(entry.getValue());
+                
+                // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
+                String zygosityKey = (row.group == GraphCatTable.Group.CONTROL ? row.group.toString().toLowerCase() : row.zygosity.toLowerCase());
+                Integer downloadValue = groupHash
+                        .get(row.group.toString().toLowerCase())
+                        .get(zygosityKey)
+                        .get(entry.getKey().toLowerCase())
+                        .get(row.sex.toString().toLowerCase());
+                downloadValue = (downloadValue == null ? 0 : downloadValue);    // 0 count values on the page have no hash entry (i.e. returned hash value is null).
+                if ( ! pageValue.equals(downloadValue)) {
+                    status.addError("ERROR: validating " + row.group.toString() + "." + row.zygosity + "." + entry.getKey() + "." + row.sex.toString() + ": " +
+                            "page value = '" + pageValue + "'. download value = '" + downloadValue + "'.");
+                }
+            }
+        }
         
         return status;
     }
@@ -170,7 +255,7 @@ public class GraphPageCategorical extends GraphPage {
             status.add(super.validateDownload(downloadData, new DownloadGraphMapCategorical()));    // ... and validate it
             
             // Validate the counts.
-            status.add(validateCounts(downloadData));
+            status.add(validateDownloadCounts(downloadData));
             
             
             // Test the XLS.
@@ -183,7 +268,7 @@ public class GraphPageCategorical extends GraphPage {
             status.add(super.validateDownload(downloadData, new DownloadGraphMapCategorical()));    // ... and validate it
             
             // Validate the counts.
-            status.add(validateCounts(downloadData));
+            status.add(validateDownloadCounts(downloadData));
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "Expected page for ID " + id + "(" + target + ") but found none.";
             status.addError(message);
