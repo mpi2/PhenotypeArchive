@@ -27,6 +27,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.PageStatus;
@@ -278,7 +279,6 @@ public class PhenotypePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
         String phenotypeId = "junkBadPhenotype";
         final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
         
@@ -317,6 +317,67 @@ public class PhenotypePageTest {
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }
     
+// @Ignore
+    @Test
+    public void testDefinitionAndSynonymCount() throws SolrServerException {
+        String testName = "testDefinitionAndSynonymCount";
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        String target;
+        String[] phenotypeIdArray = {
+            "MP:0005266",
+            "MP:0001307",
+            "MP:0003442"
+        };
+        int[] expectedSynonymCount = {
+            2,
+            3,
+            1
+        };
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        int errorCount = 0;
+        
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 3 of a total of 3 records.");
+        
+        for (int i = 0; i < phenotypeIdArray.length; i++) {
+            target = baseUrl + "/phenotypes/" + phenotypeIdArray[i];
+            System.out.println("phenotype[" + i + "] URL: " + target);
+        
+            try {
+                PhenotypePage ptPage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
+                String definition = ptPage.getDefinition();
+                if (definition.isEmpty()) {
+                    System.out.println("ERROR: Expected definition but none was found. URL: " + target);
+                }
+                
+                List<String> synonyms = ptPage.getSynonyms();
+                if (synonyms.size() != expectedSynonymCount[i]) {
+                    System.out.println("ERROR: Expected " + expectedSynonymCount + " synonyms but found " + synonyms.size() + ". Values:");
+                    for (int j = 0; j < synonyms.size(); j++) {
+                        String synonym = synonyms.get(j);
+                        if (j > 0)
+                            System.out.print(",\t");
+                        System.out.print("'" + synonym + "'");
+                    }
+                    System.out.println();
+                }
+            } catch (Exception e) {
+                System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + target);
+            }
+        }
+        
+        if (errorCount > 0) {
+            errorList.add("Test failed.");
+        } else {
+            successList.add("Test succeeded.");
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+    }
     
     // PRIVATE METHODS
     
