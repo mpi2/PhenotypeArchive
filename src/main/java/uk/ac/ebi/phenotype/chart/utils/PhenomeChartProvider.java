@@ -258,6 +258,63 @@ public class PhenomeChartProvider {
 	}
 
 
+	public String createPhenomeChartByGene(String phenotypingCenter, double minimalPValue, String pointFormat, JSONArray series, JSONArray categories)
+	throws JSONException {
+
+		String chartString = "	$(function () {"+
+"		$('#container').highcharts({"+
+"       title: {"+
+"            text:  'Significant MP calls'"+
+"      },"+
+"       subtitle: {"+
+ "           text: 'by Top Level MP Categories & Genes',"+
+ "           x: -20"+
+ "       },"+
+ "       xAxis: {"+
+ "           categories:  " + categories.toString() + ","+
+ "           title: {"+
+ "               enabled: true,"+
+ "               text: 'Top Level Mammalian Phenotype Ontology Terms'"+
+ "           },"+
+ "           labels: {"+
+ "               rotation: -90,"+
+ "               align: 'right',"+
+ "               style: {"+
+ "                   fontSize: '10px',"+
+ "                   fontFamily: 'Verdana, sans-serif'"+
+ "               }"+
+ "           },"+
+ "           showLastLabel: true"+
+ "       },"+
+ "       yAxis: {"+
+ "            min: 0,"+
+ "           max: 21.0,"+
+ "           title: {"+
+ "               text: '-Log<sub>10</sub>(p-value)'"+
+ "           },"+
+ "       },"+
+ "      credits: {"+
+ "           enabled: false"+
+ "       },"+
+ "       tooltip: {"+
+ "           headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',"+
+ "           pointFormat: '<tr><td style=\"color:{series.color};padding:0\">Top Level MP: {series.name}</td></tr><tr><td style=\"padding:0\">MP Term: {point.mp_term}</td></tr><tr><td style=\"padding:0\">Gene: {point.geneSymbol}</td></tr><tr><td style=\"padding:0\">Zygosity: {point.zygosity}</td></tr><tr><td style=\"padding:0\">P-value: {point.pValue}</td></tr><tr><td style=\"padding:0\">Effect size: {point.effectSize}</td></tr>',"+
+ "           footerFormat: '</table>',"+
+ "           shared: 'true',"+
+ "           useHTML: 'true',"+
+ "       },"+
+ "       legend: {"+
+ "           layout: 'vertical',"+
+ "           align: 'right',"+
+ "           verticalAlign: 'middle',"+
+ "           borderWidth: 0"+
+ "       },"+
+ "       series: " + series.toString() + 
+ "   });"+
+ "});";
+		return chartString;
+	}
+	
 	public String generatePhenomeChartByPhenotype(
 	List<PhenotypeCallSummary> calls,
 	String phenotypingCenter,
@@ -384,8 +441,7 @@ public class PhenomeChartProvider {
 
 		return chartString;
 	}
-
-
+	
 	public String generatePhenomeChartByGenes(
 	List<PhenotypeCallSummary> calls,
 	String phenotypingCenter,
@@ -399,7 +455,7 @@ public class PhenomeChartProvider {
 
 		JSONArray categories = new JSONArray();
 		List<String> categoryGroupList = new ArrayList<String>();
-		Map<String, List<String>> specificTermMatrix = new HashMap<String, List<String>>();
+		List<String> specificTerms = new ArrayList<String>();
 
 		Map<String, JSONObject> seriesMap = new HashMap<String, JSONObject>();
 
@@ -416,43 +472,46 @@ public class PhenomeChartProvider {
 			pointFormat.append("<tr><td style=\"padding:0\">Effect size: {point.effectSize}</td></tr>");
 
 			// first grab all categories and associated terms
+			
+			Map<String, List<String>> phenotypeGroups = new HashMap<String, List<String>>();
+			
+			
+			// Set phenotype order to show (x-axis)
+			for (PhenotypeCallSummary call : calls) {
 
+				String topLevelName = call.getTopLevelPhenotypeTerms().get(0).getName();
+				if (!phenotypeGroups.containsKey(topLevelName)) {
+					phenotypeGroups.put(topLevelName, new ArrayList<String>());
+
+				}
+
+				if (!phenotypeGroups.get(topLevelName).contains(call.getPhenotypeTerm().getName())) {
+					phenotypeGroups.get(topLevelName).add(call.getPhenotypeTerm().getName());
+				}
+			}
+
+			for (String topLevelMP:phenotypeGroups.keySet()){
+				for (String mp : phenotypeGroups.get(topLevelMP)){
+					categoryGroupList.add(mp);
+					categories.put(mp);
+				}
+			}
+						
+			// get genes 
 			for (PhenotypeCallSummary call : calls) {
 
 					String gene = call.getGene().getSymbol();
-					if (!categoryGroupList.contains(gene)) {
-
-						specificTermMatrix.put(gene, new ArrayList<String>());
-						categoryGroupList.add(gene);
-
+					if (!specificTerms.contains(gene)) {
+						specificTerms.add(gene);
 						JSONObject scatterJsonObject = new JSONObject();
 						seriesMap.put(gene, scatterJsonObject);
-
-						scatterJsonObject.put("type", "scatter");
 						scatterJsonObject.put("name", gene);
-
 						JSONArray dataArray = new JSONArray();
-
 						scatterJsonObject.put("data", dataArray);
-
 						series.put(scatterJsonObject);
 					}
-					if (!specificTermMatrix.get(gene).contains(call.getPhenotypeTerm().getName())) {
-						specificTermMatrix.get(gene).add(call.getPhenotypeTerm().getName());
-					}
 			}
 
-			// Then generate categories for all of them
-			int categoriesDim = 0;
-			int total = 0;
-			for (String categoryName : categoryGroupList) {
-				for (String specificTerm : specificTermMatrix.get(categoryName)) {
-					categories.put((categoriesDim + 1) + ". " + specificTerm);
-					total++;
-				}
-				categoriesDim++;
-			}
-			System.out.println("TOTAL CATS=" + total);
 
 			// finally extract the data points and generate a point for every
 			// top level categories associated.
@@ -462,13 +521,7 @@ public class PhenomeChartProvider {
 					int firstDim = categoryGroupList.indexOf(gene);
 
 					// convert to position on x axis
-					int index = 0;
-					for (int i = 0; i <= firstDim; i++) {
-						index += (i != firstDim) ?
-						specificTermMatrix.get(categoryGroupList.get(i)).size() :
-						specificTermMatrix.get(gene).indexOf(call.getPhenotypeTerm().getName());
-					}
-
+					
 					JSONObject dataPoint = new JSONObject();
 					dataPoint.put("name", (firstDim + 1) + ". " + call.getPhenotypeTerm().getName());
 					dataPoint.put("mp_term", call.getPhenotypeTerm().getName());
@@ -478,7 +531,7 @@ public class PhenomeChartProvider {
 					dataPoint.put("parameter_stable_id", call.getParameter().getStableId());
 					dataPoint.put("pipeline_stable_id", call.getPipeline().getStableId());
 					dataPoint.put("phenotyping_center", call.getPhenotypingCenter());
-					dataPoint.put("x", index);
+					dataPoint.put("x", categoryGroupList.indexOf(call.getPhenotypeTerm().getName()));
 					dataPoint.put("y", call.getLogValue() + addJitter(call.getEffectSize()));
 					dataPoint.put("pValue", call.getpValue());
 					dataPoint.put("effectSize", call.getEffectSize());
@@ -488,10 +541,10 @@ public class PhenomeChartProvider {
 				}
 
 				// finally sort by index
-				for (String topLevelName : categoryGroupList) {
+				for (String geneSymbol : seriesMap.keySet()) {
 
-					JSONArray array = ((JSONArray) seriesMap.get(topLevelName).get("data"));
-					seriesMap.get(topLevelName).put("data", this.getSortedList(array));
+					JSONArray array = ((JSONArray) seriesMap.get(geneSymbol).get("data"));
+					seriesMap.get(geneSymbol).put("data", this.getSortedList(array));
 				}
 
 			chartString = createPhenomeChart(phenotypingCenter, minimalPvalue, pointFormat.toString(), series, categories);
