@@ -59,8 +59,8 @@ public class QueryBrokerController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
-	private String internalSolrUrl = config.get("internalSolrUrl");
-	
+	//private String internalSolrUrl = config.get("internalSolrUrl");
+	private String internalSolrUrl = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr";
 	private JSONObject jsonResponse = new JSONObject();
 	
 	// Use cache to manage queries for minimizing network traffic
@@ -80,7 +80,7 @@ public class QueryBrokerController {
 	/**
 	 * <p>
 	 * Return multiple solr json responses from server to avoid multiple calls from client
-	 * Using cache to further reduce queries to the server
+	 * Using cache to further reduce queries to the SOLR server
 	 * </p>
 	 * 
 	 * @param 
