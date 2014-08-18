@@ -179,12 +179,11 @@
        		// search via ENTER
        		$('input#s').keyup(function (e) {		
        		    if (e.keyCode == 13) { // user hits enter
-
+       		    	$(".ui-menu-item").hide();
        		    	//$('ul#ul-id-1').remove();
        		    
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
        		    	var input = $('input#s').val().trim();
-       		    	
        		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
        		    	
        		    	var re = new RegExp("^'(.*)'$");
@@ -210,12 +209,11 @@
        				
        				// no need to escape space - looks cleaner to the users 
        				// and it is not essential to escape space
-       				// but remove leading \ from \" to make solr happy
-       				
-					input = input.replace(/\\?%20/g, ' ').replace(/^\\%22/, '%22');
+       				input = input.replace(/\\?%20/g, ' ').replace(/^\\%22/, '%22');
        				
        				var facet = MPI2.searchAndFacetConfig.matchedFacet;
        				
+       				//console.log('matched facet: '+ facet)
        		    	if (input == ''){
        		    		
        		    		// if there is no existing facet filter, reload with q
@@ -254,10 +252,8 @@
        		$('span#rmFilters').click(function(){
        			
        			if ( window.location.search != '' ){
-       				if ( MPI2.searchAndFacetConfig.update.noFound ){
+       				if ( MPI2.searchAndFacetConfig.update.notFound ){
        					// no result, remove filter
-       					//$.fn.removeAllFilters();
-       					
        					$.fn.resetUrlFqStr();
        				}
        				else {
@@ -403,8 +399,8 @@
    			// hash tag query
    			// catch back/forward buttons and hash change: loada dataTable based on url params
    			$(window).bind("hashchange", function() {
-   					
-				MPI2.searchAndFacetConfig.update.hashChange = true;
+
+   				MPI2.searchAndFacetConfig.update.hashChange = true;
    				//var hashStr = $.param.fragment();	 // not working with jQuery 10.0.1
    				var hashStr = $(location).attr('hash');	
    				//MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
@@ -420,7 +416,7 @@
    					2. back button
    					*/
    				if ( MPI2.searchAndFacetConfig.update.filterChange ){
-    				//console.log('added or removed a filter');
+   					//console.log('added or removed a filter');
     				MPI2.searchAndFacetConfig.update.filterChange = false;
     				
     				// MA,MP facet stays open when adding/removing filters
@@ -458,6 +454,7 @@
     					$.fn.loadDataTable(oUrlParams);
     				}
     			}
+   				
    				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
    					//console.log('1. widget facet open');
    					
@@ -480,7 +477,6 @@
 						$.fn.rebuildFilters(oUrlParams);
 					}
 				} 
-			
    				else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
     				//console.log('back button OR widget open event');
     				if ( /search\/?$/.test(window.location.href) ){
@@ -502,6 +498,7 @@
     					$.fn.rebuildFilters(oUrlParams);
     				}
 				}
+   				
    			});		
    			
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
@@ -518,7 +515,7 @@
     			//if ( $.isEmptyObject(oUrlParams || typeof oUrlParams.coreName != 'undefined' ) ){
     			if ( $.isEmptyObject(oUrlParams) ){
     				//console.log('search page default load: /search or /search?');
-    				$.fn.fetchSolrFacetCount(oUrlParams);		
+    				$.fn.fetchSolrFacetCount(oUrlParams);	
     			}
     			else {
     				//console.log('rebuild here')
@@ -535,12 +532,7 @@
     				// has q only, no hash string
     				//console.log('has q')
     			}
-    			else if ( typeof oUrlParams.coreName != 'undefined' ){
-    				//console.log('case core');	
     			
-    				oUrlParams.q = '*:*';
-    				oUrlParams.widgetName = oUrlParams.coreName + 'Facet';
-    			}
     			else {
 	
 					// img_ prefix is to for fields marker_type, procedure_id, top_level_mp_term and selected_top_level_ma_term
@@ -557,7 +549,6 @@
 					oUrlParams.widgetName += 'Facet';
 	   				oUrlParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
     			}	
-    			//oUrlParams.q = decodeURI(oUrlParams.q);
     			return oUrlParams;
    			}
    							
