@@ -79,8 +79,6 @@ public class Tools {
 			System.out.println("Failed to decode " + qry);
 		}
 		
-		//kw = kw.replace("\\", "");
-		
 		if ( qry.equals("*:*") ) {
 			return target;	
 		}
@@ -105,23 +103,13 @@ public class Tools {
 					patBuff.append(s);
 				}
 			}
-			//System.out.println("pattern: " + patBuff.toString());
 			kw = patBuff.toString();
 		}
 		
 		kw = kw.replace("*","")
 				.replace("+", "\\+");
-				
-				//.replace("(", "\\(")
-				//.replace(")", "\\)");
-				//.replace("{", "\\{")
-				//.replace("}", "\\}");
 		
 		//working pattern: vang\-like|2|\\(van|gogh,|Drosophila\\)
-		
-		//System.out.println("encoded: " + qry + " vs pattern: " + kw);
-		//System.out.println("target: " + target);
-		//System.out.println(target.equals(kw));
 		
 		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
 		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration. 
