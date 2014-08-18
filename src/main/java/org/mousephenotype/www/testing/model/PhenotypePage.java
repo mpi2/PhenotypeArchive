@@ -82,6 +82,47 @@ public class PhenotypePage {
     
     /**
      * 
+     * @return The definition string
+     */
+    public String getDefinition() {
+        String definition = "";
+        
+        try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/p[@class='with-label']")));
+            if ( ! element.getText().isEmpty()) {
+                if (element.findElement(By.cssSelector("span.label")).getText().trim().equals("Definition")) {
+                    definition = element.getText();
+                }
+            }
+        } catch (Exception e) { }
+        
+        return definition;
+    }
+    
+    /**
+     * 
+     * @return A list of synonyms. The list will be empty if there are no synonyms.
+     */
+    public List<String> getSynonyms() {
+        List<String> synonymList = new ArrayList();
+        
+        try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/p[@class='with-label']/following-sibling::p")));
+            if ( ! element.getText().isEmpty()) {
+                if (element.findElement(By.cssSelector("span.label")).getText().trim().equals("Synonyms")) {
+                    String[] synonymArray = element.getText().replace("Synonyms", "").split(",");
+                    for (String synonym : synonymArray) {
+                        synonymList.add(synonym.trim());
+                    }
+                }
+            }
+        } catch (Exception e) { }
+        
+        return synonymList;
+    }
+    
+    /**
+     * 
      * @return a <code>List&lt;String&gt;</code> of this page's graph urls. The
      * list will be empty if this page doesn't have any graph urls.
      */

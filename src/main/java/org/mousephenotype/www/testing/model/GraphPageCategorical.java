@@ -270,10 +270,10 @@ public class GraphPageCategorical extends GraphPage {
             // Validate the counts.
             status.add(validateDownloadCounts(downloadData));
         } catch (NoSuchElementException | TimeoutException te) {
-            String message = "Expected page for ID " + id + "(" + target + ") but found none.";
+            String message = "ERROR GraphPageCategorical.validateDownload(): Expected page for ID " + id + "(" + target + ") but found none.";
             status.addError(message);
         }  catch (Exception e) {
-            String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            String message = "EXCEPTION GraphPageCategorical.validateDownload(): processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
         

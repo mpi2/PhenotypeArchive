@@ -210,7 +210,9 @@
        				
        				// no need to escape space - looks cleaner to the users 
        				// and it is not essential to escape space
-					input = input.replace(/\\?%20/g, ' '); 
+       				// but remove leading \ from \" to make solr happy
+       				
+					input = input.replace(/\\?%20/g, ' ').replace(/^\\%22/, '%22');
        				
        				var facet = MPI2.searchAndFacetConfig.matchedFacet;
        				
