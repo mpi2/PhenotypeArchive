@@ -171,8 +171,8 @@ public class SolrIndex {
 	private String composeSolrUrl(String core, String mode, String query,
 			String gridSolrParams, Integer iDisplayStart,
 			Integer iDisplayLength, boolean showImgView) {
+		
 		String internalSolrUrl = config.get("internalSolrUrl");
-		 internalSolrUrl = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr";
 		String url = internalSolrUrl + "/" + core + "/select?";
 						
 		System.out.println(("BASEURL: " + url));
