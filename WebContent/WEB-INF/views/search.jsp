@@ -410,7 +410,6 @@
    				//MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
    				
    				//console.log('hash change URL: '+ '/search' + hashStr);
-   				
    				var oUrlParams = _process_hash();
    				
    				//console.log(oUrlParams)
@@ -464,10 +463,13 @@
    					
    					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
    					
-   					// search by keyword (user's input) has no fq in url when hash change is detected
-    				if ( oUrlParams.fq ){			
+   					if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){	
     					$.fn.loadDataTable(oUrlParams);
     				}
+   					else if ( ! MPI2.searchAndFacetConfig.update.mainFacetDoneReset ){
+   						// do nothing for now
+   					}
+   					
    				} 
    				else if ( MPI2.searchAndFacetConfig.update.pageReload == true ){
 					//console.log('reload with widget open true');

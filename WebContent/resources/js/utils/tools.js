@@ -323,7 +323,6 @@
 				*/
 				
 				var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
-				
 				if ( /search\/?$/.exec(location.href) ){
 					// no url params at all		
 					
@@ -361,12 +360,10 @@
 						});	
 					}
 					
-					// when we have filters to deal with, there is &facet=xxx in the url
-					//var mode = typeof oUrlParams.facetName != 'undefined' ? '&facet=' : '&core=';	
+					// there should be &facet=xxx in the url
 					var mode = '&facet=';
 					//alert(mode);
 					
-					//oUrlParams.fq = MPI2.searchAndFacetConfig.currentFq;
 					oUrlParams.fq = $.fn.getCurrentFq(facet);
 					
 					if ( typeof oUrlParams.q == 'undefined' ){
