@@ -38,6 +38,10 @@ config.lastImgSumCount = 0;
 config.update = {};
 config.update.filterObj = [];
 
+config.update.mainFacetDone = false;
+config.update.mainFacetDoneReset = false;
+config.update.mainFacetNone = false;
+
 config.update.widgetOpen   = false;
 config.update.pageReload   = false;
 config.update.hashChange 	= false;

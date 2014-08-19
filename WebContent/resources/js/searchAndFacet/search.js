@@ -39,7 +39,7 @@
 			var facet = core + 'Facet';
 			var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
 			delete params.fl;
-			params.fq = $.fn.getCurrentFq(core);
+			params.fq = $.fn.getCurrentFq(core).replace(/img_/g,'');
 			
 			if ( typeof oUrlParams.qf != 'undefined' ){
 				params.qf = oUrlParams.qf; 
@@ -71,22 +71,6 @@
 		q = $.fn.process_q(q); 
 		oUrlParams.q  = q;
 
-		//console.log('encoded q: ' + oUrlParams.q)
-		/* ---- end of q for SOLR --- */
-		
-		
-//		/* ---- fq for SOLR --- */
-//		if ( typeof oUrlParams.fq != 'undefined' ){
-//			oUrlParams.oriFq = oUrlParams.fq;
-//			oUrlParams.fq = oUrlParams.fq.replace(/img_/g, '');
-//			
-//			if (  typeof oUrlParams.coreName == 'undefined' ){
-//				jsonBase.geneFacet.filterParams = {'fq': oUrlParams.fq};
-//			}
-//		}
-//		/* ---- end of fq for SOLR --- */
-
-		
 		var facetMode = oUrlParams.facetName;
 		var oFacets = {};
 		oFacets.count = {};	
@@ -98,6 +82,7 @@
 	    	async: false,
 	    	success: function(facetCountJson) {
 	    		//console.log(facetCountJson);
+	    		MPI2.searchAndFacetConfig.update.mainFacetDone = true;
 	    		
 	    		oFacets.count = facetCountJson;
 	    		//console.log(oFacets.count.gene);
@@ -113,7 +98,7 @@
 	    		
     	    	if ( ! firstCoreWithResult ){
     	    		// nothing found   
-    	    		$.fn.showNotFoundMsg();
+    	    		MPI2.searchAndFacetConfig.update.mainFacetNone = true;
     	    		
     	    	}
     	    	else {    	    	    		
@@ -134,8 +119,6 @@
     	        	oUrlParams.fq = oUrlParams.fq ? oUrlParams.fq : jsonBase[widgetName].fq; 
     	        	oUrlParams.oriFq = oUrlParams.oriFq ? oUrlParams.oriFq : jsonBase[widgetName].fq; 
     	        	oUrlParams.widgetName = widgetName;
-    	        	
-    	        	
     	        	
     	        	window.jQuery('li#' + defaultCore)[widgetName]({
     					data: {	   							 
