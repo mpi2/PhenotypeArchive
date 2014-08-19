@@ -39,7 +39,7 @@
 			var facet = core + 'Facet';
 			var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
 			delete params.fl;
-			params.fq = $.fn.getCurrentFq(core);
+			params.fq = $.fn.getCurrentFq(core).replace(/img_/g,'');
 			
 			if ( typeof oUrlParams.qf != 'undefined' ){
 				params.qf = oUrlParams.qf; 

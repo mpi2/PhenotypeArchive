@@ -369,8 +369,6 @@
 					//oUrlParams.fq = MPI2.searchAndFacetConfig.currentFq;
 					oUrlParams.fq = $.fn.getCurrentFq(facet);
 					
-					
-					
 					if ( typeof oUrlParams.q == 'undefined' ){
 						// no search kw
 						//console.log('set hash: no q')
