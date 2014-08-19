@@ -14,7 +14,6 @@
             <script>
                 //ajax chart caller code
                 $(document).ready(function() {
-
                     $('.chart').each(function(i, obj)
                     {
                         var graphUrl = $(this).attr('graphUrl');
@@ -63,7 +62,7 @@
 
                 <div class="section">
                     <div class="inner">
-                        <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="${graphUrlLoop.count}">			
+                        <div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="divChart_${graphUrlLoop.count}">			
                             <div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>	
                         </div>
                     </div>
@@ -82,6 +81,10 @@
                 $(document)
                     .ready(function() {
                         //		alert("unidimensional");
+                var background = getBackground();
+                
+                
+                
                         $('div#exportIconsDivGlobal').html("");
                         $('div#exportIconsDivGlobal').html(
                                 $.fn.loadFileExporterUI({
@@ -186,6 +189,24 @@
                             retVal.url = url;
                             retVal.form = form;
                             retVal.exportUrl = exportUrl;
+                            return retVal;
+                        }
+                        
+                        // Returns an array of string containing the background.
+                        function getBackground() {
+                            var background = $('div.chart p').text();
+                            var m = $('div.chart h2.title').text();
+                            m.toString();
+                      //      background = background.replace('Background - involves: ','');
+                      //      var space = background.indexOf('&nbsp;');
+                      //      background = background.substr(0, space - 1);
+                      
+                      var h2 = $('#section-associations').text();
+                      h2.toString();
+                      
+                      
+                            var retVal = [];
+                            retVal.push(background);
                             return retVal;
                         }
 
