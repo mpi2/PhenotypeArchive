@@ -59,8 +59,7 @@ public class QueryBrokerController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
-	//private String internalSolrUrl = config.get("internalSolrUrl");
-	private String internalSolrUrl = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr";
+	private String internalSolrUrl;
 	private JSONObject jsonResponse = new JSONObject();
 	
 	// Use cache to manage queries for minimizing network traffic
@@ -96,6 +95,8 @@ public class QueryBrokerController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
+		
+		internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
 		
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 		
@@ -133,7 +134,7 @@ public class QueryBrokerController {
 					this.jsonResponse.put(core, numFound);
 					
 					cache.put(key, numFound);
-					//System.out.println("####### Cache for main facet added");
+					System.out.println("####### Cache for main facet added");
 				}
 				else {
 					JSONObject j = new JSONObject();
@@ -142,12 +143,12 @@ public class QueryBrokerController {
 					this.jsonResponse.put(core, j);
 					
 					cache.put(key, j);
-					//System.out.println("****** Cache for subfacet added");
+					System.out.println("****** Cache for subfacet added");
 				}
 			}
 			else {
 				this.jsonResponse.put(core, o);
-				//System.out.println("------ Using cache");
+				System.out.println("------ Using cache");
 			}
 		}	
 	}
