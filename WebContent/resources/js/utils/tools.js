@@ -117,6 +117,7 @@
 			//console.log('reset all facet counts for '+q);
 			$.fn.doBatchFacetCountUpdate(q);
 		}
+	
 		
 		MPI2.searchAndFacetConfig.update.filterChange = false;
 		$.fn.loadDataTable(oConf1);
@@ -369,6 +370,7 @@
 					oUrlParams.fq = $.fn.getCurrentFq(facet);
 					
 					
+					
 					if ( typeof oUrlParams.q == 'undefined' ){
 						// no search kw
 						//console.log('set hash: no q')
@@ -379,7 +381,6 @@
 						window.location.hash = 'fq=' + oUrlParams.fq + mode +  facet;											
 					}
 					else {	
-						//console.log('set hash: has q')
 						
 						if ( ! window.location.search.match(/q=/) ){	
 							window.location.hash = 'q=' + oUrlParams.q + '&fq=' + oUrlParams.fq + mode +  facet;
@@ -387,7 +388,12 @@
 						else {		
 							window.location.hash = 'fq=' + oUrlParams.fq + mode +  facet;
 						}
-					}	
+					}
+					
+        			if ( MPI2.searchAndFacetConfig.update.mainFacetDoneReset ){
+        				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = false;
+        				$.fn.rebuildFilters(oUrlParams);
+        			}
 				}
 			}
 		});		

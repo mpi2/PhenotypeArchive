@@ -184,6 +184,7 @@
        		    
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
        		    	var input = $('input#s').val().trim();
+       		    	//alert(input)
        		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
        		    	
        		    	var re = new RegExp("^'(.*)'$");
@@ -206,10 +207,13 @@
        				input = input.replace("%60", "\\`");
        				input = input.replace("~"  , "\\~"); 
        				input = input.replace("%"  , "\\%");
-       				
+       				//alert(input)
        				// no need to escape space - looks cleaner to the users 
        				// and it is not essential to escape space
-       				input = input.replace(/\\?%20/g, ' ').replace(/^\\%22/, '%22');
+       				if ( /^\\%22.+\\.+%22$/.test(input) ){
+       					input = input.replace(/\\/g, ''); //remove \ in double quotes				
+       				}
+       				input = input.replace(/\\?%20/g, ' ');
        				
        				var facet = MPI2.searchAndFacetConfig.matchedFacet;
        				
@@ -465,15 +469,15 @@
     					$.fn.loadDataTable(oUrlParams);
     				}
    				} 
-   				else if ( MPI2.searchAndFacetConfig.update.pageReload ){
-					//console.log('reload with widget open false');
+   				else if ( MPI2.searchAndFacetConfig.update.pageReload == true ){
+					//console.log('reload with widget open true');
 					// eg. default search page loading 
 					if ( /search\/?$/.test(window.location.href) ){
 	    				// when the url become ..../search
 						document.location.href = baseUrl + '/search';
 	    			}
 					else {
-						//rebuildFilters(oUrlParams); 
+						//rebuildFilters(oUrlParams);
 						$.fn.rebuildFilters(oUrlParams);
 					}
 				} 
@@ -503,7 +507,7 @@
    			
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
     			//console.log('page reload: no hash change detected')
-
+				
     			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oUrlParams);
     			
@@ -517,10 +521,20 @@
     				//console.log('search page default load: /search or /search?');
     				$.fn.fetchSolrFacetCount(oUrlParams);	
     			}
+    			else if ( MPI2.searchAndFacetConfig.update.mainFacetNone ){
+    				MPI2.searchAndFacetConfig.update.mainFacetDone = false;
+    				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = true;
+    				MPI2.searchAndFacetConfig.update.mainFacetNone = false;
+					$.fn.rebuildFilters(oUrlParams);
+    			}
     			else {
-    				//console.log('rebuild here')
-    				$.fn.rebuildFilters(oUrlParams);
-    				   			
+        			if ( MPI2.searchAndFacetConfig.update.mainFacetDone ){
+        				MPI2.searchAndFacetConfig.update.mainFacetDone = false;
+        				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = true;
+        			}
+        			else {
+    					$.fn.rebuildFilters(oUrlParams);
+        			}   			
     			}
     		}
     		
