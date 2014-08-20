@@ -340,7 +340,6 @@ public class SolrIndex2 {
 
             JSONArray array = jsonObject2.getJSONArray("loa_assays");
             if (!array.isEmpty()) {
-                //   Map<String, String> lmap = new HashMap<>();
                 for (Object i : array) {
                     String item = (String) i;
                     if (!item.isEmpty()) {
@@ -348,15 +347,14 @@ public class SolrIndex2 {
                         Matcher matcher = pattern.matcher(item);
                         if (matcher.find()) {
                             String loa_assay_url = "http://www.lifetechnologies.com/order/genome-database/searchResults?searchMode=keyword&productTypeSelect=cnv&keyword=";
-                            //   lmap.put(matcher.group(1), loa_assay_url + matcher.group(2));
                             HashMap<String, Object> map3 = new HashMap<>();
-                            map3.put("name", "LT (" + matcher.group(1) + ")");
+                            //map3.put("name", "LT (" + matcher.group(1) + ")");
+                            map3.put("name", "ORDER");
                             map3.put("url", loa_assay_url + matcher.group(2));
                             orders.add(map3);
                         }
                     }
                 }
-                //    map2.put("loa_assays", xxx);
             }
         }
 
