@@ -89,7 +89,7 @@ public class SolrIndex2 {
             "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id"
         };
 
-        List<Map<String, String>> genes = new ArrayList<>();
+        List<Map<String, String>> list = new ArrayList<>();
 
         for (Object doc : docs) {
             JSONObject jsonObject2 = (JSONObject) doc;
@@ -100,6 +100,9 @@ public class SolrIndex2 {
                 if (jsonObject2.has(s)) {
                     String o = jsonObject2.getString(s);
                     map.put(s, o);
+                }
+                else {
+                    map.put(s, "");
                 }
             }
             
@@ -112,12 +115,16 @@ public class SolrIndex2 {
                         break;
                     }
                 }
-            }
+            }           
+            
+//            if(map.containsKey("genbank_file")) {
+//                map.remove("genbank_file");
+//            }           
 
-            genes.add(map);
+            list.add(map);
         }
 
-        return genes;
+        return list;
     }
 
     private String getGeneProductInfoArrayEntry(String key, JSONArray item) throws IOException, URISyntaxException {
@@ -386,6 +393,34 @@ public class SolrIndex2 {
         map2.put("marker_symbol", jsonObject2.getString("marker_symbol"));
 
         map2.put("name", jsonObject2.getString("name"));
+                       
+        if(jsonObject2.containsKey("loa_assays")) {
+            List<Map<String, Object>> orders = (List<Map<String, Object>>)map2.get("orders");
+            
+            JSONArray array = jsonObject2.getJSONArray("loa_assays");
+            if(!array.isEmpty()) {
+                Map<String, String> xxx = new HashMap<>();
+              //  String item = array.getString(0);
+                for(Object i : array) {
+                    String item = (String)i;
+                    if(!item.isEmpty()) {
+                        Pattern pattern = Pattern.compile("(.+):(.+)");
+                        Matcher matcher = pattern.matcher(item);
+                        if (matcher.find()) {
+                         //   map2.put("loa_assay", jsonObject2.getString("name"));
+                            String loa_assay_url = "http://www.lifetechnologies.com/order/genome-database/searchResults?searchMode=keyword&productTypeSelect=cnv&keyword=";
+                            xxx.put(matcher.group(1), loa_assay_url + matcher.group(2));
+                            HashMap<String, Object> map3 = new HashMap<>();
+                            //map3.put("name", "Life Technologies (" + matcher.group(1) + ")");
+                            map3.put("name", "LT (" + matcher.group(1) + ")");
+                            map3.put("url", loa_assay_url + matcher.group(2));
+                            orders.add(map3);                        
+                        }                   
+                    }
+                }
+                map2.put("loa_assays", xxx);
+            }
+        }
 
         return map2;
     }
@@ -894,6 +929,63 @@ public class SolrIndex2 {
         return url;
     }
 
+    private String getGeneProductCoreUrlAlt(String accession, String allele_name) {
+        String qallele_name = "";
+        if (allele_name != null) {
+            qallele_name = " -type:targeting_vector allele_name:\"" + allele_name + "\"";
+        }
+
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q=mgi_accession_id:"
+                + accession.replace(":", "\\:")
+                + qallele_name
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        return url;
+    }
+
+    private String getGeneProductCoreUrlAlt2(String accession, String allele_type) {
+        String qallele_type = "";
+        if (allele_type != null) {
+            qallele_type = "type:targeting_vector allele_type:\"" + allele_type + "\"";
+        }
+
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q=mgi_accession_id:"
+                + accession.replace(":", "\\:")
+                + qallele_type
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        return url;
+    }
+
+    private String getGeneProductCoreUrlAlt3(String accession, String allele_name) {
+        String qallele_name = "";
+        String qallele_type = "";
+        String left = "";
+        String right = "";
+        if (allele_name != null) {
+            qallele_name = " AND allele_name:\"" + allele_name + "\"";
+
+            Pattern pattern = Pattern.compile(".+?/d(.)");
+            Matcher matcher = pattern.matcher(allele_name);
+            if (matcher.find()) {           
+                qallele_name = " AND allele_type:\"" + matcher.group(1) + "\"";
+            }
+        }
+        
+        left = "(-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name + ")";
+        right = "(type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_type + ")";
+
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q="
+                + left
+                + " OR "
+                + right
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        log.info("####### getGeneProductCoreUrlAlt3: url: " + url);
+        
+        return url;
+    }
+
     public static final String[] DELETE_VALUES = new String[]{"1b", "1d", "1", "1.1", "1.2"};
 
     private String isDeleted(String type) {
@@ -914,9 +1006,25 @@ public class SolrIndex2 {
         return title;
     }
     
+//    private String getLoaAssay(Map<String, Object> es_cell) {
+//        if(es_cell.containsKey("loa_assay")) {
+//            log.info("#### url getLoaAssay: loa_assay: " + es_cell.get("loa_assay"));
+//            return es_cell.get("loa_assay").toString();
+//        }
+//        return "";
+//    }
+
+    private Object getLoaAssay(Map<String, Object> es_cell) {
+        if(es_cell.containsKey("loa_assays")) {
+            return es_cell.get("loa_assays");
+        }
+        return null;
+    }
+    
     public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
 
-        String url = getGeneProductCoreUrl(accession, allele_name);
+        String url = getGeneProductCoreUrlAlt3(accession, allele_name);
+        //String url = getGeneProductCoreUrl(accession, allele_name);
 
         log.info("#### url for getGeneProductInfo=" + url);
 
@@ -935,6 +1043,7 @@ public class SolrIndex2 {
         List<Map<String, Object>> targeting_vectors = new ArrayList<>();
 
         String title = "Unknown";
+        Object loa_assay = null;
 
         for (Object doc : docs) {
             JSONObject jsonObject2 = (JSONObject) doc;
@@ -950,6 +1059,12 @@ public class SolrIndex2 {
                 Map<String, Object> es_cell = getGeneProductInfoEsCells(jsonObject2);
                 title = getTitle((String)es_cell.get("marker_symbol"), (String)es_cell.get("allele_name"));
                 es_cells.add(es_cell);
+                
+                if(loa_assay == null) {
+                   // loa_assay = getLoaAssay(es_cell);
+                    loa_assay = getLoaAssay(es_cell);
+                    log.info("#### getGeneProductInfo: loa_assay: " + loa_assay);
+                }
             }
 
             if (type.equals("targeting_vector")) {
@@ -987,8 +1102,14 @@ public class SolrIndex2 {
                 genbank_file = genbank_file.replace("escell-clone_genbank_file", "escell-clone-genbank-file");
                 genbank_file = genbank_file.replace("escell-clone_cre-genbank_file", "escell-clone-cre-genbank-file");
                 summary.put("genbank", genbank_file);
-
-                summary.put("map_image", item.get("allele_image") + "?simple=true");
+                
+                if(item.containsKey("allele_image")) {
+                    String s = item.get("allele_image");
+                    if(!s.isEmpty()) {
+                        summary.put("map_image", s + "?simple=true");
+                    }
+                }
+                
                 summary.put("allele_description", getAlleleDescription("1" + item.get("allele_type")));
                 summary.put("allele_description_1b", getAlleleDescription("1b"));
                 summary.put("is_deleted", isDeleted("1" + item.get("allele_type")));
@@ -1020,7 +1141,16 @@ public class SolrIndex2 {
                 summary.put("statuses", getGeneProductInfoStatuses(mapper));    // TODO: FIX-ME!                
 
                 summary.put("status_mice", getGeneProductInfoStatusesMouseAlt(mapper));
-                summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
+                
+                //summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
+
+                if(loa_assay != null) {
+                    //String loa_assay_url = "http://www.lifetechnologies.com/order/genome-database/searchResults?searchMode=keyword&productTypeSelect=cnv&keyword=";
+                    log.info("#### getGeneProductInfo: loa_assay: " + loa_assay);
+                  //  summary.put("loa_assays", loa_assay);
+                }
+
+                summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper, loa_assay));
 
                 log.info("#### getGeneProductInfo: status_mice: " + mapper.get("status_mice"));
                 log.info("#### getGeneProductInfo: status_es_cells: " + mapper.get("status_es_cells"));
@@ -1204,17 +1334,32 @@ public class SolrIndex2 {
         HashMap<String, HashMap<String, List<String>>> deep = new HashMap<String, HashMap<String, List<String>>>();
 
         String[] qc;
-        qc = new String[3];
-        String qc_group;
-        String qc_type;
-        String qc_result;
+//        qc = new String[3];
+        String qc_group = "";
+        String qc_type = "";
+        String qc_result = "";
 
         JSONArray qcDataArray = docs.getJSONObject(i).getJSONArray("qc_data");
         for (int j = 0; j < qcDataArray.size(); j++) {
             qc = qcDataArray.getString(j).split(":");
-            qc_group = qc[0];
-            qc_type = qc[1];
-            qc_result = qc[2];
+
+         //   log.info("#### extractQcData: qcDataArray.getString(j): " + qcDataArray.getString(j));            
+            
+            if(qc != null && qc.length > 0) {
+         //       log.info("#### extractQcData: qc[0]: " + qc[0]);            
+                qc_group = qc[0];
+            }
+            
+            if(qc != null && qc.length > 1) {
+          //      log.info("#### extractQcData: qc[1]: " + qc[1]);            
+                qc_type = qc[1];
+            }
+            
+            if(qc != null && qc.length > 2) {
+         //       log.info("#### extractQcData: qc[2]: " + qc[2]);            
+                qc_result = qc[2];
+            }
+            
             if (!deep.containsKey(qc_group)) {
                 deep.put(qc_group, new HashMap<String, List<String>>());
                 deep.get(qc_group).put("fieldNames", new ArrayList());
@@ -1431,13 +1576,13 @@ public class SolrIndex2 {
 ////        return combined;
 //    }
 
-    private Map<String, Object> getGeneProductInfoStatusesEsCellAlt(Map<String, Object> genes) {
-
+    private Map<String, Object> getGeneProductInfoStatusesEsCellAlt(Map<String, Object> genes, Object obj) {
+        
         List<Map<String, Object>> es_cells = (List<Map<String, Object>>) genes.get("es_cells");
 
         Map<String, Object> foundMap = new HashMap<>();
         Map<String, Object> notFoundMap = new HashMap<>();
-
+        
         for (Map<String, Object> es_cell : es_cells) {
             if (es_cell.get("production_completed") == "true") {       // && mice.get("mice_complete")) {
                 foundMap.put("TEXT", phraseMap.get("cells"));
@@ -1479,7 +1624,28 @@ public class SolrIndex2 {
         log.info("#### getGeneProductInfoStatusesEsCellAlt: foundMap: " + foundMap);
         log.info("#### getGeneProductInfoStatusesEsCellAlt: notFoundMap: " + notFoundMap);
 
-        if (foundMap.size() > 0) {
+
+        
+        
+        
+//        Map<String, String> loa_assays = (Map<String, String>)obj;
+//        if (foundMap.size() > 0 && loa_assays != null && ! loa_assays.isEmpty()) {            
+//            if(!foundMap.containsKey("orders")) {
+//                foundMap.put("orders", new ArrayList<String>());
+//            }
+//            ArrayList<String> o = (ArrayList<String>)foundMap.get("orders");
+//            for(String key : loa_assays.keySet()) {
+//                o.add(loa_assays.get(key));
+//            }     
+//        }
+        
+        
+        
+        
+        
+        
+        
+        if (foundMap.size() > 0) {            
             return foundMap;
         }
 
