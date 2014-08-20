@@ -46,10 +46,11 @@ import uk.ac.ebi.phenotype.web.util.HttpProxy;
 public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
+    private static final String VERSIONDATE = "Wed Aug 20 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;
-    
+
     // TODO: remove me!
 
     private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
@@ -129,7 +130,7 @@ public class AllelesController {
         targetList.add("marker_symbol:Zfp111");
         targetList.add("marker_symbol:Arhgef6");
         targetList.add("marker_symbol:Heyl");
-        
+
         targetList.add("marker_symbol:Selenbp2");
         targetList.add("marker_symbol:Foxn4");
         targetList.add("marker_symbol:Ccdc13");
@@ -144,11 +145,11 @@ public class AllelesController {
         params1.put("multi", qs2);
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
-        
+
 //        targetList = new ArrayList<>();
 //        targetList.add("marker_symbol:Selenbp2");
 //        List<Map<String, Object>> list2 = solrIndex2.getProductGeneDetails(params1);
-        
+
         List<Map<String, String>> list = new ArrayList<>();
 
         for (Map<String, Object> item : list1) {
@@ -165,8 +166,8 @@ public class AllelesController {
         }
 
         model.addAttribute("list", list);
-        
-        model.addAttribute("versionDate", "Tue Aug 19 2014");
+
+        model.addAttribute("versionDate", VERSIONDATE);
 
         return "alleles_list";
     }
@@ -193,7 +194,7 @@ public class AllelesController {
         params1.put("multi", qs2);
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
-               
+
         List<Map<String, String>> list = new ArrayList<>();
 
         for (Map<String, Object> item : list1) {
@@ -210,8 +211,8 @@ public class AllelesController {
         }
 
         model.addAttribute("list", list);
-        
-        model.addAttribute("versionDate", "Tue Aug 19 2014");
+
+        model.addAttribute("versionDate", VERSIONDATE);
 
         return "alleles_list";
     }
@@ -238,8 +239,8 @@ public class AllelesController {
 
         model.addAttribute("list", list);
 
-        model.addAttribute("versionDate", "Tue Aug 19 2014");
-        
+        model.addAttribute("versionDate", VERSIONDATE);
+
         return "alleles_list";
     }
 
@@ -283,7 +284,7 @@ public class AllelesController {
     }
 
     // TODO: fix dodgy routine returning html!
-    
+
     private String getMutagenesisBlurb(Map<String, Integer> stats, HashMap<String, Object> summary) {
 
         if (stats == null) {
@@ -324,7 +325,7 @@ public class AllelesController {
 
         return s;
     }
-    
+
     // TODO: move to separate class?
 
     private JSONArray getMutagenesisDetails(
@@ -475,7 +476,7 @@ public class AllelesController {
     }
 
     // TODO: remove me!
-    
+
     private void addMutagenesisExample(List<Map<String, String>> list, String key, String value) {
         Map<String, String> item = new HashMap<>();
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + value + "/detail";
@@ -489,7 +490,7 @@ public class AllelesController {
     }
 
     // TODO: remove me!
-    
+
     @RequestMapping("/mutagenesis")
     public String mutagenesis(
             Model model,
@@ -509,7 +510,7 @@ public class AllelesController {
         model.addAttribute("mutagenesis_examples", list);
         return "mutagenesis";
     }
-    
+
     private JSONObject getPcrDetails(
             boolean isMirko,
             String id) throws MalformedURLException, IOException, URISyntaxException {
@@ -519,7 +520,7 @@ public class AllelesController {
         }
 
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/" + id;
-        
+
         if(isMirko) {
             url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/mirko_primers/" + id;
         }
@@ -570,18 +571,18 @@ public class AllelesController {
         model.addAttribute("summary", products.get("summary"));
 
         HashMap<String, Object> summary = (HashMap<String, Object>) products.get("summary");
-        
+
         boolean isMirko = solrIndex2.isMirko(acc, allele_name);
-        
+
         String id;
-        
+
         if(isMirko) {
             id = solrIndex2.getDesign(acc, allele_name);
         }
         else {
             id = solrIndex2.getProject(acc, allele_name);
         }
-        
+
         JSONObject object = getPcrDetails(isMirko, id);
         model.addAttribute("lrpcr", object);
 
@@ -636,5 +637,5 @@ public class AllelesController {
         log.info("#### mutagenesis: " + mutagenesis);
 
         return "mutagenesis";
-    }    
+    }
 }
