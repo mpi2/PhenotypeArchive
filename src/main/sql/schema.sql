@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.  
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,12 +23,14 @@ SET collation_connection = utf8_general_ci;
 --
 -- Drop all the tables if they exist
 --
+DROP TABLE IF EXISTS analytics_specimen_load;
 DROP TABLE IF EXISTS meta_info;
 DROP TABLE IF EXISTS meta_history;
 DROP TABLE IF EXISTS analytics_mp_calls;
 DROP TABLE IF EXISTS allele;
 DROP TABLE IF EXISTS biological_model;
 DROP TABLE IF EXISTS biological_model_allele;
+DROP TABLE IF EXISTS biological_model_experiment;
 DROP TABLE IF EXISTS biological_model_strain;
 DROP TABLE IF EXISTS biological_model_genomic_feature;
 DROP TABLE IF EXISTS biological_model_phenotype;
@@ -85,6 +87,56 @@ DROP TABLE IF EXISTS procedure_meta_data;
 DROP TABLE IF EXISTS genes_secondary_project;
 
 /**
+ * Contains information about the loading of specimen files
+ */
+CREATE TABLE analytics_specimen_load (
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	filename                 VARCHAR(255) NOT NULL DEFAULT '',
+	colony_id                VARCHAR(255) NOT NULL DEFAULT '',
+	dob                      VARCHAR(50) NOT NULL DEFAULT '',
+	baseline                 BOOLEAN,
+	strain                   VARCHAR(255) NOT NULL DEFAULT '',
+	specimen_id              VARCHAR(255) NOT NULL DEFAULT '',
+	sex                      VARCHAR(10) NOT NULL DEFAULT '',
+	zygosity                 VARCHAR(20) NOT NULL DEFAULT '',
+	litter_id                VARCHAR(255) NOT NULL DEFAULT '',
+	impress_pipeline         VARCHAR(50) NOT NULL DEFAULT '',
+	production_center        VARCHAR(100) NOT NULL DEFAULT '',
+	phenotyping_center       VARCHAR(100) NOT NULL DEFAULT '',
+	project                  VARCHAR(255) NOT NULL DEFAULT '',
+	status                   VARCHAR(100) NOT NULL DEFAULT '',
+	message                  TEXT,
+	additional_information   TEXT,
+
+	PRIMARY KEY (id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/**
+ * Contains information about the loading of experiment files
+ */
+CREATE TABLE analytics_experiment_load (
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	filename                 VARCHAR(255) NOT NULL DEFAULT '',
+	center_id                VARCHAR(255) NOT NULL DEFAULT '',
+	date_of_experiment       VARCHAR(50) NOT NULL DEFAULT '',
+	sequence_id              VARCHAR(255) NOT NULL DEFAULT '',
+	experiment_id            VARCHAR(255) NOT NULL DEFAULT '',
+	speciment_id             VARCHAR(10) NOT NULL DEFAULT '',
+	impress_pipeline         VARCHAR(50) NOT NULL DEFAULT '',
+	impress_procedure        VARCHAR(100) NOT NULL DEFAULT '',
+	impress_parameter        VARCHAR(100) NOT NULL DEFAULT '',
+	parameter_type           VARCHAR(255) NOT NULL DEFAULT '',
+	data_value               VARCHAR(255) NOT NULL DEFAULT '',
+	status                   VARCHAR(100) NOT NULL DEFAULT '',
+	message                  TEXT,
+	additional_information   TEXT,
+
+	PRIMARY KEY (id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/**
  * Contains meta information about the database like
  * the version of the code that can run safely on the data
  * the mouse assembly version of the data
@@ -92,14 +144,14 @@ DROP TABLE IF EXISTS genes_secondary_project;
  * the version of the database schema
  */
 CREATE TABLE meta_info (
-	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	property_key                VARCHAR(255) NOT NULL DEFAULT '',
-	property_value              VARCHAR(255) NOT NULL DEFAULT '',
-	description                 TEXT,
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	property_key             VARCHAR(255) NOT NULL DEFAULT '',
+	property_value           VARCHAR(255) NOT NULL DEFAULT '',
+	description              TEXT,
 
-    PRIMARY KEY (id),
-    UNIQUE KEY key_idx (property_key),
-    KEY value_idx (property_value)
+	PRIMARY KEY (id),
+	UNIQUE KEY key_idx (property_key),
+	KEY value_idx (property_value)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -108,33 +160,33 @@ CREATE TABLE meta_info (
  * Numbers through time
  */
 CREATE TABLE meta_history (
-	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	property_key                VARCHAR(255) NOT NULL DEFAULT '',
-	property_value              VARCHAR(255) NOT NULL DEFAULT '',
-	data_release_version        VARCHAR(10) NOT NULL,
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	property_key             VARCHAR(255) NOT NULL DEFAULT '',
+	property_value           VARCHAR(255) NOT NULL DEFAULT '',
+	data_release_version     VARCHAR(10) NOT NULL,
 
-    PRIMARY KEY (id),
-    KEY value_idx (property_value),
-    KEY version_idx (data_release_version)
+	PRIMARY KEY (id),
+	KEY value_idx (property_value),
+	KEY version_idx (data_release_version)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE analytics_mp_calls (
-	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	phenotyping_center          VARCHAR(255) NOT NULL DEFAULT '',
-	marker_symbol               VARCHAR(255) NOT NULL DEFAULT '',
-	marker_accession_id         VARCHAR(255) NOT NULL DEFAULT '',
-	colony_id                   VARCHAR(255) NOT NULL DEFAULT '',
-	mp_term_id                  VARCHAR(255) NOT NULL DEFAULT '',
-	mp_term_name                VARCHAR(255) NOT NULL DEFAULT '',
-	mp_term_level                ENUM('top', 'intermediate', 'leaf'),
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	phenotyping_center       VARCHAR(255) NOT NULL DEFAULT '',
+	marker_symbol            VARCHAR(255) NOT NULL DEFAULT '',
+	marker_accession_id      VARCHAR(255) NOT NULL DEFAULT '',
+	colony_id                VARCHAR(255) NOT NULL DEFAULT '',
+	mp_term_id               VARCHAR(255) NOT NULL DEFAULT '',
+	mp_term_name             VARCHAR(255) NOT NULL DEFAULT '',
+	mp_term_level            ENUM('top', 'intermediate', 'leaf'),
 	
 	PRIMARY KEY (id),
-    KEY center_idx (phenotyping_center),
-    KEY marker_idx (marker_accession_id),
-    KEY colony_idx (colony_id),
-    KEY mp_idx (mp_term_id, mp_term_level)
+	KEY center_idx (phenotyping_center),
+	KEY marker_idx (marker_accession_id),
+	KEY colony_idx (colony_id),
+	KEY mp_idx (mp_term_id, mp_term_level)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -144,48 +196,48 @@ CREATE TABLE analytics_mp_calls (
 We made this table generic enough to store legacy project data
 */
 CREATE TABLE project (
-	id                          INT(10) UNSIGNED NOT NULL,
-	name                        VARCHAR(255) NOT NULL DEFAULT '',
-	fullname                    VARCHAR(255) NOT NULL DEFAULT '',
-	description                 TEXT,
+	id                       INT(10) UNSIGNED NOT NULL,
+	name                     VARCHAR(255) NOT NULL DEFAULT '',
+	fullname                 VARCHAR(255) NOT NULL DEFAULT '',
+	description              TEXT,
 
-    PRIMARY KEY (id),
-    UNIQUE KEY name_idx (name)
+	PRIMARY KEY (id),
+	UNIQUE KEY name_idx (name)
 
-    ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE organisation (
 
-    id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    name                        VARCHAR(255) NOT NULL DEFAULT '',
-    fullname                    VARCHAR(255) NOT NULL DEFAULT '',
-    country                     VARCHAR(50),
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	name                     VARCHAR(255) NOT NULL DEFAULT '',
+	fullname                 VARCHAR(255) NOT NULL DEFAULT '',
+	country                  VARCHAR(50),
 
-    PRIMARY KEY (id),
-    UNIQUE KEY name_idx (name)
+	PRIMARY KEY (id),
+	UNIQUE KEY name_idx (name)
 
-    ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE participant (
 
-    project_id                  INT(10) UNSIGNED NOT NULL,
-    organisation_id             INT(10) UNSIGNED NOT NULL,
-    role                        VARCHAR(255) NOT NULL DEFAULT '',
+	project_id               INT(10) UNSIGNED NOT NULL,
+	organisation_id          INT(10) UNSIGNED NOT NULL,
+	role                     VARCHAR(255) NOT NULL DEFAULT '',
 
-    KEY project (project_id),
-    KEY organisation (organisation_id)
+	KEY project (project_id),
+	KEY organisation (organisation_id)
 
-    ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Very mouse specific . What about Zebrafish? ZFIN
  */
 CREATE TABLE ilar (
 
-    labcode                     VARCHAR(50) NOT NULL,
-    status                      ENUM('active', 'pending', 'retired'),
-    investigator                VARCHAR(255) NOT NULL DEFAULT '',
-    organisation                VARCHAR(255) NOT NULL DEFAULT '',
+	labcode                  VARCHAR(50) NOT NULL,
+	status                   ENUM('active', 'pending', 'retired'),
+	investigator             VARCHAR(255) NOT NULL DEFAULT '',
+	organisation             VARCHAR(255) NOT NULL DEFAULT '',
 	
 	PRIMARY KEY (labcode)
 	
@@ -198,14 +250,14 @@ CREATE TABLE ilar (
 -- this table holds all the external/ASTD database names 
 CREATE TABLE external_db (
 
-    id                          INT(10) UNSIGNED NOT NULL,
-    name                        VARCHAR(100) NOT NULL,
-    short_name                  VARCHAR(40) NOT NULL,
-    version                     VARCHAR(15) NOT NULL DEFAULT '',
-    version_date                DATE not NULL,
-    
-    PRIMARY   KEY (id),
-    UNIQUE    KEY name_idx (name, version, version_date)
+	id                       INT(10) UNSIGNED NOT NULL,
+	name                     VARCHAR(100) NOT NULL,
+	short_name               VARCHAR(40) NOT NULL,
+	version                  VARCHAR(15) NOT NULL DEFAULT '',
+	version_date             DATE not NULL,
+	
+	PRIMARY   KEY (id),
+	UNIQUE	KEY name_idx (name, version, version_date)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 	
@@ -213,25 +265,25 @@ CREATE TABLE external_db (
  * This table will store the ontological terms we need for controlled vocabulary
  */
 CREATE TABLE ontology_term (
-    acc                      VARCHAR(20) NOT NULL,
-    db_id                    INT(10) NOT NULL,
-    name                     TEXT NOT NULL,
-    description              TEXT,
-    is_obsolete              TINYINT(1) DEFAULT 0,
-    PRIMARY   KEY (acc, db_id)
+	acc                      VARCHAR(20) NOT NULL,
+	db_id					INT(10) NOT NULL,
+	name					 TEXT NOT NULL,
+	description			  TEXT,
+	is_obsolete			  TINYINT(1) DEFAULT 0,
+	PRIMARY   KEY (acc, db_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE ontology_relationship (
-    a_acc                      VARCHAR(20) NOT NULL,
-    a_db_id                    INT(10) NOT NULL,
-    b_acc                      VARCHAR(20) NOT NULL,
-    b_db_id                    INT(10) NOT NULL,
-    relationship               VARCHAR(30) NOT NULL,
-    
-    KEY (a_acc, a_db_id),
-    KEY (b_acc, b_db_id)
-    
+	a_acc					  VARCHAR(20) NOT NULL,
+	a_db_id					INT(10) NOT NULL,
+	b_acc					  VARCHAR(20) NOT NULL,
+	b_db_id					INT(10) NOT NULL,
+	relationship			   VARCHAR(30) NOT NULL,
+	
+	KEY (a_acc, a_db_id),
+	KEY (b_acc, b_db_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -243,14 +295,14 @@ CREATE TABLE ontology_relationship (
 
 CREATE TABLE coord_system (
 
-  id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  name                        VARCHAR(40) NOT NULL, 
-  strain_acc                  VARCHAR(20) DEFAULT NULL,
-  strain_db_id                INT(10) UNSIGNED DEFAULT NULL,
-  db_id                       INT(10) NOT NULL,
+  id						  INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  name						VARCHAR(40) NOT NULL, 
+  strain_acc				  VARCHAR(20) DEFAULT NULL,
+  strain_db_id				INT(10) UNSIGNED DEFAULT NULL,
+  db_id					   INT(10) NOT NULL,
 
   PRIMARY   KEY (id),
-  UNIQUE    KEY name_idx (db_id, strain_db_id),
+  UNIQUE	KEY name_idx (db_id, strain_db_id),
   KEY db_idx (db_id),
   KEY strain_idx (strain_db_id)
   
@@ -259,10 +311,10 @@ CREATE TABLE coord_system (
 	
 CREATE TABLE seq_region (
 
-  id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  name                        VARCHAR(40) NOT NULL,
-  coord_system_id             INT(10) UNSIGNED NOT NULL,
-  length                      INT(10) UNSIGNED NOT NULL,
+  id						  INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  name						VARCHAR(40) NOT NULL,
+  coord_system_id			 INT(10) UNSIGNED NOT NULL,
+  length					  INT(10) UNSIGNED NOT NULL,
 
   PRIMARY KEY (id),
   UNIQUE KEY name_cs_idx (name, coord_system_id),
@@ -276,42 +328,42 @@ CREATE TABLE seq_region (
  * that can be mapped through formal genetic analysis
  */
 CREATE TABLE genomic_feature (
-    acc                       VARCHAR(20) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    symbol                    VARCHAR(100) NOT NULL,
-    name                      VARCHAR(200) NOT NULL,
-    biotype_acc               VARCHAR(20) NOT NULL,
-    biotype_db_id             INT(10) NOT NULL,
-    subtype_acc               VARCHAR(20),
-    subtype_db_id             INT(10),
-    seq_region_id             INT(10) UNSIGNED,
-    seq_region_start          INT(10) UNSIGNED DEFAULT 0,
-    seq_region_end            INT(10) UNSIGNED DEFAULT 0,
-    seq_region_strand         TINYINT(2) DEFAULT 0,
-    cm_position               VARCHAR(40),
-    status                    ENUM('active', 'withdrawn') NOT NULL DEFAULT 'active',   
-    
-    PRIMARY   KEY (acc, db_id),
-    KEY genomic_feature_symbol_idx (symbol),
-    KEY genomic_feature_acc_idx (acc),
-    KEY seq_region_idx (seq_region_id),
-    KEY biotype_idx (biotype_acc, biotype_db_id),
-    KEY subtype_idx (subtype_acc, subtype_db_id)
-    
+	acc					   VARCHAR(20) NOT NULL,
+	db_id					 INT(10) NOT NULL,
+	symbol					VARCHAR(100) NOT NULL,
+	name					  VARCHAR(200) NOT NULL,
+	biotype_acc			   VARCHAR(20) NOT NULL,
+	biotype_db_id			 INT(10) NOT NULL,
+	subtype_acc			   VARCHAR(20),
+	subtype_db_id			 INT(10),
+	seq_region_id			 INT(10) UNSIGNED,
+	seq_region_start		  INT(10) UNSIGNED DEFAULT 0,
+	seq_region_end			INT(10) UNSIGNED DEFAULT 0,
+	seq_region_strand		 TINYINT(2) DEFAULT 0,
+	cm_position			   VARCHAR(40),
+	status					ENUM('active', 'withdrawn') NOT NULL DEFAULT 'active',   
+	
+	PRIMARY   KEY (acc, db_id),
+	KEY genomic_feature_symbol_idx (symbol),
+	KEY genomic_feature_acc_idx (acc),
+	KEY seq_region_idx (seq_region_id),
+	KEY biotype_idx (biotype_acc, biotype_db_id),
+	KEY subtype_idx (subtype_acc, subtype_db_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE synonym (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    acc                       VARCHAR(20) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    symbol                    VARCHAR(8192) NOT NULL,
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	acc					   VARCHAR(20) NOT NULL,
+	db_id					 INT(10) NOT NULL,
+	symbol					VARCHAR(8192) NOT NULL,
 
-    PRIMARY KEY (id),
-    KEY genomic_feature_idx (acc, db_id),
-    KEY genomic_feature_acc_idx (acc),
-    KEY synonym_symbol_idx (symbol)
-    
+	PRIMARY KEY (id),
+	KEY genomic_feature_idx (acc, db_id),
+	KEY genomic_feature_acc_idx (acc),
+	KEY synonym_symbol_idx (symbol)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -319,16 +371,16 @@ CREATE TABLE synonym (
  */
 CREATE TABLE xref (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    acc                       VARCHAR(20) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    xref_acc                  VARCHAR(20) NOT NULL,
-    xref_db_id                INT(10) NOT NULL,
-    
-    PRIMARY KEY (id),
-    KEY genomic_feature_idx (acc, db_id),
-    KEY xref_idx (xref_acc, xref_db_id)
-    
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	acc					   VARCHAR(20) NOT NULL,
+	db_id					 INT(10) NOT NULL,
+	xref_acc				  VARCHAR(20) NOT NULL,
+	xref_db_id				INT(10) NOT NULL,
+	
+	PRIMARY KEY (id),
+	KEY genomic_feature_idx (acc, db_id),
+	KEY xref_idx (xref_acc, xref_db_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -338,20 +390,20 @@ CREATE TABLE xref (
  */
 CREATE TABLE allele (
 
-    acc                       VARCHAR(20) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    gf_acc                    VARCHAR(20),
-    gf_db_id                  INT(10),
-    biotype_acc               VARCHAR(20),
-    biotype_db_id             INT(10),    
-    symbol					  VARCHAR(100) NOT NULL,
-    name                      VARCHAR(200) NOT NULL,
+	acc					   VARCHAR(20) NOT NULL,
+	db_id					 INT(10) NOT NULL,
+	gf_acc					VARCHAR(20),
+	gf_db_id				  INT(10),
+	biotype_acc			   VARCHAR(20),
+	biotype_db_id			 INT(10),	
+	symbol					  VARCHAR(100) NOT NULL,
+	name					  VARCHAR(200) NOT NULL,
 
-    PRIMARY KEY (acc, db_id),
-    KEY genomic_feature_idx (gf_acc, gf_db_id),
-    KEY biotype_idx (biotype_acc, biotype_db_id),
-    KEY symbol_idx (symbol)
-    
+	PRIMARY KEY (acc, db_id),
+	KEY genomic_feature_idx (gf_acc, gf_db_id),
+	KEY biotype_idx (biotype_acc, biotype_db_id),
+	KEY symbol_idx (symbol)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -359,52 +411,63 @@ CREATE TABLE allele (
  */
 CREATE TABLE strain (
 
-    acc                       VARCHAR(20) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    biotype_acc               VARCHAR(20),
-    biotype_db_id             INT(10),
-    name                      VARCHAR(200) NOT NULL,
+	acc					   VARCHAR(20) NOT NULL,
+	db_id					 INT(10) NOT NULL,
+	biotype_acc			   VARCHAR(20),
+	biotype_db_id			 INT(10),
+	name					  VARCHAR(200) NOT NULL,
 
-    PRIMARY KEY (acc, db_id),
-    KEY biotype_idx (biotype_acc, biotype_db_id),
-    KEY name_idx (name)
-    
+	PRIMARY KEY (acc, db_id),
+	KEY biotype_idx (biotype_acc, biotype_db_id),
+	KEY name_idx (name)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE biological_model (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    db_id                     INT(10) NOT NULL, 
-    allelic_composition       VARCHAR(200) NOT NULL,
-    genetic_background        VARCHAR(200) NOT NULL,
-    zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote') DEFAULT NULL,
-    PRIMARY KEY (id),
-    KEY allelic_composition_idx (allelic_composition),
-    KEY genetic_background_idx (genetic_background)
-    
+	id                      INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	db_id                   INT(10) NOT NULL, 
+	allelic_composition	   VARCHAR(200) NOT NULL,
+	genetic_background		VARCHAR(200) NOT NULL,
+	zygosity				  ENUM('homozygote', 'heterozygote', 'hemizygote') DEFAULT NULL,
+	PRIMARY KEY (id),
+	KEY allelic_composition_idx (allelic_composition),
+	KEY genetic_background_idx (genetic_background)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE biological_model_allele (
 
-    biological_model_id       INT(10) UNSIGNED NOT NULL,
-    allele_acc                VARCHAR(20) NOT NULL,
-    allele_db_id              INT(10) NOT NULL,
-    
-    KEY biological_model_idx (biological_model_id),
-    KEY allele_idx (allele_acc, allele_db_id)
-    
+	biological_model_id	   INT(10) UNSIGNED NOT NULL,
+	allele_acc				VARCHAR(20) NOT NULL,
+	allele_db_id			  INT(10) NOT NULL,
+	
+	KEY biological_model_idx (biological_model_id),
+	KEY allele_idx (allele_acc, allele_db_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+CREATE TABLE biological_model_experiment (
+
+	biological_model_id	   INT(10) UNSIGNED NOT NULL,
+	experiment_id          INT(10) UNSIGNED NOT NULL,
+	
+	KEY biological_model_idx (biological_model_id),
+	KEY experiment_idx (experiment_id)
+	
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 CREATE TABLE biological_model_strain (
 
-    biological_model_id       INT(10) UNSIGNED NOT NULL,
-    strain_acc                VARCHAR(20) NOT NULL,
-    strain_db_id              INT(10) NOT NULL,
-    
-    KEY biological_model_idx (biological_model_id),
-    KEY strain_idx (strain_acc, strain_db_id)
-    
+	biological_model_id	   INT(10) UNSIGNED NOT NULL,
+	strain_acc				VARCHAR(20) NOT NULL,
+	strain_db_id			  INT(10) NOT NULL,
+	
+	KEY biological_model_idx (biological_model_id),
+	KEY strain_idx (strain_acc, strain_db_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -413,24 +476,24 @@ CREATE TABLE biological_model_strain (
  */
 CREATE TABLE biological_model_phenotype (
 
-    biological_model_id       INT(10) UNSIGNED NOT NULL,
-    phenotype_acc             VARCHAR(20) NOT NULL,
-    phenotype_db_id           INT(10) NOT NULL,
-    
-    KEY biological_model_idx (biological_model_id),
-    KEY phenotype_idx (phenotype_acc, phenotype_db_id)
-    
+	biological_model_id	   INT(10) UNSIGNED NOT NULL,
+	phenotype_acc			 VARCHAR(20) NOT NULL,
+	phenotype_db_id		   INT(10) NOT NULL,
+	
+	KEY biological_model_idx (biological_model_id),
+	KEY phenotype_idx (phenotype_acc, phenotype_db_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE biological_model_genomic_feature (
 
-    biological_model_id       INT(10) UNSIGNED NOT NULL,
-    gf_acc                    VARCHAR(20) NOT NULL,
-    gf_db_id                  INT(10) NOT NULL,
-    
-    KEY biological_model_idx (biological_model_id),
-    KEY genomic_feature_idx (gf_acc, gf_db_id)
-    
+	biological_model_id	   INT(10) UNSIGNED NOT NULL,
+	gf_acc					VARCHAR(20) NOT NULL,
+	gf_db_id				  INT(10) NOT NULL,
+	
+	KEY biological_model_idx (biological_model_id),
+	KEY genomic_feature_idx (gf_acc, gf_db_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -438,11 +501,11 @@ CREATE TABLE biological_model_genomic_feature (
  */
 CREATE TABLE biological_model_sample (
 
-    biological_model_id       INT(10) UNSIGNED NOT NULL,
-    biological_sample_id      INT(10) UNSIGNED NOT NULL,
-    
-    KEY biological_model_idx (biological_model_id),
-    KEY biological_sample_idx (biological_sample_id)
+	biological_model_id	   INT(10) UNSIGNED NOT NULL,
+	biological_sample_id	  INT(10) UNSIGNED NOT NULL,
+	
+	KEY biological_model_idx (biological_model_id),
+	KEY biological_sample_idx (biological_sample_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -455,17 +518,17 @@ CREATE TABLE biological_model_sample (
  */
 CREATE TABLE biological_sample (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    external_id               VARCHAR(100), 
-    db_id                     INT(10),
-    sample_type_acc           VARCHAR(20) NOT NULL,
-    sample_type_db_id         INT(10) NOT NULL,            
-    sample_group              VARCHAR(100) NOT NULL,
-    organisation_id           INT(10) UNSIGNED NOT NULL,
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	external_id			   VARCHAR(100), 
+	db_id					 INT(10),
+	sample_type_acc		   VARCHAR(20) NOT NULL,
+	sample_type_db_id		 INT(10) NOT NULL,			
+	sample_group			  VARCHAR(100) NOT NULL,
+	organisation_id		   INT(10) UNSIGNED NOT NULL,
 
-    PRIMARY KEY (id),
-    KEY external_id_idx(external_id),
-    KEY external_db_idx(db_id),
+	PRIMARY KEY (id),
+	KEY external_id_idx(external_id),
+	KEY external_db_idx(db_id),
 	KEY group_idx (sample_group),
 	KEY sample_type_idx (sample_type_acc, sample_type_db_id),
 
@@ -480,35 +543,35 @@ CREATE TABLE biological_sample (
 
 CREATE TABLE live_sample (
 
-    id                        INT(10) UNSIGNED NOT NULL,
-    colony_id                 VARCHAR(100) NOT NULL,
-    developmental_stage_acc   VARCHAR(20) NOT NULL,
-    developmental_stage_db_id INT(10) NOT NULL, 
-    sex                       ENUM('female', 'hermaphrodite', 'male'),
-    zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
-    date_of_birth             TIMESTAMP,
-    
-    PRIMARY KEY (id),
-    KEY colony_idx (colony_id),
+	id						INT(10) UNSIGNED NOT NULL,
+	colony_id				 VARCHAR(100) NOT NULL,
+	developmental_stage_acc   VARCHAR(20) NOT NULL,
+	developmental_stage_db_id INT(10) NOT NULL, 
+	sex					   ENUM('female', 'hermaphrodite', 'male'),
+	zygosity				  ENUM('homozygote', 'heterozygote', 'hemizygote'),
+	date_of_birth			 TIMESTAMP,
+	
+	PRIMARY KEY (id),
+	KEY colony_idx (colony_id),
 	KEY gender_idx (sex),
-	KEY zygosity_idx (zygosity),    
+	KEY zygosity_idx (zygosity),	
 	KEY developmental_stage_idx (developmental_stage_acc, developmental_stage_db_id)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;	
-    
+	
 /**
  * One sample can refer to another sample
  * Example one: organ to whole organism as a part_of relationship
  */
 CREATE TABLE biological_sample_relationship (
 
-    biological_sample_a_id     INT(10),
-    biological_sample_b_id     INT(10),
-    relationship               VARCHAR(30) NOT NULL,
-    
-    KEY sample_a_idx (biological_sample_a_id),
-    KEY sample_b_idx (biological_sample_b_id)
-    
+	biological_sample_a_id	 INT(10),
+	biological_sample_b_id	 INT(10),
+	relationship			   VARCHAR(30) NOT NULL,
+	
+	KEY sample_a_idx (biological_sample_a_id),
+	KEY sample_b_idx (biological_sample_b_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -520,32 +583,32 @@ CREATE TABLE biological_sample_relationship (
  */
 CREATE TABLE experiment (
 
-    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    db_id                      INT(10) UNSIGNED NOT NULL,
-    external_id                VARCHAR(100),
-    sequence_id                VARCHAR(100) NULL DEFAULT NULL,
-    date_of_experiment         TIMESTAMP NULL DEFAULT NULL,
-    organisation_id            INT(10) UNSIGNED NOT NULL,
-    project_id                 INT(10) UNSIGNED NULL DEFAULT NULL,
-    pipeline_id                INT(10) UNSIGNED NOT NULL,
-	pipeline_stable_id         VARCHAR(30) NOT NULL,
-    procedure_id               INT(10) UNSIGNED NOT NULL,
-	procedure_stable_id        VARCHAR(30) NOT NULL,
-	biological_model_id        INT(10) UNSIGNED NULL,
-    colony_id                  VARCHAR(100) NULL,
-    metadata_combined          TEXT,
-    metadata_group             VARCHAR(50) DEFAULT '',
-	procedure_status           VARCHAR(50) DEFAULT NULL,
+	id						 INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	db_id					  INT(10) UNSIGNED NOT NULL,
+	external_id				VARCHAR(100),
+	sequence_id				VARCHAR(100) NULL DEFAULT NULL,
+	date_of_experiment		 TIMESTAMP NULL DEFAULT NULL,
+	organisation_id			INT(10) UNSIGNED NOT NULL,
+	project_id				 INT(10) UNSIGNED NULL DEFAULT NULL,
+	pipeline_id				INT(10) UNSIGNED NOT NULL,
+	pipeline_stable_id		 VARCHAR(30) NOT NULL,
+	procedure_id			   INT(10) UNSIGNED NOT NULL,
+	procedure_stable_id		VARCHAR(30) NOT NULL,
+	biological_model_id		INT(10) UNSIGNED NULL,
+	colony_id				  VARCHAR(100) NULL,
+	metadata_combined		  TEXT,
+	metadata_group			 VARCHAR(50) DEFAULT '',
+	procedure_status		   VARCHAR(50) DEFAULT NULL,
 	procedure_status_message   VARCHAR(450) DEFAULT NULL,
 
-    PRIMARY KEY(id),
-    KEY external_db_idx(db_id),
-    KEY organisation_idx(organisation_id),
-    KEY pipeline_idx(pipeline_id),
+	PRIMARY KEY(id),
+	KEY external_db_idx(db_id),
+	KEY organisation_idx(organisation_id),
+	KEY pipeline_idx(pipeline_id),
 	KEY pipeline_stable_idx(pipeline_stable_id),
-    KEY procedure_idx(procedure_id),
+	KEY procedure_idx(procedure_id),
 	KEY procedure_stable_idx(procedure_stable_id)
-    
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -553,12 +616,12 @@ CREATE TABLE experiment (
  */
 
 CREATE TABLE experiment_observation (
-    experiment_id              INT(10) UNSIGNED NOT NULL,
-    observation_id             INT(10) UNSIGNED NOT NULL,
-    
-    KEY experiment_idx(experiment_id),
-    KEY observation_idx(observation_id)
-    
+	experiment_id			  INT(10) UNSIGNED NOT NULL,
+	observation_id			 INT(10) UNSIGNED NOT NULL,
+	
+	KEY experiment_idx(experiment_id),
+	KEY observation_idx(observation_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -575,15 +638,15 @@ CREATE TABLE experiment_observation (
  */
 CREATE TABLE observation (
 
-    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    db_id                      INT(10) UNSIGNED NOT NULL,
-	biological_sample_id       INT(10) UNSIGNED NULL,
-	parameter_id               INT(10) UNSIGNED NOT NULL,
-	parameter_stable_id        varchar(30) NOT NULL,
-	population_id              INT(10) UNSIGNED NOT NULL,
-	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
-	missing                    TINYINT(1) DEFAULT 0,
-	parameter_status           VARCHAR(50) DEFAULT NULL,
+	id						 INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	db_id					  INT(10) UNSIGNED NOT NULL,
+	biological_sample_id	   INT(10) UNSIGNED NULL,
+	parameter_id			   INT(10) UNSIGNED NOT NULL,
+	parameter_stable_id		varchar(30) NOT NULL,
+	population_id			  INT(10) UNSIGNED NOT NULL,
+	observation_type		   enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
+	missing					TINYINT(1) DEFAULT 0,
+	parameter_status		   VARCHAR(50) DEFAULT NULL,
 	parameter_status_message   VARCHAR(450) DEFAULT NULL,
 
 	PRIMARY KEY(id),
@@ -601,12 +664,12 @@ CREATE TABLE observation (
  */
 CREATE TABLE text_observation (
 
-    id                        INT(10) UNSIGNED NOT NULL,
-    text                      TEXT,
-    
-    PRIMARY KEY(id),
-    KEY text_idx(text(255))
-    
+	id						INT(10) UNSIGNED NOT NULL,
+	text					  TEXT,
+	
+	PRIMARY KEY(id),
+	KEY text_idx(text(255))
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -616,12 +679,12 @@ CREATE TABLE text_observation (
  */
 CREATE TABLE categorical_observation (
 
-    id                        INT(10) UNSIGNED NOT NULL,
-    category                  VARCHAR(200) NOT NULL,
-    
-    PRIMARY KEY(id),
-    KEY category_idx(category)
-    
+	id						INT(10) UNSIGNED NOT NULL,
+	category				  VARCHAR(200) NOT NULL,
+	
+	PRIMARY KEY(id),
+	KEY category_idx(category)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /** 
@@ -631,12 +694,12 @@ CREATE TABLE categorical_observation (
 /** OBSOLETED 2013-12-09 
 CREATE TABLE image_record_observation (
 
-    id                        INT(10) UNSIGNED NOT NULL,
-    image_record_id           INT(11) UNSIGNED NOT NULL,
-    
-    PRIMARY KEY(id),
-    KEY image_record_idx(image_record_id)
-    
+	id						INT(10) UNSIGNED NOT NULL,
+	image_record_id		   INT(11) UNSIGNED NOT NULL,
+	
+	PRIMARY KEY(id),
+	KEY image_record_idx(image_record_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 */
 
@@ -646,12 +709,12 @@ CREATE TABLE image_record_observation (
  */
 CREATE TABLE unidimensional_observation (
 
-    id                        INT(10) UNSIGNED NOT NULL,
-    data_point                FLOAT NOT NULL,
-    
-    PRIMARY KEY(id),
-    KEY data_point_idx(data_point)
-    
+	id						INT(10) UNSIGNED NOT NULL,
+	data_point				FLOAT NOT NULL,
+	
+	PRIMARY KEY(id),
+	KEY data_point_idx(data_point)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /** 
@@ -665,15 +728,15 @@ CREATE TABLE unidimensional_observation (
  */
 CREATE TABLE multidimensional_observation (
 
-    id                        INT(10) UNSIGNED NOT NULL,
-    data_point                FLOAT NOT NULL,
-    order_index               INT(10) NOT NULL,
-	dimension                 VARCHAR(40) NOT NULL,
-    
-    PRIMARY KEY(id),
-    KEY data_point_idx(data_point, order_index),
-    KEY dimension_idx(dimension)
-    
+	id						INT(10) UNSIGNED NOT NULL,
+	data_point				FLOAT NOT NULL,
+	order_index			   INT(10) NOT NULL,
+	dimension				 VARCHAR(40) NOT NULL,
+	
+	PRIMARY KEY(id),
+	KEY data_point_idx(data_point, order_index),
+	KEY dimension_idx(dimension)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -683,14 +746,14 @@ CREATE TABLE multidimensional_observation (
  */
 CREATE TABLE time_series_observation (
 
-    id                        INT(10) UNSIGNED NOT NULL,
-    data_point                FLOAT NOT NULL,
-    time_point                TIMESTAMP,
-    discrete_point            FLOAT,
-    
-    PRIMARY KEY(id),
-    KEY data_point_idx(data_point, time_point)
-    
+	id						INT(10) UNSIGNED NOT NULL,
+	data_point				FLOAT NOT NULL,
+	time_point				TIMESTAMP,
+	discrete_point			FLOAT,
+	
+	PRIMARY KEY(id),
+	KEY data_point_idx(data_point, time_point)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -701,8 +764,8 @@ CREATE TABLE time_series_observation (
  */
 CREATE TABLE metadata_observation (
 
-	id                        INT(10) UNSIGNED NOT NULL,
-	property_value            VARCHAR(100) NOT NULL,
+	id						INT(10) UNSIGNED NOT NULL,
+	property_value			VARCHAR(100) NOT NULL,
 	
 	PRIMARY KEY(id),
 	KEY property_value_idx(property_value)
@@ -723,56 +786,56 @@ At the moment, this information is managed by MRC Harwell in 2 central
 resources called EMPReSS and IMPReSS
 The Phenotype archive stores this information for convenience
 
-@column id                    internal id of the pipeline. Primary key.
-@column stable_id             stable id from external resource
-@column db_id                 external db id
-@column name                  pipeline name.
+@column id					internal id of the pipeline. Primary key.
+@column stable_id			 stable id from external resource
+@column db_id				 external db id
+@column name				  pipeline name.
 
 @see external_db
 */
 CREATE TABLE phenotype_pipeline (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    stable_id                 VARCHAR(40) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    name                      VARCHAR(100) NOT NULL,
-    description               VARCHAR(200),
-    major_version             INT(10) NOT NULL DEFAULT 1,
-    minor_version             INT(10) NOT NULL DEFAULT 0,
-    stable_key                INT(10) DEFAULT 0,
-    PRIMARY KEY (id)
-    
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	stable_id                VARCHAR(40) NOT NULL,
+	db_id                    INT(10) NOT NULL,
+	name                     VARCHAR(100) NOT NULL,
+	description              VARCHAR(200),
+	major_version            INT(10) NOT NULL DEFAULT 1,
+	minor_version            INT(10) NOT NULL DEFAULT 0,
+	stable_key               INT(10) DEFAULT 0,
+	PRIMARY KEY (id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table phenotype_pipeline_procedure
 @desc This table joins associations between procedures and pipelines
 
-@column pipeline_id           pipeline internal id. Foreign key references to the @link phenotype_pipeline table.
-@column procedure_id          procedure internal id. Foreign key references to the @link phenotype_procedure table.
+@column pipeline_id		   pipeline internal id. Foreign key references to the @link phenotype_pipeline table.
+@column procedure_id		  procedure internal id. Foreign key references to the @link phenotype_procedure table.
 
 @see phenotype_pipeline
 @see phenotype_procedure
 */
 CREATE TABLE phenotype_pipeline_procedure (
 
-    pipeline_id               INT(10) UNSIGNED NOT NULL,
-    procedure_id              INT(10) UNSIGNED NOT NULL,
+	pipeline_id			   INT(10) UNSIGNED NOT NULL,
+	procedure_id			  INT(10) UNSIGNED NOT NULL,
 
-    KEY pipeline_idx (pipeline_id),
-    KEY procedure_idx (procedure_id),
-    UNIQUE (pipeline_id, procedure_id)
-    
+	KEY pipeline_idx (pipeline_id),
+	KEY procedure_idx (procedure_id),
+	UNIQUE (pipeline_id, procedure_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table phenotype_procedure
 @desc This table stores information about each phenotyping procedure
 
-@column id                    internal id of the procedure. Primary key
-@column stable_id             stable id from external resource
-@column db_id                 external db id
-@column name                  procedure name.
+@column id					internal id of the procedure. Primary key
+@column stable_id			 stable id from external resource
+@column db_id				 external db id
+@column name				  procedure name.
 
 @see phenotype_pipeline
 @see external_db
@@ -780,21 +843,21 @@ CREATE TABLE phenotype_pipeline_procedure (
 */
 CREATE TABLE phenotype_procedure (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    stable_key                INT(10) DEFAULT 0,
-    stable_id                 VARCHAR(40) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    name                      VARCHAR(200) NOT NULL,
-    description               TEXT,
-    major_version             INT(10) NOT NULL DEFAULT 1,
-    minor_version             INT(10) NOT NULL DEFAULT 0,
-    is_mandatory              TINYINT(1) DEFAULT 0,
-    level                     VARCHAR(20),
-    stage                     VARCHAR(20) DEFAULT "Adult",
-    stage_label               VARCHAR(20),
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	stable_key				INT(10) DEFAULT 0,
+	stable_id				 VARCHAR(40) NOT NULL,
+	db_id					 INT(10) NOT NULL,
+	name					  VARCHAR(200) NOT NULL,
+	description			   TEXT,
+	major_version			 INT(10) NOT NULL DEFAULT 1,
+	minor_version			 INT(10) NOT NULL DEFAULT 0,
+	is_mandatory			  TINYINT(1) DEFAULT 0,
+	level					 VARCHAR(20),
+	stage					 VARCHAR(20) DEFAULT "Adult",
+	stage_label			   VARCHAR(20),
 
-    PRIMARY KEY (id)
-    
+	PRIMARY KEY (id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -802,42 +865,42 @@ CREATE TABLE phenotype_procedure (
 @desc This table stores information about each phenotyping procedure meta data
 In EMPReSS, currently we store information about aging only.
 
-@column procedure_id          The procedure this annotation belongs too. Foreign key reference to the @link phenotype_procedure table.
-@column meta_name             name of the meta data
-@column value                 value of the meta data as a string
+@column procedure_id		  The procedure this annotation belongs too. Foreign key reference to the @link phenotype_procedure table.
+@column meta_name			 name of the meta data
+@column value				 value of the meta data as a string
 
 @see phenotype_procedure
 
 */
 CREATE TABLE phenotype_procedure_meta_data (
 
-    procedure_id              INT(10) UNSIGNED NOT NULL,
+	procedure_id			  INT(10) UNSIGNED NOT NULL,
 	meta_name				  VARCHAR(40) NOT NULL,
-    meta_value                VARCHAR(40) NOT NULL,
-    
-    KEY procedure_meta_data_idx (procedure_id)
-    
+	meta_value				VARCHAR(40) NOT NULL,
+	
+	KEY procedure_meta_data_idx (procedure_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table phenotype_procedure_parameter
 @desc This table joins associations between procedures and parameters
 
-@column procedure_id          procedure internal id. Foreign key references to the @link phenotype_procedure table.
-@column parameter_id          parameter internal id. Foreign key references to the @link phenotype_parameter table.
+@column procedure_id		  procedure internal id. Foreign key references to the @link phenotype_procedure table.
+@column parameter_id		  parameter internal id. Foreign key references to the @link phenotype_parameter table.
 
 @see phenotype_procedure
 @see phenotype_parameter
 */
 CREATE TABLE phenotype_procedure_parameter (
 
-    procedure_id              INT(10) UNSIGNED NOT NULL,
-    parameter_id              INT(10) UNSIGNED NOT NULL,
+	procedure_id			  INT(10) UNSIGNED NOT NULL,
+	parameter_id			  INT(10) UNSIGNED NOT NULL,
 
-    KEY procedure_idx (procedure_id),
-    KEY parameter_idx (parameter_id),
-    UNIQUE (procedure_id, parameter_id)
-    
+	KEY procedure_idx (procedure_id),
+	KEY parameter_idx (parameter_id),
+	UNIQUE (procedure_id, parameter_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
@@ -846,87 +909,87 @@ CREATE TABLE phenotype_procedure_parameter (
 
 CREATE TABLE phenotype_parameter (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    stable_id                 VARCHAR(30) NOT NULL,
-    db_id                     INT(10) NOT NULL,
-    name                      VARCHAR(200) NOT NULL,
-    description               TEXT,
-    major_version             INT(10) NOT NULL DEFAULT 1,
-    minor_version             INT(10) NOT NULL DEFAULT 0,
-    unit                      VARCHAR(20) NOT NULL,
-    datatype                  VARCHAR(20) NOT NULL,
-    parameter_type            VARCHAR(30) NOT NULL,
-    formula                   TEXT,
-    required                  TINYINT(1) DEFAULT 0,
-    metadata                  TINYINT(1) DEFAULT 0,
-    important                 TINYINT(1) DEFAULT 0,
-    derived                   TINYINT(1) DEFAULT 0,
-    annotate                  TINYINT(1) DEFAULT 0,
-    increment                 TINYINT(1) DEFAULT 0,
-    options                   TINYINT(1) DEFAULT 0,
-    sequence                  INT(10) UNSIGNED NOT NULL,
-    media                     TINYINT(1) DEFAULT 0,
-    data_analysis             TINYINT(1) DEFAULT 0,
-    data_analysis_notes       TEXT,
-    stable_key                INT(10) DEFAULT 0,
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	stable_id				 VARCHAR(30) NOT NULL,
+	db_id					 INT(10) NOT NULL,
+	name					  VARCHAR(200) NOT NULL,
+	description			   TEXT,
+	major_version			 INT(10) NOT NULL DEFAULT 1,
+	minor_version			 INT(10) NOT NULL DEFAULT 0,
+	unit					  VARCHAR(20) NOT NULL,
+	datatype				  VARCHAR(20) NOT NULL,
+	parameter_type			VARCHAR(30) NOT NULL,
+	formula				   TEXT,
+	required				  TINYINT(1) DEFAULT 0,
+	metadata				  TINYINT(1) DEFAULT 0,
+	important				 TINYINT(1) DEFAULT 0,
+	derived				   TINYINT(1) DEFAULT 0,
+	annotate				  TINYINT(1) DEFAULT 0,
+	increment				 TINYINT(1) DEFAULT 0,
+	options				   TINYINT(1) DEFAULT 0,
+	sequence				  INT(10) UNSIGNED NOT NULL,
+	media					 TINYINT(1) DEFAULT 0,
+	data_analysis			 TINYINT(1) DEFAULT 0,
+	data_analysis_notes	   TEXT,
+	stable_key				INT(10) DEFAULT 0,
  
-    PRIMARY KEY (id),
-    KEY parameter_stable_id_idx (stable_id)
-    
+	PRIMARY KEY (id),
+	KEY parameter_stable_id_idx (stable_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_lnk_option (
 
-    parameter_id              INT(10) UNSIGNED NOT NULL,
-	option_id                 INT(10) UNSIGNED NOT NULL,
+	parameter_id			  INT(10) UNSIGNED NOT NULL,
+	option_id				 INT(10) UNSIGNED NOT NULL,
 	
-    KEY parameter_idx (parameter_id),
-    KEY option_idx (option_id)
+	KEY parameter_idx (parameter_id),
+	KEY option_idx (option_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
-    
+	
 CREATE TABLE phenotype_parameter_option (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    name                      VARCHAR(200) NOT NULL,
-    description               VARCHAR(200),    
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	name					  VARCHAR(200) NOT NULL,
+	description			   VARCHAR(200),	
 
-    PRIMARY KEY (id)
-    
+	PRIMARY KEY (id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_lnk_increment (
 
-    parameter_id              INT(10) UNSIGNED NOT NULL,
-	increment_id              INT(10) UNSIGNED NOT NULL,
+	parameter_id			  INT(10) UNSIGNED NOT NULL,
+	increment_id			  INT(10) UNSIGNED NOT NULL,
 	
-    KEY parameter_idx (parameter_id),
-    KEY increment_idx (increment_id)
+	KEY parameter_idx (parameter_id),
+	KEY increment_idx (increment_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_increment (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    increment_value           VARCHAR(200) NOT NULL,
-    increment_datatype        VARCHAR(20) NOT NULL,
-    increment_unit            VARCHAR(40) NOT NULL,
-    increment_minimum         VARCHAR(20) NOT NULL,
-    
-    PRIMARY KEY (id)
-    
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	increment_value		   VARCHAR(200) NOT NULL,
+	increment_datatype		VARCHAR(20) NOT NULL,
+	increment_unit			VARCHAR(40) NOT NULL,
+	increment_minimum		 VARCHAR(20) NOT NULL,
+	
+	PRIMARY KEY (id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 -- truncate table phenotype_parameter; truncate table phenotype_pipeline; truncate table phenotype_procedure; truncate table phenotype_pipeline_procedure; truncate table phenotype_procedure_meta_data; truncate table phenotype_parameter_option; truncate table phenotype_parameter_increment;
 
 CREATE TABLE phenotype_parameter_lnk_ontology_annotation (
 
-    annotation_id             INT(10) UNSIGNED NOT NULL,
-    parameter_id              INT(10) UNSIGNED NOT NULL,
+	annotation_id			 INT(10) UNSIGNED NOT NULL,
+	parameter_id			  INT(10) UNSIGNED NOT NULL,
 
-    KEY parameter_idx (parameter_id),
-    KEY annotation_idx (annotation_id)
-    
+	KEY parameter_idx (parameter_id),
+	KEY annotation_idx (annotation_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
@@ -936,27 +999,27 @@ CREATE TABLE phenotype_parameter_lnk_ontology_annotation (
  */
 CREATE TABLE phenotype_parameter_ontology_annotation (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    event_type                enum('abnormal', 'abnormal_specific', 'increased', 'decreased', 'inferred', 'trait'),
-    option_id                 INT(10) UNSIGNED,
-    ontology_acc              VARCHAR(20),
-    ontology_db_id            INT(10),
-    
-    PRIMARY KEY (id),
-    KEY ontology_idx (ontology_acc, ontology_db_id),
-    KEY option_idx (option_id)
-    
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	event_type				enum('abnormal', 'abnormal_specific', 'increased', 'decreased', 'inferred', 'trait'),
+	option_id				 INT(10) UNSIGNED,
+	ontology_acc			  VARCHAR(20),
+	ontology_db_id			INT(10),
+	
+	PRIMARY KEY (id),
+	KEY ontology_idx (ontology_acc, ontology_db_id),
+	KEY option_idx (option_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE phenotype_parameter_lnk_eq_annotation (
 
-    annotation_id             INT(10) UNSIGNED NOT NULL,
-    parameter_id              INT(10) UNSIGNED NOT NULL,
+	annotation_id			 INT(10) UNSIGNED NOT NULL,
+	parameter_id			  INT(10) UNSIGNED NOT NULL,
 
-    KEY parameter_idx (parameter_id),
-    KEY annotation_idx (annotation_id)
-    
+	KEY parameter_idx (parameter_id),
+	KEY annotation_idx (annotation_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
@@ -966,20 +1029,20 @@ CREATE TABLE phenotype_parameter_lnk_eq_annotation (
  */
 CREATE TABLE phenotype_parameter_eq_annotation (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    event_type                enum('abnormal', 'abnormal_specific', 'increased', 'decreased', 'inferred', 'trait'),
-    option_id                 INT(10) UNSIGNED,
-    sex                       ENUM('female', 'hermaphrodite', 'male'), 
-    ontology_acc              VARCHAR(20),
-    ontology_db_id            INT(10),
-    quality_acc               VARCHAR(20),
-    quality_db_id             INT(10),
-    
-    PRIMARY KEY (id),
-    KEY ontology_idx (ontology_acc, ontology_db_id),
-    KEY quality_idx (quality_acc, quality_db_id),
-    KEY option_idx (option_id)
-    
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	event_type				enum('abnormal', 'abnormal_specific', 'increased', 'decreased', 'inferred', 'trait'),
+	option_id				 INT(10) UNSIGNED,
+	sex					   ENUM('female', 'hermaphrodite', 'male'), 
+	ontology_acc			  VARCHAR(20),
+	ontology_db_id			INT(10),
+	quality_acc			   VARCHAR(20),
+	quality_db_id			 INT(10),
+	
+	PRIMARY KEY (id),
+	KEY ontology_idx (ontology_acc, ontology_db_id),
+	KEY quality_idx (quality_acc, quality_db_id),
+	KEY option_idx (option_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
@@ -988,38 +1051,38 @@ CREATE TABLE phenotype_parameter_eq_annotation (
 
 CREATE TABLE phenotype_call_summary (
 
-    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    external_id               VARCHAR(20) NULL,
-    external_db_id            INT(10),
-    project_id                INT(10) UNSIGNED NOT NULL,
-    organisation_id           INT(10) UNSIGNED NOT NULL,
-    gf_acc                    VARCHAR(20),
-    gf_db_id                  INT(10),
-    strain_acc                VARCHAR(20),
-    strain_db_id              INT(10),
-    allele_acc                VARCHAR(20),
-    allele_db_id              INT(10),
-	colony_id                 VARCHAR(200) NULL,
-    sex                       ENUM('female', 'hermaphrodite', 'male'),
-    zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
-    parameter_id              INT(10) UNSIGNED NOT NULL,
-    procedure_id              INT(10) UNSIGNED NOT NULL,
-    pipeline_id               INT(10) UNSIGNED NOT NULL,
+	id						INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	external_id			   VARCHAR(20) NULL,
+	external_db_id			INT(10),
+	project_id				INT(10) UNSIGNED NOT NULL,
+	organisation_id		   INT(10) UNSIGNED NOT NULL,
+	gf_acc					VARCHAR(20),
+	gf_db_id				  INT(10),
+	strain_acc				VARCHAR(20),
+	strain_db_id			  INT(10),
+	allele_acc				VARCHAR(20),
+	allele_db_id			  INT(10),
+	colony_id				 VARCHAR(200) NULL,
+	sex					   ENUM('female', 'hermaphrodite', 'male'),
+	zygosity				  ENUM('homozygote', 'heterozygote', 'hemizygote'),
+	parameter_id			  INT(10) UNSIGNED NOT NULL,
+	procedure_id			  INT(10) UNSIGNED NOT NULL,
+	pipeline_id			   INT(10) UNSIGNED NOT NULL,
 
-    mp_acc                    VARCHAR(20) NOT NULL,
-    mp_db_id                  INT(10) NOT NULL,
-    
-    p_value                   DOUBLE NULL DEFAULT 1,
-    effect_size               DOUBLE NULL DEFAULT 0,
+	mp_acc					VARCHAR(20) NOT NULL,
+	mp_db_id				  INT(10) NOT NULL,
+	
+	p_value				   DOUBLE NULL DEFAULT 1,
+	effect_size			   DOUBLE NULL DEFAULT 0,
 
-    PRIMARY KEY (id),
-    KEY parameter_call_idx (parameter_id),
-    KEY procedure_call_idx (procedure_id),
-    KEY pipeline_call_idx (pipeline_id),
-    KEY organisation_idx (pipeline_id, organisation_id),
+	PRIMARY KEY (id),
+	KEY parameter_call_idx (parameter_id),
+	KEY procedure_call_idx (procedure_id),
+	KEY pipeline_call_idx (pipeline_id),
+	KEY organisation_idx (pipeline_id, organisation_id),
 	KEY allele_idx (allele_acc, allele_db_id),
-    KEY mp_call_idx (mp_acc)
-    
+	KEY mp_call_idx (mp_acc)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 

@@ -38,6 +38,10 @@ config.lastImgSumCount = 0;
 config.update = {};
 config.update.filterObj = [];
 
+config.update.mainFacetDone = false;
+config.update.mainFacetDoneReset = false;
+config.update.mainFacetNone = false;
+
 config.update.widgetOpen   = false;
 config.update.pageReload   = false;
 config.update.hashChange 	= false;
@@ -198,6 +202,7 @@ config.commonSolrParams = commonSolrParams;
 config.facetParams = {	
 	geneFacet:      {
 		type: 'genes',	
+		name: 'Genes',
 		subFacetFqFields: ['imits_phenotype_started', 'imits_phenotype_complete', 'imits_phenotype_status', 'status', 'marker_type'],			
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
@@ -224,6 +229,7 @@ config.facetParams = {
 	 },	 
 	 pipelineFacet: {	
 		 type: 'parameters',
+		 name: 'Procedures',
 		 subFacetFqFields: 'procedure_stable_id', 		 
 		 solrCoreName: 'pipeline',			
 		 tableCols: 3, 
@@ -243,6 +249,7 @@ config.facetParams = {
 	 },	
 	 mpFacet: {	
 		 type: 'phenotypes',
+		 name: 'Phenotypes',
 		 subFacetFqFields: 'top_level_mp_term',
 		 solrCoreName: 'mp', 
 		 tableCols: 2, 
@@ -267,6 +274,7 @@ config.facetParams = {
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',
+		 name: 'Anatomy',
 		 subFacetFqFields: 'selected_top_level_ma_term',
 		 solrCoreName: 'ma', 
 		 tableCols: 1, 
@@ -292,6 +300,7 @@ config.facetParams = {
 	 },	 
 	 diseaseFacet: {			    	
 		 type: 'diseases',
+		 name: 'Diseases',
 		 subFacetFqFields: '',
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
@@ -315,7 +324,8 @@ config.facetParams = {
 	 },	
 	 
 	 imagesFacet: {		
-		 type: 'images',		 
+		 type: 'images',
+		 name: 'Images',
 		 subFacetFqFields: ['procedure_name', 'top_level_mp_term', 'selected_top_level_ma_term', 'marker_type'],
 		 solrCoreName: 'images',
 		 tableCols: 2, 
