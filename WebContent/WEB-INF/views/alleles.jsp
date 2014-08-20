@@ -249,21 +249,6 @@
                     
                     
             <td>
-                <c:if test="${not empty summary['loa_assays']}">
-                    
-                    <c:if test="${not empty summary['loa_assays']['upstream']}">
-                        <a class="btn" href="${summary['loa_assays']['upstream']}"> <i class="fa fa-info"></i> LOA Assay (upstream) </a> <br/>
-                    </c:if>
-
-                    <c:if test="${not empty summary['loa_assays']['downstream']}">
-                        <a class="btn" href="${summary['loa_assays']['downstream']}"> <i class="fa fa-info"></i> LOA Assay (downstream) </a> <br/>
-                    </c:if>
-
-                    <c:if test="${not empty summary['loa_assays']['critical']}">
-                        <a class="btn" href="${summary['loa_assays']['critical']}"> <i class="fa fa-info"></i> LOA Assay (critical) </a> <br/>
-                    </c:if>
-
-                </c:if>
             </td>
 
             </tr>
