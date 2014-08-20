@@ -366,7 +366,8 @@ public class ChartsController {
         return "chart";
     }
 
-    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
+    String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
