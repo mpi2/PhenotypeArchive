@@ -141,7 +141,7 @@
             <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
 
                 <p>
-                    <a><i class="fa" id="toggle_table_button${experimentNumber}"/> More Statistics</a>
+                    <a><i class="fa" id="toggle_table_button${experimentNumber}"> More Statistics</i></a>
                 </p>
 
                 <div id="toggle_table${experimentNumber}">
