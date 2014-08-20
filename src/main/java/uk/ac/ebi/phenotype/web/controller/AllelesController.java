@@ -165,6 +165,53 @@ public class AllelesController {
         }
 
         model.addAttribute("list", list);
+        
+        model.addAttribute("versionDate", "Tue Aug 19 2014");
+
+        return "alleles_list";
+    }
+
+    // TODO: remove me!
+
+    @RequestMapping("/alleles2")
+    public String alleles0Alt(
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        log.info("#### alleles0Alt...");
+
+        List<String> targetList = new ArrayList<>();
+        targetList.add("marker_symbol:*");
+
+        String qs = StringUtils.join(targetList, " OR ");
+
+        HashMap<String, String> params1 = new HashMap<>();
+
+        String qs2 = URLEncoder.encode("(" + qs + ")");
+
+        params1.put("multi", qs2);
+
+        List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
+               
+        List<Map<String, String>> list = new ArrayList<>();
+
+        for (Map<String, Object> item : list1) {
+            log.info("#### alleles0: item: " + item.toString());
+            if(!item.get("marker_symbol").equals("Selenbp2") && !item.get("marker_symbol").equals("Foxn4") && !item.get("marker_symbol").equals("Ccdc13")) {
+                if(item.get("allele_type").equals("e")) {
+                    continue;
+                }
+            }
+            Map<String, String> i = makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id"));
+            if(i != null) {
+                list.add(i);
+            }
+        }
+
+        model.addAttribute("list", list);
+        
+        model.addAttribute("versionDate", "Tue Aug 19 2014");
 
         return "alleles_list";
     }
@@ -191,6 +238,8 @@ public class AllelesController {
 
         model.addAttribute("list", list);
 
+        model.addAttribute("versionDate", "Tue Aug 19 2014");
+        
         return "alleles_list";
     }
 
