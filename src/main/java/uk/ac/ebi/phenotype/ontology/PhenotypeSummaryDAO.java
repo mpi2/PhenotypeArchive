@@ -11,6 +11,7 @@ import org.apache.solr.common.SolrDocumentList;
 
 import uk.ac.ebi.phenotype.dao.HibernateDAO;
 import uk.ac.ebi.phenotype.dao.HibernateDAOImpl;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public interface PhenotypeSummaryDAO {
 	
@@ -21,7 +22,9 @@ public interface PhenotypeSummaryDAO {
 	// Returns a string concatenation of all data sources for a given set
 	public abstract HashSet<String> getDataSourcesForPhenotypesSet(
 			SolrDocumentList resp);
-		
+
 	public abstract PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception;
+	
+	public abstract HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception;
 	
 }

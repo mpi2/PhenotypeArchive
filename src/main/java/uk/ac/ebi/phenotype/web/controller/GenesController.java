@@ -29,8 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
 import net.sf.json.JSONException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -71,6 +73,7 @@ import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Xref;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
@@ -206,13 +209,19 @@ public class GenesController {
 		 * Phenotype Summary
 		 */
 
-		PhenotypeSummaryBySex phenotypeSummaryObjects = null;
+		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
 
 		try {
 			// model.addAttribute("phenotypeSummary",
 			// phenSummary.getSummary(acc));
-			phenotypeSummaryObjects = phenSummary.getSummaryObjects(acc);
+			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+			// add number of top level terms
+			int total = 0;
+			for (ZygosityType zyg : phenotypeSummaryObjects.keySet()){
+				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
+			}
+			model.addAttribute("summaryNumber", total);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
