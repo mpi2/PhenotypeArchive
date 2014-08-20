@@ -25,7 +25,7 @@
                         })
                                 .done(function(html) {
                                     $('#' + id).append(html);
-                                    $('#spinner' + id).html('');
+                                    $('#spinner' + (i+1)).html('');
                                     if (html.search('section-associations') === -1) {//if this element not found in the html then no graph present so remove placeholder section
                                         console.log('element found');
                                         //$( '#'+ id ).html( '' ); 
