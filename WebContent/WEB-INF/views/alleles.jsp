@@ -245,7 +245,25 @@
                 </c:forEach>
             </c:if>
                     </td>
-                <td>
+                    
+                    
+                    
+            <td>
+                <c:if test="${not empty summary['loa_assays']}">
+                    
+                    <c:if test="${not empty summary['loa_assays']['upstream']}">
+                        <a class="btn" href="${summary['loa_assays']['upstream']}"> <i class="fa fa-info"></i> LOA Assay (upstream) </a> <br/>
+                    </c:if>
+
+                    <c:if test="${not empty summary['loa_assays']['downstream']}">
+                        <a class="btn" href="${summary['loa_assays']['downstream']}"> <i class="fa fa-info"></i> LOA Assay (downstream) </a> <br/>
+                    </c:if>
+
+                    <c:if test="${not empty summary['loa_assays']['critical']}">
+                        <a class="btn" href="${summary['loa_assays']['critical']}"> <i class="fa fa-info"></i> LOA Assay (critical) </a> <br/>
+                    </c:if>
+
+                </c:if>
             </td>
 
             </tr>
@@ -430,7 +448,7 @@
 
                 <td>
                     <c:forEach var="order" items="${es_cell['orders']}" varStatus="ordersx">
-                        <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>
+                        <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>&nbsp;
                     </c:forEach>
                 </td>
 
