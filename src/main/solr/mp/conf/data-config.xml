@@ -37,7 +37,7 @@
 			<!-- flag mp for preQc, postQc and legacy -->
 			
 			<!-- postQc -->
-			<entity dataSource="komp2db" name="pipeSrc"
+			<entity dataSource="komp2db" name="impcPipe"
 				processor="CachedSqlEntityProcessor" 
 				query="select distinct p.pipeline_id as 'impc', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id=1"
 				where="mp_acc=mp_term_infos.term_id"
@@ -49,7 +49,7 @@
 			</entity>
 			
 			<!-- legacy -->
-			<entity dataSource="komp2db" name="pipeSrc"
+			<entity dataSource="komp2db" name="legacyPipe"
 				processor="CachedSqlEntityProcessor" 
 				query="select distinct p.pipeline_id as 'legacy', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id !=1"
 				where="mp_acc=mp_term_infos.term_id" 

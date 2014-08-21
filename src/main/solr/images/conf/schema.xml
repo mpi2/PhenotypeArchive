@@ -286,6 +286,11 @@
 	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+	<!-- tagging mp for faceting --> 
+	<field name="isPreQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isPostQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isLegacy" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+
 	<!-- ma term -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
