@@ -335,29 +335,6 @@ public class SolrIndex2 {
 
         map2.put("name", jsonObject2.getString("name"));
 
-//        if (jsonObject2.containsKey("loa_assays")) {
-//            List<Map<String, Object>> orders = (List<Map<String, Object>>) map2.get("orders");
-//
-//            JSONArray array = jsonObject2.getJSONArray("loa_assays");
-//            if (!array.isEmpty()) {
-//                for (Object i : array) {
-//                    String item = (String) i;
-//                    if (!item.isEmpty()) {
-//                        Pattern pattern = Pattern.compile("(.+):(.+)");
-//                        Matcher matcher = pattern.matcher(item);
-//                        if (matcher.find()) {
-//                            String loa_assay_url = "http://www.lifetechnologies.com/order/genome-database/searchResults?searchMode=keyword&productTypeSelect=cnv&keyword=";
-//                            HashMap<String, Object> map3 = new HashMap<>();
-//                            //map3.put("name", "LT (" + matcher.group(1) + ")");
-//                            map3.put("name", "ORDER");
-//                            map3.put("url", loa_assay_url + matcher.group(2));
-//                            orders.add(map3);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-         
         return map2;
     }
 

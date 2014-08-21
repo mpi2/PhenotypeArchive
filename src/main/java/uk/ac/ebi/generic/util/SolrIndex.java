@@ -661,12 +661,29 @@ public class SolrIndex {
                                         ikmcProjectId = projectArray.getString(0);
                                 }
 			}
+                        
+                        boolean allele_has_issue = false;
+                        if (docs.getJSONObject(i).has("allele_has_issue")) {
+                                String has_issue = docs.getJSONObject(i).getString("allele_has_issue");
+                                allele_has_issue = has_issue.equals("true");
+			}
+			log.error("#### geneAlleleConstruct: allele_has_issue: " + allele_has_issue);                        
+                        
                         if (docs.getJSONObject(i).has("order_from_names")) {
                                 orderFromNames = docs.getJSONObject(i).getString("order_from_names");
 			}
                         if (docs.getJSONObject(i).has("order_from_urls")) {
                                 orderFromUrls = docs.getJSONObject(i).getString("order_from_urls");
 			}
+                        
+                        if(allele_has_issue) {
+                            String id = docs.getJSONObject(i).has("id") ? docs.getJSONObject(i).get("id").toString() : null;
+                            String ptype = docs.getJSONObject(i).has("type") ? docs.getJSONObject(i).get("type").toString() : null;
+                            String url = " https://www.mousephenotype.org/imits/targ_rep/alleles/" + id + "/show-issue?doc_id=8172&product_type=" + ptype;
+                            orderFromUrls = url;
+                        }                        
+			log.error("#### geneAlleleConstruct: orderFromUrls: " + orderFromUrls);                        
+                        
                         if (docs.getJSONObject(i).has("order_from_urls") && docs.getJSONObject(i).has("order_from_names")) {
                                 JSONArray orderUrlsArray = docs.getJSONObject(i).getJSONArray("order_from_urls");
                                 JSONArray orderNamesArray = docs.getJSONObject(i).getJSONArray("order_from_names");
