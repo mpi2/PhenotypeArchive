@@ -69,7 +69,7 @@ public class GraphUtils {
 		for (String sex : genderList) {
 			genderString += seperator + "gender=" + sex;
 		}
-		if (chartType != null && chartType.equals(ChartType.UNIDIMENSIONAL_SCATTER_PLOT)) {
+		if (chartType != null) {
 			accessionAndParam += seperator + "chart_type=" + chartType;
 		}
 		// if not a phenotyping center returned in the keys for this gene and
