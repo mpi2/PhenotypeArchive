@@ -35,7 +35,7 @@
 	    _init: function () {
 			var self = this;						
 			self._initFacet();		
-			$.fn.openFacet(self.options.data.core);			
+			//$.fn.openFacet(self.options.data.core);			
 	    },
 	    
 		_initFacet: function(){
@@ -280,6 +280,7 @@
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		$('div.flist li#gene > ul').append(subTypeSect);
+	    		
 	    		$.fn.initFacetToggles('gene');
 	    		
 	    		var selectorBase = "div.flist li#gene";
