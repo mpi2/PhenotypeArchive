@@ -54,6 +54,7 @@
 	<!-- phenodigm external solr server via HTTP -->
 	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0" value="${phenodigmSolrUrl}" />
+		<property name="soTimeout" value="2000" />
 	</bean>
 
 	<!--this is the phenodigm DAO implementation we are looking for... -->
