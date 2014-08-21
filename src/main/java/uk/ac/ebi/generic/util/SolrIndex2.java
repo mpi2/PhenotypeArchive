@@ -335,29 +335,29 @@ public class SolrIndex2 {
 
         map2.put("name", jsonObject2.getString("name"));
 
-        if (jsonObject2.containsKey("loa_assays")) {
-            List<Map<String, Object>> orders = (List<Map<String, Object>>) map2.get("orders");
-
-            JSONArray array = jsonObject2.getJSONArray("loa_assays");
-            if (!array.isEmpty()) {
-                for (Object i : array) {
-                    String item = (String) i;
-                    if (!item.isEmpty()) {
-                        Pattern pattern = Pattern.compile("(.+):(.+)");
-                        Matcher matcher = pattern.matcher(item);
-                        if (matcher.find()) {
-                            String loa_assay_url = "http://www.lifetechnologies.com/order/genome-database/searchResults?searchMode=keyword&productTypeSelect=cnv&keyword=";
-                            HashMap<String, Object> map3 = new HashMap<>();
-                            //map3.put("name", "LT (" + matcher.group(1) + ")");
-                            map3.put("name", "ORDER");
-                            map3.put("url", loa_assay_url + matcher.group(2));
-                            orders.add(map3);
-                        }
-                    }
-                }
-            }
-        }
-
+//        if (jsonObject2.containsKey("loa_assays")) {
+//            List<Map<String, Object>> orders = (List<Map<String, Object>>) map2.get("orders");
+//
+//            JSONArray array = jsonObject2.getJSONArray("loa_assays");
+//            if (!array.isEmpty()) {
+//                for (Object i : array) {
+//                    String item = (String) i;
+//                    if (!item.isEmpty()) {
+//                        Pattern pattern = Pattern.compile("(.+):(.+)");
+//                        Matcher matcher = pattern.matcher(item);
+//                        if (matcher.find()) {
+//                            String loa_assay_url = "http://www.lifetechnologies.com/order/genome-database/searchResults?searchMode=keyword&productTypeSelect=cnv&keyword=";
+//                            HashMap<String, Object> map3 = new HashMap<>();
+//                            //map3.put("name", "LT (" + matcher.group(1) + ")");
+//                            map3.put("name", "ORDER");
+//                            map3.put("url", loa_assay_url + matcher.group(2));
+//                            orders.add(map3);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+         
         return map2;
     }
 
@@ -759,12 +759,41 @@ public class SolrIndex2 {
         return title;
     }
 
-//    private Object getLoaAssay(Map<String, Object> es_cell) {
-//        if (es_cell.containsKey("loa_assays")) {
-//            return es_cell.get("loa_assays");
-//        }
-//        return null;
-//    }
+    private Map<String, String> getLoaAssay(JSONArray docs) {
+
+        for (Object doc : docs) {
+            JSONObject jsonObject2 = (JSONObject) doc;
+            String type = jsonObject2.getString("type");
+
+            if (!type.equals("es_cell")) {
+                continue;
+            }
+
+            if (!jsonObject2.containsKey("loa_assays")) {
+                continue;
+            }
+
+            Map<String, String> loas = new HashMap<>();
+
+            JSONArray array = jsonObject2.getJSONArray("loa_assays");
+            if (!array.isEmpty()) {
+                for (Object i : array) {
+                    String item = (String) i;
+                    if (!item.isEmpty()) {
+                        Pattern pattern = Pattern.compile("(.+):(.+)");
+                        Matcher matcher = pattern.matcher(item);
+                        if (matcher.find()) {
+                            String loa_assay_url = "http://www.lifetechnologies.com/order/genome-database/searchResults?searchMode=keyword&productTypeSelect=cnv&keyword=";
+                            loas.put(matcher.group(1), loa_assay_url + matcher.group(2));
+                        }
+                    }
+                }
+                return loas;
+            }
+        }
+
+        return null;
+    }
 
     public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
 
@@ -788,7 +817,8 @@ public class SolrIndex2 {
         List<Map<String, Object>> targeting_vectors = new ArrayList<>();
 
         String title = "Unknown";
-       // Object loa_assay = null;
+        Object loa_assays = getLoaAssay(docs);
+        log.info("#### getGeneProductInfo: loa_assay: " + loa_assays);
 
         for (Object doc : docs) {
             JSONObject jsonObject2 = (JSONObject) doc;
@@ -884,10 +914,10 @@ public class SolrIndex2 {
 
                 summary.put("status_mice", getGeneProductInfoStatusesMouseAlt(mapper));
 
-                //summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
-                //if (loa_assay != null) {
-                //    log.info("#### getGeneProductInfo: loa_assay: " + loa_assay);
-                //}
+                if (loa_assays != null) {
+                    log.info("#### getGeneProductInfo: loa_assay: " + loa_assays);
+                    summary.put("loa_assays", loa_assays);
+                }
 
                 summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
 
