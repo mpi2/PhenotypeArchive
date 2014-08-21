@@ -41,6 +41,7 @@ config.update.filterObj = [];
 config.update.mainFacetDone = false;
 config.update.mainFacetDoneReset = false;
 config.update.mainFacetNone = false;
+config.update.rebuilt = false;
 
 config.update.widgetOpen   = false;
 config.update.pageReload   = false;

@@ -459,16 +459,15 @@
     			}
    				
    				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
-   					//console.log('1. widget facet open');
-   					
    					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
    					
-   					if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){	
+   					if ( MPI2.searchAndFacetConfig.update.rebuilt  ){
+   						// just reset flag, no need to load dataTable again (already done)
+   						MPI2.searchAndFacetConfig.update.rebuilt = false;
+   					}
+   					else if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){
     					$.fn.loadDataTable(oUrlParams);
     				}
-   					else if ( ! MPI2.searchAndFacetConfig.update.mainFacetDoneReset ){
-   						// do nothing for now
-   					}
    					
    				} 
    				else if ( MPI2.searchAndFacetConfig.update.pageReload == true ){
@@ -485,6 +484,9 @@
 				} 
    				else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
     				//console.log('back button OR widget open event');
+    				
+    				MPI2.searchAndFacetConfig.update.rebuilt = false;  //reset
+    				
     				if ( /search\/?$/.test(window.location.href) ){
         				// when the url become ..../search
     					document.location.href = baseUrl + '/search';
