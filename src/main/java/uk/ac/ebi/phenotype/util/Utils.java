@@ -68,7 +68,7 @@ public class Utils {
         
         Integer retVal = null;
         try {
-            retVal = Integer.parseInt(o.toString().trim());
+            retVal = Integer.parseInt(o.toString().trim().replace(",", ""));    // Remove commas. Number strings like '48,123' don't parse.
         }
         catch (NumberFormatException nfe ) { }
         

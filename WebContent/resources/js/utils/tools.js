@@ -2293,7 +2293,7 @@
         sInputs += "<input type='text' name='dumpMode' value='" + dumpMode + "'>";
 
         var form = "<form action='" + url + "' method=get>" + sInputs + "</form>";
-        var exportUrl = url + "/?" + $(form).serialize();
+        var exportUrl = url + "?" + $(form).serialize();
 
         var retVal = new Object();
         retVal.url = url;
