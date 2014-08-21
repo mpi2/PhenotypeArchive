@@ -99,6 +99,10 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 					<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />							
 					<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />					
     			
+    				<field column="isPreQc" xpath="/response/result/doc/int[@name='isPreQc']" />
+					<field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />			
+					<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />
+    			
                     <!-- MA: inferred from MP -->
                     <!-- don't want to tod this -->
 

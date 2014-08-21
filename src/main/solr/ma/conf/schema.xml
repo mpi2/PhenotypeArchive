@@ -251,6 +251,11 @@
 	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+	<!-- tagging mp for faceting --> 
+	<field name="isPreQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isPostQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isLegacy" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
