@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataConfig>
+	
+	<script type='text/javascript'><![CDATA[
+		
+    ]]></script>
+	
+    <dataSource name="harwell_preqc" type="URLDataSource" encoding="UTF-8" connectionTimeout="5000" readTimeout="10000"/>
+	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
+	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
+	
+ 	<document name="docs">
+		
+		<entity dataSource="harwell_preqc"
+			name="pq" 
+			stream="true" 
+			url="https://www.mousephenotype.org/sites/mousephenotype.org/files/PhenotypeCallSummary.xml"
+         	processor="XPathEntityProcessor" 
+         	forEach="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/" 
+            readTimeout="10000" connectionTimeout="10000" >
+                                 
+			<field column="doc_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/id" />
+			<field column="project_external_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/externalId" />
+			<field column="sex" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/sex" />
+			<field column="zygosity" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/zygosity" />
+			<field column="resource_name" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/datasource" />
+			<field column="project_name" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/project" />
+			<field column="marker_symbol" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/gene" />
+			
+			<entity dataSource="komp2db" name="geneSym2Id" 
+				processor="CachedSqlEntityProcessor" 
+				query="select acc, symbol from genomic_feature"
+				where="symbol=pq.marker_symbol">
+				
+				<field column="acc" name="marker_accession_id" />
+			</entity>	
+			
+			<field column="mp_term_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/phenotypeTerm" />
+			
+			<entity dataSource="ontodb" name="mpTermId2Name" 
+				processor="CachedSqlEntityProcessor" 
+				query="select ti.term_id, ti.name, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id"
+				where="term_id=pq.mp_term_id">
+				
+				<field column="name" name="mp_term_name" />
+				
+				<!-- top level MP term of this MP term -->		
+				<entity dataSource="ontodb" name="mpTopLevel"
+					processor="CachedSqlEntityProcessor" 
+					query="select lv.node_id as mp_node_id, ti.term_id, ti.name, ti.definition from mp_node_top_level lv inner join mp_node2term nt on lv.top_level_node_id=nt.node_id inner join mp_term_infos ti on nt.term_id=ti.term_id and ti.term_id!='MP:0000001'"
+					where="mp_node_id=mpTermId2Name.node_id">
+					
+					<field column="term_id" name="top_level_mp_term_id" />
+					<field column="name"    name="top_level_mp_term_name" />
+						
+				</entity>		
+				
+				<!-- intermediate MP terms of this MP term -->
+				<entity dataSource="ontodb" name="intermediates" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue" 
+					query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+					where="child_node_id=mpTermId2Name.node_id">
+					
+					<entity dataSource="ontodb" name="mpTermNode"	
+						processor="CachedSqlEntityProcessor" 
+						onError="continue" 		
+						query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+						where="node_id=intermediates.node_id">
+					
+						<field column="term_id" name="intermediate_mp_term_id" />
+						<field column="name"    name="intermediate_mp_term_name" />
+						
+					</entity>
+				</entity>	
+				
+			</entity>	
+			
+			<field column="p_value" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pValue" />
+			<field column="effect_size" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/effectSize" />
+			<field column="allele_symbol" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/allele" />
+			<field column="pipeline_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pipeline" />
+			<field column="procedure_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/procedure" />
+			<field column="parameter_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/parameter" />
+			<field column="phenotyping_center" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/phenotypingCenter" />
+			
+			
+		</entity>
+		
+		
+		
+    </document>   
+        
+</dataConfig>
