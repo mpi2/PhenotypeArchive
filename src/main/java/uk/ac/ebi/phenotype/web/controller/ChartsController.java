@@ -158,13 +158,13 @@ public class ChartsController {
             @RequestParam(required = false, value = "strategy") String[] strategies,
             @RequestParam(required = false, value = "strain") String[] strains,
             @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
-            @RequestParam(required = false, value = "scatter") boolean scatter,
+            @RequestParam(required = false, value = "chart_type") ChartType chartType,
             @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
             @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
             Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException,
             IOException, URISyntaxException, SolrServerException {
-        return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter, alleleAccession);
+        return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
     }
 
     /**
@@ -201,7 +201,7 @@ public class ChartsController {
             @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
             @RequestParam(required = false, value = "strategy") String[] strategies,
             @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
-            @RequestParam(required = false, value = "scatter") boolean scatter,
+            @RequestParam(required = false, value = "chart_type") ChartType chartType,
             @RequestParam(required = false, value = "standAlone") boolean standAlone,
             Model model) throws GenomicFeatureNotFoundException,
             ParameterNotFoundException, IOException, URISyntaxException,
@@ -295,7 +295,7 @@ public class ChartsController {
             }
 
             try {
-                if (scatter) {
+                if (chartType != null && chartType.equals(ChartType.UNIDIMENSIONAL_SCATTER_PLOT)) {
                     ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
                     model.addAttribute("scatterChartAndData", scatterChartAndData);
 
@@ -315,7 +315,7 @@ public class ChartsController {
 
                         case unidimensional:
 
-                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UnidimensionalBoxPlot, false, xAxisTitle, expBiologicalModel);
+                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
                             model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 
                             break;
@@ -367,7 +367,7 @@ public class ChartsController {
     }
 
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
-    String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
@@ -414,7 +414,7 @@ public class ChartsController {
 
                 // instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter.getStableId(), pipelineStableIds, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter, alleleAccessions);
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter.getStableId(), pipelineStableIds, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, chartType, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
             }// end of parameterId iterations
