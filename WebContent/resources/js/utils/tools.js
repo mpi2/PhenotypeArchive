@@ -58,19 +58,21 @@
                     }
 
                     var oInput = $('div.flist li.fcat').find('input[rel*="' + fieldFacet + '|' + kv + '"]');
-                    if (oInput.length != 0) {
-
-                        oInput.click(); // tick checkbox   
-
-                        MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
-                        $.fn.composeSummaryFilters(oInput, q);
-
-                        // open the facet if not
-                        if (!$('div.flist > ul li#' + fieldFacet).hasClass('open')) {
-                            $('div.flist > ul li#' + fieldFacet).click();
-                        }
-                    }
-
+                  
+                    if ( typeof oInput.attr('rel') != 'undefined' ){	
+						//console.log('found in opened facet');
+						
+						// don't do oInput.click(); this bubbles up
+						oInput.prop('checked', true).siblings('span.flabel').addClass('highlight');
+						
+						MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
+						$.fn.composeSummaryFilters(oInput, q);
+						
+						// open the facet if not
+						//if ( !$('div.flist > ul li#'+ fieldFacet).hasClass('open') ){
+						//	$('div.flist > ul li#'+ fieldFacet).click();
+						//}
+		    		}	
                     else {
                         // create matching checkbox facet filter in unopened facets
                         if (qField == 'procedure_stable_id') {
@@ -385,10 +387,12 @@
                         }
                     }
 
-                    if (MPI2.searchAndFacetConfig.update.mainFacetDoneReset) {
-                        MPI2.searchAndFacetConfig.update.mainFacetDoneReset = false;
-                        $.fn.rebuildFilters(oUrlParams);
-                    }
+                    if ( MPI2.searchAndFacetConfig.update.mainFacetDoneReset ){
+        				//console.log('mainFacetDoneReset');
+        				MPI2.searchAndFacetConfig.update.rebuilt = true;
+        				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = false;
+        				$.fn.rebuildFilters(oUrlParams);
+        			}
                 }
             }
         });
