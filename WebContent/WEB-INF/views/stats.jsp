@@ -25,7 +25,7 @@
                         })
                                 .done(function(html) {
                                     $('#' + id).append(html);
-                                    $('#spinner' + id).html('');
+                                    $('#spinner' + (i+1)).html('');
                                     if (html.search('section-associations') === -1) {//if this element not found in the html then no graph present so remove placeholder section
                                         console.log('element found');
                                         //$( '#'+ id ).html( '' ); 
@@ -125,7 +125,7 @@
                                 zygosity.push(paramList[k].replace("zygosity=", ""));
                             }
                             else if (paramList[k].indexOf("pipeline_stable_id") >= 0) {
-                                pipelineStableId.push(paramList[k].replace("pipeline_stable_id=", ""));
+                                pipelineStableId.push(paramList[k].replace(/pipeline_stable_id=/, ""));
                             }
                             else if (paramList[k].indexOf("allele_accession") >= 0) {
                                 allele.push(paramList[k].replace("allele_accession=", ""));

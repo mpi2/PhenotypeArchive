@@ -23,7 +23,6 @@ public class PhenotypeSummaryBySex {
 		else if (sex.equals("both sexes"))
 			bothPhens.add(obj);
 		else throw (new Exception("Object of type PhenotypeSummaryTuype recieved without valid sex field."));
-		
 	}
 	
 	public ArrayList <PhenotypeSummaryType> getMalePhenotypes(){
