@@ -24,8 +24,8 @@ package org.mousephenotype.www.testing.model;
  *
  * @author mrelac
  * 
- * This class extends <code>GridMap</code> by adding column definitions for
- * the download phenotype page.
+ * This class contains column index definitions for the download phenotypes page
+ * phenotypes HTML table.
  */
 public class DownloadPhenotypeMap {
     public final static int COL_INDEX_GENE                = 0;

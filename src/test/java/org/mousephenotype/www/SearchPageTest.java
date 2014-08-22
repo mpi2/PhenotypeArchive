@@ -211,35 +211,6 @@ public class SearchPageTest {
         else {
             System.out.println("[FAILED] - SOME SEARCH PAGE TESTs NOT FINISHED");
         }
-
-    }
-
-    
-    // PRIVATE METHODS
-    
-
-    private void specialStrQueryTest(String testName, String qry) throws Exception {
-        testCount++;
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
-
-        successList.clear();
-        errorList.clear();
-
-        driver.get(baseUrl + "/search?q=" + qry);
-
-        new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));
-        String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
-        if ( foundMsg.isEmpty() ){
-            System.out.println("[FAILED] - queried " + qry);
-            sumErrorList.add("[FAILED] - queried " + qry);
-            fail("There were " + sumErrorList.size() + " errors.");
-        }
-        else {
-            System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
-            sumSuccessList.add("passed");
-        }
-        System.out.println();
     }
     
     
@@ -247,7 +218,7 @@ public class SearchPageTest {
     
     
     @Test
-    //@Ignore
+//@Ignore
     public void autosuggestTest() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
@@ -277,8 +248,8 @@ public class SearchPageTest {
          }
     }
     
-    //@Test
-    @Ignore
+    @Test
+//@Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -368,7 +339,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "testQueryingRandomGeneSymbols";
@@ -443,7 +414,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
@@ -509,31 +480,31 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testPhrase() throws Exception {
         specialStrQueryTest("testPhrase", "grip strength");
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testPhraseInQuotes() throws Exception {
         specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testLeadingWildcard() throws Exception {
         specialStrQueryTest("testLeadingWildcard", "*rik");
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("testTrailingWildcard", "hox*");
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
@@ -600,7 +571,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+//@Ignore
     public void testFacetCounts() throws Exception {
         testCount++;
         System.out.println();
@@ -675,7 +646,7 @@ public class SearchPageTest {
      * @throws Exception 
      */
     @Test
-    //@Ignore
+//@Ignore
     public void testJiraMPII_806() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
@@ -709,6 +680,7 @@ public class SearchPageTest {
     }
 
     @Test
+ //@Ignore
     public void testSpecialCharacters() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
@@ -775,15 +747,27 @@ public class SearchPageTest {
         }
     }
     
-    // 'None', 'Pre', 'Post', and 'Both' refer to the count/position of the wildcard '*' character(s).
-    private void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase) {
-        checkSpecialPhrase(wait, status, phrase, phrase);
-        if ( ! phrase.equals("*")) {                                            // Special case: for "*", test only "*".
-            checkSpecialPhrase(wait, status, phrase, "*" + phrase);
-            checkSpecialPhrase(wait, status, phrase, phrase + "*");
-            checkSpecialPhrase(wait, status, phrase, "*" + phrase + "*");
-        }
+    @Test
+//@Ignore
+    public void testDefaultDownload() throws Exception {
+        String testName = "testDefaultDownload";
+        String searchString = null;
+        
+        downloadTestEngine(testName, searchString);
     }
+    
+    @Test
+//@Ignore
+    public void testBoneDownload() throws Exception {
+        String testName = "testBoneDownload";
+        String searchString = "bone";
+        
+        downloadTestEngine(testName, searchString);
+    }
+
+    
+    // PRIVATE METHODS
+    
     
     // rawPhrase is the phrase without any preceeding or trailing '*' wildcard characters. cookedPhrase is with '*' wildcard(s).
     private void checkSpecialPhrase(WebDriverWait wait, PageStatus status, String rawPhrase, String cookedPhrase) {
@@ -814,31 +798,31 @@ public class SearchPageTest {
         HashMap<String, Integer> coreCounts = querySolr(cookedPhrase, status);
         
         // Scrape the 'match result count per core' from the page and compare it against the solr results.
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, phenotypePipelineDAO);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, phenotypePipelineDAO, baseUrl);
         
         int totalCount = 0;
-        if (searchPage.getAnatomyFacetCount()!= coreCounts.get(SearchPage.ANATOMY_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.ANATOMY_CORE) + " Anatomy core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getAnatomyFacetCount() + ".");
+        if (searchPage.getFacetCount(SearchPage.Facet.ANATOMY) != coreCounts.get(SearchPage.ANATOMY_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.ANATOMY_CORE) + " Anatomy core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.ANATOMY) + ".");
             totalCount += coreCounts.get(SearchPage.ANATOMY_CORE);
         }
-        if (searchPage.getDiseasesFacetCount() != coreCounts.get(SearchPage.DISEASE_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.DISEASE_CORE) + " Disease core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getDiseasesFacetCount() + ".");
+        if (searchPage.getFacetCount(SearchPage.Facet.DISEASES) != coreCounts.get(SearchPage.DISEASE_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.DISEASE_CORE) + " Disease core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.DISEASES) + ".");
             totalCount += coreCounts.get(SearchPage.DISEASE_CORE);
         }
-        if (searchPage.getGenesFacetCount() != coreCounts.get(SearchPage.GENE_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.GENE_CORE) + " Gene core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getGenesFacetCount() + ".");
+        if (searchPage.getFacetCount(SearchPage.Facet.GENES) != coreCounts.get(SearchPage.GENE_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.GENE_CORE) + " Gene core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.GENES) + ".");
             totalCount += coreCounts.get(SearchPage.GENE_CORE);
         }
-        if (searchPage.getImagesFacetCount() != coreCounts.get(SearchPage.IMAGES_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.IMAGES_CORE) + " images core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getImagesFacetCount() + ".");
+        if (searchPage.getFacetCount(SearchPage.Facet.IMAGES) != coreCounts.get(SearchPage.IMAGES_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.IMAGES_CORE) + " images core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.IMAGES) + ".");
             totalCount += coreCounts.get(SearchPage.IMAGES_CORE);
         }
-        if (searchPage.getPhenotypesFacetCount() != coreCounts.get(SearchPage.PHENOTYPE_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.PHENOTYPE_CORE) + " Phenotype core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getPhenotypesFacetCount() + ".");
+        if (searchPage.getFacetCount(SearchPage.Facet.PHENOTYPES) != coreCounts.get(SearchPage.PHENOTYPE_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.PHENOTYPE_CORE) + " Phenotype core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.PHENOTYPES) + ".");
             totalCount += coreCounts.get(SearchPage.PHENOTYPE_CORE);
         }
-        if (searchPage.getProceduresFacetCount() != coreCounts.get(SearchPage.PROCEDURES_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.PROCEDURES_CORE) + " Procedures core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getProceduresFacetCount() + ".");
+        if (searchPage.getFacetCount(SearchPage.Facet.PROCEDURES) != coreCounts.get(SearchPage.PROCEDURES_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.PROCEDURES_CORE) + " Procedures core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.PROCEDURES) + ".");
             totalCount += coreCounts.get(SearchPage.PROCEDURES_CORE);
         }
         
@@ -862,6 +846,15 @@ public class SearchPageTest {
         TestUtils.sleep(100);
     }
     
+    // 'None', 'Pre', 'Post', and 'Both' refer to the count/position of the wildcard '*' character(s).
+    private void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase) {
+        checkSpecialPhrase(wait, status, phrase, phrase);
+        if ( ! phrase.equals("*")) {                                            // Special case: for "*", test only "*".
+            checkSpecialPhrase(wait, status, phrase, "*" + phrase);
+            checkSpecialPhrase(wait, status, phrase, phrase + "*");
+            checkSpecialPhrase(wait, status, phrase, "*" + phrase + "*");
+        }
+    }
     
     private boolean containsPhrase(String rawPhrase) {
         boolean found = false;
@@ -890,7 +883,66 @@ public class SearchPageTest {
         
         return found;
     }
-  
+    
+    /**
+     * Executes download verification. <code>searchPhrase</code> is used to
+     * specify the search characters to send to the server. It may be null or empty.
+     * @param testName the test name
+     * @param facet the facet to test. If null, no facet is selected before the test.
+     * @param searchString the search characters to be sent to the server. May
+     *        be null or empty. If not empty, must be terminated by a trailing
+     *        forward slash.
+     * @return status
+     */
+    private void downloadTestEngine(String testName, String searchString) throws Exception {
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        
+        if (searchString == null)
+            searchString = "";
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        try {
+            // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
+            String target = baseUrl + "/search";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+
+            if (! searchString.isEmpty()) {
+                searchPage.submitSearch(searchString);
+            }
+
+            SearchPage.Facet[] facets = {
+                  SearchPage.Facet.ANATOMY
+                , SearchPage.Facet.DISEASES
+                , SearchPage.Facet.GENES
+                , SearchPage.Facet.IMAGES
+                , SearchPage.Facet.PHENOTYPES
+                , SearchPage.Facet.PROCEDURES };
+
+            for (SearchPage.Facet facet : facets) {
+                searchPage.clickFacet(facet);
+                searchPage.clickPageButton();
+                System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+                status.add(searchPage.validateDownload(facet));
+            }
+        } catch (Exception e) {
+            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            System.out.println(message);
+            e.printStackTrace();
+            status.addError(message);
+        } finally {
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            } else {
+                successList.add(testName + ": SUCCESS.");
+            }
+
+            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        }
+    }
+    
     private final int GENE_INDEX = 0;
     private final int PHENOTYPE_INDEX = 1;
     private final int DISEASE_INDEX = 2;
@@ -996,5 +1048,28 @@ System.out.println("URL: " + solrUrl + newQueryString);
         return coreCountHash;
     }
     
+    private void specialStrQueryTest(String testName, String qry) throws Exception {
+        testCount++;
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+
+        successList.clear();
+        errorList.clear();
+
+        driver.get(baseUrl + "/search?q=" + qry);
+
+        new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));
+        String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
+        if ( foundMsg.isEmpty() ){
+            System.out.println("[FAILED] - queried " + qry);
+            sumErrorList.add("[FAILED] - queried " + qry);
+            fail("There were " + sumErrorList.size() + " errors.");
+        }
+        else {
+            System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
+            sumSuccessList.add("passed");
+        }
+        System.out.println();
+    }
     
 }
