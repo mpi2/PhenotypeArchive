@@ -565,12 +565,21 @@ public class ObservationService extends BasicService {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
 		LOG.debug("observation  service query = " + query);
+		System.out.println("observation  service query = " + query);
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
 	}
+/*	
+	http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?
+		q=gene_accession_id%3AMGI%5C%3A2652819&fq=parameter_id%3A1217&
+		fq=pipeline_id%3A1&fq=zygosity%3Ahomozygote&fq=strain_accession_id%3AMGI%5C%3A2164831&fq=phenotyping_center_id%3A8&
+		fq=metadata_group%3A%224d983b616ec12c6907a824eb9290cdc5%22&fq=allele_accession_id%3AMGI%5C%3A4435406&start=0&rows=10000
 
-
+		q=gene_accession_id%3AMGI%5C%3A2652819&fq=parameter_id%3A1223&
+		fq=pipeline_id%3A1&fq=zygosity%3Ahomozygote&fq=strain_accession_id%3AMGI%5C%3A2164831&fq=phenotyping_center_id%3A8&
+		fq=metadata_group%3A%224d983b616ec12c6907a824eb9290cdc5%22&fq=allele_accession_id%3AMGI%5C%3A4435406&start=0&rows=10000
+*/
 	/**
 	 * Return a list of a triplets of pipeline stable id, phenotyping center and
 	 * allele accession
@@ -1348,7 +1357,7 @@ public class ObservationService extends BasicService {
 		}
 		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
-
+		System.out.println("getAllControlsBySex " + query );
 		return results;
 	}
 

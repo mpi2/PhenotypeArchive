@@ -32,7 +32,8 @@ public class GraphUtils {
 
 
 	public Set<String> getGraphUrls(String acc,
-	String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter, List<String> alleleAccession)
+	String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
+	List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
 	throws SolrServerException {
 
 		// each url should be unique and so we use a set
@@ -68,8 +69,8 @@ public class GraphUtils {
 		for (String sex : genderList) {
 			genderString += seperator + "gender=" + sex;
 		}
-		if (scatter) {
-			accessionAndParam += seperator + "scatter=" + scatter;
+		if (chartType != null) {
+			accessionAndParam += seperator + "chart_type=" + chartType;
 		}
 		// if not a phenotyping center returned in the keys for this gene and
 		// param then don't return a url
