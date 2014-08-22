@@ -4,16 +4,11 @@
 
 
 <!-- categorical here -->
-				
- 	<c:if test="${abrChart!=null}">
-            
-  					<div id="chartABR">
-								</div>
-   								<script type="text/javascript">
 
-   							 	$(document).ready(
-   									function() {
-   								   ${abrChart};
-   								})
-								</script>
-	</c:if>
+<c:if test="${abrChart!=null}">
+
+	<div id="chartABR"></div>
+	<script type="text/javascript">
+		${abrChart}
+	</script>
+</c:if>

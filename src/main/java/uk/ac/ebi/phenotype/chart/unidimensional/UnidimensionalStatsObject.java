@@ -12,6 +12,7 @@ public class UnidimensionalStatsObject {
 	private Float mean = new Float(0);
 	private Float sd = new Float(0);
 	private Integer sampleSize = 0;
+	private String label = "Not set"; // label to display on x Axis. Need this at least for ABR
 
 	public Integer getSampleSize() {
 		return sampleSize;
@@ -31,6 +32,16 @@ public class UnidimensionalStatsObject {
 
 	public void setResult(UnidimensionalResult result) {
 		this.result = result;
+	}
+
+	public String getLabel() {
+	
+		return label;
+	}
+
+	public void setLabel(String label) {
+	
+		this.label = label;
 	}
 
 	public String getGeneticBackground() {

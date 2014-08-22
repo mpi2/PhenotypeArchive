@@ -308,7 +308,7 @@ public class ChartsController {
                 	// get experiments for other parameters too 
                 	
                 	model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
-                	strain, metaDataGroupString, alleleAccession));
+                		strain, metaDataGroupString, alleleAccession));
                 }
                 else {
 
