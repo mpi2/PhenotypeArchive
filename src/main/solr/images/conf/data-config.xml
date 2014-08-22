@@ -278,7 +278,8 @@
 
 					<!-- flag mp for preQc, postQc and legacy -->
 			
-					<!-- postQc -->
+					<!-- 
+					
 					<entity dataSource="komp2ds" name="impcPipe"
 						processor="CachedSqlEntityProcessor" 
 						query="select distinct p.pipeline_id as 'impc', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id=1"
@@ -290,8 +291,8 @@
 						
 					</entity>
 					
-					<!-- legacy -->
-					<entity dataSource="komp2db" name="legacyPipe"
+					
+					<entity dataSource="komp2ds" name="legacyPipe"
 						processor="CachedSqlEntityProcessor" 
 						query="select distinct p.pipeline_id as 'legacy', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id !=1"
 						where="mp_acc=mpAnnotations.TERM_ID" 
@@ -302,7 +303,6 @@
 						
 					</entity>
 					
-					<!-- preQc -->
 					<entity dataSource="preqc_core" name="preqc"
 						stream="true" 
 						forEach="/response/result/doc/"
@@ -313,7 +313,8 @@
 						<field column="preqc_mp_id" xpath="/response/result/doc/str[@name='mp_term_id']" />
 						<field column="isPreQc" name="isPreQc" />
 					</entity>
-							
+						
+						-->
 					<!-- disease annotated to this MP -->					
 					<!--<entity dataSource="disease_core" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mpAnnotations.TERM_ID}'">    
    			
