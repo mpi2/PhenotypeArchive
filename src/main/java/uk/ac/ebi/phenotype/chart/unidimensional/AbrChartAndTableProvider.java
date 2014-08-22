@@ -72,6 +72,7 @@ public class AbrChartAndTableProvider {
 		String categories = "[\"" + StringUtils.join(Constants.ABR_PARAMETERS, "\", \"") + "\"]";
 		String ranges = "[";
 		String averages = "[";
+		String homs = "[";
 		
 		for (UnidimensionalStatsObject control : data.get("control")){
 			ranges += "[\'" + control.getLabel() + "\', " + (control.getMean() - control.getSd()) + ", " + (control.getMean() + control.getSd()) + "]";
@@ -81,9 +82,15 @@ public class AbrChartAndTableProvider {
 				averages += ",";
 			}
 		}
-
+		for (UnidimensionalStatsObject hom : data.get("hom")){
+			homs += "[\'" + hom.getLabel() + "\', " + hom.getMean() + "]";
+			if (!data.get("hom").get(data.get("hom").size()-1).equals(hom)){
+				homs += ",";
+			}
+		}
 		ranges += "]";
 		averages += "]";
+		homs += "]";
 		
 		String chart = 
 		"$(function () {"+
@@ -103,6 +110,14 @@ public class AbrChartAndTableProvider {
 				     	" lineColor: Highcharts.getOptions().colors[0]"+
 				     " }"+
 			     " }, {"+
+						" name: 'Homozygotes',"+
+						" data: " + homs + "," + 
+						" zIndex: 1,"+
+						" marker: {"+
+						   	" lineWidth: 2,"+
+						   	" lineColor: Highcharts.getOptions().colors[2]"+
+						" }"+
+				 " }, {"+
 				     " name: 'Range',"+
 				     " data: " + ranges + "," + 
 				     " type: 'arearange',"+
