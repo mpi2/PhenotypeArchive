@@ -123,7 +123,7 @@ CREATE TABLE analytics_experiment_load (
 	date_of_experiment       VARCHAR(50) NOT NULL DEFAULT '',
 	sequence_id              VARCHAR(255) NOT NULL DEFAULT '',
 	experiment_id            VARCHAR(255) NOT NULL DEFAULT '',
-	specimen_id              VARCHAR(10) NOT NULL DEFAULT '',
+	specimen_id              VARCHAR(255) NOT NULL DEFAULT '',
 	impress_pipeline         VARCHAR(50) NOT NULL DEFAULT '',
 	impress_procedure        VARCHAR(100) NOT NULL DEFAULT '',
 	impress_parameter        VARCHAR(100) NOT NULL DEFAULT '',
