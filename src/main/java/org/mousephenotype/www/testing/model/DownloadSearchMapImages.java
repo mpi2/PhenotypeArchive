@@ -24,17 +24,12 @@ package org.mousephenotype.www.testing.model;
  *
  * @author mrelac
  * 
- * This class contains column index definitions for the download gene page
- * phenotypes HTML table.
+ * This class contains column index definitions for the download search page
+ * imagesGrid HTML table.
  */
-public class DownloadGeneMap {
-    public final static int COL_INDEX_PHENOTYPE           = 0;
-    public final static int COL_INDEX_ALLELE              = 1;
-    public final static int COL_INDEX_ZYGOSITY            = 2;
-    public final static int COL_INDEX_SEX                 = 3;
-    public final static int COL_INDEX_PROCEDURE_PARAMETER = 4;
-    public final static int COL_INDEX_PHENOTYPING_CENTER  = 5;
-    public final static int COL_INDEX_SOURCE              = 6;
-    public final static int COL_INDEX_P_VALUE             = 7;
-    public final static int COL_INDEX_GRAPH               = 8;
+public class DownloadSearchMapImages {
+    public final static int COL_INDEX_ANNOTATION_TYPE     = 0;
+    public final static int COL_INDEX_ANNOTATION_NAME     = 1;
+    public final static int COL_INDEX_RELATED_IMAGE_COUNT = 2;
+    public final static int COL_INDEX_URL_TO_IMAGES       = 3;
 }

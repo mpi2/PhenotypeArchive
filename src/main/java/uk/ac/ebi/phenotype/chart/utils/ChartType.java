@@ -1,5 +1,10 @@
 package uk.ac.ebi.phenotype.chart.utils;
 
 public enum ChartType {
-	UnidimensionalScatter, UnidimensionalBoxPlot;
+	
+	UNIDIMENSIONAL_SCATTER_PLOT, UNIDIMENSIONAL_BOX_PLOT, UNIDIMENSIONAL_ABR_PLOT;
+	
+	public String getName(){
+		return this.toString();
+	}
 }

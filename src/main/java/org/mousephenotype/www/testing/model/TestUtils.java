@@ -152,6 +152,29 @@ public class TestUtils {
         return false;
     }
     
+    /**
+     * Given a source array of 'array of String' and a starting index in that
+     * array, copies <code>coune</code> 'array of String' elements into a new
+     * array returned to the caller.
+     * @param src the source array
+     * @param startIndex the source array starting index
+     * @param count the number of elements to copy
+     * @return the requested elements
+     */
+    public static String[][] copy(String[][] src, int startIndex, int count) {
+        if (src == null)
+            return null;
+        if ((src.length == 0) || (src[0].length == 0))
+            return new String[0][0];
+        
+        String[][] retVal = new String[src.length - 1][src[0].length];
+        for (int i = 0; i < count; i++) {
+            retVal[i] = src[i + startIndex];
+        }
+        
+        return retVal;
+    }
+    
     private final static double EPSILON = 0.000000001;
     /**
      * Performs an approximate match between two doubles. Returns true if 
