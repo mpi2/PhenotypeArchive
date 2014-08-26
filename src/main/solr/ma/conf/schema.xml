@@ -161,6 +161,7 @@
 	<field name="latest_phenotyping_centre" type="string" indexed="true" multiValued="true"/>
 	
 	<field name="latest_phenotype_status" type="string" indexed="true" multiValued="true"/> 
+	<field name="legacy_phenotype_status" type="int" indexed="true" stored="true" multiValued="false"/>	
 	
 	<!-- allele level fields of a gene -->
 	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
@@ -250,6 +251,11 @@
 	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- tagging mp for faceting --> 
+	<field name="isPreQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isPostQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isLegacy" type="int" indexed="true" stored="true" required="false" multiValued="false" />
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->

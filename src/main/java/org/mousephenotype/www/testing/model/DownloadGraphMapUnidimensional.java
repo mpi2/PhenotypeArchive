@@ -23,13 +23,13 @@ package org.mousephenotype.www.testing.model;
 /**
  *
  * @author mrelac
- 
- This class implements the contract defined by the DownloadGraphMap interface
- as well as any additional methods pertaining to a download stream from a graph
- page.
+ *
+ * This class contains column index definitions for the unidimensional graph page
+ * continuousTable HTML table. The class implements the contract defined by the
+ * DownloadGraphMap interface as well as any additional methods pertaining to a
+ * download stream from a graph page.
  */
 public class DownloadGraphMapUnidimensional implements DownloadGraphMap {
-    public final int BACKGROUND          =  0;
     public final int PIPELINE_NAME       =  0;
     public final int PIPELINE_STABLE_ID  =  1;
     public final int PROCEDURE_STABLE_ID =  2;
@@ -37,7 +37,7 @@ public class DownloadGraphMapUnidimensional implements DownloadGraphMap {
     public final int PARAMETER_STABLE_ID =  4;
     public final int PARAMETER_NAME      =  5;
     public final int STRAIN_ACCESSION_ID =  6;
-    public final int STRAIN_NAME         =  7;
+    public final int BACKGROUND          =  7;
     public final int GENE_SYMBOL         =  8;
     public final int GENE_ACCESSION      =  9;
     public final int ALLELE_SYMBOL       = 10;

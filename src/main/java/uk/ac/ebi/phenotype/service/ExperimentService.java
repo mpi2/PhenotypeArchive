@@ -360,7 +360,6 @@ public class ExperimentService {
 
                                 controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());
                                 LOG.info("Using baseline controls for sex: " + s.name() + ", num controls: " + controls.size());
-
                             }
                         }
 
@@ -401,13 +400,12 @@ public class ExperimentService {
 
                             controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());
                             LOG.info("Using baseline controls, num controls: " + controls.size());
-
                         }
 
                     }
 
                 } // End control selection
-
+                
                 experiment.getControls().addAll(controls);
 
                 if (experiment.getControlBiologicalModelId() == null && controls.size() > 0) {

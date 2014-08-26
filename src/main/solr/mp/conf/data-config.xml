@@ -1,11 +1,29 @@
      
 <dataConfig>
-	
+
+	<script type='text/javascript'><![CDATA[
+		
+		function srcMapping(row){
+			if (row.get('preqc_mp_id')){
+				row.put('isPreQc', '1'); 
+			}	
+			else if (row.get('impc')){
+				row.put('isPostQc', '1'); 
+			}	
+			else if (row.get('legacy')){
+				row.put('isLegacy', '1'); 
+			}				        		
+	   		return row; 
+		}
+
+    ]]></script>
+    
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
 	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />  
-	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	  
-	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>       
+	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	  
+	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
+	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
 	<document name="docs">
 		<!-- test with MP:0002100, MP:0002075-->
@@ -15,6 +33,45 @@
 			query="select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'">
 
 			<field column="dataType" name="dataType"/>
+			
+			<!-- flag mp for preQc, postQc and legacy -->
+			
+			<!-- postQc -->
+			<entity dataSource="komp2db" name="impcPipe"
+				processor="CachedSqlEntityProcessor" 
+				query="select distinct p.pipeline_id as 'impc', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id=1"
+				where="mp_acc=mp_term_infos.term_id"
+				transformer="script:srcMapping" >
+				
+				<field column="impc" name="impc" />
+				<field column="isPostQc"  name="isPostQc" />
+				
+			</entity>
+			
+			<!-- legacy -->
+			<entity dataSource="komp2db" name="legacyPipe"
+				processor="CachedSqlEntityProcessor" 
+				query="select distinct p.pipeline_id as 'legacy', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id !=1"
+				where="mp_acc=mp_term_infos.term_id" 
+				transformer="script:srcMapping" >
+				
+				<field column="legacy" name="legacy" />
+				<field column="isLegacy"  name="isLegacy" />
+				
+			</entity>
+			
+			<!-- preQc -->
+			<entity dataSource="preqc_core" name="preqc"
+				stream="true" 
+				forEach="/response/result/doc/"
+				url="q=mp_term_id:&quot;${mp_term_infos.term_id}&quot;&amp;rows=1&amp;fl=mp_term_id"
+				processor="XPathEntityProcessor" 				
+				transformer="script:srcMapping" >
+				
+				<field column="preqc_mp_id" xpath="/response/result/doc/str[@name='mp_term_id']" />
+				<field column="isPreQc" name="isPreQc" />
+			</entity>
+			
 			<field column="term_id" name="mp_id" />
 			<field column="name" name="mp_term" />
 			<field column="definition" name="mp_definition" />	
@@ -247,6 +304,7 @@
                     
                     <!-- phenotyping status -->
 					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+                    <field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
                     
                     <!-- latest mice phenotyping status for faceting -->
                     <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        

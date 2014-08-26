@@ -193,9 +193,7 @@ public class ScatterChartAndTableProvider {
 			e.printStackTrace();
 			}
 			//int i=0;
-			for (ObservationDTO control : experiment.getControls(sex)) {
-				
-				
+			for (ObservationDTO control : experiment.getControls(sex)) {	
 				
 				String docGender = control.getSex();
 				

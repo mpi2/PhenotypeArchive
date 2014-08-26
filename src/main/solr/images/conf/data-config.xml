@@ -22,14 +22,26 @@
                         }              
                 
                         return row; 
-                }       
+                } 
+                function srcMapping(row){
+					if (row.get('preqc_mp_id')){
+						row.put('isPreQc', '1'); 
+					}	
+					else if (row.get('impc')){
+						row.put('isPostQc', '1'); 
+					}	
+					else if (row.get('legacy')){
+						row.put('isLegacy', '1'); 
+					}				        		
+			   		return row; 
+				}      
 
     ]]></script>
 
         <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
         <dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
 		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-	
+		<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
 <document name="komp2_indexing">
 		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
@@ -121,6 +133,7 @@
 			                  
 			                  	<!-- phenotyping status -->
 								<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+			                  	<field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
 			                  
 			                  	<!-- production/phenotyping centers -->
 								<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
@@ -264,6 +277,47 @@
 					
 					</entity>
 
+					<!-- flag mp for preQc, postQc and legacy -->
+			
+					<!-- postQc -->
+					
+					<entity dataSource="komp2ds" name="impcPipe"
+						processor="CachedSqlEntityProcessor" 
+						query="select distinct p.pipeline_id as 'impc', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id=1"
+						where="mp_acc=mpAnnotations.TERM_ID"
+						transformer="script:srcMapping" >
+						
+						<field column="impc" name="impc" />
+						<field column="isPostQc"  name="isPostQc" />
+						
+					</entity>
+					
+					<!-- legacy -->
+					
+					<entity dataSource="komp2ds" name="legacyPipe"
+						processor="CachedSqlEntityProcessor" 
+						query="select distinct p.pipeline_id as 'legacy', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id !=1"
+						where="mp_acc=mpAnnotations.TERM_ID" 
+						transformer="script:srcMapping" >
+						
+						<field column="legacy" name="legacy" />
+						<field column="isLegacy"  name="isLegacy" />
+						
+					</entity>
+					
+					<!-- preQc -->
+					
+					<entity dataSource="preqc_core" name="preqc"
+						stream="true" 
+						forEach="/response/result/doc/"
+						url="q=mp_term_id:&quot;${mp_term_infos.term_id}&quot;&amp;rows=1&amp;fl=mp_term_id"
+						processor="XPathEntityProcessor" 				
+						transformer="script:srcMapping" >
+						
+						<field column="preqc_mp_id" xpath="/response/result/doc/str[@name='mp_term_id']" />
+						<field column="isPreQc" name="isPreQc" />
+					</entity>
+					
 					<!-- disease annotated to this MP -->					
 					<!--<entity dataSource="disease_core" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mpAnnotations.TERM_ID}'">    
    			

@@ -6,7 +6,7 @@
 			}
 			return row;
 		}	
-	     
+	    
 	   	// mark Gm16379 as marker_type:pseudogene	       
 		/*function make_pseudogene(row){
 			if ( row.get('marker_symbol').toString() == 'Gm16379' ){
@@ -25,6 +25,7 @@
      	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 		<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>    
 		<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
+		<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
  	<document name="docs">
 		
@@ -65,6 +66,7 @@
 
 			<!-- phenotyping status -->
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+			<field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
 
 			<!-- production/phenotyping centers -->
 			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
@@ -131,7 +133,6 @@
 				<field column="inferred_child_ma_term" xpath="/response/result/doc/arr[@name='inferred_child_ma_term']/str" />				
 				<field column="inferred_child_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_child_ma_term_synonym']/str" />
 				
-	
 			</entity>
 
 			<!-- pipeline/procedure associated with this gene -->

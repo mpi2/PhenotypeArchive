@@ -137,6 +137,11 @@
 	<field name="mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mp_node_id" type="int" indexed="true" stored="true" required="true" multiValued="false" />
 	
+	<!-- tagging mp for faceting --> 
+	<field name="isPreQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isPostQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="isLegacy" type="int" indexed="true" stored="true" required="false" multiValued="false" />
+	
 	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="child_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="child_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
@@ -205,6 +210,7 @@
 	<field name="latest_production_centre" type="string" indexed="true" multiValued="true"/>
 	<field name="latest_phenotyping_centre" type="string" indexed="true" multiValued="true"/> 	
 	<field name="latest_phenotype_status" type="string" indexed="true" multiValued="true"/> 
+	<field name="legacy_phenotype_status" type="int" indexed="true" stored="true" multiValued="false"/>	
 	
 	<!-- allele level fields of a gene -->
 	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>

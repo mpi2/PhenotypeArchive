@@ -143,6 +143,7 @@
               
               	<!-- phenotyping status -->
 				<field column="latest_phenotype_status" xpath="/response/result/doc/arr[@name='latest_phenotype_status']/str" />
+              	<field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
               
               	<!-- production/phenotyping centers -->
 				<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />

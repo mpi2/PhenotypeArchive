@@ -228,6 +228,7 @@ public class GraphPageTest {
                     if ((pagePvalue != null) && (pagePvalue > 0.0)) {
 //System.out.println("Comparing '" + pagePvalue + "' to '" + graph.getpValue() + "' (difference: " + (pagePvalue - graph.getpValue()) + ")");
                         if (TestUtils.equals(pagePvalue, graph.getpValue())) {
+                            graphCount++;
 //System.out.println("Match!");
                             boolean loadPage = true;
                             GraphPage graphPage = new GraphPage(driver, wait, graphUrl, target, phenotypePipelineDAO, baseUrl, loadPage);
@@ -254,8 +255,6 @@ public class GraphPageTest {
                                 } else {
                                     successList.add("Graph validation success. URL: " + graphUrl);
                                 }
-                                
-                                graphCount++;
                             }
                         }
                     }
