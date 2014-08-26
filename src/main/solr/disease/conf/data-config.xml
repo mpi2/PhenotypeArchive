@@ -76,6 +76,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 					
 					<!-- phenotyping status -->
 					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+					<field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
 					
 					<!-- alleles of a gene -->
 					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />
