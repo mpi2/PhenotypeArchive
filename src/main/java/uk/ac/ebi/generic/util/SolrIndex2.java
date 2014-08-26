@@ -61,7 +61,7 @@ public class SolrIndex2 {
 
     public List<Map<String, String>> getGeneAllele2Info(String accession, String allele_name) throws IOException, URISyntaxException {
 
-        String url = getGeneAlleleCoreUrl(accession, allele_name);
+        String url = getGeneAllele2CoreUrl(accession, allele_name);
 
         log.info("#### url for getGeneAllele2Info=" + url);
 
@@ -78,7 +78,7 @@ public class SolrIndex2 {
             "latest_phenotype_started", "latest_phenotype_complete",
             "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy",
             "es_cell_status", "mouse_status", "phenotype_status", "production_centre", "phenotyping_centre", "allele_name",
-            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id"
+            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id", "allele_has_issue"
         };
 
         List<Map<String, String>> list = new ArrayList<>();
@@ -113,6 +113,58 @@ public class SolrIndex2 {
 
         return list;
     }
+
+    // TODO: remove me!
+//    private List<Map<String, String>> getGeneAlleleInfo(String accession, String allele_name) throws IOException, URISyntaxException {
+//
+//       // String url = getGeneAlleleCoreUrl(accession, allele_name);
+//        String qallele_name = "";
+//        if (allele_name != null) {
+//            qallele_name = " allele_name:\"" + allele_name + "\"";
+//        }
+//
+//        String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
+//                + accession.replace(":", "\\:")
+//                + qallele_name
+//                + " allele_has_issue:true "
+//                + "&start=0&rows=100&hl=true&wt=json";
+//
+//        log.info("#### url for getGeneAlleleInfo=" + url);
+//
+//        JSONObject jsonObject1 = getResults(url);
+//
+//        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+//
+//        if (docs.size() < 1) {
+//            log.info("#### No rows returned for the query!");
+//            return null;
+//        }
+//
+//        String[] stringArray = new String[]{
+//            "id", "allele_id", "mgi_accession_id", "marker_symbol", "allele_has_issue", "product_type", "order_from_names", "order_from_urls"
+//        };
+//
+//        List<Map<String, String>> list = new ArrayList<>();
+//
+//        for (Object doc : docs) {
+//            JSONObject jsonObject2 = (JSONObject) doc;
+//
+//            HashMap<String, String> map = new HashMap<>();
+//
+//            for (String s : stringArray) {
+//                if (jsonObject2.has(s)) {
+//                    String o = jsonObject2.getString(s);
+//                    map.put(s, o);
+//                } else {
+//                    map.put(s, "");
+//                }
+//            }
+//
+//            list.add(map);
+//        }
+//
+//        return list;
+//    }
 
     private String getGeneProductInfoArrayEntry(String key, JSONArray item) throws IOException, URISyntaxException {
         if (item == null) {
@@ -619,7 +671,7 @@ public class SolrIndex2 {
         return listNotFound;
     }
 
-    private String getGeneAlleleCoreUrl(String accession, String allele_name) {
+    private String getGeneAllele2CoreUrl(String accession, String allele_name) {
         String qallele_name = "";
         if (allele_name != null) {
             qallele_name = " allele_name:\"" + allele_name + "\"";
@@ -632,6 +684,20 @@ public class SolrIndex2 {
 
         return url;
     }
+
+//    private String getGeneAlleleCoreUrl(String accession, String allele_name) {
+//        String qallele_name = "";
+//        if (allele_name != null) {
+//            qallele_name = " allele_name:\"" + allele_name + "\"";
+//        }
+//
+//        String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
+//                + accession.replace(":", "\\:")
+//                + qallele_name
+//                + "&start=0&rows=100&hl=true&wt=json";
+//
+//        return url;
+//    }
 
     public String getGeneProductCoreUrl2(Map<String, String> params) {
         log.info("#### getGeneProductCoreUrl2");
@@ -833,6 +899,7 @@ public class SolrIndex2 {
         mapper.put("es_cells", es_cells);
         mapper.put("targeting_vectors", targeting_vectors);
 
+        //List<Map<String, String>> constructs1 = getGeneAlleleInfo(accession, allele_name);
         List<Map<String, String>> constructs2 = getGeneAllele2Info(accession, allele_name);
 
         List<HashMap<String, Object>> summaries = new ArrayList<>();
