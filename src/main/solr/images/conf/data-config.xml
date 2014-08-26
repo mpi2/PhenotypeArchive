@@ -184,7 +184,7 @@
 					<field column="TERM_NAME" name="ma_term" />
 					<field column="TERM_ID" name="ma_id" />
 
-					<entity dataSource="ontodb" name="ma_term_2Syn" 
+					<entity dataSource="ontods" name="ma_term_2Syn" 
 						onError="continue"  
 						processor="CachedSqlEntityProcessor"
 						query="select * from ma_synonyms"
@@ -202,7 +202,7 @@
 					</entity>
 					
 					<!-- child MA term(s) of this MA term -->
-					<entity dataSource="ontodb" name="ma_child" 
+					<entity dataSource="ontods" name="ma_child" 
 						query="select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id"
 						onError="continue"
 						processor="CachedSqlEntityProcessor" 
@@ -212,7 +212,7 @@
 						<field column="child_ma_term" name="child_ma_term" /> 		
 						
 						<!-- synonym of this MP term -->
-						<entity dataSource="ontodb" name="childMa_synonyms"
+						<entity dataSource="ontods" name="childMa_synonyms"
 							processor="CachedSqlEntityProcessor" 
 							query="select term_id, syn_name from ma_synonyms"
 							where="term_id=ma_child.child_ma_id">
@@ -223,7 +223,7 @@
 					</entity>	
 					
 					<!-- selected higher level backtrace of this MA term -->           
-					<entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
+					<entity dataSource="ontods" name="ma_node_2_selected_top_level_mapping" 
 						processor="CachedSqlEntityProcessor" 
 						onError="continue"
 						query="select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"
@@ -233,7 +233,7 @@
 						<field column="name" name="selected_top_level_ma_term" /> 								
 					
 						<!-- synonym of this MP term -->
-						<entity dataSource="ontodb" name="topMa_synonyms"
+						<entity dataSource="ontods" name="topMa_synonyms"
 							processor="CachedSqlEntityProcessor" 
 							query="select term_id, syn_name from ma_synonyms"
 							where="term_id=ma_node_2_selected_top_level_mapping.term_id">
@@ -254,7 +254,7 @@
 					<field column="TERM_NAME" name="mp_term" />
 					<field column="TERM_ID" name="mp_id" />
 
-					<entity dataSource="ontodb" name="mp_term_2Syn" 
+					<entity dataSource="ontods" name="mp_term_2Syn" 
 						onError="continue"  
 						processor="CachedSqlEntityProcessor"
 						query="select * from mp_synonyms"
@@ -295,7 +295,7 @@
 							<field column="name" name="annotatedHigherLevelMpTermName" />
 							<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
 							
-							<entity dataSource="ontodb" name="mp_term_infos2Syn" 
+							<entity dataSource="ontods" name="mp_term_infos2Syn" 
 								onError="continue"  
 								processor="CachedSqlEntityProcessor"
 								query="select * from mp_synonyms"
@@ -309,19 +309,19 @@
 					</entity>
 				
 					<!-- intermediate MP terms of this MP term -->
-					<entity dataSource="ontodb" name="mp_term_infos" 
+					<entity dataSource="ontods" name="mp_term_infos" 
 						processor="CachedSqlEntityProcessor" 
 						onError="continue" 
 						query="select node_id, term_id from mp_node2term"
 						where="term_id=mpAnnotations.TERM_ID">
 						
-						<entity dataSource="ontodb" name="intermediates" 
+						<entity dataSource="ontods" name="intermediates" 
 							processor="CachedSqlEntityProcessor" 
 							onError="continue" 
 							query="select node_id, child_node_id from mp_node_subsumption_fullpath"
 							where="child_node_id=mp_term_infos.node_id">
 						
-							<entity dataSource="ontodb" name="mpTermNode"	
+							<entity dataSource="ontods" name="mpTermNode"	
 								processor="CachedSqlEntityProcessor" 
 								onError="continue" 		
 								query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
@@ -332,7 +332,7 @@
 								<!-- <field column="definition" name="intermediate_mp_definition" />	-->
 							
 								<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
-								<entity dataSource="ontodb" name="parents2Syn" 
+								<entity dataSource="ontods" name="parents2Syn" 
 									processor="CachedSqlEntityProcessor" 
 									onError="continue"  
 									query="select term_id, syn_name from mp_synonyms"
@@ -346,13 +346,13 @@
 					
 						<!-- child MP term of this MP term -->
 					
-						<entity dataSource="ontodb" name="allChildren" 
+						<entity dataSource="ontods" name="allChildren" 
 							processor="CachedSqlEntityProcessor" 
 							onError="continue" 
 							query="select node_id, child_node_id from mp_node_subsumption_fullpath"
 							where="node_id=mp_term_infos.node_id">
 							
-							<entity dataSource="ontodb" name="mpTermNode2"	
+							<entity dataSource="ontods" name="mpTermNode2"	
 								processor="CachedSqlEntityProcessor" 
 								onError="continue" 		
 								query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
@@ -363,7 +363,7 @@
 								<!-- <field column="definition" name="child_mp_definition" />	-->
 							
 								<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
-								<entity dataSource="ontodb" name="parents2Syn2" 
+								<entity dataSource="ontods" name="parents2Syn2" 
 									processor="CachedSqlEntityProcessor" 
 									onError="continue"  
 									query="select term_id, syn_name from mp_synonyms"
