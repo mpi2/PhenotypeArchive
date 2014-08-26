@@ -207,12 +207,13 @@
        				input = input.replace("%60", "\\`");
        				input = input.replace("~"  , "\\~"); 
        				input = input.replace("%"  , "\\%");
-       				//alert(input)
+       				
+       				if ( /^\\%22.+%22$/.test(input) ){	
+       					input = input.replace(/^\\/, ''); //remove starting \ before double quotes	
+       				}
+       				
        				// no need to escape space - looks cleaner to the users 
        				// and it is not essential to escape space
-       				if ( /^\\%22.+\\.+%22$/.test(input) ){
-       					input = input.replace(/\\/g, ''); //remove \ in double quotes				
-       				}
        				input = input.replace(/\\?%20/g, ' ');
        				
        				var facet = MPI2.searchAndFacetConfig.matchedFacet;
@@ -409,7 +410,7 @@
    				var hashStr = $(location).attr('hash');	
    				//MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
    				
-   				//console.log('hash change URL: '+ '/search' + hashStr);
+   				console.log('hash change URL: '+ '/search' + hashStr);
    				var oUrlParams = _process_hash();
    				
    				//console.log(oUrlParams)
@@ -510,7 +511,7 @@
    			});		
    			
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
-    			//console.log('page reload: no hash change detected')
+    			console.log('page reload: no hash change detected')
 				
     			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oUrlParams);
