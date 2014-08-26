@@ -209,7 +209,7 @@
        				input = input.replace("%"  , "\\%");
        				
        				if ( /^\\%22.+%22$/.test(input) ){
-                        input = input.replace(/^\\/, ''); //remove starting \ before double quotes
+                        input = input.replace(/\\/g, ''); //remove starting \ before double quotes
                 	}
 
 	                // no need to escape space - looks cleaner to the users
