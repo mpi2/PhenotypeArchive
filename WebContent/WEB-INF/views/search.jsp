@@ -207,15 +207,16 @@
        				input = input.replace("%60", "\\`");
        				input = input.replace("~"  , "\\~"); 
        				input = input.replace("%"  , "\\%");
-       				//alert(input)
-       				// no need to escape space - looks cleaner to the users 
-       				// and it is not essential to escape space
-       				if ( /^\\%22.+\\.+%22$/.test(input) ){
-       					input = input.replace(/\\/g, ''); //remove \ in double quotes				
-       				}
-       				input = input.replace(/\\?%20/g, ' ');
        				
-       				var facet = MPI2.searchAndFacetConfig.matchedFacet;
+       				if ( /^\\%22.+%22$/.test(input) ){
+                        input = input.replace(/^\\/, ''); //remove starting \ before double quotes
+                	}
+
+	                // no need to escape space - looks cleaner to the users
+	                // and it is not essential to escape space
+	                input = input.replace(/\\?%20/g, ' ');
+	
+	                var facet = MPI2.searchAndFacetConfig.matchedFacet;
        				
        				//console.log('matched facet: '+ facet)
        		    	if (input == ''){
