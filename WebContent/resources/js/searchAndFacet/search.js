@@ -64,7 +64,7 @@
 		
 		// q to display in input box
 		var qDisplay = q == '*:*'  ? '' : decodeURIComponent(q);
-		qDisplay = qDisplay.replace(/\\/g, '');  // unescape for display
+		qDisplay = qDisplay.replace(/\\/, '');  // unescape for display
 		$('input#s').val(qDisplay); 	
 
 		// q to search SOLR
