@@ -129,7 +129,7 @@
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js?v=${version}'></script> 
 	    </compress:html>        
        
          <script>        		
