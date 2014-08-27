@@ -8,6 +8,15 @@
 			}									        		
 	   		return row; 
 		}
+		
+		function srcMapping(row){
+			if (row.get('doc_id')){
+				row.put('legacy_phenotype_status', '1'); 
+			}	
+						        		
+	   		return row; 
+		}    
+			
 		// mapping for es cell/mouse/phenotyping statuses
 		function mapping(row){
 			if (row.get('mgi_accession_id')){
@@ -82,14 +91,6 @@
 				row.put(field, mouse_status);
 			}			
 			
-			function srcMapping(row){
-				if (row.get('doc_id')){
-					row.put('legacy_phenotype_status', '1'); 
-				}	
-						        		
-	   			return row; 
-			}    
-			
 	   		return row; 
 		}
 
@@ -97,6 +98,7 @@
 	
 	<!--  This gene core has no dependencies on other MEGA cores -->
 	<!--  It has gene, allele indexes from IMITS and disease index from PHENODIGM -->
+
 	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />	
 	<dataSource name="sanger_allele" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
@@ -109,7 +111,7 @@
 			
 		<entity dataSource="sanger_allele" name="doc" 
 			stream="true" 
-			url="q=mgi_accession_id:*&amp;fq=feature_type:*+AND+-feature_type:Pseudogene+AND+-feature_type:&quot;heritable+phenotypic+marker&quot;+AND+type:gene&amp;wt=normal&amp;rows=99999"
+			url="q=mgi_accession_id:&quot;MGI:2687284&quot;&amp;fq=feature_type:*+AND+-feature_type:Pseudogene+AND+-feature_type:&quot;heritable+phenotypic+marker&quot;+AND+type:gene&amp;wt=normal&amp;rows=99999"
         	processor="XPathEntityProcessor" 
         	forEach="/response/result/doc/"
             readTimeout="10000" 
@@ -171,6 +173,7 @@
 
 				<field column="doc_id" xpath="/response/result/doc/int[@name='doc_id']" />	
 				<field column="legacy_phenotype_status" name="legacy_phenotype_status" />
+				
 			</entity>
 			
 			<!-- production/phenotyping centers -->
