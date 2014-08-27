@@ -111,7 +111,7 @@
 			
 		<entity dataSource="sanger_allele" name="doc" 
 			stream="true" 
-			url="q=mgi_accession_id:&quot;MGI:2687284&quot;&amp;fq=feature_type:*+AND+-feature_type:Pseudogene+AND+-feature_type:&quot;heritable+phenotypic+marker&quot;+AND+type:gene&amp;wt=normal&amp;rows=99999"
+			url="q=mgi_accession_id:*&amp;fq=feature_type:*+AND+-feature_type:Pseudogene+AND+-feature_type:&quot;heritable+phenotypic+marker&quot;+AND+type:gene&amp;wt=normal&amp;rows=99999"
         	processor="XPathEntityProcessor" 
         	forEach="/response/result/doc/"
             readTimeout="10000" 
