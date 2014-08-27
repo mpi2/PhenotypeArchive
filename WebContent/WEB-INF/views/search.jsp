@@ -410,7 +410,7 @@
    				var hashStr = $(location).attr('hash');	
    				//MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
    				
-   				console.log('hash change URL: '+ '/search' + hashStr);
+   				//console.log('hash change URL: '+ '/search' + hashStr);
    				var oUrlParams = _process_hash();
    				
    				//console.log(oUrlParams)
@@ -466,7 +466,10 @@
    						// just reset flag, no need to load dataTable again (already done)
    						MPI2.searchAndFacetConfig.update.rebuilt = false;
    					}
-   					else if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){
+   					/* else if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){
+    					$.fn.loadDataTable(oUrlParams);
+    				} */
+    				else {
     					$.fn.loadDataTable(oUrlParams);
     				}
    					
@@ -511,7 +514,7 @@
    			});		
    			
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
-    			console.log('page reload: no hash change detected')
+    			//console.log('page reload: no hash change detected')
 				
     			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oUrlParams);
