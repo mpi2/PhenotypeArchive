@@ -458,7 +458,6 @@
     					$.fn.loadDataTable(oUrlParams);
     				}
     			}
-   				
    				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
    					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
    					
@@ -466,10 +465,12 @@
    						// just reset flag, no need to load dataTable again (already done)
    						MPI2.searchAndFacetConfig.update.rebuilt = false;
    					}
-   					else if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){
+   					/* else if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){
+    					$.fn.loadDataTable(oUrlParams);
+    				} */
+    				else {
     					$.fn.loadDataTable(oUrlParams);
     				}
-   					
    				} 
    				else if ( MPI2.searchAndFacetConfig.update.pageReload == true ){
 					//console.log('reload with widget open true');
