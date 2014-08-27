@@ -10,7 +10,7 @@
 		}
 		
 		function srcMapping(row){
-			if (row.get('doc_id')){
+			if (row.get('gf_acc')){
 				row.put('legacy_phenotype_status', '1'); 
 			}	
 						        		
@@ -98,14 +98,12 @@
 	
 	<!--  This gene core has no dependencies on other MEGA cores -->
 	<!--  It has gene, allele indexes from IMITS and disease index from PHENODIGM -->
-
 	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />	
 	<dataSource name="sanger_allele" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
    	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
    	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
   <document name="docs">
 			
@@ -162,20 +160,17 @@
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 			<field column="imits_phenotype_status" name="imits_phenotype_status" />
 
-			<entity dataSource="preqc_core" name="preqc" 
-				stream="true" 
-				url="q=marker_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=1&amp;fl=doc_id"
-				processor="XPathEntityProcessor" 
-				forEach="/response/result/doc/" 
-				onError="continue"							
-				readTimeout="10000" connectionTimeout="10000"  
+			<!-- legacy -->
+			<entity dataSource="komp2db" name="legacyPipe"
+				processor="CachedSqlEntityProcessor" 
+				query="select distinct p.pipeline_id, gf_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id !=1"
+				where="gf_acc=doc.mgi_accession_id" 
 				transformer="script:srcMapping" >
-
-				<field column="doc_id" xpath="/response/result/doc/int[@name='doc_id']" />	
-				<field column="legacy_phenotype_status" name="legacy_phenotype_status" />
 				
+				<field column="gf_acc" naem="gf_acc" />	
+				<field column="legacy_phenotype_status" name="legacy_phenotype_status" />
 			</entity>
-			
+			 
 			<!-- production/phenotyping centers -->
 			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 			<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />							                   	
@@ -251,4 +246,3 @@
 		</entity>
 	</document>
 </dataConfig>
-  
