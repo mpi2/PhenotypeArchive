@@ -163,7 +163,7 @@
 			<!-- legacy -->
 			<entity dataSource="komp2db" name="legacyPipe"
 				processor="CachedSqlEntityProcessor" 
-				query="select distinct p.pipeline_id, gf_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id !=1"
+				query="select distinct p.pipeline_id, gf_acc from phenotype_call_summary p, phenotype_pipeline pp where p.p_value &lt; 0.0001 and p.pipeline_id=pp.id and pp.id !=1"
 				where="gf_acc=doc.mgi_accession_id" 
 				transformer="script:srcMapping" >
 				
