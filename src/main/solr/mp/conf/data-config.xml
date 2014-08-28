@@ -25,12 +25,12 @@
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
-	<document name="docs">
+		<document name="docs">
 		<!-- test with MP:0002100, MP:0002075-->
 		<!-- term infos: ID, name, definition -->
 
 		<entity dataSource="ontodb" name="mp_term_infos"			
-			query="select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'">
+			query="select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'" >
 
 			<field column="dataType" name="dataType"/>
 			
@@ -77,13 +77,104 @@
 			<field column="definition" name="mp_definition" />	
 			<field column="node_id" name="mp_node_id" />		
 
+			<entity dataSource="ontodb" name="nodeIds"
+				processor="CachedSqlEntityProcessor" 
+				query="select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+				where="term_id=mp_term_infos.term_id" >
+				
+				<!-- top level MP term of this MP term -->		
+				<entity dataSource="ontodb" name="mpTopLevel"
+					processor="CachedSqlEntityProcessor" 
+					query="select lv.node_id as mp_node_id, ti.term_id, ti.name, ti.definition, concat(ti.name, '___', ti.term_id) as top_level_mp_term_id from mp_node_top_level lv inner join mp_node2term nt on lv.top_level_node_id=nt.node_id inner join mp_term_infos ti on nt.term_id=ti.term_id and ti.term_id!='MP:0000001'"
+					where="mp_node_id=nodeIds.node_id">
+					
+					<field column="term_id" name="top_level_mp_id" />
+					<field column="name" name="top_level_mp_term" />
+					<!-- <field column="definition" name="top_level_mp_definition" />	-->
+					<field column="top_level_mp_term_Id" name ="top_level_mp_term_Id" />
+					
+					<entity dataSource="ontodb" name="mp_term_infos2Syn" 
+						onError="continue"  
+						processor="CachedSqlEntityProcessor"
+						query="select * from mp_synonyms"
+						where="term_id=mpTopLevel.term_id">
+												
+						<field column="syn_name" name="top_level_mp_term_synonym" />
+						
+					</entity>	
+				</entity>			
+		
+				<!-- intermediate MP terms of this MP term -->
+				
+				<entity dataSource="ontodb" name="intermediates" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue" 
+					query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+					where="child_node_id=nodeIds.node_id">
+					
+					<entity dataSource="ontodb" name="mpTermNode"	
+						processor="CachedSqlEntityProcessor" 
+						onError="continue" 		
+						query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+						where="node_id=intermediates.node_id">
+					
+						<field column="term_id"    name="intermediate_mp_id" />
+						<field column="name"       name="intermediate_mp_term" />
+						<!-- <field column="definition" name="intermediate_mp_definition" />	-->
+					
+						<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+						<entity dataSource="ontodb" name="parents2Syn" 
+							processor="CachedSqlEntityProcessor" 
+							onError="continue"  
+							query="select term_id, syn_name from mp_synonyms"
+							where="term_id=intermediates.term_id">
+								
+							<field column="syn_name" name="intermediate_mp_term_synonym" />						
+							
+						</entity>
+						
+					</entity>
+				</entity>	
+				
+				<!-- child MP term of this MP term -->
+				
+				<entity dataSource="ontodb" name="allChildren" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue" 
+					query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+					where="node_id=nodeIds.node_id">
+					
+					<entity dataSource="ontodb" name="mpTermNode2"	
+						processor="CachedSqlEntityProcessor" 
+						onError="continue" 		
+						query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+						where="node_id=allChildren.child_node_id">
+						
+						<field column="term_id"    name="child_mp_id" />
+						<field column="name"       name="child_mp_term" />
+					<!-- <field column="definition" name="child_mp_definition" />	-->
+					
+						<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+						<entity dataSource="ontodb" name="parents2Syn2" 
+							processor="CachedSqlEntityProcessor" 
+							onError="continue"  
+							query="select term_id, syn_name from mp_synonyms"
+							where="term_id=allChildren.term_id">
+								
+							<field column="syn_name" name="child_mp_term_synonym" />						
+							
+						</entity>
+					</entity>
+				</entity>	
+				
+			</entity>
+
 			<!-- images annotated to this MP -->
             <!-- for association with an image annotated to this MP term, simply use the higher level mp term of this MP 
                 	to link to the img_top_level_mp_term field of the images core
                 	as an image can be annotated to multiple mp terms which has nothing to do with this MP term
 		  			so a copy field in schema does the trick 
 		  	-->
-		  	
 		
 			<!-- subset of this MP term: parsed from obo file -->
 			<entity dataSource="ontodb" name="mp_term_subsets"
@@ -110,90 +201,7 @@
 				<field column="xref_id" name="go_id" />
 			</entity>				
 
-			<!-- top level MP term of this MP term -->		
-			<entity dataSource="ontodb" name="mpTopLevel"
-				processor="CachedSqlEntityProcessor" 
-				query="select lv.node_id as mp_node_id, ti.term_id, ti.name, ti.definition, concat(ti.name, '___', ti.term_id) as top_level_mp_term_id from mp_node_top_level lv inner join mp_node2term nt on lv.top_level_node_id=nt.node_id inner join mp_term_infos ti on nt.term_id=ti.term_id and ti.term_id!='MP:0000001'"
-				where="mp_node_id=mp_term_infos.node_id">
-				
-				<field column="term_id" name="top_level_mp_id" />
-				<field column="name" name="top_level_mp_term" />
-				<!-- <field column="definition" name="top_level_mp_definition" />	-->
-				<field column="top_level_mp_term_Id" name ="top_level_mp_term_Id" />
-				
-				<entity dataSource="ontodb" name="mp_term_infos2Syn" 
-					onError="continue"  
-					processor="CachedSqlEntityProcessor"
-					query="select * from mp_synonyms"
-					where="term_id=mpTopLevel.term_id">
-											
-					<field column="syn_name" name="top_level_mp_term_synonym" />
-					
-				</entity>	
-			</entity>			
-		
-			<!-- intermediate MP terms of this MP term -->
 			
-			<entity dataSource="ontodb" name="intermediates" 
-				processor="CachedSqlEntityProcessor" 
-				onError="continue" 
-				query="select node_id, child_node_id from mp_node_subsumption_fullpath"
-				where="child_node_id=mp_term_infos.node_id">
-				
-				<entity dataSource="ontodb" name="mpTermNode"	
-					processor="CachedSqlEntityProcessor" 
-					onError="continue" 		
-					query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
-					where="node_id=intermediates.node_id">
-				
-					<field column="term_id"    name="intermediate_mp_id" />
-					<field column="name"       name="intermediate_mp_term" />
-					<!-- <field column="definition" name="intermediate_mp_definition" />	-->
-				
-					<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
-					<entity dataSource="ontodb" name="parents2Syn" 
-						processor="CachedSqlEntityProcessor" 
-						onError="continue"  
-						query="select term_id, syn_name from mp_synonyms"
-						where="term_id=intermediates.term_id">
-							
-						<field column="syn_name" name="intermediate_mp_term_synonym" />						
-						
-					</entity>
-					
-				</entity>
-			</entity>	
-			
-			<!-- child MP term of this MP term -->
-			
-			<entity dataSource="ontodb" name="allChildren" 
-				processor="CachedSqlEntityProcessor" 
-				onError="continue" 
-				query="select node_id, child_node_id from mp_node_subsumption_fullpath"
-				where="node_id=mp_term_infos.node_id">
-				
-				<entity dataSource="ontodb" name="mpTermNode2"	
-					processor="CachedSqlEntityProcessor" 
-					onError="continue" 		
-					query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
-					where="node_id=allChildren.child_node_id">
-					
-					<field column="term_id"    name="child_mp_id" />
-					<field column="name"       name="child_mp_term" />
-				<!-- <field column="definition" name="child_mp_definition" />	-->
-				
-					<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
-					<entity dataSource="ontodb" name="parents2Syn2" 
-						processor="CachedSqlEntityProcessor" 
-						onError="continue"  
-						query="select term_id, syn_name from mp_synonyms"
-						where="term_id=allChildren.term_id">
-							
-						<field column="syn_name" name="child_mp_term_synonym" />						
-						
-					</entity>
-				</entity>
-			</entity>	
 			
 			<!-- MP -> MA relationship; MA term has no definition -->
 			<entity dataSource="ontodb" name="mp_mappings" 

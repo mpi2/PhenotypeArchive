@@ -14,7 +14,7 @@
 		<entity dataSource="harwell_preqc"
 			name="pq" 
 			stream="true" 
-			url="https://www.mousephenotype.org/sites/mousephenotype.org/files/PhenotypeCallSummary.xml"
+			url="http://www.mousephenotype.org/sites/mousephenotype.org/files/PhenotypeCallSummary.xml"
          	processor="XPathEntityProcessor" 
          	forEach="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/" 
             readTimeout="10000" connectionTimeout="10000" >
