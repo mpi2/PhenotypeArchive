@@ -108,6 +108,10 @@
 				<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />	
 				<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
 				
+				<field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />
+				<field column="isPreQc"  xpath="/response/result/doc/int[@name='isPreQc']" />
+				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />
+				
 				<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
 				<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							
 				<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />					
