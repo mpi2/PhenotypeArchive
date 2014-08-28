@@ -133,6 +133,10 @@
                 <field column="marker_type" xpath="/response/result/doc/arr[@name='marker_type']/str" />                                     
                 <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
                          
+                <field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />
+				<field column="isPreQc"  xpath="/response/result/doc/int[@name='isPreQc']" />
+				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />      
+                         
                 <!-- latest project status (ES cells/mice production status) -->         
                 <field column="status" xpath="/response/result/doc/arr[@name='status']/str" />
                 
