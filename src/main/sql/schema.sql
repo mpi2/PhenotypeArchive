@@ -127,7 +127,7 @@ CREATE TABLE analytics_experiment_load (
 	specimen_id              VARCHAR(255) NOT NULL DEFAULT '',
 	impress_pipeline         VARCHAR(50) NOT NULL DEFAULT '',
 	impress_procedure        VARCHAR(100) NOT NULL DEFAULT '',
-	impress_parameters       TEXT NOT NULL DEFAULT '',
+	impress_parameters       TEXT,
 	parameter_types          VARCHAR(255) NOT NULL DEFAULT '',
   data_values              INT(11) NOT NULL DEFAULT '',
   metadata_values          INT(11) NOT NULL DEFAULT '',
