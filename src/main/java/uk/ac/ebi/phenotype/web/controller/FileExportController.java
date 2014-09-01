@@ -38,6 +38,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.HibernateException;
@@ -477,7 +478,7 @@ public class FileExportController {
                         }
                         data.add(StringUtils.join(lists, "|"));
                     } else {
-                        data.add("NA");
+                        data.add("No information available");
                     }
                 }
 
@@ -531,7 +532,7 @@ public class FileExportController {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
         List<String> rowData = new ArrayList();
-        rowData.add("MP_term\tMP_id\tMP_definition\tTop_level_MP_term"); // column names	
+        rowData.add("MP term\tMP id\tMP definition\tMP synonym\tTop level MP term"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -543,9 +544,21 @@ public class FileExportController {
             if (doc.has("mp_definition")) {
                 data.add(doc.getString("mp_definition"));
             } else {
-                data.add("NA");
+                data.add("No information available");
             }
 
+            if (doc.has("mp_term_synonym")) {
+                List<String> syns = new ArrayList();
+                JSONArray syn = doc.getJSONArray("mp_term_synonym");
+                for (int t = 0; t < syn.size(); t ++) {
+                	syns.add(syn.getString(t));
+                }
+                data.add(StringUtils.join(syns, "|"));
+            } 
+            else {
+                data.add("No information available");
+            }
+            
             if (doc.has("top_level_mp_term")) {
                 List<String> tops = new ArrayList();
                 JSONArray top = doc.getJSONArray("top_level_mp_term");
@@ -554,7 +567,7 @@ public class FileExportController {
                 }
                 data.add(StringUtils.join(tops, "|"));
             } else {
-                data.add("NA");
+                data.add("No information available");
             }
 
             rowData.add(StringUtils.join(data, "\t"));
@@ -566,7 +579,7 @@ public class FileExportController {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
         List<String> rowData = new ArrayList();
-        rowData.add("MA_term\tMA_id"); // column names	
+        rowData.add("MA term\tMA id\tMA synonym"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -574,13 +587,25 @@ public class FileExportController {
 
             data.add(doc.getString("ma_term"));
             data.add(doc.getString("ma_id"));
-
+           
+            if (doc.has("ma_term_synonym")) {
+                List<String> syns = new ArrayList();
+                JSONArray syn = doc.getJSONArray("ma_term_synonym");
+                for (int t = 0; t < syn.size(); t ++) {
+                	syns.add(syn.getString(t));
+                }
+                data.add(StringUtils.join(syns, "|"));
+            } 
+            else {
+                data.add("No information available");
+            }
+            
 			// will have these cols coming later
 			/*if(doc.has("mp_definition")) {				
              data.add(doc.getString("mp_definition"));					
              }
              else {
-             data.add("NA");
+             data.add("No information available");
              }
 			
              if(doc.has("top_level_mp_term")) {
@@ -592,8 +617,9 @@ public class FileExportController {
              data.add(StringUtils.join(tops, "|")); 			
              }
              else {
-             data.add("NA");
+             data.add("No information available");
              }*/
+            
             rowData.add(StringUtils.join(data, "\t"));
         }
         return rowData;
@@ -605,7 +631,7 @@ public class FileExportController {
 
         List<String> rowData = new ArrayList();
 
-        rowData.add("Marker symbol\tHuman ortholog\tMaker name\tSynonym\tProduction status\tPhenotype status"); // column names		
+        rowData.add("Marker symbol\tHuman ortholog\tMaker name\tMarker synonym\tProduction status\tPhenotype status\tPhenotype status link"); // column names		
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -621,7 +647,7 @@ public class FileExportController {
                 }
                 data.add(StringUtils.join(hsynData, "|")); // use | as a multiValue separator in CSV output
             } else {
-                data.add("NA");
+                data.add("No information available");
             }
 
 			// Sanger problem, they should have use string for marker_name and not array
@@ -630,7 +656,7 @@ public class FileExportController {
             if (doc.has("marker_name")) {
                 data.add(doc.getString("marker_name"));
             } else {
-                data.add("NA");
+                data.add("No information available");
             }
 
             if (doc.has("marker_synonym")) {
@@ -641,7 +667,7 @@ public class FileExportController {
                 }
                 data.add(StringUtils.join(synData, "|")); // use | as a multiValue separator in CSV output
             } else {
-                data.add("NA");
+                data.add("No information available");
             }
 
             // ES/Mice production status			
@@ -650,7 +676,20 @@ public class FileExportController {
             data.add(prodStatus);
 
             // phenotyping status
-            data.add(geneService.getPhenotypingStatus(doc, request, toExport));
+            String phStatus = geneService.getPhenotypingStatus(doc, request, toExport);
+            
+            if ( phStatus.startsWith("http://") ){
+				
+				String[] parts = phStatus.split("\\|");
+				String url   = parts[0];
+				String label = parts[1];
+
+                data.add(label);
+                data.add(url);
+			}
+			else {
+				data.add(phStatus); 
+			}
 
             // put together as tab delimited
             rowData.add(StringUtils.join(data, "\t"));
