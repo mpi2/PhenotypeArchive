@@ -702,13 +702,15 @@ public class GenesController {
 			log.info("No human ortholog found for gene: {}", geneIdentifier);
 		}
 
-        List<DiseaseAssociationSummary> diseaseAssociationSummarys = null;
+        List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
         try {
             log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
             diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
             log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
         } catch (RuntimeException e) {
+	        log.error(ExceptionUtils.getFullStackTrace(e));
             log.error("Error retrieving disease data for {}", geneIdentifier);
+
         }
 
 		// List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries =
