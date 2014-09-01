@@ -761,22 +761,24 @@ public class SolrIndex2 {
         if (allele_name != null) {
             qallele_name = " AND allele_name:\"" + allele_name + "\"";
 
-            Pattern pattern = Pattern.compile(".+?/d(.)");
+            Pattern pattern = Pattern.compile(".+?\\d(.)");
             Matcher matcher = pattern.matcher(allele_name);
             if (matcher.find()) {
-                qallele_name = " AND allele_type:\"" + matcher.group(1) + "\"";
+                qallele_type = " AND allele_type:\"" + matcher.group(1) + "\"";
             }
         }
 
         String left = "(-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name + ")";
         String right = "(type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_type + ")";
 
-        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q="
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?q="
                 + left
                 + " OR "
                 + right
                 + "&start=0&rows=100&hl=true&wt=json";
 
+        log.info("####### getGeneProductCoreUrlAlt3: left: " + left);
+        log.info("####### getGeneProductCoreUrlAlt3: right: " + right);
         log.info("####### getGeneProductCoreUrlAlt3: url: " + url);
 
         return url;
@@ -853,6 +855,8 @@ public class SolrIndex2 {
             log.info("#### No rows returned for the query!");
             return null;
         }
+
+        log.info("#### Found " + docs.size() + " rows!");
 
         Map<String, Object> mapper = new HashMap<>();
         List<Map<String, Object>> mice = new ArrayList<>();
