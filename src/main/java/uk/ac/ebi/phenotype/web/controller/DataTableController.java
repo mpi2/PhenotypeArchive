@@ -324,20 +324,24 @@ public class DataTableController {
 			if ( doc.containsKey("mp_term_synonym") ){
 				List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
 				List<String> prefixSyns = new ArrayList();
-				int count = 0;
+
 				for ( String sn : mpSynonyms ){
-					count++;
-					//prefixSyns.add("synonym: "+ sn);
-					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
-					//prefixSyns.add(sn);
 					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
+				}
+				
+				String syns = null;
+				if ( prefixSyns.size() > 1 ){
+					syns = "<ul><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+				}
+				else {
+					syns = prefixSyns.get(0);
 				}
 				
 				String mpCol = "<div class='mpCol'><div class='title'>" 
 						+ mpLink 
 						+ "</div>"
 						+ "<div class='subinfo'>" 
-						+ "<b>synonym</b>: " + StringUtils.join(prefixSyns, ",<br>") 
+						+ "<b>synonym</b>: " + syns
 						+ "</div>";
 				rowData.add(mpCol);
 			}
@@ -386,20 +390,24 @@ public class DataTableController {
                 if ( doc.containsKey("ma_term_synonym") ){
     				List<String> maSynonyms = doc.getJSONArray("ma_term_synonym");
     				List<String> prefixSyns = new ArrayList();
-    				int count = 0;
+
     				for ( String sn : maSynonyms ){
-    					count++;
-    					//prefixSyns.add("synonym: "+ sn);
-    					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
-    					//prefixSyns.add(sn);
     					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
+    				}
+    				
+    				String syns = null;
+    				if ( prefixSyns.size() > 1 ){
+    					syns = "<ul><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+    				}
+    				else {
+    					syns = prefixSyns.get(0);
     				}
     				
     				String maCol = "<div class='maCol'><div class='title'>" 
     						+ maLink 
     						+ "</div>"
     						+ "<div class='subinfo'>" 
-    						+  "<b>synonym: " + StringUtils.join(prefixSyns, ",<br>") 
+    						+  "<b>synonym: </b>" + syns
     						+ "</div>";
     				rowData.add(maCol);
     			}
@@ -572,7 +580,7 @@ public class DataTableController {
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
 					
 					//String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
-					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
+					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit + "</a>";
 								
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 					
@@ -737,7 +745,7 @@ public class DataTableController {
 						info.add(Tools.highlightMatchedStrIfFound(qryStr, h.toString(), "span", "subMatch"));
 					}							
 				}
-				else if ( doc.getJSONArray(field).size() > 0) {					
+				else if ( doc.getJSONArray(field).size() > 0 ) {	
 					JSONArray data = doc.getJSONArray(field);
 					
 					for( Object d : data ){
@@ -750,7 +758,7 @@ public class DataTableController {
 				
 				//geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
 				if ( info.size() > 1 ){
-					String fieldDisplay = "<ul><li class='litem'>" + StringUtils.join(info, "</li><li class='litem'>") + "</li></ul>";
+					String fieldDisplay = "<ul><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
 					System.out.println("TEST1: "+ fieldDisplay);
 					geneInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
 				}
@@ -760,7 +768,7 @@ public class DataTableController {
 				}
 			} 
 			catch (Exception e) {		   		
-			    //e.printStackTrace();
+			    e.printStackTrace();
 			}
 		}				
 		//return "<div class='geneCol'>" + markerSymbolLink + StringUtils.join(geneInfo, "<br>") + "</div>";
