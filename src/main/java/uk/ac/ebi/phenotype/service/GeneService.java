@@ -272,7 +272,7 @@ public class GeneService {
 					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 				}			
 
-				System.out.println(phenotypeStatusHTMLRepresentation);
+				//System.out.println(phenotypeStatusHTMLRepresentation);
 			}	
 			
 		}		

@@ -63,6 +63,7 @@ public class ExcelWorkBook {
     			Cell cell = row.createCell(j);   
     			
     			String cellStr = tableData[i][j].toString();
+    			
     			// make hyperlink in cell
     			if ( cellStr.startsWith("http://") ){
     				
