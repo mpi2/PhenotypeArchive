@@ -33,6 +33,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -232,6 +233,7 @@ public class GeneService {
 			log.debug("getPhenotypingStatus :" + doc.getString(statusField));
 			log.debug("hasQC :" + doc.containsKey(GeneDTO.HAS_QC));
 			
+			String hostName = request.getAttribute("mappedHostname").toString();
 			
 			/*
 			 * 1. Check we have preQC/postQC IMPC data (started or completed) 		
@@ -242,7 +244,13 @@ public class GeneService {
 				if ( val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || 
 					 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ) {
 					webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
-					phenotypeStatusHTMLRepresentation = "<a class='status done' href='" + geneUrl + "#section-associations'><span>"+webStatus+"</span></a>";
+					
+					if ( toExport ){
+						phenotypeStatusHTMLRepresentation = hostName + geneUrl+ "#section-associations" + "|" + webStatus;
+					}
+					else {
+						phenotypeStatusHTMLRepresentation = "<a class='status done' href='" + geneUrl + "#section-associations'><span>"+webStatus+"</span></a>";
+					}
 				}
 			}
 	
@@ -256,7 +264,14 @@ public class GeneService {
 			else if (doc.containsKey(GeneDTO.HAS_QC)) {				
 				webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
 				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
-				phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+				
+				if ( toExport ){
+					phenotypeStatusHTMLRepresentation = hostName + geneUrl+ "#section-associations" + "|" + webStatus;
+				}
+				else {
+					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+				}			
+
 				System.out.println(phenotypeStatusHTMLRepresentation);
 			}	
 			

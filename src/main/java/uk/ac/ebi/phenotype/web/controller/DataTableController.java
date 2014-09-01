@@ -70,7 +70,7 @@ public class DataTableController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 		
-	
+	private boolean legacyOnly = false;
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -124,6 +124,9 @@ public class DataTableController {
 					query = parts[1];	
 				}
 				if (parts[0].equals("fq")) {
+					if ( parts[0].matches( "\\(?legacy_phenotype_status:1\\)?" ) ){
+						legacyOnly = true;
+					}
 					fqOri = "&fq=" + parts[1];				
 				}
 			}catch (Exception e) {
@@ -185,7 +188,7 @@ public class DataTableController {
 	}
 
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName){	
-				
+			
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -207,7 +210,6 @@ public class DataTableController {
 				
 			String geneInfo = concateGeneInfo(doc, json, qryStr, request);
 			rowData.add(geneInfo);
-
 			
 			// phenotyping status			
 			String mgiId = doc.getString("mgi_accession_id");			
@@ -215,6 +217,7 @@ public class DataTableController {
 						
 			// ES cell/mice production status	
 			boolean toExport = false;
+			
 			String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
 			rowData.add(prodStatus);
 			

@@ -149,8 +149,6 @@
 			<field column="latest_project_status" xpath="/response/result/doc/str[@name='latest_project_status']" />
 			
 			<field column="latest_production_status" name="latest_production_status" />
-			
-			<!-- <field column="status" xpath="/response/result/doc/str[@name='latest_project_status_legacy']" /> --> <!-- status name from Bill Skarnes and used at EBI -->	
 						
 			<!-- imits info at gene level for phenotyping faceting -->						
 			<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='latest_phenotype_started']" />
@@ -163,7 +161,7 @@
 			<!-- legacy -->
 			<entity dataSource="komp2db" name="legacyPipe"
 				processor="CachedSqlEntityProcessor" 
-				query="select distinct p.pipeline_id, gf_acc from phenotype_call_summary p, phenotype_pipeline pp where p.p_value &lt; 0.0001 and p.pipeline_id=pp.id and pp.id !=1"
+				query="select distinct project_id, gf_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id = 1"
 				where="gf_acc=doc.mgi_accession_id" 
 				transformer="script:srcMapping" >
 				
