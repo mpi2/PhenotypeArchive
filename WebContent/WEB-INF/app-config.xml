@@ -31,7 +31,6 @@
 	</bean>
 
 	<context:component-scan base-package="uk.ac.ebi" />
-	<context:component-scan base-package="uk.ac.sanger.phenodigm2.controller" />
 
 	<context:annotation-config />
 
@@ -51,7 +50,7 @@
 
 	<!-- phenodigm external solr server via HTTP -->
 	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${phenodigmSolrUrl}" />
+		<constructor-arg index="0" value="${phenodigm.solrserver}" />
         <property name="soTimeout" value="5000" />
 	</bean>
 
