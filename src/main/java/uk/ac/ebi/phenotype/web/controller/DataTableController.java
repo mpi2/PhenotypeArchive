@@ -747,7 +747,17 @@ public class DataTableController {
 				}
 				
 				field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
-				geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
+				
+				//geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
+				if ( info.size() > 1 ){
+					String fieldDisplay = "<ul><li class='litem'>" + StringUtils.join(info, "</li><li class='litem'>") + "</li></ul>";
+					System.out.println("TEST1: "+ fieldDisplay);
+					geneInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
+				}
+				else {
+					geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
+					System.out.println("TEST2: "+ StringUtils.join(info, ", "));
+				}
 			} 
 			catch (Exception e) {		   		
 			    //e.printStackTrace();
