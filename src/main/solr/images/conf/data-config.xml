@@ -1,49 +1,49 @@
 <dataConfig>
 
-        <script type='text/javascript'><![CDATA[        
+	<script type='text/javascript'><![CDATA[        
 
-                function procedure_mapping(row){
-                        if ( row.get('NAME') ){                         
-                                name = row.get('NAME').toString();                              
-
-                                // do something name mapping here before we have the right data
-                                mapping = {
-                                        'Wholemount Expression' : 'Adult LacZ',
-                                        'Xray' : 'X-ray',
-                                        //'Xray' : 'X-ray Imaging',
-                                        'Flow Cytometry' : 'FACS Analysis',
-                                        'Histology Slide' : 'Histopathology',
-                                        'Embryo Dysmorphology' : 'Combined SHIRPA and Dysmorphology'
-
-                                };
-
-                                name = mapping[name] == null ? name : mapping[name];
-                                row.put('procedure_name', name);                                                
-                        }              
-                
-                        return row; 
-                } 
-                function srcMapping(row){
-					if (row.get('preqc_mp_id')){
-						row.put('isPreQc', '1'); 
-					}	
-					else if (row.get('impc')){
-						row.put('isPostQc', '1'); 
-					}	
-					else if (row.get('legacy')){
-						row.put('isLegacy', '1'); 
-					}				        		
-			   		return row; 
-				}      
+		function procedure_mapping(row){
+        	if ( row.get('NAME') ){                         
+	            name = row.get('NAME').toString();                              
+	
+	            // do something name mapping here before we have the right data
+	            mapping = {
+	                    'Wholemount Expression' : 'Adult LacZ',
+	                    'Xray' : 'X-ray',
+	                    //'Xray' : 'X-ray Imaging',
+	                    'Flow Cytometry' : 'FACS Analysis',
+	                    'Histology Slide' : 'Histopathology',
+	                    'Embryo Dysmorphology' : 'Combined SHIRPA and Dysmorphology'
+	
+	            };
+	
+	            name = mapping[name] == null ? name : mapping[name];
+	            row.put('procedure_name', name);                                                
+             }              
+     
+             return row; 
+     	} 
+	    function srcMapping(row){
+			if (row.get('preqc_mp_id')){
+				row.put('isPreQc', '1'); 
+			}	
+			else if (row.get('impc')){
+				row.put('isPostQc', '1'); 
+			}	
+			else if (row.get('legacy')){
+				row.put('isLegacy', '1'); 
+			}				        		
+	   		return row; 
+		}      
 
     ]]></script>
 
-        <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
-        <dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
-		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-		<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
+    <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
+   	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
+	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
-<document name="komp2_indexing">
+	<document name="komp2_indexing">
 		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
 		<!-- IMPC images (filter out the mouse necropsy images) -->
 		<entity dataSource="komp2ds" name="ima_image_record"
@@ -197,7 +197,7 @@
 					<field column="TERM_NAME" name="ma_term" />
 					<field column="TERM_ID" name="ma_id" />
 
-					<entity dataSource="ontodb" name="ma_term_2Syn" 
+					<entity dataSource="ontods" name="ma_term_2Syn" 
 						onError="continue"  
 						processor="CachedSqlEntityProcessor"
 						query="select * from ma_synonyms"
@@ -215,7 +215,7 @@
 					</entity>
 					
 					<!-- child MA term(s) of this MA term -->
-					<entity dataSource="ontodb" name="ma_child" 
+					<!-- <entity dataSource="ontods" name="ma_child" 
 						query="select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id"
 						onError="continue"
 						processor="CachedSqlEntityProcessor" 
@@ -224,8 +224,8 @@
 						<field column="child_ma_id" name="child_ma_id" />
 						<field column="child_ma_term" name="child_ma_term" /> 		
 						
-						<!-- synonym of this MP term -->
-						<entity dataSource="ontodb" name="childMa_synonyms"
+						
+						<entity dataSource="ontods" name="childMa_synonyms"
 							processor="CachedSqlEntityProcessor" 
 							query="select term_id, syn_name from ma_synonyms"
 							where="term_id=ma_child.child_ma_id">
@@ -234,9 +234,10 @@
 						</entity>
 						
 					</entity>	
+					-->
 					
-					<!-- selected higher level backtrace of this MA term -->           
-					<entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
+					<!-- selected higher level backtrace of this MA term -->    
+					<entity dataSource="ontods" name="ma_node_2_selected_top_level_mapping" 
 						processor="CachedSqlEntityProcessor" 
 						onError="continue"
 						query="select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"
@@ -246,7 +247,7 @@
 						<field column="name" name="selected_top_level_ma_term" /> 								
 					
 						<!-- synonym of this MP term -->
-						<entity dataSource="ontodb" name="topMa_synonyms"
+						<entity dataSource="ontods" name="topMa_synonyms"
 							processor="CachedSqlEntityProcessor" 
 							query="select term_id, syn_name from ma_synonyms"
 							where="term_id=ma_node_2_selected_top_level_mapping.term_id">
@@ -267,7 +268,7 @@
 					<field column="TERM_NAME" name="mp_term" />
 					<field column="TERM_ID" name="mp_id" />
 
-					<entity dataSource="ontodb" name="mp_term_2Syn" 
+					<entity dataSource="ontods" name="mp_term_2Syn" 
 						onError="continue"  
 						processor="CachedSqlEntityProcessor"
 						query="select * from mp_synonyms"
@@ -279,11 +280,11 @@
 
 					<!-- flag mp for preQc, postQc and legacy -->
 			
-					<!-- postQc -->
+					<!-- postQc: any project that is not eumodic -->
 					
 					<entity dataSource="komp2ds" name="impcPipe"
 						processor="CachedSqlEntityProcessor" 
-						query="select distinct p.pipeline_id as 'impc', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id=1"
+						query="select distinct project_id, mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id != 1"
 						where="mp_acc=mpAnnotations.TERM_ID"
 						transformer="script:srcMapping" >
 						
@@ -292,11 +293,11 @@
 						
 					</entity>
 					
-					<!-- legacy -->
+					<!-- legacy: eumodic pipeline -->
 					
 					<entity dataSource="komp2ds" name="legacyPipe"
 						processor="CachedSqlEntityProcessor" 
-						query="select distinct p.pipeline_id as 'legacy', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.pipeline_id=pp.id and pp.id !=1"
+						query="select distinct project_id, mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id = 1"
 						where="mp_acc=mpAnnotations.TERM_ID" 
 						transformer="script:srcMapping" >
 						
@@ -340,42 +341,44 @@
 						
 					</entity>
 					-->
-					<entity dataSource="ontods" name="mps" query="SELECT top_level_node_id, concat('${mpAnnotations.TERM_NAME}', '_${mpAnnotations.TERM_ID}') as mpTermName, mp.term_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${mpAnnotations.TERM_ID}' and mp.node_id=tl.node_id">
-						<field column="mpTermName" name="mpTermName" />
-						<field column="top_level_node_id" name="topLevel" />
-
-						<entity dataSource="ontods" name="mphigher"
-							query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
-							<field column="name" name="annotatedHigherLevelMpTermName" />
-							<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
-							
-							<entity dataSource="ontodb" name="mp_term_infos2Syn" 
-								onError="continue"  
-								processor="CachedSqlEntityProcessor"
-								query="select * from mp_synonyms"
-								where="term_id=mphigher.mpTerm">
-														
-								<field column="syn_name" name="top_level_mp_term_synonym" />
-							
-							</entity>	
-							
-						</entity>
-					</entity>
-				
-					<!-- intermediate MP terms of this MP term -->
-					<entity dataSource="ontodb" name="mp_term_infos" 
+					
+					<entity dataSource="ontods" name="nodeIds"
 						processor="CachedSqlEntityProcessor" 
-						onError="continue" 
-						query="select node_id, term_id from mp_node2term"
-						where="term_id=mpAnnotations.TERM_ID">
+						query="select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+						where="term_id=mpAnnotations.TERM_ID" >
+					
+						<!-- top level MP terms of this MP term -->
+						<!-- <entity dataSource="ontods" name="mps" query="SELECT top_level_node_id, concat('${mpAnnotations.TERM_NAME}', '_${mpAnnotations.TERM_ID}') as mpTermName, mp.term_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${mpAnnotations.TERM_ID}' and mp.node_id=tl.node_id"> -->
+						<entity dataSource="ontods" name="mps" query="SELECT top_level_node_id, concat('${mpAnnotations.TERM_NAME}', '_${mpAnnotations.TERM_ID}') as mpTermName, mp.term_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE mp.node_id=${nodeIds.node_id} and mp.node_id=tl.node_id">
 						
-						<entity dataSource="ontodb" name="intermediates" 
+							<field column="mpTermName" name="mpTermName" />
+							<field column="top_level_node_id" name="topLevel" />
+	
+							<entity dataSource="ontods" name="mphigher"
+								query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
+								<field column="name" name="annotatedHigherLevelMpTermName" />
+								<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
+								
+								<entity dataSource="ontods" name="mp_term_infos2Syn" 
+									onError="continue"  
+									processor="CachedSqlEntityProcessor"
+									query="select * from mp_synonyms"
+									where="term_id=mphigher.mpTerm">
+															
+									<field column="syn_name" name="top_level_mp_term_synonym" />
+								</entity>	
+							</entity>
+						</entity>
+						
+						<!-- intermediate MP terms of this MP term -->
+				
+						<entity dataSource="ontods" name="intermediates" 
 							processor="CachedSqlEntityProcessor" 
 							onError="continue" 
 							query="select node_id, child_node_id from mp_node_subsumption_fullpath"
-							where="child_node_id=mp_term_infos.node_id">
-						
-							<entity dataSource="ontodb" name="mpTermNode"	
+							where="child_node_id=nodeIds.node_id">
+							
+							<entity dataSource="ontods" name="mpTermNode"	
 								processor="CachedSqlEntityProcessor" 
 								onError="continue" 		
 								query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
@@ -386,27 +389,28 @@
 								<!-- <field column="definition" name="intermediate_mp_definition" />	-->
 							
 								<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
-								<entity dataSource="ontodb" name="parents2Syn" 
+								<entity dataSource="ontods" name="parents2Syn" 
 									processor="CachedSqlEntityProcessor" 
 									onError="continue"  
 									query="select term_id, syn_name from mp_synonyms"
-									where="term_id=mpTermNode.term_id">
+									where="term_id=intermediates.term_id">
 										
 									<field column="syn_name" name="intermediate_mp_term_synonym" />						
 									
 								</entity>
+								
 							</entity>
 						</entity>	
-					
+						
 						<!-- child MP term of this MP term -->
-					
-						<entity dataSource="ontodb" name="allChildren" 
+				
+						<entity dataSource="ontods" name="allChildren" 
 							processor="CachedSqlEntityProcessor" 
 							onError="continue" 
 							query="select node_id, child_node_id from mp_node_subsumption_fullpath"
-							where="node_id=mp_term_infos.node_id">
+							where="node_id=nodeIds.node_id">
 							
-							<entity dataSource="ontodb" name="mpTermNode2"	
+							<entity dataSource="ontods" name="mpTermNode2"	
 								processor="CachedSqlEntityProcessor" 
 								onError="continue" 		
 								query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
@@ -414,22 +418,23 @@
 								
 								<field column="term_id"    name="child_mp_id" />
 								<field column="name"       name="child_mp_term" />
-								<!-- <field column="definition" name="child_mp_definition" />	-->
+							<!-- <field column="definition" name="child_mp_definition" />	-->
 							
 								<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
-								<entity dataSource="ontodb" name="parents2Syn2" 
+								<entity dataSource="ontods" name="parents2Syn2" 
 									processor="CachedSqlEntityProcessor" 
 									onError="continue"  
 									query="select term_id, syn_name from mp_synonyms"
-									where="term_id=mpTermNode2.term_id">
+									where="term_id=allChildren.term_id">
 										
 									<field column="syn_name" name="child_mp_term_synonym" />						
 									
 								</entity>
 							</entity>
-						</entity>
-					
+						</entity>	
+						
 					</entity>
+					
 				</entity>
 			</entity>
 		</entity>

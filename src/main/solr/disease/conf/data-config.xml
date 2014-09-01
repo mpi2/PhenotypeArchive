@@ -62,6 +62,10 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                     <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
                     <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
                              
+                    <field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />
+					<field column="isPreQc"  xpath="/response/result/doc/int[@name='isPreQc']" />
+					<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />         
+                             
                     <!-- latest project status (ES cells/mice production status) -->         
                     <field column="status" xpath="/response/result/doc/str[@name='status']" />
                     
