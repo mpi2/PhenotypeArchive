@@ -28,6 +28,7 @@ package org.mousephenotype.www.testing.model;
  * maGrid HTML table.
  */
 public class DownloadSearchMapAnatomy {
-    public final static int COL_INDEX_MA_TERM = 0;
-    public final static int COL_INDEX_MA_ID   = 1;
+    public final static int COL_INDEX_ANATOMY_TERM     = 0;
+    public final static int COL_INDEX_ANATOMY_ID       = 1;
+    public final static int COL_INDEX_ANATOMY_SYNONYMS = 2;
 }

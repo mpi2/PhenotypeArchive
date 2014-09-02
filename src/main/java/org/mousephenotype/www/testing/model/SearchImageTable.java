@@ -38,9 +38,10 @@ public class SearchImageTable extends SearchFacetTable {
      * Creates a new <code>SearchDiseaseTable</code> instance.
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
+     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
-    public SearchImageTable(WebDriver driver) {
-        super(driver, "//table[@id='imagesGrid']");
+    public SearchImageTable(WebDriver driver, int timeoutInSeconds) {
+        super(driver, "//table[@id='imagesGrid']", timeoutInSeconds);
     }
     
     /**
