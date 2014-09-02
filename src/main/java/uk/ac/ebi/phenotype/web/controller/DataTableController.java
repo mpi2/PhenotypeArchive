@@ -324,20 +324,24 @@ public class DataTableController {
 			if ( doc.containsKey("mp_term_synonym") ){
 				List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
 				List<String> prefixSyns = new ArrayList();
-				int count = 0;
+
 				for ( String sn : mpSynonyms ){
-					count++;
-					//prefixSyns.add("synonym: "+ sn);
-					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
-					//prefixSyns.add(sn);
 					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
+				}
+				
+				String syns = null;
+				if ( prefixSyns.size() > 1 ){
+					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+				}
+				else {
+					syns = prefixSyns.get(0);
 				}
 				
 				String mpCol = "<div class='mpCol'><div class='title'>" 
 						+ mpLink 
 						+ "</div>"
 						+ "<div class='subinfo'>" 
-						+ "<b>synonym</b>: " + StringUtils.join(prefixSyns, ",<br>") 
+						+ "<span class='label'>synonym</span>: " + syns
 						+ "</div>";
 				rowData.add(mpCol);
 			}
@@ -386,20 +390,24 @@ public class DataTableController {
                 if ( doc.containsKey("ma_term_synonym") ){
     				List<String> maSynonyms = doc.getJSONArray("ma_term_synonym");
     				List<String> prefixSyns = new ArrayList();
-    				int count = 0;
+
     				for ( String sn : maSynonyms ){
-    					count++;
-    					//prefixSyns.add("synonym: "+ sn);
-    					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
-    					//prefixSyns.add(sn);
     					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
+    				}
+    				
+    				String syns = null;
+    				if ( prefixSyns.size() > 1 ){
+    					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+    				}
+    				else {
+    					syns = prefixSyns.get(0);
     				}
     				
     				String maCol = "<div class='maCol'><div class='title'>" 
     						+ maLink 
     						+ "</div>"
     						+ "<div class='subinfo'>" 
-    						+  "<b>synonym: " + StringUtils.join(prefixSyns, ",<br>") 
+    						+  "<span class='label'>synonym: </span>" + syns
     						+ "</div>";
     				rowData.add(maCol);
     			}
@@ -572,7 +580,7 @@ public class DataTableController {
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
 					
 					//String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
-					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
+					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit + "</a>";
 								
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 					
@@ -737,26 +745,23 @@ public class DataTableController {
 						info.add(Tools.highlightMatchedStrIfFound(qryStr, h.toString(), "span", "subMatch"));
 					}							
 				}
-				else if ( doc.getJSONArray(field).size() > 0) {					
+				else if ( field.equals("marker_synonym") ){	
 					JSONArray data = doc.getJSONArray(field);
-					
 					for( Object d : data ){
 						info.add(Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch"));
 					}
-					
 				}
 				
 				field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
+				String ulClass = field == "human ortholog" ? "ortholog" : "synonym";
 				
 				//geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
 				if ( info.size() > 1 ){
-					String fieldDisplay = "<ul><li class='litem'>" + StringUtils.join(info, "</li><li class='litem'>") + "</li></ul>";
-					System.out.println("TEST1: "+ fieldDisplay);
+					String fieldDisplay = "<ul class='" + ulClass + "'><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
 					geneInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
 				}
 				else {
 					geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
-					System.out.println("TEST2: "+ StringUtils.join(info, ", "));
 				}
 			} 
 			catch (Exception e) {		   		

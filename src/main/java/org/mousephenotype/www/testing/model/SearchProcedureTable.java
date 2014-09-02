@@ -39,9 +39,10 @@ public class SearchProcedureTable extends SearchFacetTable {
      * Creates a new <code>SearchProcedureTable</code> instance.
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
+     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
-    public SearchProcedureTable(WebDriver driver) {
-        super(driver, "//table[@id='pipelineGrid']");
+    public SearchProcedureTable(WebDriver driver, int timeoutInSeconds) {
+        super(driver, "//table[@id='pipelineGrid']", timeoutInSeconds);
     }
     
     /**

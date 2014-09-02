@@ -109,7 +109,7 @@ public class SearchPageTest {
     // These constants define the default number of iterations for each that uses them. -1 means iterate over all.
     private final int MAX_MGI_LINK_CHECK_COUNT = 5;                             // -1 means test all links.
     private final int MAX_PHENOTYPE_TEST_PAGE_COUNT = 10;                       // -1 means test all pages.
-    private final int TIMEOUT_IN_SECONDS = 5;
+    private final int TIMEOUT_IN_SECONDS = 15;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
 
     // These variables define the actual number of iterations for each test that uses them.
@@ -680,7 +680,7 @@ public class SearchPageTest {
     }
 
     @Test
- //@Ignore
+//@Ignore
     public void testSpecialCharacters() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
@@ -919,11 +919,13 @@ public class SearchPageTest {
                 , SearchPage.Facet.GENES
                 , SearchPage.Facet.IMAGES
                 , SearchPage.Facet.PHENOTYPES
-                , SearchPage.Facet.PROCEDURES };
+                , SearchPage.Facet.PROCEDURES
+            };
 
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
                 searchPage.clickPageButton();
+//searchPage.clickPageButton(SearchPage.PageDirective.NEXT);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                 status.add(searchPage.validateDownload(facet));
             }
