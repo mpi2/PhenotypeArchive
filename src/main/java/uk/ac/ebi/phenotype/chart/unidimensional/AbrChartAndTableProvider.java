@@ -153,7 +153,7 @@ public class AbrChartAndTableProvider {
 						   	" lineColor: Highcharts.getOptions().colors[2]"+
 						" }"+
 				 " }, {"+
-				     " name: 'Range',"+
+				     " name: 'SD',"+
 				     " data: " + ranges + "," + 
 				     " type: 'arearange',"+
 				     " lineWidth: 0,"+
@@ -164,7 +164,6 @@ public class AbrChartAndTableProvider {
 			     "   }]"+
 			    "});"+
 			"});" ;
-		System.out.println("+++ ABR chart = "+ chart);
 		return chart;
 		}
 	
