@@ -331,7 +331,7 @@ public class DataTableController {
 				
 				String syns = null;
 				if ( prefixSyns.size() > 1 ){
-					syns = "<ul><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
 				}
 				else {
 					syns = prefixSyns.get(0);
@@ -397,7 +397,7 @@ public class DataTableController {
     				
     				String syns = null;
     				if ( prefixSyns.size() > 1 ){
-    					syns = "<ul><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+    					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
     				}
     				else {
     					syns = prefixSyns.get(0);
@@ -753,10 +753,11 @@ public class DataTableController {
 				}
 				
 				field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
+				String ulClass = field == "human ortholog" ? "ortholog" : "synonym";
 				
 				//geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
 				if ( info.size() > 1 ){
-					String fieldDisplay = "<ul><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
+					String fieldDisplay = "<ul class='" + ulClass + "'><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
 					geneInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
 				}
 				else {
