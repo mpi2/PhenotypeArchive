@@ -20,7 +20,6 @@
     
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
-	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />  
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	  
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       

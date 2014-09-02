@@ -38,9 +38,10 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      * Creates a new <code>SearchPhenotypeTable</code> instance.
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
+     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
-    public SearchPhenotypeTable(WebDriver driver) {
-        super(driver, "//table[@id='mpGrid']");
+    public SearchPhenotypeTable(WebDriver driver, int timeoutInSeconds) {
+        super(driver, "//table[@id='mpGrid']", timeoutInSeconds);
     }
     
     /**

@@ -331,7 +331,7 @@ public class DataTableController {
 				
 				String syns = null;
 				if ( prefixSyns.size() > 1 ){
-					syns = "<ul><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
 				}
 				else {
 					syns = prefixSyns.get(0);
@@ -341,7 +341,7 @@ public class DataTableController {
 						+ mpLink 
 						+ "</div>"
 						+ "<div class='subinfo'>" 
-						+ "<b>synonym</b>: " + syns
+						+ "<span class='label'>synonym</span>: " + syns
 						+ "</div>";
 				rowData.add(mpCol);
 			}
@@ -397,7 +397,7 @@ public class DataTableController {
     				
     				String syns = null;
     				if ( prefixSyns.size() > 1 ){
-    					syns = "<ul><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+    					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
     				}
     				else {
     					syns = prefixSyns.get(0);
@@ -407,7 +407,7 @@ public class DataTableController {
     						+ maLink 
     						+ "</div>"
     						+ "<div class='subinfo'>" 
-    						+  "<b>synonym: </b>" + syns
+    						+  "<span class='label'>synonym: </span>" + syns
     						+ "</div>";
     				rowData.add(maCol);
     			}
@@ -745,30 +745,27 @@ public class DataTableController {
 						info.add(Tools.highlightMatchedStrIfFound(qryStr, h.toString(), "span", "subMatch"));
 					}							
 				}
-				else if ( doc.getJSONArray(field).size() > 0 ) {	
+				else if ( field.equals("marker_synonym") ){	
 					JSONArray data = doc.getJSONArray(field);
-					
 					for( Object d : data ){
 						info.add(Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch"));
 					}
-					
 				}
 				
 				field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
+				String ulClass = field == "human ortholog" ? "ortholog" : "synonym";
 				
 				//geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
 				if ( info.size() > 1 ){
-					String fieldDisplay = "<ul><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
-					System.out.println("TEST1: "+ fieldDisplay);
+					String fieldDisplay = "<ul class='" + ulClass + "'><li>" + StringUtils.join(info, "</li><li>") + "</li></ul>";
 					geneInfo.add("<span class='label'>" + field + "</span>: " + fieldDisplay);
 				}
 				else {
 					geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
-					System.out.println("TEST2: "+ StringUtils.join(info, ", "));
 				}
 			} 
 			catch (Exception e) {		   		
-			    e.printStackTrace();
+			    //e.printStackTrace();
 			}
 		}				
 		//return "<div class='geneCol'>" + markerSymbolLink + StringUtils.join(geneInfo, "<br>") + "</div>";
