@@ -266,6 +266,11 @@ span.subMatch {
 
 div.subinfo ul li {
 	margin-left: 20px !important;
-	padding-left: 5px !important;
-	list-style: disc !important;
+	padding-left: 10px !important;
+	/*list-style: disc !important;*/
+	/*list-style-image: url('../img/gray_bullet.jpg');*/
+	background-image: url('../img/gray_bullet.jpg');
+	background-repeat: no-repeat;
+    background-position: 0px 50%; 
+	
 }
