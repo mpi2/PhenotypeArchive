@@ -341,7 +341,7 @@ public class DataTableController {
 						+ mpLink 
 						+ "</div>"
 						+ "<div class='subinfo'>" 
-						+ "<b>synonym</b>: " + syns
+						+ "<span class='label'>synonym</span>: " + syns
 						+ "</div>";
 				rowData.add(mpCol);
 			}
@@ -407,7 +407,7 @@ public class DataTableController {
     						+ maLink 
     						+ "</div>"
     						+ "<div class='subinfo'>" 
-    						+  "<b>synonym: </b>" + syns
+    						+  "<span class='label'>synonym: </span>" + syns
     						+ "</div>";
     				rowData.add(maCol);
     			}
