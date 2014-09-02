@@ -1,12 +1,5 @@
 <dataConfig>
 	<dataSource 
-		name="diseaseGenedb"
-		type="JdbcDataSource"
-   		driver="com.mysql.jdbc.Driver"
-  		url="jdbc:mysql://mysql-mi-dev.ebi.ac.uk:4356/diseaseGene"
-   		user="admin" 
-   		password="jL2VEcq6"/>
-	<dataSource 
 		name="komp2db"
 		type="JdbcDataSource"
    		driver="com.mysql.jdbc.Driver"
@@ -77,7 +70,6 @@
 
     ]]></script>
 	
-		<!--<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
 		<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />		-->
  		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://localhost:8983/solr/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 		<!--<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>-->
