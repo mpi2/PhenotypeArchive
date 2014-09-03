@@ -425,15 +425,15 @@ public class FileExportController {
         if (solrCoreName.equals("gene")) {
             rows = composeGeneDataTableRows(json, request);
         } else if (solrCoreName.equals("mp")) {
-            rows = composeMpDataTableRows(json);
+            rows = composeMpDataTableRows(json, request);
         } else if (solrCoreName.equals("ma")) {
-            rows = composeMaDataTableRows(json);
+            rows = composeMaDataTableRows(json, request);
         } else if (solrCoreName.equals("pipeline")) {
             rows = composeProtocolDataTableRows(json, request);
         } else if (solrCoreName.equals("images")) {
             rows = composeImageDataTableRows(json, iDisplayStart, iDisplayLength, showImgView, solrParams, request);
         } else if (solrCoreName.equals("disease")) {
-            rows = composeDiseaseDataTableRows(json);
+            rows = composeDiseaseDataTableRows(json, request);
         }
         return rows;
     }
@@ -540,18 +540,23 @@ public class FileExportController {
         return rowData;
     }
 
-    private List<String> composeMpDataTableRows(JSONObject json) {
+    private List<String> composeMpDataTableRows(JSONObject json, HttpServletRequest request) {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-
+        
+        String hostName = request.getAttribute("mappedHostname").toString();
+        String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";	
+        
         List<String> rowData = new ArrayList();
-        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term"); // column names	
+        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
 
             data.add(doc.getString("mp_term"));
-            data.add(doc.getString("mp_id"));
+            String mpId = doc.getString("mp_id");
+            data.add(mpId);
+            data.add(hostName + baseUrl + mpId);
 
             if (doc.has("mp_definition")) {
                 data.add(doc.getString("mp_definition"));
@@ -587,18 +592,23 @@ public class FileExportController {
         return rowData;
     }
 
-    private List<String> composeMaDataTableRows(JSONObject json) {
+    private List<String> composeMaDataTableRows(JSONObject json, HttpServletRequest request) {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
+        String hostName = request.getAttribute("mappedHostname").toString();
+        String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
+        
         List<String> rowData = new ArrayList();
-        rowData.add("Mouse adult gross anatomy term\tMouse adult gross anatomy id\tMouse adult gross anatomy synonym"); // column names	
+        rowData.add("Mouse adult gross anatomy term\tMouse adult gross anatomy id\tMouse adult gross anatomy id link\tMouse adult gross anatomy synonym"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
 
             data.add(doc.getString("ma_term"));
-            data.add(doc.getString("ma_id"));
+            String maId = doc.getString("ma_id");
+            data.add(maId);
+            data.add(hostName + baseUrl + maId);
            
             if (doc.has("ma_term_synonym")) {
                 List<String> syns = new ArrayList();
@@ -643,7 +653,7 @@ public class FileExportController {
 
         List<String> rowData = new ArrayList();
 
-        rowData.add("Gene symbol\tHuman ortholog\tGene Id\tGene name\tGene synonym\tProduction status\tPhenotype status\tPhenotype status link"); // column names		
+        rowData.add("Gene symbol\tHuman ortholog\tGene id\tGene name\tGene synonym\tProduction status\tPhenotype status\tPhenotype status link"); // column names		
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -701,34 +711,44 @@ public class FileExportController {
             else if ( phStatus.startsWith("http://") || phStatus.startsWith("https://") ){
 				
 				String[] parts = phStatus.split("\\|");
-				String url   = parts[0];
-				String label = parts[1];
-				System.out.println("URL: " + url);
-                data.add(label);
-                data.add(url);
+				if ( parts.length != 2  ){
+					System.out.println("fileExport: '" + phStatus+ "' --- Expeced length 2 but got " + parts.length  );
+				}
+				else {
+					String url   = parts[0];
+					String label = parts[1];
+					
+	                data.add(label);
+	                data.add(url);
+				}
 			}
 			else {
 				data.add(phStatus); 
 			}
 
             // put together as tab delimited
-            System.out.println("TEST: "+ StringUtils.join(data, "\t"));
             rowData.add(StringUtils.join(data, "\t"));
         }
 
         return rowData;
     }
 
-    private List<String> composeDiseaseDataTableRows(JSONObject json) {
+    private List<String> composeDiseaseDataTableRows(JSONObject json, HttpServletRequest request) {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
+        String hostName = request.getAttribute("mappedHostname").toString();
+        String baseUrl = request.getAttribute("baseUrl") + "/disease/";
+        
         List<String> rowData = new ArrayList();
-        rowData.add("Disease id\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (IMPC)\tCandidate genes by phenotype (MGI)"); // column names	
+        rowData.add("Disease id\tDisease id link\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (IMPC)\tCandidate genes by phenotype (MGI)"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
-            data.add(doc.getString("disease_id"));
+            String omimId = doc.getString("disease_id");
+            data.add(omimId);
+            data.add(hostName + baseUrl + omimId);
+            
             data.add(doc.getString("disease_term"));
             data.add(doc.getString("disease_source"));
             data.add(doc.getString("human_curated"));
