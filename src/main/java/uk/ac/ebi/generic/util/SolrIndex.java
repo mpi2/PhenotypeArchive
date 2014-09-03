@@ -681,7 +681,9 @@ public class SolrIndex {
                             String allele_id = docs.getJSONObject(i).has("allele_id") ? docs.getJSONObject(i).get("allele_id").toString() : null;
                             String id = docs.getJSONObject(i).has("id") ? docs.getJSONObject(i).get("id").toString() : null;
                             String product_type = docs.getJSONObject(i).has("product_type") ? docs.getJSONObject(i).get("product_type").toString() : null;
-                            String url = " https://www.mousephenotype.org/imits/targ_rep/alleles/" + allele_id + "/show-issue?doc_id=" + id + "&product_type=" + product_type;
+                            String host = "https://www.mousephenotype.org/imits";
+                            //host = "localhost:3000";
+                            String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?doc_id=" + id + "&product_type=" + product_type + "&core=allele";
                             orderFromUrl = url;
                         }                        
 			log.error("#### geneAlleleConstruct: orderFromUrl: " + orderFromUrl);                        

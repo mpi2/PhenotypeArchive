@@ -78,7 +78,7 @@ public class SolrIndex2 {
             "latest_phenotype_started", "latest_phenotype_complete",
             "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy",
             "es_cell_status", "mouse_status", "phenotype_status", "production_centre", "phenotyping_centre", "allele_name",
-            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id", "allele_has_issue"
+            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id"       //, "allele_has_issue"
         };
 
         List<Map<String, String>> list = new ArrayList<>();
@@ -203,6 +203,11 @@ public class SolrIndex2 {
             return null;
         }
 
+        boolean allele_has_issue = false;
+        if (jsonObject2.has("allele_has_issues")) {
+            allele_has_issue = jsonObject2.getString("allele_has_issues").equals("true");
+        }
+
         for (int k = 0; k < names.size(); k++) {
             String name = names.getString(k);
             if (name.equals("NULL")) {
@@ -210,6 +215,16 @@ public class SolrIndex2 {
             }
             item.put("name", name);
             item.put("url", links.getString(k));
+
+            if(allele_has_issue) {
+                String allele_id = jsonObject2.has("allele_id") ? jsonObject2.getString("allele_id") : null;
+                String product_id = jsonObject2.has("product_id") ? jsonObject2.getString("product_id") : null;
+                String host = "https://www.mousephenotype.org/imits";
+                //host = "localhost:3000";
+                String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?product_id=" + product_id + "&core=product";
+                item.put("url", url);
+            }
+
             list.add(item);
         }
         return list;
@@ -229,6 +244,11 @@ public class SolrIndex2 {
 
         log.info("#### getGeneProductInfoOrderInfo: jsonObject2: " + jsonObject2);
 
+        boolean allele_has_issue = false;
+        if (jsonObject2.has("allele_has_issues")) {
+            allele_has_issue = jsonObject2.getString("allele_has_issues").equals("true");
+        }
+
         JSONArray array_order_names = jsonObject2.getJSONArray("order_names");
         JSONArray array_order_links = jsonObject2.getJSONArray("order_links");
         for (int k = 0; k < array_order_names.size(); k++) {
@@ -238,6 +258,16 @@ public class SolrIndex2 {
             }
             map3.put("name", name);
             map3.put("url", array_order_links.getString(k));
+
+            if(allele_has_issue) {
+                String allele_id = jsonObject2.has("allele_id") ? jsonObject2.getString("allele_id") : null;
+                String product_id = jsonObject2.has("product_id") ? jsonObject2.getString("product_id") : null;
+                String host = "https://www.mousephenotype.org/imits";
+                //host = "localhost:3000";
+                String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?product_id=" + product_id + "&core=product";
+                map3.put("url", url);
+            }
+
             orders.add(map3);
         }
         return orders;
@@ -300,6 +330,11 @@ public class SolrIndex2 {
         map2.put("production_graph", production_graph);
 
         map2.put("_status", jsonObject2.getString("status"));
+
+        map2.put("allele_has_issue", "false");
+        if (jsonObject2.has("allele_has_issues")) {
+            map2.put("allele_has_issue", jsonObject2.getString("allele_has_issues"));
+        }
 
         log.info("#### getGeneProductInfoMice:" + map2);
 
@@ -387,6 +422,11 @@ public class SolrIndex2 {
 
         map2.put("name", jsonObject2.getString("name"));
 
+        map2.put("allele_has_issue", "false");
+        if (jsonObject2.has("allele_has_issues")) {
+            map2.put("allele_has_issue", jsonObject2.getString("allele_has_issues"));
+        }
+
         return map2;
     }
 
@@ -428,6 +468,11 @@ public class SolrIndex2 {
         String allele_image = getGeneProductInfoArrayEntry("allele_image", jsonObject2.getJSONArray("other_links"));
         if (allele_image != null) {
             map2.put("allele_image", allele_image);
+        }
+
+        map2.put("allele_has_issue", "false");
+        if (jsonObject2.has("allele_has_issues")) {
+            map2.put("allele_has_issue", jsonObject2.getString("allele_has_issues"));
         }
 
         return map2;
