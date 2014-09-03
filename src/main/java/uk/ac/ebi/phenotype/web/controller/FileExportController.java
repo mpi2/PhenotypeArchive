@@ -698,12 +698,12 @@ public class FileExportController {
             	data.add(NO_INFO_MSG); 
             	data.add(NO_INFO_MSG); // link column
             }
-            else if ( phStatus.startsWith("http://") ){
+            else if ( phStatus.startsWith("http://") || phStatus.startsWith("https://") ){
 				
 				String[] parts = phStatus.split("\\|");
 				String url   = parts[0];
 				String label = parts[1];
-
+				System.out.println("URL: " + url);
                 data.add(label);
                 data.add(url);
 			}
