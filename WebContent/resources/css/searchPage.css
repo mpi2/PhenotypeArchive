@@ -263,3 +263,14 @@ span.dtype {
 span.subMatch {
 	color: #0978A1;
 }
+
+div.subinfo ul li {
+	margin-left: 20px;
+	padding-left: 10px;
+	background-image: url('../img/gray_bullet.jpg');
+	background-repeat: no-repeat;
+    background-position: 0px 50%; 
+}
+span.label {
+	color: gray;
+}

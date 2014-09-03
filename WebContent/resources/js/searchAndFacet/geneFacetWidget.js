@@ -76,6 +76,7 @@
 				 // + '&facet.field=imits_phenotype_complete'
 				 // + '&facet.field=imits_phenotype_status'	
 				  + '&facet.field=latest_phenotype_status'	// use this field instead of the above three
+				  + '&facet.field=legacy_phenotype_status'
 				  + '&facet.field=latest_production_centre'
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
@@ -86,7 +87,8 @@
 	    		'data': queryParamStr, 
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
-	    		'success': function(json) {	  	    		
+	    		'success': function(json) {	  	
+	    			console.log(json);
 	    			self._displayGeneSubTypeFacet(json);	    				
 	    		}		
 	    	});	    	
@@ -128,16 +130,19 @@
     	    			var fieldName = phenoFieldList[j];
     	    			if (fieldName == 'Phenotype Attempt Registered' ||
     	    				fieldName == 'Phenotyping Started' ||
-    	    				fieldName == 'Phenotyping Complete' ){
+    	    				fieldName == 'Phenotyping Complete' || 
+    	    				fieldName == 'Legacy' ){
     	    				
     	    				pheno_count[aImitsPhenos[fieldName]] = phenoFieldList[j+1];
     	    			}
     	    		} 
     			} 
 	    		
+    			pheno_count['Legacy'] = json.facet_counts['facet_fields']['legacy_phenotype_status'][1];
+    			
 	    		var phenoUlContainer = $("<ul></ul>");
 	    		
-	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered'];	    		
+	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered', 'Legacy'];	    		
 	    		for ( var i=0; i<aPhenos.length; i++ ){
 					var phenotypingStatusFq = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].fq;
 					var phenotypingStatusVal = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].val; 
@@ -145,7 +150,7 @@
 					var isGrayout = count == 0 ? 'grayout' : '';
 					
 					if ( count !== undefined ){
-						
+						//alert(phenotypingStatusFq + ' --- '+ phenotypingStatusVal + ' --- '+ count);
 						var liContainer = $("<li></li>").attr({'class':'fcat phenotyping'});
 						
 						var coreField = 'gene|'+ phenotypingStatusFq + '|';						

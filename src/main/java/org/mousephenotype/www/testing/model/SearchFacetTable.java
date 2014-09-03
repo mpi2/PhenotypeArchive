@@ -20,7 +20,6 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -38,8 +37,12 @@ import org.openqa.selenium.WebElement;
 public abstract class SearchFacetTable {
     public final String graphUrl;
     private boolean hasTable;
-    private String[][] bodyRows;
-    private String[] headings;
+    protected String[] pageHeading;
+    protected WebElement table;
+    protected final WebDriver driver;
+    protected final int timeoutInSeconds;
+    
+    public static final String NO_INFO_AVAILABLE = "No information available";
     
     /**
      * Initializes the generic components of a <code>SearchFacetTable</code>.
@@ -47,58 +50,46 @@ public abstract class SearchFacetTable {
      * facet table with thead and tbody definitions.
      * @param tableXpath The xpath of the search facet table (e.g.
      * //table[@id='geneGrid'])
+     * @param timeoutInSeconds
      */
-    public SearchFacetTable(WebDriver driver, String tableXpath) {
+    public SearchFacetTable(WebDriver driver, String tableXpath, int timeoutInSeconds) {
         graphUrl = driver.getCurrentUrl();
+        this.driver = driver;
+        this.timeoutInSeconds = timeoutInSeconds;
         hasTable = false;
         
-        WebElement table;
         try {
             table = driver.findElement(By.xpath(tableXpath));
         } catch (Exception e) {
+            pageHeading = null;
+            table = null;
             return;
         }
         hasTable = true;
         
-        // Save the heading values.
+        // Save the pageHeading values.
         List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
-        headings = new String[headingElementList.size()];
+        pageHeading = new String[headingElementList.size()];
         if ( ! headingElementList.isEmpty()) {
             for (int colIndex = 0; colIndex < headingElementList.size(); colIndex++) {
                 WebElement headingElement = headingElementList.get(colIndex);
-                headings[colIndex] = headingElement.getText();
+                pageHeading[colIndex] = headingElement.getText();
             }
         }
-        
-        // Save the body values.
-        List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
-        List<String[]> bodyRowsList = new ArrayList();
-        if ( ! bodyRowElementsList.isEmpty()) {
-            for (WebElement bodyRowElements : bodyRowElementsList) {
-                
-                String[] row = new String[headingElementList.size()];
-                List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
-                for (int colIndex = 0; colIndex < headingElementList.size(); colIndex++) {
-                    row[colIndex] = bodyRowElementList.get(colIndex).getText();
-                }
-                bodyRowsList.add(row);
-            }
-            
-            bodyRows = bodyRowsList.toArray(new String[bodyRowsList.size()][headingElementList.size()]);
-        }
     }
 
-    public String[][] getBodyRowsList() {
-        return bodyRows;
+    public String[] getPageHeading() {
+        return pageHeading;
     }
 
-    public String[] getHeadingList() {
-        return headings;
-    }
-
-    public boolean hasGeneTable() {
+    public boolean hasTable() {
         return hasTable;
     }
+
+    public WebElement getTable() {
+        return table;
+    }
+
     
     /**
      * Validates download data against this search table instance.
@@ -107,4 +98,25 @@ public abstract class SearchFacetTable {
      * @return validation status
      */
     public abstract PageStatus validateDownload(String[][] data);
+    
+    /**
+     * Validates the download heading
+     * @param status validation status
+     * @param geneSymbol gene symbol
+     * @param actualHeadingList actual download heading column list
+     */
+    protected void validateDownloadHeading(PageStatus status, String geneSymbol, String[] expectedHeadingList, String[] actualHeadingList) {
+        if (expectedHeadingList.length != actualHeadingList.length) {
+            status.addError("DISEASE DOWNLOAD HEADING MISMATCH: Gene symbol " + geneSymbol + ": expected heading column count: " + expectedHeadingList.length + ". "
+                          + "Actual heading count: " + actualHeadingList.length + ". Headings were not compared.");
+            return;
+        }
+        
+        for (int i = 0; i < actualHeadingList.length; i++) {
+            if ( ! actualHeadingList[i].equals(expectedHeadingList[i])) {
+                status.addError("DISEASE DOWNLOAD HEADING MISMATCH: Gene symbol " + geneSymbol + ": heading[" + i + "] should be '"
+                        + expectedHeadingList[i] + "' but actual heading was '" + actualHeadingList[i] + "'.");
+            }
+        }
+    }
 }

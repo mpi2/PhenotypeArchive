@@ -280,11 +280,11 @@
 
 					<!-- flag mp for preQc, postQc and legacy -->
 			
-					<!-- postQc -->
+					<!-- postQc: any project that is not eumodic -->
 					
 					<entity dataSource="komp2ds" name="impcPipe"
 						processor="CachedSqlEntityProcessor" 
-						query="select distinct p.pipeline_id as 'impc', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.p_value &lt; 0.0001 and p.pipeline_id=pp.id and pp.id=1"
+						query="select distinct project_id as 'impc', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id !=1 AND project_id !=8"
 						where="mp_acc=mpAnnotations.TERM_ID"
 						transformer="script:srcMapping" >
 						
@@ -293,11 +293,11 @@
 						
 					</entity>
 					
-					<!-- legacy -->
+					<!-- legacy: eumodic pipeline -->
 					
 					<entity dataSource="komp2ds" name="legacyPipe"
 						processor="CachedSqlEntityProcessor" 
-						query="select distinct p.pipeline_id as 'legacy', mp_acc from phenotype_call_summary p, phenotype_pipeline pp where p.p_value &lt; 0.0001 and p.pipeline_id=pp.id and pp.id !=1"
+						query="select distinct project_id as 'legacy', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and (project_id=1 OR project_id=8)"
 						where="mp_acc=mpAnnotations.TERM_ID" 
 						transformer="script:srcMapping" >
 						

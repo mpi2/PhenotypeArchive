@@ -19,7 +19,6 @@
 
     ]]></script>
 	
-		<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
 		<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />		
  		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
      	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
@@ -83,6 +82,7 @@
 			<!-- disease associated with this gene -->
 			<field column="type" xpath="/response/result/doc/str[@name='type']" /> 
 			<field column="disease_source" xpath="/response/result/doc/arr[@name='disease_source']/str" /> 
+			<field column="disease_id" xpath="/response/result/doc/arr[@name='disease_id']/str" /> 
 			<field column="disease_term" xpath="/response/result/doc/arr[@name='disease_term']/str" /> 
 			<field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
 			<field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 

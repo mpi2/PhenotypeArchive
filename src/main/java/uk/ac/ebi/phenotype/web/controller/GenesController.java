@@ -15,7 +15,26 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import net.sf.json.JSONException;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -40,6 +59,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
@@ -48,7 +68,12 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
-import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.Xref;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
@@ -194,13 +219,19 @@ public class GenesController {
 		 * Phenotype Summary
 		 */
 
-		PhenotypeSummaryBySex phenotypeSummaryObjects = null;
+		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
 
 		try {
 			// model.addAttribute("phenotypeSummary",
 			// phenSummary.getSummary(acc));
-			phenotypeSummaryObjects = phenSummary.getSummaryObjects(acc);
+			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+			// add number of top level terms
+			int total = 0;
+			for (ZygosityType zyg : phenotypeSummaryObjects.keySet()){
+				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
+			}
+			model.addAttribute("summaryNumber", total);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -702,13 +733,15 @@ public class GenesController {
 			log.info("No human ortholog found for gene: {}", geneIdentifier);
 		}
 
-        List<DiseaseAssociationSummary> diseaseAssociationSummarys = null;
+        List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
         try {
             log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
             diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
             log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
         } catch (RuntimeException e) {
+	        log.error(ExceptionUtils.getFullStackTrace(e));
             log.error("Error retrieving disease data for {}", geneIdentifier);
+
         }
 
 		// List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries =

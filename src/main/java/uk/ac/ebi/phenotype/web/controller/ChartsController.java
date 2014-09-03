@@ -272,9 +272,7 @@ public class ChartsController {
                 pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
             }
 
-            String title = parameter.getName();
             String xAxisTitle = xUnits;
-            String yAxisTitle = yUnits;
 
             // use some sort of map to pass in these or helper method? so we
             // don't have to redo title, subtitle for each one??
@@ -290,60 +288,58 @@ public class ChartsController {
             }
 
             try {
-                if (chartType != null && chartType.equals(ChartType.UNIDIMENSIONAL_SCATTER_PLOT)) {
-                    ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
-                    model.addAttribute("scatterChartAndData", scatterChartAndData);
+            	if (chartType == null){
+            		chartType = GraphUtils.getDefaultChartType(parameter);
+            		// chartType might still be null after this
+            	}
+                if (chartType != null){
+                	switch (chartType) {
+                		
+                		 case UNIDIMENSIONAL_SCATTER_PLOT:
+                		
+                			 ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
+                			 model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-                    if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+                			 if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+                				 // if unidimensional add the unidimensional data so we
+                				 // can create the tables
+                				 List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+                				 unidimensionalChartDataSet = new UnidimensionalDataSet();
+                				 unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+                				 model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                			 }
+                			 break;
+                		 
+                		 case UNIDIMENSIONAL_ABR_PLOT:
+                			 
+                			 // get experiments for other parameters too 
+                			 model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
+                			 	strain, metaDataGroupString, alleleAccession));
+                		
+                		 case UNIDIMENSIONAL_BOX_PLOT:
 
-                        // if unidimensional add the unidimensional data so we
-                        // can create the tables
+                			 unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
+                			 model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                			 break;
 
-                        List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-                        unidimensionalChartDataSet = new UnidimensionalDataSet();
-                        unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
-                        model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-                    }
-                } 
-                else if (chartType != null && chartType.equals(ChartType.UNIDIMENSIONAL_ABR_PLOT)){
-                	// get experiments for other parameters too 
-                	
-                	model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
-                		strain, metaDataGroupString, alleleAccession));
-                }
-                else {
+                		 case CATEGORICAL_STACKED_COLUMN:
 
-                    switch (observationTypeForParam) {
+                			 categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
+                			 model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+                			 break;
 
-                        case unidimensional:
+                		 case TIME_SERIES_LINE:
 
-                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
-                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                			 timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+                			 model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
+                			 break;
 
-                            break;
+                		 default:
 
-                        case categorical:
-
-                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
-                            model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-
-                            break;
-
-                        case time_series:
-
-                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
-                            model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
-
-                            break;
-
-                        default:
-
-                            // Trying to graph Unknown observation type
-
-                            log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-
-                            break;
-                    }
+                			 // Trying to graph Unknown observation type
+	                        log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+	                        break;
+                	}
                 }
 
             } catch (SQLException e) {
@@ -416,7 +412,7 @@ public class ChartsController {
 
                 // instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter.getStableId(), pipelineStableIds, genderList, zyList, 
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, 
                 	phenotypingCentersList, strainsList, metadataGroups, chartType, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
