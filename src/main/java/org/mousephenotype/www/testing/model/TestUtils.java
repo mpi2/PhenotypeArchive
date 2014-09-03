@@ -34,6 +34,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -340,6 +342,35 @@ public class TestUtils {
      */
     public static String removeProtocol(String url) {
         return (url.replace("https://", "").replace("http://", ""));
+    }
+    
+    /**
+     * Scrolls <code>element</code> to the top
+     * @param driver <code>WebDriver</code> instance
+     * @param element Element to scroll to top
+     */
+    public static void scrollToTop(WebDriver driver, WebElement element) {
+        scrollToTop(driver, element, null);
+    }
+    
+    /**
+     * Scrolls <code>element</code> to the top
+     * @param driver <code>WebDriver</code> instance
+     * @param element Element to scroll to top
+     * @param yOffsetInPixels An <code>Integer</code> which, if not null and not 0,
+     *     first scrolls the element to the top, then further scrolls it <code>
+     *     yOffsetInPixels</code> pixels down (if negative number) or up (if
+     *     positive).
+     */
+    public static void scrollToTop(WebDriver driver, WebElement element, Integer yOffsetInPixels) {
+        Point p = element.getLocation();
+        ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        
+        if ((yOffsetInPixels != null) && (yOffsetInPixels != 0)) {
+            ((JavascriptExecutor)driver).executeScript("window.scroll(" + p.getX() + "," + (p.getY() + yOffsetInPixels) + ");");
+        } else 
+        
+        sleep(100);
     }
     
     /**

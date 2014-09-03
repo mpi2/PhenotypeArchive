@@ -192,7 +192,7 @@
 
                                 <div class="inner">
                                     <c:choose>
-                                        <c:when test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+                                        <c:when test="${summaryNumber > 0}">
                                             <div class="abnormalities">
                                                 <div class="allicons"></div>
 
@@ -220,51 +220,59 @@
                                                 <div class="no-sprite sprite_endocrine_exocrine_gland_phenotype " data-hasqtip="27" title="endocrine/exocrine gland phenotype"></div>
                                                 <div class="no-sprite sprite_vision_eye_phenotype" data-hasqtip="27" title="vision/eye phenotype"></div>
 
-
-                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-                                                    <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-																										</c:if>
-                                                </c:forEach>
-                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-                                                    <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                    </c:if>
-                                                </c:forEach>
-                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-                                                    <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                        <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                    </c:if>
-                                                </c:forEach>
+																								<c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">	                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}">
+	                                                 		<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+	                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+																											</c:if>
+	                                                </c:forEach>
+	                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes()}">
+	                                                    <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+	                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+	                                                    </c:if>
+	                                                </c:forEach>
+	                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.get(zyg).getMalePhenotypes()}">
+	                                                    <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+	                                                        <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+	                                                    </c:if>
+	                                                </c:forEach>
+	                                             </c:forEach>
                                             </div>
 
-                                            <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
-                                            <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
-                                                <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
-                                                <ul>
-                                                    <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if>  </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-                                                        </c:forEach>
-                                                </ul>
-                                            </c:if>
-
-                                            <c:if test="${phenotypeSummaryObjects.getFemalePhenotypes().size() > 0}">
-                                                <p> Following phenotypic abnormalities occured in <b>females</b> only</p>
-                                                <ul>
-                                                    <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}"> 
-                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
-                                                        </c:forEach>
-                                                </ul>
-                                            </c:if>
-
-                                            <c:if test="${phenotypeSummaryObjects.getMalePhenotypes().size() > 0}">
-                                                <p> Following phenotypic abnormalities occured in <b>males</b> only</p>
-                                                <ul>
-                                                    <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-                                                        </c:forEach>
-                                                </ul>
-                                            </c:if>
+                                						<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
+                                            <c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">
+	                                          	<p>In <b>${zyg} :</b></p>
+	                                          	<ul>
+	                                            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes().size() > 0}'>
+	                                                <li><p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
+	                                                <ul>
+	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}'>
+	                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if>  </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+	                                                        </c:forEach>
+	                                                </ul>
+	                                                </li>
+	                                            </c:if>
+	
+	                                            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes().size() > 0}'>
+	                                                <li><p> Following phenotypic abnormalities occured in <b>females</b> only</p>
+	                                                <ul>
+	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes()}'> 
+	                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
+	                                                        </c:forEach>
+	                                                </ul>
+	                                                </li>
+	                                            </c:if>
+	
+	                                            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes().size() > 0}'>
+	                                                <li><p> Following phenotypic abnormalities occured in <b>males</b> only</p>
+	                                                <ul>
+	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes()}'>
+	                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+	                                                        </c:forEach>
+	                                                </ul>
+	                                                </li>
+	                                            </c:if>
+	                                            </ul>
+	                                            </c:forEach>
 
                                             <!-- Associations table -->
                                             <h5>Filter this table</h5>

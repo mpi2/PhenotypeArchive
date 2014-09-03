@@ -43,7 +43,7 @@
                 var qField = aVals[0];
                 var fieldFacet = MPI2.searchAndFacetConfig.qfield2facet[qField];
 
-                //console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
+                console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
                 if (typeof MPI2.searchAndFacetConfig.qfield2facet[qField]) {
                     //var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 
@@ -139,6 +139,7 @@
         var facetFields = {
             'gene': [
                 'latest_phenotype_status',
+                'legacy_phenotype_status',
                 'status',
                 'latest_production_centre',
                 'latest_phenotyping_centre',
@@ -155,7 +156,7 @@
 
             var solrbaseUrl = solrUrl + '/' + facet + '/select?';
             var fqStr = $.fn.getCurrentFq(facet).replace(/img_/g, '');
-
+            console.log('fqstr: '+ fqStr);
             facetUrls[facet] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
         }
 
@@ -166,7 +167,7 @@
             async: false,
             type: 'post',
             success: function(subFacetJsons) {
-                //console.log(subFacetJsons);
+                console.log(subFacetJsons);
 
                 var cores = MPI2.searchAndFacetConfig.megaCores;
 
@@ -175,7 +176,7 @@
                     var core = cores[i];
                     var solrFqStr = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
                     var oConf = {'facet': core, 'fqStr': solrFqStr, 'q': q, 'json': subFacetJsons[core]};
-
+                    console.log(oConf);
                     var facetCountsUpdater = new FacetCountsUpdater(oConf);
                     facetCountsUpdater.updateFacetCounts();
                 }
@@ -533,7 +534,7 @@
         var paramStr = 'qf=auto_suggest&defType=edismax&wt=json'
                 + '&fq=' + fqStr + fecetFieldsStr
                 + '&q=' + q;
-
+        console.log(facet + ' --- '+ paramStr);
         return paramStr;
     }
 
@@ -566,6 +567,7 @@
                              'imits_phenotype_started':{'class': 'phenotyping', 'label':'Started'},  
                              'imits_phenotype_status':{'class': 'phenotyping', 'label':'Attempt Registered'},  */
                             'latest_phenotype_status': {'class': 'phenotyping', 'label': ''},
+                            'legacy_phenotype_status': {'class': 'phenotyping', 'label': ''},
                             'status': {'class': 'production', 'label': ''},
                             'latest_production_centre': {'class': 'latest_production_centre', 'label': ''},
                             'latest_phenotyping_centre': {'class': 'latest_phenotyping_centre', 'label': ''},
@@ -578,7 +580,7 @@
                         }
 
                         var oFacets = json.facet_counts.facet_fields;
-
+                      
                         var selectorBase = "div.flist li#gene";
                         _facetRefresh(json, selectorBase);
 
@@ -601,6 +603,7 @@
 
                                 var subFacetName = oFacets[fld][i];
                                 var facetCount = oFacets[fld][i + 1];
+                                
                                 var isGrayout = facetCount == 0 ? 'grayout' : '';
 
                                 if (subFacetName != '') { // skip solr field which value is an empty string
@@ -616,12 +619,15 @@
                                         });
                                     }
                                     else {
+                                    	
                                         if (subFacetName == 'Phenotype Attempt Registered' ||
                                                 subFacetName == 'Phenotyping Started' ||
-                                                subFacetName == 'Phenotyping Complete') {
-
+                                                subFacetName == 'Phenotyping Complete' ||
+                                                	subFacetName == '1' ) {
+                                        	console.log('subfacet: '+ subFacetName);
+                                        	console.log($(selectorBase + ' li.fcat.' + className + ' span.flabel').size());
                                             $(selectorBase + ' li.fcat.' + className + ' span.flabel').each(function() {
-
+                                            	console.log('check val: '+$(this).text());
                                                 if (subFacetName == MPI2.searchAndFacetConfig.phenotypingStatuses[$(this).text()].val) {
                                                     $(this).parent().removeClass('grayout').addClass(isGrayout);
                                                     $(this).siblings('span.fcount').text(facetCount);
@@ -1011,9 +1017,13 @@
                 var facet = aVals[0];
                 var qField = aVals[1]; // do not replace 'img_' this shows on url
                 var qVal = aVals[2];
-
+               
                 if (facet == 'gene' && qField.match(/^imits_/)) {
-                    aFilters.push('(latest_phenotype_status:"' + qVal + '")');
+                	var impcOnlyFqStr = " AND (isPostQc:1)";
+                    aFilters.push('(latest_phenotype_status:"' + qVal + '")' + impcOnlyFqStr);
+                }
+                else if (facet == 'gene' && qField == 'legacy_phenotype_status') {
+                    aFilters.push('(legacy_phenotype_status:' + qVal + ')');
                 }
                 else if (facet == 'pipeline') {
                     //console.log( qField + ':"' + qVal )
@@ -1078,7 +1088,7 @@
             // show summary filter facet caption
             thisLi.find('.fcap').show();
 
-            if (qValue == 1) {
+            if (qValue == 1 && facet == 'disease' ) {
                 /*if (qField == 'imits_phenotype_started'){
                  qValue = 'Started'; 
                  }
@@ -1089,17 +1099,15 @@
                 qValue = 'Yes';	// some disease fields
 
             }
-
+            console.log('q val: '+ qValue);
             var filterTxt = qValue;
             if (facet == 'gene') {
-                if (qValue == 'Started') {
-                    filterTxt = 'phenotyping started';
-                }
-                if (qValue == 'Complete') {
-                    filterTxt = 'phenotyping complete';
+               
+                if (qValue == '1') {
+                    filterTxt = 'Legacy Phenotyping';
                 }
                 else if (qValue == 'Phenotype Attempt Registered' || qField == 'status' || qField == 'marker_type') {
-                    filterTxt = qValue.toLowerCase();
+                   // filterTxt = qValue.toLowerCase();
                 }
 
                 if (qField == 'latest_production_centre') {

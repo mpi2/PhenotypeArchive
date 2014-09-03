@@ -14,8 +14,13 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.eclipse.jetty.util.log.Log;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
@@ -25,6 +30,9 @@ public class GraphUtils {
 	ExperimentService experimentService;
 
 
+    @Autowired
+    private static PhenotypePipelineDAO pipelineDAO;
+    
 	public GraphUtils(ExperimentService experimentService) {
 
 		this.experimentService = experimentService;
@@ -32,13 +40,13 @@ public class GraphUtils {
 
 
 	public Set<String> getGraphUrls(String acc,
-	String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
+	Parameter parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
 	List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
 	throws SolrServerException {
 
 		// each url should be unique and so we use a set
 		Set<String> urls = new LinkedHashSet<String>();
-		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
+		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameter.getStableId(), pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
 		List<String> centersList = keyList.get(ObservationDTO.PHENOTYPING_CENTER);
 		List<String> strains = keyList.get(ObservationDTO.STRAIN_ACCESSION_ID);
 		List<String> metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
@@ -52,7 +60,7 @@ public class GraphUtils {
 		// for each parameter we want the unique set of urls to make ajax
 		// requests for experiments
 		String seperator = "&";
-		String accessionAndParam = "accession=" + acc + seperator + "parameter_stable_id=" + parameterStableId;
+		String accessionAndParam = "accession=" + acc + seperator + "parameter_stable_id=" + parameter.getStableId();
 
 		String phenoCenterString = "";
 		// for(String phenoCString: phenotypingCentersList) {
@@ -71,6 +79,9 @@ public class GraphUtils {
 		}
 		if (chartType != null) {
 			accessionAndParam += seperator + "chart_type=" + chartType;
+		}else {
+			// find out the default chart type
+			accessionAndParam += seperator + "chart_type=" + getDefaultChartType(parameter);			
 		}
 		// if not a phenotyping center returned in the keys for this gene and
 		// param then don't return a url
@@ -119,6 +130,31 @@ public class GraphUtils {
 		return urls;
 	}
 
+	
+	public static ChartType getDefaultChartType(Parameter parameter){
+		
+		if (Constants.ABR_PARAMETERS.contains(parameter.getStableId())){
+			
+			return ChartType.UNIDIMENSIONAL_ABR_PLOT;
+			
+		}else {
+
+	        ObservationType observationTypeForParam = Utilities.checkType(parameter);
+	        
+	        switch (observationTypeForParam) {
+
+                case unidimensional:
+                   return ChartType.UNIDIMENSIONAL_BOX_PLOT;
+
+                case categorical:
+                	return ChartType.CATEGORICAL_STACKED_COLUMN;
+
+                case time_series:
+                	return ChartType.TIME_SERIES_LINE;
+	        }
+		}
+		return null;
+	}
 
 	public static Map<String, String> getUsefulStrings(BiologicalModel expBiologicalModel) {
 

@@ -317,7 +317,7 @@ public class GenotypePhenotypeService extends BasicService {
 	 * Methods used by PhenotypeSummaryDAO
 	 */
 
-	public SolrDocumentList getPhenotypesForTopLevelTerm(String gene, String mpID)
+	public SolrDocumentList getPhenotypesForTopLevelTerm(String gene, String mpID, ZygosityType zygosity)
 	throws SolrServerException {
 
 		String query;
@@ -327,8 +327,14 @@ public class GenotypePhenotypeService extends BasicService {
 			query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND ";
 
 		}
-
-		SolrDocumentList result = runQuery(query + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpID + "\"");
+		
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(query+GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpID + "\"");
+		solrQuery.setRows(1000000);
+		if (zygosity != null){
+			solrQuery.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName() );
+		}
+		SolrDocumentList result = solr.query(solrQuery).getResults();
 		// mpID might be in mp_id instead of top level field
 		if (result.size() == 0 || result == null)
 		// result = runQuery("marker_accession_id:" + gene.replace(":",
@@ -358,19 +364,24 @@ public class GenotypePhenotypeService extends BasicService {
 	}
 
 
-	public HashMap<String, String> getTopLevelMPTerms(String gene)
+	public HashMap<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
 	throws SolrServerException {
 
 		HashMap<String, String> tl = new HashMap<String, String>();
-		// SolrDocumentList result = runQuery("marker_accession_id:" +
-		// gene.replace(":", "\\:"));
-		SolrDocumentList result;
+		
+		SolrQuery query = new SolrQuery();
 		if (gene.equalsIgnoreCase("*")) {
-			result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene);
+			query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene);
 		} else {
-			result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
+			query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
 		}
-
+		query.setRows(10000000);
+		if (zyg != null){
+			query.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zyg.getName());
+		}
+		
+		SolrDocumentList result = solr.query(query).getResults();
+		
 		if (result.size() > 0) {
 			for (int i = 0; i < result.size(); i++) {
 				SolrDocument doc = result.get(i);

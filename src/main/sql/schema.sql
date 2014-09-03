@@ -121,8 +121,8 @@ CREATE TABLE analytics_experiment_load (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	filename                 VARCHAR(255) NOT NULL DEFAULT '',
 	center_id                VARCHAR(255) NOT NULL DEFAULT '',
-	date_of_experiment       VARCHAR(50) NOT NULL DEFAULT '',
-	sequence_id              VARCHAR(255) NOT NULL DEFAULT '',
+	date_of_experiment       VARCHAR(50) NULL,
+	sequence_id              VARCHAR(255) NULL,
 	experiment_id            VARCHAR(255) NOT NULL DEFAULT '',
 	specimen_id              VARCHAR(255) NOT NULL DEFAULT '',
 	impress_pipeline         VARCHAR(50) NOT NULL DEFAULT '',
@@ -434,7 +434,7 @@ CREATE TABLE biological_model (
 	db_id                     INT(10) NOT NULL,
 	allelic_composition       VARCHAR(200) NOT NULL,
 	genetic_background        VARCHAR(200) NOT NULL,
-	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote') DEFAULT NULL,
+	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote', 'not applicable') DEFAULT NULL,
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
 	KEY genetic_background_idx (genetic_background)
@@ -611,8 +611,10 @@ CREATE TABLE experiment (
 	KEY pipeline_idx(pipeline_id),
 	KEY pipeline_stable_idx(pipeline_stable_id),
 	KEY procedure_idx(procedure_id),
-	KEY procedure_stable_idx(procedure_stable_id)
-	
+  KEY procedure_stable_idx(procedure_stable_id),
+  KEY biological_model_idx(biological_model_id),
+  KEY colony_idx(colony_id)
+
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
@@ -1051,8 +1053,8 @@ CREATE TABLE phenotype_call_summary (
 	allele_acc                VARCHAR(20),
 	allele_db_id              INT(10),
 	colony_id                 VARCHAR(200) NULL,
-	sex                       ENUM('female', 'hermaphrodite', 'male'),
-	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
+	sex                       ENUM('female', 'hermaphrodite', 'male', 'not applicable'),
+	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote', 'not applicable'),
 	parameter_id              INT(10) UNSIGNED NOT NULL,
 	procedure_id              INT(10) UNSIGNED NOT NULL,
 	pipeline_id               INT(10) UNSIGNED NOT NULL,

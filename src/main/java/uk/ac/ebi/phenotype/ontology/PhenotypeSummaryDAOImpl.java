@@ -23,6 +23,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -72,22 +73,50 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		return data;
 	}
 	
+
 	@Override
-	public PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception {
-		PhenotypeSummaryBySex res = new PhenotypeSummaryBySex();
-		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene);	
+	public PhenotypeSummaryBySex getSummaryObjects(String gene)
+	throws Exception {
+
+		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, null);
 		System.out.println("Here are the top level terms : " + summary.keySet());
-		for (String id: summary.keySet()){
-			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id);
+		PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
+		for (String id : summary.keySet()) {
+			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id, null);
 			System.out.println("Num found: " + resp.getNumFound());
 			String sex = getSexesRepresentationForPhenotypesSet(resp);
 			System.out.println("Sex: " + sex);
 			HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 			long n = resp.getNumFound();
 			PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);
-			res.addPhenotye(phen);
+			resSummary.addPhenotye(phen);
+		}
+		return resSummary;
+	}
+	
+
+	@Override
+	public HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception {
+		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();
+		for (ZygosityType zyg : ZygosityType.values()){
+			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
+			HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, zyg);	
+			for (String id: summary.keySet()){
+				SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id, zyg);
+				System.out.println("\n Zygosity " + zyg);
+				System.out.println("Num found: " + resp.getNumFound());
+				String sex = getSexesRepresentationForPhenotypesSet(resp);
+				System.out.println("Sex: " + sex);
+				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
+				long n = resp.getNumFound();
+				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);
+				resSummary.addPhenotye(phen);
+			}
+			if (resSummary.getTotalPhenotypesNumber() > 0){
+				res.put(zyg, resSummary);
+			}
+			System.out.println("res keys " + res.keySet().size());
 		}
 		return res;
 	}
-			
 }

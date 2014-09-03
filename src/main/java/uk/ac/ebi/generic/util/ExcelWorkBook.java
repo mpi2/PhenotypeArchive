@@ -15,6 +15,7 @@
  */
 package uk.ac.ebi.generic.util;
 
+import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.PrintSetup;
@@ -60,7 +61,24 @@ public class ExcelWorkBook {
     		Row row = sheet.createRow(i+1);  // data starts from row 1	 		
     		for (int j = 0; j < tableData[i].length; j++) {  
     			Cell cell = row.createCell(j);   
-    			cell.setCellValue((String)tableData[i][j]);  
+    			
+    			String cellStr = tableData[i][j].toString();
+    			
+    			// make hyperlink in cell
+    			if ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ){
+    				
+    				HSSFHyperlink url_link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
+    				url_link.setAddress(cellStr);
+    				
+    				System.out.println("label: "+ cellStr);
+    				System.out.println("url: "+ url_link);
+                    cell.setCellValue(cellStr);         
+                    cell.setHyperlink(url_link);
+                    
+    			}
+    			else {
+    				cell.setCellValue(cellStr);  
+    			}
  //   			System.out.println((String)tableData[i][j]);
     		}
     	}    
