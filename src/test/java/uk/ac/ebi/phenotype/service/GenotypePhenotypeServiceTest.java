@@ -35,7 +35,7 @@ public class GenotypePhenotypeServiceTest {
 		HashMap<String, String> summary;
 		
 		try {
-			summary = genotypePhenotypeService.getTopLevelMPTerms(testGene);	
+			summary = genotypePhenotypeService.getTopLevelMPTerms(testGene, null);	
 			System.out.println(summary);
 			assertTrue(summary.size() > 0);	// we're sure there are entries for gene Akt2
 			for (String id : summary.keySet()) { 
@@ -49,9 +49,9 @@ public class GenotypePhenotypeServiceTest {
 	//@Test
 	public void testGetPhenotypesForTopLevelTerm() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
-		summary = genotypePhenotypeService.getTopLevelMPTerms(testGene);	
+		summary = genotypePhenotypeService.getTopLevelMPTerms(testGene, null);	
 		for (String id: summary.keySet()){
-			SolrDocumentList resp = genotypePhenotypeService.getPhenotypesForTopLevelTerm(testGene, id);
+			SolrDocumentList resp = genotypePhenotypeService.getPhenotypesForTopLevelTerm(testGene, id, null);
 			assertTrue (resp != null);
 		}
 	}
