@@ -284,7 +284,7 @@
 					
 					<entity dataSource="komp2ds" name="impcPipe"
 						processor="CachedSqlEntityProcessor" 
-						query="select distinct project_id, mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id != 1"
+						query="select distinct project_id as 'impc', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id != 1"
 						where="mp_acc=mpAnnotations.TERM_ID"
 						transformer="script:srcMapping" >
 						
@@ -297,7 +297,7 @@
 					
 					<entity dataSource="komp2ds" name="legacyPipe"
 						processor="CachedSqlEntityProcessor" 
-						query="select distinct project_id, mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id = 1"
+						query="select distinct project_id as 'legacy', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id = 1"
 						where="mp_acc=mpAnnotations.TERM_ID" 
 						transformer="script:srcMapping" >
 						

@@ -11,10 +11,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.chart.utils.ChartColors;
 import uk.ac.ebi.phenotype.chart.utils.ChartUtils;
+import uk.ac.ebi.phenotype.chart.utils.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.utils.Constants;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
@@ -54,7 +57,7 @@ public class AbrChartAndTableProvider {
     	data.put("hom", new ArrayList<UnidimensionalStatsObject>() );
 		UnidimensionalStatsObject emptyObj = new UnidimensionalStatsObject();
     	String procedureUrl = null;
-    	
+    	String unit = pipelineDAO.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnit();
     	emptyObj.setMean(null);
     	emptyObj.setSd(null);
     	
@@ -82,48 +85,68 @@ public class AbrChartAndTableProvider {
     	
     	// We've got everything, get the chart now.
     	    	
-		return getCustomChart(data, procedureUrl);
+		return getCustomChart(data, procedureUrl, unit);
 	}
 	
-	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink){
+	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit){
 		// area range and line for control
 		// line for mutants
 		// dot for click
 		
 		JSONArray categories = new JSONArray();
-		String title = "Evoked ABR Threshold (6-12-18-24-30)";
-		String ranges = "[";
-		String averages = "[";
-		String homs = "[";
+		String title = "Evoked ABR Threshold (6, 12, 18, 24, 30 kHz)";
+		JSONArray controlSD = new JSONArray(); // whiskers +/- sd
+		JSONArray homSD = new JSONArray(); // whiskers +/- sd
+		JSONArray control = new JSONArray();
+		JSONArray homs = new JSONArray();
+		Integer decimalNumber = 2; 
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		String empty = null;
 		
 		for (String abrId: Constants.ABR_PARAMETERS){
 			categories.put(pipelineDAO.getParameterByStableId(abrId).getName());
 		}
-		
-		for (UnidimensionalStatsObject control : data.get("control")){
-			ranges += "[\'" + control.getLabel();
-			averages += "[\'"  + control.getLabel() ;
-			if (control.getMean() != null){
-				ranges += "\', " + (control.getMean() - control.getSd()) + ", " + (control.getMean() + control.getSd()) + "]";
-				averages +=  "\', " + control.getMean() + "]";
-			}else {
-				ranges += "\', null, null]";
-				averages +=  "\', null]";
+		try {
+			for (UnidimensionalStatsObject c : data.get("control")){
+				
+				JSONArray obj = new JSONArray();
+				obj.put(c.getLabel());
+				obj.put(c.getMean());
+				control.put(obj);
+
+				obj = new JSONArray();
+				obj.put(c.getLabel());
+				if (c.getMean() != null){
+					obj.put(c.getMean() - c.getSd());
+					obj.put(c.getMean() + c.getSd());
+				}else {
+					obj.put(empty);
+					obj.put(empty);
+				}
+				controlSD.put(obj);
+
 			}
-			if (!data.get("control").get(data.get("control").size()-1).equals(control)){
-				ranges += ",";
-				averages += ",";
+			for (UnidimensionalStatsObject hom : data.get("hom")){
+				JSONArray obj = new JSONArray();
+				obj.put(hom.getLabel());
+				obj.put(hom.getMean());
+				homs.put(obj);
+				
+				obj = new JSONArray();
+				obj.put(hom.getLabel());
+				// in case data is missing for one parameter
+				if (hom.getMean() != null){
+					obj.put(hom.getMean() - hom.getSd());
+					obj.put(hom.getMean() + hom.getSd());
+				}else{
+					obj.put(empty);
+					obj.put(empty);
+				}
+				homSD.put(obj);
 			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
-		for (UnidimensionalStatsObject hom : data.get("hom")){
-			homs += "[\'" + hom.getLabel() + "\', " + hom.getMean() + "]";
-			if (!data.get("hom").get(data.get("hom").size()-1).equals(hom)){
-				homs += ",";
-			}
-		}
-		ranges += "]";
-		averages += "]";
-		homs += "]";
 		
 		String chart = 
 		"$(function () {"+
@@ -131,40 +154,48 @@ public class AbrChartAndTableProvider {
 			   	 "title: { text: '" + title + "' },"+		
 				 "subtitle: {  useHTML: true,  text: '" + procedureLink + "'}, " +	
 			     " xAxis: {   categories: "  + categories + "},"+			
-			     " yAxis: {   title: {    text: 'dBSPL'  }  },"+			
-			     " tooltip: {  crosshairs: true, shared: true, valueSuffix: ' dBSPL' },"+			
-			     " legend: { },"+
+			     " yAxis: {   title: {    text: '" + unit + "'  }  },"+			
+			     " tooltip: {valueSuffix: ' " + unit + "', shared:true },"+			
+			     " legend: { },"+ 
 			     " credits: { enabled: false },  " +
-			     " series: [{"+
-				     " name: 'Control',"+
-				     " data: " + averages + "," + 
-				     " zIndex: 1,"+
-				     " marker: {"+
-				     	" fillColor: 'white',"+
-				     	" lineWidth: 2,"+
-				     	" lineColor: Highcharts.getOptions().colors[0]"+
-				     " }"+
-			     " }, {"+
+			     " series: [ {"+
 						" name: 'Homozygotes',"+
-						" data: " + homs + "," + 
+						" data: " + homs.toString() + "," + 
 						" zIndex: 1,"+
-						" marker: {"+
-						   	" lineWidth: 2,"+
-						   	" lineColor: Highcharts.getOptions().colors[2]"+
-						" }"+
+						" color: \""+ colors.get(0) +"\","+
+						" tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }," + 
+						
 				 " }, {"+
-				     " name: 'Range',"+
-				     " data: " + ranges + "," + 
-				     " type: 'arearange',"+
-				     " lineWidth: 0,"+
+				     " name: 'Homozygote SD',"+
+				     " data: " + homSD.toString() + "," + 
+//				     " type: 'arearange',"+
+				     " type: 'errorbar',"+
+//				     " lineWidth: 0,"+
 				     " linkedTo: ':previous',"+
-				     " color: Highcharts.getOptions().colors[0],"+
-				     " fillOpacity: 0.3,"+
-				     " zIndex: 0"+
-			     "   }]"+
+				     " color: \""+ colors.get(0) +"\","+
+//				     " fillOpacity: 0.3,"+
+//				     " zIndex: 0"+
+				     " tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f} )<br/>', shared:true }" + 
+			     "   },{"+
+				     " name: 'Control',"+
+				     " data: " + control.toString() + "," + 
+				     " zIndex: 1,"+
+				     " color: \""+ colors.get(1) +"\", " +
+				     " tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" + 	
+			     " }, {"+
+				     " name: 'Control SD',"+
+				     " data: " + controlSD.toString() + "," + 
+//				     " type: 'arearange',"+
+				     " type: 'errorbar',"+
+//				     " lineWidth: 0,"+
+				     " linkedTo: ':previous',"+
+				     " color: \""+ colors.get(1) +"\","+
+//				     " fillOpacity: 0.3,"+
+//				     " zIndex: 0"+
+				     " tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" + 
+			     "   } ]"+
 			    "});"+
 			"});" ;
-		System.out.println("+++ ABR chart = "+ chart);
 		return chart;
 		}
 	
