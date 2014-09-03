@@ -32,7 +32,7 @@
 			var self = this;
 			
 			self._initFacet();			
-			$.fn.openFacet(self.options.data.core);  
+			//$.fn.openFacet(self.options.data.core);  
 	    },
 	    
 	    _initFacet: function(){	   

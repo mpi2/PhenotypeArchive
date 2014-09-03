@@ -34,6 +34,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -150,6 +152,29 @@ public class TestUtils {
         }
         
         return false;
+    }
+    
+    /**
+     * Given a source array of 'array of String' and a starting index in that
+     * array, copies <code>coune</code> 'array of String' elements into a new
+     * array returned to the caller.
+     * @param src the source array
+     * @param startIndex the source array starting index
+     * @param count the number of elements to copy
+     * @return the requested elements
+     */
+    public static String[][] copy(String[][] src, int startIndex, int count) {
+        if (src == null)
+            return null;
+        if ((src.length == 0) || (src[0].length == 0))
+            return new String[0][0];
+        
+        String[][] retVal = new String[src.length - 1][src[0].length];
+        for (int i = 0; i < count; i++) {
+            retVal[i] = src[i + startIndex];
+        }
+        
+        return retVal;
     }
     
     private final static double EPSILON = 0.000000001;
@@ -317,6 +342,35 @@ public class TestUtils {
      */
     public static String removeProtocol(String url) {
         return (url.replace("https://", "").replace("http://", ""));
+    }
+    
+    /**
+     * Scrolls <code>element</code> to the top
+     * @param driver <code>WebDriver</code> instance
+     * @param element Element to scroll to top
+     */
+    public static void scrollToTop(WebDriver driver, WebElement element) {
+        scrollToTop(driver, element, null);
+    }
+    
+    /**
+     * Scrolls <code>element</code> to the top
+     * @param driver <code>WebDriver</code> instance
+     * @param element Element to scroll to top
+     * @param yOffsetInPixels An <code>Integer</code> which, if not null and not 0,
+     *     first scrolls the element to the top, then further scrolls it <code>
+     *     yOffsetInPixels</code> pixels down (if negative number) or up (if
+     *     positive).
+     */
+    public static void scrollToTop(WebDriver driver, WebElement element, Integer yOffsetInPixels) {
+        Point p = element.getLocation();
+        ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        
+        if ((yOffsetInPixels != null) && (yOffsetInPixels != 0)) {
+            ((JavascriptExecutor)driver).executeScript("window.scroll(" + p.getX() + "," + (p.getY() + yOffsetInPixels) + ");");
+        } else 
+        
+        sleep(100);
     }
     
     /**

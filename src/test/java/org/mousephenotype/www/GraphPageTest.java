@@ -207,6 +207,7 @@ public class GraphPageTest {
 //if (i == 1) geneId = "MGI:3643284";   // Is valid gene for which there is no page.
 //if (i == 1) geneId = "MGI:1924285";
 //if (i == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
+System.out.println("GraphPageTest.graphTestEngine: graphCount = " + graphCount + ". targetCount = " + targetCount);
             if (graphCount >= targetCount) {
                 break;
             }
@@ -228,6 +229,8 @@ public class GraphPageTest {
                     if ((pagePvalue != null) && (pagePvalue > 0.0)) {
 //System.out.println("Comparing '" + pagePvalue + "' to '" + graph.getpValue() + "' (difference: " + (pagePvalue - graph.getpValue()) + ")");
                         if (TestUtils.equals(pagePvalue, graph.getpValue())) {
+                            graphCount++;
+    System.out.println("GraphPageTest.graphTestEngine(): incremented graphCount. New value: " + graphCount);
 //System.out.println("Match!");
                             boolean loadPage = true;
                             GraphPage graphPage = new GraphPage(driver, wait, graphUrl, target, phenotypePipelineDAO, baseUrl, loadPage);
@@ -254,8 +257,6 @@ public class GraphPageTest {
                                 } else {
                                     successList.add("Graph validation success. URL: " + graphUrl);
                                 }
-                                
-                                graphCount++;
                             }
                         }
                     }

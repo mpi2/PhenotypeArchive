@@ -87,6 +87,16 @@ import uk.ac.sanger.phenodigm2.model.Gene;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+
 @Controller
 public class GenesController {
 
@@ -706,7 +716,13 @@ public class GenesController {
 		model.addAttribute("mgiId", mgiId);
 		GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
 
-		Gene gene = phenoDigmDao.getGene(geneIdentifier);
+        Gene gene=null;
+        try {
+            gene = phenoDigmDao.getGene(geneIdentifier);
+        } catch (RuntimeException e) {
+            log.error("Error retrieving disease data for {}", geneIdentifier);
+        }
+
 		log.info("Found Gene: " + gene);
 		if (gene != null) {
 			model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
@@ -717,9 +733,16 @@ public class GenesController {
 			log.info("No human ortholog found for gene: {}", geneIdentifier);
 		}
 
-		log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
-		List<DiseaseAssociationSummary> diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-		log.info("{} - recieved {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+        List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
+        try {
+            log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+            diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+            log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+        } catch (RuntimeException e) {
+	        log.error(ExceptionUtils.getFullStackTrace(e));
+            log.error("Error retrieving disease data for {}", geneIdentifier);
+
+        }
 
 		// List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries =
 		// new ArrayList<>();

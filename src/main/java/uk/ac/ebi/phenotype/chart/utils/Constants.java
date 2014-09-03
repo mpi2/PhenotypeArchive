@@ -15,6 +15,11 @@
  */
 package uk.ac.ebi.phenotype.chart.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
+
+
 /**
  * Constants for stats reused across the project.
  */
@@ -34,6 +39,12 @@ public class Constants {
     public static final String SIGNIFICANT_P_VALUE_HTML = "1.00x10<sup>-4</sup>";
     public static final String SIGNIFICANT_P_VALUE_TEXT = "1.00x10-4";
     public static final String MINUS_LOG10_HTML = "-Log<sub>10</sub>";
+    
+    /**
+     * Parameters to plot for ABR, in this order
+     */
+    
+    public static final List<String> ABR_PARAMETERS = Arrays.asList("IMPC_ABR_002_001", "IMPC_ABR_004_001", "IMPC_ABR_006_001", "IMPC_ABR_008_001", "IMPC_ABR_010_001", "IMPC_ABR_012_001");
     
     /**
      * Return the HTML representation of -Log10(value)

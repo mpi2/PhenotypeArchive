@@ -11,8 +11,7 @@
 
     ]]></script>
 
-	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	
-	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />
+	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	
 	<dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/gene/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	
 	<document name="docs">
@@ -43,67 +42,68 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
 			<!-- genes associated with this disease -->
-			<entity dataSource="diseaseGenedb" name="dg" 
-				processor="CachedSqlEntityProcessor" 
-				onError="continue"
-				query="select mgi_id, disease_id from disease2Gene"
-				where="disease_id=ddoc.disease_id">
-			
-				<field column="mgi_id" name="mgi_accession_id" />				
-
-				<!-- genes associated with this disease -->
-            	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=mgi_accession_id:&quot;${dg.mgi_id}&quot;&amp;rows=1&amp;wt=normal"
-					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-					readTimeout="10000" connectionTimeout="10000"  >					                               
-    				
-                    <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
-                    <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
-                    <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-                    <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
-                    <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
-                             
-                    <!-- latest project status (ES cells/mice production status) -->         
-                    <field column="status" xpath="/response/result/doc/str[@name='status']" />
-                    
-                    <!-- latest mice phenotyping status for faceting -->
-                    <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
-                    <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
-                  	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
-                  
-                  	<!-- production/phenotyping centers -->
-					<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
-					<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />	
-					
-					<!-- phenotyping status -->
-					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
-					
-					<!-- alleles of a gene -->
-					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />
-				 		
-					<!-- MP terms associated with this MGI gene -->					                 
-                    <field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />                                        
-                    <field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
-                    <field column="mp_definition" xpath="/response/result/doc/arr[@name='mp_definition']/str" />                
-                    <field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />        
-                    <field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+           	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=disease_id:&quot;${ddoc.disease_id}&quot;&amp;rows=9999999&amp;wt=normal"
+				processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+				readTimeout="10000" connectionTimeout="10000"  >					                               
+   				
+   				<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />   
+                <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
+                <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
+                <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+                <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
+                <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
+                            
+                <field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />
+				<field column="isPreQc"  xpath="/response/result/doc/int[@name='isPreQc']" />
+				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />         
+                            
+                <!-- latest project status (ES cells/mice production status) -->         
+                <field column="status" xpath="/response/result/doc/str[@name='status']" />
+                
+                <!-- latest mice phenotyping status for faceting -->
+                <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
+                <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+              	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
                  
-					<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
-					<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							
-					<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />					
-					
-					<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
-					<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
-					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
-	
-					<field column="child_mp_id" xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
-					<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />							
-					<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />					
-    			
-                    <!-- MA: inferred from MP -->
-                    <!-- don't want to tod this -->
+               	<!-- production/phenotyping centers -->
+				<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+				<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />	
+				
+				<!-- phenotyping status -->
+				<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+				<field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
+				
+				<!-- alleles of a gene -->
+				<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />
+			 		
+				<!-- MP terms associated with this MGI gene -->					                 
+                <field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />                                        
+                <field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
+                <field column="mp_definition" xpath="/response/result/doc/arr[@name='mp_definition']/str" />                
+                <field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />        
+                <field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+                
+				<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
+				<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							
+				<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />					
+				
+				<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
+				<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
+				<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
 
-            	</entity>  	
-			</entity>
+				<field column="child_mp_id" xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
+				<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />							
+				<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />					
+   			
+   				<field column="isPreQc" xpath="/response/result/doc/int[@name='isPreQc']" />
+				<field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />			
+				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />
+   			
+                <!-- MA: inferred from MP -->
+                <!-- don't want to tod this -->
+
+           	</entity>  	
+			
       	</entity>
   		
 	</document>

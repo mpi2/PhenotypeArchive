@@ -20,26 +20,18 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.bcel.generic.IF_ACMPEQ;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.xmlbeans.impl.jam.mutable.MPackage;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -47,6 +39,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.chart.timeseries.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.unidimensional.AbrChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.unidimensional.ScatterChartAndData;
 import uk.ac.ebi.phenotype.chart.unidimensional.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalChartAndTableProvider;
@@ -54,10 +47,8 @@ import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalDataSet;
 import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalStatsObject;
 import uk.ac.ebi.phenotype.chart.utils.ChartData;
 import uk.ac.ebi.phenotype.chart.utils.ChartType;
+import uk.ac.ebi.phenotype.chart.utils.Constants;
 import uk.ac.ebi.phenotype.chart.utils.GraphUtils;
-import uk.ac.ebi.phenotype.chart.utils.PipelineProcedureData;
-import uk.ac.ebi.phenotype.chart.utils.PipelineProcedureTablesCreator;
-import uk.ac.ebi.phenotype.chart.utils.TableObject;
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
@@ -71,8 +62,6 @@ import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -111,6 +100,9 @@ public class ChartsController {
 
     @Autowired
     private ScatterChartAndTableProvider scatterChartAndTableProvider;
+   
+    @Autowired
+    private AbrChartAndTableProvider abrChartAndTableProvider;
 
     @Autowired
     private ExperimentService experimentService;
@@ -158,13 +150,14 @@ public class ChartsController {
             @RequestParam(required = false, value = "strategy") String[] strategies,
             @RequestParam(required = false, value = "strain") String[] strains,
             @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
-            @RequestParam(required = false, value = "scatter") boolean scatter,
+            @RequestParam(required = false, value = "chart_type") ChartType chartType,
             @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
             @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
             Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException,
             IOException, URISyntaxException, SolrServerException {
-        return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter, alleleAccession);
+    	System.out.println("charts ::: chart_type=" + chartType);
+        return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
     }
 
     /**
@@ -201,7 +194,7 @@ public class ChartsController {
             @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
             @RequestParam(required = false, value = "strategy") String[] strategies,
             @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
-            @RequestParam(required = false, value = "scatter") boolean scatter,
+            @RequestParam(required = false, value = "chart_type") ChartType chartType,
             @RequestParam(required = false, value = "standAlone") boolean standAlone,
             Model model) throws GenomicFeatureNotFoundException,
             ParameterNotFoundException, IOException, URISyntaxException,
@@ -234,7 +227,7 @@ public class ChartsController {
         }
 
         ObservationType observationTypeForParam = Utilities.checkType(parameter);
-        log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " dataType=" + observationTypeForParam);
+        log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
 
         List<String> genderList = getParamsAsList(gender);
 
@@ -267,7 +260,8 @@ public class ChartsController {
             pipelineId = pipeline.getId();
         }
 
-        ExperimentDTO experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+        ExperimentDTO experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
+        	strain, metaDataGroupString, alleleAccession);
 
         if (experiment != null) {
 
@@ -277,9 +271,7 @@ public class ChartsController {
                 pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
             }
 
-            String title = parameter.getName();
             String xAxisTitle = xUnits;
-            String yAxisTitle = yUnits;
 
             // use some sort of map to pass in these or helper method? so we
             // don't have to redo title, subtitle for each one??
@@ -295,53 +287,58 @@ public class ChartsController {
             }
 
             try {
-                if (scatter) {
-                    ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
-                    model.addAttribute("scatterChartAndData", scatterChartAndData);
+            	if (chartType == null){
+            		chartType = GraphUtils.getDefaultChartType(parameter);
+            		// chartType might still be null after this
+            	}
+                if (chartType != null){
+                	switch (chartType) {
+                		
+                		 case UNIDIMENSIONAL_SCATTER_PLOT:
+                		
+                			 ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
+                			 model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-                    if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+                			 if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+                				 // if unidimensional add the unidimensional data so we
+                				 // can create the tables
+                				 List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+                				 unidimensionalChartDataSet = new UnidimensionalDataSet();
+                				 unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+                				 model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                			 }
+                			 break;
+                		 
+                		 case UNIDIMENSIONAL_ABR_PLOT:
+                			 
+                			 // get experiments for other parameters too 
+                			 model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
+                			 	strain, metaDataGroupString, alleleAccession));
+                		
+                		 case UNIDIMENSIONAL_BOX_PLOT:
 
-                        // if unidimensional add the unidimensional data so we
-                        // can create the tables
+                			 unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
+                			 model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                			 break;
 
-                        List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-                        unidimensionalChartDataSet = new UnidimensionalDataSet();
-                        unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
-                        model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-                    }
-                } else {
+                		 case CATEGORICAL_STACKED_COLUMN:
 
-                    switch (observationTypeForParam) {
+                			 categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
+                			 model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+                			 break;
 
-                        case unidimensional:
+                		 case TIME_SERIES_LINE:
 
-                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UnidimensionalBoxPlot, false, xAxisTitle, expBiologicalModel);
-                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+                			 timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+                			 model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
+                			 break;
 
-                            break;
+                		 default:
 
-                        case categorical:
-
-                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
-                            model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-
-                            break;
-
-                        case time_series:
-
-                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
-                            model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
-
-                            break;
-
-                        default:
-
-                            // Trying to graph Unknown observation type
-
-                            log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-
-                            break;
-                    }
+                			 // Trying to graph Unknown observation type
+	                        log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+	                        break;
+                	}
                 }
 
             } catch (SQLException e) {
@@ -367,7 +364,7 @@ public class ChartsController {
     }
 
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
-    String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
@@ -414,7 +411,8 @@ public class ChartsController {
 
                 // instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter.getStableId(), pipelineStableIds, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter, alleleAccessions);
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, 
+                	phenotypingCentersList, strainsList, metadataGroups, chartType, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
             }// end of parameterId iterations

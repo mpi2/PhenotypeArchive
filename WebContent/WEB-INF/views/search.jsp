@@ -129,7 +129,7 @@
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js?v=${version}'></script> 
 	    </compress:html>        
        
          <script>        		
@@ -207,12 +207,13 @@
        				input = input.replace("%60", "\\`");
        				input = input.replace("~"  , "\\~"); 
        				input = input.replace("%"  , "\\%");
-       				//alert(input)
+       				
+       				if ( /^\\%22.+%22$/.test(input) ){	
+       					input = input.replace(/\\/g, ''); //remove starting \ before double quotes	
+       				}
+       				
        				// no need to escape space - looks cleaner to the users 
        				// and it is not essential to escape space
-       				if ( /^\\%22.+\\.+%22$/.test(input) ){
-       					input = input.replace(/\\/g, ''); //remove \ in double quotes				
-       				}
        				input = input.replace(/\\?%20/g, ' ');
        				
        				var facet = MPI2.searchAndFacetConfig.matchedFacet;
@@ -459,16 +460,18 @@
     			}
    				
    				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
-   					//console.log('1. widget facet open');
-   					
    					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
    					
-   					if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){	
+   					if ( MPI2.searchAndFacetConfig.update.rebuilt  ){
+   						// just reset flag, no need to load dataTable again (already done)
+   						MPI2.searchAndFacetConfig.update.rebuilt = false;
+   					}
+   					/* else if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){
+    					$.fn.loadDataTable(oUrlParams);
+    				} */
+    				else {
     					$.fn.loadDataTable(oUrlParams);
     				}
-   					else if ( ! MPI2.searchAndFacetConfig.update.mainFacetDoneReset ){
-   						// do nothing for now
-   					}
    					
    				} 
    				else if ( MPI2.searchAndFacetConfig.update.pageReload == true ){
@@ -485,6 +488,9 @@
 				} 
    				else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
     				//console.log('back button OR widget open event');
+    				
+    				MPI2.searchAndFacetConfig.update.rebuilt = false;  //reset
+    				
     				if ( /search\/?$/.test(window.location.href) ){
         				// when the url become ..../search
     					document.location.href = baseUrl + '/search';

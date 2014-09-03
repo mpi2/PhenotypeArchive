@@ -128,13 +128,13 @@ public class QueryBrokerController {
 			    // Object not in cache. If null is not a possible value in the cache,
 			    // the call to cache.contains(key) is not needed
 				JSONObject json = solrIndex.getResults(url);
-				
+				System.out.println("JSON: "+ json);
 				if ( subfacet == null ){
 					int numFound = json.getJSONObject("response").getInt("numFound");
 					this.jsonResponse.put(core, numFound);
 					
 					cache.put(key, numFound);
-					System.out.println("####### Cache for main facet added");
+					//System.out.println("####### Cache for main facet added");
 				}
 				else {
 					JSONObject j = new JSONObject();
@@ -143,12 +143,12 @@ public class QueryBrokerController {
 					this.jsonResponse.put(core, j);
 					
 					cache.put(key, j);
-					System.out.println("****** Cache for subfacet added");
+					//System.out.println("****** Cache for subfacet added");
 				}
 			}
 			else {
 				this.jsonResponse.put(core, o);
-				System.out.println("------ Using cache");
+				//System.out.println("------ Using cache");
 			}
 		}	
 	}

@@ -2,7 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
- <!-- unidimensional here -->
+ 	<!-- unidimensional here -->
  	<c:if test="${unidimensionalChartDataSet!=null}">
             <c:if test="${unidimensionalChartDataSet.experiment.metadataGroup!=null}">Metadata Group - ${unidimensionalChartDataSet.experiment.metadataGroup}</c:if>
   					<div id="chart${experimentNumber}">
@@ -12,6 +12,6 @@
    								$(function () {
    								   ${unidimensionalChartDataSet.chartData.chart}
 								</script>
-								<div class="section half"><a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a></div><div class="section half"></div>
+								<div class="section half"><a href="${acc}?${pageContext.request.queryString}&chart_type=UNIDIMENSIONAL_SCATTER_PLOT">Graph by date</a></div><div class="section half"></div>
 	</c:if>
-		<jsp:include page="unidimensionalTables.jsp"></jsp:include>
+	<jsp:include page="unidimensionalTables.jsp"></jsp:include>
