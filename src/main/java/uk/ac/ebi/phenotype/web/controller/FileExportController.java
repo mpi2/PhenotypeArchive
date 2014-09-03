@@ -712,6 +712,7 @@ public class FileExportController {
 			}
 
             // put together as tab delimited
+            System.out.println("TEST: "+ StringUtils.join(data, "\t"));
             rowData.add(StringUtils.join(data, "\t"));
         }
 
