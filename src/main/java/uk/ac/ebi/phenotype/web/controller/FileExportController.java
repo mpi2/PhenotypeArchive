@@ -429,7 +429,7 @@ public class FileExportController {
         } else if (solrCoreName.equals("ma")) {
             rows = composeMaDataTableRows(json);
         } else if (solrCoreName.equals("pipeline")) {
-            rows = composeProcedureDataTableRows(json);
+            rows = composeProtocolDataTableRows(json, request);
         } else if (solrCoreName.equals("images")) {
             rows = composeImageDataTableRows(json, iDisplayStart, iDisplayLength, showImgView, solrParams, request);
         } else if (solrCoreName.equals("disease")) {
@@ -438,17 +438,27 @@ public class FileExportController {
         return rows;
     }
 
-    private List<String> composeProcedureDataTableRows(JSONObject json) {
+    private List<String> composeProtocolDataTableRows(JSONObject json, HttpServletRequest request) {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
+        String impressBaseUrl = request.getAttribute("drupalBaseUrl").toString().replace("https","http") + "/impress/impress/displaySOP/";
+        //String impressBaseUrl = request.getAttribute("drupalBaseUrl") + "/impress/impress/displaySOP/";
+
         List<String> rowData = new ArrayList();
-        rowData.add("Parameter\tProcedure\tPipeline"); // column names	
+        rowData.add("Parameter\tProcedure\tProcedure Impress link\tPipeline"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
             data.add(doc.getString("parameter_name"));
-            data.add(doc.getString("procedure_name"));
+            
+            String procedure = doc.getString("procedure_name");
+            data.add(procedure);
+            
+            String procedure_stable_key = doc.getString("procedure_stable_key");			
+			String procedureLink = impressBaseUrl + procedure_stable_key;			
+			data.add(procedureLink);				
+            
             data.add(doc.getString("pipeline_name"));
             rowData.add(StringUtils.join(data, "\t"));
         }
@@ -534,7 +544,7 @@ public class FileExportController {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
         List<String> rowData = new ArrayList();
-        rowData.add("Mammalian phenotype term\tMP id\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term"); // column names	
+        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -702,6 +712,7 @@ public class FileExportController {
 			}
 
             // put together as tab delimited
+            System.out.println("TEST: "+ StringUtils.join(data, "\t"));
             rowData.add(StringUtils.join(data, "\t"));
         }
 

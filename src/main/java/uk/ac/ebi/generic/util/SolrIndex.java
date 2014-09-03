@@ -661,17 +661,43 @@ public class SolrIndex {
                                         ikmcProjectId = projectArray.getString(0);
                                 }
 			}
+                        
+                        boolean allele_has_issue = false;
+                        if (docs.getJSONObject(i).has("allele_has_issue")) {
+                                String has_issue = docs.getJSONObject(i).getString("allele_has_issue");
+                                allele_has_issue = has_issue.equals("true");
+			}
+			log.error("#### geneAlleleConstruct: allele_has_issue: " + allele_has_issue);                        
+                        
                         if (docs.getJSONObject(i).has("order_from_names")) {
                                 orderFromNames = docs.getJSONObject(i).getString("order_from_names");
 			}
                         if (docs.getJSONObject(i).has("order_from_urls")) {
                                 orderFromUrls = docs.getJSONObject(i).getString("order_from_urls");
 			}
+                        
+                        String orderFromUrl = "";
+                        if(allele_has_issue) {
+                            String allele_id = docs.getJSONObject(i).has("allele_id") ? docs.getJSONObject(i).get("allele_id").toString() : null;
+                            String id = docs.getJSONObject(i).has("id") ? docs.getJSONObject(i).get("id").toString() : null;
+                            String product_type = docs.getJSONObject(i).has("product_type") ? docs.getJSONObject(i).get("product_type").toString() : null;
+                            String host = "https://www.mousephenotype.org/imits";
+                            //host = "localhost:3000";
+                            String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?doc_id=" + id + "&product_type=" + product_type + "&core=allele";
+                            orderFromUrl = url;
+                        }                        
+			log.error("#### geneAlleleConstruct: orderFromUrl: " + orderFromUrl);                        
+                        
                         if (docs.getJSONObject(i).has("order_from_urls") && docs.getJSONObject(i).has("order_from_names")) {
                                 JSONArray orderUrlsArray = docs.getJSONObject(i).getJSONArray("order_from_urls");
                                 JSONArray orderNamesArray = docs.getJSONObject(i).getJSONArray("order_from_names");
                                 for (int j = 0; j < orderNamesArray.size() ; j++){
-                                    orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderUrlsArray.getString(j) + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
+                                    if(!orderFromUrl.isEmpty()) {
+                                        orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderFromUrl + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
+                                    }
+                                    else {
+                                        orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderUrlsArray.getString(j) + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
+                                    }
                                 }
                         }
                         if (docs.getJSONObject(i).has("vector_project_ids")) {
