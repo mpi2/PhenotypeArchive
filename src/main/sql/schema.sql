@@ -611,8 +611,10 @@ CREATE TABLE experiment (
 	KEY pipeline_idx(pipeline_id),
 	KEY pipeline_stable_idx(pipeline_stable_id),
 	KEY procedure_idx(procedure_id),
-	KEY procedure_stable_idx(procedure_stable_id)
-	
+  KEY procedure_stable_idx(procedure_stable_id),
+  KEY biological_model_idx(biological_model_id),
+  KEY colony_idx(colony_id)
+
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
