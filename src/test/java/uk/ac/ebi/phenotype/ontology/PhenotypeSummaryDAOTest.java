@@ -54,10 +54,10 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
-		summary = gpService.getTopLevelMPTerms(testGene);	
+		summary = gpService.getTopLevelMPTerms(testGene, null);	
 		for (String id: summary.keySet()){
 			
-			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(testGene, id);
+			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(testGene, id, null);
 			String sex = phenotypeSummary.getSexesRepresentationForPhenotypesSet(resp);
 			assertTrue(sex != null);
 			assertTrue(sex.equalsIgnoreCase("male") || sex.equalsIgnoreCase("female") || sex.equalsIgnoreCase("both sexes"));
@@ -68,9 +68,9 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 	@Test
 	public void testGetDataSourcesForPhenotypesSet() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
-		summary = gpService.getTopLevelMPTerms(testGene);	
+		summary = gpService.getTopLevelMPTerms(testGene, null);	
 		for (String id: summary.keySet()){
-			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(testGene, id);
+			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(testGene, id, null);
 			HashSet<String> dataSources = phenotypeSummary.getDataSourcesForPhenotypesSet(resp);
 			assertTrue(dataSources != null);
 		}
