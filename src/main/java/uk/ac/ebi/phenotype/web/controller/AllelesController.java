@@ -46,7 +46,7 @@ import uk.ac.ebi.phenotype.web.util.HttpProxy;
 public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
-    private static final String VERSIONDATE = "Wed Aug 20 2014";
+    private static final String VERSIONDATE = "Wed Sep 3 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;

@@ -276,7 +276,7 @@ public class DataTableController {
 		j.put("iTotalDisplayRecords", totalDocs);
 		
 		String impressBaseUrl = request.getAttribute("drupalBaseUrl") + "/impress/impress/displaySOP/";
-		
+
 		for (int i=0; i<docs.size(); i++){
 			List<String> rowData = new ArrayList<String>();
 					

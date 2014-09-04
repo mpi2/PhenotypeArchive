@@ -157,10 +157,10 @@
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 			<field column="imits_phenotype_status" name="imits_phenotype_status" />
 
-			<!-- legacy -->
+			<!-- legacy project_id:1 (UMODIC), project_id:8 (MGP) -->
 			<entity dataSource="komp2db" name="legacyPipe"
 				processor="CachedSqlEntityProcessor" 
-				query="select distinct project_id, gf_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id = 1"
+				query="select distinct project_id, gf_acc from phenotype_call_summary where p_value &lt; 0.0001 and (project_id = 1 OR project_id = 8)"
 				where="gf_acc=doc.mgi_accession_id" 
 				transformer="script:srcMapping" >
 				

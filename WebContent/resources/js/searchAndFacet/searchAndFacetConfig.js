@@ -89,18 +89,21 @@ config.geneStatuses = ['Phenotype Data Available',
 config.phenotypingStatuses = {
 	'Complete':{'fq':'imits_phenotype_complete','val':'Phenotyping Complete'}, 
     'Started':{'fq':'imits_phenotype_started','val':'Phenotyping Started'}, 
-    'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'}
+    'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'},
+    'Legacy':{'fq':'legacy_phenotype_status', 'val':'1'}
 };
 config.phenotypingVal2Field = {
 		'Phenotyping Complete'        :'imits_phenotype_complete', 
 	    'Phenotyping Started'         :'imits_phenotype_started', 
 	    'Phenotype Attempt Registered':'imits_phenotype_status'
+	   
 	};
 
 config.phenotypingStatusFq2Label = {
 		'imits_phenotype_complete' : 'Complete',
 		'imits_phenotype_started'  : 'Started',
 		'imits_phenotype_status'   : 'Attempt Registered'
+		
 };
 
 config.summaryFilterVal2FqStr = {
@@ -134,9 +137,10 @@ config.procSid2ExpNameMapping = {
 */
 
 config.qfield2facet = {
-	'latest_phenotyping_centre'   : 'gene',	
+	'latest_phenotyping_centre'  : 'gene',	
 	'latest_production_centre'   : 'gene',	
 	'latest_phenotype_status'    : 'gene',
+	'legacy_phenotype_status'    : 'gene',
 	'status'                     : 'gene',
 	'marker_type'                : 'gene',
 	'top_level_mp_term'          : 'mp',
