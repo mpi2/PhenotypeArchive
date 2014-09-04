@@ -32,7 +32,7 @@ public class StatisticalResultDAOTest {
 		String pipelineStableId = "ESLIM_001";
 		
 		Map<String, List<StatisticalResultBean>> results = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
-				alleleAccession, phenotypingCenter, pipelineStableId);
+				alleleAccession, phenotypingCenter, pipelineStableId, null);
 		
 		for (String key: results.keySet()) {
 			System.out.println(key);
