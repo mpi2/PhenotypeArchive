@@ -42,7 +42,8 @@ public abstract class SearchFacetTable {
     protected final WebDriver driver;
     protected final int timeoutInSeconds;
     
-    public static final String NO_INFO_AVAILABLE = "No information available";
+    public static final String NO_INFO_AVAILABLE    = "No information available";
+    public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
     
     /**
      * Initializes the generic components of a <code>SearchFacetTable</code>.
@@ -101,20 +102,22 @@ public abstract class SearchFacetTable {
     
     /**
      * Validates the download heading
+     * @param facetName the [displayable] name of the facet, for identifying errors
      * @param status validation status
-     * @param geneSymbol gene symbol
+     * @param term the [unique] identifying term on the page
+     * @param expectedHeadingList expected download heading column list
      * @param actualHeadingList actual download heading column list
      */
-    protected void validateDownloadHeading(PageStatus status, String geneSymbol, String[] expectedHeadingList, String[] actualHeadingList) {
+    protected void validateDownloadHeading(String facetName, PageStatus status, String term, String[] expectedHeadingList, String[] actualHeadingList) {
         if (expectedHeadingList.length != actualHeadingList.length) {
-            status.addError("DISEASE DOWNLOAD HEADING MISMATCH: Gene symbol " + geneSymbol + ": expected heading column count: " + expectedHeadingList.length + ". "
+            status.addError(facetName + " DOWNLOAD HEADING MISMATCH for term: " + term + ": expected heading column count: " + expectedHeadingList.length + ". "
                           + "Actual heading count: " + actualHeadingList.length + ". Headings were not compared.");
             return;
         }
         
         for (int i = 0; i < actualHeadingList.length; i++) {
             if ( ! actualHeadingList[i].equals(expectedHeadingList[i])) {
-                status.addError("DISEASE DOWNLOAD HEADING MISMATCH: Gene symbol " + geneSymbol + ": heading[" + i + "] should be '"
+                status.addError(facetName + " DOWNLOAD HEADING MISMATCH for term: " + term + ": heading[" + i + "] should be '"
                         + expectedHeadingList[i] + "' but actual heading was '" + actualHeadingList[i] + "'.");
             }
         }
