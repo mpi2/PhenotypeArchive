@@ -47,7 +47,8 @@ public interface StatisticalResultDAO {
 	 * @return a map of pvalues and effect size for the given phenotyping pipeline
 	 */
 	public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
-			String alleleAccession, String phenotypingCenter, String pipelineStableId);
+			String alleleAccession, String phenotypingCenter, String pipelineStableId,
+			List<String> procedureStableIds);
 	
 	/**
 	 * Given a procedure parameter and a biological model, returns a list of 

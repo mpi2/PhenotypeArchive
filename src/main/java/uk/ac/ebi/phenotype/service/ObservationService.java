@@ -65,6 +65,7 @@ import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;

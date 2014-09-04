@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +110,7 @@ public class ExperimentsController {
 			@PathVariable String alleleAccession,
 			@RequestParam(required = true, value = "phenotyping_center") String phenotypingCenter,
 			@RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
+			@RequestParam(required = false, value = "procedure_stable_id") String procedureStableId,
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
@@ -126,15 +128,31 @@ public class ExperimentsController {
 		List<Map<String,String>> mapList =  null;
 		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
 		
+		// check whether there is a procedure id, and if so if it's truncated or not
+		// The reason is a procedure can have multiple versions.
+		List<String> procedureStableIds = null;
+		List<String> truncatedStableIds = null;
+		if (procedureStableId != null) {
+			List<Procedure> procedures = pipelineDao.getProcedureByMatchingStableId(procedureStableId);
+			truncatedStableIds = new ArrayList();
+			truncatedStableIds.add(procedureStableId);
+			if (procedures != null && procedures.size() > 0) {
+				procedureStableIds = new ArrayList<String>();
+				for (Procedure procedure: procedures) {
+					procedureStableIds.add(procedure.getStableId());
+				}
+			}
+		}	
 		
 		try {
-			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
+			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, procedureStableIds);
 			
 			// get all p-values for this allele/center/pipeline
 			 pvaluesMap = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
 						alleleAccession, 
 						phenotypingCenter, 
-						pipelineStableId);
+						pipelineStableId,
+						truncatedStableIds);
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
