@@ -96,14 +96,14 @@ public class SearchGeneTable extends SearchFacetTable {
             String[] expectedHeadingList = {
                 "Gene symbol"
               , "Human ortholog"
-              , "Gene Id"
+              , "Gene id"
               , "Gene name"
               , "Gene synonym"
               , "Production status"
               , "Phenotype status"
               , "Phenotype status link"
             };
-            validateDownloadHeading(status, pageRow.geneSymbol, expectedHeadingList, downloadData[0]);
+            validateDownloadHeading("GENE", status, pageRow.geneSymbol, expectedHeadingList, downloadData[0]);
             
             // Verify the components.
             
@@ -175,9 +175,9 @@ public class SearchGeneTable extends SearchFacetTable {
             // If page productionStatus is empty, validate that download is empty too.
             downloadValue = downloadRow[DownloadSearchMapGenes.COL_INDEX_PRODUCTION_STATUS].trim();
             if (pageRow.productionStatus.isEmpty()) {
-                if ( ! downloadValue.equals(NO_INFO_AVAILABLE)) {
+                if ( ! downloadValue.equals(NO_ES_CELLS_PRODUCED)) {
                     status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol
-                            + " page has no productionStatus but download string is '" + downloadValue + "'.");
+                            + " page has no es cells produced but download string is '" + downloadValue + "'.");
                 }
             } else {
                 for (PhenotypeArchiveStatus pageProductionStatus : pageRow.productionStatus) {
@@ -241,7 +241,7 @@ public class SearchGeneTable extends SearchFacetTable {
                             bodyRowElementList.get(2).findElement(By.cssSelector("a")).getAttribute("href");        // phenotypeStatusLink.
                 }
                 
-System.out.println("geneRow[ " + index + " ]: " + geneRow.toString());
+//System.out.println("geneRow[ " + index + " ]: " + geneRow.toString());
                 index++;
                 bodyRows.add(geneRow);
             }

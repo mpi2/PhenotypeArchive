@@ -28,8 +28,10 @@ package org.mousephenotype.www.testing.model;
  * mpGrid HTML table.
  */
 public class DownloadSearchMapPhenotypes {
-    public final static int COL_INDEX_MP_TERM           = 0;
-    public final static int COL_INDEX_MP_ID             = 1;
-    public final static int MP_DEFINITION               = 2;
-    public final static int COL_INDEX_TOP_LEVEL_MP_TERM = 3;
+    public final static int COL_INDEX_PHENOTYPE_TERM       = 0;
+    public final static int COL_INDEX_PHENOTYPE_ID         = 1;
+    public final static int COL_INDEX_PHENOTYPE_ID_LINK    = 2;
+    public final static int COL_INDEX_DEFINITION           = 3;
+    public final static int COL_INDEX_SYNONYM              = 4;
+    public final static int COL_INDEX_TOP_LEVEL_MP_TERM    = 5;
 }

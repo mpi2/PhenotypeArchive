@@ -28,7 +28,8 @@ package org.mousephenotype.www.testing.model;
  * pipelineGrid HTML table.
  */
 public class DownloadSearchMapProcedures {
-    public final static int COL_INDEX_PARAMETER = 0;
-    public final static int COL_INDEX_PROCEDURE = 1;
-    public final static int COL_INDEX_PIPELINE  = 2;
+    public final static int COL_INDEX_PARAMETER    = 0;
+    public final static int COL_INDEX_PROCEDURE    = 1;
+    public final static int COL_INDEX_IMPRESS_LINK = 2;
+    public final static int COL_INDEX_PIPELINE     = 3;
 }
