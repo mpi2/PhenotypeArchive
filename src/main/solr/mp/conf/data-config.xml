@@ -267,7 +267,7 @@
 			<entity dataSource="komp2db" name="phenotype_call_summary1"
 				processor="CachedSqlEntityProcessor" 
 				onError="continue"
-				query="select distinct gf_acc, mp_acc, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value &lt;= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null"									
+				query="select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value &lt;= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null"									
 				where="mp_acc=mp_term_infos.term_id">
 				
 				<field column="gf_acc" name="mgi_accession_id" />	
