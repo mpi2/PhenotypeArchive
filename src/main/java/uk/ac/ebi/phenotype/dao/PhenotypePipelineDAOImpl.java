@@ -100,11 +100,21 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				.uniqueResult();
 	}
 	
+	@Transactional(readOnly = true)
 	public Procedure getProcedureByStableId(String stableId) {
 		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableId = ?")
 				.setString(0, stableId)
 				.uniqueResult();
 	}
+	
+	@Transactional(readOnly = true)
+	public List<Procedure> getProcedureByMatchingStableId(String pattern) {
+		pattern += "%";
+		List<Procedure> results = getCurrentSession().createQuery("from Procedure as p where p.stableId like ?")
+				.setString(0, pattern)
+				.list();
+		return results;
+	}	
 	
 	@Transactional(readOnly = true)
 	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
@@ -334,4 +344,5 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	{  
 		return str.matches("-?\\d+(\\.\\d+)?");
 	}
+
 }
