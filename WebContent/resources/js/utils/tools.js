@@ -1019,8 +1019,7 @@
                 var qVal = aVals[2];
                
                 if (facet == 'gene' && qField.match(/^imits_/)) {
-                	var impcOnlyFqStr = " AND (isPostQc:1)";
-                    aFilters.push('(latest_phenotype_status:"' + qVal + '")' + impcOnlyFqStr);
+                	aFilters.push('(latest_phenotype_status:"' + qVal + '")'); 
                 }
                 else if (facet == 'gene' && qField == 'legacy_phenotype_status') {
                     aFilters.push('(legacy_phenotype_status:' + qVal + ')');
@@ -1839,6 +1838,8 @@
 
     $.fn.loadDataTable = function(oUrlParams) {
 
+    	oUrlParams.legacyOnly = false;
+    	
         var facetDivId = oUrlParams.widgetName;
 
         //console.log(oUrlParams.q, oUrlParams.fq, facetDivId);    	
@@ -1910,7 +1911,13 @@
         $.fn.updateBreadCrumb(coreName);
         $.fn.openFacet(coreName);
 
-        //console.log(oUrlParams);
+        // flag legacy only
+        if ( oParams.fq.indexOf('latest_phenotype_status:') == -1 && oParams.fq.indexOf('legacy_phenotype_status:') != -1 ){
+        	oUrlParams.legacyOnly = true;
+        }
+        
+        console.log(oUrlParams);
+       
         $.fn.invokeDataTable(oUrlParams);
 
     };
@@ -2210,6 +2217,7 @@
                 $('button.gridDump').unbind('click');
                 
                 var conf = {
+                		legacyOnly: oInfos.legacyOnly,
                         externalDbId: 5,
                         rowStart: iRowStart,
                         solrCoreName: solrCoreName,
