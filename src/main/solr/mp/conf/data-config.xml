@@ -165,7 +165,37 @@
 						</entity>
 					</entity>
 				</entity>	
+	
+				<!-- parent MP term of this MP term -->
 				
+				<entity dataSource="ontodb" name="allParents" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue" 
+					query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+					where="child_node_id=nodeIds.node_id">
+					
+					<entity dataSource="ontodb" name="mpTermNode2"	
+						processor="CachedSqlEntityProcessor" 
+						onError="continue" 		
+						query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+						where="node_id=allParents.node_id">
+						
+						<field column="term_id"    name="parent_mp_id" />
+						<field column="name"       name="parent_mp_term" />
+					
+						<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+						<entity dataSource="ontodb" name="parents2Syn2" 
+							processor="CachedSqlEntityProcessor" 
+							onError="continue"  
+							query="select term_id, syn_name from mp_synonyms"
+							where="term_id=allParents.term_id">
+								
+							<field column="syn_name" name="parent_mp_term_synonym" />						
+							
+						</entity>
+					</entity>
+				</entity>
+								
 			</entity>
 
 			<!-- images annotated to this MP -->
