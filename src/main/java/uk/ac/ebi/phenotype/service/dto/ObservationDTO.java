@@ -56,6 +56,7 @@ public class ObservationDTO {
     public final static String METADATA = "metadata";
     public final static String METADATA_GROUP = "metadata_group";
 	public static final String DOWNLOAD_FILE_PATH = "download_file_path";
+	public static final String FILE_TYPE = "file_type";
 
 	@Field(ID)
     private Integer id;
@@ -183,9 +184,13 @@ public class ObservationDTO {
     @Field(ALLELE_SYMBOL)
     private String alleleSymbol;
 
-    @Field(DOWNLOAD_FILE_PATH)
-    private String downloadFilePath;
-    
+	@Field(DOWNLOAD_FILE_PATH)
+	private String downloadFilePath;
+
+	@Field(FILE_TYPE)
+	private String fileType;
+
+
 
 	/**
      * helper methods
@@ -937,4 +942,15 @@ public class ObservationDTO {
 	
 		this.downloadFilePath = downloadFilePath;
 	}
+
+	public String getFileType() {
+		return fileType;
+	}
+
+
+	public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
+
+
 }
