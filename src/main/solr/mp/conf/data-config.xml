@@ -3,15 +3,15 @@
 
 	<script type='text/javascript'><![CDATA[
 		
-		function srcMapping(row){
+		function mp2PhenotypingStatusMapping(row){
 			if (row.get('preqc_mp_id')){
-				row.put('isPreQc', '1'); 
+				row.put('latest_phenotype_status', 'Phenotyping Started'); 
 			}	
 			else if (row.get('impc')){
-				row.put('isPostQc', '1'); 
+				row.put('latest_phenotype_status', 'Phenotyping Complete'); 
 			}	
 			else if (row.get('legacy')){
-				row.put('isLegacy', '1'); 
+				row.put('legacy_phenotype_status', '1'); 
 			}				        		
 	   		return row; 
 		}
@@ -32,45 +32,6 @@
 			query="select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'" >
 
 			<field column="dataType" name="dataType"/>
-			
-			<!-- flag mp for preQc, postQc and legacy -->
-			
-			<!-- postQc -->
-			<entity dataSource="komp2db" name="impcPipe"
-				processor="CachedSqlEntityProcessor" 
-				query="select distinct project_id as 'impc', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id !=1 AND project_id !=8"
-				where="mp_acc=mp_term_infos.term_id"
-				transformer="script:srcMapping" >
-				
-				<field column="impc" name="impc" />
-				<field column="isPostQc"  name="isPostQc" />
-				
-			</entity>
-			
-			<!-- legacy -->
-			<entity dataSource="komp2db" name="legacyPipe"
-				processor="CachedSqlEntityProcessor" 
-				query="select distinct project_id as 'legacy', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and (project_id=1 OR project_id=8)"
-				where="mp_acc=mp_term_infos.term_id" 
-				transformer="script:srcMapping" >
-				
-				<field column="legacy" name="legacy" />
-				<field column="isLegacy"  name="isLegacy" />
-				
-			</entity>
-			
-			<!-- preQc -->
-			<entity dataSource="preqc_core" name="preqc"
-				stream="true" 
-				forEach="/response/result/doc/"
-				url="q=mp_term_id:&quot;${mp_term_infos.term_id}&quot;&amp;rows=1&amp;fl=mp_term_id"
-				processor="XPathEntityProcessor" 				
-				transformer="script:srcMapping" >
-				
-				<field column="preqc_mp_id" xpath="/response/result/doc/str[@name='mp_term_id']" />
-				<field column="isPreQc" name="isPreQc" />
-			</entity>
-			
 			<field column="term_id" name="mp_id" />
 			<field column="name" name="mp_term" />
 			<field column="definition" name="mp_definition" />	
@@ -310,6 +271,58 @@
 				where="mp_acc=mp_term_infos.term_id">
 				
 				<field column="gf_acc" name="mgi_accession_id" />	
+					
+				<!-- flag mp for preQc, postQc and legacy and 
+				 	  use as latest_phenotype_status/legacy_phenotype_status 
+				 	  to bridge an annotated MP with phenotyping status of a gene -->
+			
+				<!-- postQc: complete -->
+				<entity dataSource="komp2db" name="impcPipe"
+					onError="continue"
+					processor="CachedSqlEntityProcessor" 
+					query="select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value &lt; 0.0001 and external_db_id = 22"
+					where="mp_mgi=phenotype_call_summary1.mp_mgi"
+					transformer="script:mp2PhenotypingStatusMapping" >
+					
+					<field column="impc" name="impc" />
+					<field column="latest_phenotype_status" name="latest_phenotype_status" />
+				</entity>
+				
+				<!-- legacy -->
+				<entity dataSource="komp2db" name="legacyPipe"
+					onError="continue"
+					processor="CachedSqlEntityProcessor" 
+					query="select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value &lt; 0.0001 and external_db_id = 12"
+					where="mp_mgi=phenotype_call_summary1.mp_mgi"
+					transformer="script:mp2PhenotypingStatusMapping" >
+					
+					<field column="legacy" name="legacy" />
+					<field column="legacy_phenotype_status" name="legacy_phenotype_status" />
+					
+				</entity>
+				
+				<!-- preQc: started -->
+				<entity dataSource="preqc_core" name="preqc"
+					stream="true" 
+					forEach="/response/result/doc/"
+					url="q=mp_term_id:&quot;${mp_term_infos.term_id}&quot;+AND+marker_accession_id:&quot;${phenotype_call_summary1.gf_acc}&quot;&amp;fl=mp_term_id"
+					processor="XPathEntityProcessor"
+					transformer="script:mp2PhenotypingStatusMapping" >				
+					
+					<field column="preqc_mp_id" xpath="/response/result/doc/str[@name='mp_term_id']" />
+					<field column="latest_phenotype_status" name="latest_phenotype_status" />
+				</entity>
+				
+				<!-- Phenotype Attempt Registered -->
+				<entity dataSource="allele_core" name="par" 
+					onError="continue"
+					stream="true" 
+					url="q=mgi_accession_id:&quot;${phenotype_call_summary1.gf_acc}&quot;&amp;rows=1&amp;wt=normal&amp;fq=latest_phenotype_status:&quot;Phenotype Attempt Registered&quot;&amp;fl=latest_phenotype_status"
+					processor="XPathEntityProcessor" 
+					forEach="/response/result/doc/" >
+					
+					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />  
+				</entity>		
 							
 				<!-- disease associated with this MP via this gene -->	
 				
@@ -338,10 +351,6 @@
                              
                     <!-- latest project status (ES cells/mice production status) -->         
                     <field column="status" xpath="/response/result/doc/str[@name='status']" />
-                    
-                    <!-- phenotyping status -->
-					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
-                    <field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
                     
                     <!-- latest mice phenotyping status for faceting -->
                     <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
