@@ -25,6 +25,7 @@ public class GeneDTO {
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
 	public static final String DISEASE_HUMAN_PHENOTYPES = "disease_human_phenotypes";
 	public static final String HAS_QC = "hasQc";
+	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
 	public static final String ALLELE_NAME = "allele_name";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
@@ -136,6 +137,9 @@ public class GeneDTO {
 	@Field(HAS_QC)
 	Integer hasQc;
 
+	@Field(LEGACY_PHENOTYPE_STATUS)
+	Integer legacy_phenotype_status;
+	
 	// <!-- allele level fields of a gene -->
 
 	@Field(ALLELE_NAME)
