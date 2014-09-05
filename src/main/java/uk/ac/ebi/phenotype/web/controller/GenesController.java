@@ -40,6 +40,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -526,24 +527,41 @@ public class GenesController {
 	private void getImpcExperimentalImages(String acc, Model model)
 	throws SolrServerException {
 
-		ResponseWrapper<ImageDTO> solrR = imageService.getExperimentalImagesForGene(acc);
-		if (solrR == null) {
-			log.error("no response from impc images solr data source for acc=" + acc);
-			return;
-		}
+		
+		Map<String, ResponseWrapper<ImageDTO>> procedureToImagesMap = imageService.getFacetsForGeneByProcedure(acc,"experimental");
+		//List<FacetField> facetFields = response.getFacetFields();
+		//make a facet request first to get the procedures and then reuturn make requests for each procedure
+		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2384986%22&&fq=biological_sample_group:experimental&facet=true&facet.field=procedure_name
+//		if (facetFields != null) {
+//			for (FacetField facetField : facetFields) {
+//				System.out.println("facetFields=" + facetField.getName() + facetField.getValueCount() + facetField.getValues());
+//				for(Count value: facetField.getValues()){
+//					String procedure=value.getName();
+//					String controlOrExp="experimental";
+//					ResponseWrapper<ImageDTO> wrapper = imageService.getImagesForGeneByProcedure(acc, procedure, controlOrExp, numberOfImagesToDisplay);
+//					if (response == null) {
+//					log.error("no response from impc images solr data source for acc=" + acc);
+//					return;
+//					}
+//					if (response.getResults().getNumFound() > 0) {// only do this if we have some
+//					// images docs returned for impc
+//						List<SolrDocument> list = null;
+//						if (response.getResults().getNumFound() > numberOfImagesToDisplay) {
+//							list = response.getResults().subList(0, numberOfImagesToDisplay);
+//						} else {
+//							list = response.getResults();
+//						}
+//					}
+//				}
+//			}
+//		}
+		
+			
+			
 
-		if (solrR.getTotalNumberFound() > 0) {// only do this if we have some
-												// images docs returned for impc
-			List<ImageDTO> list = null;
-			if (solrR.getTotalNumberFound() > numberOfImagesToDisplay) {
-				list = solrR.getList().subList(0, numberOfImagesToDisplay);
-			} else {
-				list = solrR.getList();
-			}
-
-			model.addAttribute("impcImages", list);
-			model.addAttribute("totalImpcImages", solrR.getTotalNumberFound());
-		}
+			model.addAttribute("procedureToImagesMap", procedureToImagesMap);
+			model.addAttribute("totalImpcImages", 5);
+		
 
 	}
 
