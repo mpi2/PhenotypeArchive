@@ -285,8 +285,10 @@ public class SolrIndex {
 	 *            the base url of the generated links
 	 * @return a map represneting the facet, facet label and link
 	 */
-	public Map<String, String> renderFacetField(String[] names, String baseUrl) {
+	public Map<String, String> renderFacetField(String[] names, HttpServletRequest request) {
 
+		String hostName = request.getAttribute("mappedHostname").toString();
+		String baseUrl =  request.getAttribute("baseUrl").toString(); 
 		// key: display label, value: facetField
 		Map<String, String> hm = new HashMap<String, String>();
 		String name = names[0];
@@ -297,11 +299,13 @@ public class SolrIndex {
 			hm.put("label", "MP");
 			hm.put("field", "annotationTermName");
 			//hm.put("field", "mpTermName");
+			hm.put("fullLink", hostName + url);
 			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		} else if (id.startsWith("MA:")) {
 			String url = baseUrl + "/anatomy/" + id;
 			hm.put("label", "MA");
-			hm.put("field", "annotationTermName");		
+			hm.put("field", "annotationTermName");	
+			hm.put("fullLink", hostName + url);
 			hm.put("link", name);
 		} else if (id.equals("exp")) {
 			hm.put("label", "Procedure");
@@ -311,6 +315,7 @@ public class SolrIndex {
 			String url = baseUrl + "/genes/" + id;
 			hm.put("label", "Gene");
 			hm.put("field", "symbol");
+			hm.put("fullLink", hostName + url);
 			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		}
 		return hm;

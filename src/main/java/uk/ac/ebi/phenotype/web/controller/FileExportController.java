@@ -111,6 +111,8 @@ public class FileExportController {
 
     private String NO_INFO_MSG = "No information available";
     
+    private String hostName;
+    
     /**
      * Return a TSV formatted response which contains all datapoints
      *
@@ -237,18 +239,22 @@ public class FileExportController {
             @RequestParam(value = "sex", required = false) String sex,
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
+            @RequestParam(value = "legacyOnly", required = true) boolean legacyOnly,
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model
     ) throws Exception {
 
+    	hostName = request.getAttribute("mappedHostname").toString();
+    	
         log.debug("solr params: " + solrFilters);
         Workbook wb = null;
         List<String> dataRows = new ArrayList();
         // Default to exporting 10 rows
         Integer length = 10;
 
+        
         panelName = panelName == null ? "" : panelName;
 
         if ( ! solrCoreName.isEmpty()) {
@@ -281,7 +287,7 @@ public class FileExportController {
                 }
             } else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
-                dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrFilters, request);
+                dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrFilters, request, legacyOnly);
             }
         }
 
@@ -419,11 +425,11 @@ public class FileExportController {
         return rows;
     }
 
-    public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
+    public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request, boolean legacyOnly) {
         List<String> rows = null;
 
         if (solrCoreName.equals("gene")) {
-            rows = composeGeneDataTableRows(json, request);
+            rows = composeGeneDataTableRows(json, request, legacyOnly);
         } else if (solrCoreName.equals("mp")) {
             rows = composeMpDataTableRows(json, request);
         } else if (solrCoreName.equals("ma")) {
@@ -466,31 +472,98 @@ public class FileExportController {
     }
 
     private List<String> composeImageDataTableRows(JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
-        String mediaBaseUrl = config.get("mediaBaseUrl");
+        String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
 
         List<String> rowData = new ArrayList();
 
+        String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/";
+        String maBaseUrl   = request.getAttribute("baseUrl") + "/anatomy/";
+        String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/";
+        
         if (showImgView) {
 
             System.out.println("MODE: imgview " + showImgView);
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-            rowData.add("Annotation_term\tAnnotation_id\tProcedure\tGene_Symbol\tImage_path"); // column names	
+            rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage_path"); // column names	
 
             for (int i = 0; i < docs.size(); i ++) {
                 List<String> data = new ArrayList();
                 JSONObject doc = docs.getJSONObject(i);
 
-                String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
+                //String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
+                String[] fields = {"annotationTermId", "expName", "symbol_gene"};
                 for (String fld : fields) {
                     if (doc.has(fld)) {
                         List<String> lists = new ArrayList();
-                        JSONArray list = doc.getJSONArray(fld);
-                        for (int l = 0; l < list.size(); l ++) {
-                            lists.add(list.getString(l));
-                        }
-                        data.add(StringUtils.join(lists, "|"));
-                    } else {
-                        data.add(NO_INFO_MSG);
+                        
+                    	if ( fld.equals("annotationTermId") ){
+                    		
+                    		// annotaton term with prefix
+                    		List<String> termLists = new ArrayList();
+                    		JSONArray termList = doc.getJSONArray("annotationTermName");
+                            
+                            // annotation id links
+                            List<String> link_lists = new ArrayList();
+                            
+                            JSONArray list = doc.getJSONArray(fld); // annotationTermId
+	                    	for (int l = 0; l < list.size(); l++) {
+	                    		String value = list.getString(l);
+	                    		String termVal = termList.getString(l);
+	                    		
+	                    		if ( value.startsWith("MP:") ){
+	                    			link_lists.add(hostName + mpBaseUrl + value);
+	                    			termLists.add("MP:"+termVal);
+	                    		}
+	                    		else {
+	                    			link_lists.add(hostName + maBaseUrl + value);
+	                    			termLists.add("MA:"+termVal);
+	                    		}
+	                    		
+	                         	lists.add(value);
+	                        }
+	                    	
+	                    	data.add(StringUtils.join(termLists, "|"));
+	                        data.add(StringUtils.join(lists, "|"));
+	                        data.add(StringUtils.join(link_lists, "|"));
+                    	}
+                    	else if ( fld.equals("symbol_gene") ){
+                    		// gene symbol and its link
+                            List<String> link_lists = new ArrayList();
+                            
+                            JSONArray list = doc.getJSONArray(fld);
+	                    	for (int l = 0; l < list.size(); l++) {
+	                    		String[] parts = list.getString(l).split("_");
+	                    		String symbol = parts[0];
+	                    		String mgiId  = parts[1];
+	                         	lists.add(symbol);
+	                         	link_lists.add(hostName + geneBaseUrl + mgiId);
+	                        }
+	                        data.add(StringUtils.join(lists, "|"));
+	                        data.add(StringUtils.join(link_lists, "|"));
+                    		
+                    	}
+                    	else {
+                    		JSONArray list = doc.getJSONArray(fld);
+	                    	for (int l = 0; l < list.size(); l++) {
+	                    		String value = list.getString(l);
+	                         	lists.add(value);
+	                        }
+	                        data.add(StringUtils.join(lists, "|"));
+                    	}
+                    } 
+                    else {
+                    	if ( fld.equals("annotationTermId") ){
+	                        data.add(NO_INFO_MSG);
+	                        data.add(NO_INFO_MSG);
+	                        data.add(NO_INFO_MSG);
+                    	}
+                    	else if ( fld.equals("symbol_gene") ){
+                    		data.add(NO_INFO_MSG);
+ 	                        data.add(NO_INFO_MSG);
+                    	}
+                    	else {
+                    		data.add(NO_INFO_MSG);
+                    	}
                     }
                 }
 
@@ -501,7 +574,7 @@ public class FileExportController {
             System.out.println("MODE: annotview " + showImgView);
 			// annotation view
             // annotation view: images group by annotationTerm per row
-            rowData.add("Annotation_type\tAnnotation_name\tRelated_image_count\tUrl_to_images"); // column names	
+            rowData.add("Annotation type\tAnnotation name\tAnnotation_name link\tRelated image count\tUrl to images"); // column names	
             JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
             JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
@@ -519,11 +592,11 @@ public class FileExportController {
                 String[] names = sumFacets.get(i).toString().split("_");
                 if (names.length == 2) {  // only want facet value of xxx_yyy
                     String annotName = names[0];
-                    Map<String, String> hm = solrIndex.renderFacetField(names, request.getParameter("baseUrl")); //MA:xxx, MP:xxx, MGI:xxx, exp					
+                    Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp					
 
                     data.add(hm.get("label"));
                     data.add(annotName);
-					//data.add(hm.get("link").toString());
+					data.add(hm.get("fullLink").toString());
 
                     String imgCount = sumFacets.get(i + 1).toString();
                     data.add(imgCount);
@@ -543,7 +616,6 @@ public class FileExportController {
     private List<String> composeMpDataTableRows(JSONObject json, HttpServletRequest request) {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
         
-        String hostName = request.getAttribute("mappedHostname").toString();
         String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";	
         
         List<String> rowData = new ArrayList();
@@ -595,7 +667,6 @@ public class FileExportController {
     private List<String> composeMaDataTableRows(JSONObject json, HttpServletRequest request) {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
-        String hostName = request.getAttribute("mappedHostname").toString();
         String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
         
         List<String> rowData = new ArrayList();
@@ -647,7 +718,7 @@ public class FileExportController {
         return rowData;
     }
 
-    private List<String> composeGeneDataTableRows(JSONObject json, HttpServletRequest request) {
+    private List<String> composeGeneDataTableRows(JSONObject json, HttpServletRequest request, boolean legacyOnly) {
 
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
@@ -702,7 +773,7 @@ public class FileExportController {
             data.add(prodStatus);
 
             // phenotyping status
-            String phStatus = geneService.getPhenotypingStatus(doc, request, toExport);
+            String phStatus = geneService.getPhenotypingStatus(doc, request, toExport, legacyOnly);
            
             if ( phStatus.isEmpty() ){
             	data.add(NO_INFO_MSG); 
@@ -736,7 +807,6 @@ public class FileExportController {
     private List<String> composeDiseaseDataTableRows(JSONObject json, HttpServletRequest request) {
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
-        String hostName = request.getAttribute("mappedHostname").toString();
         String baseUrl = request.getAttribute("baseUrl") + "/disease/";
         
         List<String> rowData = new ArrayList();

@@ -65,7 +65,7 @@ public class ExcelWorkBook {
     			String cellStr = tableData[i][j].toString();
     			
     			// make hyperlink in cell
-    			if ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ){
+    			if ( cellStr.startsWith("http://") || cellStr.startsWith("https://") && !cellStr.contains("|") ){
     				
     				HSSFHyperlink url_link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
     				url_link.setAddress(cellStr);
