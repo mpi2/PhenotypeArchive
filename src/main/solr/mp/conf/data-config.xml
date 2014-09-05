@@ -304,6 +304,7 @@
 				<!-- preQc: started -->
 				<entity dataSource="preqc_core" name="preqc"
 					stream="true" 
+					onError="continue"
 					forEach="/response/result/doc/"
 					url="q=mp_term_id:&quot;${mp_term_infos.term_id}&quot;+AND+marker_accession_id:&quot;${phenotype_call_summary1.gf_acc}&quot;&amp;fl=mp_term_id"
 					processor="XPathEntityProcessor"
