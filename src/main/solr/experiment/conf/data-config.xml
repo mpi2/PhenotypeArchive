@@ -29,13 +29,13 @@
 		<!-- For all observations (data points) -->
 		<entity dataSource="komp2ds" transformer="script:getData,RegexTransformer" name="observation"
 			query="
-SELECT o.db_id as datasource_id,
+SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id,
+o.observation_type, o.missing, o.parameter_status, o.parameter_status_message,
 CASE WHEN o.biological_sample_id IS NOT NULL THEN CAST(o.biological_sample_id AS CHAR) ELSE '' END as bsid,
 CASE WHEN co.category IS NULL THEN NULL WHEN co.category REGEXP '[0-9]' THEN CONCAT_WS('_', o.parameter_id, 0+co.category) ELSE CONCAT_WS('_', o.parameter_id, co.category) END AS translate_category_id,
-e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, o.parameter_id as parameter_id,
+e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id,
 e.date_of_experiment, e.external_id, CAST(e.id AS CHAR) as experiment_id,
 e.metadata_combined as metadata_combined, e.metadata_group as metadata_group,
-o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message,
 co.category as raw_category,
 uo.data_point as unidimensional_data_point,
 mo.data_point as multidimensional_data_point,
