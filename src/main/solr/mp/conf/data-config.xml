@@ -10,21 +10,24 @@
 			else if (row.get('impc')){
 				row.put('latest_phenotype_status', 'Phenotyping Complete'); 
 			}	
+			else if (row.get('latest_phenotype_status_tmp') &&
+				row.get('latest_phenotype_status_tmp').toString() == 'Phenotype Attempt Registered'){
+				row.put('latest_phenotype_status', 'Phenotype Attempt Registered');
+			}	
 			else if (row.get('legacy')){
 				row.put('legacy_phenotype_status', '1'); 
-			}				        		
+			}			        		
 	   		return row; 
 		}
 
     ]]></script>
-    
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	  
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
-		<document name="docs">
+	<document name="docs">
 		<!-- test with MP:0002100, MP:0002075-->
 		<!-- term infos: ID, name, definition -->
 
@@ -190,8 +193,6 @@
 				where="term_id=mp_term_infos.term_id">
 				<field column="xref_id" name="go_id" />
 			</entity>				
-
-			
 			
 			<!-- MP -> MA relationship; MA term has no definition -->
 			<entity dataSource="ontodb" name="mp_mappings" 
@@ -315,6 +316,7 @@
 				</entity>
 				
 				<!-- Phenotype Attempt Registered -->
+				<!-- why this is not getting any result? Work around is using latest_phenotype_status_tmp field: see below  
 				<entity dataSource="allele_core" name="par" 
 					onError="continue"
 					stream="true" 
@@ -322,13 +324,18 @@
 					processor="XPathEntityProcessor" 
 					forEach="/response/result/doc/" >
 					
-					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />  
+					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 				</entity>		
-							
+				-->
+						
 				<!-- disease associated with this MP via this gene -->	
 				
-				<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary1.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
-					processor="XPathEntityProcessor" forEach="/response/result/doc/" >
+				<entity dataSource="allele_core" name="doc" 
+					stream="true" 
+					url="q=mgi_accession_id:&quot;${phenotype_call_summary1.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
+					processor="XPathEntityProcessor" 
+					forEach="/response/result/doc/"
+					transformer="script:mp2PhenotypingStatusMapping"  >
 					
 				    <field column="type" xpath="/response/result/doc/str[@name='type']" /> 				
 				    <field column="disease_source" xpath="/response/result/doc/arr[@name='disease_source']/str" /> 
@@ -357,7 +364,9 @@
                     <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
                     <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
                   	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
-                  
+                  	
+                  	<field column="latest_phenotype_status_tmp" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+                  	
                   	<!-- production/phenotyping centers -->
 					<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 					<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />
