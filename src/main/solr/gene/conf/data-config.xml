@@ -48,7 +48,7 @@
 								
 			<field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />			
 			
-			<field column="hasQc" xpath="/response/result/doc/int[@name='hasQc']" />
+			<!--  <field column="hasQc" xpath="/response/result/doc/int[@name='hasQc']" />-->
 
 			<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
 			<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />

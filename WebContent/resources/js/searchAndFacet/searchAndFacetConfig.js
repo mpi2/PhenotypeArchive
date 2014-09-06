@@ -208,7 +208,7 @@ config.facetParams = {
 	geneFacet:      {
 		type: 'genes',	
 		name: 'Genes',
-		subFacetFqFields: ['imits_phenotype_started', 'imits_phenotype_complete', 'imits_phenotype_status', 'status', 'marker_type'],			
+		subFacetFqFields: ['imits_phenotype_started', 'imits_phenotype_complete', 'imits_phenotype_status', 'legacy', 'status', 'marker_type'],			
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
 		tableHeader: "<thead><th>Gene</th><th>Production Status</th><th>Phenotype Status</th><th></th></thead>",		
@@ -227,7 +227,7 @@ config.facetParams = {
 			      bq:'latest_phenotype_status:"Phenotyping Complete"^200 marker_type:"protein coding gene"^100'},
 		srchParams : $.extend({},				
 				 	commonSolrParams,
-				 	{'fl': 'hasQc,marker_symbol,mgi_accession_id,marker_synonym,marker_name,marker_type,human_gene_symbol,latest_es_cell_status,latest_production_status,latest_phenotype_status,status,es_cell_status,mouse_status,allele_name'} 	 	
+				 	{'fl': 'marker_symbol,mgi_accession_id,marker_synonym,marker_name,marker_type,human_gene_symbol,latest_es_cell_status,latest_production_status,latest_phenotype_status,status,es_cell_status,mouse_status,allele_name,legacy_phenotype_status'} 	 	
 					),
 		subFacet_filter_params: '', // set by widget on the fly
 		breadCrumbLabel: 'Genes'		

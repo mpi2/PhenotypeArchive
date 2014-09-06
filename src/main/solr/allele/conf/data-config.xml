@@ -197,8 +197,10 @@
 				<field column="phenotyping_centre" xpath="/response/result/doc/str[@name='phenotyping_centre']" />                                         
                	
 			</entity>
-
+			
+			
 			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
+			<!-- now use legacy_phenotype_status  
 			<entity dataSource="experiment_core" name="qcCheck" 
 				stream="true"  
 				onError="continue"
@@ -210,6 +212,7 @@
 				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
 				<field column="hasQc" name="hasQc" />		
 			</entity>			
+			-->
 			
 			<!-- disease associated with this gene -->			
 			<entity dataSource="phenodigm_core" name="ddoc" 

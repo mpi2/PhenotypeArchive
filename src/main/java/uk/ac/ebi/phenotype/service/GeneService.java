@@ -220,7 +220,7 @@ public class GeneService {
 	 *         Registered) as appropriate for this gene
 	 */
 	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport, boolean legacyOnly) {
-		
+		System.out.println(doc.toString());
 		String mgiId = doc.getString("mgi_accession_id");
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 
@@ -271,8 +271,8 @@ public class GeneService {
 			 *    This has been indexed with the hasQC field from the experimental
 			 *    core. 
 			 */
-			else if (doc.containsKey(GeneDTO.HAS_QC)) {	
-			//else if (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) {
+			//else if (doc.containsKey(GeneDTO.HAS_QC)) {	
+			else if (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) {
 				webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
 				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
 				
