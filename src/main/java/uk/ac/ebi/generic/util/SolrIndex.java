@@ -306,7 +306,7 @@ public class SolrIndex {
 			hm.put("label", "MA");
 			hm.put("field", "annotationTermName");	
 			hm.put("fullLink", hostName + url);
-			hm.put("link", name);
+			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		} else if (id.equals("exp")) {
 			hm.put("label", "Procedure");
 			hm.put("field", "expName");
@@ -318,6 +318,7 @@ public class SolrIndex {
 			hm.put("fullLink", hostName + url);
 			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		}
+		hm.put("id", id);	
 		return hm;
 	}
 

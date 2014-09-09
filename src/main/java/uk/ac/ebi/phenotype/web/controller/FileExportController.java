@@ -484,7 +484,7 @@ public class FileExportController {
 
             System.out.println("MODE: imgview " + showImgView);
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-            rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage_path"); // column names	
+            rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
 
             for (int i = 0; i < docs.size(); i ++) {
                 List<String> data = new ArrayList();
@@ -574,7 +574,7 @@ public class FileExportController {
             System.out.println("MODE: annotview " + showImgView);
 			// annotation view
             // annotation view: images group by annotationTerm per row
-            rowData.add("Annotation type\tAnnotation name\tAnnotation_name link\tRelated image count\tUrl to images"); // column names	
+            rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
             JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
             JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
@@ -596,6 +596,7 @@ public class FileExportController {
 
                     data.add(hm.get("label"));
                     data.add(annotName);
+                    data.add(hm.get("id"));
 					data.add(hm.get("fullLink").toString());
 
                     String imgCount = sumFacets.get(i + 1).toString();
