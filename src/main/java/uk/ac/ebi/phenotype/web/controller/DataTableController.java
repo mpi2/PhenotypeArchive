@@ -500,7 +500,7 @@ public class DataTableController {
 					}
 					else if ( mp.size() > 1 ){
 						String list = "<ul class='imgMp'><li>" + StringUtils.join(mp, "</li><li>") + "</li></ul>";
-						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + list;
+						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + list + "</span>";
 					}
 					
 					
@@ -509,7 +509,7 @@ public class DataTableController {
 					}
 					else if ( ma.size() > 1 ){
 						String list = "<ul class='imgMa'><li>" + StringUtils.join(ma, "</li><li>") + "</li></ul>";
-						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list;
+						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list + "</span>";
 					}
 					
 					if ( exp.size() == 1 ){
@@ -517,7 +517,7 @@ public class DataTableController {
 					}
 					else if ( exp.size() > 1 ){
 						String list = "<ul class='imgProcedure'><li>" + StringUtils.join(exp, "</li><li>") + "</li></ul>";
-						annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + list;
+						annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + list + "</span>";
 					}
 					
 					
@@ -527,7 +527,7 @@ public class DataTableController {
 					}
 					else if ( gene.size() > 1 ){
 						String list = "<ul class='imgGene'><li>" + StringUtils.join(gene, "</li><li>") + "</li></ul>";
-						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + list;
+						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + list + "</span>";
 					}
 									
 					rowData.add(annots);
