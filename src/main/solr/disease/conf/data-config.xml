@@ -41,6 +41,11 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
             <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
+			<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
+			<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
+			<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
+			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
+			
 			<!-- genes associated with this disease -->
            	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=disease_id:&quot;${ddoc.disease_id}&quot;&amp;rows=9999999&amp;wt=normal"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"                
@@ -52,11 +57,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                 <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
                 <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
                 <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
-                            
-                <field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />
-				<field column="isPreQc"  xpath="/response/result/doc/int[@name='isPreQc']" />
-				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />         
-                            
+              
                 <!-- latest project status (ES cells/mice production status) -->         
                 <field column="status" xpath="/response/result/doc/str[@name='status']" />
                 
@@ -94,10 +95,6 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 				<field column="child_mp_id" xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
 				<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />							
 				<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />					
-   			
-   				<field column="isPreQc" xpath="/response/result/doc/int[@name='isPreQc']" />
-				<field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />			
-				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />
    			
                 <!-- MA: inferred from MP -->
                 <!-- don't want to tod this -->

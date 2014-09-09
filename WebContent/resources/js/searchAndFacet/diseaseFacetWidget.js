@@ -148,7 +148,35 @@
 	    						   'predicted':{'label':'With Predicted Gene Associations by Phenotype', 
 	    							   			'subfacets': {'impc_predicted':'From IMPC data','impc_predicted_in_locus':'From IMPC data in linkage locus',
 	    							   				          'mgi_predicted':'From MGI data','mgi_predicted_in_locus':'From MGI data in linkage locus'}}};
-	    			    		
+	    		
+	    		/* Damian requsted 
+	    		 * 
+	    		 Add two more facets to Diseases  > With Curated Gene Associations:
+                “From human data with MGI prediction” - mgi_predicted_known_gene             
+				“From human data with IMPC prediction” - impc_predicted_known_gene
+ 
+	    		Change  Diseases  > With Predicted Gene Associations by Phenotype
+	    		“From IMPC data in linkage locus” to “Novel IMPC prediction in linkage locus” - impc_novel_predicted_in_locus
+	    		“From MGI data in linkage locus” to “Novel MGI prediction in linkage locus” - mgi_novel_predicted_in_locus
+				
+				deprecated the old fields (mgi_predicted_in_locus, impc_predicted_in_locus) 
+				
+				*/
+	    		 
+	    		/*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
+					   						   'subfacets':{'human_curated':'From human data (OMIM, Orphanet)', 
+					   							   			'mouse_curated':'From mouse data (MGI)',
+					   							   			'impc_predicted_known_gene':'From human data with IMPC prediction',
+					   							   			'mgi_predicted_known_gene':'From human data with MGI prediction'}
+					   						   },
+					   			   'predicted':{'label':'With Predicted Gene Associations by Phenotype', 
+			   									'subfacets': {'impc_predicted':'From IMPC data',
+			   												  'impc_novel_predicted_in_locus':'Novel IMPC prediction in linkage locus',
+			   												  'mgi_predicted':'From MGI data',
+			   												  'mgi_novel_predicted_in_locus':'Novel MGI prediction in linkage locus'}
+					   						   }
+					   			};
+	    		*/
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
 	    			var thisFacetSect = $("<li class='fcatsection " + assoc + "'></li>");

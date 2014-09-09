@@ -135,20 +135,14 @@
             q = encodeURIComponent(q);
         }
         //console.log('update facet q check: '+q)
-
+        var fieldConf = MPI2.searchAndFacetConfig.facetParams;
         var facetFields = {
-            'gene': [
-                'latest_phenotype_status',
-                'legacy_phenotype_status',
-                'status',
-                'latest_production_centre',
-                'latest_phenotyping_centre',
-                'marker_type'],
-            'mp': ['top_level_mp_term'],
-            'ma': ['selected_top_level_ma_term'],
-            'disease': ['disease_classes', 'disease_source', 'human_curated', 'mouse_curated', 'impc_predicted', 'impc_predicted_in_locus', 'mgi_predicted', 'mgi_predicted_in_locus'],
-            'pipeline': ['pipeline_name', 'pipe_proc_sid'],
-            'images': ['procedure_name', 'top_level_mp_term', 'selected_top_level_ma_term', 'marker_type']
+            'gene'    : fieldConf.geneFacet.subFacetFqFields,
+            'mp'      : fieldConf.mpFacet.subFacetFqFields,
+            'disease' : fieldConf.diseaseFacet.subFacetFqFields,
+            'ma'      : fieldConf.maFacet.subFacetFqFields,
+            'pipeline': fieldConf.pipelineFacet.subFacetFqFields,
+            'images'  : fieldConf.imagesFacet.subFacetFqFields
         };
 
         var facetUrls = {};
@@ -544,20 +538,6 @@
         //var fqStr = $.fn.getCurrentFq(facet).replace(/img_/g,'');
         var json = oConf.json;
 
-//		// send to solr through ajax not via browser url so encoding won't work for special char
-//		var q = $.fn.process_q(oConf.q);
-//		
-//		//console.log('update facet q check: '+q)
-//		if ( ! /%[0-9A-Za-z]{1,}/g.test(q)  ){
-//			//console.log(' match'); 
-//			// if not yet encoded, encode it 
-//			q = encodeURIComponent(q);
-//		}
-//		//console.log(facet + ': update facet q check: '+q)
-//		
-//		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
-//		MPI2.searchAndFacetConfig.currentFq = fqStr;
-
         this.updateFacetCounts = function() {
             switch (facet) {
                 case 'gene':
@@ -623,11 +603,8 @@
                                         if (subFacetName == 'Phenotype Attempt Registered' ||
                                                 subFacetName == 'Phenotyping Started' ||
                                                 subFacetName == 'Phenotyping Complete' ||
-                                                	subFacetName == '1' ) {
-                                        	console.log('subfacet: '+ subFacetName);
-                                        	console.log($(selectorBase + ' li.fcat.' + className + ' span.flabel').size());
+                                                subFacetName == '1' ) { // legacy_phenotype_status:1
                                             $(selectorBase + ' li.fcat.' + className + ' span.flabel').each(function() {
-                                            	console.log('check val: '+$(this).text());
                                                 if (subFacetName == MPI2.searchAndFacetConfig.phenotypingStatuses[$(this).text()].val) {
                                                     $(this).parent().removeClass('grayout').addClass(isGrayout);
                                                     $(this).siblings('span.fcount').text(facetCount);
@@ -674,8 +651,6 @@
 
                 case 'disease':
                     {
-
-                        var aFacetFields = ['disease_classes', 'disease_source', 'human_curated', 'mouse_curated', 'impc_predicted', 'impc_predicted_in_locus', 'mgi_predicted', 'mgi_predicted_in_locus'];
                         // refresh disease facet
                         var oFacets = json.facet_counts.facet_fields;
                         var selectorBase = "div.flist li#disease";
@@ -689,8 +664,7 @@
 
                         // subfacets: source/classification/curated/predicted
                         var foundMatch = {'disease_source': 0, 'disease_classes': 0, 'curated': 0, 'predicted': 0};
-
-                        var aSubFacets = ['disease_source', 'disease_classes', 'mouse_curated', 'human_curated', 'mgi_predicted', 'mgi_predicted_in_locus', 'impc_predicted', 'impc_predicted_in_locus'];
+                        var aSubFacets = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].subFacetFqFields;
                         for (var i = 0; i < aSubFacets.length; i++) {
                             var subFacetName = aSubFacets[i];
 
@@ -732,7 +706,6 @@
                                             $(this).find('span.fcount').text(facetCount);
                                             $(this).removeClass('grayout').addClass(isGrayout);
                                         }
-
                                     }
                                 });
                             }
@@ -773,8 +746,6 @@
 
                 case 'pipeline':
                     {
-                        var aFacetFields = ['pipeline_name', 'pipe_proc_sid'];
-
                         // refresh phenotype facet
                         var oFacets = json.facet_counts.facet_fields;
                         var selectorBase = "div.flist li#pipeline";
@@ -788,7 +759,6 @@
 
                         var plFacets = json.facet_counts['facet_fields']['pipeline_name'];
                         var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
-
 
                         // some procedures have multiple versions, so we need to add up their counts
                         var seenProcedureCount = {};
@@ -848,9 +818,7 @@
 
                 case 'images':
                     {
-                        var aFacetFields = ['procedure_name', 'top_level_mp_term', 'selected_top_level_ma_term', 'marker_type'];
-                        //var aFacetFields = ['annotatedHigherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
-                        // refresh images facet
+                		// refresh images facet
                         var oFacets = json.facet_counts.facet_fields;
                         var selectorBase = "div.flist li#images";
                         _facetRefresh(json, selectorBase);
