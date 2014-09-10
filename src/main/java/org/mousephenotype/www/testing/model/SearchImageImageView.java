@@ -88,73 +88,42 @@ public class SearchImageImageView {
         };
         SearchFacetTable.validateDownloadHeading("IMAGES (Image view)", status, expectedHeadingList, downloadData[0]);
 
-        for (int i = 1; i < downloadData.length - 1; i++) {                     // Loop for one row less to account for [already validated] heading row.
-            String[] downloadRow = downloadData[i];
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
             ImageRow pageRow = bodyRows.get(i);
             
             // Verify the components. Drive from download file.
-            // annotationTerm.
-            for (int j = 0; j < downloadRow.length; j++) {
-                String dnldTermCollection = downloadRow[j];
-                String pageTermCollection = "";
-                if (pageRow.maTerm != null)
-                    pageTermCollection += pageRow.maTerm.toString();
-                if (pageRow.mpTerm != null)
-                    pageTermCollection += pageRow.mpTerm.toString();
-
-                int mm = 17;
+            // Column 0: annotationTerm.
+            String dnldTermCollection = downloadRow[0];
+            String pageTermCollection = "";
+            if (pageRow.maTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toString(), "|");
+            if (pageRow.mpTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toString(), "|");
+            if ( ! pageTermCollection.equals(dnldTermCollection)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value annotationTerm = '"
+                        + pageTermCollection + "' doesn't match download value '" + dnldTermCollection + "'.");
             }
             
-        
-        
-        
+            // Column 1: annotationId.
+            dnldTermCollection = downloadRow[1];
+            pageTermCollection = "";
+            if (pageRow.maTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringAnnotationIds(), "|");
+            if (pageRow.mpTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toStringAnnotationIds(), "|");
+            if ( ! pageTermCollection.equals(dnldTermCollection)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value annotationIds = '"
+                        + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
+            }
             
-////////            // annotationType.
-////////            if ( ! pageRow.annotationType.equals(downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE]))
-////////                status.addError("IMAGE MISMATCH for term " + pageRow.annotationName + ": page value annotationType = '"
-////////                        + pageRow.annotationType + "' doesn't match download value '"
-////////                        + downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE] + "'.");
-////////            
-////////            // annotationIdLink.
-////////            if ( ! pageRow.annotationIdLink.equals(downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK]))
-////////                status.addError("IMAGE MISMATCH for term " + pageRow.annotationName + ": page value annotationIdLink = '"
-////////                        + pageRow.annotationIdLink + "' doesn't match download value '"
-////////                        + downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK] + "'.");
-////////            
-////////            // annotationName.
-////////            if ( ! pageRow.annotationName.equals(downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_NAME]))
-////////                status.addError("IMAGE MISMATCH for term " + pageRow.annotationName + ": page value annotationName = '"
-////////                        + pageRow.annotationName + "' doesn't match download value '"
-////////                        + downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_NAME] + "'.");
-////////            
-////////            // relatedImageCount.
-////////            if ( ! pageRow.relatedImageCount.equals(downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT]))
-////////                status.addError("IMAGE MISMATCH for term " + pageRow.annotationName + ": page value relatedImageCount = '"
-////////                        + pageRow.relatedImageCount + "' doesn't match download value '"
-////////                        + downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT] + "'.");
-////////            
-////////            // imagesLink.
-////////            if ( ! pageRow.imagesLink.equals(downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK]))
-////////                status.addError("IMAGE MISMATCH for term " + pageRow.annotationName + ": page value imagesLink = '"
-////////                        + pageRow.imagesLink + "' doesn't match download value '"
-////////                        + downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK] + "'.");
-////////            
-////////            // synonyms collection.
-////////            HashMap<String, String> downloadSynonymHash = new HashMap();
-////////            String rawSynonymString = downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_SYNONYMS];
-////////            if ((rawSynonymString != null) && ( ! rawSynonymString.isEmpty())) {
-////////                String[] downloadSynonyms = rawSynonymString.split(",");
-////////                for (String downloadSynonym : downloadSynonyms) {
-////////                    downloadSynonymHash.put(downloadSynonym.trim(), downloadSynonym.trim());
-////////                }
-////////            }
-////////            for (String pageSynonym : pageRow.synonyms) {
-////////                String downloadSynonym = downloadSynonymHash.get(pageSynonym);
-////////                if (downloadSynonym == null) {
-////////                    status.addError("ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value synonym = '" + pageSynonym + "' was not found in the download file.");
-////////                }
-////////                downloadSynonymHash.remove(downloadSynonym);
-////////            }
+            
+            
+            
+            
+            
+            
+            
         }
 
         return status;
@@ -187,6 +156,10 @@ public class SearchImageImageView {
     // PRIVATE CLASSES
     
     
+    /**
+     * This class encapsulates the code and data representing a single search
+     * page [image facet, Image view] image row.
+     */
     private class ImageRow {
         private AnnotationTerm geneTerm;
         private AnnotationTerm maTerm;
@@ -358,6 +331,30 @@ public class SearchImageImageView {
                 if (i > 0)
                     retVal += "|";
                 retVal += termType + ":" + detail.term;
+            }
+            
+            return retVal;
+        }
+        
+        public String toStringAnnotationIds() {
+            String retVal = "";
+            for (int i = 0; i < termDetails.size(); i++) {
+                AnnotationDetail detail = termDetails.get(i);
+                if (i > 0)
+                    retVal += "|";
+                retVal += detail.id;
+            }
+            
+            return retVal;
+        }
+        
+        public String toStringAnnotationIdLinks() {
+            String retVal = "";
+            for (int i = 0; i < termDetails.size(); i++) {
+                AnnotationDetail detail = termDetails.get(i);
+                if (i > 0)
+                    retVal += "|";
+                retVal += detail.link;
             }
             
             return retVal;

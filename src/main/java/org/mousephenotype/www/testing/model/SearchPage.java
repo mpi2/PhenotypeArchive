@@ -255,6 +255,7 @@ public class SearchPage {
             throw e;
         }
         
+        getImageTable().updateImageTableAfterChange();                          // Update the image table to keep it in sync.
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
     }
     
@@ -616,6 +617,10 @@ public class SearchPage {
         } catch (Exception e) {
             return false;
         }
+    }
+    
+    public void setImageFacetView(SearchImageTable.ImageFacetView desiredView) {
+        getImageTable().setCurrentView(desiredView);
     }
     
     /**

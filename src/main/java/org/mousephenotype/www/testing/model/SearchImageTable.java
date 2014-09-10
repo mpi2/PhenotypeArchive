@@ -70,18 +70,7 @@ public class SearchImageTable extends SearchFacetTable {
             WebElement imgViewSwitcherElement = driver.findElement(By.cssSelector("span#imgViewSwitcher"));
             TestUtils.scrollToTop(driver, imgViewSwitcherElement, -50);         // Scroll 'Show Image View' link into view.
             driver.findElement(By.cssSelector("span#imgViewSwitcher")).click();
-            switch (view) {
-                case ANNOTATION_VIEW:
-                    searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds);
-                    searchImageImageView = null;
-                    break;
-                    
-                case IMAGE_VIEW:
-                    searchImageAnnotationView = null;
-                    searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds);
-                    break;
-            }
-            setTable(driver.findElement(By.xpath(tableXpath)));
+            updateImageTableAfterChange();
             if (toolboxState != getToolboxState())
                 clickToolbox(toolboxState);
         }
@@ -95,6 +84,28 @@ public class SearchImageTable extends SearchFacetTable {
             String[] rawResultCountParts = rawResultCount.split(" ");
             Integer niResultCount = Utils.tryParseInt(rawResultCountParts[5].replace(",", ""));
             return (niResultCount == null ? 0 : niResultCount);
+    }
+    
+    /**
+     * This method is meant to be called after any change to the image table,
+     * such as changing between annotation and image view, or changing
+     * pagination pages. It is required to keep the image table internals in
+     * sync with what is seen on the page.
+     */
+    public void updateImageTableAfterChange() {
+        switch (getCurrentView()) {
+            case ANNOTATION_VIEW:
+                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds);
+                searchImageImageView = null;
+                break;
+
+            case IMAGE_VIEW:
+                searchImageAnnotationView = null;
+                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds);
+                break;
+        }
+        
+        setTable(driver.findElement(By.xpath(tableXpath)));
     }
     
     @Override
