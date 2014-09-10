@@ -151,6 +151,10 @@
 	<copyField source="marker_synonym" dest="auto_suggest"/>
 	
 	<copyField source="hp_synonym" dest="hp_term_synonym" />
+	<copyField source="hp_id" dest="auto_suggest"/>
+	<copyField source="hp_term" dest="auto_suggest"/>
+	<copyField source="hp_term_synonym" dest="auto_suggest"/>
+	
 	<copyField source="mp_id" dest="auto_suggest"/>
 	<copyField source="mp_term" dest="auto_suggest"/>
 	<copyField source="mp_term_synonym" dest="auto_suggest"/>
