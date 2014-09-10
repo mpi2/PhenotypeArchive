@@ -94,6 +94,8 @@
 	<field name="hp_synonym" type="string" indexed="true" stored="false" multiValued="false" />
 	<!--  MPI2 copyField for hp_synonym -->
     <field name="hp_term_synonym" type="string" indexed="true" stored="true" multiValued="false" />
+    <field name="hpmp_id" type="string" indexed="true" stored="true" multiValued="false" />
+	<field name="hpmp_term" type="string" indexed="true" stored="true" multiValued="false" />	
     
     <!-- mp fields -->
 	<field name="mp_id" type="string" indexed="true" stored="true" multiValued="false" />
