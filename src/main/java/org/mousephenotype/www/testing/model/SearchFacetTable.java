@@ -24,6 +24,7 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  *
@@ -41,8 +42,11 @@ public abstract class SearchFacetTable {
     protected WebElement table;
     protected final WebDriver driver;
     protected final int timeoutInSeconds;
+    protected final WebDriverWait wait;
+    protected final String tableXpath;
     
-    public static final String NO_INFO_AVAILABLE = "No information available";
+    public static final String NO_INFO_AVAILABLE    = "No information available";
+    public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
     
     /**
      * Initializes the generic components of a <code>SearchFacetTable</code>.
@@ -55,14 +59,75 @@ public abstract class SearchFacetTable {
     public SearchFacetTable(WebDriver driver, String tableXpath, int timeoutInSeconds) {
         graphUrl = driver.getCurrentUrl();
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, timeoutInSeconds);
         this.timeoutInSeconds = timeoutInSeconds;
+        this.tableXpath = tableXpath;
+        setTable(driver.findElement(By.xpath(tableXpath)));
+    }
+    
+    /**
+     * Click the toolbox (the download link that shows/hides the download popup)
+     * @param desiredWindowState Open or Close
+     */
+    public void clickToolbox(SearchPage.WindowState desiredWindowState) {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        switch (desiredWindowState) {
+            case CLOSE:
+                if (style.contains("block;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
+                
+            case OPEN:
+                if (style.contains("none;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
+        }
+    }
+    
+    /**
+     * @return The window state (open or close)
+     */
+    public SearchPage.WindowState getToolboxState() {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        return (style.contains("block;") ? SearchPage.WindowState.OPEN : SearchPage.WindowState.CLOSE);
+    }
+
+    /**
+     * 
+     * @return The page heading, as a String array
+     */
+    public String[] getPageHeading() {
+        return pageHeading;
+    }
+
+    /**
+     * 
+     * @return true if this page has a searchFaceTable; false otherwise
+     */
+    public boolean hasTable() {
+        return hasTable;
+    }
+
+    /**
+     * 
+     * @return The searchFacetTable <code>WebElement</code>
+     */
+    public WebElement getTable() {
+        return table;
+    }
+
+    /**
+     * Set the  <code>WebElement</code> search facet table
+     * @param table WebElement New instance to set to
+     */
+    public final void setTable(WebElement table) {
         hasTable = false;
-        
+        this.table = table;
         try {
             table = driver.findElement(By.xpath(tableXpath));
         } catch (Exception e) {
             pageHeading = null;
-            table = null;
+            this.table = null;
             return;
         }
         hasTable = true;
@@ -78,19 +143,6 @@ public abstract class SearchFacetTable {
         }
     }
 
-    public String[] getPageHeading() {
-        return pageHeading;
-    }
-
-    public boolean hasTable() {
-        return hasTable;
-    }
-
-    public WebElement getTable() {
-        return table;
-    }
-
-    
     /**
      * Validates download data against this search table instance.
      * 
@@ -101,20 +153,21 @@ public abstract class SearchFacetTable {
     
     /**
      * Validates the download heading
+     * @param facetName the [displayable] name of the facet, for identifying errors
      * @param status validation status
-     * @param geneSymbol gene symbol
+     * @param expectedHeadingList expected download heading column list
      * @param actualHeadingList actual download heading column list
      */
-    protected void validateDownloadHeading(PageStatus status, String geneSymbol, String[] expectedHeadingList, String[] actualHeadingList) {
+    public static void validateDownloadHeading(String facetName, PageStatus status, String[] expectedHeadingList, String[] actualHeadingList) {
         if (expectedHeadingList.length != actualHeadingList.length) {
-            status.addError("DISEASE DOWNLOAD HEADING MISMATCH: Gene symbol " + geneSymbol + ": expected heading column count: " + expectedHeadingList.length + ". "
+            status.addError(facetName + " DOWNLOAD HEADING MISMATCH: expected heading column count: " + expectedHeadingList.length + ". "
                           + "Actual heading count: " + actualHeadingList.length + ". Headings were not compared.");
             return;
         }
         
         for (int i = 0; i < actualHeadingList.length; i++) {
             if ( ! actualHeadingList[i].equals(expectedHeadingList[i])) {
-                status.addError("DISEASE DOWNLOAD HEADING MISMATCH: Gene symbol " + geneSymbol + ": heading[" + i + "] should be '"
+                status.addError(facetName + " DOWNLOAD HEADING MISMATCH: heading[" + i + "] should be '"
                         + expectedHeadingList[i] + "' but actual heading was '" + actualHeadingList[i] + "'.");
             }
         }

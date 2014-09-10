@@ -15,27 +15,7 @@
  */
 package uk.ac.ebi.phenotype.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import net.sf.json.JSONArray;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -56,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalSet;
@@ -66,11 +45,20 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class ObservationService extends BasicService {
@@ -636,8 +624,8 @@ public class ObservationService extends BasicService {
 	 * and center combination. A list of filters (meaning restriction to some
 	 * specific procedures is passed).
 	 * 
-	 * @param genomicFeatureAcc
-	 *            a gene accession
+	 * @param alleleAccession
+	 *            an allele accession
 	 * @return list of triplets
 	 * @throws SolrServerException
 	 */
@@ -703,8 +691,8 @@ public class ObservationService extends BasicService {
 	 * Return a list of procedures effectively performed given pipeline stable
 	 * id, phenotyping center and allele accession
 	 * 
-	 * @param genomicFeatureAcc
-	 *            a gene accession
+	 * @param alleleAccession
+	 *            an allele accession
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
@@ -1446,4 +1434,8 @@ public class ObservationService extends BasicService {
 
 	}
 
+
+	public HttpSolrServer getSolrServer() {
+		return solr;
+	}
 }

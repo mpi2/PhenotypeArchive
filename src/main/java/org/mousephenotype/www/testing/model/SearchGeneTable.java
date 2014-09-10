@@ -73,6 +73,19 @@ public class SearchGeneTable extends SearchFacetTable {
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
+            
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Gene symbol"
+          , "Human ortholog"
+          , "Gene id"
+          , "Gene name"
+          , "Gene synonym"
+          , "Production status"
+          , "Phenotype status"
+          , "Phenotype status link"
+        };
+        validateDownloadHeading("GENE", status, expectedHeadingList, downloadData[0]);
         
         // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
         // and with all data (the data for all of the pages). As such, the only effective way to validate
@@ -91,19 +104,6 @@ public class SearchGeneTable extends SearchFacetTable {
                 continue;
             }
             downloadHash.remove(pageRow.geneSymbol);                            // Remove the pageRow from the download hash.
-            
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Gene symbol"
-              , "Human ortholog"
-              , "Gene Id"
-              , "Gene name"
-              , "Gene synonym"
-              , "Production status"
-              , "Phenotype status"
-              , "Phenotype status link"
-            };
-            validateDownloadHeading(status, pageRow.geneSymbol, expectedHeadingList, downloadData[0]);
             
             // Verify the components.
             
@@ -175,9 +175,9 @@ public class SearchGeneTable extends SearchFacetTable {
             // If page productionStatus is empty, validate that download is empty too.
             downloadValue = downloadRow[DownloadSearchMapGenes.COL_INDEX_PRODUCTION_STATUS].trim();
             if (pageRow.productionStatus.isEmpty()) {
-                if ( ! downloadValue.equals(NO_INFO_AVAILABLE)) {
+                if ( ! downloadValue.equals(NO_ES_CELLS_PRODUCED)) {
                     status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol
-                            + " page has no productionStatus but download string is '" + downloadValue + "'.");
+                            + " page has no es cells produced but download string is '" + downloadValue + "'.");
                 }
             } else {
                 for (PhenotypeArchiveStatus pageProductionStatus : pageRow.productionStatus) {
@@ -241,7 +241,7 @@ public class SearchGeneTable extends SearchFacetTable {
                             bodyRowElementList.get(2).findElement(By.cssSelector("a")).getAttribute("href");        // phenotypeStatusLink.
                 }
                 
-System.out.println("geneRow[ " + index + " ]: " + geneRow.toString());
+//System.out.println("geneRow[ " + index + " ]: " + geneRow.toString());
                 index++;
                 bodyRows.add(geneRow);
             }
@@ -422,9 +422,6 @@ System.out.println("geneRow[ " + index + " ]: " + geneRow.toString());
             try {
                 if (anchorElement != null) {
                     mpName = anchorElement.findElement(By.cssSelector("span")).getText();
-                    
-                    String classList = anchorElement.getAttribute("class");
-                    String[] classes = classList.split(" ");
                     mpClass = PhenotypeArchiveStatusClass.valueOf(anchorElement.getAttribute("class").split(" ")[1]);
                 }
             } catch (Exception e) {

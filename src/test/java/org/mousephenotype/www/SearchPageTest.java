@@ -29,23 +29,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.AfterClass;
-
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.PageStatus;
+import org.mousephenotype.www.testing.model.SearchImageTable.ImageFacetView;
 import org.mousephenotype.www.testing.model.SearchPage;
+import org.mousephenotype.www.testing.model.SearchPage.Facet;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -58,7 +56,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -764,6 +761,46 @@ public class SearchPageTest {
         
         downloadTestEngine(testName, searchString);
     }
+    
+    // This test doesn't use the download test engine as it requires an extra
+    // click to switch to the Image facet's 'Image' view.
+    @Test
+//@Ignore
+    public void testImageFacetImageView() throws Exception {
+        String testName = "testImageFacetImageView";
+        String searchString = "";
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        try {
+            String target = baseUrl + "/search";
+// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            Facet facet = Facet.IMAGES;    
+            searchPage.clickFacet(facet);
+            searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
+            searchPage.clickPageButton();
+//searchPage.clickPageButton(SearchPage.PageDirective.FIRST_NUMBERED);
+            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+            status.add(searchPage.validateDownload(facet));
+        } catch (Exception e) {
+            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            System.out.println(message);
+            e.printStackTrace();
+            status.addError(message);
+        } finally {
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            } else {
+                successList.add(testName + ": SUCCESS.");
+            }
+
+            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        }
+    }
 
     
     // PRIVATE METHODS
@@ -907,6 +944,7 @@ public class SearchPageTest {
         try {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
             String target = baseUrl + "/search";
+// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
             SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
 
             if (! searchString.isEmpty()) {
@@ -924,8 +962,8 @@ public class SearchPageTest {
 
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
-                searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.NEXT);
+//                searchPage.clickPageButton();
+searchPage.clickPageButton(SearchPage.PageDirective.FIRST_NUMBERED);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                 status.add(searchPage.validateDownload(facet));
             }

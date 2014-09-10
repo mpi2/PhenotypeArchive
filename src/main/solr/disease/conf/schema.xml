@@ -123,6 +123,11 @@
 	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true"/>
 	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true"/>   
 
+	<field name="mgi_predicted_known_gene" type="boolean" indexed="true" stored="true"/>
+	<field name="impc_predicted_known_gene" type="boolean" indexed="true" stored="true"/>
+	<field name="mgi_novel_predicted_in_locus" type="boolean" indexed="true" stored="true"/>
+	<field name="impc_novel_predicted_in_locus" type="boolean" indexed="true" stored="true"/>
+
 	<!-- gene core stuff -->
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />  
@@ -164,12 +169,7 @@
 	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
-	<!-- tagging mp for faceting --> 
-	<field name="isPreQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
-	<field name="isPostQc" type="int" indexed="true" stored="true" required="false" multiValued="false" />
-	<field name="isLegacy" type="int" indexed="true" stored="true" required="false" multiValued="false" />
-
+	
 	<!-- ontology subset of mp/ma terms -->
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 

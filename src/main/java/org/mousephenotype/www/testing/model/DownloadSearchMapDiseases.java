@@ -28,11 +28,12 @@ package org.mousephenotype.www.testing.model;
  * diseaseGrid HTML table.
  */
 public class DownloadSearchMapDiseases {
-    public final static int COL_INDEX_DISEASE_ID     = 0;
-    public final static int COL_INDEX_DISEASE_NAME   = 1;
-    public final static int COL_INDEX_SOURCE         = 2;
-    public final static int COL_INDEX_CURATED_HUMAN  = 3;
-    public final static int COL_INDEX_CURATED_MICE   = 4;
-    public final static int COL_INDEX_CANDIDATE_IMPC = 5;
-    public final static int COL_INDEX_CANDIDATE_MGI  = 6;
+    public final static int COL_INDEX_DISEASE_ID      = 0;
+    public final static int COL_INDEX_DISEASE_ID_LINK = 1;
+    public final static int COL_INDEX_DISEASE_NAME    = 2;
+    public final static int COL_INDEX_SOURCE          = 3;
+    public final static int COL_INDEX_CURATED_HUMAN   = 4;
+    public final static int COL_INDEX_CURATED_MICE    = 5;
+    public final static int COL_INDEX_CANDIDATE_IMPC  = 6;
+    public final static int COL_INDEX_CANDIDATE_MGI   = 7;
 }

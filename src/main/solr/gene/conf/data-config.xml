@@ -48,7 +48,7 @@
 								
 			<field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />			
 			
-			<field column="hasQc" xpath="/response/result/doc/int[@name='hasQc']" />
+			<!--  <field column="hasQc" xpath="/response/result/doc/int[@name='hasQc']" />-->
 
 			<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
 			<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
@@ -94,6 +94,11 @@
 			<field column="impc_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_predicted_in_locus']/bool" /> 			
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />	
 
+			<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
+			<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
+			<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
+			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
+
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" 
 				stream="true" 
@@ -107,10 +112,6 @@
 				<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />		
 				<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />	
 				<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
-				
-				<field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />
-				<field column="isPreQc"  xpath="/response/result/doc/int[@name='isPreQc']" />
-				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />
 				
 				<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
 				<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							

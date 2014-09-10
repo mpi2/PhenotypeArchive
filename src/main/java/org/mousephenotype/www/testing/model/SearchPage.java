@@ -56,7 +56,6 @@ public class SearchPage {
     private SearchProcedureTable procedureTable;
     private SearchImageTable     imageTable;
     
-    
     // These are the core names.
     public static final String GENE_CORE       = "gene";
     public static final String PHENOTYPE_CORE  = "phenotype";
@@ -65,7 +64,15 @@ public class SearchPage {
     public static final String PROCEDURES_CORE = "procedures";
     public static final String IMAGES_CORE     = "images";
     
+    
+    public enum DownloadType {
+        PAGINATED_TSV,
+        PAGINATED_XLS,
+        ALL_TSV,
+        ALL_XLS
+    }
     // The facets shown on the left.
+    
     public enum Facet {
         GENES,
         PHENOTYPES,
@@ -88,12 +95,10 @@ public class SearchPage {
         NEXT
     }
     
-    public enum DownloadType {
-        PAGINATED_TSV,
-        PAGINATED_XLS,
-        ALL_TSV,
-        ALL_XLS
-    }
+    public enum WindowState {
+        OPEN,
+        CLOSE
+    };
     
     /**
      * Creates a new <code>SearchPage</code> instance. No web page is loaded.
@@ -138,11 +143,7 @@ public class SearchPage {
     
     public void clickDownloadButton(DownloadType downloadType) {
         // show the toolbox if it is not already showing.
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        if ( ! style.contains("block;")) {
-            driver.findElement(By.xpath("//span[@id='dnld']")).click();
-        }
-        
+        clickToolbox(WindowState.OPEN);
         String className = "";
         
         switch (downloadType) {
@@ -176,43 +177,6 @@ public class SearchPage {
         }
         
         return getResultCount();
-    }
-    
-    /**
-     * Clicks the given page button. This has the side effect of waiting for
-     * the page to finish loading. <b>Note:</b> The pageButton may be disabled
-     * or it may be the ellipsis, in which case the form simply won't change.
-     * @param pageButton the page button to click
-     * @throws Exception if no such button exists
-     */
-    public void clickPageButton(PageDirective pageButton) throws Exception {
-        List<WebElement> ulElements = driver.findElements(By.xpath("//div[contains(@class, 'dataTables_paginate')]/ul/li"));
-        try {
-            switch (pageButton) {
-                case PREVIOUS:          ulElements.get(0).click();      break;
-
-                case FIRST_NUMBERED:    ulElements.get(1).click();      break;
-
-                case SECOND_NUMBERED:   ulElements.get(2).click();      break;
-
-                case THIRD_NUMBERED:    ulElements.get(3).click();      break;
-
-                case FOURTH_NUMBERED:   ulElements.get(4).click();      break;
-
-                case FIFTH_NUMBERED:    ulElements.get(5).click();      break;
-                    
-                case ELLIPSIS:                                          break;
-
-                case LAST:              ulElements.get(7).click();      break;
-
-                case NEXT:              ulElements.get(8).click();      break;
-            }
-        } catch (Exception e) {
-            System.out.println("SearchPage.clickPageButton exception: " + e.getLocalizedMessage());
-            throw e;
-        }
-        
-        getResultCount();                                                       // Called purely to wait for the page to finish loading.
     }
     
     /**
@@ -258,6 +222,59 @@ public class SearchPage {
     }
     
     /**
+     * Clicks the given page button. This has the side effect of waiting for
+     * the page to finish loading. <b>Note:</b> The pageButton may be disabled
+     * or it may be the ellipsis, in which case the form simply won't change.
+     * @param pageButton the page button to click
+     * @throws Exception if no such button exists
+     */
+    public void clickPageButton(PageDirective pageButton) throws Exception {
+        List<WebElement> ulElements = driver.findElements(By.xpath("//div[contains(@class, 'dataTables_paginate')]/ul/li"));
+        try {
+            switch (pageButton) {
+                case PREVIOUS:          ulElements.get(0).click();      break;
+
+                case FIRST_NUMBERED:    ulElements.get(1).click();      break;
+
+                case SECOND_NUMBERED:   ulElements.get(2).click();      break;
+
+                case THIRD_NUMBERED:    ulElements.get(3).click();      break;
+
+                case FOURTH_NUMBERED:   ulElements.get(4).click();      break;
+
+                case FIFTH_NUMBERED:    ulElements.get(5).click();      break;
+                    
+                case ELLIPSIS:                                          break;
+
+                case LAST:              ulElements.get(7).click();      break;
+
+                case NEXT:              ulElements.get(8).click();      break;
+            }
+        } catch (Exception e) {
+            System.out.println("SearchPage.clickPageButton exception: " + e.getLocalizedMessage());
+            throw e;
+        }
+        
+        getImageTable().updateImageTableAfterChange();                          // Update the image table to keep it in sync.
+        getResultCount();                                                       // Called purely to wait for the page to finish loading.
+    }
+    
+    public void clickToolbox(WindowState desiredWindowState) {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        switch (desiredWindowState) {
+            case CLOSE:
+                if (style.contains("block;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
+                
+            case OPEN:
+                if (style.contains("none;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
+        }
+    }
+    
+    /**
      * @return Returns the anatomy table [maGrid], if there is one; or an
      * empty one if there is not
      */
@@ -269,6 +286,14 @@ public class SearchPage {
         }
         
         return anatomyTable;
+    }
+
+    /**
+     * 
+     * @return The base url
+     */
+    public String getBaseUrl() {
+        return baseUrl;
     }
     
     /**
@@ -351,28 +376,6 @@ public class SearchPage {
      */
     public int getNumPageButtons() {
         return driver.findElements(By.xpath("//div[contains(@class, 'dataTables_paginate')]/ul/li")).size();
-    }
-    
-    public class Showing {
-        public final int first;
-        public final int last;
-        public final int total;
-        
-        public Showing(){
-            String[] showing = driver.findElement(By.xpath("//div[@id='geneGrid_info']")).getText().split(" ");
-            first = Utils.tryParseInt(showing[1]);
-            last = Utils.tryParseInt(showing[3]);
-            total = Utils.tryParseInt(showing[5]);
-        }
-    }
-    
-    /**
-     * 
-     * @return A <code>Showing</code> instance with the interesting inteter
-     * parts of the <i>Showing</i> page results string.
-     */
-    public Showing getShowing() {
-        return new Showing();
     }
     
     /**
@@ -512,18 +515,24 @@ public class SearchPage {
     
     /**
      * 
+     * @return A <code>Showing</code> instance with the interesting inteter
+     * parts of the <i>Showing</i> page results string.
+     */
+    public Showing getShowing() {
+        return new Showing();
+    }
+    
+    /**
+     * 
      * @return The timeout, in seconds
      */
     public long getTimeoutInSeconds() {
         return timeoutInSeconds;
     }
-
-    /**
-     * 
-     * @return The base url
-     */
-    public String getBaseUrl() {
-        return baseUrl;
+    
+    public WindowState getToolboxState() {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        return (style.contains("block;") ? WindowState.OPEN : WindowState.CLOSE);
     }
     
     /**
@@ -610,6 +619,10 @@ public class SearchPage {
         }
     }
     
+    public void setImageFacetView(SearchImageTable.ImageFacetView desiredView) {
+        getImageTable().setCurrentView(desiredView);
+    }
+    
     /**
      * Submits the string in <code>searchString</code> to the server. This has
      * the side effect of waiting for the page to finish loading.
@@ -625,41 +638,60 @@ public class SearchPage {
         return getResultCount();
     }
     
+    /**
+     * Compares each facet's grid (on the right-hand side of the search page)
+     * with each of the four download data streams (page/all and tsv/xls). Any
+     * errors are returned in the <code>PageStatus</code> instance.
+
+     * @param facet facet
+     * @return page status instance
+     */
+    public PageStatus validateDownload(Facet facet) {
+        PageStatus status = new PageStatus();
+        
+        DownloadType[] downloadTypes = {
+              DownloadType.PAGINATED_TSV
+            , DownloadType.PAGINATED_XLS
+    // Don't test the 'ALL_xxx' download types as they are known to be broken in both production and testing; the server rejects streams that are too long.
+//            , DownloadType.ALL_TSV
+//            , DownloadType.ALL_XLS
+        };
+        
+        String[][] data;
+        // Validate the download types for this facet.
+        for (DownloadType downloadType : downloadTypes) {
+            data = getDownload(downloadType, baseUrl);                          // Get the data for this download type.
+            SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
+            status.add(table.validateDownload(data));                           // Validate it.
+            
+            if (status.hasErrors()) {
+                System.out.println("VALIDATION ERRORS:\n" + status.toStringErrorMessages());
+            }
+        }
+        
+        return status;
+    }
+    
+    
+    // PUBLIC CLASSES
+    
+    
+    public class Showing {
+        public final int first;
+        public final int last;
+        public final int total;
+        
+        public Showing(){
+            String[] showing = driver.findElement(By.xpath("//div[@id='geneGrid_info']")).getText().split(" ");
+            first = Utils.tryParseInt(showing[1]);
+            last = Utils.tryParseInt(showing[3]);
+            total = Utils.tryParseInt(showing[5]);
+        }
+    }
+    
     
     // PRIVATE METHODS
     
-    
-    private String getFacetId(Facet facet) {
-        String id = "";
-        
-        switch (facet) {
-            case GENES:
-                id = "gene";
-                break;
-                
-            case PHENOTYPES:
-                id = "mp";
-                break;
-                
-            case DISEASES:
-                id = "disease";
-                break;
-                
-            case ANATOMY:
-                id = "ma";
-                break;
-                
-            case PROCEDURES:
-                id = "pipeline";
-                break;
-                
-            case IMAGES:
-                id = "images";
-                break;
-        }
-        
-        return id;
-    }
     
     /**
      * Get the full data store matching the download type
@@ -721,10 +753,8 @@ public class SearchPage {
      */
     private String getDownloadUrlBase(DownloadType downloadType) {
         // show the toolbox if it is not already showing.
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        if ( ! style.contains("block;")) {
-            driver.findElement(By.xpath("//span[@id='dnld']")).click();
-        }
+        clickToolbox(WindowState.OPEN);
+        driver.findElement(By.xpath("//span[@id='dnld']")).click();
         
         String className = "";
         
@@ -738,38 +768,36 @@ public class SearchPage {
         return driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).getAttribute("data-exporturl");
     }
     
-    /**
-     * Compares each facet's grid (on the right-hand side of the search page)
-     * with each of the four download data streams (page/all and tsv/xls). Any
-     * errors are returned in the <code>PageStatus</code> instance.
-
-     * @param facet facet
-     * @return page status instance
-     */
-    public PageStatus validateDownload(Facet facet) {
-        PageStatus status = new PageStatus();
+    private String getFacetId(Facet facet) {
+        String id = "";
         
-        DownloadType[] downloadTypes = {
-              DownloadType.PAGINATED_TSV
-            , DownloadType.PAGINATED_XLS
-    // Don't test the 'ALL_xxx' download types as they are known to be broken in both production and testing; the server rejects streams that are too long.
-//            , DownloadType.ALL_TSV
-//            , DownloadType.ALL_XLS
-        };
-        
-        String[][] data;
-        // Validate the download types for this facet.
-        for (DownloadType downloadType : downloadTypes) {
-            data = getDownload(downloadType, baseUrl);                          // Get the data for this download type.
-            SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
-            status.add(table.validateDownload(data));                           // Validate it.
-            
-            if (status.hasErrors()) {
-                System.out.println("VALIDATION ERRORS:\n" + status.toStringErrorMessages());
-            }
+        switch (facet) {
+            case GENES:
+                id = "gene";
+                break;
+                
+            case PHENOTYPES:
+                id = "mp";
+                break;
+                
+            case DISEASES:
+                id = "disease";
+                break;
+                
+            case ANATOMY:
+                id = "ma";
+                break;
+                
+            case PROCEDURES:
+                id = "pipeline";
+                break;
+                
+            case IMAGES:
+                id = "images";
+                break;
         }
         
-        return status;
+        return id;
     }
     
     /**

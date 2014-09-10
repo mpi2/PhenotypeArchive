@@ -264,7 +264,7 @@ span.subMatch {
 	color: #0978A1;
 }
 
-div.subinfo ul li {
+div.subinfo ul li, span.imgAnnots ul li {
 	margin-left: 20px;
 	padding-left: 10px;
 	background-image: url('../img/gray_bullet.jpg');

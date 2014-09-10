@@ -66,11 +66,27 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 	@Transactional(readOnly = false)
 	public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
 			String alleleAccession, String phenotypingCenter,
-			String pipelineStableId) {
+			String pipelineStableId,
+			List<String> procedureStableIds) {
 		
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
+		
+		String procedureJoinQuery = "";
+		String inQuery = "";
+		if (procedureStableIds != null && procedureStableIds.size() > 0) {
+			procedureJoinQuery = 
+					" ";
+					
+			inQuery = "AND (";
+			int index = 0;
+			for (String stableId: procedureStableIds) {
+				inQuery += ((index == 0) ? " " : " OR ") + "param.stable_id LIKE  '" + stableId + "%'";
+				index++;
+			}
+			inQuery += ") ";
+		}
 		
 		/* 
 		 * get all categorical parameter:
@@ -88,16 +104,21 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 				+ "c.male_controls, c.male_mutants, c.female_controls, c.female_mutants, "
 				+ "c.metadata_group "
 				+ "FROM stats_categorical_results c JOIN phenotype_parameter param "
-				+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
-				+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
+				+ "ON param.id = c.parameter_id "
+				+ "JOIN phenotype_pipeline pip ON pip.id = c.pipeline_id "
+				+ procedureJoinQuery
+				+ "JOIN biological_model_allele bma "
 				+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
 				+ "ON o.id = c.organisation_id "
 				+ "WHERE pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
+				+ inQuery
 				+ "ORDER by param.stable_id asc, c.status asc, c.p_value desc, "
 				+ "CASE c.control_sex "
 				+ " WHEN 'male' THEN c.male_mutants "
 				+ " WHEN 'female' THEN c.female_mutants END ASC";
 
+		System.out.println(query);
+		
 		try (Connection connection = getConnection()) {
 			statement = connection.prepareStatement(query);
 			statement.setString(1, pipelineStableId);
@@ -159,11 +180,14 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 				+ "c.metadata_group "
 				+ "FROM stats_unidimensional_results c JOIN phenotype_parameter param "
 				+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
-				+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
+				+ "ON pip.id = c.pipeline_id "
+				+ procedureJoinQuery
+				+ "JOIN biological_model_allele bma "
 				+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
 				+ "ON o.id = c.organisation_id "
 				+ "WHERE c.statistical_method <> ?"
 				+ " AND pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
+				+ inQuery
 				//+ "ORDER by param.stable_id asc, c.null_test_significance desc, c.male_mutants desc, c.female_mutants desc";
 				+ "ORDER by param.stable_id asc, c.status asc, c.null_test_significance desc, c.male_mutants asc, c.female_mutants asc";
 		
@@ -232,11 +256,14 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 					+ "c.metadata_group "
 					+ "FROM stats_unidimensional_results c JOIN phenotype_parameter param "
 					+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
-					+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
+					+ "ON pip.id = c.pipeline_id "
+					+ procedureJoinQuery
+					+ "JOIN biological_model_allele bma "
 					+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
 					+ "ON o.id = c.organisation_id "
 					+ "WHERE c.statistical_method = ?"
 					+ " AND pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
+					+ inQuery
 					//+ "ORDER by param.stable_id asc, c.null_test_significance desc, c.male_mutants desc, c.female_mutants desc";
 					+ "ORDER by param.stable_id asc, c.status asc, c.null_test_significance desc, c.male_mutants asc, c.female_mutants asc";
 			
