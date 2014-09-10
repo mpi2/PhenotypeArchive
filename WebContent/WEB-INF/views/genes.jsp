@@ -366,27 +366,27 @@
                             
                             <!-- nicolas accordion for images here -->
                              <!-- nicolas accordion for images here -->
-                            <c:if test="${not empty procedureToImagesMap}">
+                            <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
                                     <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
-                                        <c:forEach var="entry" items="${solrFacets}" varStatus="status">
+                                        <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
                                             <div class="accordion-group">
                                                 <div class="accordion-heading">
                                                     ${entry.name} (${entry.count})
                                                 </div>
                                                 <div class="accordion-body">
                                                     <ul>
-                                                        <c:forEach var="doc" items="${facetToDocs[entry.name]}">
+                                                        <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
                                                             <li>
-                                                                <t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
                                                                 </li>
                                                         </c:forEach>
                                                     </ul>
                                                     <div class="clear"></div>
                                                     <c:if test="${entry.count>5}">
-                                                        <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+                                                        <p class="textright"><a href="${baseUrl}/impcImages?q=gene_accession_id:${acc}&fq=procedure_name:${entry.name}&rows=100000"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
                                                     </c:if>
                                                 </div><!--  end of accordion body -->
                                             </div>

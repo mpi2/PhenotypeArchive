@@ -527,42 +527,90 @@ public class GenesController {
 	private void getImpcExperimentalImages(String acc, Model model)
 	throws SolrServerException {
 
-		
-		Map<String, ResponseWrapper<ImageDTO>> procedureToImagesMap = imageService.getFacetsForGeneByProcedure(acc,"experimental");
-		//List<FacetField> facetFields = response.getFacetFields();
-		//make a facet request first to get the procedures and then reuturn make requests for each procedure
-		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2384986%22&&fq=biological_sample_group:experimental&facet=true&facet.field=procedure_name
-//		if (facetFields != null) {
-//			for (FacetField facetField : facetFields) {
-//				System.out.println("facetFields=" + facetField.getName() + facetField.getValueCount() + facetField.getValues());
-//				for(Count value: facetField.getValues()){
-//					String procedure=value.getName();
-//					String controlOrExp="experimental";
-//					ResponseWrapper<ImageDTO> wrapper = imageService.getImagesForGeneByProcedure(acc, procedure, controlOrExp, numberOfImagesToDisplay);
-//					if (response == null) {
-//					log.error("no response from impc images solr data source for acc=" + acc);
-//					return;
-//					}
-//					if (response.getResults().getNumFound() > 0) {// only do this if we have some
-//					// images docs returned for impc
-//						List<SolrDocument> list = null;
-//						if (response.getResults().getNumFound() > numberOfImagesToDisplay) {
-//							list = response.getResults().subList(0, numberOfImagesToDisplay);
-//						} else {
-//							list = response.getResults();
-//						}
-//					}
-//				}
-//			}
-//		}
-		
-			
-			
+		QueryResponse solrR = imageService.getFacetsForGeneByProcedure(acc,"experimental");
+		if (solrR == null) {
+			log.error("no response from solr data source for acc=" + acc);
+			return;
+		}
 
-			model.addAttribute("procedureToImagesMap", procedureToImagesMap);
-			model.addAttribute("totalImpcImages", 5);
+		List<FacetField> facets = solrR.getFacetFields();
+		if (facets == null) {
+			log.error("no facets from solr data source for acc=" + acc);
+			return;
+		}
+
+		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
+		List<Count> filteredCounts = new ArrayList<Count>();
+
+		for (FacetField facet : facets) {
+			if (facet.getValueCount() != 0) {
+
+				// get rid of wholemount expression/Adult LacZ facet as this is displayed seperately in the using the other method
+				//need to put the section in genes.jsp!!!
+				for (Count count : facets.get(0).getValues()) {
+					if (!count.getName().equals("Adult LacZ")) {
+						filteredCounts.add(count);
+					}
+				}
+
+				for (Count count : facet.getValues()) {
+					if (!count.getName().equals("Wholemount Expression")) {
+
+						// get 5 images if available for this experiment type
+						QueryResponse response = imageService.getImagesForGeneByProcedure(acc, count.getName(), "experimental", 5);//DocsForGeneWithFacetField(acc, "expName", count.getName(), "", 0, numberOfImagesToDisplay);
+						if (response != null) {
+							facetToDocs.put(count.getName(), response.getResults());
+						}
+					}
+				}
+			}
+
+			model.addAttribute("impcImageFacets", filteredCounts);
+			model.addAttribute("impcFacetToDocs", facetToDocs);
+		}
+		
 		
 
+	}
+	
+	/**
+	 * Get the first 5 wholemount expression images if available
+	 * 
+	 * @param acc
+	 *            the gene to get the images for
+	 * @param model
+	 *            the model to add the images to
+	 * @throws SolrServerException
+	 */
+	private void getImpcExpressionImages(String acc, Model model)
+	throws SolrServerException {
+
+		QueryResponse solrExpressionR = imagesSolrDao.getExpressionFacetForGeneAccession(acc);
+		if (solrExpressionR == null) {
+			log.error("no response from solr data source for acc=" + acc);
+			return;
+		}
+
+		List<FacetField> expressionfacets = solrExpressionR.getFacetFields();
+		if (expressionfacets == null) {
+			log.error("no expression facets from solr data source for acc=" + acc);
+			return;
+		}
+
+		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
+
+		for (FacetField facet : expressionfacets) {
+			if (facet.getValueCount() != 0) {
+				for (Count value : facet.getValues()) {
+					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName", value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
+					if (response != null) {
+						facetToDocs.put(value.getName(), response.getResults());
+					}
+				}
+			}
+			model.addAttribute("expressionFacets", expressionfacets.get(0).getValues());
+			model.addAttribute("expFacetToDocs", facetToDocs);
+		}
 	}
 
 

@@ -102,52 +102,25 @@ public class ImageService {
 	}
 
 
-	public Map<String, ResponseWrapper<ImageDTO>> getFacetsForGeneByProcedure(String mgiAccession, String experimentOrControl)
+	public QueryResponse getFacetsForGeneByProcedure(String mgiAccession, String experimentOrControl)
 	throws SolrServerException {
 		Map<String, ResponseWrapper<ImageDTO>> map=new HashMap<String, ResponseWrapper<ImageDTO>>();
-		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&facet=true&facet.field=procedure_name";
+		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&facet=true&facet.field=procedure_name&facet.mincount=1";
 		System.out.println("queryString in ImageService=" + queryString);
 		
 		
 		//make a facet request first to get the procedures and then reuturn make requests for each procedure
 		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2384986%22&&fq=biological_sample_group:experimental&facet=true&facet.field=procedure_name
 		QueryResponse response=this.getResponseForSolrQuery(queryString);
-		List<FacetField> facetFields = response.getFacetFields();
-		if (facetFields != null) {
-			for (FacetField facetField : facetFields) {
-				System.out.println("facetFields=" + facetField.getName() + facetField.getValueCount() + facetField.getValues());
-				for(Count value: facetField.getValues()){
-					String procedure=value.getName();
-					String controlOrExp="experimental";
-					ResponseWrapper<ImageDTO> wrapper = this.getImagesForGeneByProcedure(mgiAccession, procedure, controlOrExp, 5);
-					map.put(procedure, wrapper);
-					if (response == null) {
-					System.err.println("no response from impc images solr data source for acc=" + mgiAccession);
-					return null;
-					}
-//					if (response.getResults().getNumFound() > 0) {// only do this if we have some
-//					// images docs returned for impc
-//						List<SolrDocument> list = null;
-//						if (response.getResults().getNumFound() > numberOfImagesToDisplay) {
-//							list = response.getResults().subList(0, numberOfImagesToDisplay);
-//						} else {
-//							list = response.getResults();
-//						}
-//					}
-				}
-			}
-		}
-		return map;
+		return response;
 	}
 	
-	public ResponseWrapper<ImageDTO> getImagesForGeneByProcedure(String mgiAccession, String procedure, String experimentOrControl, int numberOfImagesToRetrieve)
+	public QueryResponse getImagesForGeneByProcedure(String mgiAccession, String procedure, String experimentOrControl, int numberOfImagesToRetrieve)
 	throws SolrServerException {
 		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&rows="+numberOfImagesToRetrieve;
 		System.out.println("queryString in ImageService=" + queryString);
 		QueryResponse response = this.getResponseForSolrQuery(queryString);
-		ResponseWrapper<ImageDTO> wrapper = new ResponseWrapper<ImageDTO>(response.getBeans(ImageDTO.class));
-		wrapper.setTotalNumberFound(response.getResults().getNumFound());
-		return wrapper;
+		return response;
 	}
 
 }
