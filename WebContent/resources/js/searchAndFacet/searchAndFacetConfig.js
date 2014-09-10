@@ -208,7 +208,13 @@ config.facetParams = {
 	geneFacet:      {
 		type: 'genes',	
 		name: 'Genes',
-		subFacetFqFields: ['imits_phenotype_started', 'imits_phenotype_complete', 'imits_phenotype_status', 'legacy', 'status', 'marker_type'],			
+		subFacetFqFields: [
+		                   'latest_phenotype_status',
+		                   'legacy_phenotype_status',
+		                   'status',
+		                   'latest_production_centre',
+		                   'latest_phenotyping_centre',
+		                   'marker_type'],
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
 		tableHeader: "<thead><th>Gene</th><th>Production Status</th><th>Phenotype Status</th><th></th></thead>",		
@@ -235,7 +241,7 @@ config.facetParams = {
 	 pipelineFacet: {	
 		 type: 'parameters',
 		 name: 'Procedures',
-		 subFacetFqFields: 'procedure_stable_id', 		 
+		 subFacetFqFields: ['pipeline_name', 'pipe_proc_sid'], 		 
 		 solrCoreName: 'pipeline',			
 		 tableCols: 3, 
 		 tableHeader: '<thead><th>Parameter</th><th>Procedure</th><th>Pipeline</th></thead>',		
@@ -255,7 +261,7 @@ config.facetParams = {
 	 mpFacet: {	
 		 type: 'phenotypes',
 		 name: 'Phenotypes',
-		 subFacetFqFields: 'top_level_mp_term',
+		 subFacetFqFields: ['top_level_mp_term'],
 		 solrCoreName: 'mp', 
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th></thead>', 
@@ -280,7 +286,7 @@ config.facetParams = {
 	 maFacet: {			    	
 		 type: 'tissues',
 		 name: 'Anatomy',
-		 subFacetFqFields: 'selected_top_level_ma_term',
+		 subFacetFqFields: ['selected_top_level_ma_term'],
 		 solrCoreName: 'ma', 
 		 tableCols: 1, 
 		 tableHeader: '<thead><th>Anatomy</th></thead>', 
@@ -306,7 +312,7 @@ config.facetParams = {
 	 diseaseFacet: {			    	
 		 type: 'diseases',
 		 name: 'Diseases',
-		 subFacetFqFields: '',
+		 subFacetFqFields:  ['disease_classes', 'disease_source', 'human_curated', 'mouse_curated', 'impc_predicted', 'impc_predicted_in_locus', 'mgi_predicted', 'mgi_predicted_in_locus'],
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
 		 tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th><span class="main">Candidate Genes</span><span class="sub">by phenotype</span></th></thead>', 

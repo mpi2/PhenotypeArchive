@@ -17,7 +17,10 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +38,7 @@ import javax.servlet.http.HttpSession;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -248,7 +252,20 @@ public class FileExportController {
 
     	hostName = request.getAttribute("mappedHostname").toString();
     	
-        log.debug("solr params: " + solrFilters);
+        log.debug("****************solr params: " + solrFilters);
+        String query = "*:*"; // default
+        String[] pairs = solrFilters.split("&");		
+		for (String pair : pairs) {
+			try {
+				String[] parts = pair.split("=");				
+				if (parts[0].equals("q")) {
+					query = parts[1];	
+				}
+			}catch (Exception e) {
+				log.error("Error getting value of q");			
+			}			
+		}		
+		
         Workbook wb = null;
         List<String> dataRows = new ArrayList();
         // Default to exporting 10 rows
@@ -287,7 +304,7 @@ public class FileExportController {
                 }
             } else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
-                dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrFilters, request, legacyOnly);
+                dataRows = composeDataTableExportRows(query, solrCoreName, json, rowStart, length, showImgView, solrFilters, request, legacyOnly);
             }
         }
 
@@ -425,7 +442,7 @@ public class FileExportController {
         return rows;
     }
 
-    public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request, boolean legacyOnly) {
+    public List<String> composeDataTableExportRows(String query, String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request, boolean legacyOnly) {
         List<String> rows = null;
 
         if (solrCoreName.equals("gene")) {
@@ -437,7 +454,7 @@ public class FileExportController {
         } else if (solrCoreName.equals("pipeline")) {
             rows = composeProtocolDataTableRows(json, request);
         } else if (solrCoreName.equals("images")) {
-            rows = composeImageDataTableRows(json, iDisplayStart, iDisplayLength, showImgView, solrParams, request);
+            rows = composeImageDataTableRows(query, json, iDisplayStart, iDisplayLength, showImgView, solrParams, request);
         } else if (solrCoreName.equals("disease")) {
             rows = composeDiseaseDataTableRows(json, request);
         }
@@ -471,7 +488,7 @@ public class FileExportController {
         return rowData;
     }
 
-    private List<String> composeImageDataTableRows(JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
+    private List<String> composeImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
         String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
 
         List<String> rowData = new ArrayList();
@@ -484,7 +501,7 @@ public class FileExportController {
 
             System.out.println("MODE: imgview " + showImgView);
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-            rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage_path"); // column names	
+            rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
 
             for (int i = 0; i < docs.size(); i ++) {
                 List<String> data = new ArrayList();
@@ -574,7 +591,7 @@ public class FileExportController {
             System.out.println("MODE: annotview " + showImgView);
 			// annotation view
             // annotation view: images group by annotationTerm per row
-            rowData.add("Annotation type\tAnnotation name\tAnnotation_name link\tRelated image count\tUrl to images"); // column names	
+            rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
             JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
             JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
@@ -592,18 +609,28 @@ public class FileExportController {
                 String[] names = sumFacets.get(i).toString().split("_");
                 if (names.length == 2) {  // only want facet value of xxx_yyy
                     String annotName = names[0];
+                   
                     Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp					
 
                     data.add(hm.get("label"));
                     data.add(annotName);
-					data.add(hm.get("fullLink").toString());
-
+                    data.add(hm.get("id"));
+                    System.out.println("annotname: "+ annotName);
+                    if ( hm.get("fullLink") != null ) {
+                    	data.add(hm.get("fullLink").toString());
+                    }
+                    else {
+                    	data.add(NO_INFO_MSG);
+                    }
+                    
                     String imgCount = sumFacets.get(i + 1).toString();
                     data.add(imgCount);
 
                     String facetField = hm.get("field");
+              
+                    solrParams = solrParams.replaceAll("&q=.+&", "&q="+ query + " AND " + facetField + ":\"" + names[0] + "\"&");
+                    String imgSubSetLink = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
                     
-                    String imgSubSetLink = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/images?" + solrParams + "q=*:*&fq=" + facetField + ":\"" + names[0] + "\"";
                     data.add(imgSubSetLink);
                     rowData.add(StringUtils.join(data, "\t"));
                 }

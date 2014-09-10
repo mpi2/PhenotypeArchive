@@ -536,7 +536,7 @@ public class DataTableController {
 				}
 				catch (Exception e){
 					// some images have no annotations					
-					rowData.add("Not available");
+					rowData.add("No information available");
 					rowData.add(imgLink);
 					j.getJSONArray("aaData").add(rowData);
 				}
@@ -553,8 +553,8 @@ public class DataTableController {
 				fqStr = "";
 			}
 			
-			String baseUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
-			//System.out.println("THE PARAMs: "+ solrParams);
+			String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
+			System.out.println("IMAGE PARAMs: "+ solrParams);
 			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			
@@ -593,12 +593,12 @@ public class DataTableController {
 					Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp				
 					String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
 					String facetField = hm.get("field").toString();
-
+					
 					String imgCount = facets.get(i+1).toString();	
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
 					
-					//String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
-					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit + "</a>";
+					imgUrl = imgUrl.replaceAll("&q=.+&", "&q="+ query + " AND " + facetField + ":\"" + names[0] + "\"&");
+					String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
 								
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 					
