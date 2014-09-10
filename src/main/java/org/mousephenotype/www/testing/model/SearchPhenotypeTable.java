@@ -68,6 +68,17 @@ public class SearchPhenotypeTable extends SearchFacetTable {
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
+            
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Mammalian phenotype term"
+          , "Mammalian phenotype id"
+          , "Mammalian phenotype id link"
+          , "Mammalian phenotype definition"
+          , "Mammalian phenotype synonym"
+          , "Mammalian phenotype top level term"
+        };
+        validateDownloadHeading("PHENOTYPE", status, expectedHeadingList, downloadData[0]);
         
         // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
         // and with all data (the data for all of the pages). As such, the only effective way to validate
@@ -86,17 +97,6 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 continue;
             }
             downloadHash.remove(pageRow.phenotypeTerm);                         // Remove the pageRow from the download hash.
-            
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Mammalian phenotype term"
-              , "Mammalian phenotype id"
-              , "Mammalian phenotype id link"
-              , "Mammalian phenotype definition"
-              , "Mammalian phenotype synonym"
-              , "Mammalian phenotype top level term"
-            };
-            validateDownloadHeading("PHENOTYPE", status, pageRow.phenotypeTerm, expectedHeadingList, downloadData[0]);
             
             // Verify the components.
             

@@ -70,13 +70,22 @@ public class SearchAnatomyTable extends SearchFacetTable {
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
+            
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Mouse adult gross anatomy term"
+          , "Mouse adult gross anatomy id"
+          , "Mouse adult gross anatomy id link"
+          , "Mouse adult gross anatomy synonym"
+        };
+        validateDownloadHeading("ANATOMY", status, expectedHeadingList, downloadData[0]);
         
         // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
         // and with all data (the data for all of the pages). As such, the only effective way to validate
         // it is to stuff the download data elements into a hash, then loop through the pageData rows
         // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
         for (int i = 1; i < downloadData.length; i++) {     
-            // Copy all but the pageHeading into the hash.// Copy all but the pageHeading into the hash.
+            // Copy all but the pageHeading into the hash.
             String[] row = downloadData[i];
             downloadHash.put(row[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM], row);
         }
@@ -88,15 +97,6 @@ public class SearchAnatomyTable extends SearchFacetTable {
                 continue;
             }
             downloadHash.remove(pageRow.anatomyTerm);
-            
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Mouse adult gross anatomy term"
-              , "Mouse adult gross anatomy id"
-              , "Mouse adult gross anatomy id link"
-              , "Mouse adult gross anatomy synonym"
-            };
-            validateDownloadHeading("ANATOMY", status, pageRow.anatomyTerm, expectedHeadingList, downloadData[0]);
             
             // Verify the components.
             
@@ -162,6 +162,12 @@ public class SearchAnatomyTable extends SearchFacetTable {
     // PRIVATE CLASSES
     
     
+    private class AnatomyRow {
+        private String anatomyId = "";
+        private String anatomyIdLink = "";
+        private String anatomyTerm = "";
+        private List<String> synonyms = new ArrayList();
+    
     // NOTE: We don't need these (as sorting the arrays does not solve the problem). However, I'm leaving these in
     //       because they are a good example of how to sort String[][] objects.
     // o1 and o2 are of type String[].
@@ -216,14 +222,7 @@ public class SearchAnatomyTable extends SearchFacetTable {
             
             return op1.compareTo(op2);
         }
-    }    
-    
-    private class AnatomyRow {
-        private String anatomyId = "";
-        private String anatomyIdLink = "";
-        private String anatomyTerm = "";
-        private List<String> synonyms = new ArrayList();
-
+    }
     }
 
 }

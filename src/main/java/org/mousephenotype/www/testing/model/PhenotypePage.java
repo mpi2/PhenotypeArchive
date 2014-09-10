@@ -101,28 +101,6 @@ public class PhenotypePage {
     
     /**
      * 
-     * @return A list of synonyms. The list will be empty if there are no synonyms.
-     */
-    public List<String> getSynonyms() {
-        List<String> synonymList = new ArrayList();
-        
-        try {
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/p[@class='with-label']/following-sibling::p")));
-            if ( ! element.getText().isEmpty()) {
-                if (element.findElement(By.cssSelector("span.label")).getText().trim().equals("Synonyms")) {
-                    String[] synonymArray = element.getText().replace("Synonyms", "").split(",");
-                    for (String synonym : synonymArray) {
-                        synonymList.add(synonym.trim());
-                    }
-                }
-            }
-        } catch (Exception e) { }
-        
-        return synonymList;
-    }
-    
-    /**
-     * 
      * @return a <code>List&lt;String&gt;</code> of this page's graph urls. The
      * list will be empty if this page doesn't have any graph urls.
      */
@@ -152,6 +130,28 @@ public class PhenotypePage {
      */
     public int getResultsCount() {
         return resultsCount;
+    }
+    
+    /**
+     * 
+     * @return A list of synonyms. The list will be empty if there are no synonyms.
+     */
+    public List<String> getSynonyms() {
+        List<String> synonymList = new ArrayList();
+        
+        try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/p[@class='with-label']/following-sibling::p")));
+            if ( ! element.getText().isEmpty()) {
+                if (element.findElement(By.cssSelector("span.label")).getText().trim().equals("Synonyms")) {
+                    String[] synonymArray = element.getText().replace("Synonyms", "").split(",");
+                    for (String synonym : synonymArray) {
+                        synonymList.add(synonym.trim());
+                    }
+                }
+            }
+        } catch (Exception e) { }
+        
+        return synonymList;
     }
 
     /**
@@ -259,43 +259,6 @@ public class PhenotypePage {
     
     
     /**
-     * Waits for the pheno page to load.
-     */
-    private void load() {
-        driver.get(target);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='gene-variants']")));
-        
-        // Get results count. [NOTE: pages with no matches don't have totals]
-        Integer i;
-        try {
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
-            String s = element.getText().replace("Total number of results: ", "");
-            i = Utils.tryParseInt(s);
-        } catch (Exception e) {
-            i = null;
-        }
-        
-        // Determine if this page has images.
-        try {
-            WebElement we = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/div[@class='accordion-group']/div[@class='accordion-heading']")));
-            hasImages = (we.getText().trim().equals("Phenotype Associated Images"));
-        } catch (Exception e) {
-            hasImages = false;
-        }
-        
-        // Determine if this page has phenotype associations.
-        try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='phenotypes']")));
-            hasPhenotypesTable = true;
-        } catch (Exception e) {
-            hasPhenotypesTable = false;
-        }
-        
-        resultsCount = (i == null ? 0 : i);
-        hasGraphs = (resultsCount > 0);
-    }
-    
-    /**
      * Compares a single row of a pageMap grid selected by pageMapIndex to a
      * single row of a downloadData grid selected by downloadIndex.
      * @param pageMap phenotypes HTML table store
@@ -317,48 +280,48 @@ public class PhenotypePage {
         
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_GENE).trim();
         if ( ! ap.gene.equals(downloadCell))
-            colErrors.add("ERROR: gene mismatch. Page: '" + ap.gene + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: gene mismatch. Page: '" + ap.gene + "'. Download: '" + downloadCell + "'");
         
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_ALLELE).trim();
         if ( ! ap.toString().equals(downloadCell))
-            colErrors.add("ERROR: allele mismatch. Page: '" + ap.alleleSub + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: allele mismatch. Page: '" + ap.alleleSub + "'. Download: '" + downloadCell + "'");
 
         pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_ZYGOSITY);
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_ZYGOSITY).trim();
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: zygosity mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: zygosity mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
         
         // Special case: if the page sex is "both", use "female" to compare against the download, as "female" is sorted first in the download.
         pageCell = pageMap.getCell(1, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
         pageCell = (pageCell.compareTo("both") == 0 ? "female" : pageCell);
         downloadCell = downloadData.getCell(1, DownloadPhenotypeMap.COL_INDEX_SEX).trim();
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: sex mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: sex mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
         
         pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPE);
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PHENOTYPE).trim();
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: phenotype mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: phenotype mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
         pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER);
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PROCEDURE_PARAMETER).trim();
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: procedure | parameter mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: procedure | parameter mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
         pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER);
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER).trim();
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: phenotyping center mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: phenotyping center mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
         pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SOURCE);
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_SOURCE).trim();
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: source mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: source mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
         pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE);
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_P_VALUE).trim();
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: p value mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: p value mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
         // When testing using http, the download link compare fails because the page url uses http
         // but the download graph link uses https. Ignore the protocol (but not the hostname).
@@ -366,7 +329,7 @@ public class PhenotypePage {
         
         downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadPhenotypeMap.COL_INDEX_GRAPH).trim());
         if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
         
         if ( ! colErrors.isEmpty()) {
             System.out.println(colErrors.size() + " errors:");
@@ -454,6 +417,43 @@ public class PhenotypePage {
         }
         
         return new GridMap(data, target);
+    }
+    
+    /**
+     * Waits for the pheno page to load.
+     */
+    private void load() {
+        driver.get(target);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='gene-variants']")));
+        
+        // Get results count. [NOTE: pages with no matches don't have totals]
+        Integer i;
+        try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
+            String s = element.getText().replace("Total number of results: ", "");
+            i = Utils.tryParseInt(s);
+        } catch (Exception e) {
+            i = null;
+        }
+        
+        // Determine if this page has images.
+        try {
+            WebElement we = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/div[@class='accordion-group']/div[@class='accordion-heading']")));
+            hasImages = (we.getText().trim().equals("Phenotype Associated Images"));
+        } catch (Exception e) {
+            hasImages = false;
+        }
+        
+        // Determine if this page has phenotype associations.
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='phenotypes']")));
+            hasPhenotypesTable = true;
+        } catch (Exception e) {
+            hasPhenotypesTable = false;
+        }
+        
+        resultsCount = (i == null ? 0 : i);
+        hasGraphs = (resultsCount > 0);
     }
     
     /**

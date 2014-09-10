@@ -72,6 +72,19 @@ public class SearchDiseaseTable extends SearchFacetTable {
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
+
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Disease id"
+          , "Disease id link"
+          , "Disease name"
+          , "Source"
+          , "Curated genes in human"
+          , "Curated genes in mouse (MGI)"
+          , "Candidate genes by phenotype (IMPC)"
+          , "Candidate genes by phenotype (MGI)"
+        };
+        validateDownloadHeading("DISEASE", status, expectedHeadingList, downloadData[0]);
         
         // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
         // and with all data (the data for all of the pages). As such, the only effective way to validate
@@ -90,19 +103,6 @@ public class SearchDiseaseTable extends SearchFacetTable {
                 continue;
             }
             downloadHash.remove(pageRow.diseaseName);                           // Remove the pageRow from the download hash.
-            
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Disease id"
-              , "Disease id link"
-              , "Disease name"
-              , "Source"
-              , "Curated genes in human"
-              , "Curated genes in mouse (MGI)"
-              , "Candidate genes by phenotype (IMPC)"
-              , "Candidate genes by phenotype (MGI)"
-            };
-            validateDownloadHeading("DISEASE", status, pageRow.diseaseName, expectedHeadingList, downloadData[0]);
             
             // Verify the components.
             
