@@ -493,9 +493,9 @@ public class FileExportController {
 
         List<String> rowData = new ArrayList();
 
-        String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/";
-        String maBaseUrl   = request.getAttribute("baseUrl") + "/anatomy/";
-        String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/";
+        String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/".replace("https:", "http:");
+        String maBaseUrl   = request.getAttribute("baseUrl") + "/anatomy/".replace("https:", "http:");
+        String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/".replace("https:", "http:");
         
         if (showImgView) {
 
