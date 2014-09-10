@@ -293,7 +293,7 @@ public class SolrIndex {
 		Map<String, String> hm = new HashMap<String, String>();
 		String name = names[0];
 		String id = names[1];
-
+		
 		if (id.startsWith("MP:")) {
 			String url = baseUrl + "/phenotypes/" + id;
 			hm.put("label", "MP");
