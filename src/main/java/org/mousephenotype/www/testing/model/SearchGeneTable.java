@@ -85,26 +85,11 @@ public class SearchGeneTable extends SearchFacetTable {
           , "Phenotype status"
           , "Phenotype status link"
         };
-        validateDownloadHeading("GENE", status, expectedHeadingList, downloadData[0]);
-        
-        // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
-        // and with all data (the data for all of the pages). As such, the only effective way to validate
-        // it is to stuff the download data elements into a hash, then loop through the pageData rows
-        // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
-        for (int i = 1; i < downloadData.length; i++) {
-            // Copy all but the pageHeading into the hash.
-            String[] row = downloadData[i];
-            downloadHash.put(row[DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL], row);
-        }
-        
-        for (GeneRow pageRow : bodyRows) {
-            String[] downloadRow = downloadHash.get(pageRow.geneSymbol);
-            if (downloadRow == null) {
-                status.addError("GENE MISMATCH: page value geneSymbol = '" + pageRow.geneSymbol + "' was not found in the download file.");
-                continue;
-            }
-            downloadHash.remove(pageRow.geneSymbol);                            // Remove the pageRow from the download hash.
-            
+        SearchFacetTable.validateDownloadHeading("GENE", status, expectedHeadingList, downloadData[0]);
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
+            GeneRow pageRow = bodyRows.get(i);
+
             // Verify the components.
             
             // geneId.

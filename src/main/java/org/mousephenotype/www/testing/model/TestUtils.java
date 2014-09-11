@@ -152,6 +152,28 @@ public class TestUtils {
     }
     
     /**
+     * Compares <code>pageValue</code> and <code>downloadValue</code> and, if
+     * <code>pageValue is not empty, returns true if <code>pageValue</code>
+     * equals <code>downloadValue</code>. If <code>pageValue</code> is empty,
+     * compares against the string 'No information available', returning true
+     * if true; false otherwise.
+     * @param pageValue Page value string (must not be null)
+     * @param downloadValue Download value string (must not be null)
+     * @return 
+     */
+    public static boolean pageEqualsDownload(String pageValue, String downloadValue) {
+        if (pageValue.trim().isEmpty()) {
+            if ( ! downloadValue.equals(SearchFacetTable.NO_INFO_AVAILABLE)) {
+                return false;
+            }
+        } else if ( ! pageValue.equals(downloadValue)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
      * Searches <code>list</code> for <code>searchToken</code>
      * @param list the list to search
      * @param searchToken the token to search for

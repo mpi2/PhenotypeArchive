@@ -71,7 +71,6 @@ public class SearchImageImageView {
      */
     public PageStatus validateDownload(String[][] downloadData) {
         PageStatus status = new PageStatus();
-        HashMap<String, String[]> downloadHash = new HashMap();
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
@@ -93,6 +92,7 @@ public class SearchImageImageView {
             ImageRow pageRow = bodyRows.get(i);
             
             // Verify the components. Drive from download file.
+            
             // Column 0: annotationTerm.
             String dnldTermCollection = downloadRow[0];
             String pageTermCollection = "";
@@ -100,7 +100,7 @@ public class SearchImageImageView {
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toString(), "|");
             if (pageRow.mpTerm != null)
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toString(), "|");
-            if ( ! pageTermCollection.equals(dnldTermCollection)) {
+            if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
                 status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value annotationTerm = '"
                         + pageTermCollection + "' doesn't match download value '" + dnldTermCollection + "'.");
             }
@@ -109,21 +109,64 @@ public class SearchImageImageView {
             dnldTermCollection = downloadRow[1];
             pageTermCollection = "";
             if (pageRow.maTerm != null)
-                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringAnnotationIds(), "|");
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringIds(), "|");
             if (pageRow.mpTerm != null)
-                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toStringAnnotationIds(), "|");
-            if ( ! pageTermCollection.equals(dnldTermCollection)) {
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toStringIds(), "|");
+            if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
                 status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value annotationIds = '"
                         + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
             }
             
+            // Column 2: annotationIdLink.
+            dnldTermCollection = downloadRow[2];
+            pageTermCollection = "";
+            if (pageRow.maTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringLinks(), "|");
+            if (pageRow.mpTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toStringLinks(), "|");
+            if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value annotationIdLinks = '"
+                        + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
+            }
             
+            // Column 3: procedure.
+            dnldTermCollection = downloadRow[3];
+            pageTermCollection = "";
+            if (pageRow.procedureTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.procedureTerm.toStringTerms(), "|");
+            if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value procedure = '"
+                        + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
+            }
             
+            // Column 4: genesymbol.
+            dnldTermCollection = downloadRow[4];
+            pageTermCollection = "";
+            if (pageRow.geneTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.geneTerm.toStringTerms(), "|");
+            if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value geneSymbol = '"
+                        + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
+            }
             
+            // Column 5: geneSymbolLink.
+            dnldTermCollection = downloadRow[5];
+            pageTermCollection = "";
+            if (pageRow.geneTerm != null)
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.geneTerm.toStringLinks(), "|");
+            if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value geneSymbolLinks = '"
+                        + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
+            }
             
-            
-            
-            
+            // Column 6: imageLink.
+            dnldTermCollection = downloadRow[6];
+            if (pageRow.imageLink != null)
+                pageTermCollection = pageRow.imageLink.replaceFirst("https", "http");   // Replace any page value 'https' with 'http'
+            if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value imageLink = '"
+                        + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
+            }
         }
 
         return status;
@@ -196,6 +239,7 @@ public class SearchImageImageView {
             }
             
             imageLink = trElement.findElements(By.cssSelector("td")).get(1).findElement(By.cssSelector("a")).getAttribute("href");
+            imageLink = TestUtils.urlDecode(imageLink);                         // Decode the link.
         }
     
         /**
@@ -336,7 +380,7 @@ public class SearchImageImageView {
             return retVal;
         }
         
-        public String toStringAnnotationIds() {
+        public String toStringIds() {
             String retVal = "";
             for (int i = 0; i < termDetails.size(); i++) {
                 AnnotationDetail detail = termDetails.get(i);
@@ -348,13 +392,25 @@ public class SearchImageImageView {
             return retVal;
         }
         
-        public String toStringAnnotationIdLinks() {
+        public String toStringLinks() {
             String retVal = "";
             for (int i = 0; i < termDetails.size(); i++) {
                 AnnotationDetail detail = termDetails.get(i);
                 if (i > 0)
                     retVal += "|";
                 retVal += detail.link;
+            }
+            
+            return retVal;
+        }
+        
+        public String toStringTerms() {
+            String retVal = "";
+            for (int i = 0; i < termDetails.size(); i++) {
+                AnnotationDetail detail = termDetails.get(i);
+                if (i > 0)
+                    retVal += "|";
+                retVal += detail.term;
             }
             
             return retVal;

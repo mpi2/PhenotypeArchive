@@ -78,26 +78,12 @@ public class SearchAnatomyTable extends SearchFacetTable {
           , "Mouse adult gross anatomy id link"
           , "Mouse adult gross anatomy synonym"
         };
-        validateDownloadHeading("ANATOMY", status, expectedHeadingList, downloadData[0]);
-        
-        // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
-        // and with all data (the data for all of the pages). As such, the only effective way to validate
-        // it is to stuff the download data elements into a hash, then loop through the pageData rows
-        // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
-        for (int i = 1; i < downloadData.length; i++) {     
-            // Copy all but the pageHeading into the hash.
-            String[] row = downloadData[i];
-            downloadHash.put(row[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM], row);
-        }
-        
-        for (AnatomyRow pageRow : bodyRows) {
-            String[] downloadRow = downloadHash.get(pageRow.anatomyTerm);
-            if (downloadRow == null) {
-                status.addError("ANATOMY MISMATCH: page value anatomyTerm = '" + pageRow.anatomyTerm + "' was not found in the download file.");
-                continue;
-            }
-            downloadHash.remove(pageRow.anatomyTerm);
-            
+        SearchFacetTable.validateDownloadHeading("ANATOMY", status, expectedHeadingList, downloadData[0]);
+
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
+            AnatomyRow pageRow = bodyRows.get(i);
+
             // Verify the components.
             
             // anatomyId.
