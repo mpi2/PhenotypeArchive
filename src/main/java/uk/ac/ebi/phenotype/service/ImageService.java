@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
@@ -115,10 +117,24 @@ public class ImageService {
 		return response;
 	}
 	
-	public QueryResponse getImagesForGeneByProcedure(String mgiAccession, String procedure, String experimentOrControl, int numberOfImagesToRetrieve)
+	public QueryResponse getImagesForGeneByProcedure(String mgiAccession, String procedure, String experimentOrControl, int numberOfImagesToRetrieve, SexType sex)
 	throws SolrServerException {
 		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&rows="+numberOfImagesToRetrieve;
+		if(sex!=null){//add a sex specifier
+			queryString+="&fq=sex:"+sex.name();
+		}
 		System.out.println("queryString in ImageService=" + queryString);
+		QueryResponse response = this.getResponseForSolrQuery(queryString);
+		return response;
+	}
+	
+	public QueryResponse getControlImagesForProcedure(String metadataGroup,String center,String strain, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex)
+	throws SolrServerException {
+		String queryString = "q="+ObservationDTO.METADATA_GROUP+":" + metadataGroup + "&fq=" + ObservationDTO.PHENOTYPING_CENTER + ":" + center+"&"+"fq="+ObservationDTO.STRAIN_NAME+":"+strain+"&fq="+ObservationDTO.PARAMETER_STABLE_ID+":"+parameter+"&rows="+numberOfImagesToRetrieve;
+		if(sex!=null){//add a sex specifier
+			queryString+="&fq=sex:"+sex.name();
+		}
+		System.out.println("queryString in ImageService for controls=" + queryString);
 		QueryResponse response = this.getResponseForSolrQuery(queryString);
 		return response;
 	}

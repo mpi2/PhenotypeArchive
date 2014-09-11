@@ -85,7 +85,7 @@ public class ObservationService extends BasicService {
 	public ObservationService(String solrUrl) {
 
 		solr = new HttpSolrServer(solrUrl);
-		//System.out.println("solrUrl in Observation Service contstructor="+solrUrl);
+		System.out.println("solrUrl in Observation Service contstructor="+solrUrl);
 	}
 
 

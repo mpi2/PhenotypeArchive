@@ -73,12 +73,14 @@ import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Xref;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
@@ -229,7 +231,7 @@ public class GenesController {
 			model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 			// add number of top level terms
 			int total = 0;
-			for (ZygosityType zyg : phenotypeSummaryObjects.keySet()){
+			for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
@@ -527,7 +529,7 @@ public class GenesController {
 	private void getImpcExperimentalImages(String acc, Model model)
 	throws SolrServerException {
 
-		QueryResponse solrR = imageService.getFacetsForGeneByProcedure(acc,"experimental");
+		QueryResponse solrR = imageService.getFacetsForGeneByProcedure(acc, "experimental");
 		if (solrR == null) {
 			log.error("no response from solr data source for acc=" + acc);
 			return;
@@ -545,8 +547,9 @@ public class GenesController {
 		for (FacetField facet : facets) {
 			if (facet.getValueCount() != 0) {
 
-				// get rid of wholemount expression/Adult LacZ facet as this is displayed seperately in the using the other method
-				//need to put the section in genes.jsp!!!
+				// get rid of wholemount expression/Adult LacZ facet as this is
+				// displayed seperately in the using the other method
+				// need to put the section in genes.jsp!!!
 				for (Count count : facets.get(0).getValues()) {
 					if (!count.getName().equals("Adult LacZ")) {
 						filteredCounts.add(count);
@@ -554,12 +557,43 @@ public class GenesController {
 				}
 
 				for (Count count : facet.getValues()) {
+					SolrDocumentList list = new SolrDocumentList();// list of
+																	// image
+																	// docs to
+																	// return to
+																	// the
+																	// procedure
+																	// section
+																	// of the
+																	// gene page
 					if (!count.getName().equals("Wholemount Expression")) {
+						for (SexType sex : SexType.values()) {
+							// get 5 images if available for this experiment
+							// type
+							QueryResponse responseExperimental = imageService.getImagesForGeneByProcedure(acc, count.getName(), "experimental", 2, sex);// DocsForGeneWithFacetField(acc,
+																																						// "expName",
+																																						// count.getName(),
+																																						// "",
+																																						// 0,
+																																						// numberOfImagesToDisplay);
+							// need to add sex to experimental call
+							// get information from first experimetal image and
+							// get the parameters for this next call to get
+							// appropriate control images
+							if (responseExperimental.getResults().size() > 0) {
+								System.out.println("not control images returned");
+								SolrDocument imgDoc = responseExperimental.getResults().get(0);
+								QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), 1, sex);
+								if (responseControl != null) {
+									list.addAll(responseControl.getResults());
+								}
+							}
+							if (responseExperimental != null) {
+								list.addAll(responseExperimental.getResults());
+							}
+							
 
-						// get 5 images if available for this experiment type
-						QueryResponse response = imageService.getImagesForGeneByProcedure(acc, count.getName(), "experimental", 5);//DocsForGeneWithFacetField(acc, "expName", count.getName(), "", 0, numberOfImagesToDisplay);
-						if (response != null) {
-							facetToDocs.put(count.getName(), response.getResults());
+							facetToDocs.put(count.getName(), list);
 						}
 					}
 				}
@@ -568,11 +602,10 @@ public class GenesController {
 			model.addAttribute("impcImageFacets", filteredCounts);
 			model.addAttribute("impcFacetToDocs", facetToDocs);
 		}
-		
-		
 
 	}
-	
+
+
 	/**
 	 * Get the first 5 wholemount expression images if available
 	 * 
@@ -782,12 +815,12 @@ public class GenesController {
 		model.addAttribute("mgiId", mgiId);
 		GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
 
-        Gene gene=null;
-        try {
-            gene = phenoDigmDao.getGene(geneIdentifier);
-        } catch (RuntimeException e) {
-            log.error("Error retrieving disease data for {}", geneIdentifier);
-        }
+		Gene gene = null;
+		try {
+			gene = phenoDigmDao.getGene(geneIdentifier);
+		} catch (RuntimeException e) {
+			log.error("Error retrieving disease data for {}", geneIdentifier);
+		}
 
 		log.info("Found Gene: " + gene);
 		if (gene != null) {
@@ -799,16 +832,16 @@ public class GenesController {
 			log.info("No human ortholog found for gene: {}", geneIdentifier);
 		}
 
-        List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
-        try {
-            log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
-            diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-            log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
-        } catch (RuntimeException e) {
-	        log.error(ExceptionUtils.getFullStackTrace(e));
-            log.error("Error retrieving disease data for {}", geneIdentifier);
+		List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
+		try {
+			log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+			diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+			log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+		} catch (RuntimeException e) {
+			log.error(ExceptionUtils.getFullStackTrace(e));
+			log.error("Error retrieving disease data for {}", geneIdentifier);
 
-        }
+		}
 
 		// List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries =
 		// new ArrayList<>();
