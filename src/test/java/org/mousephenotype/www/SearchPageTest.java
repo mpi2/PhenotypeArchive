@@ -783,7 +783,7 @@ public class SearchPageTest {
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
             searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.FIRST_NUMBERED);
+//searchPage.clickPageButton(SearchPage.PageDirective.SECOND_NUMBERED);
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
         } catch (Exception e) {
@@ -962,8 +962,8 @@ public class SearchPageTest {
 
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
-//                searchPage.clickPageButton();
-searchPage.clickPageButton(SearchPage.PageDirective.FIRST_NUMBERED);
+                searchPage.clickPageButton();
+//searchPage.clickPageButton(SearchPage.PageDirective.FIRST_NUMBERED);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                 status.add(searchPage.validateDownload(facet));
             }
