@@ -305,7 +305,7 @@
        			return false;
        		})
        		
-       		var solrBq = "&bq=marker_symbol:*^100 top_level_mp_term:*^90 disease_term:*^80 selected_top_level_ma_term:*^70";
+       		var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^80 selected_top_level_ma_term:*^60";
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
