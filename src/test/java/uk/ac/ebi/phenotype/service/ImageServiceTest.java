@@ -44,7 +44,7 @@ public class ImageServiceTest {
 		ResponseWrapper<ImageDTO> imageDTOs;
 		String gene="MGI:2384986";
 		try {
-			imageDTOs= imageService.getExperimentalImagesForGene(gene);
+			imageDTOs= imageService.getExperimentalImagesForGeneByProcedure(gene);
 		
 		for(ImageDTO imageDTO:imageDTOs.getList()){
 			System.out.println(imageDTO.getOmeroId());

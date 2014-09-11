@@ -6,7 +6,7 @@ import java.util.List;
 public class ResponseWrapper<E> {
 	List<E> list;
 	Long totalNumberFound;
-	
+		
 	public ResponseWrapper(List<E> list){
 		this.list=list;
 	}
@@ -27,4 +27,6 @@ public class ResponseWrapper<E> {
 	public void setList(List<E> list) {
 		this.list = list;
 	}
+	
+	
 }
