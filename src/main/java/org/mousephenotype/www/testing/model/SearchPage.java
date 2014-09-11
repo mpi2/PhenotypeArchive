@@ -215,7 +215,6 @@ public class SearchPage {
         PageDirective pageDirective = getPageDirective(randomPageNumber);
         System.out.println("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
         clickPageButton(pageDirective);
-        
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
         
         return pageDirective;
@@ -255,7 +254,8 @@ public class SearchPage {
             throw e;
         }
         
-        getImageTable().updateImageTableAfterChange();                          // Update the image table to keep it in sync.
+        if (hasImageTable())
+            getImageTable().updateImageTableAfterChange();                      // Update the image table to keep it in sync.
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
     }
     
@@ -504,6 +504,7 @@ public class SearchPage {
             i++;
             if (i > 20)
                 return -1;
+            TestUtils.sleep(100);
         }
 
         int pos = element.getText().indexOf(" ");
