@@ -233,6 +233,8 @@
        		    		}
        		    	}
        		    	else if (! facet){
+       		    		
+       		    		//alert('2')
        		    		// user hits enter before autosuggest pops up	
        		    		// ie, facet info is unknown
        		    		
@@ -253,10 +255,15 @@
        		    		}
        		    	}
        		    	else {	
+       		    		
+       		    		//alert('3: ' + facet)
        		    		if (input.match(/HP\\%3A\d+/)){
 	       		    		// work out the mapped mp_id and fire off the query
 	       		    		_convertHp2MpAndSearch(input);
        		    		} 
+       		    		else if ( facet == 'hp' ){
+       		    			_convertInputForSearch(input);
+       		    		}
        		    		else {
        		    			var fqStr = $.fn.getCurrentFq(facet);
        		    			document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr + '&facet=' + facet;
@@ -276,6 +283,27 @@
 	       			success: function( json ) {
 		    				input = json.response.docs[0].hpmp_id;
 		    				document.location.href = baseUrl + '/search?q=' + input + '#fq=top_level_mp_term:*&facet=mp';
+	       			}
+   				});
+       		}
+       		
+       		function _convertInputForSearch(input){
+       			$.ajax({
+	       			url: "${solrUrl}/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",				       			
+	       			dataType: "jsonp",
+	       			jsonp: 'json.wrf',
+	       			type: 'post',
+	    	    	async: false,
+	       			success: function( json ) {
+	       				var doc = json.response.docs[0];
+	       				var facet, q;
+	       				
+	       				for( var field in doc ) {
+	       					if ( field != 'docType' ){
+	       						q = doc[field]; 
+	       					}
+	       				}
+		    			document.location.href = baseUrl + '/search?q=' + q;
 	       			}
    				});
        		}
@@ -305,7 +333,7 @@
        			return false;
        		})
        		
-       		var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^80 selected_top_level_ma_term:*^60";
+       		var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^70 selected_top_level_ma_term:*^60";
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
