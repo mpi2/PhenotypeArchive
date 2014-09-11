@@ -196,9 +196,13 @@ public class SearchImageAnnotationView {
             annotationIdLink = TestUtils.urlDecode(annotationIdLink);                                           //    Decode it.
             int pos = annotationIdLink.lastIndexOf("/");
             annotationId = annotationIdLink.substring(pos + 1).trim();                                          // annotationId.
-            relatedImageCount = anchorElements.get(1).getText().replace(" images", "");                         // relatedImageCount.
-            imagesLink = anchorElements.get(1).getAttribute("href");                                            // imagesLink.
-            imagesLink = TestUtils.urlDecode(imagesLink);                                                       //    Decode it.
+            if (anchorElements.size() < 2) {
+                System.out.println("SearchImageAnnotationView.ImageRow.ImageRow(): The search image page says there is an image but no image is present. URL: " + driver.getCurrentUrl());
+            } else {
+                relatedImageCount = anchorElements.get(1).getText().replace(" image", "").replace("s", "");     // relatedImageCount.
+                imagesLink = anchorElements.get(1).getAttribute("href");                                        // imagesLink.
+                imagesLink = TestUtils.urlDecode(imagesLink);                                                   //    Decode it.
+            }
         }
     }
 

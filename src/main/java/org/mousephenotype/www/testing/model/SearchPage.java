@@ -180,43 +180,45 @@ public class SearchPage {
     }
     
     /**
-     * Clicks on a random page button, within the scope of available pages. Note
-     * that the button clicked may be disabled or may be the ellipsis, in which
-     * case the already-selected page won't change. Calling this method has the
-     * side effect of waiting for the page to finish loading.
-     * 
-     * There are a minimum of 3 and a maximum of 9 buttons, distributed as follows:
-     * <ul><li>3 for 'previous', '1', 'next'</li>
-     * <li>3 for 'previous', '1', '2','next'</li>
-     * <li>4 for 'previous', '1', '2', '3', 'next'</li>
-     * <li>9 for 'previous', '1', '2', '3', '4', '5', '...', '4852', 'next'</li></ul>
+     * Selects a valid random page number within the range of enabled page
+     * buttons, then clicks selected page button. Disabled buttons and the
+     * ellipsis are not clickable and are re-mapped to a clickable button.
+     * Calling this method has the side effect of waiting for the page to finish
+     * loading.
      * 
      * @throws Exception if no such button exists
      * @return the <code>PageDirective</code> of the clicked button
      */
     public PageDirective clickPageButton() throws Exception {
-        int max = getNumPageButtons();
-        int randomPageNumber = random.nextInt(max);
-        
-        WebElement element = getButton(randomPageNumber);
-        if (element.getAttribute("class").contains("disabled")) {
-            if (randomPageNumber == 0) {
-                System.out.println("Changing randomPageNumber from 0 to 1.");
-                randomPageNumber++; 
-            } else {
+        PageDirective pageDirective = null;
+        try {
+            int max = getNumPageButtons();
+            int randomPageNumber = random.nextInt(max);
+
+            WebElement element = getButton(randomPageNumber);
+            if (element.getAttribute("class").contains("disabled")) {
+                if (randomPageNumber == 0) {
+                    System.out.println("Changing randomPageNumber from 0 to 1.");
+                    randomPageNumber++; 
+                } else {
+                    System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
+                    randomPageNumber--;
+                }
+            } else if (element.getText().contains("...")) {
                 System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
                 randomPageNumber--;
             }
-        } else if (element.getText().contains("...")) {
-            System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
-            randomPageNumber--;
+            
+            pageDirective = getPageDirective(randomPageNumber);
+//pageDirective = PageDirective.NEXT;
+            System.out.println("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
+            clickPageButton(pageDirective);
+        } catch (Exception e) {
+            System.out.println("EXCEPTION in SearchPage.clickPageButton: " + e.getLocalizedMessage());
+            e.printStackTrace();
         }
         
-        PageDirective pageDirective = getPageDirective(randomPageNumber);
-        System.out.println("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
-        clickPageButton(pageDirective);
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
-        
         return pageDirective;
     }
     
@@ -247,7 +249,21 @@ public class SearchPage {
 
                 case LAST:              ulElements.get(7).click();      break;
 
-                case NEXT:              ulElements.get(8).click();      break;
+                case NEXT:
+                    // See javadoc for getPageDirective() below for mapping of 'Next' button.
+                    switch (getNumPageButtons()) {
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+//   System.out.println("Clicking page button " + (getNumPageButtons() - 1));
+                            ulElements.get(getNumPageButtons() - 1).click();    break;
+                        case 9:
+//   System.out.println("Clicking page button 8");
+                            ulElements.get(8).click();                          break;
+                    }
+                    break;
             }
         } catch (Exception e) {
             System.out.println("SearchPage.clickPageButton exception: " + e.getLocalizedMessage());
@@ -504,7 +520,6 @@ public class SearchPage {
             i++;
             if (i > 20)
                 return -1;
-            TestUtils.sleep(100);
         }
 
         int pos = element.getText().indexOf(" ");
