@@ -250,9 +250,9 @@ public class FileExportController {
             Model model
     ) throws Exception {
 
-    	hostName = request.getAttribute("mappedHostname").toString();
+    	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	
-        log.debug("****************solr params: " + solrFilters);
+        log.debug("solr params: " + solrFilters);
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
 		for (String pair : pairs) {
@@ -493,10 +493,10 @@ public class FileExportController {
 
         List<String> rowData = new ArrayList();
 
-        String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/".replace("https:", "http:");
-        String maBaseUrl   = request.getAttribute("baseUrl") + "/anatomy/".replace("https:", "http:");
-        String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/".replace("https:", "http:");
-        
+        String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/";
+        String maBaseUrl   = request.getAttribute("baseUrl") + "/anatomy/";
+        String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/";
+       
         if (showImgView) {
 
             System.out.println("MODE: imgview " + showImgView);

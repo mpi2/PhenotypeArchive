@@ -21,7 +21,7 @@ span#rmFilters {
 span.ui-helper-hidden-accessible {
 	font-size: 14px;
 }
-span.gene, span.mp, span.ma, span.disease {
+span.gene, span.mp, span.ma, span.disease, span.hp {
 	color: black;
 }
 b.sugTerm {
@@ -259,6 +259,9 @@ span#dnld {
 }
 span.dtype {
 	color: gray;
+}
+span.hp2mp {
+	color: #404040;
 }
 span.subMatch {
 	color: #0978A1;
