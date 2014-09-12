@@ -262,7 +262,7 @@ public class GenesController {
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
-			getImpcExperimentalImages(acc, model);
+			getImpcImages(acc, model);
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
 			log.info("images solr not available");
@@ -526,7 +526,7 @@ public class GenesController {
 	 *            the model to add the images to
 	 * @throws SolrServerException
 	 */
-	private void getImpcExperimentalImages(String acc, Model model)
+	private void getImpcImages(String acc, Model model)
 	throws SolrServerException {
 
 		QueryResponse solrR = imageService.getFacetsForGeneByProcedure(acc, "experimental");
@@ -567,36 +567,37 @@ public class GenesController {
 																	// of the
 																	// gene page
 					if (!count.getName().equals("Wholemount Expression")) {
+						QueryResponse responseExperimental = imageService.getImagesForGeneByProcedure(acc, count.getName(), null, "experimental", 1, null);
 						int controlCount = 0;
 						for (SexType sex : SexType.values()) {
+							if(!sex.equals(SexType.hermaphrodite)){
 							// get 5 images if available for this experiment
 							// type
-							QueryResponse responseExperimental = imageService.getImagesForGeneByProcedure(acc, count.getName(), "experimental", 2, sex);// DocsForGeneWithFacetField(acc,
-																																						// "expName",
-																																						// count.getName(),
-																																						// "",
-																																						// 0,
-																																						// numberOfImagesToDisplay);
+							
 							// need to add sex to experimental call
 							// get information from first experimetal image and
 							// get the parameters for this next call to get
 							// appropriate control images
 							if (responseExperimental.getResults().size() > 0) {
-								System.out.println("not control images returned");
 								SolrDocument imgDoc = responseExperimental.getResults().get(0);
+								QueryResponse responseExperimental2 = imageService.getImagesForGeneByProcedure(acc, count.getName(), (String)imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", 2, sex);
 								if (controlCount < 1) {
 									QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), 1, sex);
-									if (responseControl != null) {
+									if (responseControl != null && responseControl.getResults().size()>0) {
 										list.addAll(responseControl.getResults());
 										controlCount++;
+									}else{
+										log.error("no control images returned");
 									}
 								}
+								if (responseExperimental2 != null) {
+									list.addAll(responseExperimental2.getResults());
+								}
 							}
-							if (responseExperimental != null) {
-								list.addAll(responseExperimental.getResults());
-							}
-
+							
+System.out.println("list="+list);
 							facetToDocs.put(count.getName(), list);
+							}
 						}
 					}
 				}

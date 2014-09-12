@@ -12,15 +12,19 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
+import uk.ac.ebi.phenotype.web.controller.GenesController;
 
 public class ImageService {
 
 	private final HttpSolrServer solr;
+	private final Logger log = LoggerFactory.getLogger(ImageService.class);
 
 	public ImageService(String solrUrl) {
 
@@ -81,12 +85,12 @@ public class ImageService {
 		SolrQuery solrQuery = new SolrQuery();
 		String[] paramsKeyValues = query.split("&");
 		for (String paramKV : paramsKeyValues) {
-			System.out.println("paramKV=" + paramKV);
+			log.debug("paramKV=" + paramKV);
 			String[] keyValue = paramKV.split("=");
 			if (keyValue.length > 1) {
 				String key = keyValue[0];
 				String value = keyValue[1];
-				System.out.println("param=" + key + " value=" + value);
+				log.debug("param=" + key + " value=" + value);
 				solrQuery.setParam(key, value);
 			}
 
@@ -106,9 +110,9 @@ public class ImageService {
 
 	public QueryResponse getFacetsForGeneByProcedure(String mgiAccession, String experimentOrControl)
 	throws SolrServerException {
-		Map<String, ResponseWrapper<ImageDTO>> map=new HashMap<String, ResponseWrapper<ImageDTO>>();
+//		Map<String, ResponseWrapper<ImageDTO>> map=new HashMap<String, ResponseWrapper<ImageDTO>>();
 		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&facet=true&facet.field=procedure_name&facet.mincount=1";
-		System.out.println("queryString in ImageService=" + queryString);
+		log.debug("queryString in ImageService getFacets=" + queryString);
 		
 		
 		//make a facet request first to get the procedures and then reuturn make requests for each procedure
@@ -117,25 +121,29 @@ public class ImageService {
 		return response;
 	}
 	
-	public QueryResponse getImagesForGeneByProcedure(String mgiAccession, String procedure, String experimentOrControl, int numberOfImagesToRetrieve, SexType sex)
+	public QueryResponse getImagesForGeneByProcedure(String mgiAccession, String procedure, String parameterStableId, String experimentOrControl, int numberOfImagesToRetrieve, SexType sex)
 	throws SolrServerException {
-		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&rows="+numberOfImagesToRetrieve;
+		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&rows="+numberOfImagesToRetrieve;
 		if(sex!=null){//add a sex specifier
 			queryString+="&fq=sex:"+sex.name();
 		}
-		System.out.println("queryString in ImageService=" + queryString);
+		if(parameterStableId!=null){
+			queryString+="&fq="+ObservationDTO.PARAMETER_STABLE_ID+":"+parameterStableId;
+		}
+		log.info("queryString in ImageService getImagesForGeneByProcedure=" + queryString);
 		QueryResponse response = this.getResponseForSolrQuery(queryString);
 		return response;
 	}
 	
 	public QueryResponse getControlImagesForProcedure(String metadataGroup,String center,String strain, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex)
 	throws SolrServerException {
-		String queryString = "q="+ObservationDTO.METADATA_GROUP+":" + metadataGroup + "&fq=" + ObservationDTO.PHENOTYPING_CENTER + ":" + center+"&"+"fq="+ObservationDTO.STRAIN_NAME+":"+strain+"&fq="+ObservationDTO.PARAMETER_STABLE_ID+":"+parameter+"&rows="+numberOfImagesToRetrieve;
+		String queryString = "q="+ObservationDTO.METADATA_GROUP+":" + metadataGroup + "&fq=" + ObservationDTO.PHENOTYPING_CENTER + ":" + center+ "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + "control"+"&"+"fq="+ObservationDTO.STRAIN_NAME+":"+strain+"&fq="+ObservationDTO.PARAMETER_STABLE_ID+":"+parameter+"&rows="+numberOfImagesToRetrieve;
 		if(sex!=null){//add a sex specifier
 			queryString+="&fq=sex:"+sex.name();
 		}
-		System.out.println("queryString in ImageService for controls=" + queryString);
+		log.info("queryString in ImageService for getControlImagesForProcedure=" + queryString);
 		QueryResponse response = this.getResponseForSolrQuery(queryString);
+		log.info("results size="+response.getResults().size());
 		return response;
 	}
 
