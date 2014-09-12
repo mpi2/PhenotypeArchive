@@ -17,7 +17,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
 
         
-        <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/${img.omero_id}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/96"></a>
+        <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/${img.omero_id}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
                                                 <div class="caption">
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
                                                 		<%-- <c:forEach var="maTerm" items="${img.annotationTermName}" varStatus="status">${maTerm}, </c:forEach> --%>
