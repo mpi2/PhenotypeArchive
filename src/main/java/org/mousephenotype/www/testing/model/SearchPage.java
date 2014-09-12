@@ -79,7 +79,7 @@ public class SearchPage {
         DISEASES,
         ANATOMY,
         PROCEDURES,
-        IMAGES
+        IMAGES 
     }
     
     // Page directives (i.e. pagination buttons)
@@ -167,7 +167,18 @@ public class SearchPage {
      * @return the [total] results count
      */
     public int clickFacet(Facet facet) {
-        driver.findElement(By.xpath("//li[@id='" + getFacetId(facet) + "']")).click();
+        return clickFacetById(getFacetId(facet));
+    }
+    
+    /**
+     * Clicks the facet and returns the result count. This has the side effect of
+     * waiting for the page to finish loading.
+     * 
+     * @param facetId HTML 'li' id of desired facet to click
+     * @return the [total] results count
+     */
+    public int clickFacetById(String facetId) {
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + facetId + "']"))).click();
         
         try {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'dataTable')]")));              // Wait for facet to load.
@@ -271,7 +282,7 @@ public class SearchPage {
         }
         
         if (hasImageTable())
-            getImageTable().updateImageTableAfterChange();                      // Update the image table to keep it in sync.
+            getImageTable().updateImageTableAfterChange();                      // Update the images table to keep it in sync.
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
     }
     
@@ -355,8 +366,45 @@ public class SearchPage {
     }
     
     /**
-     * @return Returns the gene table [geneGrid], if there is one; or an
-     * empty one if there is not
+     * Given a <code>Facet</code> instance, returns the HTML id of the li element.
+     * @param facet
+     * @return 
+     */
+    public String getFacetId(Facet facet) {
+        String id = "";
+        
+        switch (facet) {
+            case GENES:
+                id = "gene";
+                break;
+                
+            case PHENOTYPES:
+                id = "mp";
+                break;
+                
+            case DISEASES:
+                id = "disease";
+                break;
+                
+            case ANATOMY:
+                id = "ma";
+                break;
+                
+            case PROCEDURES:
+                id = "pipeline";
+                break;
+                
+            case IMAGES:
+                id = "images";
+                break;
+        }
+        
+        return id;
+    }
+    
+    /**
+     * @return Returns the GENES table [geneGrid], if there is one; or an
+ empty one if there is not
      */
     public SearchGeneTable getGeneTable() {
         if (hasGeneTable()) {
@@ -369,7 +417,7 @@ public class SearchPage {
     }
     
     /**
-     * @return Returns the image table [imagesGrid], if there is one; or an
+     * @return Returns the images table [imagesGrid], if there is one; or an
      * empty one if there is not
      */
     public SearchImageTable getImageTable() {
@@ -492,7 +540,7 @@ public class SearchPage {
     }
     
     /**
-     * @return Returns the procedure table [pipelineGrid], if there is one; or an
+     * @return Returns the pipeline table [pipelineGrid], if there is one; or an
      * empty one if there is not
      */
     public SearchProcedureTable getProcedureTable() {
@@ -700,12 +748,22 @@ public class SearchPage {
         public final int first;
         public final int last;
         public final int total;
+        public final String text;
+        private final WebElement element;
         
         public Showing(){
-            String[] showing = driver.findElement(By.xpath("//div[@id='geneGrid_info']")).getText().split(" ");
+            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@id, 'Grid_info')]")));
+            text = element.getText();
+            String[] showing = text.split(" ");
             first = Utils.tryParseInt(showing[1]);
             last = Utils.tryParseInt(showing[3]);
             total = Utils.tryParseInt(showing[5]);
+            getResultCount();
+        }
+        
+        @Override
+        public String toString() {
+            return text;
         }
     }
     
@@ -786,38 +844,6 @@ public class SearchPage {
         }
         
         return driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).getAttribute("data-exporturl");
-    }
-    
-    private String getFacetId(Facet facet) {
-        String id = "";
-        
-        switch (facet) {
-            case GENES:
-                id = "gene";
-                break;
-                
-            case PHENOTYPES:
-                id = "mp";
-                break;
-                
-            case DISEASES:
-                id = "disease";
-                break;
-                
-            case ANATOMY:
-                id = "ma";
-                break;
-                
-            case PROCEDURES:
-                id = "pipeline";
-                break;
-                
-            case IMAGES:
-                id = "images";
-                break;
-        }
-        
-        return id;
     }
     
     /**
