@@ -491,6 +491,8 @@ public class ObservationService extends BasicService {
 		ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.SEX + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
 
 		QueryResponse response = solr.query(query);
+		LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
+		LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Num Solr documents - {}", response.getResults().getNumFound());
 
 		return getFacetPivotResults(response, false);
 
