@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,22 +40,22 @@ public class ImageServiceTest {
 		}
 	}
 	
-	@Test
-	public void testGetExperimentalImagesForGene(){
-		ResponseWrapper<ImageDTO> imageDTOs;
-		String gene="MGI:2384986";
-		try {
-			imageDTOs= imageService.getExperimentalImagesForGeneByProcedure(gene);
-		
-		for(ImageDTO imageDTO:imageDTOs.getList()){
-			System.out.println(imageDTO.getOmeroId());
-		}
-		assertTrue(imageDTOs.getList().size()>1);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	@Test
+//	public void testGetExperimentalImagesForGene(){
+//		ResponseWrapper<ImageDTO> imageDTOs;
+//		String gene="MGI:2384986";
+//		try {
+//			imageDTOs= imageService.getExperimentalImagesForGeneByProcedure(gene);
+//		
+//		for(ImageDTO imageDTO:imageDTOs.getList()){
+//			System.out.println(imageDTO.getOmeroId());
+//		}
+//		assertTrue(imageDTOs.getList().size()>1);
+//		} catch (SolrServerException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 	
 	
 }
