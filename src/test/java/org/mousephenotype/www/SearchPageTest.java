@@ -291,7 +291,7 @@ public class SearchPageTest {
             }
 
             String elem2 = "ul#facetFilter li li.ftag a";
-            String filterVals2 = null;
+            String filterVals2;
             try {
                 filterVals2 = driver.findElement(By.cssSelector(elem2)).getAttribute("rel");
             }
@@ -311,7 +311,7 @@ public class SearchPageTest {
                     successList.add(facet);
                 }
                 else {
-                    message = "Failed to uncheck input filter for " + facet + " facet on " + testName;
+                    message = "Failed to uncheck input filter for " + facet + " facet on " + testName + ". URL: " + driver.getCurrentUrl();
                     errorList.add(message);
                 }
             }
@@ -638,7 +638,7 @@ public class SearchPageTest {
 
     /**
      * Test for Jira bug MPII-806: from the search page, searching for the characters
-     * "fasting glu" should augosuggest 'fasting glucose'. Click on 'fasting glucose'
+     * "fasting glu" should autosuggest 'fasting glucose'. Click on 'fasting glucose'
      * and verify that the correct phenotype page appears.
      * @throws Exception 
      */
@@ -663,7 +663,7 @@ public class SearchPageTest {
          // Wait for dropdown list to appear with 'blood glucose'.
         String xpathSelector = "//ul[@id=\"ui-id-1\"]/li/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
-        if (element.getText().compareTo("fasting glucose") != 0) {
+        if ( ! element.getText().contains("fasting glucose")) {
             errorList.add("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
         } else {
             element.click();
@@ -762,6 +762,15 @@ public class SearchPageTest {
         downloadTestEngine(testName, searchString);
     }
     
+    @Test
+//@Ignore
+    public void testLegDownload() throws Exception {
+        String testName = "testLegDownload";
+        String searchString = "leg";
+        
+        downloadTestEngine(testName, searchString);
+    }
+    
     // This test doesn't use the download test engine as it requires an extra
     // click to switch to the Image facet's 'Image' view.
     @Test
@@ -783,7 +792,7 @@ public class SearchPageTest {
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
             searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.SECOND_NUMBERED);
+//searchPage.clickPageButton(SearchPage.PageDirective.LAST);
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
         } catch (Exception e) {
@@ -963,7 +972,7 @@ public class SearchPageTest {
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
                 searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.FIRST_NUMBERED);
+//searchPage.clickPageButton(SearchPage.PageDirective.FIRST);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                 status.add(searchPage.validateDownload(facet));
             }
