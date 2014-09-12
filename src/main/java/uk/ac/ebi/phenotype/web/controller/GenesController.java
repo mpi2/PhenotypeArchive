@@ -567,6 +567,7 @@ public class GenesController {
 																	// of the
 																	// gene page
 					if (!count.getName().equals("Wholemount Expression")) {
+						int controlCount = 0;
 						for (SexType sex : SexType.values()) {
 							// get 5 images if available for this experiment
 							// type
@@ -583,15 +584,17 @@ public class GenesController {
 							if (responseExperimental.getResults().size() > 0) {
 								System.out.println("not control images returned");
 								SolrDocument imgDoc = responseExperimental.getResults().get(0);
-								QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), 1, sex);
-								if (responseControl != null) {
-									list.addAll(responseControl.getResults());
+								if (controlCount < 1) {
+									QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), 1, sex);
+									if (responseControl != null) {
+										list.addAll(responseControl.getResults());
+										controlCount++;
+									}
 								}
 							}
 							if (responseExperimental != null) {
 								list.addAll(responseExperimental.getResults());
 							}
-							
 
 							facetToDocs.put(count.getName(), list);
 						}
