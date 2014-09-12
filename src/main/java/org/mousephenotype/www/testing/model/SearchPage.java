@@ -510,21 +510,25 @@ public class SearchPage {
      * page to finish loading.
      */
     public int getResultCount() {
-        // Sometimes, even though we wait, the element text is still empty. Eventually it arrives.
+        // Sometimes, even though we wait, the element text is still empty. Eventually it arrives (unless there are no results).
         WebElement element;
-        
-        int i = 0;
-        while ((element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")))).getText().isEmpty()) {
-            System.out.println("WAITING[" + i + "]");
-            TestUtils.sleep(100);
-            i++;
-            if (i > 20)
-                return -1;
-        }
+        Integer niCount = null;
+        try {
+            int i = 0;
+            while ((element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")))).getText().isEmpty()) {
+                System.out.println("WAITING[" + i + "]");
+                TestUtils.sleep(100);
+                i++;
+                if (i > 20)
+                    return -1;
+            }
 
-        int pos = element.getText().indexOf(" ");
-        String sCount = element.getText().substring(0, pos);
-        Integer niCount = Utils.tryParseInt(sCount);
+            int pos = element.getText().indexOf(" ");
+            String sCount = element.getText().substring(0, pos);
+            niCount = Utils.tryParseInt(sCount);
+        } catch (Exception e) {
+            System.out.println("SearchPage.getResultCount(): There was no result count.");
+        }
         
         return (niCount == null ? 0 : niCount);
     }

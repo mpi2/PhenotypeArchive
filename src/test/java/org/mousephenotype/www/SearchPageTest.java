@@ -130,9 +130,11 @@ public class SearchPageTest {
     private static List<String> sumSuccessList = new ArrayList();
     private static String startTime;
     private static int testCount;
+    private WebDriverWait wait;
 
     @Before
     public void setup() {
+        wait = new WebDriverWait(driver, timeout_in_seconds);
         if (Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeout_in_seconds = Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
@@ -355,31 +357,31 @@ public class SearchPageTest {
 
         newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
-
         JSONObject geneResults = JSONRestUtil.getResults(solrUrl + newQueryString);
         JSONArray docs = JSONRestUtil.getDocArray(geneResults);
-
+        String message;
+        
         if (docs != null) {
             int size = docs.size();
             for (int i=0; i<size; i++) {
                 int count = i+1;
                 String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
-                System.out.print("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t");
-
+                
                 driver.get(baseUrl + "/search?q="+geneSymbol1);
                 driver.navigate().refresh();
+                System.out.println("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t. URL: " + driver.getCurrentUrl());
 
                 //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.geneCol")));
-                new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
+                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
                 //String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
                 
                 List<WebElement> elems = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
                 String geneSymbol2 = null;
                 for ( WebElement elem : elems ){
-                	if ( elem.getText().equals(geneSymbol1) ){
-                		geneSymbol2 = elem.getText();
-                		break;
-                	}
+                    if ( elem.getText().equals(geneSymbol1) ){
+                        geneSymbol2 = elem.getText();
+                        break;
+                    }
                 }
                 
                 //System.out.println("symbol2: "+ geneSymbol2);
@@ -389,10 +391,11 @@ public class SearchPageTest {
                     //Thread.sleep(thread_wait_in_seconds);
                 }
                 else {
-                    System.out.println("FAILED");
-                    errorList.add(geneSymbol1);
+                    message = "ERROR: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found.";
+                    System.out.println(message);
+                    errorList.add(message);
                 }
-                try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+                TestUtils.sleep(100);
             }
         }
         System.out.println();
@@ -408,6 +411,140 @@ public class SearchPageTest {
             
         }
         System.out.println();
+    }
+
+    @Test
+//@Ignore
+    public void testQueryingSpecificGeneSymbols() throws Exception {
+        testCount++;
+        String testName = "testQueryingSpecificGeneSymbols";
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        Date start = new Date();
+
+        successList.clear();
+        errorList.clear();
+
+        String newQueryString = "/gene/select?q=marker_symbol:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=marker_symbol&wt=json";
+        Random rn = new Random();
+        int startIndex = rn.nextInt(40000 - 0 + 1) + 1;
+        int nbRows = 1;
+        System.out.println("TESTING " + nbRows + " random gene symbols");
+
+        newQueryString+="&start="+startIndex+"&rows="+nbRows;
+
+
+        JSONObject geneResults = JSONRestUtil.getResults(solrUrl + newQueryString);
+        JSONArray docs = JSONRestUtil.getDocArray(geneResults);
+        String message;
+        
+        if (docs != null) {
+            int size = docs.size();
+            for (int i=0; i<size; i++) {
+                int count = i+1;
+                String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
+geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
+                driver.get(baseUrl + "/search?q="+geneSymbol1);
+                driver.navigate().refresh();
+                System.out.println("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t. URL: " + driver.getCurrentUrl());
+
+                //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.geneCol")));
+                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
+                //String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
+                
+                List<WebElement> elems = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
+                String geneSymbol2 = null;
+                for ( WebElement elem : elems ){
+                    if ( elem.getText().equals(geneSymbol1) ){
+                        geneSymbol2 = elem.getText();
+                        break;
+                    }
+                }
+                
+                //System.out.println("symbol2: "+ geneSymbol2);
+                if ( geneSymbol1.equals(geneSymbol2) ){
+                    System.out.println("OK");
+                    successList.add(geneSymbol1);
+                    //Thread.sleep(thread_wait_in_seconds);
+                }
+                else {
+                    message = "ERROR: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found.";
+                    System.out.println(message);
+                    errorList.add(message);
+                }
+                TestUtils.sleep(100);
+            }
+        }
+        System.out.println();
+        if (successList.size() == nbRows ){
+            System.out.println("[PASSED] - " + testName);
+            sumSuccessList.add("passed");
+        }
+        else {
+            System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+            sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+            TestUtils.printEpilogue(testName, start, errorList, null, successList, 1,  1);
+            fail("There were " + sumErrorList.size() + " errors.");
+            
+        }
+        System.out.println();
+    }
+
+    /**
+     * Certain gene symbols generated by 'testQueryingRandomGeneSymbols' fail
+     * even though they are proper marker_symbols (i.e. they are not synonyms).
+     * This test is a placeholder for those gene symbols known to not work at
+     * some point in the PhenotypeArchive development cycle.
+     * 
+     * @throws Exception 
+     */
+    @Test
+//@Ignore
+    public void testQueryingSpecificGeneSymbolsUsingSearchPage() throws Exception {
+        testCount++;
+        String testName = "testQueryingSpecificGeneSymbolsUsingSearchPage";
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        Date start = new Date();
+
+        successList.clear();
+        errorList.clear();
+
+        String[] geneIds = new String[] {
+            "Del(7Gabrb3-Ube3a)1Yhj"
+        };
+        for (String expectedGeneId : geneIds) {
+            String target = baseUrl + "/search";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            searchPage.submitSearch(expectedGeneId);
+            boolean found = false;
+            String message = "";
+            try {
+                List<WebElement> autosuggestElements = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
+                // Walk the list of autosuggest elements, looking for a gene match.
+                for (WebElement autosuggestElement : autosuggestElements) {
+                    if (autosuggestElement.getText().equals(expectedGeneId)) {
+                        found = true;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                message = "ERROR: Expected to find gene id '" + expectedGeneId + "' in the autosuggest list but the autosuggest list was empty.";
+                errorList.add(message);
+            }
+            
+            if (found) {
+                message = "OK: Found gene '" + expectedGeneId + "' in autosuggest results.";
+                successList.add(message);
+            } else {
+                message = "ERROR: Expected to find gene id '" + expectedGeneId + "' in the autosuggest list but it was not found.";
+                errorList.add(message);
+            }
+                
+            System.out.println(message);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, null, successList, 1,  1);
     }
 
     @Test
