@@ -555,7 +555,7 @@ public class ObservationService extends BasicService {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
 		LOG.debug("observation  service query = " + query);
-		System.out.println("observation  service query = " + query);
+
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
@@ -1347,7 +1347,7 @@ public class ObservationService extends BasicService {
 		}
 		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
-		System.out.println("getAllControlsBySex " + query );
+		LOG.debug("getAllControlsBySex " + query );
 		return results;
 	}
 
