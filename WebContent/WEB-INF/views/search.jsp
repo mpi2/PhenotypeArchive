@@ -184,7 +184,8 @@
        		    
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
        		    	var input = $('input#s').val().trim();
-       		    	//alert(input)
+       		    	
+       		    	//alert(input + ' ' + solrUrl)
        		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
        		    	
        		    	var re = new RegExp("^'(.*)'$");
@@ -232,27 +233,80 @@
        		    		}
        		    	}
        		    	else if (! facet){
+       		    		
+       		    		//alert('2')
        		    		// user hits enter before autosuggest pops up	
        		    		// ie, facet info is unknown
-       		    		//alert('enter-2');
        		    		
-       		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
-       		    			// if there is no existing facet filter, reload with q
-       		    			document.location.href = baseUrl + '/search?q=' + input;
-       		    		}
+       		    		if (input.match(/HP\\%3A\d+/)){
+       		    			// work out the mapped mp_id and fire off the query
+	       		    		_convertHp2MpAndSearch(input);
+       		    		} 
        		    		else {
-       		    			// facet will be figured out by code
-       		    			var fqStr = $.fn.getCurrentFq(facet);
-           		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
+	       		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
+	       		    			// if there is no existing facet filter, reload with q
+	       		    			document.location.href = baseUrl + '/search?q=' + input;
+	       		    		}
+	       		    		else {
+	       		    			// facet will be figured out by code
+	       		    			var fqStr = $.fn.getCurrentFq(facet);
+	           		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
+	       		    		}
        		    		}
        		    	}
        		    	else {	
-       		    		//alert('enter-3');
-       		    		var fqStr = $.fn.getCurrentFq(facet);
-       		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr + '&facet=' + facet;
+       		    		
+       		    		//alert('3: ' + facet)
+       		    		if (input.match(/HP\\%3A\d+/)){
+	       		    		// work out the mapped mp_id and fire off the query
+	       		    		_convertHp2MpAndSearch(input);
+       		    		} 
+       		    		else if ( facet == 'hp' ){
+       		    			_convertInputForSearch(input);
+       		    		}
+       		    		else {
+       		    			var fqStr = $.fn.getCurrentFq(facet);
+       		    			document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr + '&facet=' + facet;
+       		    		}
        		    	}
        		    }
        		});
+       		
+       		function _convertHp2MpAndSearch(input){
+	    		
+	    		$.ajax({
+	       			url: "${solrUrl}/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",				       			
+	       			dataType: "jsonp",
+	       			jsonp: 'json.wrf',
+	       			type: 'post',
+	    	    	async: false,
+	       			success: function( json ) {
+		    				input = json.response.docs[0].hpmp_id;
+		    				document.location.href = baseUrl + '/search?q=' + input + '#fq=top_level_mp_term:*&facet=mp';
+	       			}
+   				});
+       		}
+       		
+       		function _convertInputForSearch(input){
+       			$.ajax({
+	       			url: "${solrUrl}/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",				       			
+	       			dataType: "jsonp",
+	       			jsonp: 'json.wrf',
+	       			type: 'post',
+	    	    	async: false,
+	       			success: function( json ) {
+	       				var doc = json.response.docs[0];
+	       				var facet, q;
+	       				
+	       				for( var field in doc ) {
+	       					if ( field != 'docType' ){
+	       						q = doc[field]; 
+	       					}
+	       				}
+		    			document.location.href = baseUrl + '/search?q=' + q;
+	       			}
+   				});
+       		}
        		
        		$('span#rmFilters').click(function(){
        			
@@ -279,7 +333,7 @@
        			return false;
        		})
        		
-       		var solrBq = "&bq=marker_symbol:*^100 top_level_mp_term:*^90 disease_term:*^80 selected_top_level_ma_term:*^70";
+       		var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^70 selected_top_level_ma_term:*^60";
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
@@ -297,10 +351,14 @@
 			       				var docs = data.response.docs;	
 			       				var aKV = [];
 			       				for ( var i=0; i<docs.length; i++ ){
+			       					var facet;
 			       					
 			       					for ( var key in docs[i] ){
 			       						
-			       						var facet;
+			       						if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
+			       							continue;
+			       						}
+			       						//var facet;
 			       						if ( key == 'docType' ){	
 			       							facet = docs[i][key].toString();
 			       						}
@@ -317,7 +375,11 @@
 			       							.replace(/\)/g,'\\)');
 			       							
 			       							var re = new RegExp("(" + termStr + ")", "gi") ;
-			       							var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
+			       							termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
+			       							
+			       							if ( facet == 'hp' ){
+			       								termHl += " » <span class='hp2mp'>" + docs[i]['hpmp_id'].toString() + ' - ' + docs[i]['hpmp_term'].toString() + "</span>";		
+			       							}
 			       							aKV.push("<span class='" + facet + "'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 			       							
 			       							if (i == 0){
@@ -341,13 +403,21 @@
 	       				////console.log(this.value + ' vs ' + ui.item.label);
 	       				//var oriText = $(ui.item.label).text();
 	       				
-	       				var facet = $(ui.item.label).attr('class');
+	       				var facet = $(ui.item.label).attr('class') == 'hp' ? 'mp' : $(ui.item.label).attr('class');
 	       				
 	       				// handed over to hash change to fetch for results	
-	       			
-	       				var q = encodeURIComponent(this.value);
-	       				var fq = $.fn.getCurrentFq(facet);
+	       				var q;
+	       				var matched = this.value.match(/.+ » (MP:\d+) - .+/);
+	       				if ( matched ){
+	       					q = matched[1];
+	       				}
+	       				else {
+	       					q = this.value;
+	       				}	
+	       				q = encodeURIComponent(q);
 	       				
+	       				var fq = $.fn.getCurrentFq(facet);
+
 	       				document.location.href = baseUrl + '/search?q="' + q + '"#fq=' + fq + '&facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box

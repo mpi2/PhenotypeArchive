@@ -2,10 +2,17 @@
 <dataConfig>
 	
 	<script type='text/javascript'><![CDATA[
+		function convert_superscript(row){
+			if ( row.get('allele') ){	
+				var symbol = row.get('allele').toString().replace('<sup>','<').replace('</sup>','>');
+				row.put('converted_allele_symbol', symbol);
+			}
+			return row;
+		}
 		
     ]]></script>
 	
-    <dataSource name="harwell_preqc" type="URLDataSource" encoding="UTF-8" connectionTimeout="5000" readTimeout="10000"/>
+    <dataSource name="harwell_preqc" type="FileDataSource" encoding="UTF-8" />
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
 	
@@ -14,18 +21,34 @@
 		<entity dataSource="harwell_preqc"
 			name="pq" 
 			stream="true" 
-			url="http://www.mousephenotype.org/sites/mousephenotype.org/files/PhenotypeCallSummary.xml"
+			url="/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/PhenotypeCallSummary.xml"
          	processor="XPathEntityProcessor" 
          	forEach="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/" 
-            readTimeout="10000" connectionTimeout="10000" >
+            readTimeout="10000" connectionTimeout="10000"
+            transformer="script:convert_superscript" >
                                  
 			<field column="doc_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/id" />
+			<field column="colony_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/colonyId" />
 			<field column="project_external_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/externalId" />
 			<field column="sex" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/sex" />
 			<field column="zygosity" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/zygosity" />
 			<field column="resource_name" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/datasource" />
 			<field column="project_name" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/project" />
 			<field column="marker_symbol" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/gene" />
+			
+			<field column="allele" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/allele" />
+			
+			<!-- query komp2 db for allele_name/symbol/accession_id -->
+			<entity dataSource="komp2db" name="allele" 
+				processor="CachedSqlEntityProcessor" 
+				query="select acc, symbol, name from allele"
+				where="symbol=pq.converted_allele_symbol" >
+			
+				<field column="name" name="allele_name" />
+				<field column="symbol" name="allele_symbol" />
+				<field column="acc" name="allele_accession_id" />
+				
+			</entity>
 			
 			<entity dataSource="komp2db" name="geneSym2Id" 
 				processor="CachedSqlEntityProcessor" 
@@ -78,16 +101,12 @@
 			
 			<field column="p_value" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pValue" />
 			<field column="effect_size" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/effectSize" />
-			<field column="allele_symbol" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/allele" />
 			<field column="pipeline_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pipeline" />
 			<field column="procedure_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/procedure" />
 			<field column="parameter_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/parameter" />
 			<field column="phenotyping_center" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/phenotypingCenter" />
 			
-			
 		</entity>
-		
-		
 		
     </document>   
         

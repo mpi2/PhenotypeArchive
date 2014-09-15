@@ -30,5 +30,6 @@ package org.mousephenotype.www.testing.model;
 public class DownloadSearchMapAnatomy {
     public final static int COL_INDEX_ANATOMY_TERM     = 0;
     public final static int COL_INDEX_ANATOMY_ID       = 1;
-    public final static int COL_INDEX_ANATOMY_SYNONYMS = 2;
+    public final static int COL_INDEX_ANATOMY_ID_LINK  = 2;
+    public final static int COL_INDEX_ANATOMY_SYNONYMS = 3;
 }

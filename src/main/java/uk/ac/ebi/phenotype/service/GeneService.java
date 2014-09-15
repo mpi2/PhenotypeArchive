@@ -219,8 +219,8 @@ public class GeneService {
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport) {
-		
+	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport, boolean legacyOnly) {
+		System.out.println(doc.toString());
 		String mgiId = doc.getString("mgi_accession_id");
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 
@@ -238,7 +238,18 @@ public class GeneService {
 			/*
 			 * 1. Check we have preQC/postQC IMPC data (started or completed) 		
 			 */
-			if ( doc.containsKey(statusField) && !doc.getString(statusField).isEmpty() ) {
+			if ( legacyOnly ){
+				webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
+				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
+				
+				if ( toExport ){
+					phenotypeStatusHTMLRepresentation = hostName + geneUrl+ "#section-associations" + "|" + webStatus;
+				}
+				else {
+					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+				}	
+			}
+			else if ( doc.containsKey(statusField) && !doc.getString(statusField).isEmpty() ) {
 				String val = doc.getString(statusField);
 				
 				if ( val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || 
@@ -260,8 +271,8 @@ public class GeneService {
 			 *    This has been indexed with the hasQC field from the experimental
 			 *    core. 
 			 */
-			
-			else if (doc.containsKey(GeneDTO.HAS_QC)) {				
+			//else if (doc.containsKey(GeneDTO.HAS_QC)) {	
+			else if (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) {
 				webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
 				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
 				
@@ -485,7 +496,7 @@ public class GeneService {
 			/*
 			 * Get the HTML representation of the phenotyping status
 			 */
-			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, request, false);
+			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, request, false, false);
 			
 			/*
 			 * Order flag is separated from HTML generation code

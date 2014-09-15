@@ -24,7 +24,6 @@
      	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 		<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>    
 		<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
-		<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
  	<document name="docs">
 		
@@ -48,7 +47,7 @@
 								
 			<field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />			
 			
-			<field column="hasQc" xpath="/response/result/doc/int[@name='hasQc']" />
+			<!--  <field column="hasQc" xpath="/response/result/doc/int[@name='hasQc']" />-->
 
 			<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
 			<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
@@ -94,6 +93,11 @@
 			<field column="impc_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_predicted_in_locus']/bool" /> 			
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />	
 
+			<field column="mgi_predicted_known_gene" xpath="/response/result/doc/arr[@name='mgi_predicted_known_gene']/bool" /> 
+			<field column="impc_predicted_known_gene" xpath="/response/result/doc/arr[@name='impc_predicted_known_gene']/bool" /> 
+			<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/arr[@name='mgi_novel_predicted_in_locus']/bool" /> 
+			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_novel_predicted_in_locus']/bool" /> 
+
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" 
 				stream="true" 
@@ -107,10 +111,6 @@
 				<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />		
 				<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />	
 				<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
-				
-				<field column="isPostQc" xpath="/response/result/doc/int[@name='isPostQc']" />
-				<field column="isPreQc"  xpath="/response/result/doc/int[@name='isPreQc']" />
-				<field column="isLegacy" xpath="/response/result/doc/int[@name='isLegacy']" />
 				
 				<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
 				<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							

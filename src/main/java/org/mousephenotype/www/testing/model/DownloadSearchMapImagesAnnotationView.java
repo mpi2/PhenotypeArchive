@@ -27,9 +27,11 @@ package org.mousephenotype.www.testing.model;
  * This class contains column index definitions for the download search page
  * imagesGrid HTML table.
  */
-public class DownloadSearchMapImages {
+public class DownloadSearchMapImagesAnnotationView {
     public final static int COL_INDEX_ANNOTATION_TYPE     = 0;
-    public final static int COL_INDEX_ANNOTATION_NAME     = 1;
-    public final static int COL_INDEX_RELATED_IMAGE_COUNT = 2;
-    public final static int COL_INDEX_URL_TO_IMAGES       = 3;
+    public final static int COL_INDEX_ANNOTATION_TERM     = 1;
+    public final static int COL_INDEX_ANNOTATION_ID       = 2;
+    public final static int COL_INDEX_ANNOTATION_ID_LINK  = 3;
+    public final static int COL_INDEX_RELATED_IMAGE_COUNT = 4;
+    public final static int COL_INDEX_IMAGES_LINK         = 5;
 }

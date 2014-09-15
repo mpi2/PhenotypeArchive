@@ -23,25 +23,12 @@
      
              return row; 
      	} 
-	    function srcMapping(row){
-			if (row.get('preqc_mp_id')){
-				row.put('isPreQc', '1'); 
-			}	
-			else if (row.get('impc')){
-				row.put('isPostQc', '1'); 
-			}	
-			else if (row.get('legacy')){
-				row.put('isLegacy', '1'); 
-			}				        		
-	   		return row; 
-		}      
 
     ]]></script>
 
     <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
    	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
 	<document name="komp2_indexing">
 		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
@@ -191,12 +178,23 @@
 				<field column="Y_END" name="yEnd" />
 
 				<entity dataSource="komp2ds" name="maAnnotations" query="select * from ANN_ANNOTATION where FOREIGN_KEY_ID=${tag.ID} and TERM_ID like 'MA%'">
-					<field column="TERM_NAME" name="annotationTermName" />
+					
 					<field column="TERM_ID" name="annotationTermId" />
 					<field column="TERM_ID" name="maTermId" />
 					<field column="TERM_NAME" name="ma_term" />
 					<field column="TERM_ID" name="ma_id" />
 
+					<entity dataSource="ontods" name="ma_term_infos" 
+						query="select term_id, name from ma_term_infos where term_id = '%{maAnnotations.TERM_ID}'" 
+						onError="continue">			
+						<!--  use annotationTermName from ontodb not from Sanger image annotation(risk of out of date) -->
+			           
+			           	<field column="term_id" name="maAnnotationTermId" />
+			            <field column="name" name="annotationTermName" /> 
+						<field column="name" name="maTermName" /> 
+						
+					</entity>
+					
 					<entity dataSource="ontods" name="ma_term_2Syn" 
 						onError="continue"  
 						processor="CachedSqlEntityProcessor"
@@ -207,12 +205,15 @@
 					
 					</entity>
 
+					<!-- replaced this by ontodb   
 					<entity dataSource="komp2ds" name="annotations" query="SELECT h.TERM_NAME as higherTermName, concat(l.TERM_NAME, '_${maAnnotations.TERM_ID}') as lowerTermName, l.TERM_ID AS lowerId, HIGHER_TERM_ID FROM lower_to_higher_level_annotation l, higher_level_annotation h WHERE l.higher_term_id = h.term_id and  l.term_id='${maAnnotations.TERM_ID}'">
+						
 						<field column="lowerTermName" name="maTermName" />
 						<field column="lowerId" name="maAnnotationTermId" />
 						<field column="higherTermName" name="annotatedHigherLevelMaTermName" />
 						
 					</entity>
+					-->
 					
 					<!-- child MA term(s) of this MA term -->
 					<!-- <entity dataSource="ontods" name="ma_child" 
@@ -280,44 +281,7 @@
 
 					<!-- flag mp for preQc, postQc and legacy -->
 			
-					<!-- postQc: any project that is not eumodic -->
 					
-					<entity dataSource="komp2ds" name="impcPipe"
-						processor="CachedSqlEntityProcessor" 
-						query="select distinct project_id as 'impc', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and project_id !=1 AND project_id !=8"
-						where="mp_acc=mpAnnotations.TERM_ID"
-						transformer="script:srcMapping" >
-						
-						<field column="impc" name="impc" />
-						<field column="isPostQc"  name="isPostQc" />
-						
-					</entity>
-					
-					<!-- legacy: eumodic pipeline -->
-					
-					<entity dataSource="komp2ds" name="legacyPipe"
-						processor="CachedSqlEntityProcessor" 
-						query="select distinct project_id as 'legacy', mp_acc from phenotype_call_summary where p_value &lt; 0.0001 and (project_id=1 OR project_id=8)"
-						where="mp_acc=mpAnnotations.TERM_ID" 
-						transformer="script:srcMapping" >
-						
-						<field column="legacy" name="legacy" />
-						<field column="isLegacy"  name="isLegacy" />
-						
-					</entity>
-					
-					<!-- preQc -->
-					
-					<entity dataSource="preqc_core" name="preqc"
-						stream="true" 
-						forEach="/response/result/doc/"
-						url="q=mp_term_id:&quot;${mp_term_infos.term_id}&quot;&amp;rows=1&amp;fl=mp_term_id"
-						processor="XPathEntityProcessor" 				
-						transformer="script:srcMapping" >
-						
-						<field column="preqc_mp_id" xpath="/response/result/doc/str[@name='mp_term_id']" />
-						<field column="isPreQc" name="isPreQc" />
-					</entity>
 					
 					<!-- disease annotated to this MP -->					
 					<!--<entity dataSource="disease_core" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mpAnnotations.TERM_ID}'">    

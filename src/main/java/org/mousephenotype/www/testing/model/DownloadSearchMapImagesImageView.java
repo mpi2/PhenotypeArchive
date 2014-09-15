@@ -25,13 +25,14 @@ package org.mousephenotype.www.testing.model;
  * @author mrelac
  * 
  * This class contains column index definitions for the download search page
- * mpGrid HTML table.
+ * imagesGrid HTML table.
  */
-public class DownloadSearchMapPhenotypes {
-    public final static int COL_INDEX_PHENOTYPE_TERM       = 0;
-    public final static int COL_INDEX_PHENOTYPE_ID         = 1;
-    public final static int COL_INDEX_PHENOTYPE_ID_LINK    = 2;
-    public final static int COL_INDEX_DEFINITION           = 3;
-    public final static int COL_INDEX_SYNONYM              = 4;
-    public final static int COL_INDEX_TOP_LEVEL_MP_TERM    = 5;
+public class DownloadSearchMapImagesImageView {
+    public final static int COL_INDEX_ANNOTATION_TERMS    = 0;
+    public final static int COL_INDEX_ANNOTATION_IDS      = 1;
+    public final static int COL_INDEX_ANNOTATION_ID_LINKS = 2;
+    public final static int COL_INDEX_PROCEDURES          = 3;
+    public final static int COL_INDEX_GENE_SYMBOLS        = 4;
+    public final static int COL_INDEX_GENE_SYMBOL_LINKS   = 5;
+    public final static int COL_INDEX_IMAGE_LINK          = 6;
 }

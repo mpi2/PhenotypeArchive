@@ -197,8 +197,10 @@
 				<field column="phenotyping_centre" xpath="/response/result/doc/str[@name='phenotyping_centre']" />                                         
                	
 			</entity>
-
+			
+			
 			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
+			<!-- now use legacy_phenotype_status  
 			<entity dataSource="experiment_core" name="qcCheck" 
 				stream="true"  
 				onError="continue"
@@ -210,6 +212,7 @@
 				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
 				<field column="hasQc" name="hasQc" />		
 			</entity>			
+			-->
 			
 			<!-- disease associated with this gene -->			
 			<entity dataSource="phenodigm_core" name="ddoc" 
@@ -232,7 +235,13 @@
 				<field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
 				<field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
 				<field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-				<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  				
+				<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
+				
+				<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
+				<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
+				<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
+				<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
+								
 			</entity>
 							
 		</entity>

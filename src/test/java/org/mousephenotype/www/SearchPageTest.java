@@ -29,27 +29,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.AfterClass;
-
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.PageStatus;
+import org.mousephenotype.www.testing.model.SearchImageTable.ImageFacetView;
 import org.mousephenotype.www.testing.model.SearchPage;
+import org.mousephenotype.www.testing.model.SearchPage.Facet;
+import org.mousephenotype.www.testing.model.SearchPage.PageDirective;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -58,7 +55,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -133,9 +129,11 @@ public class SearchPageTest {
     private static List<String> sumSuccessList = new ArrayList();
     private static String startTime;
     private static int testCount;
+    private WebDriverWait wait;
 
     @Before
     public void setup() {
+        wait = new WebDriverWait(driver, timeout_in_seconds);
         if (Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeout_in_seconds = Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
@@ -294,7 +292,7 @@ public class SearchPageTest {
             }
 
             String elem2 = "ul#facetFilter li li.ftag a";
-            String filterVals2 = null;
+            String filterVals2;
             try {
                 filterVals2 = driver.findElement(By.cssSelector(elem2)).getAttribute("rel");
             }
@@ -314,7 +312,7 @@ public class SearchPageTest {
                     successList.add(facet);
                 }
                 else {
-                    message = "Failed to uncheck input filter for " + facet + " facet on " + testName;
+                    message = "Failed to uncheck input filter for " + facet + " facet on " + testName + ". URL: " + driver.getCurrentUrl();
                     errorList.add(message);
                 }
             }
@@ -358,31 +356,31 @@ public class SearchPageTest {
 
         newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
-
         JSONObject geneResults = JSONRestUtil.getResults(solrUrl + newQueryString);
         JSONArray docs = JSONRestUtil.getDocArray(geneResults);
-
+        String message;
+        
         if (docs != null) {
             int size = docs.size();
             for (int i=0; i<size; i++) {
                 int count = i+1;
                 String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
-                System.out.print("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t");
-
+                
                 driver.get(baseUrl + "/search?q="+geneSymbol1);
                 driver.navigate().refresh();
+                System.out.println("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t. URL: " + driver.getCurrentUrl());
 
                 //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.geneCol")));
-                new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
+                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
                 //String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
                 
                 List<WebElement> elems = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
                 String geneSymbol2 = null;
                 for ( WebElement elem : elems ){
-                	if ( elem.getText().equals(geneSymbol1) ){
-                		geneSymbol2 = elem.getText();
-                		break;
-                	}
+                    if ( elem.getText().equals(geneSymbol1) ){
+                        geneSymbol2 = elem.getText();
+                        break;
+                    }
                 }
                 
                 //System.out.println("symbol2: "+ geneSymbol2);
@@ -392,10 +390,11 @@ public class SearchPageTest {
                     //Thread.sleep(thread_wait_in_seconds);
                 }
                 else {
-                    System.out.println("FAILED");
-                    errorList.add(geneSymbol1);
+                    message = "ERROR: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found.";
+                    System.out.println(message);
+                    errorList.add(message);
                 }
-                try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+                TestUtils.sleep(100);
             }
         }
         System.out.println();
@@ -411,6 +410,140 @@ public class SearchPageTest {
             
         }
         System.out.println();
+    }
+
+    @Test
+//@Ignore
+    public void testQueryingSpecificGeneSymbols() throws Exception {
+        testCount++;
+        String testName = "testQueryingSpecificGeneSymbols";
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        Date start = new Date();
+
+        successList.clear();
+        errorList.clear();
+
+        String newQueryString = "/gene/select?q=marker_symbol:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=marker_symbol&wt=json";
+        Random rn = new Random();
+        int startIndex = rn.nextInt(40000 - 0 + 1) + 1;
+        int nbRows = 1;
+        System.out.println("TESTING " + nbRows + " random gene symbols");
+
+        newQueryString+="&start="+startIndex+"&rows="+nbRows;
+
+
+        JSONObject geneResults = JSONRestUtil.getResults(solrUrl + newQueryString);
+        JSONArray docs = JSONRestUtil.getDocArray(geneResults);
+        String message;
+        
+        if (docs != null) {
+            int size = docs.size();
+            for (int i=0; i<size; i++) {
+                int count = i+1;
+                String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
+geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
+                driver.get(baseUrl + "/search?q="+geneSymbol1);
+                driver.navigate().refresh();
+                System.out.println("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t. URL: " + driver.getCurrentUrl());
+
+                //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.geneCol")));
+                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
+                //String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
+                
+                List<WebElement> elems = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
+                String geneSymbol2 = null;
+                for ( WebElement elem : elems ){
+                    if ( elem.getText().equals(geneSymbol1) ){
+                        geneSymbol2 = elem.getText();
+                        break;
+                    }
+                }
+                
+                //System.out.println("symbol2: "+ geneSymbol2);
+                if ( geneSymbol1.equals(geneSymbol2) ){
+                    System.out.println("OK");
+                    successList.add(geneSymbol1);
+                    //Thread.sleep(thread_wait_in_seconds);
+                }
+                else {
+                    message = "ERROR: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found.";
+                    System.out.println(message);
+                    errorList.add(message);
+                }
+                TestUtils.sleep(100);
+            }
+        }
+        System.out.println();
+        if (successList.size() == nbRows ){
+            System.out.println("[PASSED] - " + testName);
+            sumSuccessList.add("passed");
+        }
+        else {
+            System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+            sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+            TestUtils.printEpilogue(testName, start, errorList, null, successList, 1,  1);
+            fail("There were " + sumErrorList.size() + " errors.");
+            
+        }
+        System.out.println();
+    }
+
+    /**
+     * Certain gene symbols generated by 'testQueryingRandomGeneSymbols' fail
+     * even though they are proper marker_symbols (i.e. they are not
+     * synonyms). This test is a placeholder for those gene symbols known to
+     * not work at some point in the PhenotypeArchive development cycle.
+     *
+     * @throws Exception
+     */
+    @Test
+//@Ignore
+    public void testQueryingSpecificGeneSymbolsUsingSearchPage() throws Exception {
+        testCount++;
+        String testName = "testQueryingSpecificGeneSymbolsUsingSearchPage";
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        Date start = new Date();
+
+        successList.clear();
+        errorList.clear();
+
+        String[] geneIds = new String[] {
+            "Del(7Gabrb3-Ube3a)1Yhj"
+        };
+        for (String expectedGeneId : geneIds) {
+            String target = baseUrl + "/search";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            searchPage.submitSearch(expectedGeneId);
+            boolean found = false;
+            String message = "";
+            try {
+                List<WebElement> autosuggestElements = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
+                // Walk the list of autosuggest elements, looking for a gene match.
+                for (WebElement autosuggestElement : autosuggestElements) {
+                    if (autosuggestElement.getText().equals(expectedGeneId)) {
+                        found = true;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                message = "ERROR: Expected to find gene id '" + expectedGeneId + "' in the autosuggest list but the autosuggest list was empty.";
+                errorList.add(message);
+            }
+            
+            if (found) {
+                message = "OK: Found gene '" + expectedGeneId + "' in autosuggest results.";
+                successList.add(message);
+            } else {
+                message = "ERROR: Expected to find gene id '" + expectedGeneId + "' in the autosuggest list but it was not found.";
+                errorList.add(message);
+            }
+                
+            System.out.println(message);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, null, successList, 1,  1);
     }
 
     @Test
@@ -437,7 +570,7 @@ public class SearchPageTest {
 
         if (docs != null) {
             int size = docs.size();
-            int count = 0;
+            int count;
             for (int i=0; i<size; i++) {
 
                 count = i+1;
@@ -502,7 +635,7 @@ public class SearchPageTest {
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("testTrailingWildcard", "hox*");
     }
-
+    
     @Test
 //@Ignore
     public void testPagination() throws Exception {
@@ -510,59 +643,55 @@ public class SearchPageTest {
         System.out.println();
         String testName = "testPagination";
         System.out.println("----- " + testName + " -----");
-        String url;
+        String target;
         String message;
-        String expectedElement = "";
         final String showing_1 = "Showing 1 to 10 of";
         final String showing_11 = "Showing 11 to 20 of";
-        String actualResult = "";
         Date start = new Date();
-
+        String expectedShowing = "";
+        String actualShowing = "";
+        
         successList.clear();
         errorList.clear();
         exceptionList.clear();
         
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String core : cores ){
-            url = baseUrl + "/search#" + params.get(core);
+            target = baseUrl + "/search#" + params.get(core);
+            System.out.println("Testing URL: " + target);
             try {
-                driver.navigate().refresh();
-                driver.get(url);
-                expectedElement = "div#" + core + "Grid_info";
+                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+                searchPage.clickFacetById(core);
                 
-                // Wait for gene page to load, then click the page '2' link.
-                wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector(expectedElement), showing_1));
-                driver.findElement(By.cssSelector("div.dataTables_paginate a").linkText("2")).click();
+                // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
+                expectedShowing = showing_1;
+                actualShowing = searchPage.getShowing().toString();
+                if ( ! actualShowing.contains(expectedShowing)) {
+                    message = "ERROR: Expected '" + expectedShowing + "' but found '" + actualShowing + "'.";
+                    System.out.println(message);
+                    errorList.add(message);
+                }
                 
-                // Wait for the 2nd page to load, then check for the expectedResult.
-                wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector(expectedElement), showing_11));
-//                String s = (new WebDriverWait(driver, timeout_in_seconds))
-//                                      .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(expectedElement))).getText();
-//                System.out.println("***************************************************************************** s = " + s);
-                message = "Success: found '" + showing_11 + "'";
-                successList.add(message);
-            } catch (NoSuchElementException | TimeoutException te) {
-                message = "ERROR: expectedElement = '" + expectedElement + "'. URL = " + url
-                        + "\n\texpected result = '" + showing_11 + "'"
-                        + "\n\tactualResult    = '" + actualResult + "'";
-                errorList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
-            }  catch (Exception e) {
-                message = "EXCEPTION processing target URL " + url + ": " + e.getLocalizedMessage();
+                // Wait for facet page to load, then click the page '2' link. The 'showing' string should start with 'Showing 11 to 20 of".
+                searchPage.clickPageButton(PageDirective.SECOND_NUMBERED);
+                expectedShowing = showing_11;
+                actualShowing = searchPage.getShowing().toString();
+                if ( ! actualShowing.contains(expectedShowing)) {
+                    message = "ERROR: Expected '" + expectedShowing + "' but found '" + actualShowing + "'.";
+                    System.out.println(message);
+                    errorList.add(message);
+                }
+                
+                if (errorList.isEmpty())
+                    successList.add("Success!");
+            } catch (Exception e) {
+                message = "EXCEPTION: Expected '" + expectedShowing + "' but found '" + actualShowing + "'. message: " + e.getLocalizedMessage();
+                System.out.println(message);
                 exceptionList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
+                e.printStackTrace();
             }
-            
-            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        if ((errorList.size() > 0) || (exceptionList.size() > 0)) {
-            sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
-            fail("There were " + sumErrorList.size() + " errors.");
-        }
-        else {
+        if ((errorList.isEmpty()) && (exceptionList.isEmpty())) {
             System.out.println("[PASSED] - " + testName);
             sumSuccessList.add("passed");
         }
@@ -641,7 +770,7 @@ public class SearchPageTest {
 
     /**
      * Test for Jira bug MPII-806: from the search page, searching for the characters
-     * "fasting glu" should augosuggest 'fasting glucose'. Click on 'fasting glucose'
+     * "fasting glu" should autosuggest 'fasting glucose'. Click on 'fasting glucose'
      * and verify that the correct phenotype page appears.
      * @throws Exception 
      */
@@ -666,7 +795,7 @@ public class SearchPageTest {
          // Wait for dropdown list to appear with 'blood glucose'.
         String xpathSelector = "//ul[@id=\"ui-id-1\"]/li/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
-        if (element.getText().compareTo("fasting glucose") != 0) {
+        if ( ! element.getText().contains("fasting glucose")) {
             errorList.add("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
         } else {
             element.click();
@@ -680,7 +809,7 @@ public class SearchPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testSpecialCharacters() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
@@ -763,6 +892,55 @@ public class SearchPageTest {
         String searchString = "bone";
         
         downloadTestEngine(testName, searchString);
+    }
+    
+    @Test
+//@Ignore
+    public void testLegDownload() throws Exception {
+        String testName = "testLegDownload";
+        String searchString = "leg";
+        
+        downloadTestEngine(testName, searchString);
+    }
+    
+    // This test doesn't use the download test engine as it requires an extra
+    // click to switch to the Image facet's 'Image' view.
+    @Test
+//@Ignore
+    public void testImageFacetImageView() throws Exception {
+        String testName = "testImageFacetImageView";
+        String searchString = "";
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        try {
+            String target = baseUrl + "/search";
+// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            Facet facet = Facet.IMAGES;    
+            searchPage.clickFacet(facet);
+            searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
+            searchPage.clickPageButton();
+//searchPage.clickPageButton(SearchPage.PageDirective.LAST);
+            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+            status.add(searchPage.validateDownload(facet));
+        } catch (Exception e) {
+            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            System.out.println(message);
+            e.printStackTrace();
+            status.addError(message);
+        } finally {
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            } else {
+                successList.add(testName + ": SUCCESS.");
+            }
+
+            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        }
     }
 
     
@@ -907,6 +1085,7 @@ public class SearchPageTest {
         try {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
             String target = baseUrl + "/search";
+// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
             SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
 
             if (! searchString.isEmpty()) {
@@ -925,7 +1104,7 @@ public class SearchPageTest {
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
                 searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.NEXT);
+//searchPage.clickPageButton(SearchPage.PageDirective.FIRST);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                 status.add(searchPage.validateDownload(facet));
             }

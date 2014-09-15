@@ -15,27 +15,7 @@
  */
 package uk.ac.ebi.phenotype.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import net.sf.json.JSONArray;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -56,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalSet;
@@ -66,11 +45,20 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class ObservationService extends BasicService {
@@ -97,7 +85,7 @@ public class ObservationService extends BasicService {
 	public ObservationService(String solrUrl) {
 
 		solr = new HttpSolrServer(solrUrl);
-		//System.out.println("solrUrl in Observation Service contstructor="+solrUrl);
+		System.out.println("solrUrl in Observation Service contstructor="+solrUrl);
 	}
 
 
@@ -503,6 +491,8 @@ public class ObservationService extends BasicService {
 		ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.SEX + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
 
 		QueryResponse response = solr.query(query);
+		LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
+		LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Num Solr documents - {}", response.getResults().getNumFound());
 
 		return getFacetPivotResults(response, false);
 
@@ -565,7 +555,7 @@ public class ObservationService extends BasicService {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
 		LOG.debug("observation  service query = " + query);
-		System.out.println("observation  service query = " + query);
+
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
@@ -636,8 +626,8 @@ public class ObservationService extends BasicService {
 	 * and center combination. A list of filters (meaning restriction to some
 	 * specific procedures is passed).
 	 * 
-	 * @param genomicFeatureAcc
-	 *            a gene accession
+	 * @param alleleAccession
+	 *            an allele accession
 	 * @return list of triplets
 	 * @throws SolrServerException
 	 */
@@ -703,8 +693,8 @@ public class ObservationService extends BasicService {
 	 * Return a list of procedures effectively performed given pipeline stable
 	 * id, phenotyping center and allele accession
 	 * 
-	 * @param genomicFeatureAcc
-	 *            a gene accession
+	 * @param alleleAccession
+	 *            an allele accession
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
@@ -1357,7 +1347,7 @@ public class ObservationService extends BasicService {
 		}
 		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
-		System.out.println("getAllControlsBySex " + query );
+		LOG.debug("getAllControlsBySex " + query );
 		return results;
 	}
 
@@ -1446,4 +1436,8 @@ public class ObservationService extends BasicService {
 
 	}
 
+
+	public HttpSolrServer getSolrServer() {
+		return solr;
+	}
 }

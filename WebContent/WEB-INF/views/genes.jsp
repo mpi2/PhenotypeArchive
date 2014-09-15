@@ -131,7 +131,7 @@
                                                 <p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
                                                     </c:when>
                                                     <c:otherwise>
-                                                <p> <a class="btn" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+                                                <p> <a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
                                                     </c:otherwise>
                                                 </c:choose>
                                                 <c:if test="${orderPossible}">
@@ -365,35 +365,37 @@
                             </c:if>
                             
                             <!-- nicolas accordion for images here -->
-                            <c:if test="${not empty impcImages}">
+                             <!-- nicolas accordion for images here -->
+                            <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
-                                    <h2 class="title" id="section-images">Gene Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
-                                        
+                                        <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
                                             <div class="accordion-group">
                                                 <div class="accordion-heading">
-                                                   IMPC Images for Gene
+                                                    ${entry.name} (${entry.count})
                                                 </div>
                                                 <div class="accordion-body">
                                                     <ul>
-                                                        <c:forEach var="image" items="${impcImages}">
+                                                        <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
                                                             <li>
-                                                                <t:impcimgdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay>
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
                                                                 </li>
                                                         </c:forEach>
                                                     </ul>
                                                     <div class="clear"></div>
-                                                    <c:if test="${totalImpcImages>5}">
-                                                        <p class="textright"><a href='${baseUrl}/impcImages?q=gene_accession_id:"${acc}"&fq=biological_sample_group:experimental'><i class="fa fa-caret-right"></i> show all ${totalImpcImages} images</a></p>
+                                                    <c:if test="${entry.count>5}">
+                                                        <p class="textright"><a href="${baseUrl}/impcImages?q=gene_accession_id:${acc}&fq=procedure_name:${entry.name}&rows=100000"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
                                                     </c:if>
                                                 </div><!--  end of accordion body -->
                                             </div>
-                                       
+                                        </c:forEach><!-- solrFacets end -->
 
                                     </div><!--  end of inner -->
                                 </div> <!-- end of section -->
-                            </c:if>
+                            </c:if>			
+
 
                             <!-- nicolas accordion for images here -->
                             <c:if test="${not empty solrFacets}">

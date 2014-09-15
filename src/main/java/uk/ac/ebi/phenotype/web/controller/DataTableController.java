@@ -69,8 +69,7 @@ public class DataTableController {
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
-		
-	private boolean legacyOnly = false;
+	
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -114,6 +113,7 @@ public class DataTableController {
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
 		System.out.println("paramstr: " + solrParamStr);
+		boolean legacyOnly = jParams.getBoolean("legacyOnly");
 		
 		// Get the query string
 		String[] pairs = solrParamStr.split("&");		
@@ -124,9 +124,6 @@ public class DataTableController {
 					query = parts[1];	
 				}
 				if (parts[0].equals("fq")) {
-					if ( parts[0].matches( "\\(?legacy_phenotype_status:1\\)?" ) ){
-						legacyOnly = true;
-					}
 					fqOri = "&fq=" + parts[1];				
 				}
 			}catch (Exception e) {
@@ -142,7 +139,7 @@ public class DataTableController {
 		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 		//System.out.println("JSON: "+ json);
 		
-		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName);
+		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly);
 		
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -163,11 +160,11 @@ public class DataTableController {
 		return responseHeaders;
 	}
 
-	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName) throws IOException, URISyntaxException {
+	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName, boolean legacyOnly) throws IOException, URISyntaxException {
 
 		String jsonStr = null;
 		if (mode.equals("geneGrid")) {
-			jsonStr = parseJsonforGeneDataTable(json, request, query, solrCoreName);
+			jsonStr = parseJsonforGeneDataTable(json, request, query, solrCoreName, legacyOnly);
 		} 
 		else if (mode.equals("pipelineGrid")) {
 			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, start);
@@ -187,8 +184,8 @@ public class DataTableController {
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName){	
-			
+	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, boolean legacyOnly){	
+		
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -221,7 +218,7 @@ public class DataTableController {
 			String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
 			rowData.add(prodStatus);
 			
-			String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, request, toExport);
+			String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, request, toExport, legacyOnly);
 			rowData.add(phenotypeStatusHTMLRepresentation);
 			
 			// register of interest
@@ -474,8 +471,9 @@ public class DataTableController {
 							if ( s.toString().contains("MA")){
 								log.debug(i + " - MA: " + termNames.get(counter).toString());
 								String name = termNames.get(counter).toString();
-								//ma.add("<a href='/maid' target='_blank'>" + name + "</a>");
-								ma.add(name);
+								String maid = termIds.get(counter).toString();	
+								String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
+								ma.add("<a href='" + url + "'>" + name + "</a>");
 							}
 							else if ( s.toString().contains("MP") ){
 								log.debug(i+ " - MP: " + termNames.get(counter).toString());
@@ -497,19 +495,39 @@ public class DataTableController {
 						}						
 					}					
 					
-					if ( mp.size() > 0){
+					if ( mp.size() == 1 ){
 						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + StringUtils.join(mp, ", ") + "</span>";
 					}
-					if ( ma.size() > 0){
-						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
-					}
-					if ( exp.size() > 0){
-						annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + StringUtils.join(exp, ", ") + "</span>";
+					else if ( mp.size() > 1 ){
+						String list = "<ul class='imgMp'><li>" + StringUtils.join(mp, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + list + "</span>";
 					}
 					
+					
+					if ( ma.size() == 1 ){
+						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
+					}
+					else if ( ma.size() > 1 ){
+						String list = "<ul class='imgMa'><li>" + StringUtils.join(ma, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list + "</span>";
+					}
+					
+					if ( exp.size() == 1 ){
+						annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + StringUtils.join(exp, ", ") + "</span>";
+					}
+					else if ( exp.size() > 1 ){
+						String list = "<ul class='imgProcedure'><li>" + StringUtils.join(exp, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + list + "</span>";
+					}
+					
+					
 					ArrayList<String> gene = fetchImgGeneAnnotations(doc, request);
-					if ( gene.size() > 0){						
+					if ( gene.size() == 1 ){						
 						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + StringUtils.join(gene, ",") + "</span>";
+					}
+					else if ( gene.size() > 1 ){
+						String list = "<ul class='imgGene'><li>" + StringUtils.join(gene, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + list + "</span>";
 					}
 									
 					rowData.add(annots);
@@ -518,7 +536,7 @@ public class DataTableController {
 				}
 				catch (Exception e){
 					// some images have no annotations					
-					rowData.add("Not available");
+					rowData.add("No information available");
 					rowData.add(imgLink);
 					j.getJSONArray("aaData").add(rowData);
 				}
@@ -535,8 +553,8 @@ public class DataTableController {
 				fqStr = "";
 			}
 			
-			String baseUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
-			//System.out.println("THE PARAMs: "+ solrParams);
+			String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
+			System.out.println("IMAGE PARAMs: "+ solrParams);
 			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			
@@ -572,15 +590,15 @@ public class DataTableController {
 
 					List<String> rowData = new ArrayList<String>();
 
-					Map<String, String> hm = solrIndex.renderFacetField(names, (String)request.getAttribute("baseUrl")); //MA:xxx, MP:xxx, MGI:xxx, exp				
+					Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp				
 					String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
 					String facetField = hm.get("field").toString();
-
+					
 					String imgCount = facets.get(i+1).toString();	
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
 					
-					//String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
-					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit + "</a>";
+					imgUrl = imgUrl.replaceAll("&q=.+&", "&q="+ query + " AND " + facetField + ":\"" + names[0] + "\"&");
+					String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
 								
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 					

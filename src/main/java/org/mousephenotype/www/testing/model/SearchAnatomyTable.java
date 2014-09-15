@@ -70,42 +70,29 @@ public class SearchAnatomyTable extends SearchFacetTable {
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
-        
-        // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
-        // and with all data (the data for all of the pages). As such, the only effective way to validate
-        // it is to stuff the download data elements into a hash, then loop through the pageData rows
-        // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
-        for (int i = 1; i < downloadData.length; i++) {     
-            // Copy all but the pageHeading into the hash.// Copy all but the pageHeading into the hash.
-            String[] row = downloadData[i];
-            downloadHash.put(row[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM], row);
-        }
-        
-        for (AnatomyRow pageRow : bodyRows) {
-            String[] downloadRow = downloadHash.get(pageRow.anatomyTerm);
-            if (downloadRow == null) {
-                status.addError("ANATOMY MISMATCH: page value anatomyName = '" + pageRow.anatomyTerm + "' was not found in the download file.");
-                continue;
-            }
-            downloadHash.remove(pageRow.anatomyTerm);
             
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Mouse adult gross anatomy term"
-              , "Mouse adult gross anatomy id"
-              , "Mouse adult gross anatomy synonym"
-            };
-            validateDownloadHeading(status, pageRow.anatomyTerm, expectedHeadingList, downloadData[0]);
-            
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Mouse adult gross anatomy term"
+          , "Mouse adult gross anatomy id"
+          , "Mouse adult gross anatomy id link"
+          , "Mouse adult gross anatomy synonym"
+        };
+        SearchFacetTable.validateDownloadHeading("ANATOMY", status, expectedHeadingList, downloadData[0]);
+
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
+            AnatomyRow pageRow = bodyRows.get(i);
+
             // Verify the components.
             
             // anatomyId.
             if ( ! pageRow.anatomyId.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID]))
-                status.addError("ANATOMY MISMATCH: page value anatomyId = '" + pageRow.anatomyId + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID] + "'.");
+                status.addError("ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyId = '" + pageRow.anatomyId + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID] + "'.");
             
-            // anatomyTerm.
-            if ( ! pageRow.anatomyTerm.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM]))
-                status.addError("ANATOMY MISMATCH: page value anatomyTerm = '" + pageRow.anatomyTerm + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM] + "'.");
+            // anatomyIdLink.
+            if ( ! pageRow.anatomyIdLink.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK]))
+                status.addError("ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyIdLink = '" + pageRow.anatomyIdLink + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK] + "'.");
             
             // synonyms collection.
             HashMap<String, String> downloadSynonymHash = new HashMap();
@@ -119,7 +106,7 @@ public class SearchAnatomyTable extends SearchFacetTable {
             for (String pageSynonym : pageRow.synonyms) {
                 String downloadSynonym = downloadSynonymHash.get(pageSynonym);
                 if (downloadSynonym == null) {
-                    status.addError("ANATOMY MISMATCH: page value synonym = '" + pageSynonym + "' was not found in the download file.");
+                    status.addError("ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value synonym = '" + pageSynonym + "' was not found in the download file.");
                 }
                 downloadSynonymHash.remove(downloadSynonym);
             }
@@ -141,9 +128,9 @@ public class SearchAnatomyTable extends SearchFacetTable {
                 AnatomyRow anatomyRow = new AnatomyRow();
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
                 WebElement element = bodyRowElementList.get(0).findElement(By.cssSelector("a"));
-                String href = element.getAttribute("href");
-                int pos = href.lastIndexOf("/");
-                anatomyRow.anatomyId = href.substring(pos + 1); 
+                anatomyRow.anatomyIdLink = element.getAttribute("href");
+                int pos = anatomyRow.anatomyIdLink.lastIndexOf("/");
+                anatomyRow.anatomyId = anatomyRow.anatomyIdLink.substring(pos + 1); 
                 anatomyRow.anatomyTerm = element.getText();
                 // Synonyms are optional.
                 List<WebElement> synonymElements = element.findElements(By.cssSelector("div.maCol > div.subinfo"));
@@ -160,6 +147,12 @@ public class SearchAnatomyTable extends SearchFacetTable {
     
     // PRIVATE CLASSES
     
+    
+    private class AnatomyRow {
+        private String anatomyId = "";
+        private String anatomyIdLink = "";
+        private String anatomyTerm = "";
+        private List<String> synonyms = new ArrayList();
     
     // NOTE: We don't need these (as sorting the arrays does not solve the problem). However, I'm leaving these in
     //       because they are a good example of how to sort String[][] objects.
@@ -215,28 +208,7 @@ public class SearchAnatomyTable extends SearchFacetTable {
             
             return op1.compareTo(op2);
         }
-    }    
-    
-    private class AnatomyRow {
-        private String anatomyId = "";
-        private String anatomyTerm = "";
-        private List<String> synonyms = new ArrayList();
-        
-        
-        // anatomyId, anatomyTerm, anatomySynonyms
-        public AnatomyRow() { }
-        
-        public String getAnatomyId() {
-            return anatomyId;
-        }
-
-        public String getAnatomyTerm() {
-            return anatomyTerm;
-        }
-
-        public List<String> getSynonyms() {
-            return synonyms;
-        }
+    }
     }
 
 }

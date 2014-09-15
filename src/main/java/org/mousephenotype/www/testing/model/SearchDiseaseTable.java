@@ -72,56 +72,46 @@ public class SearchDiseaseTable extends SearchFacetTable {
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
-        
-        // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
-        // and with all data (the data for all of the pages). As such, the only effective way to validate
-        // it is to stuff the download data elements into a hash, then loop through the pageData rows
-        // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
-        for (int i = 1; i < downloadData.length; i++) {
-            // Copy all but the pageHeading into the hash.
-            String[] row = downloadData[i];
-            downloadHash.put(row[DownloadSearchMapDiseases.COL_INDEX_DISEASE_NAME], row);
-        }
-        
-        for (DiseaseRow pageRow : bodyRows) {
-            String[] downloadRow = downloadHash.get(pageRow.diseaseName);
-            if (downloadRow == null) {
-                status.addError("DISEASE MISMATCH: page value diseaseName = '" + pageRow.diseaseName + "' was not found in the download file.");
-                continue;
-            }
-            downloadHash.remove(pageRow.diseaseName);                           // Remove the pageRow from the download hash.
-            
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Disease id"
-              , "Disease name"
-              , "Source"
-              , "Curated genes in human"
-              , "Curated genes in mouse (MGI)"
-              , "Candidate genes by phenotype (IMPC)"
-              , "Candidate genes by phenotype (MGI)"
-            };
-            validateDownloadHeading(status, pageRow.diseaseName, expectedHeadingList, downloadData[0]);
-            
+
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Disease id"
+          , "Disease id link"
+          , "Disease name"
+          , "Source"
+          , "Curated genes in human"
+          , "Curated genes in mouse (MGI)"
+          , "Candidate genes by phenotype (IMPC)"
+          , "Candidate genes by phenotype (MGI)"
+        };
+        SearchFacetTable.validateDownloadHeading("DISEASE", status, expectedHeadingList, downloadData[0]);
+
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
+            DiseaseRow pageRow = bodyRows.get(i);
+
             // Verify the components.
             
             if ( ! pageRow.diseaseId.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID]))
-                status.addError("DISEASE MISMATCH: page value diseaseId = '" + pageRow.diseaseId + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID]);
+                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value diseaseId = '" + pageRow.diseaseId + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID]);
+            
+            if ( ! pageRow.diseaseIdLink.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID_LINK]))
+                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value diseaseId = '" + pageRow.diseaseId + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID_LINK]);
             
             if ( ! pageRow.source.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_SOURCE]))
-                status.addError("DISEASE MISMATCH: page value source = '" + pageRow.source + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_SOURCE]);
+                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value source = '" + pageRow.source + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_SOURCE]);
             
             if ( ! pageRow.hasCuratedGenesInHuman.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN]))
-                status.addError("DISEASE MISMATCH: page value hasCuratedGenesInHuman = '" + pageRow.hasCuratedGenesInHuman + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN]);
+                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInHuman = '" + pageRow.hasCuratedGenesInHuman + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN]);
             
             if ( ! pageRow.hasCuratedGenesInMice.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_MICE]))
-                status.addError("DISEASE MISMATCH: page value hasCuratedGenesInMice = '" + pageRow.hasCuratedGenesInMice + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_MICE]);
+                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInMice = '" + pageRow.hasCuratedGenesInMice + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_MICE]);
             
             if ( ! pageRow.hasCandidateGenesByPhenotypeIMPC.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC]))
-                status.addError("DISEASE MISMATCH: page value hasCandidateGenesByPhenotypeIMPC = '" + pageRow.hasCandidateGenesByPhenotypeIMPC + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC]);
+                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeIMPC = '" + pageRow.hasCandidateGenesByPhenotypeIMPC + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC]);
             
             if ( ! pageRow.hasCandidateGenesByPhenotypeMGI.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI]))
-                status.addError("DISEASE MISMATCH: page value hasCandidateGenesByPhenotypeMGI = '" + pageRow.hasCandidateGenesByPhenotypeMGI + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI]);
+                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeMGI = '" + pageRow.hasCandidateGenesByPhenotypeMGI + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI]);
         }
 
         return status;
@@ -139,9 +129,9 @@ public class SearchDiseaseTable extends SearchFacetTable {
                 DiseaseRow diseaseRow = new DiseaseRow();
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
                 WebElement element = bodyRowElementList.get(0).findElement(By.cssSelector("a"));        // Get 'Disease' element.
-                String href = element.getAttribute("href");
-                int pos = href.lastIndexOf("/");
-                diseaseRow.diseaseId = href.substring(pos + 1);                                         // Add diseaseId   to row element 0 from 'Disease' element.
+                diseaseRow.diseaseIdLink = element.getAttribute("href");
+                int pos = diseaseRow.diseaseIdLink.lastIndexOf("/");
+                diseaseRow.diseaseId = diseaseRow.diseaseIdLink.substring(pos + 1);                     // Add diseaseId   to row element 0 from 'Disease' element.
                 diseaseRow.diseaseName = element.getText();                                             // Add diseaseName to row element 1 from 'Disease' element.
                 diseaseRow.source = bodyRowElementList.get(1).getText();                                // Add source      to row element 2 from 'Source' element.
                 
@@ -175,6 +165,8 @@ public class SearchDiseaseTable extends SearchFacetTable {
                     }
                 }
                 
+                
+//System.out.println("diseaseRow[ " + index + " ]: " + diseaseRow.toString());
                 bodyRows.add(diseaseRow);
             }
         }
@@ -186,42 +178,13 @@ public class SearchDiseaseTable extends SearchFacetTable {
     
     private class DiseaseRow {
         private String diseaseId = "";
+        private String diseaseIdLink = "";
         private String diseaseName = "";
         private String source = "";
         private String hasCuratedGenesInHuman = "";
         private String hasCuratedGenesInMice = "";
         private String hasCandidateGenesByPhenotypeIMPC = "";
         private String hasCandidateGenesByPhenotypeMGI = "";
-
-        public String getDiseaseId() {
-            return diseaseId;
-        }
-
-        public String getDiseaseName() {
-            return diseaseName;
-        }
-
-        public String getSource() {
-            return source;
-        }
-
-        public String hasCuratedGenesInHuman() {
-            return hasCuratedGenesInHuman;
-        }
-
-        public String hasCuratedGenesInMice() {
-            return hasCuratedGenesInMice;
-        }
-
-        public String hasCandidateGenesByPhenotypeIMPC() {
-            return hasCandidateGenesByPhenotypeIMPC;
-        }
-
-        public String hasCandidateGenesByPhenotypeMGI() {
-            return hasCandidateGenesByPhenotypeMGI;
-        }
-        
-
     }
 
 }

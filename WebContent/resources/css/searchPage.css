@@ -21,7 +21,7 @@ span#rmFilters {
 span.ui-helper-hidden-accessible {
 	font-size: 14px;
 }
-span.gene, span.mp, span.ma, span.disease {
+span.gene, span.mp, span.ma, span.disease, span.hp {
 	color: black;
 }
 b.sugTerm {
@@ -260,11 +260,14 @@ span#dnld {
 span.dtype {
 	color: gray;
 }
+span.hp2mp {
+	color: #404040;
+}
 span.subMatch {
 	color: #0978A1;
 }
 
-div.subinfo ul li {
+div.subinfo ul li, span.imgAnnots ul li {
 	margin-left: 20px;
 	padding-left: 10px;
 	background-image: url('../img/gray_bullet.jpg');

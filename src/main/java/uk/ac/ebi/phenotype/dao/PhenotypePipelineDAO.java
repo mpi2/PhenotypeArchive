@@ -73,12 +73,28 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public Pipeline getPhenotypePipelineByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 		
 	/**
+	 * Find a procedure by its stable id
+	 * It will return the latest version of the procedure
+	 * @param stableId the procedure stable id
+	 * @return the procedure
+	 */
+	public Procedure getProcedureByStableId(String stableId);
+	
+	/**
 	 * Find a procedure by its stable id and versions
 	 * It will return the latest version of the procedure
 	 * @param name the procedure stable id
 	 * @return the procedure
 	 */
 	public Procedure getProcedureByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);	
+		
+	/**
+	 * Find multiple procedures matching the string passed
+	 * It will return a list of procedure matching the string passed
+	 * @param pattern the procedure stable id pattern
+	 * @return a list of procedures matching the string passed as a parameter
+	 */
+	public List<Procedure> getProcedureByMatchingStableId(String pattern);
 	
 	/**
 	 * Find a parameter by its stable id and versions
@@ -125,6 +141,6 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	
 	public String getCategoryDescription (int parameterId, String category) throws SQLException;
 
-	public Procedure getProcedureByStableId(String string);
+	
 	
 }
