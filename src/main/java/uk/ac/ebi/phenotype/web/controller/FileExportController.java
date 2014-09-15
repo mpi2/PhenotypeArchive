@@ -65,7 +65,7 @@ import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Strain;
@@ -111,7 +111,7 @@ public class FileExportController {
     AlleleDAO alleleDAO;
 
     @Autowired
-    private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+    private PhenotypeCallSummarySolr phenoDAO;
 
     private String NO_INFO_MSG = "No information available";
     

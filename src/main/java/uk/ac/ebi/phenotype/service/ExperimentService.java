@@ -41,7 +41,7 @@ import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.ControlStrategy;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
@@ -65,7 +65,7 @@ public class ExperimentService {
     PhenotypePipelineDAO parameterDAO;
 
     @Autowired
-    private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+    private PhenotypeCallSummarySolr phenoDAO;
 
     @Autowired
     private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;

@@ -62,7 +62,7 @@ import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Synonym;
@@ -89,7 +89,7 @@ public class PhenotypesController {
     private OntologyTermDAO ontoTermDao;
 
     @Autowired
-    private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+    private PhenotypeCallSummarySolr phenoDAO;
 
     @Autowired
     private SolrIndex solrIndex;
