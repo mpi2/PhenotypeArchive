@@ -251,7 +251,7 @@ public class FileExportController {
     ) throws Exception {
 
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-    	System.out.println("*****hostname: "+hostName);
+    	
         log.debug("solr params: " + solrFilters);
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
