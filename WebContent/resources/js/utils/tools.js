@@ -154,7 +154,7 @@
         }
 
         //console.log(facetUrls);
-        console.log(JSON.stringify(facetUrls));
+        //console.log(JSON.stringify(facetUrls));
         $.ajax({url: baseUrl + '/querybroker',
             data: {'q': JSON.stringify(facetUrls), 'subfacet': 'yes'},
             async: false,
@@ -650,7 +650,7 @@
                 case 'disease':
                     {
                         // refresh disease facet
-                	console.log(json);
+                	
                         var oFacets = json.facet_counts.facet_fields;
                         var selectorBase = "div.flist li#disease";
                         _facetRefresh(json, selectorBase);
