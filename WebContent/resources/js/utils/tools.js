@@ -43,7 +43,7 @@
                 var qField = aVals[0];
                 var fieldFacet = MPI2.searchAndFacetConfig.qfield2facet[qField];
 
-                console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
+                //console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
                 if (typeof MPI2.searchAndFacetConfig.qfield2facet[qField]) {
                     //var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 
