@@ -491,6 +491,8 @@ public class ObservationService extends BasicService {
 		ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.SEX + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
 
 		QueryResponse response = solr.query(query);
+		LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
+		LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Num Solr documents - {}", response.getResults().getNumFound());
 
 		return getFacetPivotResults(response, false);
 
@@ -553,7 +555,7 @@ public class ObservationService extends BasicService {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
 		LOG.debug("observation  service query = " + query);
-		System.out.println("observation  service query = " + query);
+
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
@@ -1345,7 +1347,7 @@ public class ObservationService extends BasicService {
 		}
 		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
-		System.out.println("getAllControlsBySex " + query );
+		LOG.debug("getAllControlsBySex " + query );
 		return results;
 	}
 
