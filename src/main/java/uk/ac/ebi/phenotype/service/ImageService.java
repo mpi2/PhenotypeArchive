@@ -100,35 +100,7 @@ public class ImageService {
 		return response;
 	}
 	
-	/**
-	 * 
-	 * @param query
-	 *            the url from the page name onwards e.g
-	 *            q=observation_type:image_record
-	 * @return
-	 * @throws SolrServerException
-	 */
-	public QueryResponse getResponseForSolrQuery2(String query)
-	throws SolrServerException {
-
-		SolrQuery solrQuery = new SolrQuery(query);
-//		String[] paramsKeyValues = query.split("&");
-//		for (String paramKV : paramsKeyValues) {
-//			log.debug("paramKV=" + paramKV);
-//			String[] keyValue = paramKV.split("=");
-//			if (keyValue.length > 1) {
-//				String key = keyValue[0];
-//				String value = keyValue[1];
-//				log.debug("param=" + key + " value=" + value);
-//				solrQuery.setParam(key, value);
-//			}
-//
-//		}
-		QueryResponse response = solr.query(solrQuery);
-		
-		return response;
-	}
-
+	
 
 	public static SolrQuery allImageRecordSolrQuery()
 	throws SolrServerException {
