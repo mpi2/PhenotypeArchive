@@ -140,31 +140,26 @@ public class ImageService {
 	public QueryResponse getFacetsForGeneByProcedure(String mgiAccession, String experimentOrControl)
 	throws SolrServerException {
 //		Map<String, ResponseWrapper<ImageDTO>> map=new HashMap<String, ResponseWrapper<ImageDTO>>();
-		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&facet=true&facet.field=procedure_name&facet.mincount=1";
-		log.debug("queryString in ImageService getFacets=" + queryString);
+		//String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl+"&facet=true&facet.field=procedure_name&facet.mincount=1";
+		//log.debug("queryString in ImageService getFacets=" + queryString);
 		
 		
 		//make a facet request first to get the procedures and then reuturn make requests for each procedure
 		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2384986%22&&fq=biological_sample_group:experimental&facet=true&facet.field=procedure_name
-		QueryResponse response=this.getResponseForSolrQuery(queryString);
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl);
+		solrQuery.setFacetMinCount(1);
+		solrQuery.setFacet(true);
+		solrQuery.addFacetField("procedure_name");
+		//solrQuery.setRows(0);
+		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
 	
 	public QueryResponse getImagesForGeneByProcedure(String mgiAccession, String procedure_name, String parameterStableId, String experimentOrControl, int numberOfImagesToRetrieve, SexType sex, String  metadataGroup, String strain)
 	throws SolrServerException {
-//		String queryString = "q=gene_accession_id:\"" + mgiAccession + "\"" +  "&fq=" + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl;
-//		if(sex!=null){//add a sex specifier
-//			queryString+="&fq=sex:"+sex.name();
-//		}
-//		if(parameterStableId!=null){
-//			queryString+="&fq="+ObservationDTO.PARAMETER_STABLE_ID+":"+parameterStableId;
-//		}
-//		if(procedure_name!=null){
-//			queryString+="&fq="+ObservationDTO.PROCEDURE_NAME+":\""+procedure_name+"\"";
-//		}
-//		queryString+="&rows="+numberOfImagesToRetrieve;
-//		System.out.println("queryString in ImageService getImagesForGeneByProcedure=" + queryString);
-//		QueryResponse response = this.getResponseForSolrQuery(queryString);
+
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl);
@@ -189,17 +184,6 @@ public class ImageService {
 	
 	public QueryResponse getControlImagesForProcedure(String metadataGroup,String center,String strain,String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex)
 	throws SolrServerException {
-		String queryString = "q="+ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control&fq=" + ObservationDTO.PHENOTYPING_CENTER + ":" + center+ "&fq=" +ObservationDTO.METADATA_GROUP+":" + metadataGroup + "&"+"fq="+ObservationDTO.STRAIN_NAME+":"+strain+"&fq="+ObservationDTO.PARAMETER_STABLE_ID+":"+parameter+"&fq="+ObservationDTO.PROCEDURE_NAME+":\""+procedure_name+"\"&rows="+numberOfImagesToRetrieve;
-		if(sex!=null){//add a sex specifier
-			queryString+="&fq=sex:"+sex.name();
-		}
-//		log.info("queryString in ImageService for getControlImagesForProcedure=" + queryString);
-//		QueryResponse response = this.getResponseForSolrQuery(queryString);
-//		log.info("control results size="+response.getResults().size());
-//		for(SolrDocument doc: response.getResults()){
-//			log.info("control?="+doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
-//		}
-		
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
 		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":" + center,ObservationDTO.METADATA_GROUP+":" + metadataGroup, ObservationDTO.STRAIN_NAME+":"+strain, ObservationDTO.PARAMETER_STABLE_ID+":"+parameter, ObservationDTO.PROCEDURE_NAME+":\""+procedure_name+"\"" , "sex:"+sex.name() );
