@@ -2,9 +2,12 @@ package uk.ac.ebi.phenotype.service;
 
 import static org.junit.Assert.*;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -40,22 +45,45 @@ public class ImageServiceTest {
 		}
 	}
 	
-//	@Test
-//	public void testGetExperimentalImagesForGene(){
-//		ResponseWrapper<ImageDTO> imageDTOs;
-//		String gene="MGI:2384986";
-//		try {
-//			imageDTOs= imageService.getExperimentalImagesForGeneByProcedure(gene);
-//		
-//		for(ImageDTO imageDTO:imageDTOs.getList()){
-//			System.out.println(imageDTO.getOmeroId());
-//		}
-//		assertTrue(imageDTOs.getList().size()>1);
-//		} catch (SolrServerException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+	@Test
+	public void testGetExperimentalImagesForGene(){
+		QueryResponse imagesResponse;
+		//gene_accession_id:"MGI:1861899"&fq=biological_sample_group:experimental&fq=sex:male&fq=parameter_stable_id:IMPC_CSD_085_001&rows=2
+		String gene="MGI:1861899";
+		try {
+			imagesResponse= imageService.getImagesForGeneByProcedure(gene,"Combined SHIRPA and Dysmorphology", "IMPC_CSD_085_001" , "experimental",2, SexType.female);
+		
+		for(SolrDocument doc:imagesResponse.getResults()){
+			System.out.println(doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
+			System.out.println(doc.get(ObservationDTO.SEX));
+			System.out.println(doc.get(ObservationDTO.PROCEDURE_NAME));
+		}
+		//assertTrue(imageDTOs.getList().size()>1);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
-	
+	@Test
+	public void testGetControlImagesForProcedure(){
+	//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/query?q=biological_sample_group:control&fq=phenotyping_center:JAX&fq=metadata_group:ba6c7cda9f0d4ce7d9a676c2aef86e22&fq=strain_name:C57BL/6NJ&fq=parameter_stable_id:IMPC_CSD_085_001&fq=procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22&rows=1&fq=sex:female
+		QueryResponse imagesResponse;
+		//gene_accession_id:"MGI:1861899"&fq=biological_sample_group:experimental&fq=sex:male&fq=parameter_stable_id:IMPC_CSD_085_001&rows=2
+		String gene="MGI:1861899";
+		try {
+			imagesResponse= imageService.getControlImagesForProcedure("ba6c7cda9f0d4ce7d9a676c2aef86e22","JAX","C57BL/6NJ","Combined SHIRPA and Dysmorphology", "IMPC_CSD_085_001" , null, 2, SexType.female);
+		
+		for(SolrDocument doc:imagesResponse.getResults()){
+			System.out.println(doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
+			System.out.println(doc.get(ObservationDTO.SEX));
+			System.out.println(doc.get(ObservationDTO.PROCEDURE_NAME));
+		}
+		//assertTrue(imageDTOs.getList().size()>1);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 }

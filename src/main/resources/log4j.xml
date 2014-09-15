@@ -13,7 +13,7 @@
 
 	<!-- Application logger -->
 	<logger name="komp2">
-		<level value="info" />
+		<level value="warn" />
 	</logger>
 
 	<!-- 3rdparty Loggers -->
@@ -38,7 +38,7 @@
 	</logger>
 
 	<logger name="uk.ac.ebi.generic.util">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 
 	<logger name="uk.ac.ebi.phenotype.web.controller">
@@ -50,7 +50,7 @@
 	</logger>
         	
 	<logger name="uk.ac.ebi.phenotype.stats.unidimensional">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 	
 	<!-- <logger name="uk.ac.ebi.phenotype.pojo.StatisticalResult">
@@ -60,13 +60,16 @@
 		<level value="debug" />
 	</logger> -->
 	 
-	 <logger name="uk.ac.ebi.phenotype.stats.ExperimentService">
+	<!--  <logger name="uk.ac.ebi.phenotype.stats.ExperimentService">
 		<level value="debug" />
 	</logger>
 	<logger name="uk.ac.ebi.phenotype.stats.ObservationService">
 		<level value="debug" />
-	</logger>
+	</logger> -->
 	<!-- Root Logger -->
+	<logger name="uk.ac.ebi.phenotype.service.ImageService">
+		<level value="debug" />
+	</logger> 
 	<root>
 		<priority value="warn" />
 		<appender-ref ref="console" />
