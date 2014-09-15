@@ -72,7 +72,7 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Xref;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -120,7 +120,7 @@ public class GenesController {
 	ImageService imageService;
 
 	@Autowired
-	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+	private PhenotypeCallSummarySolr phenoDAO;
 
 	@Autowired
 	SolrIndex solrIndex;
@@ -371,7 +371,8 @@ public class GenesController {
 
 		for (PhenotypeCallSummary pcs : phenotypeList) {
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString());
-
+			// TODO add pre-qc rows
+			
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
