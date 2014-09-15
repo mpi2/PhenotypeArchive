@@ -22,7 +22,7 @@ import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 public class PhenotypeCallSummarySolrImpl implements
-		PhenotypeCallSummaryDAOReadOnly {
+		PhenotypeCallSummarySolr {
 
 	@Autowired
 	GenotypePhenotypeService genotypePhenotypeService;
