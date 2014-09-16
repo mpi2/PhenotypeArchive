@@ -406,7 +406,7 @@ public class TestUtils {
         
         if ((yOffsetInPixels != null) && (yOffsetInPixels != 0)) {
             ((JavascriptExecutor)driver).executeScript("window.scroll(" + p.getX() + "," + (p.getY() + yOffsetInPixels) + ");");
-        } else 
+        }
         
         sleep(100);
     }
