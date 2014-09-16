@@ -540,6 +540,21 @@
                                     <div id="allele"></div>
                                 </div>
                             </div>
+                                
+                            <div class="section" id="order2">
+                                <h2 class="title documentation">Order Mouse and ES Cells (new) 
+                                    <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
+                                </h2>
+                                <div class="inner">
+                                    <div id="allele2"></div>
+                                </div>
+                            </div>
+                                
+                                
+                                
+                                
+                                
+                                
                         </div> <!--end of node wrapper should be after all secions  -->
                     </div>
                 </div>

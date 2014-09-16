@@ -627,6 +627,7 @@ public class SolrIndex {
                         String vectorProjectIds = "";
                         String vectorProjectHtml = "";
                         String mgi_accession_id = "";
+                        String mgiAlleleNameStrip = "";
                                 
 			if (docs.getJSONObject(i).has("mgi_accession_id")) {
                                 mgi_accession_id = docs.getJSONObject(i).getString("mgi_accession_id");
@@ -654,6 +655,9 @@ public class SolrIndex {
 			}
 			if (docs.getJSONObject(i).has("allele_name")) {
 				mgiAlleleName = docs.getJSONObject(i).getString("allele_name");
+                                mgiAlleleNameStrip = mgiAlleleName.replaceAll(markerSymbol, "");
+                                mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<sup\\>", "");
+                                mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<\\/sup\\>", "");
 			}
                         if (docs.getJSONObject(i).has("allele_image_url")) {
                                 alleleMap = docs.getJSONObject(i).getString("allele_image_url");
@@ -723,6 +727,7 @@ public class SolrIndex {
                         construct.put("type", type);
                         construct.put("strainOfOrigin", strainOfOrigin);
                         construct.put("mgiAlleleName", mgiAlleleName);
+                        construct.put("mgiAlleleNameStrip", mgiAlleleNameStrip);
                         construct.put("alleleMap", alleleMap);
                         construct.put("alleleGenbankFile", alleleGenbankFile);
                         construct.put("ikmcProjectId", ikmcProjectId);
