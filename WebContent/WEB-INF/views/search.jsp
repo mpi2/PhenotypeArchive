@@ -288,8 +288,9 @@
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
 		       			$.ajax({
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax" + solrBq,				       			
-			       			dataType: "jsonp",
+		       				// double qf filters with original string taking precedence
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,				       			
+			       			dataType: 'jsonp',
 			       			'jsonp': 'json.wrf',
 			       			data: {
 			       				q: request.term
@@ -318,7 +319,7 @@
 			       							.replace(/\*|"|'/g, '')
 			       							.replace(/\(/g,'\\(')
 			       							.replace(/\)/g,'\\)');
-			       							
+			       							console.log(termStr)
 			       							var re = new RegExp("(" + termStr + ")", "gi") ;
 			       							termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
 			       							
