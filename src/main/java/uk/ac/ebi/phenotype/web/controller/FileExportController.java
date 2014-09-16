@@ -490,7 +490,6 @@ public class FileExportController {
 
     private List<String> composeImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
         String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
-        log.info(mediaBaseUrl);
         
         List<String> rowData = new ArrayList();
 
@@ -588,7 +587,7 @@ public class FileExportController {
                 rowData.add(StringUtils.join(data, "\t"));
             }
         } else {
-            System.out.println("MODE: annotview " + showImgView);
+            //System.out.println("MODE: annotview " + showImgView);
 			// annotation view
             // annotation view: images group by annotationTerm per row
             rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
@@ -629,7 +628,7 @@ public class FileExportController {
                     String facetField = hm.get("field");
               
                     solrParams = solrParams.replaceAll("&q=.+&", "&q="+ query + " AND " + facetField + ":\"" + names[0] + "\"&");
-                    String imgSubSetLink = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
+                    String imgSubSetLink = hostName + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
                     
                     data.add(imgSubSetLink);
                     rowData.add(StringUtils.join(data, "\t"));
@@ -813,7 +812,7 @@ public class FileExportController {
 					System.out.println("fileExport: '" + phStatus+ "' --- Expeced length 2 but got " + parts.length  );
 				}
 				else {
-					String url   = parts[0];
+					String url   = parts[0].replace("https", "http");
 					String label = parts[1];
 					
 	                data.add(label);
