@@ -24,7 +24,7 @@ import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 public class GenotypePhenotypeServiceTest {
 
 	@Autowired
-	private GenotypePhenotypeService genotypePhenotypeService;
+	private PostQcService genotypePhenotypeService;
 	String testGene = "MGI:104874";
         
          @Autowired

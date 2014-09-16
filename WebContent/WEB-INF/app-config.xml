@@ -63,6 +63,14 @@
 	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
+	
+	<bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
+		<constructor-arg value="${internalSolrUrl}/preqc" />
+	</bean>
+	
+	<bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
+		<constructor-arg value="${internalSolrUrl}/preqc" />
+	</bean>
 
 	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
 		<constructor-arg value="${internalSolrUrl}/pipeline" />
@@ -95,10 +103,6 @@
 	</bean>
 
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
-	</bean>
-
-	<bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
-		<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
 	</bean>
 
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">

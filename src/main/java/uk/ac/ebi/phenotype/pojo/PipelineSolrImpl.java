@@ -5,12 +5,12 @@ import java.net.URISyntaxException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 
 public class PipelineSolrImpl {
 	
 	@Autowired
-	GenotypePhenotypeService gpService;
+	PostQcService gpService;
 	
 	public PipelineSolrImpl() {
 	}

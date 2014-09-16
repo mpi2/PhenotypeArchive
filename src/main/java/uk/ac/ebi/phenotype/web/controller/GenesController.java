@@ -355,7 +355,8 @@ public class GenesController {
 
 			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
 			phenotypeList = phenoResult.getPhenotypeCallSummaries();
-
+			// TODO add pre-qc rows
+			phenotypeList.addAll(phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, queryString).getPhenotypeCallSummaries());
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
 			// sort facets first
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
@@ -371,7 +372,6 @@ public class GenesController {
 
 		for (PhenotypeCallSummary pcs : phenotypeList) {
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString());
-			// TODO add pre-qc rows
 			
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr)) {

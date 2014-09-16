@@ -18,8 +18,11 @@ public interface PhenotypeCallSummarySolr {
 			String phenotype_id) throws IOException, URISyntaxException;
 	
 	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(
-			String phenotype_id, String filter) throws IOException, URISyntaxException;
+		String phenotype_id, String filter) throws IOException, URISyntaxException;
 	
+	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(
+		String phenotype_id, String filter) throws IOException, URISyntaxException;
+
 	public List<? extends StatisticalResult> getStatisticalResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession)throws IOException, URISyntaxException;
 	
 }

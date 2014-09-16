@@ -67,7 +67,7 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.service.ExperimentService;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.util.ParameterComparator;
@@ -104,7 +104,7 @@ public class PhenotypesController {
     private ExperimentService experimentService;
 
     @Autowired
-    GenotypePhenotypeService gpService;
+    PostQcService gpService;
 
     @Autowired
     MpService mpService;

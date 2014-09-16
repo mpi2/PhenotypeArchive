@@ -24,7 +24,7 @@ import uk.ac.ebi.phenotype.chart.utils.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 @Controller
@@ -37,7 +37,7 @@ public class PhenomeStatsController {
 	private PhenotypeCallSummaryDAO phenotypeCallSummaryDao;
 	
 	@Autowired
-	GenotypePhenotypeService genotypePhenotypeService;
+	PostQcService genotypePhenotypeService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;

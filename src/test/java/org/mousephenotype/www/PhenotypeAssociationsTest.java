@@ -40,7 +40,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -73,7 +73,7 @@ import uk.ac.ebi.phenotype.util.Utils;
 public class PhenotypeAssociationsTest {
     
     @Autowired
-    protected GenotypePhenotypeService genotypePhenotypeService;
+    protected PostQcService genotypePhenotypeService;
     
     @Autowired
     protected String baseUrl;

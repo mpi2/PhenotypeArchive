@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
@@ -34,7 +34,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	private Map<String, String> config;
 
 	@Autowired
-	private GenotypePhenotypeService gpService;
+	private PostQcService gpService;
 	
 	public PhenotypeSummaryDAOImpl() throws MalformedURLException {
 	}

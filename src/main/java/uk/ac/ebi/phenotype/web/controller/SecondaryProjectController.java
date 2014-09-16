@@ -43,7 +43,7 @@ import uk.ac.ebi.phenotype.chart.utils.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.AlleleService;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 
 
 @Controller
@@ -58,7 +58,7 @@ public class SecondaryProjectController {
 	AlleleService as;
 	
 	@Autowired 
-	GenotypePhenotypeService genotypePhenotypeService;
+	PostQcService genotypePhenotypeService;
 	
 	@Autowired 
 	UnidimensionalChartAndTableProvider chartProvider;
