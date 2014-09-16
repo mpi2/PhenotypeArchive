@@ -77,7 +77,7 @@
 				             + '&facet.field=mgi_predicted'
 				             + '&facet.field=mgi_novel_predicted_in_locus';*/
 				             	
-	    	console.log('DISEASE WIDGET: ' + queryParamStr);
+	    	//console.log('DISEASE WIDGET: ' + queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/disease/select',	    		
@@ -86,7 +86,7 @@
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {	 
 	    			//console.log(MPI2.searchAndFacetConfig.currentFq);
-	    			console.log(json);
+	    			//console.log(json);
 	    			self._displayDiseaseSubfacet(json);	    				
 	    		}		
 	    	});	    	

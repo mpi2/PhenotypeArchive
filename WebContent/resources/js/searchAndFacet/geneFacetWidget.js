@@ -88,7 +88,7 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {	  	
-	    			console.log(json);
+	    			//console.log(json);
 	    			self._displayGeneSubTypeFacet(json);	    				
 	    		}		
 	    	});	    	
