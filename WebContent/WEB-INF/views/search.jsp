@@ -319,7 +319,16 @@
 			       							.replace(/\*|"|'/g, '')
 			       							.replace(/\(/g,'\\(')
 			       							.replace(/\)/g,'\\)');
-			       							console.log(termStr)
+			       							
+			       							// need to order the strings separated by | by length and desc, otherwise
+			       							// if we have a appears before anchor in termStr, only 'a' will be highlighted in "anchor"
+											
+			       							var termList = termStr.split("|");
+			       							termStr = termList.sort(function(a, b){
+			       							  return b.length - a.length; // ASC -> a - b; DESC -> b - a
+			       							}).join("|");
+			       							
+			       							
 			       							var re = new RegExp("(" + termStr + ")", "gi") ;
 			       							termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
 			       							
