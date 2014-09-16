@@ -67,6 +67,22 @@ public class TestUtils {
     Map<String, String> testIterationsHash;
     
     /**
+     * Adds <code>snippet</code> to <code>source</code>, delmited by <code>
+     * delimiter</code> if <code>source</code> is not empty.
+     * @param source
+     * @param snippet
+     * @param delimiter
+     * @return The string, delimited as appropriate (i.e. not delimited if <code>
+     * source</code> was empty)
+     */
+    public static String addTo(String source, String snippet, String delimiter) {
+        if ( ! source.isEmpty())
+            source += delimiter;
+        
+        return source + snippet;
+    }
+    
+    /**
      * Counts and returns the number of sex icons in <code>table</code>
      * @param table the data store
      * @param sexColumnIndex the zero-relative sex column index in the data store
@@ -133,6 +149,28 @@ public class TestUtils {
         }
         
         return Math.min(targetCount, collection.size());
+    }
+    
+    /**
+     * Compares <code>pageValue</code> and <code>downloadValue</code> and, if
+     * <code>pageValue is not empty, returns true if <code>pageValue</code>
+     * equals <code>downloadValue</code>. If <code>pageValue</code> is empty,
+     * compares against the string 'No information available', returning true
+     * if true; false otherwise.
+     * @param pageValue Page value string (must not be null)
+     * @param downloadValue Download value string (must not be null)
+     * @return 
+     */
+    public static boolean pageEqualsDownload(String pageValue, String downloadValue) {
+        if (pageValue.trim().isEmpty()) {
+            if ( ! downloadValue.equals(SearchFacetTable.NO_INFO_AVAILABLE)) {
+                return false;
+            }
+        } else if ( ! pageValue.equals(downloadValue)) {
+            return false;
+        }
+        
+        return true;
     }
     
     /**

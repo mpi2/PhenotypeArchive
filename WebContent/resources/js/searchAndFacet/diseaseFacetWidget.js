@@ -66,7 +66,17 @@
 	    	                  + '&facet.field=human_curated'
 	    	                  + '&facet.field=mouse_curated'
 	    	                  + '&facet.field=disease_source';	    	
-	    	
+	    					/* + '&facet.field=disease_source'
+					    	 + '&facet.field=disease_classes'
+					    	 + '&facet.field=human_curated'
+				             + '&facet.field=mouse_curated'
+				             + '&facet.field=impc_predicted_known_gene'
+				             + '&facet.field=mgi_predicted_known_gene'
+				             + '&facet.field=impc_predicted'
+				             + '&facet.field=impc_novel_predicted_in_locus' 
+				             + '&facet.field=mgi_predicted'
+				             + '&facet.field=mgi_novel_predicted_in_locus';*/
+				             	
 	    	//console.log('DISEASE WIDGET: ' + queryParamStr);
 	    	
 	    	$.ajax({ 				 					
@@ -176,7 +186,8 @@
 			   												  'mgi_novel_predicted_in_locus':'Novel MGI prediction in linkage locus'}
 					   						   }
 					   			};
-	    		*/
+					*/   			
+	    		
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
 	    			var thisFacetSect = $("<li class='fcatsection " + assoc + "'></li>");

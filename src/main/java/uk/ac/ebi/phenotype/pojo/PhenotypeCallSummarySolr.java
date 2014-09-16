@@ -8,7 +8,7 @@ import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 
 
-public interface PhenotypeCallSummaryDAOReadOnly {
+public interface PhenotypeCallSummarySolr {
 
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException;
 	

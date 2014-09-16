@@ -64,61 +64,46 @@ public class SearchProcedureTable extends SearchFacetTable {
     @Override
     public PageStatus validateDownload(String[][] downloadData) {
         PageStatus status = new PageStatus();
-        HashMap<String, String[]> downloadHash = new HashMap();
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
-        
-        // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
-        // and with all data (the data for all of the pages). As such, the only effective way to validate
-        // it is to stuff the download data elements into a hash, then loop through the pageData rows
-        // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
-        for (int i = 1; i < downloadData.length; i++) {
-            // Copy all but the pageHeading into the hash.
-            String[] row = downloadData[i];
-            downloadHash.put(row[DownloadSearchMapProcedures.COL_INDEX_PARAMETER], row);
-        }
-        
-        for (ProcedureRow pageRow : bodyRows) {
-            String[] downloadRow = downloadHash.get(pageRow.parameter);
-            if (downloadRow == null) {
-                status.addError("PARAMETER MISMATCH: page value parameter = '" + pageRow.parameter + "' was not found in the download file.");
-                continue;
-            }
-            downloadHash.remove(pageRow.parameter);                             // Remove the pageRow from the download hash.
             
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Parameter"
-              , "Procedure"
-              , "Procedure Impress link"
-              , "Pipeline"
-            };
-            validateDownloadHeading("PROCEDURE", status, pageRow.parameter, expectedHeadingList, downloadData[0]);
-            
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Parameter"
+          , "Procedure"
+          , "Procedure Impress link"
+          , "Pipeline"
+        };
+        SearchFacetTable.validateDownloadHeading("PROCEDURE", status, expectedHeadingList, downloadData[0]);
+
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
+            ProcedureRow pageRow = bodyRows.get(i);
+        
             // Verify the components.
             
             // procedure.
             if (pageRow.procedure.isEmpty()) {
-                status.addError("PROCEDURE MISSING: Expected procedure but there was none.");
+                status.addError("PROCEDURE MISSING: Expected procedure but there was none. URL: " + driver.getCurrentUrl());
             }
             if ( ! pageRow.procedure.equals(downloadRow[DownloadSearchMapProcedures.COL_INDEX_PROCEDURE]))
-                status.addError("PROCEDURE MISMATCH: procedure '" + pageRow.procedure + "' page value procedure = '" + pageRow.procedure + "' doesn't match download value '" + downloadRow[DownloadSearchMapProcedures.COL_INDEX_PROCEDURE] + "'.");
+                status.addError("PROCEDURE MISMATCH: procedure '" + pageRow.procedure + "' page value procedure = '" + pageRow.procedure + "' doesn't match download value '" + downloadRow[DownloadSearchMapProcedures.COL_INDEX_PROCEDURE] + "'. URL: " + driver.getCurrentUrl());
 
             // Impress Procedure Link.
             if (pageRow.procedureLink.isEmpty()) {
-                status.addError("PROCEDURE MISSING: Expected procedure link but there was none.");
+                status.addError("PROCEDURE MISSING: Expected procedure link but there was none. URL: " + driver.getCurrentUrl());
             }
             if ( ! pageRow.procedureLink.contains(downloadRow[DownloadSearchMapProcedures.COL_INDEX_IMPRESS_LINK].replace("https", "").replace("http", ""))) {
-                status.addError("PROCEDURE MISMATCH: procedure '" + pageRow.procedure + "' page value procedureLink = '" + pageRow.procedureLink + "' doesn't match download value '" + downloadRow[DownloadSearchMapProcedures.COL_INDEX_IMPRESS_LINK] + "'.");
+                status.addError("PROCEDURE MISMATCH: procedure '" + pageRow.procedure + "' page value procedureLink = '" + pageRow.procedureLink + "' doesn't match download value '" + downloadRow[DownloadSearchMapProcedures.COL_INDEX_IMPRESS_LINK] + "'. URL: " + driver.getCurrentUrl());
             }
             
             // pipeline.
             if (pageRow.pipeline.isEmpty()) {
-                status.addError("PROCEDURE MISSING: Expected pipeline but there was none.");
+                status.addError("PROCEDURE MISSING: Expected pipeline but there was none. URL: " + driver.getCurrentUrl());
             }
             if ( ! pageRow.pipeline.equals(downloadRow[DownloadSearchMapProcedures.COL_INDEX_PIPELINE]))
-                status.addError("PROCEDURE MISMATCH: procedure '" + pageRow.procedure + "' page value pipeline = '" + pageRow.pipeline + "' doesn't match download value '" + downloadRow[DownloadSearchMapProcedures.COL_INDEX_PIPELINE] + "'.");
+                status.addError("PROCEDURE MISMATCH: procedure '" + pageRow.procedure + "' page value pipeline = '" + pageRow.pipeline + "' doesn't match download value '" + downloadRow[DownloadSearchMapProcedures.COL_INDEX_PIPELINE] + "'. URL: " + driver.getCurrentUrl());
         }
 
         return status;

@@ -46,7 +46,7 @@ import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
 import uk.ac.ebi.phenotype.web.pojo.Anatomy;
 
 @Controller
@@ -60,7 +60,7 @@ public class AnatomyController {
 	// @Autowired
 	// private PhenotypeCallSummaryDAO phenoDAO;
 	@Autowired
-	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+	private PhenotypeCallSummarySolr phenoDAO;
 
 	@Autowired
 	private SolrIndex solrIndex;

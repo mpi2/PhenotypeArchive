@@ -180,8 +180,8 @@ config.facetFilterLabel = {
 	'disease_source'			 : 'disease_source',
 	'human_curated'              : 'From human data (OMIM, Orphanet)',//'human_data',
 	'mouse_curated'              : 'From mouse data (MGI)', //'mouse_data',
-	'impc_predicted'             : 'From MGP data',//'IMPC_predicted',
-	'impc_predicted_in_locus'    : 'From MGP data in linkage locus',//'IMPC_predicted_in_locus',
+	'impc_predicted'             : 'From IMPC data',//'IMPC_predicted',
+	'impc_predicted_in_locus'    : 'From IMPC data in linkage locus',//'IMPC_predicted_in_locus',
 	'mgi_predicted'              : 'From MGI data',//'MGI_predicted',
 	'mgi_predicted_in_locus'     : 'From MGI data in linkage locus',//'MGI_predicted_in_locus'	
 };
@@ -313,6 +313,17 @@ config.facetParams = {
 		 type: 'diseases',
 		 name: 'Diseases',
 		 subFacetFqFields:  ['disease_classes', 'disease_source', 'human_curated', 'mouse_curated', 'impc_predicted', 'impc_predicted_in_locus', 'mgi_predicted', 'mgi_predicted_in_locus'],
+		 /*subFacetFqFields: [
+		                    'disease_source',
+		                    'disease_classes',
+		                    'human_curated',
+		                    'mouse_curated', 
+		                    'impc_predicted_known_gene', 
+		                    'mgi_predicted_known_gene', 
+		                    'impc_predicted', 
+		                    'impc_novel_predicted_in_locus', 
+		                    'mgi_predicted', 
+		                    'mgi_novel_predicted_in_locus'],*/
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
 		 tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th><span class="main">Candidate Genes</span><span class="sub">by phenotype</span></th></thead>', 
@@ -323,6 +334,7 @@ config.facetParams = {
 		 fq: '*:*',
 		 wt: 'json',
 		 gridFields: 'disease_id,disease_term,disease_source,human_curated,mouse_curated,impc_predicted,impc_predicted_in_locus,mgi_predicted,mgi_predicted_in_locus',
+		 //gridFields: 'disease_source,disease_classes,human_curated,mouse_curated,impc_predicted_known_gene,mgi_predicted_known_gene,impc_predicted,impc_novel_predicted_in_locus,mgi_predicted,mgi_novel_predicted_in_locus',
 		 gridName: 'diseaseGrid',		
 		 ontology: 'disease',
 		 breadCrumbLabel: 'Diseases',		 
@@ -370,3 +382,7 @@ config.facetParams = {
 	 } 
 	 
 }; 
+
+
+
+

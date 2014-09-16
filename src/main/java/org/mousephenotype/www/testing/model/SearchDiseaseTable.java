@@ -72,38 +72,24 @@ public class SearchDiseaseTable extends SearchFacetTable {
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
-        
-        // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
-        // and with all data (the data for all of the pages). As such, the only effective way to validate
-        // it is to stuff the download data elements into a hash, then loop through the pageData rows
-        // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
-        for (int i = 1; i < downloadData.length; i++) {
-            // Copy all but the pageHeading into the hash.
-            String[] row = downloadData[i];
-            downloadHash.put(row[DownloadSearchMapDiseases.COL_INDEX_DISEASE_NAME], row);
-        }
-        
-        for (DiseaseRow pageRow : bodyRows) {
-            String[] downloadRow = downloadHash.get(pageRow.diseaseName);
-            if (downloadRow == null) {
-                status.addError("DISEASE MISMATCH: page value diseaseName = '" + pageRow.diseaseName + "' was not found in the download file.");
-                continue;
-            }
-            downloadHash.remove(pageRow.diseaseName);                           // Remove the pageRow from the download hash.
-            
-            // Validate the pageHeading.
-            String[] expectedHeadingList = {
-                "Disease id"
-              , "Disease id link"
-              , "Disease name"
-              , "Source"
-              , "Curated genes in human"
-              , "Curated genes in mouse (MGI)"
-              , "Candidate genes by phenotype (IMPC)"
-              , "Candidate genes by phenotype (MGI)"
-            };
-            validateDownloadHeading("DISEASE", status, pageRow.diseaseName, expectedHeadingList, downloadData[0]);
-            
+
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Disease id"
+          , "Disease id link"
+          , "Disease name"
+          , "Source"
+          , "Curated genes in human"
+          , "Curated genes in mouse (MGI)"
+          , "Candidate genes by phenotype (IMPC)"
+          , "Candidate genes by phenotype (MGI)"
+        };
+        SearchFacetTable.validateDownloadHeading("DISEASE", status, expectedHeadingList, downloadData[0]);
+
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
+            DiseaseRow pageRow = bodyRows.get(i);
+
             // Verify the components.
             
             if ( ! pageRow.diseaseId.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID]))

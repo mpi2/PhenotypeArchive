@@ -24,7 +24,6 @@
      	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 		<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>    
 		<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
-		<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	
  	<document name="docs">
 		
@@ -94,10 +93,10 @@
 			<field column="impc_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_predicted_in_locus']/bool" /> 			
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />	
 
-			<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
-			<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
-			<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
-			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
+			<field column="mgi_predicted_known_gene" xpath="/response/result/doc/arr[@name='mgi_predicted_known_gene']/bool" /> 
+			<field column="impc_predicted_known_gene" xpath="/response/result/doc/arr[@name='impc_predicted_known_gene']/bool" /> 
+			<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/arr[@name='mgi_novel_predicted_in_locus']/bool" /> 
+			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_novel_predicted_in_locus']/bool" /> 
 
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" 

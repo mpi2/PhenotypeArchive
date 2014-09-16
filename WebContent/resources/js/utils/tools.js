@@ -43,7 +43,7 @@
                 var qField = aVals[0];
                 var fieldFacet = MPI2.searchAndFacetConfig.qfield2facet[qField];
 
-                console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
+                //console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
                 if (typeof MPI2.searchAndFacetConfig.qfield2facet[qField]) {
                     //var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 
@@ -150,7 +150,6 @@
 
             var solrbaseUrl = solrUrl + '/' + facet + '/select?';
             var fqStr = $.fn.getCurrentFq(facet).replace(/img_/g, '');
-            console.log('fqstr: '+ fqStr);
             facetUrls[facet] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
         }
 
@@ -161,7 +160,7 @@
             async: false,
             type: 'post',
             success: function(subFacetJsons) {
-                console.log(subFacetJsons);
+                //console.log(subFacetJsons);
 
                 var cores = MPI2.searchAndFacetConfig.megaCores;
 
@@ -170,7 +169,6 @@
                     var core = cores[i];
                     var solrFqStr = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
                     var oConf = {'facet': core, 'fqStr': solrFqStr, 'q': q, 'json': subFacetJsons[core]};
-                    console.log(oConf);
                     var facetCountsUpdater = new FacetCountsUpdater(oConf);
                     facetCountsUpdater.updateFacetCounts();
                 }
@@ -528,7 +526,7 @@
         var paramStr = 'qf=auto_suggest&defType=edismax&wt=json'
                 + '&fq=' + fqStr + fecetFieldsStr
                 + '&q=' + q;
-        console.log(facet + ' --- '+ paramStr);
+
         return paramStr;
     }
 
@@ -652,6 +650,7 @@
                 case 'disease':
                     {
                         // refresh disease facet
+                	
                         var oFacets = json.facet_counts.facet_fields;
                         var selectorBase = "div.flist li#disease";
                         _facetRefresh(json, selectorBase);
@@ -1066,7 +1065,7 @@
                 qValue = 'Yes';	// some disease fields
 
             }
-            console.log('q val: '+ qValue);
+
             var filterTxt = qValue;
             if (facet == 'gene') {
                
@@ -1209,7 +1208,7 @@
                 var val = aParts[2];
                 var fqStr = MPI2.searchAndFacetConfig.summaryFilterVal2FqStr[val]; // label conversion
                 fqStr = typeof fqStr == 'undefined' ? field + ':' + $.fn.dquote(val) : fqStr;
-                console.log('zero');
+
                 $(this).remove();
                 removeSummaryFilterCaption(facet);
 
@@ -1884,8 +1883,6 @@
         	oUrlParams.legacyOnly = true;
         }
         
-        console.log(oUrlParams);
-       
         $.fn.invokeDataTable(oUrlParams);
 
     };

@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -72,6 +74,9 @@ public class ImpcImagesController {
 			// only add to our new query string if not rows or length as we want
 			// to set those to specific values in the jsp
 			if (!key.equals("rows") && !key.equals("start")) {
+				if(value.contains("MGI:")){
+					value=value.replace("MGI:", "MGI\\:");//for mgi ids for example encode the :
+				}
 				newQueryString += "&" + key + "=" + value;
 				// If the same key has multiple values (check boxes)
 				String[] valueArray = request.getParameterValues(key);
@@ -82,19 +87,13 @@ public class ImpcImagesController {
 			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
+		System.out.println("newQueryString="+newQueryString);
+		QueryResponse imageDTOWrapper = imageService.getResponseForSolrQuery(newQueryString);
+		
 
-		// System.out.println("queryString=" + newQueryString);
-		// JSONObject imageResults = JSONRestUtil.getResults(config
-		// .get("internalSolrUrl") + "/images/select?" + newQueryString);
-		ResponseWrapper<ImageDTO> imageDTOWrapper = imageService.getImageDTOsForSolrQuery(newQueryString);
-		List<ImageDTO> imageDTOs = imageDTOWrapper.getList();
-		for (ImageDTO imageDTO : imageDTOs) {
-			System.out.println(imageDTO.getOmeroId());
-		}
-
-		if (imageDTOs != null) {
-			model.addAttribute("images", imageDTOs);
-			Long totalNumberFound = imageDTOWrapper.getTotalNumberFound();
+		if (imageDTOWrapper.getResults() != null) {
+			model.addAttribute("images", imageDTOWrapper.getResults());
+			Long totalNumberFound = imageDTOWrapper.getResults().getNumFound();
 			// System.out.println("image count=" + numberFound);
 			model.addAttribute("imageCount", totalNumberFound);
 			model.addAttribute("q", newQueryString);

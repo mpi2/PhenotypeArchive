@@ -138,8 +138,8 @@ public class GraphPage {
         String expectedParameterName = parameterObject.getName().trim();
         if (graphType == ObservationType.time_series)
             expectedParameterName = "MEAN " + expectedParameterName;
-        if (expectedParameterName.compareTo(parameterName) != 0) {
-            status.addError("ERROR: parameter name mismatch. parameter on graph: '" + parameterName + "'. from parameterDAO: " + parameterObject.getName() + ": " + target);
+        if (expectedParameterName.compareToIgnoreCase(parameterName) != 0) {
+            status.addError("ERROR: parameter name mismatch. parameter on graph: '" + parameterName + "'. from parameterDAO: " + parameterObject.getName() + ". URL: " + target);
         }
         
         return status;
@@ -168,35 +168,35 @@ public class GraphPage {
             status.addError(("ERROR: Expected at least one row of data."));
         } else {
             String cellValue = data[1][graphMap.getColIndexAlleleSymbol()].trim();
-            if (getAlleleSymbol().trim().compareTo(cellValue) != 0) {
+            if (getAlleleSymbol().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page alleleSymbol: '" + getAlleleSymbol() + "'. Download alleleSymbol: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexBackground()];
-            if (getBackground().compareTo(cellValue) != 0) {
+            if (getBackground().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page background: '" + getBackground() + "'. Download background: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexGeneSymbol()];
-            if (getGeneSymbol().compareTo(cellValue) != 0) {
+            if (getGeneSymbol().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page geneSymbol: '" + getGeneSymbol() + "'. Download geneSymbol: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexMetadataGroup()];
-            if (getMetadataGroup().compareTo(cellValue) != 0) {
+            if (getMetadataGroup().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page metadataGroup: '" + getMetadataGroup() + "'. Download metadataGroup: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexParameterName()];
-            if (getParameterName().compareTo(cellValue) != 0) {
+            if (getParameterName().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page parameterName: '" + getParameterName() + "'. Download parameterName: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexParameterStableId()];
-            if (getParameterStableId().compareTo(cellValue) != 0) {
+            if (getParameterStableId().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page parameterStableId: '" + getParameterStableId() + "'. Download parameterStableId: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexPhenotypingCenter()];
-            if (getPhenotypingCenter().compareTo(cellValue) != 0) {
+            if (getPhenotypingCenter().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page phenotypingCenter: '" + getPhenotypingCenter() + "'. Download phenotypingCenter: '" + cellValue + "'");
             }
             cellValue = data[1][graphMap.getColIndexPipelineName()];
-            if (getPipelineName().compareTo(cellValue) != 0) {
+            if (getPipelineName().trim().compareToIgnoreCase(cellValue) != 0) {
                 status.addError("ERROR: mismatch: page pipelineName: '" + getPipelineName() + "'. Download pipelineName: '" + cellValue + "'");
             }
         }

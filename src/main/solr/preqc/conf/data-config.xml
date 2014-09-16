@@ -2,10 +2,17 @@
 <dataConfig>
 	
 	<script type='text/javascript'><![CDATA[
-		function convert_superscript(row){
+		function string_munging(row){
 			if ( row.get('allele') ){	
 				var symbol = row.get('allele').toString().replace('<sup>','<').replace('</sup>','>');
 				row.put('converted_allele_symbol', symbol);
+			}
+			if ( row.get('zygosity') ){
+				var mapping = {'heterozygous' : 'heterozygote',
+							   'homozygous' : 'homozygote',
+							   'hemizygous' : 'hemizygote'
+							  };	 
+				row.put('zygosity', mapping[row.get('zygosity').toString().toLowerCase()]); 
 			}
 			return row;
 		}
@@ -25,7 +32,7 @@
          	processor="XPathEntityProcessor" 
          	forEach="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/" 
             readTimeout="10000" connectionTimeout="10000"
-            transformer="script:convert_superscript" >
+            transformer="script:string_munging" >
                                  
 			<field column="doc_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/id" />
 			<field column="colony_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/colonyId" />

@@ -56,7 +56,6 @@ public class SearchPage {
     private SearchProcedureTable procedureTable;
     private SearchImageTable     imageTable;
     
-    
     // These are the core names.
     public static final String GENE_CORE       = "gene";
     public static final String PHENOTYPE_CORE  = "phenotype";
@@ -65,14 +64,22 @@ public class SearchPage {
     public static final String PROCEDURES_CORE = "procedures";
     public static final String IMAGES_CORE     = "images";
     
+    
+    public enum DownloadType {
+        PAGINATED_TSV,
+        PAGINATED_XLS,
+        ALL_TSV,
+        ALL_XLS
+    }
     // The facets shown on the left.
+    
     public enum Facet {
         GENES,
         PHENOTYPES,
         DISEASES,
         ANATOMY,
         PROCEDURES,
-        IMAGES
+        IMAGES 
     }
     
     // Page directives (i.e. pagination buttons)
@@ -88,12 +95,10 @@ public class SearchPage {
         NEXT
     }
     
-    public enum DownloadType {
-        PAGINATED_TSV,
-        PAGINATED_XLS,
-        ALL_TSV,
-        ALL_XLS
-    }
+    public enum WindowState {
+        OPEN,
+        CLOSE
+    };
     
     /**
      * Creates a new <code>SearchPage</code> instance. No web page is loaded.
@@ -138,11 +143,7 @@ public class SearchPage {
     
     public void clickDownloadButton(DownloadType downloadType) {
         // show the toolbox if it is not already showing.
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        if ( ! style.contains("block;")) {
-            driver.findElement(By.xpath("//span[@id='dnld']")).click();
-        }
-        
+        clickToolbox(WindowState.OPEN);
         String className = "";
         
         switch (downloadType) {
@@ -166,7 +167,18 @@ public class SearchPage {
      * @return the [total] results count
      */
     public int clickFacet(Facet facet) {
-        driver.findElement(By.xpath("//li[@id='" + getFacetId(facet) + "']")).click();
+        return clickFacetById(getFacetId(facet));
+    }
+    
+    /**
+     * Clicks the facet and returns the result count. This has the side effect of
+     * waiting for the page to finish loading.
+     * 
+     * @param facetId HTML 'li' id of desired facet to click
+     * @return the [total] results count
+     */
+    public int clickFacetById(String facetId) {
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + facetId + "']"))).click();
         
         try {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'dataTable')]")));              // Wait for facet to load.
@@ -176,6 +188,49 @@ public class SearchPage {
         }
         
         return getResultCount();
+    }
+    
+    /**
+     * Selects a valid random page number within the range of enabled page
+     * buttons, then clicks selected page button. Disabled buttons and the
+     * ellipsis are not clickable and are re-mapped to a clickable button.
+     * Calling this method has the side effect of waiting for the page to finish
+     * loading.
+     * 
+     * @throws Exception if no such button exists
+     * @return the <code>PageDirective</code> of the clicked button
+     */
+    public PageDirective clickPageButton() throws Exception {
+        PageDirective pageDirective = null;
+        try {
+            int max = getNumPageButtons();
+            int randomPageNumber = random.nextInt(max);
+
+            WebElement element = getButton(randomPageNumber);
+            if (element.getAttribute("class").contains("disabled")) {
+                if (randomPageNumber == 0) {
+                    System.out.println("Changing randomPageNumber from 0 to 1.");
+                    randomPageNumber++; 
+                } else {
+                    System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
+                    randomPageNumber--;
+                }
+            } else if (element.getText().contains("...")) {
+                System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
+                randomPageNumber--;
+            }
+            
+            pageDirective = getPageDirective(randomPageNumber);
+//pageDirective = PageDirective.NEXT;
+            System.out.println("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
+            clickPageButton(pageDirective);
+        } catch (Exception e) {
+            System.out.println("EXCEPTION in SearchPage.clickPageButton: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        
+        getResultCount();                                                       // Called purely to wait for the page to finish loading.
+        return pageDirective;
     }
     
     /**
@@ -205,56 +260,45 @@ public class SearchPage {
 
                 case LAST:              ulElements.get(7).click();      break;
 
-                case NEXT:              ulElements.get(8).click();      break;
+                case NEXT:
+                    // See javadoc for getPageDirective() below for mapping of 'Next' button.
+                    switch (getNumPageButtons()) {
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+//   System.out.println("Clicking page button " + (getNumPageButtons() - 1));
+                            ulElements.get(getNumPageButtons() - 1).click();    break;
+                        case 9:
+//   System.out.println("Clicking page button 8");
+                            ulElements.get(8).click();                          break;
+                    }
+                    break;
             }
         } catch (Exception e) {
             System.out.println("SearchPage.clickPageButton exception: " + e.getLocalizedMessage());
             throw e;
         }
         
+        if (hasImageTable())
+            getImageTable().updateImageTableAfterChange();                      // Update the images table to keep it in sync.
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
     }
     
-    /**
-     * Clicks on a random page button, within the scope of available pages. Note
-     * that the button clicked may be disabled or may be the ellipsis, in which
-     * case the already-selected page won't change. Calling this method has the
-     * side effect of waiting for the page to finish loading.
-     * 
-     * There are a minimum of 3 and a maximum of 9 buttons, distributed as follows:
-     * <ul><li>3 for 'previous', '1', 'next'</li>
-     * <li>3 for 'previous', '1', '2','next'</li>
-     * <li>4 for 'previous', '1', '2', '3', 'next'</li>
-     * <li>9 for 'previous', '1', '2', '3', '4', '5', '...', '4852', 'next'</li></ul>
-     * 
-     * @throws Exception if no such button exists
-     * @return the <code>PageDirective</code> of the clicked button
-     */
-    public PageDirective clickPageButton() throws Exception {
-        int max = getNumPageButtons();
-        int randomPageNumber = random.nextInt(max);
-        
-        WebElement element = getButton(randomPageNumber);
-        if (element.getAttribute("class").contains("disabled")) {
-            if (randomPageNumber == 0) {
-                System.out.println("Changing randomPageNumber from 0 to 1.");
-                randomPageNumber++; 
-            } else {
-                System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
-                randomPageNumber--;
-            }
-        } else if (element.getText().contains("...")) {
-            System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
-            randomPageNumber--;
+    public void clickToolbox(WindowState desiredWindowState) {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        switch (desiredWindowState) {
+            case CLOSE:
+                if (style.contains("block;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
+                
+            case OPEN:
+                if (style.contains("none;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
         }
-        
-        PageDirective pageDirective = getPageDirective(randomPageNumber);
-        System.out.println("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
-        clickPageButton(pageDirective);
-        
-        getResultCount();                                                       // Called purely to wait for the page to finish loading.
-        
-        return pageDirective;
     }
     
     /**
@@ -269,6 +313,14 @@ public class SearchPage {
         }
         
         return anatomyTable;
+    }
+
+    /**
+     * 
+     * @return The base url
+     */
+    public String getBaseUrl() {
+        return baseUrl;
     }
     
     /**
@@ -314,8 +366,45 @@ public class SearchPage {
     }
     
     /**
-     * @return Returns the gene table [geneGrid], if there is one; or an
-     * empty one if there is not
+     * Given a <code>Facet</code> instance, returns the HTML id of the li element.
+     * @param facet
+     * @return 
+     */
+    public String getFacetId(Facet facet) {
+        String id = "";
+        
+        switch (facet) {
+            case GENES:
+                id = "gene";
+                break;
+                
+            case PHENOTYPES:
+                id = "mp";
+                break;
+                
+            case DISEASES:
+                id = "disease";
+                break;
+                
+            case ANATOMY:
+                id = "ma";
+                break;
+                
+            case PROCEDURES:
+                id = "pipeline";
+                break;
+                
+            case IMAGES:
+                id = "images";
+                break;
+        }
+        
+        return id;
+    }
+    
+    /**
+     * @return Returns the GENES table [geneGrid], if there is one; or an
+ empty one if there is not
      */
     public SearchGeneTable getGeneTable() {
         if (hasGeneTable()) {
@@ -328,7 +417,7 @@ public class SearchPage {
     }
     
     /**
-     * @return Returns the image table [imagesGrid], if there is one; or an
+     * @return Returns the images table [imagesGrid], if there is one; or an
      * empty one if there is not
      */
     public SearchImageTable getImageTable() {
@@ -351,28 +440,6 @@ public class SearchPage {
      */
     public int getNumPageButtons() {
         return driver.findElements(By.xpath("//div[contains(@class, 'dataTables_paginate')]/ul/li")).size();
-    }
-    
-    public class Showing {
-        public final int first;
-        public final int last;
-        public final int total;
-        
-        public Showing(){
-            String[] showing = driver.findElement(By.xpath("//div[@id='geneGrid_info']")).getText().split(" ");
-            first = Utils.tryParseInt(showing[1]);
-            last = Utils.tryParseInt(showing[3]);
-            total = Utils.tryParseInt(showing[5]);
-        }
-    }
-    
-    /**
-     * 
-     * @return A <code>Showing</code> instance with the interesting inteter
-     * parts of the <i>Showing</i> page results string.
-     */
-    public Showing getShowing() {
-        return new Showing();
     }
     
     /**
@@ -473,7 +540,7 @@ public class SearchPage {
     }
     
     /**
-     * @return Returns the procedure table [pipelineGrid], if there is one; or an
+     * @return Returns the pipeline table [pipelineGrid], if there is one; or an
      * empty one if there is not
      */
     public SearchProcedureTable getProcedureTable() {
@@ -491,23 +558,36 @@ public class SearchPage {
      * page to finish loading.
      */
     public int getResultCount() {
-        // Sometimes, even though we wait, the element text is still empty. Eventually it arrives.
+        // Sometimes, even though we wait, the element text is still empty. Eventually it arrives (unless there are no results).
         WebElement element;
-        
-        int i = 0;
-        while ((element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")))).getText().isEmpty()) {
-            System.out.println("WAITING[" + i + "]");
-            TestUtils.sleep(100);
-            i++;
-            if (i > 20)
-                return -1;
-        }
+        Integer niCount = null;
+        try {
+            int i = 0;
+            while ((element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")))).getText().isEmpty()) {
+                System.out.println("WAITING[" + i + "]");
+                TestUtils.sleep(100);
+                i++;
+                if (i > 20)
+                    return -1;
+            }
 
-        int pos = element.getText().indexOf(" ");
-        String sCount = element.getText().substring(0, pos);
-        Integer niCount = Utils.tryParseInt(sCount);
+            int pos = element.getText().indexOf(" ");
+            String sCount = element.getText().substring(0, pos);
+            niCount = Utils.tryParseInt(sCount);
+        } catch (Exception e) {
+            System.out.println("SearchPage.getResultCount(): There was no result count.");
+        }
         
         return (niCount == null ? 0 : niCount);
+    }
+    
+    /**
+     * 
+     * @return A <code>Showing</code> instance with the interesting inteter
+     * parts of the <i>Showing</i> page results string.
+     */
+    public Showing getShowing() {
+        return new Showing();
     }
     
     /**
@@ -517,13 +597,10 @@ public class SearchPage {
     public long getTimeoutInSeconds() {
         return timeoutInSeconds;
     }
-
-    /**
-     * 
-     * @return The base url
-     */
-    public String getBaseUrl() {
-        return baseUrl;
+    
+    public WindowState getToolboxState() {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        return (style.contains("block;") ? WindowState.OPEN : WindowState.CLOSE);
     }
     
     /**
@@ -610,6 +687,10 @@ public class SearchPage {
         }
     }
     
+    public void setImageFacetView(SearchImageTable.ImageFacetView desiredView) {
+        getImageTable().setCurrentView(desiredView);
+    }
+    
     /**
      * Submits the string in <code>searchString</code> to the server. This has
      * the side effect of waiting for the page to finish loading.
@@ -625,41 +706,70 @@ public class SearchPage {
         return getResultCount();
     }
     
+    /**
+     * Compares each facet's grid (on the right-hand side of the search page)
+     * with each of the four download data streams (page/all and tsv/xls). Any
+     * errors are returned in the <code>PageStatus</code> instance.
+
+     * @param facet facet
+     * @return page status instance
+     */
+    public PageStatus validateDownload(Facet facet) {
+        PageStatus status = new PageStatus();
+        
+        DownloadType[] downloadTypes = {
+              DownloadType.PAGINATED_TSV
+            , DownloadType.PAGINATED_XLS
+    // Don't test the 'ALL_xxx' download types as they are known to be broken in both production and testing; the server rejects streams that are too long.
+//            , DownloadType.ALL_TSV
+//            , DownloadType.ALL_XLS
+        };
+        
+        String[][] data;
+        // Validate the download types for this facet.
+        for (DownloadType downloadType : downloadTypes) {
+            data = getDownload(downloadType, baseUrl);                          // Get the data for this download type.
+            SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
+            status.add(table.validateDownload(data));                           // Validate it.
+            
+            if (status.hasErrors()) {
+                System.out.println("VALIDATION ERRORS:\n" + status.toStringErrorMessages());
+            }
+        }
+        
+        return status;
+    }
+    
+    
+    // PUBLIC CLASSES
+    
+    
+    public class Showing {
+        public final int first;
+        public final int last;
+        public final int total;
+        public final String text;
+        private final WebElement element;
+        
+        public Showing(){
+            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@id, 'Grid_info')]")));
+            text = element.getText();
+            String[] showing = text.split(" ");
+            first = Utils.tryParseInt(showing[1]);
+            last = Utils.tryParseInt(showing[3]);
+            total = Utils.tryParseInt(showing[5]);
+            getResultCount();
+        }
+        
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+    
     
     // PRIVATE METHODS
     
-    
-    private String getFacetId(Facet facet) {
-        String id = "";
-        
-        switch (facet) {
-            case GENES:
-                id = "gene";
-                break;
-                
-            case PHENOTYPES:
-                id = "mp";
-                break;
-                
-            case DISEASES:
-                id = "disease";
-                break;
-                
-            case ANATOMY:
-                id = "ma";
-                break;
-                
-            case PROCEDURES:
-                id = "pipeline";
-                break;
-                
-            case IMAGES:
-                id = "images";
-                break;
-        }
-        
-        return id;
-    }
     
     /**
      * Get the full data store matching the download type
@@ -721,10 +831,8 @@ public class SearchPage {
      */
     private String getDownloadUrlBase(DownloadType downloadType) {
         // show the toolbox if it is not already showing.
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        if ( ! style.contains("block;")) {
-            driver.findElement(By.xpath("//span[@id='dnld']")).click();
-        }
+        clickToolbox(WindowState.OPEN);
+        driver.findElement(By.xpath("//span[@id='dnld']")).click();
         
         String className = "";
         
@@ -736,40 +844,6 @@ public class SearchPage {
         }
         
         return driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).getAttribute("data-exporturl");
-    }
-    
-    /**
-     * Compares each facet's grid (on the right-hand side of the search page)
-     * with each of the four download data streams (page/all and tsv/xls). Any
-     * errors are returned in the <code>PageStatus</code> instance.
-
-     * @param facet facet
-     * @return page status instance
-     */
-    public PageStatus validateDownload(Facet facet) {
-        PageStatus status = new PageStatus();
-        
-        DownloadType[] downloadTypes = {
-              DownloadType.PAGINATED_TSV
-            , DownloadType.PAGINATED_XLS
-    // Don't test the 'ALL_xxx' download types as they are known to be broken in both production and testing; the server rejects streams that are too long.
-//            , DownloadType.ALL_TSV
-//            , DownloadType.ALL_XLS
-        };
-        
-        String[][] data;
-        // Validate the download types for this facet.
-        for (DownloadType downloadType : downloadTypes) {
-            data = getDownload(downloadType, baseUrl);                          // Get the data for this download type.
-            SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
-            status.add(table.validateDownload(data));                           // Validate it.
-            
-            if (status.hasErrors()) {
-                System.out.println("VALIDATION ERRORS:\n" + status.toStringErrorMessages());
-            }
-        }
-        
-        return status;
     }
     
     /**

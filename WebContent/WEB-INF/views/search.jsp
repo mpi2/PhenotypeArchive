@@ -184,7 +184,8 @@
        		    
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
        		    	var input = $('input#s').val().trim();
-       		    	//alert(input)
+       		    	
+       		    	//alert(input + ' ' + solrUrl)
        		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
        		    	
        		    	var re = new RegExp("^'(.*)'$");
@@ -232,27 +233,29 @@
        		    		}
        		    	}
        		    	else if (! facet){
+       		    		
+       		    		//alert('2')
        		    		// user hits enter before autosuggest pops up	
        		    		// ie, facet info is unknown
-       		    		//alert('enter-2');
-       		    		
        		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
-       		    			// if there is no existing facet filter, reload with q
-       		    			document.location.href = baseUrl + '/search?q=' + input;
-       		    		}
-       		    		else {
-       		    			// facet will be figured out by code
-       		    			var fqStr = $.fn.getCurrentFq(facet);
-           		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
+	       		    			// if there is no existing facet filter, reload with q
+	       		    			document.location.href = baseUrl + '/search?q=' + input;
+	       		    	}
+	       		    	else {
+	       		    		// facet will be figured out by code
+	       		    		var fqStr = $.fn.getCurrentFq(facet);
+	           		    	document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
        		    		}
        		    	}
        		    	else {	
-       		    		//alert('enter-3');
-       		    		var fqStr = $.fn.getCurrentFq(facet);
-       		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr + '&facet=' + facet;
+       		    		
+      		    		var fqStr = $.fn.getCurrentFq(facet);
+      		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr + '&facet=' + facet;
+       		    		
        		    	}
        		    }
        		});
+       		
        		
        		$('span#rmFilters').click(function(){
        			
@@ -285,8 +288,9 @@
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
 		       			$.ajax({
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax" + solrBq,				       			
-			       			dataType: "jsonp",
+		       				// double qf filters with original string taking precedence
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,				       			
+			       			dataType: 'jsonp',
 			       			'jsonp': 'json.wrf',
 			       			data: {
 			       				q: request.term
@@ -297,10 +301,10 @@
 			       				var docs = data.response.docs;	
 			       				var aKV = [];
 			       				for ( var i=0; i<docs.length; i++ ){
+			       					var facet;
 			       					
 			       					for ( var key in docs[i] ){
 			       						
-			       						var facet;
 			       						if ( key == 'docType' ){	
 			       							facet = docs[i][key].toString();
 			       						}
@@ -316,8 +320,18 @@
 			       							.replace(/\(/g,'\\(')
 			       							.replace(/\)/g,'\\)');
 			       							
+			       							// need to order the strings separated by | by length and desc, otherwise
+			       							// if we have a appears before anchor in termStr, only 'a' will be highlighted in "anchor"
+											
+			       							var termList = termStr.split("|");
+			       							termStr = termList.sort(function(a, b){
+			       							  return b.length - a.length; // ASC -> a - b; DESC -> b - a
+			       							}).join("|");
+			       							
+			       							
 			       							var re = new RegExp("(" + termStr + ")", "gi") ;
-			       							var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
+			       							termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
+			       							
 			       							aKV.push("<span class='" + facet + "'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 			       							
 			       							if (i == 0){
@@ -340,11 +354,9 @@
 	       				// select by mouse / KB
 	       				////console.log(this.value + ' vs ' + ui.item.label);
 	       				//var oriText = $(ui.item.label).text();
-	       				
 	       				var facet = $(ui.item.label).attr('class');
 	       				
 	       				// handed over to hash change to fetch for results	
-	       			
 	       				var q = encodeURIComponent(this.value);
 	       				var fq = $.fn.getCurrentFq(facet);
 	       				
@@ -352,7 +364,6 @@
 	       				
 	       				// prevents escaped html tag displayed in input box
 	       				event.preventDefault(); return false; 
-	       				
 	       			},
 	       			open: function(event, ui) {
 	       				//fix jQuery UIs autocomplete width
