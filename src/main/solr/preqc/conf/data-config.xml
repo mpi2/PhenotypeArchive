@@ -8,7 +8,11 @@
 				row.put('converted_allele_symbol', symbol);
 			}
 			if ( row.get('zygosity') ){
-				row.put('zygosity', row.get('zygosity').toString().toLowerCase()); 
+				var mapping = {'heterozygous' : 'heterozygote',
+							   'homozygous' : 'homozygote',
+							   'hemizygous' : 'hemizygote'
+							  };	 
+				row.put('zygosity', mapping[row.get('zygosity').toString().toLowerCase()]); 
 			}
 			return row;
 		}
