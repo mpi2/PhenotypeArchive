@@ -128,7 +128,7 @@ public class QueryBrokerController {
 			    // Object not in cache. If null is not a possible value in the cache,
 			    // the call to cache.contains(key) is not needed
 				JSONObject json = solrIndex.getResults(url);
-				System.out.println("JSON: "+ json);
+				//System.out.println("JSON: "+ json);
 				if ( subfacet == null ){
 					int numFound = json.getJSONObject("response").getInt("numFound");
 					this.jsonResponse.put(core, numFound);
