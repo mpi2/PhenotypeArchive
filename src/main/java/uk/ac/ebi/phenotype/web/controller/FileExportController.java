@@ -490,7 +490,8 @@ public class FileExportController {
 
     private List<String> composeImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
         String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
-
+        log.info(mediaBaseUrl);
+        
         List<String> rowData = new ArrayList();
 
         String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/";
@@ -499,7 +500,6 @@ public class FileExportController {
        
         if (showImgView) {
 
-            System.out.println("MODE: imgview " + showImgView);
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
             rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
 
