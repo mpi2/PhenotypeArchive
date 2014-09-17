@@ -64,7 +64,7 @@
 		
 		// q to display in input box
 		var qDisplay = q == '*:*'  ? '' : decodeURIComponent(q);
-		qDisplay = qDisplay.replace(/\\/, '');  // unescape for display
+		qDisplay = qDisplay.replace(/\\/g, '');  // unescape for display
 		$('input#s').val(qDisplay); 	
 
 		// q to search SOLR
@@ -74,7 +74,6 @@
 		var facetMode = oUrlParams.facetName;
 		var oFacets = {};
 		oFacets.count = {};	
-		
 		// one query to solr and get back 6 sets of json each of which corresponds to one of the 6 cores
 	    $.ajax({url: baseUrl + '/querybroker',
 	    	data: {'q' : _getParams(oUrlParams)},

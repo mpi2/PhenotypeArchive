@@ -14,18 +14,25 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
+import uk.ac.ebi.phenotype.service.PreQcService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 public class PhenotypeCallSummarySolrImpl implements
 		PhenotypeCallSummarySolr {
 
 	@Autowired
-	GenotypePhenotypeService genotypePhenotypeService;
+	@Qualifier("postqcService")
+	PostQcService genotypePhenotypeService;
+	
+	@Autowired
+	@Qualifier("preqcService")
+	PreQcService preqcService;
 	
 	private static final Logger log = Logger
 			.getLogger(PhenotypeCallSummarySolrImpl.class);
@@ -35,7 +42,7 @@ public class PhenotypeCallSummarySolrImpl implements
 			throws IOException, URISyntaxException {
 		return this.getPhenotypeCallByGeneAccessionAndFilter(accId, "");
 	}
-
+	
 	@Override
 	public PhenotypeFacetResult getPhenotypeCallByMPAccession(
 			String phenotype_id) throws IOException, URISyntaxException {
@@ -52,12 +59,27 @@ public class PhenotypeCallSummarySolrImpl implements
 	}
 
 	@Override
+	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(
+			String phenotype_id, String queryString) throws IOException,
+			URISyntaxException {
+		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
+		return preqcService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
+	}
+
+	@Override
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(
 			String accId, String filterString) throws IOException,
 			URISyntaxException {
 		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, filterString);
 	}
 
+	@Override
+	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(
+			String accId, String filterString) throws IOException,
+			URISyntaxException {
+		return preqcService.getMPByGeneAccessionAndFilter(accId, filterString);
+	}
+	
 	@Override
 	public List<? extends StatisticalResult> getStatisticalResultFor(
                 String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession)

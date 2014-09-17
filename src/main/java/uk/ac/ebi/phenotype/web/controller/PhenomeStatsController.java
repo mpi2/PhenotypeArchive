@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ import uk.ac.ebi.phenotype.chart.utils.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 @Controller
@@ -37,7 +38,8 @@ public class PhenomeStatsController {
 	private PhenotypeCallSummaryDAO phenotypeCallSummaryDao;
 	
 	@Autowired
-	GenotypePhenotypeService genotypePhenotypeService;
+	@Qualifier("postqcService")
+	PostQcService genotypePhenotypeService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
