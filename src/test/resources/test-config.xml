@@ -86,9 +86,14 @@
     <bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
         <constructor-arg  value="${solrUrl}/gene" />
     </bean>
-	
-    <bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
-        <constructor-arg  value="${solrUrl}/genotype-phenotype" />
+    <bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
+        <constructor-arg value="${internalSolrUrl}/preqc" />
+        <constructor-arg ref="phenotypePipelineDAO" />
+    </bean>
+
+    <bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
+        <constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
+        <constructor-arg ref="phenotypePipelineDAO" />
     </bean>
     
     <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
