@@ -64,6 +64,27 @@
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 
+	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+    </bean>
+
+    <!-- used for concurrently loading the solr server -->
+    <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${internalSolrUrl}/experiment"/>
+        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+
+	<bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
+		<constructor-arg value="${internalSolrUrl}/preqc" />
+		<constructor-arg ref="phenotypePipelineDAO" />
+	</bean>
+
+	<bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
+		<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
+		<constructor-arg ref="phenotypePipelineDAO" />
+	</bean>
+
 	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
 		<constructor-arg value="${internalSolrUrl}/pipeline" />
 	</bean>
@@ -95,10 +116,6 @@
 	</bean>
 
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
-	</bean>
-
-	<bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
-		<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
 	</bean>
 
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
