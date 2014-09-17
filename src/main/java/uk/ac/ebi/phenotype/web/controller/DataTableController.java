@@ -112,7 +112,7 @@ public class DataTableController {
 		String fqOri = "";
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
-		System.out.println("paramstr: " + solrParamStr);
+		System.out.println("paramstr sent to dataTable controller: " + solrParamStr);
 		boolean legacyOnly = jParams.getBoolean("legacyOnly");
 		
 		// Get the query string
@@ -469,15 +469,15 @@ public class DataTableController {
 						JSONArray termNames = doc.getJSONArray("annotationTermName");
 						for( Object s : termIds ){														
 							if ( s.toString().contains("MA")){
-								log.debug(i + " - MA: " + termNames.get(counter).toString());
+								//log.debug(i + " - MA: " + termNames.get(counter).toString());
 								String name = termNames.get(counter).toString();
 								String maid = termIds.get(counter).toString();	
 								String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
 								ma.add("<a href='" + url + "'>" + name + "</a>");
 							}
 							else if ( s.toString().contains("MP") ){
-								log.debug(i+ " - MP: " + termNames.get(counter).toString());
-								log.debug(i+ " - MP: " + termIds.get(counter).toString());								
+								//log.debug(i+ " - MP: " + termNames.get(counter).toString());
+								//log.debug(i+ " - MP: " + termIds.get(counter).toString());								
 								String mpid = termIds.get(counter).toString();							
 								String name = termNames.get(counter).toString();							
 								String url = request.getAttribute("baseUrl") + "/phenotypes/" + mpid;
@@ -490,7 +490,7 @@ public class DataTableController {
 					if (doc.has("expName")) {
 						JSONArray expNames  = doc.getJSONArray("expName");
 						for( Object s : expNames ){
-							log.debug(i + " - expTERM: " + s.toString());
+							//log.debug(i + " - expTERM: " + s.toString());
 							exp.add(s.toString());
 						}						
 					}					
@@ -754,9 +754,7 @@ public class DataTableController {
 		
 		String markerSymbol = "<span class='gSymbol'>" + doc.getString("marker_symbol") + "</span>";		
 		String mgiId = doc.getString("mgi_accession_id");
-		//System.out.println(request.getAttribute("baseUrl"));
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;		
-		//String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";
 		String markerSymbolLink = "<a href='" + geneUrl + "'>" + markerSymbol + "</a>";
 				
 		String[] fields = {"marker_name", "human_gene_symbol","marker_synonym"};			
