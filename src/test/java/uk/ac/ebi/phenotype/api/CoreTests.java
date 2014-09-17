@@ -30,11 +30,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.MpService;
 
 /**
@@ -45,7 +46,8 @@ import uk.ac.ebi.phenotype.service.MpService;
 public class CoreTests extends AbstractTransactionalJUnit4SpringContextTests {
         
     @Autowired
-    private GenotypePhenotypeService gpService;
+	@Qualifier("postqcService")
+    private PostQcService gpService;
 
     @Autowired
     private GeneService gService;

@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -33,7 +33,7 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 	@Autowired
 	private PhenotypeSummaryDAO phenotypeSummary;
 	@Autowired 
-	GenotypePhenotypeService gpService;
+	PostQcService gpService;
 	String testGene = "MGI:104874";
 	
 //	@Test 

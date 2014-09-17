@@ -33,7 +33,7 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 

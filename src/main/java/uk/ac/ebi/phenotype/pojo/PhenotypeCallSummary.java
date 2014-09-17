@@ -137,6 +137,26 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	@Transient
 	private List<OntologyTerm> topLevelPhenotypeTerms;
 	
+	protected boolean isPreQC;
+		
+	
+	/**
+	 * @return the isPreQC
+	 */
+	public boolean isPreQC() {
+	
+		return isPreQC;
+	}
+
+	
+	/**
+	 * @param isPreQC the isPreQC to set
+	 */
+	public void setPreQC(boolean isPreQC) {
+	
+		this.isPreQC = isPreQC;
+	}
+
 	public PhenotypeCallSummary() {
 		
 	}

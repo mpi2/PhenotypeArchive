@@ -63,6 +63,20 @@
 	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
+		
+	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
+	<bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
+		<constructor-arg value="${internalSolrUrl}/preqc" />
+		<constructor-arg ref="phenotypePipelineDAO" />
+	</bean>
+	
+	<bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
+		<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
+		<constructor-arg ref="phenotypePipelineDAO" />
+	</bean>
 
 	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
 		<constructor-arg value="${internalSolrUrl}/pipeline" />
@@ -97,10 +111,6 @@
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
 	</bean>
 
-	<bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
-		<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
-	</bean>
-
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
 		<constructor-arg value="${internalSolrUrl}/statistical-result" />
 	</bean>
@@ -133,10 +143,6 @@
 	</bean>
 
 	<bean id="phenotypeCallSummaryDAOSolr" class="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
-	</bean>
-
-	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
-		<constructor-arg ref="sessionFactory" />
 	</bean>
 
 	<bean id="alleleDAO" class="uk.ac.ebi.phenotype.dao.AlleleDAOImpl">

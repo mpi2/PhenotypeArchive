@@ -34,7 +34,7 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 
 
@@ -51,7 +51,7 @@ public class OverviewChartsController {
 	ObservationService os;
 	
 	@Autowired
-	GenotypePhenotypeService gpService;
+	PostQcService gpService;
 
 	public OverviewChartsController(){
 

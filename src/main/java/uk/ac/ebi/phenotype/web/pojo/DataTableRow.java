@@ -70,6 +70,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected String graphUrl;
     protected Pipeline pipeline;
     protected Double pValue;
+    protected boolean isPreQc;
 
     public DataTableRow() { }
 
@@ -79,6 +80,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         List<String> sex = new ArrayList<String>();
         sex.add(pcs.getSex().toString());
 
+        this.setPreQc(pcs.isPreQC());
         this.setGene(pcs.getGene());
         this.setAllele(pcs.getAllele());
         this.setSexes(sex);
@@ -110,7 +112,40 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     @Override
     public abstract int compareTo(DataTableRow o);
 
-    public void setPValue(Double pValue) {
+           
+	/**
+	 * @return the pValue
+	 */
+	public Double getpValue() {
+	
+		return pValue;
+	}
+	
+	/**
+	 * @param pValue the pValue to set
+	 */
+	public void setpValue(Double pValue) {
+	
+		this.pValue = pValue;
+	}
+	
+	/**
+	 * @return the isPreQc
+	 */
+	public boolean isPreQc() {
+	
+		return isPreQc;
+	}
+	
+	/**
+	 * @param isPreQc the isPreQc to set
+	 */
+	public void setPreQc(boolean isPreQc) {
+	
+		this.isPreQc = isPreQc;
+	}
+
+	public void setPValue(Double pValue) {
         this.pValue = pValue;
     }
 
