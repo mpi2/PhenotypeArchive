@@ -63,6 +63,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
@@ -125,6 +126,9 @@ public class GenesController {
 	@Autowired
 	SolrIndex solrIndex;
 
+        @Autowired
+        SolrIndex2 solrIndex2;
+        
 	@Autowired
 	private GeneService geneService;
 
@@ -262,7 +266,7 @@ public class GenesController {
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
-			getImpcImages(acc, model);
+			//getImpcImages(acc, model);
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
 			log.info("images solr not available");
@@ -798,15 +802,35 @@ public class GenesController {
 
 	@RequestMapping("/genesAllele/{acc}")
 	public String genesAllele(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
 
 		List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
+
+                log.info("#### genesAllele...");
 
 		model.addAttribute("alleleProducts", constructs);
 		return "genesAllele";
 	}
 
-	@Autowired
+	@RequestMapping("/genesAllele2/{acc}")
+	public String genesAllele2(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
+
+		List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
+		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo2(acc);
+        
+                log.info("#### genesAllele2...");
+                log.info("#### genesAllele2: constructs2: " + constructs2);
+                
+		model.addAttribute("alleleProducts", constructs);
+		model.addAttribute("alleleProducts2", constructs2);
+                
+                //constructs2.
+                
+		return "genesAllele2";
+	}
+
+        @Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
 

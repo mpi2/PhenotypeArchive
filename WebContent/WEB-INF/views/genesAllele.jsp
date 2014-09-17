@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <c:choose>
-<c:when test="${alleleProducts.size() > 0}">			 
+<c:when test="${alleleProducts.size() > 0}">
 <table class="reduce nonwrap">
         <thead>
                 <tr>
@@ -21,7 +21,7 @@
                         <tr>
                         <c:choose>
                                 <c:when test='${alleleProduct["type"].equals("gene")}'>
-                                    <td class="centered" colspan="7">Additional Targeting vectors are available for this gene - see links for details: ${alleleProduct["vectorProjectHtml"]}</td>                                  
+                                    <td class="centered" colspan="7">Additional Targeting vectors are available for this gene - see links for details: ${alleleProduct["vectorProjectHtml"]}</td>
                                 </c:when>
                                 <c:otherwise>
                                         <td>${alleleProduct["product"]}</td>
@@ -32,17 +32,19 @@
                                             <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['alleleMap']}?simple=true.jpg" title="<a href='${alleleProduct['alleleMap']}?simple=true.jpg'>Download this image</a>"><i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
                                             <div style="padding:3px;"><a href="${alleleProduct['alleleGenbankFile']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                         </td>
-                                        <td><a title="project page" href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmcProjectId']}"><i class="fa fa-clipboard fa-lg"></i></a>
-                                        
-<!--                                            <a title="allele page" href="/phenotype-archive/alleles/${alleleProduct['mgi_accession_id']}"><i class="fa fa-clipboard fa-lg"></i></a>-->
-                                        
+                                        <td>
+
+                                            <a title="project page" href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmcProjectId']}"><i class="fa fa-clipboard"></i></a>
+
+                                            <a title="allele project page" href="${baseUrl}/alleles/${alleleProduct['mgi_accession_id']}/${alleleProduct['mgiAlleleNameStrip']}"><i class="fa fa-clipboard fa-2x"></i></a>
+
                                         </td>
                                         <td>${alleleProduct["orderHtml"]}</td>
                                 </c:otherwise>
                         </c:choose>
                         </tr>
 
-                        
+
                 </c:forEach>
         </tbody>
 

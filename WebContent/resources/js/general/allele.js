@@ -35,6 +35,33 @@ jQuery(document).ready(	function() {
 	    }
 	});
         
+        var debug = false;
+        
+        if(!debug) {
+            
+            $('#order2').hide();
+            
+        }
+        else {
+        
+	$.ajax({
+		url: '../genesAllele2/' + gene_id,    
+		timeout: 2000,
+		success: function (response) {
+                    
+                    console.log("genesAllele2:");
+                    console.log(response);
+                    
+                    $('#allele2').html(response);			
+		}
+		,error: function(x, t, m) {
+                    var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
+                    $('#allele2').html(errorMsg);
+                }
+	});
+        
+        }
+        
         $('.qcData').each(function(){
             var type = $(this).data("type");
             var name = $(this).data("name");
