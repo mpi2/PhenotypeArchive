@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -48,6 +49,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 	private GenomicFeatureDAO genesDao;
 
 	@Autowired
+	@Qualifier("postqcService")
 	private PostQcService genotypePhenotypeService;
 
 	@Autowired

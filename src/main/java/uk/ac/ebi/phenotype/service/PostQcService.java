@@ -66,14 +66,13 @@ import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
-@Service
+
 public class PostQcService extends AbstractGenotypePhenotypeService{
 
-	@Autowired
-	protected PhenotypePipelineDAO pipelineDAO;
-	
-	public PostQcService(String solrUrl) {
+	public PostQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
 		solr = new HttpSolrServer(solrUrl);
+		pipelineDAO = pipelineDao;
+		isPreQc = false; 
 	}
 	
 	public PostQcService() {

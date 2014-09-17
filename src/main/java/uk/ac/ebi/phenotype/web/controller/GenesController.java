@@ -355,7 +355,7 @@ public class GenesController {
 
 			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
 			phenotypeList = phenoResult.getPhenotypeCallSummaries();
-			// TODO add pre-qc rows
+		//TODO add pre-qc rows
 			phenotypeList.addAll(phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, queryString).getPhenotypeCallSummaries());
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
 			// sort facets first

@@ -220,7 +220,6 @@ public class GeneService {
 	 *         Registered) as appropriate for this gene
 	 */
 	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport, boolean legacyOnly) {
-		System.out.println(doc.toString());
 		String mgiId = doc.getString("mgi_accession_id");
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 

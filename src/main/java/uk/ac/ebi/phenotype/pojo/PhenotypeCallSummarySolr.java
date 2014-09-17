@@ -13,6 +13,8 @@ public interface PhenotypeCallSummarySolr {
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException;
 	
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException;
+	
+	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException;
 
 	public PhenotypeFacetResult getPhenotypeCallByMPAccession(
 			String phenotype_id) throws IOException, URISyntaxException;
@@ -20,7 +22,7 @@ public interface PhenotypeCallSummarySolr {
 	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(
 		String phenotype_id, String filter) throws IOException, URISyntaxException;
 	
-	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(
+	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(
 		String phenotype_id, String filter) throws IOException, URISyntaxException;
 
 	public List<? extends StatisticalResult> getStatisticalResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession)throws IOException, URISyntaxException;

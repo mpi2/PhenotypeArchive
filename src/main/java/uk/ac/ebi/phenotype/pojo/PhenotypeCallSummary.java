@@ -137,7 +137,7 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	@Transient
 	private List<OntologyTerm> topLevelPhenotypeTerms;
 	
-	private boolean isPreQC;
+	protected boolean isPreQC;
 		
 	
 	/**
