@@ -47,6 +47,7 @@ import org.mousephenotype.www.testing.model.SearchPage.Facet;
 import org.mousephenotype.www.testing.model.SearchPage.PageDirective;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -145,12 +146,12 @@ public class SearchPageTest {
         driver.manage().timeouts().setScriptTimeout(timeout_in_seconds, TimeUnit.SECONDS);
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
 
-        params.put("gene","fq=marker_type:* -marker_type:\"heritable phenotypic marker\"&core=gene");
-        params.put("mp", "fq=*:*&core=mp");
-        params.put("disease", "fq=type:disease&core=disease");
-        params.put("ma", "fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*&core=ma");
-        params.put("pipeline", "fq=pipeline_stable_id:*&core=pipeline");
-        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:*&core=images");
+        params.put("gene","fq=marker_type:* -marker_type:\"heritable phenotypic marker\"");
+        params.put("mp", "fq=top_level_mp_term:*");
+        params.put("disease", "fq=*:*");
+        params.put("ma", "fq=selected_top_level_ma_term:*");
+        params.put("pipeline", "fq=pipeline_stable_id:*");
+        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:*");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
         final String geneParams      = "/gene/select?" + commonParam + "&" + params.get("gene");
@@ -656,7 +657,7 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
         exceptionList.clear();
         
         for (String core : cores ){
-            target = baseUrl + "/search#" + params.get(core);
+            target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
             System.out.println("Testing URL: " + target);
             try {
                 SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
@@ -710,31 +711,32 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
         
         successList.clear();
         errorList.clear();
-
+        String message;
+        
+        int i = 0;
         for (String s : paramList ){
-
             try {
+                System.out.println();
                 JSONObject geneResults = JSONRestUtil.getResults(solrUrl + s);
 
                 int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");
-                String core = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("core");
-                //String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
-                //System.out.println(core + " num found: "+ facetCountFromSolr);
+                String facet = cores.get(i);
 
-                String url = baseUrl + "/search#" + params.get(core);
-                driver.get(url);
-                driver.navigate().refresh();
-                //System.out.println(baseUrl + "/search#" + params.get(core));
-
+                String target = baseUrl + "/search#" + params.get(facet) + "&facet=" + facet;
+                System.out.println("testFacetCounts[" + i + "]: Testing URL " + target);
+                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+                
                 // wait for ajax response before doing the test
-                new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span#resultCount a")));
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span#resultCount a")));
 
                 // test facet panel loaded ok
-                int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
-                //System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
-                String message = "URL: " + url;
-                assertEquals(message, facetCountFromSolr, facetCountFromPage);
-                //System.out.println("OK: facet counts for " + core);
+                int facetCountFromPage = searchPage.getFacetCount(facet);
+                
+                if (facetCountFromSolr != facetCountFromPage) {
+                    message = "FAIL: facet count from Solr: " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
+                    errorList.add(message);
+                    System.out.println(message);
+                }
 
                 // test dataTable loaded ok
                 //System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
@@ -743,18 +745,27 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
                 int dataTableFoundCount = Integer.parseInt(parts[0]);
 
                 if ( facetCountFromSolr == dataTableFoundCount){
-                    System.out.println("OK: comparing facet counts for " + core);
-                    successList.add(core);
+                    message = "OK: comparing facet counts for " + facet;
+                    System.out.println(message);
+                    successList.add(message);
                 }
                 else {
-                    errorList.add(core);
+                    message = "FAIL: expected Solr facet count " + facetCountFromSolr + " but page showed " + dataTableFoundCount;
+                    errorList.add(message);
+                    System.out.println(message);
                 }
+                i++;
+            }
+            catch (TimeoutException te) {
+                message = te.getLocalizedMessage();
+                errorList.add(message);
+                System.out.println(message);
             }
             catch(Exception e){
                 e.printStackTrace();
                 sumErrorList.add("EXCEPTION in testFacetCounts(): " + e.getLocalizedMessage());
             }
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            TestUtils.sleep(100);
         }
 
         if (successList.size() == paramList.size() ){
@@ -809,7 +820,7 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testSpecialCharacters() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);

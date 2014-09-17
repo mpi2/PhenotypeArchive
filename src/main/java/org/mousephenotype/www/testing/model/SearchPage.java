@@ -365,6 +365,40 @@ public class SearchPage {
         return (niCount == null ? 0 : niCount);
     }
     
+    public int getFacetCount(String coreName) {
+        return getFacetCount(getFacetByCoreName(coreName));
+    }
+    
+    /**
+     * Returns the <code>Facet</code> matching <code>coreName</code>.
+     * @param coreName The core name, as a string
+     * @return the <code>Facet</code> matching <code>coreName</code>
+     * @throws RuntimeException if <code>coreName</code> doesn't map to a facet.
+     */
+    public Facet getFacetByCoreName(String coreName) throws RuntimeException {
+        switch (coreName) {
+            case "gene":
+                return Facet.GENES;
+                
+            case "mp":
+                return Facet.PHENOTYPES;
+                
+            case "disease":
+                return Facet.DISEASES;
+                
+            case "ma":
+                return Facet.ANATOMY;
+                
+            case "pipeline":
+                return Facet.PROCEDURES;
+                
+            case "images":
+                return Facet.IMAGES;
+        }
+        
+        throw new RuntimeException("No matching facet for coreName'" + coreName + "'.");
+    }
+    
     /**
      * Given a <code>Facet</code> instance, returns the HTML id of the li element.
      * @param facet
@@ -752,13 +786,13 @@ public class SearchPage {
         private final WebElement element;
         
         public Showing(){
+            wait.until(ExpectedConditions.elementToBeClickable(getButton(1)));
             element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@id, 'Grid_info')]")));
             text = element.getText();
             String[] showing = text.split(" ");
             first = Utils.tryParseInt(showing[1]);
             last = Utils.tryParseInt(showing[3]);
             total = Utils.tryParseInt(showing[5]);
-            getResultCount();
         }
         
         @Override
