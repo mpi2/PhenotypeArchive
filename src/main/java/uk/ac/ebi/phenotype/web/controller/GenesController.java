@@ -534,7 +534,7 @@ public class GenesController {
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException {
 
-		imageService.getImpcImages(acc, model, 1, 2, false);
+		imageService.getImpcImagesForGenePage(acc, model, 1, 2, false);
 
 	}
 

@@ -37,7 +37,7 @@ public class ImpcImagesController {
 		System.out.println("calling imagesContAndExp");
 		String solrQueryString = request.getQueryString();
 		System.out.println("solrQueryString="+solrQueryString);
-		String acc=request.getParameter("acc");
+		String acc=request.getParameter("gene_accession_id");
 		String procedureName=request.getParameter("procedure_name");
 		String parameterStableId=request.getParameter("parameter_stable_id");
 		imageService.getControlAndExperimentalImpcImages(acc, model,procedureName, parameterStableId, 5, 100, true);
