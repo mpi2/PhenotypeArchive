@@ -221,6 +221,9 @@ public class FileExportController {
      */
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     public String exportTableAsExcelTsv(
+    		/* ********************************************************************
+    		 *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
+    		 *  *******************************************************************/
             @RequestParam(value = "externalDbId", required = true) Integer extDbId,
             @RequestParam(value = "fileType", required = true) String fileType,
             @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
