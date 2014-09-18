@@ -12,6 +12,7 @@
    								$(function () {
    								   ${unidimensionalChartDataSet.chartData.chart}
 								</script>
-								<div class="section half"><a href="${acc}?${pageContext.request.queryString.replace("UNIDIMENSIONAL_BOX_PLOT", "UNIDIMENSIONAL_SCATTER_PLOT")}">Graph by date</a></div><div class="section half"></div>
+								<div class="section half"><a href="${acc}?${fn:replace(pageContext.request.queryString, 
+                                'UNIDIMENSIONAL_BOX_PLOT', 'UNIDIMENSIONAL_SCATTER_PLOT')}">Graph by date</a></div><div class="section half"></div>
 	</c:if>
 	<jsp:include page="unidimensionalTables.jsp"></jsp:include>
