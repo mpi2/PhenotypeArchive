@@ -1340,7 +1340,6 @@
                 to EBI servers for performance -->
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
                 <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
-                <phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
