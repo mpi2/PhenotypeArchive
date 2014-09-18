@@ -243,7 +243,7 @@ public class FileExportController {
             @RequestParam(value = "sex", required = false) String sex,
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
-            @RequestParam(value = "legacyOnly", required = true) boolean legacyOnly,
+            @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
