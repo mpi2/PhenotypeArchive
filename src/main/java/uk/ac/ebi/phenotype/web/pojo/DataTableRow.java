@@ -214,7 +214,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			}
         } else {
 			url += "/phenoview/?gid=" + gid;
-			url += "&zygosity=" + zygosity;
 			url += "&qeid=" + phenotypeTerm.getId().getAccession();
         }
         return url;
