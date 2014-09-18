@@ -21,10 +21,11 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
@@ -34,7 +35,8 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	private Map<String, String> config;
 
 	@Autowired
-	private GenotypePhenotypeService gpService;
+	@Qualifier("postqcService")
+	private PostQcService gpService;
 	
 	public PhenotypeSummaryDAOImpl() throws MalformedURLException {
 	}

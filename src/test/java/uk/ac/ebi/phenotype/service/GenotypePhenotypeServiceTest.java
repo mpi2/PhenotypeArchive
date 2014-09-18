@@ -13,6 +13,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -24,7 +25,8 @@ import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 public class GenotypePhenotypeServiceTest {
 
 	@Autowired
-	private GenotypePhenotypeService genotypePhenotypeService;
+	@Qualifier("postqcService")
+	private PostQcService genotypePhenotypeService;
 	String testGene = "MGI:104874";
         
          @Autowired

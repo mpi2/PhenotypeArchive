@@ -614,7 +614,7 @@ public class FileExportController {
                     data.add(hm.get("label"));
                     data.add(annotName);
                     data.add(hm.get("id"));
-                    System.out.println("annotname: "+ annotName);
+                    //System.out.println("annotname: "+ annotName);
                     if ( hm.get("fullLink") != null ) {
                     	data.add(hm.get("fullLink").toString());
                     }

@@ -1,18 +1,3 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package uk.ac.ebi.phenotype.service;
 
 import java.io.IOException;
@@ -59,26 +44,21 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
-@Service
-public class GenotypePhenotypeService extends BasicService {
 
-	@Autowired
-	PhenotypePipelineDAO pipelineDAO;
+public abstract class AbstractGenotypePhenotypeService extends BasicService {
+	
+	
+	protected PhenotypePipelineDAO pipelineDAO;
 
-	private HttpSolrServer solr;
-
-
-	public GenotypePhenotypeService(String solrUrl) {
-
-		solr = new HttpSolrServer(solrUrl);
-	}
+	protected HttpSolrServer solr;
+	
+	protected Boolean isPreQc;
 
 
 	/**
@@ -494,7 +474,7 @@ public class GenotypePhenotypeService extends BasicService {
 		
 		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + geneClause.toString() + "\")" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
 		System.out.println("\n\n\n SOLR URL = " + solrUrl);
-		return this.createPhenotypeResultFromSolrResponse(solrUrl);
+		return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 	}
 	
 	/**
@@ -518,7 +498,7 @@ public class GenotypePhenotypeService extends BasicService {
 
 		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"" + "&fq=" + GenotypePhenotypeDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
 		System.out.println("SOLR URL = " + solrUrl);
-		return this.createPhenotypeResultFromSolrResponse(solrUrl);
+		return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 	}
 
 
@@ -536,7 +516,8 @@ public class GenotypePhenotypeService extends BasicService {
 		}
 		solrUrl += "&sort=p_value%20asc";// sort by pValue by default so we get
 											// most sig calls at top of tables
-		return createPhenotypeResultFromSolrResponse(solrUrl);
+		System.out.println("Solr url in getMPByGeneAccessionAndFilter " + solrUrl);
+		return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 	}
 
 
@@ -557,7 +538,7 @@ public class GenotypePhenotypeService extends BasicService {
 		solrUrl += "&sort=p_value%20asc";
 		// }
 		System.out.println("solr url for sorting pvalues=" + solrUrl);
-		return createPhenotypeResultFromSolrResponse(solrUrl);
+		return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 
 	}
 
@@ -628,7 +609,7 @@ public class GenotypePhenotypeService extends BasicService {
 	}
 
 
-	private PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url)
+	private PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc)
 	throws IOException, URISyntaxException {
 
 		PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
@@ -639,140 +620,14 @@ public class GenotypePhenotypeService extends BasicService {
 
 		JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
 		for (Object doc : docs) {
-			JSONObject phen = (JSONObject) doc;
-			String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
-			String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
-			PhenotypeCallSummary sum = new PhenotypeCallSummary();
-			OntologyTerm phenotypeTerm = new OntologyTerm();
-			phenotypeTerm.setName(mpTerm);
-			phenotypeTerm.setDescription(mpTerm);
-
-			DatasourceEntityId mpEntity = new DatasourceEntityId();
-			mpEntity.setAccession(mpId);
-			phenotypeTerm.setId(mpEntity);
-			sum.setPhenotypeTerm(phenotypeTerm);
-
-			// check the top level categories
-			JSONArray topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-			JSONArray topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
-			List<OntologyTerm> topLevelPhenotypeTerms = new ArrayList<OntologyTerm>();
-
-			for (int i = 0; i < topLevelMpTermNames.size(); i++) {
-				OntologyTerm toplevelTerm = new OntologyTerm();
-				toplevelTerm.setName(topLevelMpTermNames.getString(i));
-				toplevelTerm.setDescription(topLevelMpTermNames.getString(i));
-				DatasourceEntityId tlmpEntity = new DatasourceEntityId();
-				tlmpEntity.setAccession(topLevelMpTermIDs.getString(i));
-				toplevelTerm.setId(tlmpEntity);
-				topLevelPhenotypeTerms.add(toplevelTerm);
-			}
-			sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
-
-			sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
-			if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {
-				Allele allele = new Allele();
-				allele.setSymbol(phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL));
-				GenomicFeature alleleGene = new GenomicFeature();
-				DatasourceEntityId alleleEntity = new DatasourceEntityId();
-				alleleEntity.setAccession(phen.getString(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID));
-				allele.setId(alleleEntity);
-				alleleGene.setId(alleleEntity);
-				alleleGene.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));
-				allele.setGene(alleleGene);
-				sum.setAllele(allele);
-			}
-			if (phen.containsKey(GenotypePhenotypeDTO.MARKER_SYMBOL)) {
-				GenomicFeature gf = new GenomicFeature();
-				gf.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));
-				DatasourceEntityId geneEntity = new DatasourceEntityId();
-				geneEntity.setAccession(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
-				gf.setId(geneEntity);
-				sum.setGene(gf);
-			}
-			if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
-				sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
-			}
-			// GenomicFeature gene=new GenomicFeature();
-			// gene.
-			// allele.setGene(gene);
-			String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
-			ZygosityType zyg = ZygosityType.valueOf(zygosity);
-			sum.setZygosity(zyg);
-			String sex = phen.getString(GenotypePhenotypeDTO.SEX);
-			SexType sexType = SexType.valueOf(sex);
-			sum.setSex(sexType);
-			String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
-			Datasource datasource = new Datasource();
-			datasource.setName(provider);
-			sum.setDatasource(datasource);
-
-			// "parameter_stable_id":"557",
-			// "parameter_name":"Bone Mineral Content",
-			// "procedure_stable_id":"41",
-			// "procedure_stable_key":"41",
-			Parameter parameter = new Parameter();
-			if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
-				parameter = pipelineDAO.getParameterByStableId(phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
-			} else {
-				System.err.println("parameter_stable_id missing");
-			}
-			sum.setParameter(parameter);
-
-			Pipeline pipeline = new Pipeline();
-			if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
-				pipeline = pipelineDAO.getPhenotypePipelineByStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
-			} else {
-				System.err.println("pipeline stable_id missing");
-			}
-			sum.setPipeline(pipeline);
-
-			Project project = new Project();
-			project.setName(phen.getString(GenotypePhenotypeDTO.PROJECT_NAME));
-			project.setDescription(phen.getString(GenotypePhenotypeDTO.PROJECT_FULLNAME)); // is
-																							// this
-																							// right
-																							// for
-																							// description?
-																							// no
-																							// other
-																							// field
-																							// in
-																							// solr
-																							// index!!!
-			if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID)) {
-				sum.setExternalId(phen.getInt(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID));
-			}
-
-			if (phen.containsKey(GenotypePhenotypeDTO.P_VALUE)) {
-				sum.setpValue(new Float(phen.getString(GenotypePhenotypeDTO.P_VALUE)));
-				// get the effect size too
-				sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
-			}
-
-			sum.setProject(project);
-			// "procedure_stable_id":"77",
-			// "procedure_stable_key":"77",
-			// "procedure_name":"Plasma Chemistry",
-			Procedure procedure = new Procedure();
-			if (phen.containsKey(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
-				procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
-				procedure.setStableKey(Integer.valueOf(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_KEY)));
-				procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
-				sum.setProcedure(procedure);
-			} else {
-				System.err.println("procedure_stable_id");
-			}
-			list.add(sum);
+			
+			list.add(createSummaryCall(doc, isPreQc));
 		}
 
-		// if (!filterString.equals("")) {//only run facet code if there is a
-		// facet in the query!!
 		// get the facet information that we can use to create the buttons /
 		// dropdowns/ checkboxes
 		JSONObject facets = results.getJSONObject("facet_counts").getJSONObject("facet_fields");
-		// System.out.println("\n\nFacet count : " +
-		// results.getJSONObject("facet_counts")
-		// .getJSONObject("facet_fields") );
+		
 		Iterator<String> ite = facets.keys();
 		Map<String, Map<String, Integer>> dropdowns = new HashMap<String, Map<String, Integer>>();
 		while (ite.hasNext()) {
@@ -799,6 +654,144 @@ public class GenotypePhenotypeService extends BasicService {
 	}
 
 
+	public PhenotypeCallSummary createSummaryCall(Object doc, Boolean preQc){
+		JSONObject phen = (JSONObject) doc;
+		System.out.println("doc_id :: " + phen.getString("doc_id") + ", preQc:: " + preQc);
+		String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
+		String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
+		PhenotypeCallSummary sum = new PhenotypeCallSummary();
+		OntologyTerm phenotypeTerm = new OntologyTerm();
+		phenotypeTerm.setName(mpTerm);
+		phenotypeTerm.setDescription(mpTerm);
+
+		DatasourceEntityId mpEntity = new DatasourceEntityId();
+		mpEntity.setAccession(mpId);
+		phenotypeTerm.setId(mpEntity);
+		sum.setPhenotypeTerm(phenotypeTerm);
+
+		sum.setPreQC(preQc);
+		// check the top level categories
+		JSONArray topLevelMpTermNames; 
+		JSONArray topLevelMpTermIDs;
+		if (phen.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
+			topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+			topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+		}else { // a top level term is directly associated
+			topLevelMpTermNames = new JSONArray();
+			topLevelMpTermNames.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME));
+			topLevelMpTermIDs = new JSONArray();
+			topLevelMpTermIDs.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_ID));
+		}
+		List<OntologyTerm> topLevelPhenotypeTerms = new ArrayList<OntologyTerm>();
+
+		for (int i = 0; i < topLevelMpTermNames.size(); i++) {
+			OntologyTerm toplevelTerm = new OntologyTerm();
+			toplevelTerm.setName(topLevelMpTermNames.getString(i));
+			toplevelTerm.setDescription(topLevelMpTermNames.getString(i));
+			DatasourceEntityId tlmpEntity = new DatasourceEntityId();
+			tlmpEntity.setAccession(topLevelMpTermIDs.getString(i));
+			toplevelTerm.setId(tlmpEntity);
+			topLevelPhenotypeTerms.add(toplevelTerm);
+		}
+		sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
+
+		sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
+		if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {
+			Allele allele = new Allele();
+			allele.setSymbol(phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL));
+			GenomicFeature alleleGene = new GenomicFeature();
+			DatasourceEntityId alleleEntity = new DatasourceEntityId();
+			alleleEntity.setAccession(phen.getString(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID));
+			allele.setId(alleleEntity);
+			alleleGene.setId(alleleEntity);
+			alleleGene.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));
+			allele.setGene(alleleGene);
+			sum.setAllele(allele);
+		}
+		if (phen.containsKey(GenotypePhenotypeDTO.MARKER_SYMBOL)) {
+			GenomicFeature gf = new GenomicFeature();
+			gf.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));
+			DatasourceEntityId geneEntity = new DatasourceEntityId();
+			geneEntity.setAccession(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
+			gf.setId(geneEntity);
+			sum.setGene(gf);
+		}
+		if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
+			sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
+		}
+		// GenomicFeature gene=new GenomicFeature();
+		// gene.
+		// allele.setGene(gene);
+		String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
+		ZygosityType zyg = ZygosityType.valueOf(zygosity);
+		sum.setZygosity(zyg);
+		String sex = phen.getString(GenotypePhenotypeDTO.SEX);
+		SexType sexType;
+//TODO remove this if
+		if (sex.equalsIgnoreCase("Both")){
+			sexType = SexType.hermaphrodite;
+		}
+		else {
+			sexType = SexType.valueOf(sex);
+		}
+		sum.setSex(sexType);
+		String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
+		Datasource datasource = new Datasource();
+		datasource.setName(provider);
+		sum.setDatasource(datasource);
+
+		// "parameter_stable_id":"557",
+		// "parameter_name":"Bone Mineral Content",
+		// "procedure_stable_id":"41",
+		// "procedure_stable_key":"41",
+		Parameter parameter = new Parameter();
+		if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
+			System.out.println("phen.getString " + phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
+			System.out.println("pipelineDAO==null " + (pipelineDAO==null));
+			parameter = pipelineDAO.getParameterByStableId(phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
+		} else {
+			System.err.println("parameter_stable_id missing");
+		}
+		sum.setParameter(parameter);
+
+		Pipeline pipeline = new Pipeline();
+		if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
+			pipeline = pipelineDAO.getPhenotypePipelineByStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
+		} else {
+			System.err.println("pipeline stable_id missing");
+		}
+		sum.setPipeline(pipeline);
+
+		Project project = new Project();
+		project.setName(phen.getString(GenotypePhenotypeDTO.PROJECT_NAME));
+//TODO remove comment out//		project.setDescription(phen.getString(GenotypePhenotypeDTO.PROJECT_FULLNAME)); 
+		if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID)) {
+			sum.setExternalId(phen.getInt(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID));
+		}
+
+		if (phen.containsKey(GenotypePhenotypeDTO.P_VALUE)) {
+			sum.setpValue(new Float(phen.getString(GenotypePhenotypeDTO.P_VALUE)));
+			// get the effect size too
+			sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
+		}
+
+		sum.setProject(project);
+		// "procedure_stable_id":"77",
+		// "procedure_stable_key":"77",
+		// "procedure_name":"Plasma Chemistry",
+		Procedure procedure = new Procedure();
+		if (phen.containsKey(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
+			procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
+//TODO remove comment out	//		procedure.setStableKey(Integer.valueOf(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_KEY)));
+//TODO remove comment out			procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
+			sum.setProcedure(procedure);
+		} else {
+			System.err.println("procedure_stable_id");
+		}
+		return sum;
+	}
+	
+	
 	/*
 	 * End of method for PhenotypeCallSummarySolrImpl
 	 */

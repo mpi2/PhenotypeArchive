@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.ebi.phenotype.pojo;
+package uk.ac.ebi.phenotype.service;
 
-/**
- * Simple enumeration of genders
- * 
- * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @since February 2012
- */
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
-public enum SexType {
-	female,
-	hermaphrodite,
-	male;
-	
-	public String getName(){
-		return this.toString();
+
+public class PostQcService extends AbstractGenotypePhenotypeService{
+
+	public PostQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
+		solr = new HttpSolrServer(solrUrl);
+		pipelineDAO = pipelineDao;
+		isPreQc = false; 
 	}
+	
+	public PostQcService() {
+		super();
+	}
+
 }

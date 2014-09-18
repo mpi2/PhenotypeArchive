@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 
 /**
  *
@@ -44,7 +44,7 @@ public class GenotypePhenotypeServiceTest extends AbstractTransactionalJUnit4Spr
     }
     
     @Autowired
-    private GenotypePhenotypeService pgService;
+    private PostQcService pgService;
 
     @Test
     public void testGetAllPhenotypes() throws SolrServerException {
