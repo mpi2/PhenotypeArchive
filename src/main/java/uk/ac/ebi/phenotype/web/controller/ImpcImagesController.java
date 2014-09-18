@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.ac.ebi.phenotype.service.ImageService;
@@ -29,7 +30,20 @@ public class ImpcImagesController {
 	ImageService imageService;
 
 
-	@RequestMapping("/impcImages*")
+	@RequestMapping("/impcImages/ContAndExp*")
+	public String imagesControlAndExperimental(
+	HttpServletRequest request, Model model)
+	throws SolrServerException, IOException, URISyntaxException {	
+		System.out.println("calling imagesContAndExp");
+		String solrQueryString = request.getQueryString();
+		System.out.println("solrQueryString="+solrQueryString);
+		String acc=request.getParameter("acc");
+		String procedureName=request.getParameter("procedure_name");
+		imageService.getImpcImages(acc, model, 5, 100, true);
+		return "impcImagesContAndExp";
+	}
+	
+	@RequestMapping("/impcImages/images*")
 	public String allImages(HttpServletRequest request, Model model)
 	throws SolrServerException, IOException, URISyntaxException {
 
@@ -41,6 +55,8 @@ public class ImpcImagesController {
 		this.sendQueryStringToSolr(request, model);
 		return "impcImages";
 	}
+	
+	
 
 
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
@@ -88,12 +104,12 @@ public class ImpcImagesController {
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
 		System.out.println("newQueryString="+newQueryString);
-		QueryResponse imageDTOWrapper = imageService.getResponseForSolrQuery(newQueryString);
+		QueryResponse imageResponse = imageService.getResponseForSolrQuery(newQueryString);
 		
 
-		if (imageDTOWrapper.getResults() != null) {
-			model.addAttribute("images", imageDTOWrapper.getResults());
-			Long totalNumberFound = imageDTOWrapper.getResults().getNumFound();
+		if (imageResponse.getResults() != null) {
+			model.addAttribute("images", imageResponse.getResults());
+			Long totalNumberFound = imageResponse.getResults().getNumFound();
 			// System.out.println("image count=" + numberFound);
 			model.addAttribute("imageCount", totalNumberFound);
 			model.addAttribute("q", newQueryString);

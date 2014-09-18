@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +13,10 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
@@ -164,5 +167,102 @@ public class ImageService {
 		
 		return response;
 	}
+	
+	/**
+	 * Get the first 5 images for impc experimental images if available
+	 * 
+	 * @param acc
+	 *            the gene to get the images for
+	 * @param model
+	 *            the model to add the images to
+	 * @throws SolrServerException
+	 */
+	public  void getImpcImages(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters)
+	throws SolrServerException {
+
+		QueryResponse solrR = this.getFacetsForGeneByProcedure(acc, "experimental");
+		if (solrR == null) {
+			log.error("no response from solr data source for acc=" + acc);
+			return;
+		}
+
+		List<FacetField> facets = solrR.getFacetFields();
+		if (facets == null) {
+			log.error("no facets from solr data source for acc=" + acc);
+			return;
+		}
+
+		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
+		List<Count> filteredCounts = new ArrayList<Count>();
+
+		for (FacetField facet : facets) {
+			if (facet.getValueCount() != 0) {
+
+				// get rid of wholemount expression/Adult LacZ facet as this is
+				// displayed seperately in the using the other method
+				// need to put the section in genes.jsp!!!
+				for (Count count : facets.get(0).getValues()) {
+					if (!count.getName().equals("Adult LacZ")) {
+						filteredCounts.add(count);
+					}
+				}
+
+				for (Count count : facet.getValues()) {
+					SolrDocumentList list = new SolrDocumentList();// list of
+																	// image
+																	// docs to
+																	// return to
+																	// the
+																	// procedure
+																	// section
+																	// of the
+																	// gene page
+					if (!count.getName().equals("Wholemount Expression")) {
+						QueryResponse responseExperimental = this.getImagesForGeneByProcedure(acc, count.getName(), null, "experimental", 1, null, null, null);
+						int controlCount = 0;
+						for (SexType sex : SexType.values()) {
+							if (!sex.equals(SexType.hermaphrodite)) {
+								// get 5 images if available for this experiment
+								// type
+
+								// need to add sex to experimental call
+								// get information from first experimetal image
+								// and
+								// get the parameters for this next call to get
+								// appropriate control images
+								if (responseExperimental.getResults().size() > 0) {
+									SolrDocument imgDoc = responseExperimental.getResults().get(0);
+									QueryResponse responseExperimental2 = this.getImagesForGeneByProcedure(acc, count.getName(),  (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, sex,(String)imgDoc.get(ObservationDTO.METADATA_GROUP), (String)imgDoc.get(ObservationDTO.STRAIN_NAME));
+									if (controlCount < 1) {
+										QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME),(String) imgDoc.get(ObservationDTO.PROCEDURE_NAME),  (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex);
+										if (responseControl != null && responseControl.getResults().size() > 0) {
+											log.info("adding control to list");
+											list.addAll(responseControl.getResults());
+											controlCount++;
+										} else {
+											log.error("no control images returned");
+										}
+									}
+									if (responseExperimental2 != null) {
+										list.addAll(responseExperimental2.getResults());
+									}
+								}
+
+								for(SolrDocument doc:list){
+									System.out.println("group="+doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
+								}
+								facetToDocs.put(count.getName(), list);
+							}
+						}
+					}
+				}
+			}
+
+			model.addAttribute("impcImageFacets", filteredCounts);
+			model.addAttribute("impcFacetToDocs", facetToDocs);
+		}
+
+	}
+
 
 }
