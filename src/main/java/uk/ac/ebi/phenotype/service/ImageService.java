@@ -163,6 +163,32 @@ public class ImageService {
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
+	
+	public QueryResponse getImagesForGeneByParameter(String mgiAccession, String parameterStableId,String experimentOrControl, int numberOfImagesToRetrieve, SexType sex, String metadataGroup, String strain)
+	throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl);
+		if (metadataGroup != null) {
+			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":" + metadataGroup);
+		}
+		if (strain != null) {
+			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
+		}
+		if (sex != null) {
+			solrQuery.addFilterQuery("sex:" + sex.name());
+		}
+		if (parameterStableId != null) {
+			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+		}
+
+		//solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
+		solrQuery.setRows(numberOfImagesToRetrieve);
+		QueryResponse response = solr.query(solrQuery);
+		return response;
+	}
+
 
 
 	public QueryResponse getControlImagesForProcedure(String metadataGroup, String center, String strain, String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex)
@@ -189,7 +215,7 @@ public class ImageService {
 	 *            the model to add the images to
 	 * @throws SolrServerException
 	 */
-	public void getImpcImages(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters)
+	public void getImpcImagesForGenePage(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters)
 	throws SolrServerException {
 
 		QueryResponse solrR = this.getProcedureFacetsForGeneByProcedure(acc, "experimental");
@@ -280,6 +306,7 @@ public class ImageService {
 	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, boolean getAllParameters)
 	throws SolrServerException {
 
+		model.addAttribute("acc",acc);//forward the gene id along to the new page for links
 		QueryResponse solrR = this.getParameterFacetsForGeneByProcedure(acc, procedureName, "experimental");
 		if (solrR == null) {
 			log.error("no response from solr data source for acc=" + acc);
@@ -315,8 +342,8 @@ public class ImageService {
 																	// section
 																	// of the
 																	// gene page
-					if (!count.getName().equals("Wholemount Expression")) {
-						QueryResponse responseExperimental = this.getImagesForGeneByProcedure(acc, count.getName(), null, "experimental", 1, null, null, null);
+					if (!count.getName().equals("Adult LacZ")) {
+						QueryResponse responseExperimental = this.getImagesForGeneByParameter(acc, count.getName(), "experimental", 1, null, null, null);
 						int controlCount = 0;
 						for (SexType sex : SexType.values()) {
 							if (!sex.equals(SexType.hermaphrodite)) {
@@ -330,7 +357,7 @@ public class ImageService {
 								// appropriate control images
 								if (responseExperimental.getResults().size() > 0) {
 									SolrDocument imgDoc = responseExperimental.getResults().get(0);
-									QueryResponse responseExperimental2 = this.getImagesForGeneByProcedure(acc, count.getName(), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, sex, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
+									QueryResponse responseExperimental2 = this.getImagesForGeneByParameter(acc, (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, sex, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
 									if (controlCount < 1) {
 										QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex);
 										if (responseControl != null && responseControl.getResults().size() > 0) {
@@ -359,7 +386,7 @@ public class ImageService {
 				model.addAttribute("impcFacetToDocs", facetToDocs);
 			}
 		}
-
+				
 	}
 
 
