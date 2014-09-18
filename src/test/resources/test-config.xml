@@ -18,7 +18,7 @@
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
     <bean id="executorService" class="java.util.concurrent.Executors"
-            factory-method="newFixedThreadPool">
+          factory-method="newFixedThreadPool">
         <constructor-arg value="20" />
     </bean>
 
@@ -31,31 +31,37 @@
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-              	<value>classpath:testConfig.properties</value>
+                <value>classpath:testConfig.properties</value>
                 <value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
 
             </list>
         </property>
     </bean>
     
-	<!-- phenodigm external solr server via HTTP -->
-	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${phenodigmSolrUrl}" />
-	</bean>
+     <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${internalSolrUrl}/experiment"/>
+        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+    
+    <!-- phenodigm external solr server via HTTP -->
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+        <constructor-arg index="0" value="${phenodigmSolrUrl}" />
+    </bean>
 
-	<!--this is the phenodigm DAO implementation we are looking for... -->
-	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
+    <!--this is the phenodigm DAO implementation we are looking for... -->
+    <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
     </bean>
 	
     <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
-            <constructor-arg value="${internalSolrUrl}/pipeline" />
+        <constructor-arg value="${internalSolrUrl}/pipeline" />
     </bean>
 
     <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-            <constructor-arg value="${internalSolrUrl}/experiment" />
+        <constructor-arg value="${internalSolrUrl}/experiment" />
     </bean>
 
     <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap"  />
@@ -80,27 +86,32 @@
     </bean>
 
     <bean id="statisticalResultDAO" class="uk.ac.ebi.phenotype.dao.StatisticalResultDAOImpl">
-            <constructor-arg ref="sessionFactory" />
+        <constructor-arg ref="sessionFactory" />
     </bean>
 	
     <bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
         <constructor-arg  value="${solrUrl}/gene" />
+    </bean>	
+    <bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
+        <constructor-arg value="${internalSolrUrl}/preqc" />
+        <constructor-arg ref="phenotypePipelineDAO" />
     </bean>
 	
-    <bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
-        <constructor-arg  value="${solrUrl}/genotype-phenotype" />
+    <bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
+        <constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
+        <constructor-arg ref="phenotypePipelineDAO" />
     </bean>
     
     <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
-		<constructor-arg  value="${solrUrl}/statistical-result" />
-	</bean>
+        <constructor-arg  value="${solrUrl}/statistical-result" />
+    </bean>
     
     <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
         <constructor-arg  value="${solrUrl}/mp" />
     </bean>
 
     <bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
-            <constructor-arg value="${internalSolrUrl}/disease" />
+        <constructor-arg value="${internalSolrUrl}/disease" />
     </bean>
                 
     <context:component-scan base-package="uk.ac.ebi" />
@@ -115,19 +126,19 @@
         <constructor-arg ref="sessionFactory" />
     </bean>
     
-   <!--  <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-    </bean>
- -->
+    <!--  <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
+                   <constructor-arg ref="sessionFactory" />
+       </bean>
+    -->
  
- <bean id="idg" class="uk.ac.ebi.phenotype.dao.SecondaryProjectIdgImpl">
-		<constructor-arg ref="sessionFactory" />
-		<!-- <constructor-arg ref="geneService" />
-		<constructor-arg ref="genomicFeatureDAO" />
-		<constructor-arg ref="genotypePhenotypeService"/>
-		<constructor-arg ref="phenotypePipelineDAO"/> -->
+    <bean id="idg" class="uk.ac.ebi.phenotype.dao.SecondaryProjectIdgImpl">
+        <constructor-arg ref="sessionFactory" />
+        <!-- <constructor-arg ref="geneService" />
+        <constructor-arg ref="genomicFeatureDAO" />
+        <constructor-arg ref="genotypePhenotypeService"/>
+        <constructor-arg ref="phenotypePipelineDAO"/> -->
 		
-	</bean>	
+    </bean>	
     <bean id="observationDAO" class="uk.ac.ebi.phenotype.dao.ObservationDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
@@ -285,7 +296,7 @@
 
     <!-- Creates a MySQL Datasource -->
     <bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
-              destroy-method="close">
+          destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
         <property name="url" value="${komp2url}" />
         <property name="username" value="${komp2username}" />

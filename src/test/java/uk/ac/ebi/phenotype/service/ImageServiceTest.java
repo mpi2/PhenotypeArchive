@@ -113,8 +113,29 @@ public class ImageServiceTest {
 		String gene = "MGI:1861899";
 
 		try {
-			imagesResponse = imageService.getFacetsForGeneByProcedure(gene, "experimental");
+			imagesResponse = imageService.getProcedureFacetsForGeneByProcedure(gene, "experimental");
 
+			for (FacetField facet : imagesResponse.getFacetFields()) {
+				System.out.println(facet.getValues());
+
+			}
+			assertTrue(imagesResponse.getFacetFields().size() > 0);
+			// assertTrue(imageDTOs.getList().size()>1);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testGetParameterFacetsForGeneByProcedure(){
+		QueryResponse imagesResponse;
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/query?q=gene_accession_id:%22MGI:2384986%22&fq=biological_sample_group:experimental&fq=procedure_name:X-ray&facet=true&facet.field=parameter_stable_id
+		String gene = "MGI:2384986";
+		String procedureName="X-ray";
+		String controlOrExperimental="experimental";
+		try {
+			imagesResponse = imageService.getParameterFacetsForGeneByProcedure(gene, procedureName, controlOrExperimental);
 			for (FacetField facet : imagesResponse.getFacetFields()) {
 				System.out.println(facet.getValues());
 

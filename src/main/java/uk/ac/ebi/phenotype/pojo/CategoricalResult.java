@@ -15,13 +15,8 @@
  */
 package uk.ac.ebi.phenotype.pojo;
 
+import javax.persistence.*;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
 
 /**
  * 
@@ -57,7 +52,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     private double pValue;
 
     @Column(name = "effect_size")
-    private Double effectSize;
+    private Double categoricalEffectSize;
 
     /**
      * @return the controlSex
@@ -152,16 +147,16 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     /**
      * @return the effectSize
      */
-    public Double getEffectSize() {
-        return effectSize;
+    public Double getCategoricalEffectSize() {
+        return categoricalEffectSize;
     }
 
     /**
      * @param effectSize
      *            the effectSize to set
      */
-    public void setEffectSize(double effectSize) {
-        this.effectSize = effectSize;
+    public void setCategoricalEffectSize(double effectSize) {
+        this.categoricalEffectSize = effectSize;
     }
 
     @Override
@@ -177,7 +172,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
         result = prime * result + ((experimentalZygosity == null) ? 0 : experimentalZygosity.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         long temp;
-        temp = Double.doubleToLongBits(effectSize);
+        temp = Double.doubleToLongBits(categoricalEffectSize);
         result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + ((organisation == null) ? 0 : organisation.hashCode());
         temp = Double.doubleToLongBits(pValue);
@@ -242,7 +237,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
         } else if (!id.equals(other.id)) {
             return false;
         }
-        if (Double.doubleToLongBits(effectSize) != Double.doubleToLongBits(other.effectSize)) {
+        if (Double.doubleToLongBits(categoricalEffectSize) != Double.doubleToLongBits(other.categoricalEffectSize)) {
             return false;
         }
         if (organisation == null) {
@@ -275,7 +270,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 
     @Override
     public String toString() {
-        return "CategoricalResult [controlSex=" + controlSex + ", experimentalSex=" + experimentalSex + ", experimentalZygosity=" + experimentalZygosity + ", categoryA=" + categoryA + ", categoryB=" + categoryB + ", pValue=" + pValue + ", effectSize=" + effectSize + "]";
+        return "CategoricalResult [controlSex=" + controlSex + ", experimentalSex=" + experimentalSex + ", experimentalZygosity=" + experimentalZygosity + ", categoryA=" + categoryA + ", categoryB=" + categoryB + ", pValue=" + pValue + ", effectSize=" + categoricalEffectSize + "]";
     }
 
     

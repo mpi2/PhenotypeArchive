@@ -36,7 +36,7 @@
                                  
 			<field column="doc_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/id" />
 			<field column="colony_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/colonyId" />
-			<field column="project_external_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/externalId" />
+			<field column="preqc_gid" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/externalId" />
 			<field column="sex" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/sex" />
 			<field column="zygosity" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/zygosity" />
 			<field column="resource_name" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/datasource" />
@@ -105,7 +105,8 @@
 				</entity>	
 				
 			</entity>	
-			
+
+			<!--  need to filter out p_value > 0.0001 -->			
 			<field column="p_value" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pValue" />
 			<field column="effect_size" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/effectSize" />
 			<field column="pipeline_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pipeline" />
