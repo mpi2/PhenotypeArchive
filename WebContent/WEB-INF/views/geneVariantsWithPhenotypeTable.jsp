@@ -65,12 +65,14 @@
 						${phenotype.dataSourceName}
 					</td>
 					
-                                        <td>${phenotype.prValueAsString}</td>
-                                        <td style="text-align:center">
-									<a href="${phenotype.graphUrl }"  class="fancybox">
-										<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
-                                                                        </a>						
-					</td>
+          <td>${phenotype.prValueAsString}</td>
+          
+          <td style="text-align:center">	
+          	<a href="${phenotype.graphUrl }"  class="fancybox">	<i class="fa fa-bar-chart-o" alt="Graphs" > </i> </a> 
+          	<c:if test="${phenotype.isPreQc()}">
+									<i class="fa fa-exclamation" title="This is a preliminary association based on pre QC data."></i>
+						</c:if>	
+          </td>
                                         
 					
 				</tr>

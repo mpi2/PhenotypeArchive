@@ -668,7 +668,9 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		mpEntity.setAccession(mpId);
 		phenotypeTerm.setId(mpEntity);
 		sum.setPhenotypeTerm(phenotypeTerm);
-
+		if (phen.containsKey(GenotypePhenotypeDTO.GID)){
+			sum.setgId(phen.getString(GenotypePhenotypeDTO.GID));
+		}
 		sum.setPreQC(preQc);
 		// check the top level categories
 		JSONArray topLevelMpTermNames; 
@@ -746,8 +748,6 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		// "procedure_stable_key":"41",
 		Parameter parameter = new Parameter();
 		if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
-			System.out.println("phen.getString " + phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
-			System.out.println("pipelineDAO==null " + (pipelineDAO==null));
 			parameter = pipelineDAO.getParameterByStableId(phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
 		} else {
 			System.err.println("parameter_stable_id missing");
@@ -783,7 +783,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		if (phen.containsKey(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
 			procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
 //TODO remove comment out	//		procedure.setStableKey(Integer.valueOf(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_KEY)));
-//TODO remove comment out			procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
+			procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
 			sum.setProcedure(procedure);
 		} else {
 			System.err.println("procedure_stable_id");

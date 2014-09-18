@@ -71,6 +71,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected Pipeline pipeline;
     protected Double pValue;
     protected boolean isPreQc;
+    protected String gid;
 
     public DataTableRow() { }
 
@@ -79,7 +80,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
         List<String> sex = new ArrayList<String>();
         sex.add(pcs.getSex().toString());
-
+        this.setGid(pcs.getgId());
         this.setPreQc(pcs.isPreQC());
         this.setGene(pcs.getGene());
         this.setAllele(pcs.getAllele());
@@ -113,6 +114,24 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     public abstract int compareTo(DataTableRow o);
 
            
+	/**
+	 * @return the gid
+	 */
+	public String getGid() {
+	
+		return gid;
+	}
+
+	
+	/**
+	 * @param gid the gid to set
+	 */
+	public void setGid(String gid) {
+	
+		this.gid = gid;
+	}
+
+
 	/**
 	 * @return the pValue
 	 */
@@ -178,20 +197,26 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     }
 
     public String buildGraphUrl(String baseUrl) {
-        String url = baseUrl;
+    	String url= baseUrl;
+    	if (!isPreQc){
+			url += "/charts?accession=" + gene.getId().getAccession();
+			url += "&zygosity=" + zygosity;
+			url += "&allele_accession=" + allele.getId().getAccession();
+			if (parameter != null) {
+				url += "&parameter_stable_id=" + parameter.getStableId();
+			}
 
-        url += "/charts?accession=" + gene.getId().getAccession() + "&zygosity=" + zygosity + "&allele_accession=" + allele.getId().getAccession();
-        if (parameter != null) {
-            url += "&parameter_stable_id=" + parameter.getStableId();
+			if (pipeline != null) {
+				url += "&pipeline_stable_id=" + pipeline.getStableId();
+			}
+			if (phenotypingCenter != null) {
+				url += "&phenotyping_center=" + phenotypingCenter;
+			}
+        } else {
+			url += "/phenoview/?gid=" + gid;
+			url += "&zygosity=" + zygosity;
+			url += "&qeid=" + phenotypeTerm.getId().getAccession();
         }
-
-        if (pipeline != null) {
-            url += "&pipeline_stable_id=" + pipeline.getStableId();
-        }
-        if (phenotypingCenter != null) {
-            url += "&phenotyping_center=" + phenotypingCenter;
-        }
-        
         return url;
     }
 
