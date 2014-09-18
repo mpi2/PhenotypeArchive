@@ -221,11 +221,15 @@ public class FileExportController {
      */
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     public String exportTableAsExcelTsv(
-            @RequestParam(value = "allele", required = false) String[] allele,
+    		/* ********************************************************************
+    		 *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
+    		 *  *******************************************************************/
             @RequestParam(value = "externalDbId", required = true) Integer extDbId,
-            @RequestParam(value = "rowStart", required = false) Integer rowStart,
             @RequestParam(value = "fileType", required = true) String fileType,
+            @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
             @RequestParam(value = "fileName", required = true) String fileName,
+            @RequestParam(value = "allele", required = false) String[] allele,
+            @RequestParam(value = "rowStart", required = false) Integer rowStart,
             @RequestParam(value = "panel", required = false) String panelName,
             @RequestParam(value = "mpId", required = false) String mpId,
             @RequestParam(value = "mpTerm", required = false) String mpTerm,
@@ -243,7 +247,6 @@ public class FileExportController {
             @RequestParam(value = "sex", required = false) String sex,
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
-            @RequestParam(value = "legacyOnly", required = true) boolean legacyOnly,
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -251,7 +254,7 @@ public class FileExportController {
     ) throws Exception {
 
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-    	
+    	System.out.println("------------\nEXPORT \n---------");
         log.debug("solr params: " + solrFilters);
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		

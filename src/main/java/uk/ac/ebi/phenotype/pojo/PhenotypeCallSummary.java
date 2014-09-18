@@ -138,8 +138,26 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	private List<OntologyTerm> topLevelPhenotypeTerms;
 	
 	protected boolean isPreQC;
-		
 	
+	protected String gId; // pre qc only, param needed for phenoview graph links
+	
+	
+	/**
+	 * @return the gId
+	 */
+	public String getgId() {
+	
+		return gId;
+	}
+
+	/**
+	 * @param gId the gId to set
+	 */
+	public void setgId(String gId) {
+	
+		this.gId = gId;
+	}
+
 	/**
 	 * @return the isPreQC
 	 */
@@ -147,7 +165,6 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	
 		return isPreQC;
 	}
-
 	
 	/**
 	 * @param isPreQC the isPreQC to set

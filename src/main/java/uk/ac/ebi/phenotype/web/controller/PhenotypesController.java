@@ -293,7 +293,7 @@ public class PhenotypesController {
         try {
             PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
-
+            phenotypeList.addAll(phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter).getPhenotypeCallSummaries());
             Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
             // sort facet values so that they will look nicer in the drop-down lists.
             phenoFacets = sortPhenFacets(phenoFacets);
