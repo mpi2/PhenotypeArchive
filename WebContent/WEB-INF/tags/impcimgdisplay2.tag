@@ -16,7 +16,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="img" required="true" type="java.util.Map"%>
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
 
-        
+        <li <c:if test="${img.biological_sample_group eq 'control'}">style="background-color:#eee;"</c:if>>
         <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/${img.omero_id}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
                                                 <div class="caption">
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
@@ -35,7 +35,7 @@ allele = allele.replaceAll("##", "</sup>");
                                                 <br>
                                                 </div> 
                                                 
-                                                
+         </li>                                  
                                           
                                         
 

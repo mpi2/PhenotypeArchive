@@ -379,9 +379,9 @@
                                                 <div class="accordion-body">
                                                     <ul>
                                                         <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
-                                                            <li>
+                                                            
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
-                                                                </li>
+                                                                
                                                         </c:forEach>
                                                     </ul>
                                                     <div class="clear"></div>

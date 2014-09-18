@@ -213,9 +213,10 @@ public class ImageService {
 	 *            the gene to get the images for
 	 * @param model
 	 *            the model to add the images to
+	 * @param controlsForBothSexes TODO
 	 * @throws SolrServerException
 	 */
-	public void getImpcImagesForGenePage(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters)
+	public void getImpcImagesForGenePage(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters, boolean controlsForBothSexes)
 	throws SolrServerException {
 
 		QueryResponse solrR = this.getProcedureFacetsForGeneByProcedure(acc, "experimental");
