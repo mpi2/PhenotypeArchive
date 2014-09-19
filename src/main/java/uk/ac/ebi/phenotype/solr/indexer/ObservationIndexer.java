@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.solr.loader;
+package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -33,9 +33,9 @@ import java.util.*;
  * Populate the experiment core
  */
 @Component
-public class ObservationCoreLoader {
+public class ObservationIndexer {
 
-	private static final Logger logger = LoggerFactory.getLogger(ObservationCoreLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
 	private static Connection connection;
 
 	@Autowired
@@ -54,12 +54,12 @@ public class ObservationCoreLoader {
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
 
-	public ObservationCoreLoader() {
+	public ObservationIndexer() {
 	}
 
 
-	public ObservationCoreLoader(Connection connection) {
-		ObservationCoreLoader.connection = connection;
+	public ObservationIndexer(Connection connection) {
+		ObservationIndexer.connection = connection;
 	}
 
 
@@ -76,7 +76,7 @@ public class ObservationCoreLoader {
 		logger.info("Using application context file {}", context);
 
 		// Wire up spring support for this application
-		ObservationCoreLoader main = new ObservationCoreLoader();
+		ObservationIndexer main = new ObservationIndexer();
 
 		ApplicationContext applicationContext;
 		try {
