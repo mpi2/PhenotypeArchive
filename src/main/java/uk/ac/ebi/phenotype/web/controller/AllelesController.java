@@ -335,11 +335,15 @@ public class AllelesController {
             String projectId) throws MalformedURLException, IOException, URISyntaxException {
 
         if (projectId == null) {
+            log.info("#### getMutagenesisDetails: no project id!");
             return null;
         }
 
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + projectId + "/detail";
 
+        log.info("#### getMutagenesisDetails: url: ");
+        log.info(url);
+        
         HttpProxy proxy = new HttpProxy();
         String content;
 
@@ -353,6 +357,8 @@ public class AllelesController {
         log.info("#### content: " + content);
 
         JSONArray json = (JSONArray) JSONSerializer.toJSON(content);
+
+        log.info("#### before: " + json);
 
         Map<String, String> mapper = new HashMap<>();
         mapper.put("UC", "UTR + start codon + CDS");
@@ -395,6 +401,9 @@ public class AllelesController {
                 }
             }
         }
+
+        log.info("#### after: " + json);
+
         return json;
     }
 
