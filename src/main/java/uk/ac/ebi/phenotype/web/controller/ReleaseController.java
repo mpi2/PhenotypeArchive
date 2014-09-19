@@ -22,12 +22,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.utils.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
+import uk.ac.ebi.phenotype.service.PostQcService;
 
 @Controller
 public class ReleaseController {
 
 	@Autowired
 	private AnalyticsDAO analyticsDAO;
+	
+	@Autowired
+	private PostQcService gpService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -178,6 +182,8 @@ public class ReleaseController {
 		
 		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
 		
+		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
+			gpService.getAggregateCountXYBean(gpService.getDistributionOfAnnotationsByMPTopLevel(null)), "title", "subTitle", "yAxisLegend", "yAxisUnit", "containerId");
 		
 		/**
 		 * Get all former releases: releases but the current one
@@ -198,6 +204,7 @@ public class ReleaseController {
 		model.addAttribute("trendsChart", trendsChart);
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
+		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
 		
 		return null;
 	}
