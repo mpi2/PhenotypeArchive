@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.solr.loader;
+package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AutosuggestCoreLoader {
+public class AutosuggestIndexer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AutosuggestCoreLoader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AutosuggestIndexer.class);
 
 	public static void main(String[] args) throws IOException, SolrServerException {
 

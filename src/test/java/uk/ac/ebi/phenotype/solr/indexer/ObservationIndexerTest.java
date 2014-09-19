@@ -1,6 +1,7 @@
-package uk.ac.ebi.phenotype.solr.loader;
+package uk.ac.ebi.phenotype.solr.indexer;
 
 import junit.framework.TestCase;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer;
+
 import javax.sql.DataSource;
+
 import java.sql.Connection;
 import java.util.Map;
 
@@ -22,9 +26,9 @@ import java.util.Map;
 @ContextConfiguration(locations = {"classpath:test-config.xml"})
 @TransactionConfiguration
 @Transactional
-public class ObservationCoreLoaderTest {
+public class ObservationIndexerTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(ObservationCoreLoaderTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ObservationIndexerTest.class);
 
 	@Autowired
 	private DataSource ds;
@@ -39,10 +43,10 @@ public class ObservationCoreLoaderTest {
 
 	@Test
 	public void testPopulateBiologicalDataMap() throws Exception {
-		ObservationCoreLoader e = new ObservationCoreLoader(connection);
+		ObservationIndexer e = new ObservationIndexer(connection);
 
 		e.populateBiologicalDataMap();
-		Map<String, ObservationCoreLoader.BiologicalDataBean> bioDataMap = e.getBiologicalData();
+		Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = e.getBiologicalData();
 		Assert.assertTrue(bioDataMap.size() > 1000);
 
 		logger.info("Size of biological data map {}", bioDataMap.size());
@@ -51,10 +55,10 @@ public class ObservationCoreLoaderTest {
 
 	@Test
 	public void testPopulateLineBiologicalDataMap() throws Exception {
-		ObservationCoreLoader e = new ObservationCoreLoader(connection);
+		ObservationIndexer e = new ObservationIndexer(connection);
 
 		e.populateLineBiologicalDataMap();
-		Map<String, ObservationCoreLoader.BiologicalDataBean> bioDataMap = e.getLineBiologicalData();
+		Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = e.getLineBiologicalData();
 		Assert.assertTrue(bioDataMap.size() > 50);
 
 		logger.info("Size of line level biological data map {}", bioDataMap.size());
@@ -64,10 +68,10 @@ public class ObservationCoreLoaderTest {
 
 	@Test
 	public void testImpressDataMaps() throws Exception {
-		ObservationCoreLoader e = new ObservationCoreLoader(connection);
+		ObservationIndexer e = new ObservationIndexer(connection);
 
 		e.populateImpressDataMap();
-		Map<Integer, ObservationCoreLoader.ImpressBean> bioDataMap;
+		Map<Integer, ObservationIndexer.ImpressBean> bioDataMap;
 
 		// Pipelines
 		bioDataMap = e.getPipelineMap();
@@ -88,10 +92,10 @@ public class ObservationCoreLoaderTest {
 
 	@Test
 	public void testDatasourceDataMaps() throws Exception {
-		ObservationCoreLoader e = new ObservationCoreLoader(connection);
+		ObservationIndexer e = new ObservationIndexer(connection);
 
 		e.populateDatasourceDataMap();
-		Map<Integer, ObservationCoreLoader.DatasourceBean> bioDataMap;
+		Map<Integer, ObservationIndexer.DatasourceBean> bioDataMap;
 
 		// Project
 		bioDataMap = e.getProjectMap();
@@ -107,7 +111,7 @@ public class ObservationCoreLoaderTest {
 
 	@Test
 	public void testpopulateCategoryNamesDataMap() throws Exception {
-		ObservationCoreLoader e = new ObservationCoreLoader(connection);
+		ObservationIndexer e = new ObservationIndexer(connection);
 
 		e.populateCategoryNamesDataMap();
 		Map<String, Map<String, String>> bioDataMap = e.getTranslateCategoryNames();
