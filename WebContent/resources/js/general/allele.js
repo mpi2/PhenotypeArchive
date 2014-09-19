@@ -35,7 +35,7 @@ jQuery(document).ready(	function() {
 	    }
 	});
         
-        var debug = false;
+        var debug = true;
         
         if(!debug) {
             
