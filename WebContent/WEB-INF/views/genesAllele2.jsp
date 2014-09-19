@@ -51,9 +51,13 @@
                                 <c:forEach var="order" items="${alleleProduct['orders']}" varStatus="orderx">
                                     <a class="btn btn-sm" href="${order['url']}"> <i class="fa fa-shopping-cart"></i>${order['name']}</a>&nbsp;
                                 </c:forEach>
+                                    
+                                    
+                                <c:if test="${alleleProduct['orders'].size() < 1}">
                                 <c:forEach var="contact" items="${alleleProduct['contacts']}" varStatus="contactx">
                                     <a class="btn btn-sm" href="${contact['url']}"> <i class="fa fa-envelope"></i>${contact['name']}</a>
                                 </c:forEach>
+                                </c:if>
 
                             </td>
                         </tr>
