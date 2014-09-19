@@ -63,8 +63,12 @@
 	</bean>
 
 
-
-<bean id="imageObservationDao" class="uk.ac.ebi.phenotype.solr.indexer.ImageObservationDao">
+	<bean id="imagesIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ImagesIndexer">
+		<property name="solrUrl" value="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr" />
+	</bean>
+	
+    
+	<bean id="imageObservationDao" class="uk.ac.ebi.phenotype.solr.indexer.ImageObservationDao">
 		<constructor-arg ref="komp2DataSource" />
 	</bean>
 	<!--this is the phenodigm DAO implementation we are looking for... -->

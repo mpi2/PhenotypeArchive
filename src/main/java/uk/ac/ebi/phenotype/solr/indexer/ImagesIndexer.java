@@ -47,11 +47,27 @@ public class ImagesIndexer {
 	@Autowired
 	ImageObservationDao imageObservationDao;
 	
+	private String solrUrl;
+	
+
+
+	
+	public String getSolrUrl() {
+	
+		return solrUrl;
+	}
+
+
+	
+	public void setSolrUrl(String solrUrl) {
+	
+		this.solrUrl = solrUrl;
+	}
 
 
 	public ImagesIndexer() {
-
 		super();
+		
 	}
 
 
@@ -164,16 +180,10 @@ public class ImagesIndexer {
 
 		}
 		// Wire up spring support for this application
-				ImagesIndexer main = new ImagesIndexer();
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-		// -solrUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr"
-		if (args.length < 1) {
-			System.err.println("you need to specify a -solrUrl=\"http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr\" solrUrl");
-		}
-		String solrUrl =(String) options.valueOf("solrUrl");
+		ImagesIndexer main = applicationContext.getBean(ImagesIndexer.class);
 		
 		try {
-			main.runSolrIndexImagesUpdate(solrUrl);
+			main.runSolrIndexImagesUpdate();
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,7 +196,7 @@ public class ImagesIndexer {
 
 
 
-	private void runSolrIndexImagesUpdate(String solrUrl)
+	private void runSolrIndexImagesUpdate()
 	throws SolrServerException, IOException {
 
 		List<uk.ac.ebi.phenotype.service.dto.ImageDTO> imageObservations = observationService.getAllImageDTOs();
