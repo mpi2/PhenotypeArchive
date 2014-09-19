@@ -9,18 +9,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.dbcp.BasicDataSource;
+
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 
 public class ImageObservationDao {
+	BasicDataSource basicDataSource;
+	Connection connection;
 
-	private String dbUrl;
-	private String user;
-	private String pass;
+	public ImageObservationDao(BasicDataSource basicDataSource) {
 
-	public ImageObservationDao(String dbUrl, String user, String pass) {
-		this.dbUrl = dbUrl;
-		this.user = user;
-		this.pass = pass;
+		this.basicDataSource=basicDataSource;
 	}
 
 	public List<ImageDTO> setExtraFields(List<ImageDTO> imageDTOsFromExperimentCore) {
@@ -44,25 +43,12 @@ public class ImageObservationDao {
 
 		return imageDTOsFromExperimentCore;
 	}
-
-	private Connection getConnection() {
-		try {
-			System.out.println("making import connection url=" + dbUrl
-					+ " user=" + user + " pass=" + pass);
-			Connection conn = DriverManager.getConnection(dbUrl, user, pass);
-			return conn;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
 	
 	public List<String> getNewImageDownloadPaths() {
 		List<String> downloadUrls = new ArrayList<String>();
 		String queryString = "SELECT DOWNLOAD_FILE_PATH FROM komp2.image_record_observation";
 		Statement stmt = null;
-		try (Connection conn = this.getConnection()) {
+		try (Connection conn = getConnection()) {
 			stmt = conn.createStatement();
 
 			boolean ok = false;
@@ -84,7 +70,7 @@ public class ImageObservationDao {
 		List<String> downloadUrls = new ArrayList<String>();
 		String queryString = "SELECT DOWNLOAD_FILE_PATH FROM komp2.image_record_observation";
 		Statement stmt = null;
-		try (Connection conn = this.getConnection()) {
+		try (Connection conn = getConnection()) {
 			stmt = conn.createStatement();
 
 			boolean ok = false;
@@ -102,5 +88,13 @@ public class ImageObservationDao {
 		return downloadUrls;
 	}
 
+	private Connection getConnection() throws SQLException{
+		if(connection!=null){
+			return connection;
+		}else{
+			this.connection= basicDataSource.getConnection();
+			return connection;
+		}
+	}
 
 }

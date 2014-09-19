@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
@@ -35,14 +37,22 @@ import uk.ac.ebi.phenotype.service.ObservationService;
  * @author jwarren
  * 
  */
+@Component
 public class ImagesIndexer {
 	private static final Logger logger = LoggerFactory.getLogger(ImagesIndexer.class);
-	private static Connection connection;
-	// private static final Logger LOG =
-	// LoggerFactory.getLogger(ImagesIndexer.class);
+	@Autowired
+	private BasicDataSource connection;
 	@Autowired
 	private ObservationService observationService;
+	@Autowired
+	ImageObservationDao imageObservationDao;
 	
+
+
+	public ImagesIndexer() {
+
+		super();
+	}
 
 
 	public String getKomp2User() {
@@ -137,8 +147,7 @@ public class ImagesIndexer {
 
 		logger.info("Using application context file {}", context);
 
-		// Wire up spring support for this application
-		ImagesIndexer main = new ImagesIndexer();
+		
 
 		ApplicationContext applicationContext;
 		try {
@@ -151,26 +160,17 @@ public class ImagesIndexer {
 			logger.debug("Failed to load file system context trying to use classpath application context!");
 
 			// Try context as a class path resource
-			applicationContext = new ClassPathXmlApplicationContext(context);
+			applicationContext = new FileSystemXmlApplicationContext(context);
 
 		}
+		// Wire up spring support for this application
+				ImagesIndexer main = new ImagesIndexer();
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-		logger.info("Process finished.  Exiting.");
 		// -solrUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr"
 		if (args.length < 1) {
 			System.err.println("you need to specify a -solrUrl=\"http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr\" solrUrl");
 		}
 		String solrUrl =(String) options.valueOf("solrUrl");
-		//ApplicationContext applicationContext = new ClassPathXmlApplicationContext("conf/jenkins/app-config.xml");
-		DataSource ds = ((DataSource) applicationContext.getBean("komp2DataSource"));
-		try {
-			connection = ds.getConnection();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		//ObservationService os = (ObservationService) applicationContext.getBean("observationService");
 		
 		try {
 			main.runSolrIndexImagesUpdate(solrUrl);
@@ -181,6 +181,7 @@ public class ImagesIndexer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		logger.info("Process finished.  Exiting.");
 	}
 
 
@@ -188,35 +189,9 @@ public class ImagesIndexer {
 	private void runSolrIndexImagesUpdate(String solrUrl)
 	throws SolrServerException, IOException {
 
-		String dbUrl = constructDbUrl(mysqlHost, mysqlPort, mysqlDbName);
-		
-		ImageObservationDao imageObservationDao = new ImageObservationDao(dbUrl, komp2User, komp2Pass);
-
 		List<uk.ac.ebi.phenotype.service.dto.ImageDTO> imageObservations = observationService.getAllImageDTOs();
 		System.out.println("image observations size=" + imageObservations.size());
 		imageObservations = imageObservationDao.setExtraFields(imageObservations);
-
-		// for (uk.ac.ebi.phenotype.service.dto.ImageDTO imageDTO :
-		// imageObservations) {
-		// System.out.println("observation=" + obs.getDownloadFilePath());
-		// ImageDTO imageDTO = new ImageDTO();
-		// imageDTO.setId(obs.getId());
-		// imageDTO.setObservationType(obs.getObservationType());
-		// // bean.setProjectName(obs.getProjectName());
-		// imageDTO.setPipelineName(obs.getPipelineName());
-		// imageDTO.setPipelineStableId(obs.getPipelineStableId());
-		// imageDTO.setProcedureStableId(obs.getProcedureStableId());
-		// imageDTO.setParameterStableId(obs.getParameterStableId());
-		//
-		// imageDTO.setAlleleAccession(obs.getAlleleAccession());
-		// imageDTO.setAlleleSymbol(obs.getAlleleSymbol());
-		// imageDTO.setDownloadFilePath(obs.getDownloadFilePath());
-		// imageDTO.setFullResolutionFilePath("fullresfilepathhere");
-
-		// imageIndexBeans.add(imageDTO);
-
-		// }
-
 		String solrQ = solrUrl + "/" + core;
 		HttpSolrServer server = new HttpSolrServer(solrQ);
 		System.out.println("images solr=" + solrQ);
@@ -236,10 +211,4 @@ public class ImagesIndexer {
 		System.out.println("end of impc_image indexing");
 	}
 
-
-	public static String constructDbUrl(String mysqlHost, Integer mysqlPort, String mysqlDbName) {
-
-		String komp2DbUrl = "jdbc:mysql://" + mysqlHost + ":" + Integer.toString(mysqlPort) + "/" + mysqlDbName;
-		return komp2DbUrl;
-	}
 }
