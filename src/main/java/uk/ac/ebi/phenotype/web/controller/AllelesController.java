@@ -47,7 +47,7 @@ public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
     // TODO: get rid!
-    private static final String VERSIONDATE = "Wed Sep 10 2014";
+    private static final String VERSIONDATE = "Mon Sep 22 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;
