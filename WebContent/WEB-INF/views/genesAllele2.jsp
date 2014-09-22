@@ -19,7 +19,14 @@
         <tbody>
                 <c:forEach var="alleleProduct" items="${alleleProducts2}" varStatus="status">
                         <tr>
-                            <td>${alleleProduct["product"]}</td>
+                            
+                                <c:if test="${not empty alleleProduct['product_url']}">
+                                    <td><a href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
+                                </c:if>
+                                <c:if test="${empty alleleProduct['product_url']}">
+                                    <td>${alleleProduct["product"]}</td>
+                                </c:if>
+                            
                             <td>${alleleProduct["allele_description"]}</td>
                             <td>${alleleProduct["genetic_background"]}</td>
                             <td>${alleleProduct["mgi_allele_name"]}</td>
