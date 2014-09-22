@@ -37,7 +37,6 @@ import uk.ac.ebi.phenotype.service.ObservationService;
  * @author jwarren
  * 
  */
-@Component
 public class ImagesIndexer {
 	private static final Logger logger = LoggerFactory.getLogger(ImagesIndexer.class);
 	@Autowired
