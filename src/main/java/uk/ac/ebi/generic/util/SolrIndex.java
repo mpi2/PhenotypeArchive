@@ -609,6 +609,17 @@ public class SolrIndex {
                 return constructs;
         }
         
+        private String getGeneAlleleUrlTest(String type, JSONObject jsonObject2) {
+            String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
+            String url = "";
+            if(mgi_accession_id != null && mgi_accession_id.length() > 0) {
+                url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?indent=on&version=2.2&q=" +
+                        "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:" + type +
+                        "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
+            }
+            log.info("#### getGeneAlleleUrlTest: url: " + url);
+            return url;
+        }
         
 	private Map<String, String> geneAlleleConstruct(JSONArray docs, int i) {
                 Map<String, String> construct = new HashMap<String, String>();
@@ -723,6 +734,7 @@ public class SolrIndex {
                         construct.put("mgi_accession_id", mgi_accession_id);
                         construct.put("markerSymbol", markerSymbol);
                         construct.put("product", product);
+                        construct.put("product_url", getGeneAlleleUrlTest(type, docs.getJSONObject(i)));
                         construct.put("alleleType", alleleType);
                         construct.put("type", type);
                         construct.put("strainOfOrigin", strainOfOrigin);
