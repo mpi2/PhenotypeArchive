@@ -341,10 +341,14 @@
                 <td>${mouse['genetic_background']}</td>
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
-                <td><a class="hasTooltip" href="${baseUrl}/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
+                <td>
+                    <a class="hasTooltip" href="${baseUrl}/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
                     <div class="hidden">
                         <div class="qcData" data-type="mouse" data-name="${mouse['colony_name']}" data-alleletype="${mouse['allele_type']}"></div>
                     </div>
+                    <c:if test="${not empty mouse['qc_about']}">
+                        (&nbsp;<a target="_blank" href="${mouse['qc_about']}">about</a>&nbsp;)
+                    </c:if>
                 </td>
                 <td>
 
@@ -438,10 +442,15 @@
 
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
-        <td><a class="hasTooltip" href="${baseUrl}/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
+        <td>
+            <a class="hasTooltip" href="${baseUrl}/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
             <div class="hidden">
-                <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>
+                <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>                    
             </div>
+            <c:if test="${not empty es_cell['qc_about']}">
+                (&nbsp;<a target="_blank" href="${es_cell['qc_about']}">about</a>&nbsp;)
+            </c:if>
+            
         </td>
 
         <td style="text-align: center;">${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
