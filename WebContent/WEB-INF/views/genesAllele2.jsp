@@ -7,7 +7,7 @@
 <table class="reduce nonwrap">
         <thead>
                 <tr>
-                        <th>Product (new)</th>
+                        <th>Product</th>
                         <th style="width:15%">Type</th>
                         <th>Strain of Origin</th>
                         <th>MGI Allele Name</th>
@@ -21,14 +21,14 @@
                         <tr>
                             
                                 <c:if test="${not empty alleleProduct['product_url']}">
-                                    <td><a href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
+                                    <td><a title="click to visit solr" href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
                                 </c:if>
                                 <c:if test="${empty alleleProduct['product_url']}">
                                     <td>${alleleProduct["product"]}</td>
                                 </c:if>
                             
                             <td>${alleleProduct["allele_description"]}</td>
-                            <td>${alleleProduct["genetic_background"]}</td>
+                            <td style="text-align:center">${alleleProduct["genetic_background"]}</td>
                             <td>${alleleProduct["mgi_allele_name"]}</td>
                             <td>
                                 <c:if test="${not empty alleleProduct['allele_image']}">
@@ -60,7 +60,7 @@
                                 </c:forEach>
                                     
                                     
-                                <c:if test="${alleleProduct['orders'].size() < 1}">
+                                <c:if test="${empty alleleProduct['orders']}">
                                 <c:forEach var="contact" items="${alleleProduct['contacts']}" varStatus="contactx">
                                     <a class="btn btn-sm" href="${contact['url']}"> <i class="fa fa-envelope"></i>${contact['name']}</a>
                                 </c:forEach>
