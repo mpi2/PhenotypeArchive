@@ -533,7 +533,7 @@
                             </c:if>
 
                             <div class="section" id="order">
-                                <h2 class="title documentation">Order Mouse and ES Cells  
+                                <h2 class="title documentation">Order Mouse and ES Cells (allele core)
                                     <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
                                 </h2>
                                 <div class="inner">
@@ -542,7 +542,7 @@
                             </div>
                                 
                             <div class="section" id="order2">
-                                <h2 class="title documentation">Order Mouse and ES Cells (new) 
+                                <h2 class="title documentation">Order Mouse and ES Cells (product core) 
                                     <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
                                 </h2>
                                 <div class="inner">
