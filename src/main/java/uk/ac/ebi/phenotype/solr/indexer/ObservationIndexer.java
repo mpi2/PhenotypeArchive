@@ -36,7 +36,7 @@ import java.util.*;
 /**
  * Populate the experiment core
  */
-@Component
+
 public class ObservationIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
