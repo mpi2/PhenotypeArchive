@@ -91,9 +91,21 @@
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 
+    <!-- Dependencies for observationService -->
+    <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
+        <constructor-arg ref="sessionFactory" />
+    </bean>
+
+    <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
+        <constructor-arg value="${internalSolrUrl}/experiment" />
+    </bean>
+
+    <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
 
 
-	<!-- Spring annotated objects -->
+
+
+    <!-- Spring annotated objects -->
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="dataSource" ref="komp2DataSource" />
