@@ -27,6 +27,7 @@
             <list>
                 <value>classpath:appConfig.properties</value>
                 <value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
+                <value>file:${user.home}/configfiles/appConfig.properties</value>
 
             </list>
         </property>
@@ -55,6 +56,12 @@
         <property name="username" value="${komp2username}" />
         <property name="password" value="${komp2password}" />
     </bean>
+    <bean id="ontodbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="${ontodburl}" />
+        <property name="username" value="${ontodbusername}" />
+        <property name="password" value="${ontodbpassword}" />
+    </bean>
     
 	<!-- phenodigm external solr server via HTTP -->
 	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
@@ -62,6 +69,29 @@
         <property name="soTimeout" value="5000" />
 	</bean>
 
+
+
+
+	<!--  Beans for writing to the solr servers -->
+    <bean id="preqcIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc"/>
+        <constructor-arg index="1" value="10000"/> <!--Queue size-->
+        <constructor-arg index="2" value="3"/> <!--Num threads-->
+    </bean>
+
+    <!-- used for concurrently loading the solr server -->
+    <bean id="observationIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/experiment"/>
+        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+
+	<bean id="imageIndexing" class="uk.ac.ebi.phenotype.service.ImageService">
+		<constructor-arg value="${buildIndexesSolrUrl}/impc_images" />
+	</bean>
+	
+	
+	
 	<!--this is the phenodigm DAO implementation we are looking for... -->
 	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
@@ -86,19 +116,14 @@
 		<constructor-arg ref="phenotypePipelineDAO" />
 	</bean>
 
-    <!-- used for concurrently loading the solr server -->
-    <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${internalSolrUrl}/experiment"/>
-        <constructor-arg index="1" value="100000"/> <!--Queue size-->
-        <constructor-arg index="2" value="5"/> <!--Num threads-->
-    </bean>
+	<bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
+		<constructor-arg value="${internalSolrUrl}/impc_images" />
+	</bean>
+
+
 
 	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
 		<constructor-arg value="${internalSolrUrl}/pipeline" />
-	</bean>
-
-	<bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
-		<constructor-arg value="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images" />
 	</bean>
 
 	<bean id="alleleService" class="uk.ac.ebi.phenotype.service.AlleleService">
@@ -250,6 +275,7 @@
 				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
+				<entry key="preqcXmlFilename" value="/Users/ckc/Downloads/PhenotypeCallSummary.xml" />
 			</map>
 		</property>
 	</bean>
