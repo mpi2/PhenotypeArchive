@@ -577,8 +577,6 @@ public class PreqcIndexer {
 					int childNodeId = Integer.parseInt(nodeIdsStr[i]);
 					List<MpTermDTO> top = getTopMpTerms(mpId);
 
-					System.out.println(mpId + " - child_node_id: " + childNodeId);
-					
 					// top level mp do not have intermediate mp
 					if (mpNodeId2IntermediateNodeIdsMapping.get(childNodeId) != null){
 						String[] intermediateNodeIdsStr = mpNodeId2IntermediateNodeIdsMapping.get(childNodeId).split(",");
