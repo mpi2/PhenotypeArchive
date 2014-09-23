@@ -125,7 +125,7 @@
 				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
-				<entry key="preqcXmlFilename" value="/Users/ckc/Downloads/PhenotypeCallSummary.xml" />
+				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
 			</map>
 		</property>
 	</bean>
