@@ -54,7 +54,6 @@ public class AutosuggestIndexer {
 
 		for (Map.Entry<String, String[]> entry : coreFields.entrySet()) {
 			String core = entry.getKey().toString();
-
 			HttpSolrServer srcServer = new HttpSolrServer(solrUrl + "/" + core);
 			if ( core.equals("hp") ){
 				// phenodigm hp_mp mapping
