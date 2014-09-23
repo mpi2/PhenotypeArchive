@@ -22,10 +22,9 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
@@ -61,6 +60,47 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	protected Boolean isPreQc;
 
 
+	
+	/**
+	 * @param zygosity - optional (pass null if not needed)
+	 * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
+	 * @author tudose
+	 */
+	public Map <String, Long> getDistributionOfAnnotationsByMPTopLevel(ZygosityType zygosity){
+		
+		SolrQuery query = new SolrQuery();
+		
+		if (zygosity != null){
+			query.setQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
+		}
+		else {
+			query.setQuery("*:*");
+		}
+				
+		query.setFacet(true);
+		query.setFacetLimit(-1);
+		query.setRows(0);
+		query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+		
+		try {
+			QueryResponse response = solr.query(query);
+			return getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	public List<AggregateCountXYBean> getAggregateCountXYBean(Map <String, Long> map ){
+		List<AggregateCountXYBean> res = new ArrayList<>();
+		for (String key : map.keySet()){
+			AggregateCountXYBean bean = new AggregateCountXYBean( 10, key, key, "xAttribute", map.get(key).toString(), map.get(key).toString(), "yAttribute");
+			res.add(bean);
+		}
+		return res;
+	}
+	
 	/**
 	 * Returns a list of a all colonies
 	 * 
@@ -230,7 +270,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		solrQuery.setFields(GenotypePhenotypeDTO.MP_TERM_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-		HashSet<String> allPhenotypes = new HashSet();
+		HashSet<String> allPhenotypes = new HashSet<String>();
 		for (SolrDocument doc : res) {
 			allPhenotypes.add((String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID));
 		}
@@ -254,7 +294,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		solrQuery.setFields(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-		HashSet<String> allTopLevelPhenotypes = new HashSet();
+		HashSet<String> allTopLevelPhenotypes = new HashSet<String>();
 		for (SolrDocument doc : res) {
 			ArrayList<String> ids = (ArrayList<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
 			for (String id : ids) {
@@ -281,7 +321,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		solrQuery.setFields(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-		HashSet<String> allIntermediateLevelPhenotypes = new HashSet();
+		HashSet<String> allIntermediateLevelPhenotypes = new HashSet<String>();
 		for (SolrDocument doc : res) {
 			ArrayList<String> ids = (ArrayList<String>) doc.getFieldValue(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
 			for (String id : ids) {
@@ -372,11 +412,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 					for (int k = 0; k < len; k++) {
 						tl.put(tlTermIDs.get(k), tlTermNames.get(k));
 					}
-					// tl.put((String)
-					// doc.getFieldValue("top_level_mp_term_id"), (String)
-					// doc.getFieldValue("top_level_mp_term_name"));
-				} else { // it seems that when the term id is a top level term
-							// itself the top level term field
+				} else {// it seems that when the term id is a top level term
+						// itself the top level term field
 					tl.put((String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID), (String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_NAME));
 				}
 			}
@@ -826,7 +863,6 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 			} else {
 				// if no doc found for the gene then no data available
 				cell.setStatus("No Data Available");
-				// System.err.println("!!!!!!!!!!!!!!NO top level found for gene");
 			}
 			xAxisToCellMap.put(xAxisBean.getId(), cell);
 		}

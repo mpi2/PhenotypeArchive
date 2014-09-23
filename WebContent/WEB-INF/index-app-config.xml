@@ -70,8 +70,6 @@
 	</bean>
 
 
-
-
 	<!--  Beans for writing to the solr servers -->
     <bean id="preqcIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc"/>
@@ -92,6 +90,7 @@
 	
 	
 	
+
 	<!--this is the phenodigm DAO implementation we are looking for... -->
 	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 

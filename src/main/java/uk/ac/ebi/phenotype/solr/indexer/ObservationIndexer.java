@@ -2,11 +2,13 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -15,10 +17,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -39,6 +43,7 @@ public class ObservationIndexer {
 	private static Connection connection;
 
 	@Autowired
+	@Qualifier("observationIndexing")
 	ConcurrentUpdateSolrServer observationSolrServer;
 
 	Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
