@@ -20,22 +20,41 @@
                 <c:forEach var="alleleProduct" items="${alleleProducts2}" varStatus="status">
                         <tr>
                             
-                                <c:if test="${not empty alleleProduct['product_url']}">
+                            <c:choose>
+                                <c:when test="${not empty alleleProduct['product_url']}">
                                     <td><a title="click to visit solr" href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
-                                </c:if>
-                                <c:if test="${empty alleleProduct['product_url']}">
+                                </c:when>
+                                <c:otherwise>
                                     <td>${alleleProduct["product"]}</td>
-                                </c:if>
+                                </c:otherwise>
+                            </c:choose>
+
+                                                                        
+                                    
                             
+                                    
+                                    
+                                    
+                                    
                             <td>${alleleProduct["allele_description"]}</td>
-                            <td style="text-align:center">${alleleProduct["genetic_background"]}</td>
+                            
+                            <c:choose>
+                                <c:when test="${empty alleleProduct['genetic_background']}">
+                                    <td style="text-align:center">&horbar;</td>
+                                </c:when>
+                                <c:otherwise>
+                                    <td>${alleleProduct["genetic_background"]}</td>
+                                </c:otherwise>
+                            </c:choose>
+                            
+                            
                             <td>${alleleProduct["mgi_allele_name"]}</td>
                             <td>
                                 <c:if test="${not empty alleleProduct['allele_image']}">
                                         <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['allele_image']}?simple=true.jpg">
                                                 <i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
                                 </c:if>
-
+                                
                                 <c:if test="${not empty alleleProduct['genbank_file']}">
                                         <div style="padding:3px;"><a href="${alleleProduct['genbank_file']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                 </c:if>
