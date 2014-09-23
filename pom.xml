@@ -1203,6 +1203,14 @@
 						</includes>
 						<filtering>true</filtering>
 					</resource>
+                    <resource>
+                        <directory>${basedir}/WebContent/WEB-INF</directory>
+                        <filtering>true</filtering>
+                        <targetPath>src/main/resources</targetPath>
+                        <includes>
+                            <include>**/index-app-config.xml</include>
+                        </includes>
+                    </resource>
 				</resources>
 				<pluginManagement>
 					<plugins>
