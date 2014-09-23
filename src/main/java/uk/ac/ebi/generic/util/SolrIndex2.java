@@ -297,12 +297,6 @@ public class SolrIndex2 {
         return map2;
     }
 
-//    private String stripMGIAccessionId(String mgi_allele_name) {
-//        String stripped = mgi_allele_name.replaceAll(".+?\\<sup\\>", "");
-//        stripped = stripped.replaceAll("\\<\\/sup\\>", "");
-//        return stripped;
-//    }
-
     private Map<String, Object> getGeneProductInfoMice2(JSONObject jsonObject2) throws IOException, URISyntaxException {
         String type = jsonObject2.getString("type");
 
@@ -311,23 +305,10 @@ public class SolrIndex2 {
         }
 
         HashMap<String, Object> map2 = new HashMap<>();
+        map2.put("product_url", getGeneProductUrlTest("mouse", jsonObject2));
 
         map2.put("type", type);
         map2.put("product", "Mouse");
-        String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
-        if(mgi_accession_id != null && mgi_accession_id.length() > 0) {
-            String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q=" +
-                    //"mgi_accession_id%3A" + '"' + mgi_accession_id + '"' + " type%3Amouse" +
-                    //"mgi_accession_id%3A" + mgi_accession_id.toString() + " type%3Amouse" +
-                    //"mgi_accession_id:\"" + mgi_accession_id.toString() + "\" type:mouse" +
-                    "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:mouse" +
-                    "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
-            map2.put("product_url", url);
-            log.info("#### getGeneProductInfoMice2: url: " + url);
-        }
-        
-        log.info("#### getGeneProductInfoMice2: mgi_accession_id: " + mgi_accession_id);
-        
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
         map2.put("contacts", getGeneProductInfoOrderContactInfo("contact", jsonObject2));
 
@@ -476,14 +457,7 @@ public class SolrIndex2 {
         }
 
         HashMap<String, Object> map2 = new HashMap<>();
-        String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
-        if(mgi_accession_id != null && mgi_accession_id.length() > 0) {
-            String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q=" +
-                    "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:es_cell" +
-                    "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
-            map2.put("product_url", url);
-            log.info("#### getGeneProductInfoEsCells2: url: " + url);
-        }
+        map2.put("product_url", getGeneProductUrlTest("es_cell", jsonObject2));
         
         map2.put("type", type);
         map2.put("product", "ES Cell");
@@ -611,20 +585,25 @@ public class SolrIndex2 {
         return marker_symbol + "<sup>tm1" + allele_type + "(" + cassette + ")</sup>";
     }
 
+    private String getGeneProductUrlTest(String type, JSONObject jsonObject2) {
+        String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
+        String url = "";
+        if(mgi_accession_id != null && mgi_accession_id.length() > 0) {
+            url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q=" +
+                    "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:" + type +
+                    "&fq=&start=0&rows=100&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
+        }
+        log.info("#### getGeneProductUrlTest: url: " + url);
+        return url;
+    }
+    
     private Map<String, Object> getGeneProductInfoTargetingVectors2(JSONObject jsonObject2) throws IOException, URISyntaxException {
         if (!jsonObject2.getString("type").equals("targeting_vector")) {
             return null;
         }
 
         HashMap<String, Object> map2 = new HashMap<>();
-        String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
-        if(mgi_accession_id != null && mgi_accession_id.length() > 0) {
-            String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q=" +
-                    "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:targeting_vector" +
-                    "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
-            map2.put("product_url", url);
-            log.info("#### getGeneProductInfoTargetingVectors2: url: " + url);
-        }
+        map2.put("product_url", getGeneProductUrlTest("targeting_vector", jsonObject2));
         
         map2.put("type", jsonObject2.getString("type"));
         map2.put("product", "Targeting Vector");
@@ -646,28 +625,14 @@ public class SolrIndex2 {
         }
 
         map2.put("mgi_accession_id", jsonObject2.getString("mgi_accession_id"));
-
         map2.put("name", jsonObject2.getString("name"));
-        map2.put("marker_symbol", jsonObject2.getString("marker_symbol"));
+        map2.put("marker_symbol", jsonObject2.getString("marker_symbol"));        
         
-        
-        
-        
-        
-        // Targeting vectors allele name: {MARKER SYMBOL}<sup>tm1{ALLELE TYPE}({CASSETTE NAME})<sup> e.g)Cbx1<sup>tm1a(bacL1L2)<sup>
-
         map2.put("allele_name", jsonObject2.getString("allele_name"));
         
         map2.put("allele_type", jsonObject2.getString("allele_type"));
         
-        map2.put("mgi_allele_name", getTargetingVectorAlleleName(jsonObject2));
-        
-        
-        
-        
-        
-
-      //  map2.put("mgi_allele_name", getTitle(jsonObject2.getString("marker_symbol"), jsonObject2.getString("allele_name")));
+        map2.put("mgi_allele_name", getTargetingVectorAlleleName(jsonObject2));    
 
         map2.put("allele_description", "Unknown");
         if(jsonObject2.has("allele_type")) {
@@ -695,6 +660,8 @@ public class SolrIndex2 {
         if (jsonObject2.has("ikmc_project_id")) {
             map2.put("ikmc_project_id", jsonObject2.getString("ikmc_project_id"));
         }
+
+        map2.put("genetic_background", "&horbar;");
 
         return map2;
     }
@@ -1122,18 +1089,24 @@ public class SolrIndex2 {
     private List<Map<String, Object>> filterGeneProductInfo2Mice(List<Map<String, Object>> list) {
         //return filterGeneProductInfo2Generic(list);
         list = filterGeneProductInfo2GenericNew2("allele_name", list);
+//        list = filterGeneProductInfo2GenericNew3(new ArrayList<String>() {{
+//                    add("genetic_background");
+//                    add("allele_name");
+//                }}, list);
         return filterGeneProductInfoAE(list);
     }
     private List<Map<String, Object>> filterGeneProductInfo2EsCells(List<Map<String, Object>> list) {
         //return filterGeneProductInfo2Generic(list);
         // Es Cell: compress into one row per allele type. Display all the different order links.
-        list = filterGeneProductInfo2GenericNew2("allele_type", list);
+        //list = filterGeneProductInfo2GenericNew2("allele_type", list);
+        list = filterGeneProductInfo2GenericNew2("allele_name", list);
         return filterGeneProductInfoAE(list);
         //return list;
     }
     private List<Map<String, Object>> filterGeneProductInfo2TargetingVectors(List<Map<String, Object>> list) {
         //return filterGeneProductInfo2Generic(list);
-        list = filterGeneProductInfo2GenericNew2("allele_name", list);
+        //list = filterGeneProductInfo2GenericNew2("allele_name", list);
+        list = filterGeneProductInfo2GenericNew2("mgi_allele_name", list);
         return filterGeneProductInfoAE(list);
        // return list;
     }
@@ -1197,11 +1170,11 @@ public class SolrIndex2 {
         }
     }
 
-    class CassetteAlleleTypeManager {
+    class CassetteAlleleTypeManagerOld {
         private final Map<String, Set<Map<String, String>>> _map;
         private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
-        public CassetteAlleleTypeManager() {
+        public CassetteAlleleTypeManagerOld() {
             _map = new HashMap<>();
         }
 
@@ -1235,6 +1208,70 @@ public class SolrIndex2 {
         }
     }
 
+    class CassetteAlleleTypeManager {
+        private final Map<String, Boolean> _map;
+        //private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+
+        public CassetteAlleleTypeManager() {
+            _map = new HashMap<>();
+        }
+
+        public void put(Map<String, Object> es_cell) {
+            String allele_name = (String)es_cell.get("allele_name");
+            String cassette = (String)es_cell.get("cassette");
+            String allele_type = (String)es_cell.get("allele_type");
+                        
+            _map.put(allele_name + cassette + allele_type, true);
+        }
+        public boolean has(Map<String, Object> es_cell) {
+            String allele_name = (String)es_cell.get("allele_name");
+            String cassette = (String)es_cell.get("cassette");
+            String allele_type = (String)es_cell.get("allele_type");                        
+            return _map.containsKey(allele_name + cassette + allele_type);
+        }
+    }
+
+//    private List<Map<String, Object>> filterGeneProductInfo2GenericNew3(List<String> targets, List<Map<String, Object>> list) {
+//        Map<String, Map<String, Object>> map = new HashMap<>();
+//        OrderContactManager order_mgr = new OrderContactManager();
+//        OrderContactManager contact_mgr = new OrderContactManager();
+//
+//        for(Map<String, Object> item : list) {
+//            String targets_all = "";
+//            for(String ts : targets) {
+//                targets_all += (String)item.get(ts);
+//            }
+//
+//            if(!map.containsKey(targets_all)) {
+//                map.put(targets_all, item);
+//            }
+//
+//            if(item.containsKey("orders")) {
+//                List<Map<String, Object>> orders = (List<Map<String, Object>>)item.get("orders");
+//                order_mgr.put(targets_all, orders);
+//            }
+//            if(item.containsKey("contacts")) {
+//                List<Map<String, Object>> contacts = (List<Map<String, Object>>)item.get("contacts");
+//                contact_mgr.put(targets_all, contacts);
+//            }
+//        }
+//
+//        List<Map<String, Object>> remainders = new ArrayList<>();
+//
+//        for(String key : map.keySet()) {
+//            Map<String, Object> z = map.get(key);
+//            if(order_mgr.getArray(key) != null) {
+//                z.put("orders", order_mgr.getArray(key));
+//            }
+//            if(contact_mgr.getArray(key) != null) {
+//                z.put("contacts", contact_mgr.getArray(key));
+//            }
+//            remainders.add(z);
+//        }
+//
+//        return remainders;
+//    }
+    
     private List<Map<String, Object>> filterGeneProductInfo2GenericNew2(String target, List<Map<String, Object>> list) {
         Map<String, Map<String, Object>> map = new HashMap<>();
         OrderContactManager order_mgr = new OrderContactManager();
@@ -1274,43 +1311,6 @@ public class SolrIndex2 {
         return remainders;
     }
 
-//    private List<Map<String, Object>> filterGeneProductInfo2GenericNew(List<Map<String, Object>> list) {
-//        Map<String, Map<String, Object>> map = new HashMap<>();
-//        //Map<String, Set<Map<String, String>>> order_map = new HashMap<>();
-//        Map<String, Set<String>> order_map = new HashMap<>();
-//      //  Map<String, Set<Map<String, String>>> contact_map = new HashMap<>();
-//
-//        for(Map<String, Object> item : list) {
-//            String allele_name = (String)item.get("allele_name");
-//
-//            if(!map.containsKey(allele_name)) {
-//                map.put(allele_name, item);
-//                Set<String> s = new HashSet<>();
-//              //  Map<String, String> m = new HashMap<>();
-//                order_map.put(allele_name, s);
-//            }
-//
-//            List<Map<String, Object>> orders = (List<Map<String, Object>>)item.get("orders");
-//
-//            for(Map<String, Object> order : orders) {
-//                Set<String> om = order_map.get(allele_name);
-////                Map<String, String> m = new HashMap<>();
-////                m.put("name", (String)order.get("name"));
-////                m.put("url", (String)order.get("url"));
-//                om.add((String)order.get("name") + "@@" + (String)order.get("url"));
-//            }
-//        }
-//
-//        List<Map<String, Object>> remainders = new ArrayList<>();
-//
-//        for(String key : map.keySet()) {
-//            remainders.add(map.get(key));
-//        }
-//
-//        return remainders;
-//    }
-
-
     //The following logic should be maintained
     //
     //1. Mice appear at the top followed by es_cells and then targeting vectors.
@@ -1320,7 +1320,6 @@ public class SolrIndex2 {
     //
     //The following logic should be added
     //1. Compress the mouse records for the same allele_name into one row. And display all the different order links across the different mouse records.
-    // Esyt3?
     //2. Add a new record for all structurally different targeting vectors.
 
      private List<Map<String, Object>> filterGeneProductInfo2ListNew2(List<Map<String, Object>> mice,
@@ -1330,7 +1329,7 @@ public class SolrIndex2 {
         List<Map<String, Object>> array = new ArrayList<>();
 
         Map<String, Boolean> mice_allele_names = new HashMap<>();
-        Map<String, Boolean> es_cell_allele_names = new HashMap<>();
+      //  Map<String, Boolean> es_cell_allele_names = new HashMap<>();
         CassetteAlleleTypeManager cat_mgr = new CassetteAlleleTypeManager();
 
         Map<String, Boolean> targeting_vector_names = new HashMap<>();
@@ -1343,13 +1342,26 @@ public class SolrIndex2 {
         }
 
         log.info("#### filterGeneProductInfo2ListNew: mice_allele_names: " + mice_allele_names);
+        
+        boolean nnew = true;
 
+        if(nnew) {
+            for(Map<String, Object> es_cell : es_cells) {
+                //cat_mgr.put((String)es_cell.get("allele_name"), (String)es_cell.get("cassette"), (String)es_cell.get("allele_type"));
+                cat_mgr.put(es_cell);
+            }
+        }
+        
         es_cells = filterGeneProductInfo2EsCells(es_cells);
 
         for(Map<String, Object> es_cell : es_cells) {
-            es_cell_allele_names.put((String)es_cell.get("allele_name"), true);
-            cat_mgr.put((String)es_cell.get("allele_name"), (String)es_cell.get("cassette"), (String)es_cell.get("allele_type"));
-            
+          //  es_cell_allele_names.put((String)es_cell.get("allele_name"), true);
+        
+            if(!nnew) {
+                //cat_mgr.put((String)es_cell.get("allele_name"), (String)es_cell.get("cassette"), (String)es_cell.get("allele_type"));
+                cat_mgr.put(es_cell);
+            }
+        
             //Es Cell: compress into one row per allele type. Display all the different order links.
             if(!mice_allele_names.containsKey((String)es_cell.get("allele_name"))) {
                 array.add(es_cell);
@@ -1357,13 +1369,13 @@ public class SolrIndex2 {
             targeting_vector_names.put((String)es_cell.get("targeting_vector"), true);
         }
 
-        log.info("#### filterGeneProductInfo2ListNew: es_cell_allele_names: " + es_cell_allele_names);
+      //  log.info("#### filterGeneProductInfo2ListNew: es_cell_allele_names: " + es_cell_allele_names);
 
         targeting_vectors = filterGeneProductInfo2TargetingVectors(targeting_vectors);
 
         for(Map<String, Object> targeting_vector : targeting_vectors) {
-            if(!cat_mgr.has((String)targeting_vector.get("allele_name"), (String)targeting_vector.get("cassette"), (String)targeting_vector.get("allele_type"))
-                    && !targeting_vector_names.containsKey((String)targeting_vector.get("name"))) {
+            //if(!cat_mgr.has((String)targeting_vector.get("allele_name"), (String)targeting_vector.get("cassette"), (String)targeting_vector.get("allele_type"))
+            if( ! cat_mgr.has(targeting_vector) && ! targeting_vector_names.containsKey((String)targeting_vector.get("name")) ) {
                 array.add(targeting_vector);
             }
         }
@@ -1373,64 +1385,14 @@ public class SolrIndex2 {
         return array;
     }
 
-//    private List<Map<String, Object>> filterGeneProductInfo2ListNewOld(List<Map<String, Object>> mice,
-//        List<Map<String, Object>> es_cells,
-//        List<Map<String, Object>> targeting_vectors) throws IOException, URISyntaxException, Exception {
-//
-//        List<Map<String, Object>> array = new ArrayList<>();
-//
-//        Map<String, Boolean> mice_allele_names = new HashMap<>();
-//        Map<String, Boolean> es_cell_allele_names = new HashMap<>();
-//        Map<String, Boolean> targeting_vector_names = new HashMap<>();
-//
-//        mice = filterGeneProductInfo2Mice(mice);
-//
-//        for(Map<String, Object> mouse : mice) {
-//            mice_allele_names.put((String)mouse.get("allele_name"), true);
-//            array.add(mouse);
-//        }
-//
-//        log.info("#### filterGeneProductInfo2ListNew: mice_allele_names: " + mice_allele_names);
-//
-//        es_cells = filterGeneProductInfo2EsCells(es_cells);
-//
-//        for(Map<String, Object> es_cell : es_cells) {
-//            es_cell_allele_names.put((String)es_cell.get("allele_name"), true);
-//            if(!mice_allele_names.containsKey((String)es_cell.get("allele_name"))) {
-//                array.add(es_cell);
-//            }
-//            targeting_vector_names.put((String)es_cell.get("targeting_vector"), true);
-//        }
-//
-//        log.info("#### filterGeneProductInfo2ListNew: es_cell_allele_names: " + es_cell_allele_names);
-//
-//        targeting_vectors = filterGeneProductInfo2TargetingVectors(targeting_vectors);
-//
-//        for(Map<String, Object> targeting_vector : targeting_vectors) {
-//            if(!targeting_vector_names.containsKey((String)targeting_vector.get("name"))) {
-//                array.add(targeting_vector);
-//            }
-//        }
-//
-//        log.info("#### filterGeneProductInfo2ListNew: count: " + array.size());
-//
-//        return array;
-//    }
-
     private List<Map<String, Object>> filterGeneProductInfo2List(List<Map<String, Object>> mice,
         List<Map<String, Object>> es_cells,
         List<Map<String, Object>> targeting_vectors) throws IOException, URISyntaxException, Exception {
-
         return filterGeneProductInfo2ListNew2(mice, es_cells, targeting_vectors);
-
-        //return filterGeneProductInfo2ListNewOld(mice, es_cells, targeting_vectors);
-
-        //return filterGeneProductInfo2ListOld(mice, es_cells, targeting_vectors);
     }
 
     public List<Map<String, Object>> getGeneProductInfo2(String accession) throws IOException, URISyntaxException, Exception {
 
-        //String url = getGeneProductCoreUrlAlt3(accession, null);
         String url = getGeneProductCoreUrl(accession, null);
         log.info("#### url for getGeneProductInfo2=" + url);
 
@@ -1479,7 +1441,6 @@ public class SolrIndex2 {
     public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
 
         String url = getGeneProductCoreUrlAlt3(accession, allele_name);
-        //String url = getGeneProductCoreUrl(accession, allele_name);
 
         log.info("#### url for getGeneProductInfo=" + url);
 
@@ -1764,7 +1725,6 @@ public class SolrIndex2 {
                     construct = extractQcData(docs, 0);
                 }
             } catch (Exception e) {
-//                e.printStackTrace();
                 log.error("#### getAlleleQcInfo exception: " + e);
             }
         }
@@ -1827,6 +1787,8 @@ public class SolrIndex2 {
 
         return project_ids;
     }
+    
+    // TODO: check this
 
     public boolean isMirko(String accession, String alleleName)
             throws IOException, URISyntaxException {
