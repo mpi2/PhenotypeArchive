@@ -48,7 +48,7 @@ public class AutosuggestIndexer {
 		coreFields.put("mp", mpFields);
 		coreFields.put("disease", diseaseFields);
 		coreFields.put("ma", maFields);
-		//coreFields.put("hp", hpFields);
+		coreFields.put("hp", hpFields);
 
 		final HashMap<String, Integer> valSeen = new HashMap<String, Integer>();
 
