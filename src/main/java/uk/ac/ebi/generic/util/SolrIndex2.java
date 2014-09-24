@@ -135,53 +135,53 @@ public class SolrIndex2 {
         return null;
     }
 
-    private List<Map<String, Object>> getGeneProductInfoOrderContactInfo(String target, JSONObject jsonObject2) throws IOException, URISyntaxException {
-        if (!target.equals("order") && !target.equals("contact")) {
-            log.error("#### getGeneProductInfoOrderContactInfo: illegal param: " + target);
-            return null;
-        }
-
-        List<Map<String, Object>> list = new ArrayList<>();
-
-        if (!jsonObject2.has(target + "_names") || !jsonObject2.has(target + "_links")) {
-            return null;
-        }
-
-        JSONArray names = jsonObject2.getJSONArray(target + "_names");
-        JSONArray links = jsonObject2.getJSONArray(target + "_links");
-
-        if (names.size() != links.size()) {
-            log.error("#### getGeneProductInfoOrderContactInfo: arrays unequal size");
-            return null;
-        }
-
-        boolean allele_has_issue = false;
-        if (jsonObject2.has("allele_has_issues")) {
-            allele_has_issue = jsonObject2.getString("allele_has_issues").equals("true");
-        }
-
-        for (int k = 0; k < names.size(); k++) {
-            HashMap<String, Object> item = new HashMap<>();
-            String name = names.getString(k);
-            if (name.equals("NULL")) {
-                name = target;
-            }
-            item.put("name", name);
-            item.put("url", links.getString(k));
-
-            if(allele_has_issue) {
-                String allele_id = jsonObject2.has("allele_id") ? jsonObject2.getString("allele_id") : null;
-                String product_id = jsonObject2.has("product_id") ? jsonObject2.getString("product_id") : null;
-                String host = "https://www.mousephenotype.org/imits";
-                //host = "localhost:3000";
-                String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?product_id=" + product_id + "&core=product";
-                item.put("url", url);
-            }
-
-            list.add(item);
-        }
-        return list;
-    }
+//    private List<Map<String, Object>> getGeneProductInfoOrderContactInfo(String target, JSONObject jsonObject2) throws IOException, URISyntaxException {
+//        if (!target.equals("order") && !target.equals("contact")) {
+//            log.error("#### getGeneProductInfoOrderContactInfo: illegal param: " + target);
+//            return null;
+//        }
+//
+//        List<Map<String, Object>> list = new ArrayList<>();
+//
+//        if (!jsonObject2.has(target + "_names") || !jsonObject2.has(target + "_links")) {
+//            return null;
+//        }
+//
+//        JSONArray names = jsonObject2.getJSONArray(target + "_names");
+//        JSONArray links = jsonObject2.getJSONArray(target + "_links");
+//
+//        if (names.size() != links.size()) {
+//            log.error("#### getGeneProductInfoOrderContactInfo: arrays unequal size");
+//            return null;
+//        }
+//
+//        boolean allele_has_issue = false;
+//        if (jsonObject2.has("allele_has_issues")) {
+//            allele_has_issue = jsonObject2.getString("allele_has_issues").equals("true");
+//        }
+//
+//        for (int k = 0; k < names.size(); k++) {
+//            HashMap<String, Object> item = new HashMap<>();
+//            String name = names.getString(k);
+//            if (name.equals("NULL")) {
+//                name = target;
+//            }
+//            item.put("name", name);
+//            item.put("url", links.getString(k));
+//
+//            if(allele_has_issue) {
+//                String allele_id = jsonObject2.has("allele_id") ? jsonObject2.getString("allele_id") : null;
+//                String product_id = jsonObject2.has("product_id") ? jsonObject2.getString("product_id") : null;
+//                String host = "https://www.mousephenotype.org/imits";
+//                //host = "localhost:3000";
+//                String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?product_id=" + product_id + "&core=product";
+//                item.put("url", url);
+//            }
+//
+//            list.add(item);
+//        }
+//        return list;
+//    }
 
     private List<Map<String, Object>> getGeneProductInfoOrderInfo(JSONObject jsonObject2) throws IOException, URISyntaxException {
         List<Map<String, Object>> orders = new ArrayList<>();
@@ -226,6 +226,38 @@ public class SolrIndex2 {
         return orders;
     }
 
+    private List<Map<String, Object>> getGeneProductInfoContactInfo(JSONObject jsonObject2) throws IOException, URISyntaxException {
+        List<Map<String, Object>> contacts = new ArrayList<>();
+
+        if (!jsonObject2.has("contact_names") || !jsonObject2.has("contact_links")) {
+            return null;
+        }
+
+        log.info("#### getGeneProductInfoContactInfo: jsonObject2: " + jsonObject2);
+
+        JSONArray contact_names = jsonObject2.getJSONArray("contact_names");
+        JSONArray contact_links = jsonObject2.getJSONArray("contact_links");
+
+        for (int k = 0; k < contact_names.size(); k++) {
+            HashMap<String, Object> map3 = new HashMap<>();
+            String name = contact_names.getString(k);
+            String link = contact_links.getString(k);
+            
+            if(name == null || link == null || name.length() < 1 || link.length() < 1) {
+                continue;
+            }
+            
+            if (name.equals("NULL")) {
+                name = "CONTACT";
+            }
+            map3.put("name", name);
+            map3.put("url", link);
+
+            contacts.add(map3);
+        }
+        return contacts;
+    }
+
     private Map<String, Object> getGeneProductInfoMice(JSONObject jsonObject2) throws IOException, URISyntaxException {
         String type = jsonObject2.getString("type");
 
@@ -236,7 +268,8 @@ public class SolrIndex2 {
         HashMap<String, Object> map2 = new HashMap<>();
 
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
-        map2.put("contacts", getGeneProductInfoOrderContactInfo("contact", jsonObject2));
+        //map2.put("contacts", getGeneProductInfoOrderContactInfo("contact", jsonObject2));
+        map2.put("contacts", getGeneProductInfoContactInfo(jsonObject2));
 
         map2.put("production_centre", jsonObject2.getString("production_centre"));
         map2.put("colony_name", jsonObject2.getString("name"));
@@ -312,7 +345,8 @@ public class SolrIndex2 {
         map2.put("type", type);
         map2.put("product", "Mouse");
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
-        map2.put("contacts", getGeneProductInfoOrderContactInfo("contact", jsonObject2));
+        //map2.put("contacts", getGeneProductInfoOrderContactInfo("contact", jsonObject2));
+        map2.put("contacts", getGeneProductInfoContactInfo(jsonObject2));
         
         // TODO: what happens if it's tm2?
 
@@ -579,16 +613,22 @@ public class SolrIndex2 {
     
     // Targeting vectors allele name: {MARKER SYMBOL}<sup>tm1{ALLELE TYPE}({CASSETTE NAME})<sup> e.g)Cbx1<sup>tm1a(bacL1L2)<sup>   
     
+//    private String getTargetingVectorAlleleName(JSONObject jsonObject2) throws IOException, URISyntaxException {
+//        String marker_symbol = jsonObject2.getString("marker_symbol");
+//        marker_symbol = marker_symbol != null && marker_symbol.length() > 0 ? marker_symbol : "Unknown";
+//        String cassette = getGeneProductInfoArrayEntry("cassette", jsonObject2.getJSONArray("genetic_info"));
+//        cassette = cassette != null && cassette.length() > 0 ? cassette : "Unknown";
+//        String allele_type = jsonObject2.getString("allele_type");
+//        allele_type = allele_type != null && allele_type.length() > 0 ? allele_type : "Unknown";        
+//        return marker_symbol + "<sup>tm1" + allele_type + "(" + cassette + ")</sup>";
+//    }
+
     private String getTargetingVectorAlleleName(JSONObject jsonObject2) throws IOException, URISyntaxException {
-        String marker_symbol = jsonObject2.getString("marker_symbol");
-        marker_symbol = marker_symbol != null && marker_symbol.length() > 0 ? marker_symbol : "Unknown";
         String cassette = getGeneProductInfoArrayEntry("cassette", jsonObject2.getJSONArray("genetic_info"));
         cassette = cassette != null && cassette.length() > 0 ? cassette : "Unknown";
-        String allele_type = jsonObject2.getString("allele_type");
-        allele_type = allele_type != null && allele_type.length() > 0 ? allele_type : "Unknown";        
-        return marker_symbol + "<sup>tm1" + allele_type + "(" + cassette + ")</sup>";
+        return "cassette: " + cassette;
     }
-
+    
     private String getGeneProductUrlTest(String type, JSONObject jsonObject2) {
         String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
         String url = "";
@@ -918,6 +958,8 @@ public class SolrIndex2 {
                 + qallele_name
                 + "&start=0&rows=100&hl=true&wt=json";
 
+        log.info("#### getGeneAllele2CoreUrl: url: " + url);
+        
         return url;
     }
 
@@ -1353,7 +1395,9 @@ public class SolrIndex2 {
         log.info("#### getSummaryTargetingVector: targeting_vector: " + targeting_vectors);
         
         if(targeting_vector.containsKey("allele_image")) {
-            summary.put("map_image", targeting_vector.get("allele_image"));
+            String allele_image = (String)targeting_vector.get("allele_image");
+            allele_image = allele_image.replace("vector-image", "allele-image?simple=true");
+            summary.put("map_image", allele_image);
         }
         
         if(targeting_vector.containsKey("genbank_file_url")) {

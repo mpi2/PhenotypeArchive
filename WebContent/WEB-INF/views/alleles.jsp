@@ -127,7 +127,7 @@
                 </td>
                 </tr>
             </c:forEach>
-        <table>
+        </table>
 
         </c:when>
         <c:otherwise>
@@ -177,7 +177,7 @@
                 </tr>
 
             </c:if>
-        <table>
+        </table>
 
         </c:otherwise>
         </c:choose>
@@ -192,7 +192,6 @@
         </c:if>
     </div>
     </div>
-</div>
 
 
 
