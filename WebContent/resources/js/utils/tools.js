@@ -275,12 +275,13 @@
         });
 
         // make filter li clickable
-        $('div.flist li#' + facet).find('li.fcat .flabel').click(function() {
+        $('div.flist li#' + facet).find('li.fcat .flabel').click(function(event) {
             if ($(this).next('span.fcount').text() == 0) {
                 return false;
             }
             else {
                 $(this).prev('input').trigger('click');
+                event.stopPropagation();
             }
         });
 
