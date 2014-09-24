@@ -112,7 +112,7 @@ public class DataTableController {
 		String fqOri = "";
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
-		System.out.println("paramstr sent to dataTable controller: " + solrParamStr);
+		System.out.println("paramstr: " + solrParamStr);
 		boolean legacyOnly = jParams.getBoolean("legacyOnly");
 		
 		// Get the query string
@@ -469,15 +469,15 @@ public class DataTableController {
 						JSONArray termNames = doc.getJSONArray("annotationTermName");
 						for( Object s : termIds ){														
 							if ( s.toString().contains("MA")){
-								//log.debug(i + " - MA: " + termNames.get(counter).toString());
+								log.debug(i + " - MA: " + termNames.get(counter).toString());
 								String name = termNames.get(counter).toString();
 								String maid = termIds.get(counter).toString();	
 								String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
 								ma.add("<a href='" + url + "'>" + name + "</a>");
 							}
 							else if ( s.toString().contains("MP") ){
-								//log.debug(i+ " - MP: " + termNames.get(counter).toString());
-								//log.debug(i+ " - MP: " + termIds.get(counter).toString());								
+								log.debug(i+ " - MP: " + termNames.get(counter).toString());
+								log.debug(i+ " - MP: " + termIds.get(counter).toString());								
 								String mpid = termIds.get(counter).toString();							
 								String name = termNames.get(counter).toString();							
 								String url = request.getAttribute("baseUrl") + "/phenotypes/" + mpid;
@@ -490,7 +490,7 @@ public class DataTableController {
 					if (doc.has("expName")) {
 						JSONArray expNames  = doc.getJSONArray("expName");
 						for( Object s : expNames ){
-							//log.debug(i + " - expTERM: " + s.toString());
+							log.debug(i + " - expTERM: " + s.toString());
 							exp.add(s.toString());
 						}						
 					}					
@@ -677,21 +677,30 @@ public class DataTableController {
 */
 			
 			try {
-				String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";	
+				//String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";			
+				String isHumanCurated = doc.getString("human_curated").equals("true") ||
+										doc.getString("impc_predicted_known_gene").equals("true") ||
+										doc.getString("mgi_predicted_known_gene").equals("true") ? human : "";	
+				
 				String isMouseCurated = doc.getString("mouse_curated").equals("true") ? mice : "";
 				rowData.add(isHumanCurated + isMouseCurated);
+				
 				//rowData.add("test1" + "test2");
-				String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";	
-				String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
+				//String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";				
+				//String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
+				
+				String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_novel_predicted_in_locus").equals("true")) ? impc : "";	
+				String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_novel_predicted_in_locus").equals("true")) ? mgi : "";
+				
 				rowData.add(isImpcPredicted + isMgiPredicted);
-				//rowData.add("test3" + "test4");
+				//rowData.add("test3" + "test4");		
 				//System.out.println("DOCS: " + rowData.toString());
-				j.getJSONArray("aaData").add(rowData);	
-				}	
-				catch (Exception e) {
+				j.getJSONArray("aaData").add(rowData);							
+			}			
+			catch (Exception e) {
 				log.error("Error getting disease curation values");
 				log.error(e.getLocalizedMessage());
-				}
+			}
 		}
 		return j.toString();
 	}
@@ -754,7 +763,9 @@ public class DataTableController {
 		
 		String markerSymbol = "<span class='gSymbol'>" + doc.getString("marker_symbol") + "</span>";		
 		String mgiId = doc.getString("mgi_accession_id");
+		//System.out.println(request.getAttribute("baseUrl"));
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;		
+		//String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";
 		String markerSymbolLink = "<a href='" + geneUrl + "'>" + markerSymbol + "</a>";
 				
 		String[] fields = {"marker_name", "human_gene_symbol","marker_synonym"};			

@@ -96,22 +96,18 @@ config.phenotypingVal2Field = {
 		'Phenotyping Complete'        :'imits_phenotype_complete', 
 	    'Phenotyping Started'         :'imits_phenotype_started', 
 	    'Phenotype Attempt Registered':'imits_phenotype_status'
-	   
 	};
 
 config.phenotypingStatusFq2Label = {
 		'imits_phenotype_complete' : 'Complete',
 		'imits_phenotype_started'  : 'Started',
 		'imits_phenotype_status'   : 'Attempt Registered'
-		
 };
 
 config.summaryFilterVal2FqStr = {
 		'Phenotyping Complete'         : 'latest_phenotype_status:"Phenotyping Complete"', 
 	    'Phenotyping Started'          : 'latest_phenotype_status:"Phenotyping Started"', 
 	    'Phenotype Attempt Registered' : 'latest_phenotype_status:"Phenotype Attempt Registered"'
-	    	
-	    	
 };
 
 /*
@@ -146,44 +142,50 @@ config.qfield2facet = {
 	'top_level_mp_term'          : 'mp',
 	'selected_top_level_ma_term' : 'ma',
 	'procedure_stable_id'        : 'pipeline',
-	'disease_classes' 			 : 'disease',
-	'disease_source'			 : 'disease',
-	'human_curated'              : 'disease',
-	'mouse_curated'              : 'disease', 
-	'impc_predicted'             : 'disease',
-	'impc_predicted_in_locus'    : 'disease',
-	'mgi_predicted'              : 'disease',
-	'mgi_predicted_in_locus'     : 'disease',
+	
+	'disease_classes' 			     : 'disease',
+	'disease_source'			     : 'disease',
+	'human_curated'                  : 'disease',
+	'mouse_curated'                  : 'disease', 
+	'impc_predicted_known_gene'      : 'disease',
+	'mgi_predicted_known_gene'       : 'disease',
+	'impc_predicted'                 : 'disease',
+	'impc_novel_predicted_in_locus'  : 'disease',
+	'mgi_predicted'                  : 'disease',
+	'mgi_novel_predicted_in_locus'   : 'disease',
+	
 	'img_marker_type'                : 'images',
 	'img_top_level_mp_term'          : 'images',
 	'img_selected_top_level_ma_term' : 'images',
 	'img_procedure_name'             : 'images'
 }
 config.facetFilterLabel = {
-	'phenotyping_center'         : 'phenotyping_center',
-	'production_center'          : 'production_center',
-	'imits_phenotype_complete'   : 'phenotyping',
-	'imits_phenotype_started'    : 'phenotyping',
-	'imits_phenotype_status'     : 'phenotyping',
-	'status'                     : 'mouse_production_status',
-	'marker_type'                : 'gene_subtype',
-	'top_level_mp_term'          : 'top_level_term',
-	'selected_top_level_ma_term' : 'top_level_term',
-	'procedure_stable_id'        : 'procedure',
-	'ma'					     : 'anatomy',
+	'phenotyping_center'         	 : 'phenotyping_center',
+	'production_center'          	 : 'production_center',
+	'imits_phenotype_complete'   	 : 'phenotyping',
+	'imits_phenotype_started'    	 : 'phenotyping',
+	'imits_phenotype_status'         : 'phenotyping',
+	'status'                         : 'mouse_production_status',
+	'marker_type'                    : 'gene_subtype',
+	'top_level_mp_term'              : 'top_level_term',
+	'selected_top_level_ma_term'     : 'top_level_term',
+	'procedure_stable_id'            : 'procedure',
+	'ma'					         : 'anatomy',
 	'annotated_or_inferred_higherLevelMaTermName' : 'anatomy',
-	'mp'      					 : 'phenotype',
+	'mp'      					     : 'phenotype',
 	'annotatedHigherLevelMpTermName' : 'phenotype',
-	'expName'                    : 'procedure',
-	'subtype'                    : 'gene_subtype',	
-	'disease_classes' 			 : 'disease_classification',
-	'disease_source'			 : 'disease_source',
-	'human_curated'              : 'From human data (OMIM, Orphanet)',//'human_data',
-	'mouse_curated'              : 'From mouse data (MGI)', //'mouse_data',
-	'impc_predicted'             : 'From IMPC data',//'IMPC_predicted',
-	'impc_predicted_in_locus'    : 'From IMPC data in linkage locus',//'IMPC_predicted_in_locus',
-	'mgi_predicted'              : 'From MGI data',//'MGI_predicted',
-	'mgi_predicted_in_locus'     : 'From MGI data in linkage locus',//'MGI_predicted_in_locus'	
+	'expName'                        : 'procedure',
+	'subtype'                        : 'gene_subtype',	
+	'disease_classes' 			     : 'disease_classification',
+	'disease_source'			     : 'disease_source',
+	'human_curated'                  : 'From human data (OMIM, Orphanet)',//'human_data',
+	'mouse_curated'                  : 'From mouse data (MGI)', //'mouse_data',
+	'impc_predicted_known_gene'      : 'From human data with IMPC prediction',
+	'mgi_predicted_known_gene'       : 'From human data with MGI prediction',
+	'impc_predicted'                 : 'From IMPC data',
+	'impc_novel_predicted_in_locus'  : 'Novel IMPC prediction in linkage locus',
+	'mgi_predicted'                  : 'From MGI data',
+	'mgi_novel_predicted_in_locus'   : 'Novel MGI prediction in linkage locus'
 };
 
 var commonSolrParams = {					
@@ -312,8 +314,8 @@ config.facetParams = {
 	 diseaseFacet: {			    	
 		 type: 'diseases',
 		 name: 'Diseases',
-		 subFacetFqFields:  ['disease_classes', 'disease_source', 'human_curated', 'mouse_curated', 'impc_predicted', 'impc_predicted_in_locus', 'mgi_predicted', 'mgi_predicted_in_locus'],
-		 /*subFacetFqFields: [
+		 //subFacetFqFields:  ['disease_classes', 'disease_source', 'human_curated', 'mouse_curated', 'impc_predicted', 'impc_predicted_in_locus', 'mgi_predicted', 'mgi_predicted_in_locus'],
+		 subFacetFqFields: [
 		                    'disease_source',
 		                    'disease_classes',
 		                    'human_curated',
@@ -323,7 +325,7 @@ config.facetParams = {
 		                    'impc_predicted', 
 		                    'impc_novel_predicted_in_locus', 
 		                    'mgi_predicted', 
-		                    'mgi_novel_predicted_in_locus'],*/
+		                    'mgi_novel_predicted_in_locus'],
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
 		 tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th><span class="main">Candidate Genes</span><span class="sub">by phenotype</span></th></thead>', 
@@ -333,8 +335,8 @@ config.facetParams = {
 		 //fq: 'type:disease',	
 		 fq: '*:*',
 		 wt: 'json',
-		 gridFields: 'disease_id,disease_term,disease_source,human_curated,mouse_curated,impc_predicted,impc_predicted_in_locus,mgi_predicted,mgi_predicted_in_locus',
-		 //gridFields: 'disease_source,disease_classes,human_curated,mouse_curated,impc_predicted_known_gene,mgi_predicted_known_gene,impc_predicted,impc_novel_predicted_in_locus,mgi_predicted,mgi_novel_predicted_in_locus',
+		 //gridFields: 'disease_id,disease_term,disease_source,human_curated,mouse_curated,impc_predicted,impc_predicted_in_locus,mgi_predicted,mgi_predicted_in_locus',
+		 gridFields: 'disease_source,disease_classes,human_curated,mouse_curated,impc_predicted_known_gene,mgi_predicted_known_gene,impc_predicted,impc_novel_predicted_in_locus,mgi_predicted,mgi_novel_predicted_in_locus',
 		 gridName: 'diseaseGrid',		
 		 ontology: 'disease',
 		 breadCrumbLabel: 'Diseases',		 
