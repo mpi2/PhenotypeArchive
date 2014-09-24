@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
@@ -72,7 +73,7 @@ public class ImagesIndexer {
 			logger.warn("An error occurred loading the file: {}", e.getMessage());
 
 			// Try context as a class path resource
-			applicationContext = new FileSystemXmlApplicationContext(context);
+			applicationContext = new ClassPathXmlApplicationContext(context);
 
 		}
 		// Wire up spring support for this application
