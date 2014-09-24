@@ -248,8 +248,6 @@ public class PreqcIndexer {
 
 			if (mpId2TermMapping.get(phenotypeTerm) == null){
 				bad.add(phenotypeTerm);
-				
-				logger.warn("phenotypeTerm {} not found in ontodb", phenotypeTerm);
 				continue;
 			}
 			
