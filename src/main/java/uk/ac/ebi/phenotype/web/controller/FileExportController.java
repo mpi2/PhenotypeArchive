@@ -839,21 +839,40 @@ public class FileExportController {
         String baseUrl = request.getAttribute("baseUrl") + "/disease/";
         
         List<String> rowData = new ArrayList();
-        rowData.add("Disease id\tDisease id link\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (IMPC)\tCandidate genes by phenotype (MGI)"); // column names	
+        // column names	
+        rowData.add("Disease id"
+        		+ "\tDisease id link"
+        		+ "\tDisease name"
+        		+ "\tSource"
+        		+ "\tCurated genes from human (OMIM, Orphanet)"
+        		+ "\tCurated genes from mouse (MGI)"
+        		+ "\tCurated genes from human data with IMPC prediction"
+        		+ "\tCurated genes from human data with MGI prediction"
+        		+ "\tCandidate genes by phenotype - IMPC data"
+        		+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
+        		+ "\tCandidate genes by phenotype - MGI data"
+        		+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus"); 
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
+            System.out.println(doc.toString());
             String omimId = doc.getString("disease_id");
             data.add(omimId);
             data.add(hostName + baseUrl + omimId);
             
             data.add(doc.getString("disease_term"));
             data.add(doc.getString("disease_source"));
+            
             data.add(doc.getString("human_curated"));
             data.add(doc.getString("mouse_curated"));
+            data.add(doc.getString("impc_predicted_known_gene"));
+            data.add(doc.getString("mgi_predicted_known_gene"));
+            
             data.add(doc.getString("impc_predicted"));
+            data.add(doc.getString("impc_novel_predicted_in_locus"));
             data.add(doc.getString("mgi_predicted"));
+            data.add(doc.getString("mgi_novel_predicted_in_locus"));
 
             rowData.add(StringUtils.join(data, "\t"));
         }
