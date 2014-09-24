@@ -7,7 +7,10 @@
 	 <jsp:attribute name="title">${queryTerms} IMPC Images Information b</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*&core=images">Images</a> &raquo; Results</jsp:attribute>
+	<jsp:attribute name="bodyTag">
+		<body class="chartpage no-sidebars small-header">
 	
+	</jsp:attribute>
     <jsp:attribute name="header">
 		
 		<style>
