@@ -69,7 +69,7 @@ public class ImagesIndexer {
 
 		} catch (RuntimeException e) {
 
-			logger.debug("Failed to load file system context trying to use classpath application context!");
+			logger.warn("An error occurred loading the file: {}", e.getMessage());
 
 			// Try context as a class path resource
 			applicationContext = new FileSystemXmlApplicationContext(context);
