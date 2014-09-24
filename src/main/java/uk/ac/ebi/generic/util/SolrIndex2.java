@@ -1328,79 +1328,66 @@ public class SolrIndex2 {
 
         return mapper;
     }
+    
+    private Map<String, Object> getSummaryTargetingVector(
+            String accession, 
+            String allele_name, 
+            Map<String, Object> mapper
+    ) throws IOException, URISyntaxException {
+        List<Map<String, Object>> targeting_vectors = (List<Map<String, Object>>)mapper.get("targeting_vectors");
+        List<Map<String, Object>> mice = (List<Map<String, Object>>)mapper.get("mice");
+        List<Map<String, Object>> es_cells = (List<Map<String, Object>>)mapper.get("es_cells");
+        Map<String, Object> summary = new HashMap<>();
 
-    public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
-
-        String url = getGeneProductCoreUrlAlt3(accession, allele_name);
-
-        log.info("#### url for getGeneProductInfo=" + url);
-
-        JSONObject jsonObject1 = getResults(url);
-
-        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
-
-        if (docs.size() < 1) {
-            log.info("#### No rows returned for the query!");
-            return null;
+        log.info("#### getSummaryTargetingVector: start...");
+        
+        if(targeting_vectors == null || targeting_vectors.size() < 1) {
+            summary.put("allele_description", "Limited information available...");
+            return summary;
         }
 
-        log.info("#### Found " + docs.size() + " rows!");
+        log.info("#### getSummaryTargetingVector: count: " + targeting_vectors.size());
+        
+        Map<String, Object> targeting_vector = (Map<String, Object>)targeting_vectors.get(0);
 
-        Map<String, Object> mapper = new HashMap<>();
-        List<Map<String, Object>> mice = new ArrayList<>();
-        List<Map<String, Object>> es_cells = new ArrayList<>();
-        List<Map<String, Object>> targeting_vectors = new ArrayList<>();
-
-        String title;
-        String marker_symbol = "";
-        Object loa_assays = getLoaAssay(docs);
-        log.info("#### getGeneProductInfo: loa_assay: " + loa_assays);
-
-        for (Object doc : docs) {
-            JSONObject jsonObject2 = (JSONObject) doc;
-            String type = jsonObject2.getString("type");
-
-            if (type.equals("mouse")) {
-                Map<String, Object> mouse = getGeneProductInfoMice(jsonObject2);
-                log.info("#### getGeneProductInfo: mouse: " + mouse);
-                String ms = (String)mouse.get("marker_symbol");
-                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
-                mice.add(mouse);
-            }
-
-            if (type.equals("es_cell")) {
-                Map<String, Object> es_cell = getGeneProductInfoEsCells(jsonObject2);
-                String ms = (String)es_cell.get("marker_symbol");
-                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
-                es_cells.add(es_cell);
-            }
-
-            if (type.equals("targeting_vector")) {
-                Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
-                String ms = (String)targeting_vector.get("marker_symbol");
-                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
-                targeting_vectors.add(targeting_vector);
-            }
+        log.info("#### getSummaryTargetingVector: targeting_vector: " + targeting_vectors);
+        
+        if(targeting_vector.containsKey("allele_image")) {
+            summary.put("map_image", targeting_vector.get("allele_image"));
         }
-
-        log.info("#### getGeneProductInfo: mice.size(): " + mice.size());
-        log.info("#### getGeneProductInfo: es_cells.size(): " + es_cells.size());
-
-        title = getTitle(marker_symbol, allele_name);
-
-        mapper.put("title", title);
-        mapper.put("mice", mice);
-        mapper.put("es_cells", es_cells);
-        mapper.put("targeting_vectors", targeting_vectors);
-
+        
+        if(targeting_vector.containsKey("genbank_file_url")) {
+            summary.put("buttons", "true"); // dodgy flag to indicate if we have data - TODO: fix!
+            summary.put("genbank", targeting_vector.get("genbank_file_url"));
+        }       
+        
+        if((mice == null || mice.size() < 1) && (es_cells == null || es_cells.size() < 1)) {
+            summary.put("allele_description", "Only Targeting Vectors available");
+        }
+        else {
+            summary.put("allele_description", "Limited information available...");
+        }
+        
+        log.info("#### getSummaryTargetingVector: summary: " + summary);
+        
+        return summary;
+    }
+    
+    private Map<String, Object> getSummary(
+            String accession, 
+            String allele_name, 
+            Map<String, Object> mapper
+    ) throws IOException, URISyntaxException {
+        
+        List<Map<String, Object>> mice = (List<Map<String, Object>>)mapper.get("mice");
+        Object loa_assays = mapper.get("loa_assays");
         List<Map<String, String>> constructs2 = getGeneAllele2Info(accession, allele_name);
-
         List<HashMap<String, Object>> summaries = new ArrayList<>();
 
         if (constructs2 != null) {
             for (Map<String, String> item : constructs2) {
                 HashMap<String, Object> summary = new HashMap<>();
-                summary.put("buttons", "true"); // flag to indicate if we have data - TODO: fix!
+                summary.put("buttons", "true"); // dodgy flag to indicate if we have data - TODO: fix!
                 summary.put("marker_symbol", item.get("marker_symbol"));
                 summary.put("symbol", item.get("marker_symbol") + "<sup>" + item.get("allele_name") + "</sup>");
                 summary.put("allele_name", item.get("allele_name"));
@@ -1471,34 +1458,226 @@ public class SolrIndex2 {
 
                 summaries.add(summary);
             }
+            
+          //  return null;
         }
+
+//        String stripped = title.replaceAll("\\<sup\\>", "");
+//        stripped = stripped.replaceAll("\\<\\/sup\\>", "");
+//        mapper.put("title_alt", stripped);
+
+        //log.info("#### getGeneProductInfo: title_alt: " + stripped);
+
+//        if (summaries.isEmpty()) {
+//            log.info("#### getGeneProductInfo: cannot get any summary for '" + accession + "' - '" + allele_name + "'");
+//        }
+//
+//        if (summaries.isEmpty()) {
+//            HashMap<String, Object> summary = new HashMap<>();
+//            summary.put("statuses", getGeneProductInfoStatuses(mapper));    // TODO: FIX-ME!
+//            summaries.add(summary);
+//        }
+//
+//        log.info("#### summaries: " + summaries.toString());
+//        
+//        if (summaries.size() > 1) {
+//            log.error("######## invalid count for summary!");
+//        }
+//        
+//        if (summaries.size() > 0) {
+//            return summaries.get(0);
+//        }        
+// 
+//        return getSummaryTargetingVector(accession, allele_name, mapper);
+        
+        if (summaries.isEmpty()) {
+            return getSummaryTargetingVector(accession, allele_name, mapper);
+        }
+//        else {
+//            return summaries.get(0);
+//        }
+        
+        return summaries.get(0);
+    }
+
+    public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
+
+        String url = getGeneProductCoreUrlAlt3(accession, allele_name);
+
+        log.info("#### url for getGeneProductInfo=" + url);
+
+        JSONObject jsonObject1 = getResults(url);
+
+        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+
+        if (docs.size() < 1) {
+            log.info("#### No rows returned for the query!");
+            return null;
+        }
+
+        log.info("#### Found " + docs.size() + " rows!");
+
+        Map<String, Object> mapper = new HashMap<>();
+        List<Map<String, Object>> mice = new ArrayList<>();
+        List<Map<String, Object>> es_cells = new ArrayList<>();
+        List<Map<String, Object>> targeting_vectors = new ArrayList<>();
+
+        String title;
+        String marker_symbol = "";
+        Object loa_assays = getLoaAssay(docs);
+        log.info("#### getGeneProductInfo: loa_assay: " + loa_assays);
+        mapper.put("loa_assays", loa_assays);
+
+        for (Object doc : docs) {
+            JSONObject jsonObject2 = (JSONObject) doc;
+            String type = jsonObject2.getString("type");
+
+            if (type.equals("mouse")) {
+                Map<String, Object> mouse = getGeneProductInfoMice(jsonObject2);
+                log.info("#### getGeneProductInfo: mouse: " + mouse);
+                String ms = (String)mouse.get("marker_symbol");
+                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
+                mice.add(mouse);
+            }
+
+            if (type.equals("es_cell")) {
+                Map<String, Object> es_cell = getGeneProductInfoEsCells(jsonObject2);
+                String ms = (String)es_cell.get("marker_symbol");
+                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
+                es_cells.add(es_cell);
+            }
+
+            if (type.equals("targeting_vector")) {
+                Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
+                String ms = (String)targeting_vector.get("marker_symbol");
+                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
+                targeting_vectors.add(targeting_vector);
+            }
+        }
+
+        log.info("#### getGeneProductInfo: mice.size(): " + mice.size());
+        log.info("#### getGeneProductInfo: es_cells.size(): " + es_cells.size());
+
+        title = getTitle(marker_symbol, allele_name);
+
+        mapper.put("title", title);
+        mapper.put("mice", mice);
+        mapper.put("es_cells", es_cells);
+        mapper.put("targeting_vectors", targeting_vectors);
+
+//        List<Map<String, String>> constructs2 = getGeneAllele2Info(accession, allele_name);
+//
+//        List<HashMap<String, Object>> summaries = new ArrayList<>();
+//
+//        if (constructs2 != null) {
+//            for (Map<String, String> item : constructs2) {
+//                HashMap<String, Object> summary = new HashMap<>();
+//                summary.put("buttons", "true"); // flag to indicate if we have data - TODO: fix!
+//                summary.put("marker_symbol", item.get("marker_symbol"));
+//                summary.put("symbol", item.get("marker_symbol") + "<sup>" + item.get("allele_name") + "</sup>");
+//                summary.put("allele_name", item.get("allele_name"));
+//
+//                String genbank_file = item.get("genbank_file"); // TODO: fix this in the index
+//                genbank_file = genbank_file.replace("escell-clone_genbank_file", "escell-clone-genbank-file");
+//                genbank_file = genbank_file.replace("escell-clone_cre-genbank_file", "escell-clone-cre-genbank-file");
+//                summary.put("genbank", genbank_file);
+//
+//                if (item.containsKey("allele_image")) {
+//                    String s = item.get("allele_image");
+//                    if (!s.isEmpty()) {
+//                        summary.put("map_image", s + "?simple=true");
+//                    }
+//                }
+//
+//                // TODO: is this right?
+//
+//                summary.put("allele_description", getAlleleDescription("1" + item.get("allele_type")));
+//                summary.put("allele_description_1b", getAlleleDescription("1b"));
+//                summary.put("is_deleted", isDeleted("1" + item.get("allele_type")));
+//
+//                List<String> southern_tools = new ArrayList<>();
+//                for (Map<String, Object> mouse : mice) {
+//
+//                    if (mouse.containsKey("associated_product_es_cell_name") && mouse.containsKey("production_completed") && mouse.get("production_completed").equals("true")) {
+//                        if (mouse.get("associated_product_es_cell_name").toString().length() > 0) {
+//                            String st = "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name="
+//                                    + mouse.get("associated_product_es_cell_name")
+//                                    + "&iframe=true&width=100%&height=100%";
+//                            southern_tools.add(st);
+//                            log.info("#### getGeneProductInfo: southern_tool: " + st);
+//                        }
+//                    }
+//                    summary.put("southern_tools", southern_tools);
+//                }
+//
+//                if (southern_tools.size() > 0) {
+//                    summary.put("southern_tool", southern_tools.get(0));
+//                }
+//
+//                summary.put("lrpcr_genotyping_primers", "/phenotype-archive/lrpcr/" + URLEncoder.encode(accession) + "/" + URLEncoder.encode(allele_name));
+//
+//                summary.put("mutagenesis_url", "/phenotype-archive/mutagenesis/" + URLEncoder.encode(accession) + "/" + URLEncoder.encode(allele_name));
+//
+//                summary.put("statuses", getGeneProductInfoStatuses(mapper));    // TODO: FIX-ME!
+//
+//                summary.put("status_mice", getGeneProductInfoStatusesMouseAlt(mapper));
+//
+//                if (loa_assays != null) {
+//                    log.info("#### getGeneProductInfo: loa_assay: " + loa_assays);
+//                    summary.put("loa_assays", loa_assays);
+//                }
+//
+//                summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
+//
+//                log.info("#### getGeneProductInfo: status_mice: " + mapper.get("status_mice"));
+//                log.info("#### getGeneProductInfo: status_es_cells: " + mapper.get("status_es_cells"));
+//
+//                if (item.containsKey("ensembl_url")) {
+//                    HashMap<String, String> map3 = new HashMap<>();
+//                    map3.put("browser", "Ensembl");
+//                    map3.put("url", item.get("ensembl_url"));
+//                    List<HashMap<String, String>> list3 = new ArrayList<>();
+//                    list3.add(map3);
+//                    summary.put("browsers", list3);
+//                }
+//
+//                summaries.add(summary);
+//            }
+//        }
+//
+//        String stripped = title.replaceAll("\\<sup\\>", "");
+//        stripped = stripped.replaceAll("\\<\\/sup\\>", "");
+//
+//        mapper.put("title_alt", stripped);
+//
+//        log.info("#### getGeneProductInfo: title_alt: " + stripped);
+//
+//        if (summaries.isEmpty()) {
+//            log.info("#### getGeneProductInfo: cannot get any summary for '" + accession + "' - '" + allele_name + "'");
+//        }
+//
+//        if (summaries.isEmpty()) {
+//            HashMap<String, Object> summary = new HashMap<>();
+//            summary.put("statuses", getGeneProductInfoStatuses(mapper));    // TODO: FIX-ME!
+//            summaries.add(summary);
+//        }
+//
+//        if (summaries.size() > 1) {
+//            log.error("######## invalid count for summary!");
+//        }
+
+//        if (summaries.size() > 0) {
+//            mapper.put("summary", summaries.get(0));
+//        }
+        
+        mapper.put("summary", getSummary(accession, allele_name, mapper));
 
         String stripped = title.replaceAll("\\<sup\\>", "");
         stripped = stripped.replaceAll("\\<\\/sup\\>", "");
-
         mapper.put("title_alt", stripped);
-
-        log.info("#### getGeneProductInfo: title_alt: " + stripped);
-
-        if (summaries.isEmpty()) {
-            log.info("#### getGeneProductInfo: cannot get any summary for '" + accession + "' - '" + allele_name + "'");
-        }
-
-        if (summaries.isEmpty()) {
-            HashMap<String, Object> summary = new HashMap<>();
-            summary.put("statuses", getGeneProductInfoStatuses(mapper));    // TODO: FIX-ME!
-            summaries.add(summary);
-        }
-
-        if (summaries.size() > 1) {
-            log.error("######## invalid count for summary!");
-        }
-
-        if (summaries.size() > 0) {
-            mapper.put("summary", summaries.get(0));
-        }
-
-        log.info("#### summaries: " + summaries.toString());
+        log.info("#### getGeneProductInfo: title_alt: " + stripped);        
+        
+     //   log.info("#### summaries: " + summaries.toString());
 
         if (!debug) {
             mapper = getGeneProductInfoSorter(mapper);
