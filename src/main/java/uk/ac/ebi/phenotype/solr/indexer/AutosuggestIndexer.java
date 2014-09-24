@@ -48,13 +48,12 @@ public class AutosuggestIndexer {
 		coreFields.put("mp", mpFields);
 		coreFields.put("disease", diseaseFields);
 		coreFields.put("ma", maFields);
-		//coreFields.put("hp", hpFields);
+		coreFields.put("hp", hpFields);
 
 		final HashMap<String, Integer> valSeen = new HashMap<String, Integer>();
 
 		for (Map.Entry<String, String[]> entry : coreFields.entrySet()) {
 			String core = entry.getKey().toString();
-
 			HttpSolrServer srcServer = new HttpSolrServer(solrUrl + "/" + core);
 			if ( core.equals("hp") ){
 				// phenodigm hp_mp mapping

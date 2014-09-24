@@ -27,7 +27,7 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>3.1.4.RELEASE</spring.version>
-		<slf4j.version>1.5.10</slf4j.version>
+		<slf4j.version>1.7.7</slf4j.version>
 		<java.version>1.7</java.version>
 		<junit.version>4.11</junit.version>
 		<hibernate.show_sql>true</hibernate.show_sql>
@@ -44,8 +44,12 @@
 		<!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl> 
 			<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl> -->
 
-		<solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-		<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
+
+        <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+        <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
+        <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes</buildIndexesSolrUrl>
+        <preqcXmlfile>/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/PhenotypeCallSummary.xml</preqcXmlfile>
+
 
 		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 
@@ -58,6 +62,7 @@
 	</properties>
 
 	<dependencies>
+
 
 		<dependency>
 			<groupId>org.mousephenotype.dcc.exportlibrary.datastructure</groupId>
@@ -624,87 +629,87 @@
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>gwt-maven-plugin</artifactId>
-										<versionRange>[2.4.0,)</versionRange>
-										<goals>
-											<goal>resources</goal>
-											<goal>compile</goal>
-											<goal>i18n</goal>
-											<goal>generateAsync</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-war-plugin</artifactId>
-										<!-- 2.1.1 copy the resources twice use 2.0.1 -->
-										<versionRange>[2.0.1,)</versionRange>
-										<goals>
-											<goal>exploded</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
+					<!--<configuration>-->
+						<!--<lifecycleMappingMetadata>-->
+							<!--<pluginExecutions>-->
+								<!--<pluginExecution>-->
+									<!--<pluginExecutionFilter>-->
+										<!--<groupId>org.codehaus.mojo</groupId>-->
+										<!--<artifactId>gwt-maven-plugin</artifactId>-->
+										<!--<versionRange>[2.4.0,)</versionRange>-->
+										<!--<goals>-->
+											<!--<goal>resources</goal>-->
+											<!--<goal>compile</goal>-->
+											<!--<goal>i18n</goal>-->
+											<!--<goal>generateAsync</goal>-->
+										<!--</goals>-->
+									<!--</pluginExecutionFilter>-->
+									<!--<action>-->
+										<!--<execute />-->
+									<!--</action>-->
+								<!--</pluginExecution>-->
+								<!--<pluginExecution>-->
+									<!--<pluginExecutionFilter>-->
+										<!--<groupId>org.apache.maven.plugins</groupId>-->
+										<!--<artifactId>maven-war-plugin</artifactId>-->
+										<!--&lt;!&ndash; 2.1.1 copy the resources twice use 2.0.1 &ndash;&gt;-->
+										<!--<versionRange>[2.0.1,)</versionRange>-->
+										<!--<goals>-->
+											<!--<goal>exploded</goal>-->
+										<!--</goals>-->
+									<!--</pluginExecutionFilter>-->
+									<!--<action>-->
+										<!--<execute />-->
+									<!--</action>-->
+								<!--</pluginExecution>-->
 
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>build-helper-maven-plugin</artifactId>
-										<versionRange>[1.7,)</versionRange>
-										<goals>
-											<goal>add-source</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
+								<!--<pluginExecution>-->
+									<!--<pluginExecutionFilter>-->
+										<!--<groupId>org.codehaus.mojo</groupId>-->
+										<!--<artifactId>build-helper-maven-plugin</artifactId>-->
+										<!--<versionRange>[1.7,)</versionRange>-->
+										<!--<goals>-->
+											<!--<goal>add-source</goal>-->
+										<!--</goals>-->
+									<!--</pluginExecutionFilter>-->
+									<!--<action>-->
+										<!--<execute />-->
+									<!--</action>-->
+								<!--</pluginExecution>-->
 
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>com.google.code.maven-replacer-plugin</groupId>
-										<artifactId>replacer</artifactId>
-										<versionRange>[1.5.2,)</versionRange>
-										<goals>
-											<goal>replace</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
+								<!--<pluginExecution>-->
+									<!--<pluginExecutionFilter>-->
+										<!--<groupId>com.google.code.maven-replacer-plugin</groupId>-->
+										<!--<artifactId>replacer</artifactId>-->
+										<!--<versionRange>[1.5.2,)</versionRange>-->
+										<!--<goals>-->
+											<!--<goal>replace</goal>-->
+										<!--</goals>-->
+									<!--</pluginExecutionFilter>-->
+									<!--<action>-->
+										<!--<execute />-->
+									<!--</action>-->
+								<!--</pluginExecution>-->
 
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>com.samaxes.maven</groupId>
-										<artifactId>minify-maven-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>minify</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute>
-											<runOnIncremental>false</runOnIncremental>
-										</execute>
-									</action>
-								</pluginExecution>
+								<!--<pluginExecution>-->
+									<!--<pluginExecutionFilter>-->
+										<!--<groupId>com.samaxes.maven</groupId>-->
+										<!--<artifactId>minify-maven-plugin</artifactId>-->
+										<!--<versionRange>[1.0.0,)</versionRange>-->
+										<!--<goals>-->
+											<!--<goal>minify</goal>-->
+										<!--</goals>-->
+									<!--</pluginExecutionFilter>-->
+									<!--<action>-->
+										<!--<execute>-->
+											<!--<runOnIncremental>false</runOnIncremental>-->
+										<!--</execute>-->
+									<!--</action>-->
+								<!--</pluginExecution>-->
 
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
+							<!--</pluginExecutions>-->
+						<!--</lifecycleMappingMetadata>-->
+					<!--</configuration>-->
 				</plugin>
 
 				<plugin>
@@ -730,7 +735,7 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
+<!-- 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<version>1.7</version>
@@ -747,7 +752,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 
 
 			<plugin>
@@ -1199,6 +1204,14 @@
 						</includes>
 						<filtering>true</filtering>
 					</resource>
+                    <resource>
+                        <directory>${basedir}/WebContent/WEB-INF</directory>
+                        <filtering>true</filtering>
+                        <targetPath>src/main/resources</targetPath>
+                        <includes>
+                            <include>**/index-app-config.xml</include>
+                        </includes>
+                    </resource>
 				</resources>
 				<pluginManagement>
 					<plugins>
@@ -1293,19 +1306,19 @@
 		<profile>
 			<id>external-beta</id>
 
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
-				<mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-				<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
-				<googleAnalytics>UA-33310077-1</googleAnalytics>
-				<liveSite>false</liveSite>
-			</properties>
-
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
+                <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_beta</buildIndexesSolrUrl>
+                <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <googleAnalytics>UA-33310077-1</googleAnalytics>
+                <liveSite>false</liveSite>
+            </properties>
 
 			<build>
 				<plugins>
@@ -1351,20 +1364,20 @@
 		<profile>
 			<id>live</id>
 
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<drupalBaseUrl>https://www.mousephenotype.org</drupalBaseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
-				<phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
-				<mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
-				<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
-				<googleAnalytics>UA-23433997-1</googleAnalytics>
-				<liveSite>true</liveSite>
-			</properties>
-
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <drupalBaseUrl>https://www.mousephenotype.org</drupalBaseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
+               	<buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_live</buildIndexesSolrUrl>
+                <phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
+                <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <googleAnalytics>UA-23433997-1</googleAnalytics>
+                <liveSite>true</liveSite>
+            </properties>
 
 			<build>
 				<plugins>
