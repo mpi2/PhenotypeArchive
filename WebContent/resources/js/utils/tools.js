@@ -42,8 +42,8 @@
                 var qVal = aVals[1];
                 var qField = aVals[0];
                 var fieldFacet = MPI2.searchAndFacetConfig.qfield2facet[qField];
-
                 //console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
+                
                 if (typeof MPI2.searchAndFacetConfig.qfield2facet[qField]) {
                     //var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 
@@ -650,7 +650,7 @@
                 case 'disease':
                     {
                         // refresh disease facet
-                	
+                		//console.log(json);
                         var oFacets = json.facet_counts.facet_fields;
                         var selectorBase = "div.flist li#disease";
                         _facetRefresh(json, selectorBase);
@@ -1090,7 +1090,7 @@
                 var names = filterTxt.split('___');
                 filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
             }
-            if (facet == 'disease' && qField.match(/_curated|_predicted/)) {
+            if (facet == 'disease') {
                 filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[qField];
             }
 
