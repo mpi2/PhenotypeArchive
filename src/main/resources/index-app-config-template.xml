@@ -43,7 +43,7 @@
     <bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-        <property name="url" value="jdbc:mysql://IMPCSERVER:IMPCPORT/IMPCDATABASE?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull" />
+        <property name="url" value="jdbc:mysql://IMPC_SERVER:IMPC_PORT/IMPC_DATABASE?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull" />
         <property name="username" value="${komp2username}" />
         <property name="password" value="${komp2password}" />
     </bean>
