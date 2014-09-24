@@ -26,7 +26,7 @@ allele = allele.replaceAll("##", "</sup>");
    												 		<c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
    												 		<!-- for testing and debug purposes maybe -->
    												 		<c:if test="${not empty img.biological_sample_id}">${img.biological_sample_id}</c:if><!-- mouse id? -->
-   												 		<c:if test="${not empty img.metadata_group}">${img.metadata_group}</c:if>
+   												 		<%-- <c:if test="${not empty img.metadata_group}">${img.metadata_group}</c:if> --%>
    												 		<c:if test="${not empty img.phenotyping_center}">${img.phenotyping_center}</c:if>
    												 		<c:if test="${not empty img.parameter_stable_id}">${img.parameter_stable_id}</c:if>
    												 		<c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}</c:if>

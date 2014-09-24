@@ -89,7 +89,7 @@ public class ImageServiceTest {
 		SexType sex = SexType.female;
 		String biologicalSampleGroup = "control";
 		try {
-			imagesResponse = imageService.getControlImagesForProcedure(metaDataGroup, "JAX", strain, procedureName, parameterStableId, null, 2, sex);
+			imagesResponse = imageService.getControlImagesForProcedure(metaDataGroup, "JAX", strain, procedureName, parameterStableId, null, 2, sex, 7);
 
 			for (SolrDocument doc : imagesResponse.getResults()) {
 				assertTrue(doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP).equals(biologicalSampleGroup));

@@ -49,9 +49,6 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-<div  class="section">
-		<div class="inner">
-                <div class="accordion-body" style="display: block">
                   <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
@@ -100,9 +97,7 @@
 		
 </div>
 </div>
-</div>
-</div>
-</div>
+
     </jsp:body>	
 
 </t:genericpage>
