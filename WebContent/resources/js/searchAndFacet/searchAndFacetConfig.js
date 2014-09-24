@@ -314,7 +314,6 @@ config.facetParams = {
 	 diseaseFacet: {			    	
 		 type: 'diseases',
 		 name: 'Diseases',
-		 //subFacetFqFields:  ['disease_classes', 'disease_source', 'human_curated', 'mouse_curated', 'impc_predicted', 'impc_predicted_in_locus', 'mgi_predicted', 'mgi_predicted_in_locus'],
 		 subFacetFqFields: [
 		                    'disease_source',
 		                    'disease_classes',
@@ -329,14 +328,11 @@ config.facetParams = {
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
 		 tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th><span class="main">Candidate Genes</span><span class="sub">by phenotype</span></th></thead>', 
-		 //tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th>Candidate Genes</th></thead>', 
 		 subset: '',
 		 qf: 'auto_suggest', 
-		 //fq: 'type:disease',	
 		 fq: '*:*',
 		 wt: 'json',
-		 //gridFields: 'disease_id,disease_term,disease_source,human_curated,mouse_curated,impc_predicted,impc_predicted_in_locus,mgi_predicted,mgi_predicted_in_locus',
-		 gridFields: 'disease_source,disease_classes,human_curated,mouse_curated,impc_predicted_known_gene,mgi_predicted_known_gene,impc_predicted,impc_novel_predicted_in_locus,mgi_predicted,mgi_novel_predicted_in_locus',
+		 gridFields: 'disease_id,disease_term,disease_source,disease_classes,human_curated,mouse_curated,impc_predicted_known_gene,mgi_predicted_known_gene,impc_predicted,impc_novel_predicted_in_locus,mgi_predicted,mgi_novel_predicted_in_locus',
 		 gridName: 'diseaseGrid',		
 		 ontology: 'disease',
 		 breadCrumbLabel: 'Diseases',		 
