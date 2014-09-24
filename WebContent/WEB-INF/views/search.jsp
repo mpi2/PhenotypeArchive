@@ -234,7 +234,7 @@
        		    	}
        		    	else if (! facet){
        		    		
-       		    		alert('2')
+       		    		//alert('2')
        		    		// user hits enter before autosuggest pops up	
        		    		// ie, facet info is unknown
        		    		
@@ -256,7 +256,7 @@
        		    	}
        		    	else {	
        		    		
-       		    		alert('3: ' + facet)
+       		    		//alert('3: ' + facet)
        		    		if (input.match(/HP\\%3A\d+/)){
 	       		    		// work out the mapped mp_id and fire off the query
 	       		    		_convertHp2MpAndSearch(input);
