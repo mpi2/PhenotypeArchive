@@ -856,7 +856,7 @@ public class FileExportController {
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
-            System.out.println(doc.toString());
+
             String omimId = doc.getString("disease_id");
             data.add(omimId);
             data.add(hostName + baseUrl + omimId);
