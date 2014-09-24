@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -191,13 +192,27 @@ public class ImageService {
 
 
 
-	public QueryResponse getControlImagesForProcedure(String metadataGroup, String center, String strain, String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex)
+	public QueryResponse getControlImagesForProcedure(String metadataGroup, String center, String strain, String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex, int daysEitherSide)
 	throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
 		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":" + center, ObservationDTO.METADATA_GROUP + ":" + metadataGroup, ObservationDTO.STRAIN_NAME + ":" + strain, ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter, ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"", "sex:" + sex.name());
+		Calendar c = Calendar.getInstance(); 
+		c.setTime(date); 
+		c.add(Calendar.DATE, -7);
+		Date before = c.getTime();
+		c.setTime(date); 
+		c.add(Calendar.DATE, 7);
+		Date after = c.getTime();
+		//1995-12-31T23:59:59.999Z
+		System.out.println("date="+date+"weekBefore="+before);
+		String fromDate = org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(before);
+		String toDate=org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(after);
+		System.out.println("date="+fromDate+"weekBefore="+toDate);
+		solrQuery.addFilterQuery("date_of_experiment:["+fromDate+" TO "+toDate+"]");
 		solrQuery.setRows(numberOfImagesToRetrieve);
+		System.out.println(solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -273,14 +288,7 @@ public class ImageService {
 									SolrDocument imgDoc = responseExperimental.getResults().get(0);
 									QueryResponse responseExperimental2 = this.getImagesForGeneByProcedure(acc, count.getName(), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, sex, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
 									
-										QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex);
-										if (responseControl != null && responseControl.getResults().size() > 0) {
-											log.info("adding control to list");
-											list.addAll(responseControl.getResults());
-											
-										} else {
-											log.error("no control images returned");
-										}
+										getControls(numberOfControls, list, sex, imgDoc);
 									
 									if (responseExperimental2 != null) {
 										list.addAll(responseExperimental2.getResults());
@@ -304,7 +312,30 @@ public class ImageService {
 	}
 
 
-	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, boolean getAllParameters)
+	private SolrDocumentList getControls(int numberOfControls, SolrDocumentList list, SexType sex, SolrDocument imgDoc)
+	throws SolrServerException {
+
+		QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 7);
+		if (responseControl != null && responseControl.getResults().size() > 0) {
+			log.info("adding control to list");
+			list.addAll(responseControl.getResults());
+			
+		} else {
+			log.error("no control images returned trying 30days either side");
+			responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 30);
+			if (responseControl != null && responseControl.getResults().size() > 0) {
+				log.info("adding control to list");
+				list.addAll(responseControl.getResults());
+				
+			}else{
+				log.info("No controls returned with a month either side of experiment date");
+			}
+		}
+		return list;
+	}
+
+
+	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, boolean getAllParameters, String excludedProcedureName)
 	throws SolrServerException {
 
 		model.addAttribute("acc",acc);//forward the gene id along to the new page for links
@@ -327,7 +358,7 @@ public class ImageService {
 		// displayed seperately in the using the other method
 		// need to put the section in genes.jsp!!!
 		for (Count count : facets.get(0).getValues()) {
-			if (!count.getName().equals("Adult LacZ")) {
+			if (!count.getName().equals(excludedProcedureName)) {
 				filteredCounts.add(count);
 			}
 		}
@@ -343,9 +374,9 @@ public class ImageService {
 																	// section
 																	// of the
 																	// gene page
-					if (!count.getName().equals("Adult LacZ")) {
+					if (!count.getName().equals(excludedProcedureName)) {
 						QueryResponse responseExperimental = this.getImagesForGeneByParameter(acc, count.getName(), "experimental", 1, null, null, null);
-						int controlCount = 0;
+						
 						for (SexType sex : SexType.values()) {
 							if (!sex.equals(SexType.hermaphrodite)) {
 								// get 5 images if available for this experiment
@@ -359,16 +390,17 @@ public class ImageService {
 								if (responseExperimental.getResults().size() > 0) {
 									SolrDocument imgDoc = responseExperimental.getResults().get(0);
 									QueryResponse responseExperimental2 = this.getImagesForGeneByParameter(acc, (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, sex, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
-									if (controlCount < 1) {
-										QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex);
-										if (responseControl != null && responseControl.getResults().size() > 0) {
-											log.info("adding control to list");
-											list.addAll(responseControl.getResults());
-											controlCount++;
-										} else {
-											log.error("no control images returned");
-										}
-									}
+									
+//										QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 7);
+//										if (responseControl != null && responseControl.getResults().size() > 0) {
+//											log.info("adding control to list");
+//											list.addAll(responseControl.getResults());
+//											
+//										} else {
+//											log.error("no control images returned");
+//										}
+									list=getControls(numberOfControls, list, sex, imgDoc);
+									
 									if (responseExperimental2 != null) {
 										list.addAll(responseExperimental2.getResults());
 									}
