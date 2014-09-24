@@ -70,6 +70,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected String graphUrl;
     protected Pipeline pipeline;
     protected Double pValue;
+    protected boolean isPreQc;
+    protected String gid;
 
     public DataTableRow() { }
 
@@ -78,7 +80,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
         List<String> sex = new ArrayList<String>();
         sex.add(pcs.getSex().toString());
-
+        this.setGid(pcs.getgId());
+        this.setPreQc(pcs.isPreQC());
         this.setGene(pcs.getGene());
         this.setAllele(pcs.getAllele());
         this.setSexes(sex);
@@ -110,7 +113,58 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     @Override
     public abstract int compareTo(DataTableRow o);
 
-    public void setPValue(Double pValue) {
+           
+	/**
+	 * @return the gid
+	 */
+	public String getGid() {
+	
+		return gid;
+	}
+
+	
+	/**
+	 * @param gid the gid to set
+	 */
+	public void setGid(String gid) {
+	
+		this.gid = gid;
+	}
+
+
+	/**
+	 * @return the pValue
+	 */
+	public Double getpValue() {
+	
+		return pValue;
+	}
+	
+	/**
+	 * @param pValue the pValue to set
+	 */
+	public void setpValue(Double pValue) {
+	
+		this.pValue = pValue;
+	}
+	
+	/**
+	 * @return the isPreQc
+	 */
+	public boolean isPreQc() {
+	
+		return isPreQc;
+	}
+	
+	/**
+	 * @param isPreQc the isPreQc to set
+	 */
+	public void setPreQc(boolean isPreQc) {
+	
+		this.isPreQc = isPreQc;
+	}
+
+	public void setPValue(Double pValue) {
         this.pValue = pValue;
     }
 
@@ -143,20 +197,25 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     }
 
     public String buildGraphUrl(String baseUrl) {
-        String url = baseUrl;
+    	String url= baseUrl;
+    	if (!isPreQc){
+			url += "/charts?accession=" + gene.getId().getAccession();
+			url += "&zygosity=" + zygosity;
+			url += "&allele_accession=" + allele.getId().getAccession();
+			if (parameter != null) {
+				url += "&parameter_stable_id=" + parameter.getStableId();
+			}
 
-        url += "/charts?accession=" + gene.getId().getAccession() + "&zygosity=" + zygosity + "&allele_accession=" + allele.getId().getAccession();
-        if (parameter != null) {
-            url += "&parameter_stable_id=" + parameter.getStableId();
+			if (pipeline != null) {
+				url += "&pipeline_stable_id=" + pipeline.getStableId();
+			}
+			if (phenotypingCenter != null) {
+				url += "&phenotyping_center=" + phenotypingCenter;
+			}
+        } else {
+			url += "/phenoview/?gid=" + gid;
+			url += "&qeid=" + phenotypeTerm.getId().getAccession();
         }
-
-        if (pipeline != null) {
-            url += "&pipeline_stable_id=" + pipeline.getStableId();
-        }
-        if (phenotypingCenter != null) {
-            url += "&phenotyping_center=" + phenotypingCenter;
-        }
-        
         return url;
     }
 

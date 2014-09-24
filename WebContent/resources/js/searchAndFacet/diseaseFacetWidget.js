@@ -58,15 +58,15 @@
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
-	    					  + '&facet.field=disease_classes'
-	    	                  + '&facet.field=impc_predicted'
-	    	                  + '&facet.field=mgi_predicted'
-	    	                  + '&facet.field=impc_predicted_in_locus'
-	    	                  + '&facet.field=mgi_predicted_in_locus' 
-	    	                  + '&facet.field=human_curated'
-	    	                  + '&facet.field=mouse_curated'
-	    	                  + '&facet.field=disease_source';	    	
-	    					/* + '&facet.field=disease_source'
+//	    					  + '&facet.field=disease_classes'
+//	    	                  + '&facet.field=impc_predicted'
+//	    	                  + '&facet.field=mgi_predicted'
+//	    	                  + '&facet.field=impc_predicted_in_locus'
+//	    	                  + '&facet.field=mgi_predicted_in_locus' 
+//	    	                  + '&facet.field=human_curated'
+//	    	                  + '&facet.field=mouse_curated'
+//	    	                  + '&facet.field=disease_source';	    	
+	    					 + '&facet.field=disease_source'
 					    	 + '&facet.field=disease_classes'
 					    	 + '&facet.field=human_curated'
 				             + '&facet.field=mouse_curated'
@@ -75,7 +75,7 @@
 				             + '&facet.field=impc_predicted'
 				             + '&facet.field=impc_novel_predicted_in_locus' 
 				             + '&facet.field=mgi_predicted'
-				             + '&facet.field=mgi_novel_predicted_in_locus';*/
+				             + '&facet.field=mgi_novel_predicted_in_locus';
 				             	
 	    	//console.log('DISEASE WIDGET: ' + queryParamStr);
 	    	
@@ -93,7 +93,7 @@
 	    },
 	    
 	    _displayDiseaseSubfacet: function(json){
-	    	
+	    	//console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	var foundMatch = {'disease_source':0, 'disease_classes':0, 'curated':0, 'predicted':0};
@@ -153,12 +153,12 @@
 	    		}
 	    		
 	    		// Subfacets: curated/predicted gene associations
-	    		var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
+	    		/*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
 	    									   'subfacets':{'human_curated':'From human data (OMIM, Orphanet)', 'mouse_curated':'From mouse data (MGI)'}},
 	    						   'predicted':{'label':'With Predicted Gene Associations by Phenotype', 
 	    							   			'subfacets': {'impc_predicted':'From IMPC data','impc_predicted_in_locus':'From IMPC data in linkage locus',
 	    							   				          'mgi_predicted':'From MGI data','mgi_predicted_in_locus':'From MGI data in linkage locus'}}};
-	    		
+	    		*/
 	    		/* Damian requsted 
 	    		 * 
 	    		 Add two more facets to Diseases  > With Curated Gene Associations:
@@ -173,7 +173,7 @@
 				
 				*/
 	    		 
-	    		/*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
+	    		var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
 					   						   'subfacets':{'human_curated':'From human data (OMIM, Orphanet)', 
 					   							   			'mouse_curated':'From mouse data (MGI)',
 					   							   			'impc_predicted_known_gene':'From human data with IMPC prediction',
@@ -186,9 +186,9 @@
 			   												  'mgi_novel_predicted_in_locus':'Novel MGI prediction in linkage locus'}
 					   						   }
 					   			};
-					*/   			
+					  			
 	    		
-	    		for ( var assoc in oSubFacets2 ){	    			
+	    		for ( var assoc in oSubFacets2 ){	
 	    			var label = oSubFacets2[assoc].label;
 	    			var thisFacetSect = $("<li class='fcatsection " + assoc + "'></li>");
 	    			
@@ -196,34 +196,39 @@
 	    			    		
 	    			var thisUlContainer = $("<ul></ul>");
 	    			
-	    			for ( var fq in oSubFacets2[assoc].subfacets ){
-	    				var thisSubfacet = oSubFacets2[assoc].subfacets[fq]; 
-		    			var aData = json.facet_counts['facet_fields'][fq];  		
-			    		for ( var i=0; i<aData.length; i=i+2 ){
-			    			
-			    			var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
-			    			var dPositive = aData[i];
-			    			if ( dPositive == 'true' ){
-				    			var count = aData[i+1];
-				    			var isGrayout = count == 0 ? 'grayout' : '';
+	    			var subfacets = oSubFacets2[assoc].subfacets;
+	    			for (var fq in subfacets) {
+	    				if (subfacets.hasOwnProperty(fq)) {
+    				    
+	    					var thisSubfacet = subfacets[fq]; 
+	    					var oData = json.facet_counts['facet_fields'][fq];
+	    				
+	    					for ( var i=0; i<oData.length; i=i+2 ){
+				    			var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
+				    			var dPositive = oData[i];
 				    			
-				    			liContainer.removeClass('grayout').addClass(isGrayout);
-				    			
-				    			foundMatch[assoc]++;
-				    			
-				    			var diseaseFq = fq;
-				    			var coreField = 'disease|'+ diseaseFq + '|';		
-								var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + 'true' + '|' + count + '|' + assoc});								
-								var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
-								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-								liContainer.append(chkbox, flabel, fcount);	
-								thisUlContainer.append(liContainer);							
-			    			}				    			
-			    		}
-			    		thisFacetSect.append(thisUlContainer);
-			    		$('div.flist li#disease > ul').append(thisFacetSect);
-
-	    			}	
+				    			if ( dPositive == 'true' ){
+					    			var count = oData[i+1];
+					    			var isGrayout = count == 0 ? 'grayout' : '';
+					    			
+					    			liContainer.removeClass('grayout').addClass(isGrayout);
+					    			
+					    			foundMatch[assoc]++;
+					    			
+					    			var diseaseFq = fq;
+					    			var coreField = 'disease|'+ diseaseFq + '|';		
+									var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + 'true' + '|' + count + '|' + assoc});								
+									var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
+									var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+									liContainer.append(chkbox, flabel, fcount);	
+									thisUlContainer.append(liContainer);							
+				    			}				    			
+				    		}
+				    		thisFacetSect.append(thisUlContainer);
+				    		$('div.flist li#disease > ul').append(thisFacetSect);
+	    					
+	    				}
+	    			}
 	    		}	    		    		
 	    		
 	    		// no actions allowed when facet count is zero

@@ -29,6 +29,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +44,7 @@ import uk.ac.ebi.phenotype.chart.utils.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.AlleleService;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 
 
 @Controller
@@ -58,7 +59,8 @@ public class SecondaryProjectController {
 	AlleleService as;
 	
 	@Autowired 
-	GenotypePhenotypeService genotypePhenotypeService;
+	@Qualifier("postqcService")
+	PostQcService genotypePhenotypeService;
 	
 	@Autowired 
 	UnidimensionalChartAndTableProvider chartProvider;

@@ -379,14 +379,14 @@
                                                 <div class="accordion-body">
                                                     <ul>
                                                         <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
-                                                            <li>
+                                                            
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
-                                                                </li>
+                                                                
                                                         </c:forEach>
                                                     </ul>
                                                     <div class="clear"></div>
                                                     <c:if test="${entry.count>5}">
-                                                        <p class="textright"><a href="${baseUrl}/impcImages?q=gene_accession_id:${acc}&fq=procedure_name:${entry.name}&rows=100000"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+                                                        <p class="textright"><a href="${baseUrl}/impcImages/ContAndExp?gene_accession_id=${acc}&procedure_name=${entry.name}&rows=100000"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
                                                     </c:if>
                                                 </div><!--  end of accordion body -->
                                             </div>

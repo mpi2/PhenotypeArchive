@@ -7,6 +7,7 @@ import org.apache.solr.client.solrj.beans.Field;
 public class GenotypePhenotypeDTO {
 
 	public static final String ID = "doc_id";
+	public static final String GID = "preqc_gid"; // preqc only
 	public static final String MP_TERM_ID = "mp_term_id";
 	public static final String MP_TERM_NAME = "mp_term_name";
 	public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";

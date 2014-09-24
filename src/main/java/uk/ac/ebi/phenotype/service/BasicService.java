@@ -21,6 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
@@ -116,4 +118,21 @@ public class BasicService {
         return results;
     }
     
+    /**
+     * Java structure for simple facets in Solr. 
+     *
+     * @param response
+     * @return HashMap with facets + counts: <facet_field, <field_value, count>>
+     */
+    protected HashMap<String, HashMap<String, Long>> getFacets(QueryResponse response){
+    	HashMap<String, HashMap<String, Long>> res = new HashMap<>();
+    	for (FacetField facet: response.getFacetFields()){
+    		HashMap<String, Long> facetMap = new HashMap<>();
+    		for (Count values : facet.getValues()){
+    			facetMap.put(values.getName(), values.getCount());
+    		}
+    		res.put(facet.getName(), facetMap);
+    	}    	
+    	return res;
+    }
 }

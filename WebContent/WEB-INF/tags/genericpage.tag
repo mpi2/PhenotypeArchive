@@ -86,7 +86,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 Short circuit favicon requests
 See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-requests
 --%>
-<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+<link rel="shortcut icon" href="data:image/x-icon;" type="image/x-icon">
 
 <script>
 var baseUrl="${baseUrl}";

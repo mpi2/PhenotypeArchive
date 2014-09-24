@@ -221,11 +221,15 @@ public class FileExportController {
      */
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     public String exportTableAsExcelTsv(
-            @RequestParam(value = "allele", required = false) String[] allele,
+    		/* ********************************************************************
+    		 *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
+    		 *  *******************************************************************/
             @RequestParam(value = "externalDbId", required = true) Integer extDbId,
-            @RequestParam(value = "rowStart", required = false) Integer rowStart,
             @RequestParam(value = "fileType", required = true) String fileType,
+            @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
             @RequestParam(value = "fileName", required = true) String fileName,
+            @RequestParam(value = "allele", required = false) String[] allele,
+            @RequestParam(value = "rowStart", required = false) Integer rowStart,
             @RequestParam(value = "panel", required = false) String panelName,
             @RequestParam(value = "mpId", required = false) String mpId,
             @RequestParam(value = "mpTerm", required = false) String mpTerm,
@@ -243,7 +247,6 @@ public class FileExportController {
             @RequestParam(value = "sex", required = false) String sex,
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
-            @RequestParam(value = "legacyOnly", required = true) boolean legacyOnly,
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -251,7 +254,7 @@ public class FileExportController {
     ) throws Exception {
 
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-    	
+    	System.out.println("------------\nEXPORT \n---------");
         log.debug("solr params: " + solrFilters);
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
@@ -490,7 +493,7 @@ public class FileExportController {
 
     private List<String> composeImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
         String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
-
+        
         List<String> rowData = new ArrayList();
 
         String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/";
@@ -499,7 +502,6 @@ public class FileExportController {
        
         if (showImgView) {
 
-            System.out.println("MODE: imgview " + showImgView);
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
             rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
 
@@ -588,7 +590,7 @@ public class FileExportController {
                 rowData.add(StringUtils.join(data, "\t"));
             }
         } else {
-            System.out.println("MODE: annotview " + showImgView);
+            //System.out.println("MODE: annotview " + showImgView);
 			// annotation view
             // annotation view: images group by annotationTerm per row
             rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
@@ -615,7 +617,7 @@ public class FileExportController {
                     data.add(hm.get("label"));
                     data.add(annotName);
                     data.add(hm.get("id"));
-                    System.out.println("annotname: "+ annotName);
+                    //System.out.println("annotname: "+ annotName);
                     if ( hm.get("fullLink") != null ) {
                     	data.add(hm.get("fullLink").toString());
                     }
@@ -629,7 +631,7 @@ public class FileExportController {
                     String facetField = hm.get("field");
               
                     solrParams = solrParams.replaceAll("&q=.+&", "&q="+ query + " AND " + facetField + ":\"" + names[0] + "\"&");
-                    String imgSubSetLink = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
+                    String imgSubSetLink = hostName + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
                     
                     data.add(imgSubSetLink);
                     rowData.add(StringUtils.join(data, "\t"));
@@ -813,7 +815,7 @@ public class FileExportController {
 					System.out.println("fileExport: '" + phStatus+ "' --- Expeced length 2 but got " + parts.length  );
 				}
 				else {
-					String url   = parts[0];
+					String url   = parts[0].replace("https", "http");
 					String label = parts[1];
 					
 	                data.add(label);
@@ -837,21 +839,40 @@ public class FileExportController {
         String baseUrl = request.getAttribute("baseUrl") + "/disease/";
         
         List<String> rowData = new ArrayList();
-        rowData.add("Disease id\tDisease id link\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (IMPC)\tCandidate genes by phenotype (MGI)"); // column names	
+        // column names	
+        rowData.add("Disease id"
+        		+ "\tDisease id link"
+        		+ "\tDisease name"
+        		+ "\tSource"
+        		+ "\tCurated genes from human (OMIM, Orphanet)"
+        		+ "\tCurated genes from mouse (MGI)"
+        		+ "\tCurated genes from human data with IMPC prediction"
+        		+ "\tCurated genes from human data with MGI prediction"
+        		+ "\tCandidate genes by phenotype - IMPC data"
+        		+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
+        		+ "\tCandidate genes by phenotype - MGI data"
+        		+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus"); 
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
+
             String omimId = doc.getString("disease_id");
             data.add(omimId);
             data.add(hostName + baseUrl + omimId);
             
             data.add(doc.getString("disease_term"));
             data.add(doc.getString("disease_source"));
+            
             data.add(doc.getString("human_curated"));
             data.add(doc.getString("mouse_curated"));
+            data.add(doc.getString("impc_predicted_known_gene"));
+            data.add(doc.getString("mgi_predicted_known_gene"));
+            
             data.add(doc.getString("impc_predicted"));
+            data.add(doc.getString("impc_novel_predicted_in_locus"));
             data.add(doc.getString("mgi_predicted"));
+            data.add(doc.getString("mgi_novel_predicted_in_locus"));
 
             rowData.add(StringUtils.join(data, "\t"));
         }

@@ -677,21 +677,30 @@ public class DataTableController {
 */
 			
 			try {
-				String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";	
+				//String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";			
+				String isHumanCurated = doc.getString("human_curated").equals("true") ||
+										doc.getString("impc_predicted_known_gene").equals("true") ||
+										doc.getString("mgi_predicted_known_gene").equals("true") ? human : "";	
+				
 				String isMouseCurated = doc.getString("mouse_curated").equals("true") ? mice : "";
 				rowData.add(isHumanCurated + isMouseCurated);
+				
 				//rowData.add("test1" + "test2");
-				String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";	
-				String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
+				//String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";				
+				//String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
+				
+				String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_novel_predicted_in_locus").equals("true")) ? impc : "";	
+				String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_novel_predicted_in_locus").equals("true")) ? mgi : "";
+				
 				rowData.add(isImpcPredicted + isMgiPredicted);
-				//rowData.add("test3" + "test4");
+				//rowData.add("test3" + "test4");		
 				//System.out.println("DOCS: " + rowData.toString());
-				j.getJSONArray("aaData").add(rowData);	
-				}	
-				catch (Exception e) {
+				j.getJSONArray("aaData").add(rowData);							
+			}			
+			catch (Exception e) {
 				log.error("Error getting disease curation values");
 				log.error(e.getLocalizedMessage());
-				}
+			}
 		}
 		return j.toString();
 	}

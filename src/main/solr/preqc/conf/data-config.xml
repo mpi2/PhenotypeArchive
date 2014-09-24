@@ -23,7 +23,7 @@
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
 	
- 	<document name="docs">
+ 	 <document name="docs">
 		
 		<entity dataSource="harwell_preqc"
 			name="pq" 
@@ -36,7 +36,7 @@
                                  
 			<field column="doc_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/id" />
 			<field column="colony_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/colonyId" />
-			<field column="project_external_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/externalId" />
+			<field column="preqc_gid" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/externalId" />
 			<field column="sex" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/sex" />
 			<field column="zygosity" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/zygosity" />
 			<field column="resource_name" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/datasource" />
@@ -105,13 +105,38 @@
 				</entity>	
 				
 			</entity>	
-			
+
+			<!--  need to filter out p_value > 0.0001 -->			
 			<field column="p_value" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pValue" />
 			<field column="effect_size" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/effectSize" />
 			<field column="pipeline_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/pipeline" />
+			 
+			<entity dataSource="komp2db" name="pipeline" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue" 
+					query="select name, stable_id from phenotype_pipeline"
+					where="stable_id=pq.pipeline_stable_id">
+					
+					<field column="name" name="pipeline_name" />
+			</entity>		
+			
 			<field column="procedure_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/procedure" />
+			
+			<entity dataSource="komp2db" name="procedure" 
+				query="select name from phenotype_procedure where stable_id like '${pq.procedure_stable_id}%' limit 1" >
+		
+				<field column="name" name="procedure_name" />
+			</entity>
+			
 			<field column="parameter_stable_id" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/parameter" />
+			<entity dataSource="komp2db" name="parameter" 
+				query="select name, stable_id from phenotype_parameter where stable_id like '${pq.parameter_stable_id}%' limit 1" >
+		
+				<field column="name" name="parameter_name" />
+			</entity>
+			
 			<field column="phenotyping_center" xpath="/list/uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary/phenotypingCenter" />
+			
 			
 		</entity>
 		

@@ -16,7 +16,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="img" required="true" type="java.util.Map"%>
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
 
-        
+        <li <c:if test="${img.biological_sample_group eq 'control'}">style="background-color:#eee;"</c:if>>
         <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/${img.omero_id}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
                                                 <div class="caption">
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
@@ -26,7 +26,7 @@ allele = allele.replaceAll("##", "</sup>");
    												 		<c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
    												 		<!-- for testing and debug purposes maybe -->
    												 		<c:if test="${not empty img.biological_sample_id}">${img.biological_sample_id}</c:if><!-- mouse id? -->
-   												 		<c:if test="${not empty img.metadata_group}">${img.metadata_group}</c:if>
+   												 		<%-- <c:if test="${not empty img.metadata_group}">${img.metadata_group}</c:if> --%>
    												 		<c:if test="${not empty img.phenotyping_center}">${img.phenotyping_center}</c:if>
    												 		<c:if test="${not empty img.parameter_stable_id}">${img.parameter_stable_id}</c:if>
    												 		<c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}</c:if>
@@ -35,7 +35,7 @@ allele = allele.replaceAll("##", "</sup>");
                                                 <br>
                                                 </div> 
                                                 
-                                                
+         </li>                                  
                                           
                                         
 
