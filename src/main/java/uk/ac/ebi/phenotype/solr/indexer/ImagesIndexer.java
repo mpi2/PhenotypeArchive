@@ -1,34 +1,25 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.beans.Field;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
-
-import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.List;
 
 /**
  * class to load the image data into the solr core - use for impc data first
@@ -39,123 +30,30 @@ import uk.ac.ebi.phenotype.service.ObservationService;
  */
 public class ImagesIndexer {
 	private static final Logger logger = LoggerFactory.getLogger(ImagesIndexer.class);
-	@Autowired
-	private BasicDataSource connection;
+
 	@Autowired
 	private ObservationService observationService;
+
 	@Autowired
-	ImageObservationDao imageObservationDao;
-	
-	private String solrUrl;
-	
+	@Qualifier("impcImagesIndexing")
+	SolrServer server;
+
+	@Autowired
+	@Qualifier("komp2DataSource")
+	DataSource komp2DataSource;
 
 
-	
-	public String getSolrUrl() {
-	
-		return solrUrl;
-	}
+
+	public ImagesIndexer() { super(); }
 
 
-	
-	public void setSolrUrl(String solrUrl) {
-	
-		this.solrUrl = solrUrl;
-	}
-
-
-	public ImagesIndexer() {
-		super();
-		
-	}
-
-
-	public String getKomp2User() {
-
-		return komp2User;
-	}
-
-
-	public void setKomp2User(String komp2User) {
-
-		this.komp2User = komp2User;
-	}
-
-
-	public String getMysqlHost() {
-
-		return mysqlHost;
-	}
-
-
-	public void setMysqlHost(String mysqlHost) {
-
-		this.mysqlHost = mysqlHost;
-	}
-
-
-	public Integer getMysqlPort() {
-
-		return mysqlPort;
-	}
-
-
-	public void setMysqlPort(Integer mysqlPort) {
-
-		this.mysqlPort = mysqlPort;
-	}
-
-
-	public String getMysqlDbName() {
-
-		return mysqlDbName;
-	}
-
-
-	public void setMysqlDbName(String mysqlDbName) {
-
-		this.mysqlDbName = mysqlDbName;
-	}
-
-
-	public String getKomp2Pass() {
-
-		return komp2Pass;
-	}
-
-
-	public void setKomp2Pass(String komp2Pass) {
-
-		this.komp2Pass = komp2Pass;
-	}
-
-	// these variables should be got from the config bean or main args
-	private String core = "impc_images";
-	private String komp2Pass = "wr1t3rmig";
-	private String komp2User = "migrw";
-	private String mysqlHost = "mysql-mi-dev";
-	// String mysqlProdHost="mysql-mi-prod";
-	private Integer mysqlPort = 4356;
-	// Integer mysqlProdPort=4404;
-	// String mysqlHost="localhost";
-	// Integer mysqlPort=3306;
-	private String mysqlDbName = "komp2";// "komp2_beta";
-
-	private String urlRootPathForImages;// ="http://img1.sanger.ac.uk/";
-	private String moveToDir;// =
-								// "/Users/jwarren/Documents/ImagesFromSangerUrls/";//
-								// root directory on filesystem we want to
-								// move the sub directories and image to.
-
-
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, SolrServerException {
 
 		
 		OptionParser parser = new OptionParser();
 
 		// parameter to indicate which spring context file to use
 		parser.accepts("context").withRequiredArg().ofType(String.class);
-		parser.accepts("solrUrl").withRequiredArg().ofType(String.class);
 
 		OptionSet options = parser.parse(args);
 		String context = (String) options.valuesOf("context").get(0);
@@ -172,24 +70,20 @@ public class ImagesIndexer {
 
 		} catch (RuntimeException e) {
 
-			logger.debug("Failed to load file system context trying to use classpath application context!");
+			logger.warn("An error occurred loading the app-config file: {}", e.getMessage());
 
 			// Try context as a class path resource
-			applicationContext = new FileSystemXmlApplicationContext(context);
+			applicationContext = new ClassPathXmlApplicationContext(context);
+
+			logger.warn("Using classpath app-config file: {}", context);
 
 		}
 		// Wire up spring support for this application
-		ImagesIndexer main = applicationContext.getBean(ImagesIndexer.class);
-		
-		try {
-			main.runSolrIndexImagesUpdate();
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ImagesIndexer main = new ImagesIndexer();
+		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+
+		main.runSolrIndexImagesUpdate();
+
 		logger.info("Process finished.  Exiting.");
 	}
 
@@ -198,26 +92,37 @@ public class ImagesIndexer {
 	private void runSolrIndexImagesUpdate()
 	throws SolrServerException, IOException {
 
+		final String getExtraImageInfoSQL = "SELECT FULL_RESOLUTION_FILE_PATH, omero_id, "+ ImageDTO.DOWNLOAD_FILE_PATH + ", "+ImageDTO.FULL_RESOLUTION_FILE_PATH +
+			" FROM image_record_observation " +
+			" WHERE " + ImageDTO.DOWNLOAD_FILE_PATH+" = ?";
+
+		// TODO: Need to batch these up to do a set of images at a time (currently works, but the number of images will grow beyond what can be handled in a single query)
 		List<uk.ac.ebi.phenotype.service.dto.ImageDTO> imageObservations = observationService.getAllImageDTOs();
-		System.out.println("image observations size=" + imageObservations.size());
-		imageObservations = imageObservationDao.setExtraFields(imageObservations);
-		String solrQ = solrUrl + "/" + core;
-		HttpSolrServer server = new HttpSolrServer(solrQ);
-		System.out.println("images solr=" + solrQ);
+
+		logger.info("image observations size=" + imageObservations.size());
+
+		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(getExtraImageInfoSQL)) {
+
+			for(ImageDTO imageDTO: imageObservations){
+				String downloadFilePath=imageDTO.getDownloadFilePath();
+				statement.setString(1, downloadFilePath);
+
+				ResultSet resultSet = statement.executeQuery();
+				while (resultSet.next()) {
+					imageDTO.setFullResolutionFilePath(resultSet.getString("FULL_RESOLUTION_FILE_PATH"));
+					imageDTO.setOmeroId(resultSet.getInt("omero_id"));
+				}
+			}
+
+		}catch (Exception e) {
+
+			e.printStackTrace();
+
+		}
+
 		server.addBeans(imageObservations);
-		System.out.println("commiting");
 		server.commit();
-		// for(int i=0;i<1000;++i) {
-		// //add Item objects to the list
-		//
-		//
-		// if(i%100==0) {
-		// System.out.println("commiting 100 docs now");//server.commit(); //
-		// periodically flush
-		// }
-		// }
-		// server.commit();
-		System.out.println("end of impc_image indexing");
+
 	}
 
 }

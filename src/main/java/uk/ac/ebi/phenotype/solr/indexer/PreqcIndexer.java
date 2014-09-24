@@ -1,29 +1,7 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -42,8 +20,22 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.*;
 
 public class PreqcIndexer {
 
@@ -112,11 +104,12 @@ public class PreqcIndexer {
 
 		} catch (RuntimeException e) {
 
-			logger.debug("Failed to load file system context trying to use classpath application context!");
-			logger.error("Failed to load file system context trying to use classpath application context!", e);
+			logger.warn("An error occurred loading the file: {}", e.getMessage());
 
 			// Try context as a class path resource
 			applicationContext = new ClassPathXmlApplicationContext(context);
+
+			logger.warn("Using classpath app-config file: {}", context);
 
 		}
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(indexer, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
@@ -255,8 +248,6 @@ public class PreqcIndexer {
 
 			if (mpId2TermMapping.get(phenotypeTerm) == null){
 				bad.add(phenotypeTerm);
-				
-				logger.warn("phenotypeTerm {} not found in ontodb", phenotypeTerm);
 				continue;
 			}
 			

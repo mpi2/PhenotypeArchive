@@ -7,7 +7,10 @@
 	 <jsp:attribute name="title">${queryTerms} IMPC Images Information b</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*&core=images">Images</a> &raquo; Results</jsp:attribute>
+	<jsp:attribute name="bodyTag">
+		<body class="chartpage no-sidebars small-header">
 	
+	</jsp:attribute>
     <jsp:attribute name="header">
 		
 		<style>
@@ -49,9 +52,6 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-<div  class="section">
-		<div class="inner">
-                <div class="accordion-body" style="display: block">
                   <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
@@ -100,9 +100,7 @@
 		
 </div>
 </div>
-</div>
-</div>
-</div>
+
     </jsp:body>	
 
 </t:genericpage>
