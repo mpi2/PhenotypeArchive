@@ -63,27 +63,27 @@
 
 	<!--  Beans for writing to the solr servers -->
     <bean id="preqcIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc"/>
+        <constructor-arg index="0" value="IMPC_SOLRURL/preqc"/>
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the experiment core -->
     <bean id="observationIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/experiment"/>
+        <constructor-arg index="0" value="IMPC_SOLRURL/experiment"/>
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the impc_images core -->
     <bean id="impcImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/impc_images"/>
+        <constructor-arg index="0" value="IMPC_SOLRURL/impc_images"/>
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
-        <constructor-arg value="${internalSolrUrl}/experiment" />
+        <constructor-arg value="IMPC_SOLRURL/experiment" />
     </bean>
 
 
@@ -97,7 +97,7 @@
     </bean>
 
     <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-        <constructor-arg value="${internalSolrUrl}/experiment" />
+        <constructor-arg value="IMPC_SOLRURL/experiment" />
     </bean>
 
     <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
