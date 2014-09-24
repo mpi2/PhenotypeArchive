@@ -70,10 +70,12 @@ public class ImagesIndexer {
 
 		} catch (RuntimeException e) {
 
-			logger.warn("An error occurred loading the file: {}", e.getMessage());
+			logger.warn("An error occurred loading the app-config file: {}", e.getMessage());
 
 			// Try context as a class path resource
 			applicationContext = new ClassPathXmlApplicationContext(context);
+
+			logger.warn("Using classpath app-config file: {}", context);
 
 		}
 		// Wire up spring support for this application

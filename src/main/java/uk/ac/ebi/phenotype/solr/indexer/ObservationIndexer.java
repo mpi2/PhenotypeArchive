@@ -92,6 +92,8 @@ public class ObservationIndexer {
 			// Try context as a class path resource
 			applicationContext = new ClassPathXmlApplicationContext(context);
 
+			logger.warn("Using classpath app-config file: {}", context);
+
 		}
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 

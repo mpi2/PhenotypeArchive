@@ -109,6 +109,8 @@ public class PreqcIndexer {
 			// Try context as a class path resource
 			applicationContext = new ClassPathXmlApplicationContext(context);
 
+			logger.warn("Using classpath app-config file: {}", context);
+
 		}
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(indexer, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
