@@ -264,9 +264,6 @@
 	<field name="mouse_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="mgi_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="impc_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
-	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
-	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />   
-
 	<field name="mgi_predicted_known_gene" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="impc_predicted_known_gene" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="mgi_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
