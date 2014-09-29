@@ -135,7 +135,7 @@ public class PreqcIndexer {
 		preqcXmlFilename = config.get("preqcXmlFilename");
 
 		zygosityMapping.put("Heterozygous", "heterozygote");
-		zygosityMapping.put("homozygous", "homozygote");
+		zygosityMapping.put("Homozygous", "homozygote");
 		zygosityMapping.put("Hemizygous", "hemizygote");
 
 		doGeneSymbol2IdMapping();
@@ -257,6 +257,11 @@ public class PreqcIndexer {
 			o.setColonyId(colonyId);
 			o.setP_value(pValue);
 			o.setExternalId(externalId);
+			if( ! zygosityMapping.containsKey(zygosity)) {
+				logger.warn("Zygosity {} not found for record id {}", zygosity, id);
+
+				continue;
+			}
 			o.setZygosity(zygosityMapping.get(zygosity));
 			o.setResourceName(datasource);
 			o.setProjectName(project);
