@@ -33,18 +33,18 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
             <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
             <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
             <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
+           
             <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
             <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
+           	<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
+			<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
+           
             <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
             <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-            <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
-            <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
-			
-			<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
-			<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
-			<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
+         	<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
 			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
+         
+			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
 			<!-- genes associated with this disease -->
            	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=disease_id:&quot;${ddoc.disease_id}&quot;&amp;rows=9999999&amp;wt=normal"
