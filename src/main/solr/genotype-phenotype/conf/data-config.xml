@@ -28,7 +28,7 @@
 			LEFT OUTER JOIN strain st ON s.strain_acc = st.acc 
 			LEFT OUTER JOIN allele al ON s.allele_acc = al.acc 
 			INNER JOIN external_db db ON s.external_db_id = db.id
-			WHERE (0.0001 >= s.p_value OR s.external_db_id = 20)
+			WHERE 0.0001 >= s.p_value
 			">
 			<field column="doc_id" name="doc_id" />
 			<field column="sex" name="sex" />

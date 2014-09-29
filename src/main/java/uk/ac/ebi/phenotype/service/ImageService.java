@@ -1,29 +1,22 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
-
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
-import uk.ac.ebi.phenotype.web.controller.GenesController;
+
+import java.util.*;
 
 public class ImageService {
 
@@ -33,7 +26,6 @@ public class ImageService {
 
 	public ImageService(String solrUrl) {
 
-		System.out.println("constructing image service with url=" + solrUrl);
 		solr = new HttpSolrServer(solrUrl);
 	}
 
@@ -228,7 +220,9 @@ public class ImageService {
 	 *            the gene to get the images for
 	 * @param model
 	 *            the model to add the images to
-	 * @param controlsForBothSexes TODO
+	 * @param numberOfControls TODO
+	 * @param numberOfExperimental TODO
+	 * @param getForAllParameters TODO
 	 * @throws SolrServerException
 	 */
 	public void getImpcImagesForGenePage(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters)

@@ -96,7 +96,7 @@
 	    	//console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
-	    	var foundMatch = {'disease_source':0, 'disease_classes':0, 'curated':0, 'predicted':0};
+	    	var foundMatch = {'curated':0, 'predicted':0, 'disease_source':0, 'disease_classes':0};
 	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
@@ -104,53 +104,7 @@
 	    	
 	    	if (numFound > 0){  				    		
 	    			    		
-	    		// Subfacets: disease classifications/sources
-	    		var oSubFacets1 = {'disease_source':'Sources', 'disease_classes':'Classifications'};  
-	    		for ( var fq in oSubFacets1 ){	    			
-	    		    var label = oSubFacets1[fq];
-	    			var aData = json.facet_counts['facet_fields'][fq];
 	    		
-	    			//table.append($('<tr></tr>').attr({'class':'facetSubCat '+ trCap + ' ' + fq}).append($('<td></td>').attr({'colspan':3}).text(label)));
-	    			var thisFacetSect = $("<li class='fcatsection " + fq + "'></li>");		 
-	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
-	    			
-	    			var unclassified;
-	    			var thisUlContainer = $("<ul></ul>");
-	    			
-	    			for ( var i=0; i<aData.length; i=i+2 ){
-	    				var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
-	    				
-		    			var subFacetName = aData[i];
-		    			
-		    			var count = aData[i+1];
-		    			foundMatch[fq]++;
-		    			
-		    			var diseaseFq = fq;
-		    			var coreField = 'disease|'+ diseaseFq + '|';		
-		    			var trClass = fq+'Tr';
-		    			var isGrayout = count == 0 ? 'grayout' : '';
-		    			liContainer.removeClass('grayout').addClass(isGrayout);
-		    			
-						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' +fq});						
-						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
-						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-						
-	    	   
-						if ( subFacetName != 'unclassified' ){							
-							liContainer.append(chkbox, flabel, fcount);
-						}
-						else {							
-							unclassified = liContainer.append(chkbox, flabel, fcount);
-						}
-						thisUlContainer.append(liContainer);	
-		    		}
-		    		
-		    		if ( fq == 'disease_classes' && unclassified){
-		    			thisUlContainer.append(unclassified);
-		    		}	
-		    		thisFacetSect.append(thisUlContainer);
-		    		$('div.flist li#disease > ul').append(thisFacetSect);
-	    		}
 	    		
 	    		// Subfacets: curated/predicted gene associations
 	    		/*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
@@ -175,9 +129,9 @@
 	    		 
 	    		var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
 					   						   'subfacets':{'human_curated':'From human data (OMIM, Orphanet)', 
-					   							   			'mouse_curated':'From mouse data (MGI)',
 					   							   			'impc_predicted_known_gene':'From human data with IMPC prediction',
-					   							   			'mgi_predicted_known_gene':'From human data with MGI prediction'}
+					   							   			'mgi_predicted_known_gene':'From human data with MGI prediction',
+					   							   			'mouse_curated':'From mouse data (MGI)'}
 					   						   },
 					   			   'predicted':{'label':'With Predicted Gene Associations by Phenotype', 
 			   									'subfacets': {'impc_predicted':'From IMPC data',
@@ -230,6 +184,55 @@
 	    				}
 	    			}
 	    		}	    		    		
+	    		
+	    		// Subfacets: disease classifications/sources
+	    		var oSubFacets1 = {'disease_source':'Sources', 'disease_classes':'Classifications'};  
+	    		for ( var fq in oSubFacets1 ){	    			
+	    		    var label = oSubFacets1[fq];
+	    			var aData = json.facet_counts['facet_fields'][fq];
+	    		
+	    			//table.append($('<tr></tr>').attr({'class':'facetSubCat '+ trCap + ' ' + fq}).append($('<td></td>').attr({'colspan':3}).text(label)));
+	    			var thisFacetSect = $("<li class='fcatsection " + fq + "'></li>");		 
+	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
+	    			
+	    			var unclassified;
+	    			var thisUlContainer = $("<ul></ul>");
+	    			
+	    			for ( var i=0; i<aData.length; i=i+2 ){
+	    				var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
+	    				
+		    			var subFacetName = aData[i];
+		    			
+		    			var count = aData[i+1];
+		    			foundMatch[fq]++;
+		    			
+		    			var diseaseFq = fq;
+		    			var coreField = 'disease|'+ diseaseFq + '|';		
+		    			var trClass = fq+'Tr';
+		    			var isGrayout = count == 0 ? 'grayout' : '';
+		    			liContainer.removeClass('grayout').addClass(isGrayout);
+		    			
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' +fq});						
+						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
+						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+						
+	    	   
+						if ( subFacetName != 'unclassified' ){							
+							liContainer.append(chkbox, flabel, fcount);
+						}
+						else {							
+							unclassified = liContainer.append(chkbox, flabel, fcount);
+						}
+						thisUlContainer.append(liContainer);	
+		    		}
+		    		
+		    		if ( fq == 'disease_classes' && unclassified){
+		    			thisUlContainer.append(unclassified);
+		    		}	
+		    		thisFacetSect.append(thisUlContainer);
+		    		$('div.flist li#disease > ul').append(thisFacetSect);
+	    		}
+	    		
 	    		
 	    		// no actions allowed when facet count is zero
     			$.fn.cursorUpdate('disease', 'not-allowed');

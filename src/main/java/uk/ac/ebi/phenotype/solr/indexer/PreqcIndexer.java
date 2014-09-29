@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -338,6 +339,7 @@ public class PreqcIndexer {
 
 		System.out.println("time: " + (System.currentTimeMillis() - start));
 		logger.warn("found {} unique mps not in ontodb", bad.size());
+		logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
 	}
 
 	public String createFakeIdFromSymbol(String alleleSymbol){
