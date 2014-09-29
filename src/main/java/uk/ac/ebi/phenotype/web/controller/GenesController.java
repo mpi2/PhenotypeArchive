@@ -345,7 +345,7 @@ public class GenesController {
 		Map<DataTableRow, DataTableRow> phenotypes = new HashMap<DataTableRow, DataTableRow>();
 
 		for (PhenotypeCallSummary pcs : phenotypeList) {
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString());
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 			
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr)) {
