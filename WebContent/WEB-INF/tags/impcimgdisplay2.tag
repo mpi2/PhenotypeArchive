@@ -22,8 +22,9 @@ allele = allele.replaceAll("##", "</sup>");
         <c:when test="${img.sex eq 'male'}">style="background-color:#0978A1;"</c:when>
         </c:choose>
          >
+         <div style="background-color:#FFFFFF;">
         <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/${img.omero_id}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
-                                                <div class="caption" style="background-color:#FFFFFF;">
+                                                <div class="caption">
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
                                                 		<%-- <c:forEach var="maTerm" items="${img.annotationTermName}" varStatus="status">${maTerm}, </c:forEach> --%>
                                                  		<c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
@@ -39,6 +40,7 @@ allele = allele.replaceAll("##", "</sup>");
    												 		
                                                 <br>
                                                 </div> 
+           </div>
                                                 
          </li>                                  
                                           
