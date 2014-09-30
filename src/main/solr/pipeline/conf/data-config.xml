@@ -187,6 +187,9 @@
 									<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />							
 									<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />					
 					
+									<field column="hp_id" xpath="/response/result/doc/arr[@name='hp_id']/str" />					
+									<field column="hp_term" xpath="/response/result/doc/arr[@name='hp_term']/str" />
+					
 									<!-- MA: inferred from MP -->
 									<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />	
 									<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
