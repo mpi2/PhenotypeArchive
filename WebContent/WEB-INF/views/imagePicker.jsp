@@ -36,6 +36,22 @@ body here ${baseUrl}
   <option data-img-src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/4739/200" value="2">Cute Kitten 2</option>
   <option data-img-src="http://placekitten.com/130/200" value="3">Cute Kitten 3</option>
   <option data-img-src="http://placekitten.com/270/200" value="4">Cute Kitten 4</option> -->
+   <c:if test="${not empty controls}">
+                                        
+                                           
+                                                   <%--  ${entry.name} (${entry.count}) --%>
+          
+                                                
+                                                        <c:forEach var="doc" items="${controls}">
+                                                            
+                                                                <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
+                                                                <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${doc.omero_id}/200" value="${doc.omero_id}">${doc.biological_sample_group}</option>
+                                                        </c:forEach>
+                                                    
+                                      
+
+                                  
+  </c:if>			
   <c:if test="${not empty experimental}">
                                         
                                            
