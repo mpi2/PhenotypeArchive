@@ -1,13 +1,5 @@
 package uk.ac.ebi.phenotype.service;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.Test;
@@ -16,9 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -59,65 +57,59 @@ public class GenotypePhenotypeServiceTest {
 	}
 	
 	@Test
-	public void testGetAllTopLevelsByPhenotypingCenterAndColonies() {
+	public void testGetAllTopLevelsByPhenotypingCenterAndColonies() throws SolrServerException {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
-		List<Map<String,String>> dataset = null;
+		//GenotypePhenotypeDTO.PHENOTYPING_CENTER, mpTermAcc, mpTermName, GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION_ID
+
+		List<GenotypePhenotypeDTO> dataset = null;
 		String resource = "IMPC";
-		try {
-			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-			for (Map<String, String> map: dataset) {
-				for (String key: map.keySet()) {
-					System.out.println(key + ":" + map.get(key));
-				}
-				System.out.println();
-			}
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+		System.out.println("Top level terms");
+		for (GenotypePhenotypeDTO map: dataset) {
+			System.out.println(" Phenotyping center:" + map.getPhenotypingCenter());
+			System.out.println(" Marker accession id:" + map.getMarkerAccessionId());
+			System.out.println(" Marker symbol:" + map.getMarkerSymbol());
+			System.out.println(" Colony ID:" + map.getColonyId());
+			System.out.println();
 		}
 		assertTrue(dataset.size()>0);
 	}
 	
 	@Test
-	public void testGetIntermediateTopLevelsByPhenotypingCenterAndColonies() {
+	public void testGetIntermediateTopLevelsByPhenotypingCenterAndColonies() throws SolrServerException {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
-		List<Map<String,String>> dataset = null;
+		List<GenotypePhenotypeDTO> dataset = null;
 		String resource = "IMPC";
-		try {
-			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME);
-			for (Map<String, String> map: dataset) {
-				for (String key: map.keySet()) {
-					System.out.println(key + ":" + map.get(key));
-				}
-				System.out.println();
-			}
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME);
+		System.out.println("Intermediate level terms");
+		for (GenotypePhenotypeDTO map: dataset) {
+			System.out.println(" Phenotyping center:" + map.getPhenotypingCenter());
+			System.out.println(" Marker accession id:" + map.getMarkerAccessionId());
+			System.out.println(" Marker symbol:" + map.getMarkerSymbol());
+			System.out.println(" Colony ID:" + map.getColonyId());
+			System.out.println();
 		}
+
 		assertTrue(dataset.size()>0);
 	}	
         
 	
 	@Test
-	public void testGetAllMPLeavesByPhenotypingCenterAndColonies() {
+	public void testGetAllMPLeavesByPhenotypingCenterAndColonies() throws SolrServerException {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
-		List<Map<String,String>> dataset = null;
+		List<GenotypePhenotypeDTO> dataset = null;
 		String resource = "IMPC";
-		try {
-			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME);
-			for (Map<String, String> map: dataset) {
-				for (String key: map.keySet()) {
-					System.out.println(key + ":" + map.get(key));
-				}
-				System.out.println();
-			}
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME);
+		System.out.println("Mp terms");
+		for (GenotypePhenotypeDTO map: dataset) {
+			System.out.println(" Phenotyping center:" + map.getPhenotypingCenter());
+			System.out.println(" Marker accession id:" + map.getMarkerAccessionId());
+			System.out.println(" Marker symbol:" + map.getMarkerSymbol());
+			System.out.println(" Colony ID:" + map.getColonyId());
+			System.out.println();
 		}
 		assertTrue(dataset.size()>0);
 	}	
