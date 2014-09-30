@@ -27,6 +27,9 @@ $(document).ready(function(){
 	
 	// multiple selection using the image picker plugin
 	console.log("firing image picker");
-	$("select").imagepicker();
+	$("select").imagepicker({
+        hide_select : true,
+        show_label  : true
+      });
 });
 

@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -57,6 +58,7 @@ import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
+import uk.ac.ebi.phenotype.service.ImageService;
 
 @Controller
 public class ImagesController {
@@ -89,6 +91,7 @@ public class ImagesController {
 		}
 	};
 
+	
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
 
@@ -98,26 +101,6 @@ public class ImagesController {
 	@Autowired
 	OntologyTermDAO otDAO;
 
-
-	@RequestMapping("/imagePicker")
-	public String largeImage(Model model) {
-
-		return "imagePicker";
-	}
-
-
-	@RequestMapping("/imageComparator")
-	public String imageComparator(HttpServletRequest request, Model model) {
-
-		System.out.println("calling imageComparator");
-		String[] params = request.getParameterValues("selectedImages");
-		if (params.length > 0) {
-			for (String value : params) {
-				System.out.println("select value=" + value);
-			}
-		}
-		return "imageComparator";
-	}
 
 
 	@RequestMapping("/images*")
