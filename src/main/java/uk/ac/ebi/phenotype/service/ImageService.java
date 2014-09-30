@@ -271,8 +271,8 @@ public class ImageService {
 																	// section
 																	// of the
 																	// gene page
-					if (!procedure.getName().equals("Adult LacZ")) {
-						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, "Adult LacZ");
+					if (!procedure.getName().equals("Wholemount Expression")) {
+						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, "Adult Lac Z");
 						
 					}
 				}
@@ -412,7 +412,7 @@ public class ImageService {
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + controlOrExperimental);
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
-		solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":" + procedureName);
+		solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + procedureName+"\"");
 		solrQuery.addFacetField(ObservationDTO.PARAMETER_STABLE_ID);
 		// solrQuery.setRows(0);
 		QueryResponse response = solr.query(solrQuery);
