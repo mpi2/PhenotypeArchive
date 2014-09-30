@@ -3,13 +3,16 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +32,42 @@ public class ImpcImagesController {
 	@Autowired
 	ImageService imageService;
 
+	
+	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
+	public String imagePicker(@PathVariable String acc,@PathVariable String parameter_stable_id,  Model model) throws SolrServerException {
+		System.out.println("calling image picker");
+		
+		//get experimental images
+		//we will also want to call the getControls method and display side by side
+		SolrDocumentList list = new SolrDocumentList();
+		QueryResponse responseExperimental2 = imageService.getImagesForGeneByParameter(acc, parameter_stable_id, "experimental", 10000, null, null, null);
+		if (responseExperimental2 != null) {
+			list.addAll(responseExperimental2.getResults());
+		}
+		System.out.println("list size="+list.size());
+		model.addAttribute("experimental", list);
+		return "imagePicker";
+	}
+
+
+	@RequestMapping("/imageComparator")
+	public String imageComparator(HttpServletRequest request, Model model) {
+		String page="imageComparator";
+		System.out.println("calling imageComparator");
+		String[] omeroIds = request.getParameterValues("selectedImages");
+		if(omeroIds==null || omeroIds.length==0){
+			System.out.println("error no items selected");
+			model.addAttribute("error", "You need to select at least one image");
+			return page;
+		}
+		
+			for (String value : omeroIds) {
+				System.out.println("select value=" + value);
+			}
+			model.addAttribute("omeroIds", omeroIds);
+		
+		return page;
+	}
 
 	@RequestMapping("/impcImages/ContAndExp*")
 	public String imagesControlAndExperimental(
@@ -40,7 +79,7 @@ public class ImpcImagesController {
 		String acc=request.getParameter("gene_accession_id");
 		String procedureName=request.getParameter("procedure_name");
 		String parameterStableId=request.getParameter("parameter_stable_id");
-		imageService.getControlAndExperimentalImpcImages(acc, model,procedureName, parameterStableId, 5, 100, true, "Adult LacZ");
+		imageService.getControlAndExperimentalImpcImages(acc, model,procedureName, parameterStableId, 5, 100, "Adult LacZ");
 		return "impcImagesContAndExp";
 	}
 	

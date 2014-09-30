@@ -345,7 +345,7 @@ public class GenesController {
 		Map<DataTableRow, DataTableRow> phenotypes = new HashMap<DataTableRow, DataTableRow>();
 
 		for (PhenotypeCallSummary pcs : phenotypeList) {
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString());
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 			
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr)) {
@@ -504,7 +504,8 @@ public class GenesController {
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException {
 
-		imageService.getImpcImagesForGenePage(acc, model, 1, 4, false);
+		imageService.getImpcImagesForGenePage(acc, model, 0, 1, false);
+		//imageService.getControlAndExperimentalImpcImages(acc, model, null, null, 0, 1, "Adult Lac Z");
 
 	}
 
