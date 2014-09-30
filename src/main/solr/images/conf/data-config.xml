@@ -322,6 +322,7 @@
 							<field column="hp_id"   xpath="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/str[@name='hp_id']" />
 							<field column="hp_term" xpath="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/str[@name='hp_term']" />
 					
+					
 						</entity>	
 						
 						<!-- top level MP terms of this MP term -->
