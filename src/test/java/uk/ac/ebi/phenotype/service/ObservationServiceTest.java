@@ -131,7 +131,7 @@ public class ObservationServiceTest {
 
 
 	@Test
-	public void testGetExperimentKeys() {
+	public void testGetExperimentKeys() throws SolrServerException {
 
 		Map<String, List<String>> keys = null;
 		// http://localhost:8080/phenotype-archivecharts?accession=MGI:1922257?parameterId=ESLIM_003_001_004&zygosity=homozygote
@@ -140,12 +140,8 @@ public class ObservationServiceTest {
 		List<String> metaDataGoupsList = Arrays.asList("45a983be46dc06a6a3ed8663d3d673ed");
 		List<String> pipelineIds = Arrays.asList("ESLIM_001");
 
-		try {
-			keys = os.getExperimentKeys("MGI:104874", "ESLIM_005_001_005", pipelineIds, phenotypingCenterParamsList, strainStrings, metaDataGoupsList, null);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		keys = os.getExperimentKeys("MGI:104874", "ESLIM_005_001_005", pipelineIds, phenotypingCenterParamsList, strainStrings, metaDataGoupsList, null);
+
 		// System.out.println("test result keys="+keys);
 		assertTrue(keys.size() > 0);
 	}
@@ -155,9 +151,11 @@ public class ObservationServiceTest {
 	public void testGetDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata()
 	throws SolrServerException {
 
-		List<Map<String, String>> results = os.getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata();
+		List<Map<String, String>> dataMapList = os.getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata();
 
-		for (Map<String, String> result : results) {
+		System.out.println("Num distinct Organisation/Pipeline/Parameter/Strain/Zygosity/GeneAccession/AlleleAccession/Metadata groups: " + dataMapList.size());
+
+		for (Map<String, String> result : dataMapList) {
 			if (result.get("gene_accession_id").equals("MGI:1914982")) {
 				for (String k : result.keySet()) {
 					System.out.println("k: " + k);
@@ -219,6 +217,10 @@ public class ObservationServiceTest {
 	public void testGetDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
 
 		List<Map<String, String>> dataMapList = os.getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata();
+
+		System.out.println("Num distinct Organisation/Pipeline/Parameter/Strain/Zygosity/GeneAccession/AlleleAccession/Metadata groups: " + dataMapList.size());
+
+
 		assert(dataMapList.size() > 0);
 		System.out.println("Data map list is "+ dataMapList.size() + " units long");
 

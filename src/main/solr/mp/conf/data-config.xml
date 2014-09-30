@@ -26,6 +26,7 @@
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	  
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
 	<dataSource name="preqc_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>       
+	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	
 	<document name="docs">
 		<!-- test with MP:0002100, MP:0002075-->
@@ -39,6 +40,19 @@
 			<field column="name" name="mp_term" />
 			<field column="definition" name="mp_definition" />	
 			<field column="node_id" name="mp_node_id" />		
+
+			<entity dataSource="phenodigm_core" name="mpHp"
+				stream="true" 
+				onError="continue"
+				forEach="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/"
+				url="q=mp_id:&quot;${mp_term_infos.term_id}&quot;&amp;rows=1&amp;fq=type:hp_mp&amp;group=on&amp;group.field=mp_id&amp;group.limit=-1&amp;fl=hp_id,hp_term"
+				processor="XPathEntityProcessor" >
+					
+				<field column="hp_id"   xpath="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/str[@name='hp_id']" />
+				<field column="hp_term" xpath="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/str[@name='hp_term']" />
+					
+			</entity>	
+
 
 			<entity dataSource="ontodb" name="nodeIds"
 				processor="CachedSqlEntityProcessor" 

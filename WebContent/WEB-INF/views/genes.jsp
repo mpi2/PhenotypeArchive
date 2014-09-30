@@ -349,7 +349,7 @@
                                     <div class="inner">
                                         <div class="alert alert-info">
                                             <h5>Caution</h5>
-                                            <p>This is the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.</p>
+                                            <p>These are the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.</p>
                                         </div>
                                     </div>
                                     <div class="dcc-heatmap-root">
