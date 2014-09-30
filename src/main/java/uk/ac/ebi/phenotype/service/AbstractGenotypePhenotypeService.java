@@ -85,54 +85,68 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<Map<String, String>> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName, String mpTermAcc, String mpTermName)
+	public List<GenotypePhenotypeDTO> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName, String mpTermAcc, String mpTermName)
 	throws SolrServerException {
 
-		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + phenotypeResourceName).setRows(MAX_NB_DOCS).setFields(GenotypePhenotypeDTO.PHENOTYPING_CENTER + "," + mpTermAcc + "," + mpTermName + "," + GenotypePhenotypeDTO.COLONY_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL + "," + GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+		List<String> fields = Arrays.asList(GenotypePhenotypeDTO.PHENOTYPING_CENTER, mpTermAcc, mpTermName, GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + phenotypeResourceName)
+			.setRows(MAX_NB_DOCS)
+			.setFields(StringUtils.join(fields, ","));
 
 		QueryResponse response = solr.query(query);
-		SolrDocumentList results = response.getResults();
+		return response.getBeans(GenotypePhenotypeDTO.class);
 
-		List<Map<String, String>> lmap = new ArrayList<Map<String, String>>();
-
-		for (SolrDocument doc : results) {
-
-			String phenotypingCenter = (String) doc.getFieldValue(GenotypePhenotypeDTO.PHENOTYPING_CENTER);
-			String colonyID = (String) doc.getFieldValue(GenotypePhenotypeDTO.COLONY_ID);
-			String markerSymbol = (String) doc.getFieldValue(GenotypePhenotypeDTO.MARKER_SYMBOL);
-			String markerAccession = (String) doc.getFieldValue(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
-
-			if (mpTermAcc.equals(GenotypePhenotypeDTO.MP_TERM_ID)) {
-
-				Map<String, String> r = new HashMap<String, String>();
-				r.put(GenotypePhenotypeDTO.PHENOTYPING_CENTER, phenotypingCenter);
-				r.put(GenotypePhenotypeDTO.COLONY_ID, colonyID);
-				r.put(GenotypePhenotypeDTO.MARKER_SYMBOL, markerSymbol);
-				r.put(GenotypePhenotypeDTO.MARKER_ACCESSION_ID, markerAccession);
-				r.put(mpTermAcc, (String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID));
-				r.put(mpTermName, (String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_NAME));
-
-				lmap.add(r);
-
-			} else {
-
-				ArrayList<String> mpTermIds = (ArrayList<String>) doc.getFieldValue(mpTermAcc);
-				ArrayList<String> mpTermNames = (ArrayList<String>) doc.getFieldValue(mpTermName);
-
-				for (int i = 0; i < mpTermIds.size(); i++) {
-					Map<String, String> r = new HashMap<String, String>();
-					r.put(GenotypePhenotypeDTO.PHENOTYPING_CENTER, phenotypingCenter);
-					r.put(GenotypePhenotypeDTO.COLONY_ID, colonyID);
-					r.put(GenotypePhenotypeDTO.MARKER_SYMBOL, markerSymbol);
-					r.put(GenotypePhenotypeDTO.MARKER_ACCESSION_ID, markerAccession);
-					r.put(mpTermAcc, mpTermIds.get(i));
-					r.put(mpTermName, mpTermNames.get(i));
-					lmap.add(r);
-				}
-			}
-		}
-
-		return lmap;
+//
+//
+//
+//		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + phenotypeResourceName).setRows(MAX_NB_DOCS).setFields(GenotypePhenotypeDTO.PHENOTYPING_CENTER + "," + mpTermAcc + "," + mpTermName + "," + GenotypePhenotypeDTO.COLONY_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL + "," + GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+//
+//		QueryResponse response = solr.query(query);
+//		SolrDocumentList results = response.getResults();
+//
+//		List<Map<String, String>> lmap = new ArrayList<Map<String, String>>();
+//
+//		for (SolrDocument doc : results) {
+//
+//			String phenotypingCenter = (String) doc.getFieldValue(GenotypePhenotypeDTO.PHENOTYPING_CENTER);
+//			String colonyID = (String) doc.getFieldValue(GenotypePhenotypeDTO.COLONY_ID);
+//			String markerSymbol = (String) doc.getFieldValue(GenotypePhenotypeDTO.MARKER_SYMBOL);
+//			String markerAccession = (String) doc.getFieldValue(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+//
+//			if (mpTermAcc.equals(GenotypePhenotypeDTO.MP_TERM_ID)) {
+//
+//				Map<String, String> r = new HashMap<String, String>();
+//				r.put(GenotypePhenotypeDTO.PHENOTYPING_CENTER, phenotypingCenter);
+//				r.put(GenotypePhenotypeDTO.COLONY_ID, colonyID);
+//				r.put(GenotypePhenotypeDTO.MARKER_SYMBOL, markerSymbol);
+//				r.put(GenotypePhenotypeDTO.MARKER_ACCESSION_ID, markerAccession);
+//				r.put(mpTermAcc, (String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID));
+//				r.put(mpTermName, (String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_NAME));
+//
+//				lmap.add(r);
+//
+//			} else {
+//
+//				ArrayList<String> mpTermIds = (ArrayList<String>) doc.getFieldValue(mpTermAcc);
+//				ArrayList<String> mpTermNames = (ArrayList<String>) doc.getFieldValue(mpTermName);
+//
+//				for (int i = 0; i < mpTermIds.size(); i++) {
+//					Map<String, String> r = new HashMap<String, String>();
+//					r.put(GenotypePhenotypeDTO.PHENOTYPING_CENTER, phenotypingCenter);
+//					r.put(GenotypePhenotypeDTO.COLONY_ID, colonyID);
+//					r.put(GenotypePhenotypeDTO.MARKER_SYMBOL, markerSymbol);
+//					r.put(GenotypePhenotypeDTO.MARKER_ACCESSION_ID, markerAccession);
+//					r.put(mpTermAcc, mpTermIds.get(i));
+//					r.put(mpTermName, mpTermNames.get(i));
+//					lmap.add(r);
+//				}
+//			}
+//		}
+//
+//		return lmap;
 
 	}
 
