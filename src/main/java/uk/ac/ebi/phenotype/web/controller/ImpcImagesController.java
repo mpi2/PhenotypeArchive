@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,8 +21,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 
 //import Glacier2.CannotCreateSessionException;
@@ -39,13 +43,26 @@ public class ImpcImagesController {
 		
 		//get experimental images
 		//we will also want to call the getControls method and display side by side
-		SolrDocumentList list = new SolrDocumentList();
+		SolrDocumentList experimental = new SolrDocumentList();
 		QueryResponse responseExperimental2 = imageService.getImagesForGeneByParameter(acc, parameter_stable_id, "experimental", 10000, null, null, null);
 		if (responseExperimental2 != null) {
-			list.addAll(responseExperimental2.getResults());
+			experimental.addAll(responseExperimental2.getResults());
 		}
-		System.out.println("list size="+list.size());
-		model.addAttribute("experimental", list);
+		System.out.println("list size="+experimental.size());
+		SolrDocumentList controls = new SolrDocumentList();
+		//QueryResponse responseControl = imageService.getImagesForGeneByParameter(acc, parameter_stable_id, "control", 6, null, null, null);
+		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
+		int numberOfControls=6;
+		int daysEitherSide=30;//get a month either side
+		QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, SexType.female, daysEitherSide);
+		
+		if (responseControl != null) {
+			controls.addAll(responseControl.getResults());
+		}
+		System.out.println("experimental size="+experimental.size());
+		model.addAttribute("experimental", experimental);
+		System.out.println("controls size="+controls.size());
+		model.addAttribute("controls", controls);
 		return "imagePicker";
 	}
 

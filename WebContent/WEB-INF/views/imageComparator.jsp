@@ -91,7 +91,7 @@ a:hover{color:#fff; text-decoration:none;}
              	<c:forEach var="omeroId" items="${omeroIds}">
              		<%-- <a href="${impcMediaBaseUrl}/render_thumbnail/${omeroId}/200" class="thumb_link"><span class="selected"></span><img src="${impcMediaBaseUrl}/render_image/${omeroId}" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
                 --%> 
-                <a href="${impcMediaBaseUrl}/render_image/${omeroId}" class="thumb_link"><span class="selected"></span><img src="${impcMediaBaseUrl}/render_thumbnail/${omeroId}/200" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
+                <a href="${impcMediaBaseUrl}/render_image/${omeroId}" class="thumb_link"><span class="selected"></span><img src="${impcMediaBaseUrl}/render_thumbnail/${omeroId}/145" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
                
                 </c:forEach>                               
   			</c:if>			
@@ -140,7 +140,7 @@ a:hover{color:#fff; text-decoration:none;}
             <a href="img/space/Universe_and_planets_digital_art_wallpaper_transitorius.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_transitorius_thumb.jpg" title="Transitorius" alt="Transitorius" class="thumb" /></a>
             <a href="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity_thumb.jpg" title="Victim of Gravity" alt="Victim of Gravity" class="thumb" /></a>
             --> <p class="clear"></p>
-            <p>Created by <a href="http://manos.malihu.gr" target="_blank">malihu</a> and his cats on a hot summer day.</p>
+            <p></p>
         </div>
 	</div>
     <div id="dragger_container"><div id="dragger"></div></div>
