@@ -827,7 +827,10 @@ public class FileExportController {
         		+ "\tCandidate genes by phenotype - IMPC data"
         		+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
         		+ "\tCandidate genes by phenotype - MGI data"
-        		+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus"); 
+        		+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus"
+        		//+ "\tGene symbol"
+        		//+ "\tGene id"
+        		); 
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -849,7 +852,14 @@ public class FileExportController {
             data.add(doc.getString("impc_novel_predicted_in_locus"));
             data.add(doc.getString("mgi_predicted"));
             data.add(doc.getString("mgi_novel_predicted_in_locus"));
-
+            //JSONArray gsyms = doc.getJSONArray("marker_symbol");
+            
+            //System.out.println(gsyms);
+            
+            //String gids = doc.getJSONArray("mgi_accession_id").toString();
+            
+            
+            
             rowData.add(StringUtils.join(data, "\t"));
         }
         return rowData;

@@ -16,8 +16,14 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="img" required="true" type="java.util.Map"%>
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
 
-        <li <c:if test="${img.biological_sample_group eq 'control'}">style="background-color:#eee;"</c:if>>
-        <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/${img.omero_id}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
+        <li <c:choose>
+        <c:when test="${img.biological_sample_group eq 'control'}">style="background-color:#eee;"</c:when>
+        <c:when test="${img.sex eq 'female'}">style="background-color:#F79D46;"</c:when>
+        <c:when test="${img.sex eq 'male'}">style="background-color:#0978A1;"</c:when>
+        </c:choose>
+         >
+         <div style="background-color:#FFFFFF;">
+        <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
                                                 <div class="caption">
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
                                                 		<%-- <c:forEach var="maTerm" items="${img.annotationTermName}" varStatus="status">${maTerm}, </c:forEach> --%>
@@ -34,6 +40,7 @@ allele = allele.replaceAll("##", "</sup>");
    												 		
                                                 <br>
                                                 </div> 
+           </div>
                                                 
          </li>                                  
                                           
