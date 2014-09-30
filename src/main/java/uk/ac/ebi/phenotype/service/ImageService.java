@@ -271,8 +271,8 @@ public class ImageService {
 																	// section
 																	// of the
 																	// gene page
-					if (!procedure.getName().equals("Wholemount Expression")) {
-						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, "Adult Lac Z");
+					if (!procedure.getName().equals("Adult LacZ")) {
+						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, "Adult LacZ");
 						
 					}
 				}
