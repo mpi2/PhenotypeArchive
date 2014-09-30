@@ -29,7 +29,6 @@
 <!-- http://rvera.github.io/image-picker/ -->
 </head>
 <body>
-body here ${baseUrl}
 <form action="../../imageComparator" method="post">
 <select name="selectedImages" multiple size="2" class="image-picker show-html">
   <!-- <option data-img-src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/5812/200" value="1">Cute Kitten 1</option>
@@ -42,10 +41,14 @@ body here ${baseUrl}
                                                    <%--  ${entry.name} (${entry.count}) --%>
           
                                                 
-                                                        <c:forEach var="doc" items="${controls}">
+                                                        <c:forEach var="img" items="${controls}">
                                                             
                                                                 <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
-                                                                <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${doc.omero_id}/200" value="${doc.omero_id}">${doc.biological_sample_group}</option>
+                                                                <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
+   												 					<c:if test="${not empty img.sex}">${img.sex}</c:if>
+   												 					<c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
+   												 				</option>
+                                                        		 
                                                         </c:forEach>
                                                     
                                       
@@ -58,10 +61,14 @@ body here ${baseUrl}
                                                    <%--  ${entry.name} (${entry.count}) --%>
           
                                                 
-                                                        <c:forEach var="doc" items="${experimental}">
-                                                            
-                                                                <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
-                                                                <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${doc.omero_id}/200" value="${doc.omero_id}">${doc.biological_sample_group}</option>
+                                                        <c:forEach var="img" items="${experimental}">
+                                                       <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
+                                                       		<%-- <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>  --%>
+                                                 			<c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
+   												 			<c:if test="${not empty img.sex}">${img.sex}</c:if>
+   												 			<c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
+   												 		</option>
+                                                        	 
                                                         </c:forEach>
                                                     
                                       
@@ -69,7 +76,7 @@ body here ${baseUrl}
                                   
   </c:if>			
 </select>
-<input type="submit" value="submit">
+<input type="submit" value="Click to display selected images">
 </form>
 
  

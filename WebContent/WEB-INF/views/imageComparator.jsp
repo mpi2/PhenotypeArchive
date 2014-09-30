@@ -83,63 +83,16 @@ a:hover{color:#fff; text-decoration:none;}
 <c:when test="${error!=null}"><h1>Image Comparator <span class="lightgrey">ERROR</span> <br /><span class="light"><span class="grey"><span class="s36">${error}</span></span></span></h1>
             </c:when>
 <c:otherwise>
-        	<!-- <h1>SIDE<span class="lightgrey">WAYS</span> <br /><span class="light"><span class="grey"><span class="s36">JQUERY FULLSCREEN IMAGE GALLERY</span></span></span></h1>
-            <p>A simple, yet elegant fullscreen image gallery created with the jQuery framework and some simple CSS. <a href="http://manos.malihu.gr/sideways-jquery-fullscreen-image-gallery" target="_blank">Full post and download files.</a></p>
-             --><div id="toolbar"></div><div class="clear"></div>
-             <!-- <a href="img/space/Universe_and_planets_digital_art_wallpaper_lucernarium.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_lucernarium_thumb.jpg" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
-              -->  <c:if test="${not empty omeroIds}">
+        	<div id="toolbar"></div><div class="clear"></div>
+            <c:if test="${not empty omeroIds}">
              	<c:forEach var="omeroId" items="${omeroIds}">
-             		<%-- <a href="${impcMediaBaseUrl}/render_thumbnail/${omeroId}/200" class="thumb_link"><span class="selected"></span><img src="${impcMediaBaseUrl}/render_image/${omeroId}" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
-                --%> 
-                <a href="${impcMediaBaseUrl}/render_image/${omeroId}" class="thumb_link"><span class="selected"></span><img src="${impcMediaBaseUrl}/render_thumbnail/${omeroId}/145" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
+             		
+                <a href="${impcMediaBaseUrl}/render_image/${omeroId}" class="thumb_link"><span class="selected"></span><img src="${impcMediaBaseUrl}/render_thumbnail/${omeroId}/145" title="${omeroId}" alt="Supremus Lucernarium" class="thumb" /></a>
                
                 </c:forEach>                               
   			</c:if>			
             
-            <!-- <a href="img/space/Universe_and_planets_digital_art_wallpaper_denebola.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_denebola_thumb.jpg" title="Denebola" alt="Denebola" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_lux.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_lux_thumb.jpg" title="Lux Aeterna" alt="Lux Aeterna" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_dk.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_dk_thumb.jpg" title="X-Wing on patrol" alt="X-Wing on patrol" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_albireo.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_albireo_thumb.jpg" title="Albireo Outpost" alt="Albireo Outpost" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_church.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_church_thumb.jpg" title="Church of Heaven" alt="Church of Heaven" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_Decampment.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_Decampment_thumb.jpg" title="Decampment" alt="Decampment" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_Hibernaculum.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_Hibernaculum_thumb.jpg" title="Hibernaculum" alt="Hibernaculum" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_moons.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_moons_thumb.jpg" title="Aurea Mediocritas" alt="Aurea Mediocritas" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio_thumb.jpg" title="Praedestinatio" alt="Praedestinatio" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_transitorius.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_transitorius_thumb.jpg" title="Transitorius" alt="Transitorius" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity_thumb.jpg" title="Victim of Gravity" alt="Victim of Gravity" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_lucernarium.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_lucernarium_thumb.jpg" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_denebola.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_denebola_thumb.jpg" title="Denebola" alt="Denebola" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_lux.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_lux_thumb.jpg" title="Lux Aeterna" alt="Lux Aeterna" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_dk.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_dk_thumb.jpg" title="X-Wing on patrol" alt="X-Wing on patrol" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_albireo.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_albireo_thumb.jpg" title="Albireo Outpost" alt="Albireo Outpost" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_church.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_church_thumb.jpg" title="Church of Heaven" alt="Church of Heaven" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_Decampment.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_Decampment_thumb.jpg" title="Decampment" alt="Decampment" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_Hibernaculum.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_Hibernaculum_thumb.jpg" title="Hibernaculum" alt="Hibernaculum" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_moons.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_moons_thumb.jpg" title="Aurea Mediocritas" alt="Aurea Mediocritas" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio_thumb.jpg" title="Praedestinatio" alt="Praedestinatio" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_transitorius.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_transitorius_thumb.jpg" title="Transitorius" alt="Transitorius" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity_thumb.jpg" title="Victim of Gravity" alt="Victim of Gravity" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_dk.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_dk_thumb.jpg" title="X-Wing on patrol" alt="X-Wing on patrol" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_albireo.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_albireo_thumb.jpg" title="Albireo Outpost" alt="Albireo Outpost" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_church.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_church_thumb.jpg" title="Church of Heaven" alt="Church of Heaven" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_Decampment.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_Decampment_thumb.jpg" title="Decampment" alt="Decampment" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_Hibernaculum.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_Hibernaculum_thumb.jpg" title="Hibernaculum" alt="Hibernaculum" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_moons.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_moons_thumb.jpg" title="Aurea Mediocritas" alt="Aurea Mediocritas" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio_thumb.jpg" title="Praedestinatio" alt="Praedestinatio" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_transitorius.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_transitorius_thumb.jpg" title="Transitorius" alt="Transitorius" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity_thumb.jpg" title="Victim of Gravity" alt="Victim of Gravity" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity_thumb.jpg" title="Victim of Gravity" alt="Victim of Gravity" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_lucernarium.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_lucernarium_thumb.jpg" title="Supremus Lucernarium" alt="Supremus Lucernarium" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_denebola.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_denebola_thumb.jpg" title="Denebola" alt="Denebola" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_lux.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_lux_thumb.jpg" title="Lux Aeterna" alt="Lux Aeterna" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_dk.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_dk_thumb.jpg" title="X-Wing on patrol" alt="X-Wing on patrol" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_albireo.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_albireo_thumb.jpg" title="Albireo Outpost" alt="Albireo Outpost" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_church.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_church_thumb.jpg" title="Church of Heaven" alt="Church of Heaven" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_Decampment.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_Decampment_thumb.jpg" title="Decampment" alt="Decampment" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_praedestinatio_thumb.jpg" title="Praedestinatio" alt="Praedestinatio" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_transitorius.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_transitorius_thumb.jpg" title="Transitorius" alt="Transitorius" class="thumb" /></a>
-            <a href="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity.jpg" class="thumb_link"><span class="selected"></span><img src="img/space/Universe_and_planets_digital_art_wallpaper_victimofgravity_thumb.jpg" title="Victim of Gravity" alt="Victim of Gravity" class="thumb" /></a>
-            --> <p class="clear"></p>
+            <p class="clear"></p>
             <p></p>
         </div>
 	</div>
@@ -148,7 +101,7 @@ a:hover{color:#fff; text-decoration:none;}
 </div>
 <div id="bg">
     <!-- <img src="img/space/Universe_and_planets_digital_art_wallpaper_lucernarium.jpg" title="Supremus Lucernarium" id="bgimg" /> -->
-     <img src="${impcMediaBaseUrl}/render_image/${omeroIds[0]}" title="Supremus Lucernarium" id="bgimg"/>
+     <img src="${impcMediaBaseUrl}/render_image/${omeroIds[0]}" title="${omeroIds[0]}" id="bgimg"/>
                
 	<div id="preloader"><img src="img/ajax-loader_dark.gif" width="32" height="32" align="absmiddle" />LOADING...</div>
     <div id="arrow_indicator"><img src="img/sw_arrow_indicator.png" width="50" height="50"  /></div>
