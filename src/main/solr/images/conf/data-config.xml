@@ -29,6 +29,7 @@
     <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
    	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	
 	<document name="komp2_indexing">
 		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
@@ -311,17 +312,19 @@
 						query="select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
 						where="term_id=mpAnnotations.TERM_ID" >
 					
-						<entity dataSource="mp_core" name="mpCore" 
+						<entity dataSource="phenodigm_core" name="mpHp"
 							stream="true" 
-							url="q=mp_id:&quot;${nodeIds.term_id}&quot;&amp;wt=normal&amp;rows=99999&amp;fl=hp_id,hp_term"
-							processor="XPathEntityProcessor" 
-							forEach="/response/result/doc/" onError="continue"							
-							readTimeout="10000" connectionTimeout="10000"  >
-				
-							<field column="hp_id" xpath="/response/result/doc/arr[@name='hp_id']/str" />					
-							<field column="hp_term" xpath="/response/result/doc/arr[@name='hp_term']/str" />
-						</entity>
+							onError="continue"
+							forEach="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/"
+							url="q=mp_id:&quot;${nodeIds.term_id}&quot;&amp;rows=1&amp;fq=type:hp_mp&amp;group=on&amp;group.field=mp_id&amp;group.limit=-1&amp;fl=hp_id,hp_term"
+							processor="XPathEntityProcessor" >
+								
+							<field column="hp_id"   xpath="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/str[@name='hp_id']" />
+							<field column="hp_term" xpath="/response/lst[@name='grouped']/lst[@name='mp_id']/arr[@name='groups']/lst/result/doc/str[@name='hp_term']" />
 					
+					
+						</entity>	
+						
 						<!-- top level MP terms of this MP term -->
 						<!-- <entity dataSource="ontods" name="mps" query="SELECT top_level_node_id, concat('${mpAnnotations.TERM_NAME}', '_${mpAnnotations.TERM_ID}') as mpTermName, mp.term_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${mpAnnotations.TERM_ID}' and mp.node_id=tl.node_id"> -->
 						<entity dataSource="ontods" name="mps" query="SELECT top_level_node_id, concat('${mpAnnotations.TERM_NAME}', '_${mpAnnotations.TERM_ID}') as mpTermName, mp.term_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE mp.node_id=${nodeIds.node_id} and mp.node_id=tl.node_id">
