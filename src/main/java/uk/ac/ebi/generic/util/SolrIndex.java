@@ -450,9 +450,12 @@ public class SolrIndex {
 		log.debug("GETTING CONTENT FROM: " + url);
 		
 		HttpProxy proxy = new HttpProxy();
-		String content = proxy.getContent(new URL(url));
-
-		return (JSONObject) JSONSerializer.toJSON(content);
+		try {
+                    String content = proxy.getContent(new URL(url));
+                    return (JSONObject) JSONSerializer.toJSON(content);
+		} catch (Exception e) {
+                }
+		return null;
 	}
 
 	/**
