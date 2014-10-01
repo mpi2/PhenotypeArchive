@@ -47,50 +47,81 @@ public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
     // TODO: get rid!
-    private static final String VERSIONDATE = "Mon Sep 22 2014";
+    private static final String VERSIONDATE = "Wed Oct 1 BST 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;
 
     // TODO: remove me!
 
-    private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
+    //private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
+    private HashMap<String, String> makeItem(Map<String, Object> map2) {
         HashMap<String, String> map = new HashMap<>();
-        map.put("marker_symbol", marker_symbol);
-        map.put("allele_name", allele_name);
-        map.put("allele_name_e", URLEncoder.encode(allele_name));
-        map.put("mgi_accession_id", mgi_accession_id);
-        map.put("solr_product", "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q="
-                + "marker_symbol:" + marker_symbol
-                + "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=");
+        map.put("marker_symbol", (String)map2.get("marker_symbol"));
+        map.put("allele_name", (String)map2.get("allele_name"));
+        map.put("allele_name_e", URLEncoder.encode((String)map2.get("allele_name")));
+        map.put("mgi_accession_id", (String)map2.get("mgi_accession_id"));
+        map.put("type", (String)map2.get("type"));
+        
+//        map.put("solr_product", "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q="
+//                + "marker_symbol:" + map2.get("marker_symbol")
+//                + "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=");
+
+        if(map2.get("allele_name").equals("None")) {
+            String stuff = "";
+            if(map2.containsKey("allele_type") && ! ((String)map2.get("allele_type")).isEmpty()) {
+                stuff += "Allele Type: " + map2.get("allele_type") + " ";
+            }
+            if(map2.containsKey("design_id") && ! ((String)map2.get("design_id")).isEmpty()) {
+               stuff += "Design id: " + map2.get("design_id") + " ";
+            }
+            if(map2.containsKey("cassette") && ! ((String)map2.get("cassette")).isEmpty()) {
+               stuff += "Cassette: " + map2.get("cassette");
+            }
+            
+            if(stuff.isEmpty()) {
+                map.put("display_name", (String)map2.get("marker_symbol"));
+            }
+            else {
+                map.put("display_name", map2.get("marker_symbol") + " (" + stuff + ")");
+            }
+        } else {
+            map.put("display_name", map2.get("marker_symbol") + "<sup>" + map2.get("allele_name") + "</sup>");
+        }
+
+        map.put("display_name", map.get("display_name") + " (" + map.get("type") + ")");
+        
+        if(!map.get("type").equals("intermediate_vector") && ! map.get("allele_name").isEmpty()) {     // && map.get("allele_name").equals("None"))) {
+            map.put("link", "OK");
+        }
 
         log.info("#### makeItem...");
 
-        HashMap<String, String> params1 = new HashMap<>();
-        params1.put("allele_name", allele_name);
-        params1.put("marker_symbol", marker_symbol);
-        params1.put("type", "mouse");
-        map.put("solr_product_mouse", solrIndex2.getGeneProductCoreUrl2(params1));
-
-        params1 = new HashMap<>();
-        params1.put("allele_name", allele_name);
-        params1.put("marker_symbol", marker_symbol);
-        params1.put("type", "es_cell");
-        map.put("solr_product_es_cell", solrIndex2.getGeneProductCoreUrl2(params1));
-
-        params1 = new HashMap<>();
-        params1.put("allele_name", allele_name);
-        params1.put("marker_symbol", marker_symbol);
-        params1.put("type", "targeting_vector");
-        map.put("solr_product_targeting_vector", solrIndex2.getGeneProductCoreUrl2(params1));
-
-        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q="
-                + "TEMPLATE"
-                + "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=&indent=on";
-
-        map.put("solr_allele2", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol));
-        map.put("solr_allele2_alleles", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol + " type:allele"));
-        map.put("solr_allele2_genes", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol + " type:gene"));
+//        HashMap<String, String> params1 = new HashMap<>();
+//        params1.put("allele_name", map2.get("allele_name"));
+//        params1.put("marker_symbol", map2.get("marker_symbol"));
+//        params1.put("type", "mouse");
+//        map.put("solr_product_mouse", solrIndex2.getGeneProductCoreUrl2(params1));
+//
+//        params1 = new HashMap<>();
+//        params1.put("allele_name", allele_name);
+//        params1.put("marker_symbol", marker_symbol);
+//        params1.put("type", "es_cell");
+//        map.put("solr_product_es_cell", solrIndex2.getGeneProductCoreUrl2(params1));
+//
+//        params1 = new HashMap<>();
+//        params1.put("allele_name", allele_name);
+//        params1.put("marker_symbol", marker_symbol);
+//        params1.put("type", "targeting_vector");
+//        map.put("solr_product_targeting_vector", solrIndex2.getGeneProductCoreUrl2(params1));
+//
+//        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q="
+//                + "TEMPLATE"
+//                + "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=&indent=on";
+//
+//        map.put("solr_allele2", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol));
+//        map.put("solr_allele2_alleles", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol + " type:allele"));
+//        map.put("solr_allele2_genes", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol + " type:gene"));
 
         log.info("#### makeItem: map: " + map.toString());
 
@@ -160,7 +191,8 @@ public class AllelesController {
                     continue;
                 }
             }
-            Map<String, String> i = makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id"));
+            //Map<String, String> map2 = new HashMap<>();
+            Map<String, String> i = makeItem(item);
             if(i != null) {
                 list.add(i);
             }
@@ -205,7 +237,7 @@ public class AllelesController {
                     continue;
                 }
             }
-            Map<String, String> i = makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id"));
+            Map<String, String> i = makeItem(item);
             if(i != null) {
                 list.add(i);
             }
@@ -228,17 +260,28 @@ public class AllelesController {
         log.info("#### alleles1...");
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(acc);
-        List<Map<String, String>> list = new ArrayList<>();
+        List<Map<String, String>> list_alleles = new ArrayList<>();
+        List<Map<String, String>> list_none_alleles = new ArrayList<>();
+        String mgi_accession_id = "Unknown";
 
         if (list1 != null) {
             for (Map<String, Object> item : list1) {
-                list.add(makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id")));
+                if(((String) item.get("allele_name")).equals("None")) {
+                    list_none_alleles.add(makeItem(item));
+                }
+                else {
+                    list_alleles.add(makeItem(item));
+                }
+                mgi_accession_id = (String)item.get("mgi_accession_id");
             }
         }
 
-        log.info("#### alleles1: list1: " + list1);
+        log.info("#### alleles1: list1: " + list1);        
+        
+        model.addAttribute("mgi_accession_id", mgi_accession_id);
 
-        model.addAttribute("list", list);
+        model.addAttribute("list_alleles", list_alleles);
+        model.addAttribute("list_none_alleles", list_none_alleles);
 
         model.addAttribute("versionDate", VERSIONDATE);
 
@@ -415,6 +458,10 @@ public class AllelesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
+        log.info("#### AllelesController::alleles2");
+        log.info("#### acc: " + acc);
+        log.info("#### allele_name: " + allele_name);
+
         return allelesCommon(acc, allele_name, model, request, attributes, false);
     }
 
@@ -428,6 +475,11 @@ public class AllelesController {
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        log.info("#### AllelesController::alleles3");
+        log.info("#### acc: " + acc);
+        log.info("#### allele_name: " + allele_name);
+
         return allelesCommon(acc, allele_name, model, request, attributes, debug.equals("debug"));
     }
 
@@ -439,7 +491,7 @@ public class AllelesController {
             RedirectAttributes attributes,
             boolean debug) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-        log.info("#### AllelesController::alleles");
+        log.info("#### AllelesController::allelesCommon");
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);
 
