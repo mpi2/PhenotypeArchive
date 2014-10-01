@@ -267,6 +267,8 @@ public class SolrIndex2 {
 
         HashMap<String, Object> map2 = new HashMap<>();
 
+        map2.put("type", type);
+
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
         //map2.put("contacts", getGeneProductInfoOrderContactInfo("contact", jsonObject2));
         map2.put("contacts", getGeneProductInfoContactInfo(jsonObject2));
@@ -442,6 +444,9 @@ public class SolrIndex2 {
         }
 
         HashMap<String, Object> map2 = new HashMap<>();
+
+        map2.put("type", type);
+
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
 
         String parental_cell_line = getGeneProductInfoArrayEntry("parent_es_cell_line", jsonObject2.getJSONArray("genetic_info"));
@@ -465,7 +470,8 @@ public class SolrIndex2 {
 
         String targeting_vectors = jsonObject2.getString("associated_product_vector_name");
 
-        map2.put("targeting_vector", targeting_vectors);
+        map2.put("targeting_vector", targeting_vectors);    // TODO: fix me!
+        map2.put("associated_product_vector_name", targeting_vectors);
 
         map2.put("southern_tool", "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=" + jsonObject2.getString("name") + "&iframe=true&width=100%&height=100%");
 
@@ -483,7 +489,7 @@ public class SolrIndex2 {
         if (jsonObject2.has("allele_has_issues")) {
             map2.put("allele_has_issue", jsonObject2.getString("allele_has_issues"));
         }
-
+        
         return map2;
     }
 
@@ -569,6 +575,9 @@ public class SolrIndex2 {
         }
 
         HashMap<String, Object> map2 = new HashMap<>();
+
+        map2.put("type", jsonObject2.getString("type"));
+
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
 
         String cassette = getGeneProductInfoArrayEntry("cassette", jsonObject2.getJSONArray("genetic_info"));
@@ -596,6 +605,7 @@ public class SolrIndex2 {
         map2.put("name", jsonObject2.getString("name"));
         map2.put("marker_symbol", jsonObject2.getString("marker_symbol"));
         map2.put("allele_name", jsonObject2.getString("allele_name"));
+        map2.put("design_id", jsonObject2.getString("design_id"));
 
         //http://www.mousephenotype.org/imits/targ_rep/alleles/903/vector-image
         String allele_image = getGeneProductInfoArrayEntry("allele_image", jsonObject2.getJSONArray("other_links"));
@@ -778,30 +788,30 @@ public class SolrIndex2 {
             }
         }
 
-        if (mice_new.size() > 0 && targeting_vectors != null) {
-
-            log.info("#### do vectors");
-
-            for (Map<String, Object> mouse : mice_new) {
-                log.info("#### mouse: " + mouse.toString());
-
-                Iterator<Map<String, Object>> i2 = targeting_vectors.iterator();
-                while (i2.hasNext()) {
-                    Map<String, Object> targeting_vector = i2.next();
-
-                    if (mouse.containsKey("associated_product_vector_name")) {
-                        log.info("#### associated_product_vector_name: " + mouse.get("associated_product_vector_name"));
-                        log.info("#### name: " + targeting_vector.get("name"));
-                        log.info("#### targeting_vector: " + targeting_vector.get("targeting_vector"));
-
-                        if (mouse.get("associated_product_vector_name").equals(targeting_vector.get("name"))) {
-                            vectors_new.add(targeting_vector);
-                            i2.remove();
-                        }
-                    }
-                }
-            }
-        }
+//        if (mice_new.size() > 0 && targeting_vectors != null) {
+//
+//            log.info("#### do vectors");
+//
+//            for (Map<String, Object> mouse : mice_new) {
+//                log.info("#### mouse: " + mouse.toString());
+//
+//                Iterator<Map<String, Object>> i2 = targeting_vectors.iterator();
+//                while (i2.hasNext()) {
+//                    Map<String, Object> targeting_vector = i2.next();
+//
+//                    if (mouse.containsKey("associated_product_vector_name")) {
+//                        log.info("#### associated_product_vector_name: " + mouse.get("associated_product_vector_name"));
+//                        log.info("#### name: " + targeting_vector.get("name"));
+//                        log.info("#### targeting_vector: " + targeting_vector.get("targeting_vector"));
+//
+//                        if (mouse.get("associated_product_vector_name").equals(targeting_vector.get("name"))) {
+//                            vectors_new.add(targeting_vector);
+//                            i2.remove();
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         if (mice_new.size() > 0) {
             mice_new.addAll(mice);
@@ -810,7 +820,10 @@ public class SolrIndex2 {
             cells_new.addAll(es_cells);
             genes.put("es_cells", cells_new);
 
-            vectors_new.addAll(targeting_vectors);
+            if(targeting_vectors != null) {
+                vectors_new.addAll(targeting_vectors);
+            }
+            
             genes.put("targeting_vectors", vectors_new);
         }
 
@@ -963,6 +976,23 @@ public class SolrIndex2 {
         return url;
     }
 
+    private String getGeneAllele2CoreUrlxxx(String accession, String allele_name) {
+        String qallele_name = "";
+        if (allele_name != null) {
+            qallele_name = " " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
+        }
+
+        String url = ALLELE2_CORE_URL + "/solr/allele2/search?q=" +
+                "type:allele mgi_accession_id:"
+                + accession.replace(":", "\\:")
+                + qallele_name
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        log.info("#### getGeneAllele2CoreUrl: url: " + url);
+        
+        return url;
+    }
+
     public String getGeneProductCoreUrl2(Map<String, String> params) {
         log.info("#### getGeneProductCoreUrl2");
 
@@ -1032,17 +1062,18 @@ public class SolrIndex2 {
             }
         }
 
-        String left = "(-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name + ")";
-        String right = "(type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_type + ")";
+        //String left = "(-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name + ")";
+        String left = "-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
+     //   String right = "(type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_type + ")";
 
         String url = ALLELE2_CORE_URL + "/solr/product/select?q="
                 + left
-                + " OR "
-                + right
+           //     + " OR "
+           //     + right
                 + "&start=0&rows=100&hl=true&wt=json";
 
         log.info("####### getGeneProductCoreUrlAlt3: left: " + left);
-        log.info("####### getGeneProductCoreUrlAlt3: right: " + right);
+      //  log.info("####### getGeneProductCoreUrlAlt3: right: " + right);
         log.info("####### getGeneProductCoreUrlAlt3: url: " + url);
 
         return url;
@@ -1371,51 +1402,51 @@ public class SolrIndex2 {
         return mapper;
     }
     
-    private Map<String, Object> getSummaryTargetingVector(
-            String accession, 
-            String allele_name, 
-            Map<String, Object> mapper
-    ) throws IOException, URISyntaxException {
-        List<Map<String, Object>> targeting_vectors = (List<Map<String, Object>>)mapper.get("targeting_vectors");
-        List<Map<String, Object>> mice = (List<Map<String, Object>>)mapper.get("mice");
-        List<Map<String, Object>> es_cells = (List<Map<String, Object>>)mapper.get("es_cells");
-        Map<String, Object> summary = new HashMap<>();
-
-        log.info("#### getSummaryTargetingVector: start...");
-        
-        if(targeting_vectors == null || targeting_vectors.size() < 1) {
-            summary.put("allele_description", "Limited information available...");
-            return summary;
-        }
-
-        log.info("#### getSummaryTargetingVector: count: " + targeting_vectors.size());
-        
-        Map<String, Object> targeting_vector = (Map<String, Object>)targeting_vectors.get(0);
-
-        log.info("#### getSummaryTargetingVector: targeting_vector: " + targeting_vectors);
-        
-        if(targeting_vector.containsKey("allele_image")) {
-            String allele_image = (String)targeting_vector.get("allele_image");
-            allele_image = allele_image.replace("vector-image", "allele-image?simple=true");
-            summary.put("map_image", allele_image);
-        }
-        
-        if(targeting_vector.containsKey("genbank_file_url")) {
-            summary.put("buttons", "true"); // dodgy flag to indicate if we have data - TODO: fix!
-            summary.put("genbank", targeting_vector.get("genbank_file_url"));
-        }       
-        
-        if((mice == null || mice.size() < 1) && (es_cells == null || es_cells.size() < 1)) {
-            summary.put("allele_description", "Only Targeting Vectors available");
-        }
-        else {
-            summary.put("allele_description", "Limited information available...");
-        }
-        
-        log.info("#### getSummaryTargetingVector: summary: " + summary);
-        
-        return summary;
-    }
+//    private Map<String, Object> getSummaryTargetingVector(
+//            String accession, 
+//            String allele_name, 
+//            Map<String, Object> mapper
+//    ) throws IOException, URISyntaxException {
+//        List<Map<String, Object>> targeting_vectors = (List<Map<String, Object>>)mapper.get("targeting_vectors");
+//        List<Map<String, Object>> mice = (List<Map<String, Object>>)mapper.get("mice");
+//        List<Map<String, Object>> es_cells = (List<Map<String, Object>>)mapper.get("es_cells");
+//        Map<String, Object> summary = new HashMap<>();
+//
+//        log.info("#### getSummaryTargetingVector: start...");
+//        
+//        if(targeting_vectors == null || targeting_vectors.size() < 1) {
+//            summary.put("allele_description", "Limited information available...");
+//            return summary;
+//        }
+//
+//        log.info("#### getSummaryTargetingVector: count: " + targeting_vectors.size());
+//        
+//        Map<String, Object> targeting_vector = (Map<String, Object>)targeting_vectors.get(0);
+//
+//        log.info("#### getSummaryTargetingVector: targeting_vector: " + targeting_vectors);
+//        
+//        if(targeting_vector.containsKey("allele_image")) {
+//            String allele_image = (String)targeting_vector.get("allele_image");
+//            allele_image = allele_image.replace("vector-image", "allele-image?simple=true");
+//            summary.put("map_image", allele_image);
+//        }
+//        
+//        if(targeting_vector.containsKey("genbank_file_url")) {
+//            summary.put("buttons", "true"); // dodgy flag to indicate if we have data - TODO: fix!
+//            summary.put("genbank", targeting_vector.get("genbank_file_url"));
+//        }       
+//        
+//        if((mice == null || mice.size() < 1) && (es_cells == null || es_cells.size() < 1)) {
+//            summary.put("allele_description", "Only Targeting Vectors available");
+//        }
+//        else {
+//            summary.put("allele_description", "Limited information available...");
+//        }
+//        
+//        log.info("#### getSummaryTargetingVector: summary: " + summary);
+//        
+//        return summary;
+//    }
     
     private Map<String, Object> getSummary(
             String accession, 
@@ -1426,8 +1457,14 @@ public class SolrIndex2 {
         List<Map<String, Object>> mice = (List<Map<String, Object>>)mapper.get("mice");
         Object loa_assays = mapper.get("loa_assays");
         List<Map<String, String>> constructs2 = getGeneAllele2Info(accession, allele_name);
+        if(constructs2 == null) {
+            constructs2 = getGeneAllele2Info(accession, null);
+        }
+        
         List<HashMap<String, Object>> summaries = new ArrayList<>();
 
+        log.info("#### getSummary: constructs2: " + constructs2);
+        
         if (constructs2 != null) {
             for (Map<String, String> item : constructs2) {
                 HashMap<String, Object> summary = new HashMap<>();
@@ -1463,7 +1500,7 @@ public class SolrIndex2 {
                                     + mouse.get("associated_product_es_cell_name")
                                     + "&iframe=true&width=100%&height=100%";
                             southern_tools.add(st);
-                            log.info("#### getGeneProductInfo: southern_tool: " + st);
+                            log.info("#### getSummary: southern_tool: " + st);
                         }
                     }
                     summary.put("southern_tools", southern_tools);
@@ -1482,14 +1519,14 @@ public class SolrIndex2 {
                 summary.put("status_mice", getGeneProductInfoStatusesMouseAlt(mapper));
 
                 if (loa_assays != null) {
-                    log.info("#### getGeneProductInfo: loa_assay: " + loa_assays);
+                    log.info("#### getSummary: loa_assay: " + loa_assays);
                     summary.put("loa_assays", loa_assays);
                 }
 
                 summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
 
-                log.info("#### getGeneProductInfo: status_mice: " + mapper.get("status_mice"));
-                log.info("#### getGeneProductInfo: status_es_cells: " + mapper.get("status_es_cells"));
+                log.info("#### getSummary: status_mice: " + mapper.get("status_mice"));
+                log.info("#### getSummary: status_es_cells: " + mapper.get("status_es_cells"));
 
                 if (item.containsKey("ensembl_url")) {
                     HashMap<String, String> map3 = new HashMap<>();
@@ -1535,13 +1572,157 @@ public class SolrIndex2 {
 //        return getSummaryTargetingVector(accession, allele_name, mapper);
         
         if (summaries.isEmpty()) {
-            return getSummaryTargetingVector(accession, allele_name, mapper);
+            //return getSummaryTargetingVector(accession, allele_name, mapper);
+            return null;
         }
 //        else {
 //            return summaries.get(0);
 //        }
         
         return summaries.get(0);
+    }
+    
+    // Allele Type:{allele type} Design_id: {design_id} Cassette: {cassette}
+    
+    private void fixAlleleName(Map<String, Object> targeting_vector) {
+        if(targeting_vector.containsKey("allele_name") && ((String)targeting_vector.get("allele_name")).equals("None")) {
+            targeting_vector.put("allele_name", 
+                    "Allele Type: " + (String)targeting_vector.get("allele_type") + 
+                    " Design id: " + (String)targeting_vector.get("design_id") +
+                    " Cassette: " + (String)targeting_vector.get("cassette") 
+            );
+        }
+    }
+    
+    private List<Map<String, Object>> getGeneProductInfoTVs(String accession, String allele_name, List<Map<String, Object>> es_cells) throws IOException, URISyntaxException {
+        List<String> associated_targeting_vectors = new ArrayList();
+        List<Map<String, Object>> targeting_vectors = new ArrayList<>();
+        List<String> targeting_vector_names = new ArrayList();
+        
+        log.info("#### getGeneProductInfoTVs: es_cells: " + es_cells);
+        
+        for (Map<String, Object> es_cell : es_cells) {
+            if(es_cell.containsKey("associated_product_vector_name")) {
+                associated_targeting_vectors.add((String)es_cell.get("associated_product_vector_name"));
+            }
+        }
+        
+        if(!associated_targeting_vectors.isEmpty()) {       
+            List<String> targets = new ArrayList();
+            for(String name : associated_targeting_vectors) {
+                targets.add("name:\"" + name + "\"");
+            }
+
+            String t = StringUtils.join(targets, " OR ");
+            
+            String url2 = ALLELE2_CORE_URL + "/solr/product/select?q="
+                    + "type:targeting_vector " 
+                    + "AND (" + t + ")"
+                    + "&start=0&rows=100&hl=true&wt=json";        
+
+            log.info("#### url for getGeneProductInfoTVs=" + url2);
+
+            JSONObject jsonObject1 = getResults(url2);
+
+            JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+
+            if (docs.size() < 1) {
+                log.info("#### getGeneProductInfoTVs: no rows returned for the query!");
+                return null;
+            }
+            
+          //  targeting_vectors = new ArrayList<>();
+            
+            for (Object doc : docs) {
+                JSONObject jsonObject22 = (JSONObject) doc;
+                String type = jsonObject22.getString("type");
+
+                if (type.equals("targeting_vector")) {
+                    Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject22);
+                    targeting_vectors.add(targeting_vector);
+                    fixAlleleName(targeting_vector);
+                    targeting_vector_names.add((String)targeting_vector.get("name"));
+                }            
+            }
+        }
+
+        log.info("#### getGeneProductInfoTVs: targeting_vectors: " + targeting_vectors);
+        
+        // - Secondly grab the cassette and design_id from the allele2 core record and find all targeting_vectors in the Product Core which have a matching cassette and design_id 
+        
+        JSONObject jsonObject1 = getResults(getGeneAllele2CoreUrlxxx(accession, allele_name));
+
+        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+        
+        String cassette = "";
+        String design_id = "";
+
+        if (docs.size() > 0) {
+            for (Object doc : docs) {
+                JSONObject jsonObject21 = (JSONObject) doc;
+                //String type = jsonObject21.getString("type");
+                String allele_name3 = (String)jsonObject21.getString("allele_name");
+                
+                // Also do not search using cassette and design_id if allele type is tm1e (i.e. only show targeting vectors used to create any existing es_cells).
+                
+//                if(allele_name3.equals("tm1e")) {
+//                    continue;
+//                }
+                
+                //allele_name_str
+                
+//                if(!type.equals("allele")) {
+//                    continue;
+//                }
+
+//                if (type.equals("targeting_vector")) {
+//                    Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
+//                    targeting_vectors.add(targeting_vector);
+//                }            
+                
+                // 2. alleles who have allele_name set to 'None' should not display the allele name, but should instead display the 
+                // following Title made up of the allele type, cassette and design_id:
+                // Allele Type:{allele type} Design_id: {design_id} Cassette: {cassette}
+                
+                if(jsonObject21.containsKey("cassette") && jsonObject21.containsKey("design_id")) {
+                    cassette = (String)jsonObject21.get("cassette");
+                    design_id = (String)jsonObject21.get("design_id");
+                    break;
+                }
+            }
+        }
+
+        // Also do not search using cassette and design_id if allele type is tm1e (i.e. only show targeting vectors used to create any existing es_cells).
+        
+        if(!cassette.isEmpty() && !design_id.isEmpty()) {
+            String url = ALLELE2_CORE_URL + "/solr/product/select?q="
+                    + "type:targeting_vector " 
+                    + "AND (cassette_str:\"" + cassette + "\" design_id_str:\"" + design_id + "\")"
+                    + "&start=0&rows=100&hl=true&wt=json";        
+
+            log.info("#### url for getGeneProductInfoTVs second: " + url);
+
+            JSONObject jsonObject2 = getResults(url);
+
+            JSONArray docs2 = jsonObject2.getJSONObject("response").getJSONArray("docs");
+
+            if (docs2.size() > 0) {
+                for (Object doc : docs2) {
+                    JSONObject jsonObject31 = (JSONObject) doc;
+                    String type = jsonObject31.getString("type");
+
+                    if (type.equals("targeting_vector")) {
+                        Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject31);
+                        if(!targeting_vector_names.contains((String)targeting_vector.get("name"))) {
+                            fixAlleleName(targeting_vector);
+                            targeting_vectors.add(targeting_vector);
+                        }
+                    }            
+                }            
+            }            
+        }       
+        
+        return targeting_vectors;
     }
 
     public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
@@ -1564,7 +1745,7 @@ public class SolrIndex2 {
         Map<String, Object> mapper = new HashMap<>();
         List<Map<String, Object>> mice = new ArrayList<>();
         List<Map<String, Object>> es_cells = new ArrayList<>();
-        List<Map<String, Object>> targeting_vectors = new ArrayList<>();
+        //List<Map<String, Object>> targeting_vectors = null;         //new ArrayList<>();
 
         String title;
         String marker_symbol = "";
@@ -1591,14 +1772,16 @@ public class SolrIndex2 {
                 es_cells.add(es_cell);
             }
 
-            if (type.equals("targeting_vector")) {
-                Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
-                String ms = (String)targeting_vector.get("marker_symbol");
-                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
-                targeting_vectors.add(targeting_vector);
-            }
+//            if (type.equals("targeting_vector")) {
+//                Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
+//                String ms = (String)targeting_vector.get("marker_symbol");
+//                marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
+//                targeting_vectors.add(targeting_vector);
+//            }
         }
 
+        List<Map<String, Object>> targeting_vectors = getGeneProductInfoTVs(accession, allele_name, es_cells);
+        
         log.info("#### getGeneProductInfo: mice.size(): " + mice.size());
         log.info("#### getGeneProductInfo: es_cells.size(): " + es_cells.size());
 
@@ -1767,9 +1950,12 @@ public class SolrIndex2 {
             hash.put("allele_name", jsonObject2.get("allele_name"));
             hash.put("mgi_accession_id", jsonObject2.get("mgi_accession_id"));
             hash.put("allele_type", jsonObject2.get("allele_type"));
+            hash.put("type", jsonObject2.get("type"));
             list.add(hash);
         }
 
+        log.info("#### getProductGeneDetails: " + list);
+        
         return list;
     }
 
