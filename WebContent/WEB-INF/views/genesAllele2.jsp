@@ -67,7 +67,7 @@
 
                                 <c:if test="${not empty alleleProduct['mgi_accession_id']}">
                                 <c:if test="${not empty alleleProduct['allele_name']}">
-                                <a title="allele project page" href="${baseUrl}/alleles/${alleleProduct['mgi_accession_id']}/${alleleProduct['allele_name']}"><i class="fa fa-clipboard fa-2x"></i></a>
+                                <a title="allele project page" href="${baseUrl}/alleles/${alleleProduct['mgi_accession_id']}/${alleleProduct['allele_name']}/"><i class="fa fa-clipboard fa-2x"></i></a>
                                 </c:if>
                                 </c:if>
 
