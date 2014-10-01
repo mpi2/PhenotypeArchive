@@ -18,7 +18,7 @@
  */
 $(document).ready(function(){
 	'use strict';	
-	alert('reload');
+
 	// back button will not see this js
 	MPI2.searchAndFacetConfig.update.pageReload = true;
 	
@@ -73,7 +73,6 @@ $(document).ready(function(){
 	    		
 	    	}
 	    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
-	    		alert('enter-2');
 	    		//document.location.href = baseUrl + '/search?q=' + input;
 	    		window.location.search = 'q=' + input;
 	    	
@@ -83,7 +82,6 @@ $(document).ready(function(){
 				//$.fn.fetchSolrFacetCount(oHashParams); 
 	    	}
 	    	else {	
-	    		alert('enter-3');
 	    		//document.location.href = baseUrl + '/search?q=' + input + '#facet=' + MPI2.searchAndFacetConfig.matchedFacet; // handed over to hash change	    	
 	    		window.location.search = 'q=' + input;
 	    		window.location.hash = 'facet=' + MPI2.searchAndFacetConfig.matchedFacet;
