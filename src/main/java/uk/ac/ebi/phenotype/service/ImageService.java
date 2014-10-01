@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -414,6 +415,21 @@ public class ImageService {
 		solrQuery.setFacet(true);
 		solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + procedureName+"\"");
 		solrQuery.addFacetField(ObservationDTO.PARAMETER_STABLE_ID);
+		// solrQuery.setRows(0);
+		QueryResponse response = solr.query(solrQuery);
+		return response;
+
+	}
+	
+	public QueryResponse getImagesAnnotationsDetailsByOmeroId(List<String> omeroIds)
+	throws SolrServerException {
+//e.g. http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/query?q=omero_id:(5815 5814)
+		SolrQuery solrQuery = new SolrQuery();
+		String omeroIdString="omero_id:(";
+		String result = StringUtils.join(omeroIds, " OR ");
+		omeroIdString+=result+")";
+		solrQuery.setQuery(omeroIdString);
+		System.out.println(omeroIdString);
 		// solrQuery.setRows(0);
 		QueryResponse response = solr.query(solrQuery);
 		return response;

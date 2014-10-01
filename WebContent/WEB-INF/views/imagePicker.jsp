@@ -29,8 +29,8 @@
 <!-- http://rvera.github.io/image-picker/ -->
 </head>
 <body>
-<form action="../../imageComparator" method="post">
-<select name="selectedImages" multiple size="2" class="image-picker show-html">
+<form action="../../imageComparator" method="get">
+<select name="imgId" multiple size="2" class="image-picker show-html">
   <!-- <option data-img-src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/5812/200" value="1">Cute Kitten 1</option>
   <option data-img-src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/4739/200" value="2">Cute Kitten 2</option>
   <option data-img-src="http://placekitten.com/130/200" value="3">Cute Kitten 3</option>
