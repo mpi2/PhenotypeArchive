@@ -584,7 +584,7 @@
 
         <c:if test="${targeting_vectors.size() > 1}">
             <p class="textright">
-                <a id="targeting_vector_table_toggle" data-count='${mice.size()}' data-type='Targeting Vectors' class="toggle_closed">Show all ${targeting_vectors.size()} Targeting Vectors</a>
+                <a id="targeting_vector_table_toggle" data-count='${targeting_vectors.size()}' data-type='Targeting Vectors' class="toggle_closed">Show all ${targeting_vectors.size()} Targeting Vectors</a>
             </p>
         </c:if>
 
