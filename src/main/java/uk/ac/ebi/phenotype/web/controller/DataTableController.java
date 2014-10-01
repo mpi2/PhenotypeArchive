@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
@@ -317,33 +318,82 @@ public class DataTableController {
 			String mpId = doc.getString("mp_id");
 			String mpTerm = doc.getString("mp_term");
 			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";							
-			
-			if ( doc.containsKey("mp_term_synonym") ){
-				List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
-				List<String> prefixSyns = new ArrayList();
+			String mpCol = null;
 
-				for ( String sn : mpSynonyms ){
-					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
-				}
+			if ( doc.containsKey("mp_term_synonym") || doc.containsKey("hp_term") ){
 				
-				String syns = null;
-				if ( prefixSyns.size() > 1 ){
-					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
-				}
-				else {
-					syns = prefixSyns.get(0);
-				}
+				mpCol = "<div class='title'>" + mpLink + "</div>";
 				
-				String mpCol = "<div class='mpCol'><div class='title'>" 
-						+ mpLink 
-						+ "</div>"
-						+ "<div class='subinfo'>" 
-						+ "<span class='label'>synonym</span>: " + syns
-						+ "</div>";
+				if ( doc.containsKey("mp_term_synonym") ){
+					List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
+					List<String> prefixSyns = new ArrayList();
+	
+					for ( String sn : mpSynonyms ){
+						prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
+					}
+					
+					String syns = null;
+					if ( prefixSyns.size() > 1 ){
+						syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+					}
+					else {
+						syns = prefixSyns.get(0);
+					}
+					
+//					mpCol = "<div class='mpCol'><div class='title'>" 
+//							+ mpLink 
+//							+ "</div>"
+//							+ "<div class='subinfo'>" 
+//							+ "<span class='label'>synonym</span>: " + syns
+//							+ "</div>";
+					//rowData.add(mpCol);
+					mpCol += "<div class='subinfo'>" 
+						  + "<span class='label'>synonym</span>: " 
+						  + syns
+						  + "</div>";
+				}
+				if ( doc.containsKey("hp_term") ){
+					
+					// MP -> HP mapping
+					List<String> hpTerms = doc.getJSONArray("hp_term");
+					List<String> hpTermsHighlighted = new ArrayList();
+					
+					int counter = 0;
+					for ( String hpTerm : hpTerms ){
+						hpTermsHighlighted.add(Tools.highlightMatchedStrIfFound(qryStr, hpTerm, "span", "subMatch"));
+					}
+					
+					//Collections.sort(hpTermsHighlighted.subList(1, hpTermsHighlighted.size()));
+					Collections.sort(hpTermsHighlighted, String.CASE_INSENSITIVE_ORDER);
+					
+					String mappedHpTerms = null;
+					
+					if ( hpTermsHighlighted.size() < 6 ){
+						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTermsHighlighted, "</li><li>") + "</li></ul>";
+					}
+					else if ( hpTermsHighlighted.size() > 5 ){
+						List<String> subList1 = hpTermsHighlighted.subList(0, 4);
+						List<String> subList2 = hpTermsHighlighted.subList(4, hpTermsHighlighted.size());
+						
+						//System.out.println("list2: "+ subList2);
+						mappedHpTerms = "<li>" + StringUtils.join(subList1, "</li><li>") + "</li>";
+						mappedHpTerms += "<li class='restHp hidden'>" + StringUtils.join(subList2, "</li><li class='restHp hidden'>") + "</li>";
+						mappedHpTerms = "<ul class='hpTerms'>" + mappedHpTerms + "</ul><span class='showMore'>show more...</span>";
+					}
+					else {
+						mappedHpTerms = hpTermsHighlighted.get(0);
+					}
+					mpCol += "<div class='subinfo'>" 
+							  + "<span class='label'>computationally mapped HP terms</span>: " 
+							  + mappedHpTerms
+							  + "</div>";
+				}
+				mpCol = "<div class='mpCol'>" + mpCol + "</div>";
 				rowData.add(mpCol);
 			}
 			else {
 				rowData.add(mpLink);
+				
 			}
 			
 			// some MP do not have definition
