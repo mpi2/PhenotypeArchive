@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,7 +52,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
@@ -360,7 +360,8 @@ public class DataTableController {
 					
 					int counter = 0;
 					for ( String hpTerm : hpTerms ){
-						hpTermsHighlighted.add(Tools.highlightMatchedStrIfFound(qryStr, hpTerm, "span", "subMatch"));
+						//hpTermsHighlighted.add(Tools.highlightMatchedStrIfFound(qryStr, hpTerm, "span", "subMatch"));
+						hpTermsHighlighted.add(hpTerm);
 					}
 					
 					//Collections.sort(hpTermsHighlighted.subList(1, hpTermsHighlighted.size()));
