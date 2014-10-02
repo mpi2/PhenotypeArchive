@@ -71,36 +71,25 @@ public class ImpcImagesController {
 	public String imageComparator(HttpServletRequest request, Model model) {
 		String page="imageComparator2";
 		System.out.println("calling imageComparator");
-		String[] omeroIds = request.getParameterValues("imgId");
-		if(omeroIds==null || omeroIds.length==0){
-			System.out.println("error no items selected");
-			model.addAttribute("error", "You need to select at least one image");
-			return page;
-		}
-		
-			for (String value : omeroIds) {
-				System.out.println("omeroId=" + value);
-			}
-			model.addAttribute("omeroIds", omeroIds);
+//		String[] omeroIds = request.getParameterValues("imgId");
+//		if(omeroIds==null || omeroIds.length==0){
+//			System.out.println("error no items selected");
+//			model.addAttribute("error", "You need to select at least one image");
+//			return page;
+//		}
+//		
+//			for (String value : omeroIds) {
+//				System.out.println("omeroId=" + value);
+//			}
+//			model.addAttribute("omeroIds", omeroIds);
 		
 		return page;
 	}
 	
-	@RequestMapping("/imageControlNavigator")
+	@RequestMapping("/imageNavigator")
 	public String imageControlNavigator(HttpServletRequest request, Model model) {
-		String page="imageControlNavigator";
+		String page="imageNavigator";
 		System.out.println("calling imageNavigator");
-		
-		
-		return page;
-	}
-	
-	@RequestMapping("/imageExperimentalNavigator")
-	public String imageExperimetentalNavigator(HttpServletRequest request, Model model) {
-		String page="imageExperimentalNavigator";
-		System.out.println("calling imageNavigator");
-		
-		
 		return page;
 	}
 

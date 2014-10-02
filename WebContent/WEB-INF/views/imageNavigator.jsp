@@ -11,9 +11,16 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script src="${baseUrl}/js/imaging/imageComparator.js"></script>
+<script type="text/javascript">
+var mediaBaseUrl = "${mediaBaseUrl}";
+console.log(mediaBaseUrl);
+var solrUrl='${solrUrl}';
+</script>
 </HEAD>
 <BODY>
-	<A id="prevExperimental">Previous Experimental</A>
-    <A id="nextExperimental">Next Experimental</A>
+ 	<A id="prev">Previous</A>.
+    <A id="next">Next</A>.
+    
+    
 </BODY>
 </HTML>

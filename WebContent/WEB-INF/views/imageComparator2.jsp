@@ -16,11 +16,11 @@
  <frameset rows=90%,10%>
 <frame name="control" id="control" src="http://ves-ebi-cf/omero/webgateway/img_detail/5817/" name="top">
 
-<frame src="imageControlNavigator"></frame>
+<frame name="navControl" id="navControl" src="imageNavigator?controlOrExp=control"></frame>
 </frameset>
 <frameset rows=90%,10%>
 <frame name="experimental" id="experimental" src="http://ves-ebi-cf/omero/webgateway/img_detail/5817/" name="top">
-<frame src="imageExperimentalNavigator"></frame>
+<frame name="expControl" id="expControl" src="imageNavigator?controlOrExp=experimental"></frame>
 </frameset>
 </frameset>
 
