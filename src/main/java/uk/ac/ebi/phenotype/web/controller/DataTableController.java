@@ -20,11 +20,13 @@ import java.net.URISyntaxException;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +57,7 @@ import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.MpService;
 
 @Controller
 public class DataTableController {
@@ -66,6 +69,9 @@ public class DataTableController {
 	
 	@Autowired
 	private GeneService geneService;
+	
+	@Autowired
+	private MpService mpService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -317,33 +323,66 @@ public class DataTableController {
 			String mpId = doc.getString("mp_id");
 			String mpTerm = doc.getString("mp_term");
 			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";							
-			
-			if ( doc.containsKey("mp_term_synonym") ){
-				List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
-				List<String> prefixSyns = new ArrayList();
+			String mpCol = null;
 
-				for ( String sn : mpSynonyms ){
-					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
-				}
+			if ( doc.containsKey("mp_term_synonym") || doc.containsKey("hp_term") ){
 				
-				String syns = null;
-				if ( prefixSyns.size() > 1 ){
-					syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
-				}
-				else {
-					syns = prefixSyns.get(0);
-				}
+				mpCol = "<div class='title'>" + mpLink + "</div>";
 				
-				String mpCol = "<div class='mpCol'><div class='title'>" 
-						+ mpLink 
-						+ "</div>"
-						+ "<div class='subinfo'>" 
-						+ "<span class='label'>synonym</span>: " + syns
-						+ "</div>";
+				if ( doc.containsKey("mp_term_synonym") ){
+					List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
+					List<String> prefixSyns = new ArrayList();
+	
+					for ( String sn : mpSynonyms ){
+						prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
+					}
+					
+					String syns = null;
+					if ( prefixSyns.size() > 1 ){
+						syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+					}
+					else {
+						syns = prefixSyns.get(0);
+					}
+					
+//					mpCol = "<div class='mpCol'><div class='title'>" 
+//							+ mpLink 
+//							+ "</div>"
+//							+ "<div class='subinfo'>" 
+//							+ "<span class='label'>synonym</span>: " + syns
+//							+ "</div>";
+					//rowData.add(mpCol);
+					mpCol += "<div class='subinfo'>" 
+						  + "<span class='label'>synonym</span>: " 
+						  + syns
+						  + "</div>";
+				}
+				if ( doc.containsKey("hp_term") ){
+					
+					// MP -> HP computational mapping
+					
+					Set<String> hpTerms = mpService.getComputationalHPTerms(doc);
+					
+					String mappedHpTerms = null;
+					
+					if ( hpTerms.size() > 1 ){
+						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTerms, "</li><li>") + "</li></ul>";
+					}
+					else {
+						Iterator hi = hpTerms.iterator();
+						mappedHpTerms = hi.next().toString();
+					}
+					mpCol += "<div class='subinfo'>" 
+							  + "<span class='label'>computationally mapped HP terms</span>: " 
+							  + mappedHpTerms
+							  + "</div>";
+				}
+				mpCol = "<div class='mpCol'>" + mpCol + "</div>";
 				rowData.add(mpCol);
 			}
 			else {
 				rowData.add(mpLink);
+				
 			}
 			
 			// some MP do not have definition

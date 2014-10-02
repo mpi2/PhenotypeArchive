@@ -30,7 +30,6 @@
 	}
 	
 	function _getParams(oUrlParams){
-		
 		var coreQry = {};
 		
 		var aCores = MPI2.searchAndFacetConfig.megaCores;
@@ -39,7 +38,16 @@
 			var facet = core + 'Facet';
 			var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
 			delete params.fl;
-			params.fq = $.fn.getCurrentFq(core).replace(/img_/g,'');
+			
+			if ( typeof oUrlParams.fq == 'undefined' ){
+				params.fq = $.fn.getCurrentFq(core);
+			}
+			else if ( oUrlParams.fq.indexOf('img_') != -1 ){
+				params.fq = $.fn.getCurrentFq(core).replace(/img_/g,'');
+			}
+			else {
+				params.fq = oUrlParams.fq;
+			}
 			
 			if ( typeof oUrlParams.qf != 'undefined' ){
 				params.qf = oUrlParams.qf; 
@@ -64,7 +72,7 @@
 		
 		// q to display in input box
 		var qDisplay = q == '*:*'  ? '' : decodeURIComponent(q);
-		qDisplay = qDisplay.replace(/\\/g, '');  // unescape for display
+		qDisplay = qDisplay.replace(/\\/g, '').replace('mp_term:', '');  // unescape for display
 		$('input#s').val(qDisplay); 	
 
 		// q to search SOLR

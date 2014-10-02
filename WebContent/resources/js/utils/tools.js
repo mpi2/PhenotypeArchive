@@ -42,6 +42,7 @@
                 var qVal = aVals[1];
                 var qField = aVals[0];
                 var fieldFacet = MPI2.searchAndFacetConfig.qfield2facet[qField];
+                
                 //console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
                 
                 if (typeof MPI2.searchAndFacetConfig.qfield2facet[qField]) {
@@ -436,6 +437,7 @@
             oUrlParams.oriFq = oUrlParams.fq;
         }
 
+       
         oUrlParams.fq = oUrlParams.fq.replace(/img_/g, ''); // so that this matches the copyField of images
 
         $.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
@@ -1938,6 +1940,18 @@
                 $('div#mpi2-search').show();
                 //console.log(oDtable.fnGetData().length); // rows on current page
 
+                // ellipse control for hp mapping in mp result of search page
+                $('span.showMore').click(function(){
+                	if ( $(this).hasClass('expanded') ){
+                		$(this).removeClass('expanded').text('show more...')
+                		$(this).parent().find('ul li.restHp').addClass('hidden');
+                	}
+                	else {
+                		$(this).addClass('expanded').text('show less...');
+                		$(this).parent().find('ul > li.restHp').removeClass('hidden');
+                	}
+            	});
+                
                 if (oDtable.fnGetData().length > 0) {
 
                     // bring in some control logic for image view switcher when dataTable is loaded

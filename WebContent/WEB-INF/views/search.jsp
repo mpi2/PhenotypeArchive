@@ -135,7 +135,6 @@
          <script>        		
        	$(document).ready(function(){
        		'use strict';	
-       		//console.log('reload');
        		
        		// back button will not see this js
        		MPI2.searchAndFacetConfig.update.widgetOpen = false;
@@ -159,7 +158,6 @@
        				|| location.href.indexOf('/search#q=*') != -1 
        				|| location.href.indexOf('/search#fq=') != -1 ){   	
        			
-       			//console.log('loading from url');
        			// load page based on url hash parameters	
        			$('input#s').val(decodeURI($.fn.fetchQueryStr()));
        			
@@ -167,8 +165,7 @@
        			if (typeof oUrlParams.fq == 'undefined'){
        				oUrlParams.noFq = true;
        			}
-
-       			//console.log(oUrlParams);
+       		
        			$.fn.fetchSolrFacetCount(oUrlParams);	
        		}
        		else {
@@ -350,15 +347,14 @@
 			       				MPI2.searchAndFacetConfig.matchedFacet = false; // reset
 			       				var docs = data.response.docs;	
 			       				var aKV = [];
+			       				
 			       				for ( var i=0; i<docs.length; i++ ){
 			       					var facet;
-			       					
 			       					for ( var key in docs[i] ){
-			       						
 			       						if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
 			       							continue;
 			       						}
-			       						//var facet;
+			       						
 			       						if ( key == 'docType' ){	
 			       							facet = docs[i][key].toString();
 			       						}
@@ -400,27 +396,26 @@
 	       			minLength: 3,
 	       			select: function( event, ui ) {
 	       				// select by mouse / KB
-	       				////console.log(this.value + ' vs ' + ui.item.label);
-	       				//var oriText = $(ui.item.label).text();
-	       				
+	       				//console.log(this.value + ' vs ' + ui.item.label);
+	       				var oriText = $(ui.item.label).text();
 	       				var facet = $(ui.item.label).attr('class') == 'hp' ? 'mp' : $(ui.item.label).attr('class');
 	       				
 	       				// handed over to hash change to fetch for results	
 	       				var q;
-	       				//var matched = this.value.match(/.+ » (MP:\d+) - .+/); 
-	       				var matched = this.value.match(/.+(MP:\d+) - .+/); 
+	       				var fqStr = $.fn.getCurrentFq(facet);
+	       				//var hpParam = '';
 	       				
+	       				//var matched = this.value.match(/.+ » (MP:\d+) - .+/); 
+	       				var matched = this.value.match(/(.+)MP:\d+ - (.+)/); 
 	       				if ( matched ){
-	       					q = matched[1];
+	       					q = 'mp_term:"' + encodeURIComponent(matched[2]) + '"';
+	       					//hpParam = '&hpTerm="' + decodeURI(encodeURIComponent(matched[1]).replace('%20%C2%BB%20','')) + '"';
 	       				}
 	       				else {
-	       					q = this.value;
+	       					q = '"' + encodeURIComponent(this.value) + '"';
 	       				}	
-	       				q = encodeURIComponent(q);
 	       				
-	       				var fq = $.fn.getCurrentFq(facet);
-
-	       				document.location.href = baseUrl + '/search?q="' + q + '"#fq=' + fq + '&facet=' + facet; 	
+	       				document.location.href = baseUrl + '/search?q=' + q + '#fq=' + fqStr + '&facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
 	       				event.preventDefault(); return false; 
@@ -592,7 +587,7 @@
     			//console.log(oUrlParams);
     			
     			if ( window.location.search != '' ){
-    				// qrey value of q
+    				// qrep value of q
     				oUrlParams.q = $.fn.fetchQueryStr();
     			}
     			
