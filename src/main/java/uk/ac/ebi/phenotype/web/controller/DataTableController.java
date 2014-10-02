@@ -56,6 +56,7 @@ import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.MpService;
 
 @Controller
 public class DataTableController {
@@ -67,6 +68,9 @@ public class DataTableController {
 	
 	@Autowired
 	private GeneService geneService;
+	
+	@Autowired
+	private MpService mpService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -354,32 +358,14 @@ public class DataTableController {
 				}
 				if ( doc.containsKey("hp_term") ){
 					
-					// MP -> HP mapping
-					List<String> hpTerms = doc.getJSONArray("hp_term");
-					List<String> hpTermsHighlighted = new ArrayList();
+					// MP -> HP computational mapping
 					
-					int counter = 0;
-					for ( String hpTerm : hpTerms ){
-						//hpTermsHighlighted.add(Tools.highlightMatchedStrIfFound(qryStr, hpTerm, "span", "subMatch"));
-						hpTermsHighlighted.add(hpTerm);
-					}
-					
-					//Collections.sort(hpTermsHighlighted.subList(1, hpTermsHighlighted.size()));
-					Collections.sort(hpTermsHighlighted, String.CASE_INSENSITIVE_ORDER);
+					List<String> hpTermsHighlighted = mpService.getMappedHPTerms(doc);
 					
 					String mappedHpTerms = null;
 					
-					if ( hpTermsHighlighted.size() < 6 ){
+					if ( hpTermsHighlighted.size() > 1 ){
 						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTermsHighlighted, "</li><li>") + "</li></ul>";
-					}
-					else if ( hpTermsHighlighted.size() > 5 ){
-						List<String> subList1 = hpTermsHighlighted.subList(0, 4);
-						List<String> subList2 = hpTermsHighlighted.subList(4, hpTermsHighlighted.size());
-						
-						//System.out.println("list2: "+ subList2);
-						mappedHpTerms = "<li>" + StringUtils.join(subList1, "</li><li>") + "</li>";
-						mappedHpTerms += "<li class='restHp hidden'>" + StringUtils.join(subList2, "</li><li class='restHp hidden'>") + "</li>";
-						mappedHpTerms = "<ul class='hpTerms'>" + mappedHpTerms + "</ul><span class='showMore'>show more...</span>";
 					}
 					else {
 						mappedHpTerms = hpTermsHighlighted.get(0);

@@ -18,7 +18,10 @@ package uk.ac.ebi.phenotype.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -81,7 +84,7 @@ public class MpService {
 		System.out.println("solr query in basicbean="+solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		
-		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet();
+		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
 			for(Count count: ff.getValues()){
 				String mpArray[]=count.getName().split("___");
@@ -116,4 +119,15 @@ public class MpService {
         return children;
     }
     
+    public List<String> getMappedHPTerms(JSONObject doc){
+    	// this mapping is computational
+    	List<String> hpTerms = doc.getJSONArray("hp_term");
+    	List<String> hpTermsHighlighted = new ArrayList<String>();
+    	
+    	for ( String hpTerm : hpTerms ){
+			hpTermsHighlighted.add(hpTerm);
+		}
+    	
+    	return hpTermsHighlighted;
+    }
 }
