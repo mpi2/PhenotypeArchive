@@ -15,6 +15,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+import uk.ac.ebi.phenotype.pojo.BiologicalSampleType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import javax.sql.DataSource;
@@ -224,6 +225,11 @@ public class ObservationIndexer {
 					o.setStrainName(b.strainName);
 					o.setPhenotypingCenter(b.phenotypingCenterName);
 					o.setPhenotypingCenterId(b.phenotypingCenterId);
+
+					// All line level parameters are sample group "experimental" due to the nature of the
+					// procedures (i.e. no control mice will go through VIA or FER procedures.)
+					o.setGroup(BiologicalSampleType.experimental.getName());
+
 
 
 				} else {

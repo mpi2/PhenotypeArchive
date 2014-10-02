@@ -60,7 +60,11 @@ public class PhenotypePageTableRow extends DataTableRow {
         if (o.phenotypeTerm == null || this.phenotypeTerm == null) {
             return -1;
         }
-        
+
+	    if (allele == null || o.allele == null) {
+		    return -1;
+	    }
+
         // Phenotype Page sorting
         int pvalueOp = this.pValue.compareTo(o.pValue);
         if (pvalueOp == 0) {

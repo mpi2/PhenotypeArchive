@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +57,7 @@ import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.MpService;
 
 @Controller
 public class DataTableController {
@@ -67,6 +69,9 @@ public class DataTableController {
 	
 	@Autowired
 	private GeneService geneService;
+	
+	@Autowired
+	private MpService mpService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -354,35 +359,18 @@ public class DataTableController {
 				}
 				if ( doc.containsKey("hp_term") ){
 					
-					// MP -> HP mapping
-					List<String> hpTerms = doc.getJSONArray("hp_term");
-					List<String> hpTermsHighlighted = new ArrayList();
+					// MP -> HP computational mapping
 					
-					int counter = 0;
-					for ( String hpTerm : hpTerms ){
-						//hpTermsHighlighted.add(Tools.highlightMatchedStrIfFound(qryStr, hpTerm, "span", "subMatch"));
-						hpTermsHighlighted.add(hpTerm);
-					}
-					
-					//Collections.sort(hpTermsHighlighted.subList(1, hpTermsHighlighted.size()));
-					Collections.sort(hpTermsHighlighted, String.CASE_INSENSITIVE_ORDER);
+					Set<String> hpTerms = mpService.getComputationalHPTerms(doc);
 					
 					String mappedHpTerms = null;
 					
-					if ( hpTermsHighlighted.size() < 6 ){
-						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTermsHighlighted, "</li><li>") + "</li></ul>";
-					}
-					else if ( hpTermsHighlighted.size() > 5 ){
-						List<String> subList1 = hpTermsHighlighted.subList(0, 4);
-						List<String> subList2 = hpTermsHighlighted.subList(4, hpTermsHighlighted.size());
-						
-						//System.out.println("list2: "+ subList2);
-						mappedHpTerms = "<li>" + StringUtils.join(subList1, "</li><li>") + "</li>";
-						mappedHpTerms += "<li class='restHp hidden'>" + StringUtils.join(subList2, "</li><li class='restHp hidden'>") + "</li>";
-						mappedHpTerms = "<ul class='hpTerms'>" + mappedHpTerms + "</ul><span class='showMore'>show more...</span>";
+					if ( hpTerms.size() > 1 ){
+						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTerms, "</li><li>") + "</li></ul>";
 					}
 					else {
-						mappedHpTerms = hpTermsHighlighted.get(0);
+						Iterator hi = hpTerms.iterator();
+						mappedHpTerms = hi.next().toString();
 					}
 					mpCol += "<div class='subinfo'>" 
 							  + "<span class='label'>computationally mapped HP terms</span>: " 
