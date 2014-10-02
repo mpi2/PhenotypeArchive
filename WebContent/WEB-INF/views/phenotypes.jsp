@@ -120,6 +120,18 @@
 								</c:forEach>
 							</p>
 						</c:if>
+						<c:if test="${not empty hpTerms}">
+							<div class="with-label"> <span class="label">Computationally mapped HP term</span>
+								<ul>
+									<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
+										<li>${hpTerm}</li> 
+										<c:if test="${loop.last}">&nbsp;</c:if>
+									</c:forEach>
+								</ul>
+							</div>
+						</c:if>
+						
+						
 						<c:if test="${not empty procedures}">
 							<div class="with-label"> <span class="label">Procedure</span>
 								<ul>

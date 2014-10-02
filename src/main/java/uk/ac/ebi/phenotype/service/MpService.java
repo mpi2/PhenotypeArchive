@@ -34,6 +34,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 
 @Service
@@ -119,15 +120,15 @@ public class MpService {
         return children;
     }
     
-    public List<String> getMappedHPTerms(JSONObject doc){
+    public Set<String> getComputationalHPTerms(JSONObject doc){
     	// this mapping is computational
     	List<String> hpTerms = doc.getJSONArray("hp_term");
-    	List<String> hpTermsHighlighted = new ArrayList<String>();
     	
+    	Set<String> computationalHPTerms = new HashSet();
     	for ( String hpTerm : hpTerms ){
-			hpTermsHighlighted.add(hpTerm);
+    		computationalHPTerms.add(hpTerm);
 		}
     	
-    	return hpTermsHighlighted;
+    	return computationalHPTerms;
     }
 }

@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
@@ -54,6 +56,7 @@ import uk.ac.ebi.phenotype.web.pojo.PhenotypePageTableRow;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -141,7 +144,8 @@ public class PhenotypesController {
         Set<OntologyTerm> mpSiblings = new HashSet();
         Set<OntologyTerm> goTerms = new HashSet();
         Set<Synonym> synonymTerms = new HashSet();
-
+        Set<String> computationalHPTerms = new HashSet();
+        
         try {
 
         	JSONArray docs = solrIndex
@@ -181,6 +185,10 @@ public class PhenotypesController {
                 }
             }
 
+            if (mpData.containsKey("hp_term")) {
+            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
+            }
+            
             if (mpData.containsKey("ma_id")) {
                 terms = mpData.getJSONArray("ma_id");
                 for (Object maObj : terms) {
@@ -219,7 +227,7 @@ public class PhenotypesController {
         model.addAttribute("go", goTerms);
         model.addAttribute("siblings", mpSiblings);
         model.addAttribute("synonyms", synonymTerms);
-        
+        model.addAttribute("hpTerms", computationalHPTerms);
         
         
         // Query the images for this phenotype

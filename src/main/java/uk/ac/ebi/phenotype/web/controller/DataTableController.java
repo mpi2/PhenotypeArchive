@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -360,15 +361,16 @@ public class DataTableController {
 					
 					// MP -> HP computational mapping
 					
-					List<String> hpTermsHighlighted = mpService.getMappedHPTerms(doc);
+					Set<String> hpTerms = mpService.getComputationalHPTerms(doc);
 					
 					String mappedHpTerms = null;
 					
-					if ( hpTermsHighlighted.size() > 1 ){
-						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTermsHighlighted, "</li><li>") + "</li></ul>";
+					if ( hpTerms.size() > 1 ){
+						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTerms, "</li><li>") + "</li></ul>";
 					}
 					else {
-						mappedHpTerms = hpTermsHighlighted.get(0);
+						Iterator hi = hpTerms.iterator();
+						mappedHpTerms = hi.next().toString();
 					}
 					mpCol += "<div class='subinfo'>" 
 							  + "<span class='label'>computationally mapped HP terms</span>: " 
