@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <c:choose>
-<c:when test="${alleleProducts.size() > 0}">
+<c:when test="${alleleProducts2.size() > 0}">
 <table class="reduce nonwrap">        
         <thead>
                 <tr>
@@ -65,9 +65,7 @@
                                 <a title="project page" href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmc_project_id']}"><i class="fa fa-clipboard"></i></a>
                                 </c:if>
 
-                                <c:if test="${not empty alleleProduct['mgi_accession_id'] and not empty alleleProduct['allele_name']}">
-                                    <a title="allele project page" href="${baseUrl}/alleles/${alleleProduct['mgi_accession_id']}/${alleleProduct['allele_name']}/"><i class="fa fa-clipboard fa-2x"></i></a>
-                                </c:if>
+                                <a title="allele project page" href="${baseUrl}/${alleleProduct['url_new']}"><i class="fa fa-clipboard fa-2x"></i></a>
 
                             </td>
                             <td>
