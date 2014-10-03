@@ -103,6 +103,7 @@ function wdmHeatmap() {
 function initAccordions() {
     /* Accordeon toggle */
     $('.accordion-heading').on('click',function() {
+    	console.log('firing accordion');
        $(this).next('.accordion-body').toggle('slow'); 
        $(this).closest('.accordion-group').toggleClass('open');
     });

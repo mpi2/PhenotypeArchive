@@ -367,7 +367,7 @@
                                 </div>
                             </c:if>
                             
-                            <!-- nicolas accordion for images here -->
+                            
                              <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
@@ -387,7 +387,7 @@
                                                     
                                                         <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
                                                             <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
-                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" count="${entry.count}"></t:impcimgdisplay2>
                                                                 </a>
                                                         </c:forEach>
                                                     
