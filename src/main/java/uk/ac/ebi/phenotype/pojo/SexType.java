@@ -25,8 +25,10 @@ package uk.ac.ebi.phenotype.pojo;
 public enum SexType {
 	female,
 	hermaphrodite,
-	male;
-	
+	male,
+	not_applicable;
+
+
 	public String getName(){
 		return this.toString();
 	}
