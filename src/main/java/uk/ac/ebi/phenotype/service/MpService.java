@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 
 @Service
 public class MpService {
@@ -120,13 +121,19 @@ public class MpService {
         return children;
     }
     
-    public Set<String> getComputationalHPTerms(JSONObject doc){
+    // get computationally mapped HP terms of MP from Solr json doc of an MP
+    public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
     	// this mapping is computational
+    	List<String> hpIds = doc.getJSONArray("hp_id");
     	List<String> hpTerms = doc.getJSONArray("hp_term");
     	
-    	Set<String> computationalHPTerms = new HashSet();
-    	for ( String hpTerm : hpTerms ){
-    		computationalHPTerms.add(hpTerm);
+    	Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
+    	
+    	for ( int i=0; i< hpIds.size(); i++  ){
+    		SimpleOntoTerm term = new SimpleOntoTerm();
+    		term.setTermId(hpIds.get(i));
+    		term.setTermName(hpTerms.get(i));
+    		computationalHPTerms.add(term);
 		}
     	
     	return computationalHPTerms;

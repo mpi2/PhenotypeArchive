@@ -63,6 +63,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 
 @Controller
 public class PhenotypesController {
@@ -144,7 +145,7 @@ public class PhenotypesController {
         Set<OntologyTerm> mpSiblings = new HashSet();
         Set<OntologyTerm> goTerms = new HashSet();
         Set<Synonym> synonymTerms = new HashSet();
-        Set<String> computationalHPTerms = new HashSet();
+        Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
         
         try {
 

@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -30,9 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.*;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GeneService;
@@ -48,11 +51,14 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+
+import uk.ac.ebi.phenotype.service.MpService;
 
 @Controller
 public class FileExportController {
@@ -85,7 +91,10 @@ public class FileExportController {
 
     @Autowired
     AlleleDAO alleleDAO;
-
+    
+    @Autowired
+	private MpService mpService;
+    
     @Autowired
     private PhenotypeCallSummarySolr phenoDAO;
 
@@ -624,7 +633,7 @@ public class FileExportController {
         String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";	
         
         List<String> rowData = new ArrayList();
-        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term"); // column names	
+        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -664,6 +673,24 @@ public class FileExportController {
                 data.add(NO_INFO_MSG);
             }
 
+            if (doc.has("hp_term")) {
+            	Set<SimpleOntoTerm> hpTerms = mpService.getComputationalHPTerms(doc);
+            	List<String> terms = new ArrayList<String>();
+            	List<String> ids   = new ArrayList<String>();
+            
+            	for(SimpleOntoTerm term : hpTerms ){
+            		ids.add(term.getTermId());
+            		terms.add(term.getTermName());
+            	}
+            	
+                data.add(StringUtils.join(terms, "|"));
+                data.add(StringUtils.join(ids, "|"));
+            } 
+            else {
+                data.add(NO_INFO_MSG);
+                data.add(NO_INFO_MSG);
+            }
+            
             rowData.add(StringUtils.join(data, "\t"));
         }
         return rowData;
