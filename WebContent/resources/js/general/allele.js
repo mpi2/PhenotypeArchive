@@ -18,34 +18,52 @@
  */
 jQuery(document).ready(	function() {
 
+function getURLParameter(name) {
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+}
+
+
+
 //code for setting ENU links on Gene Page	
-	
-	$.ajax({
-		url: '../genesAllele/' + gene_id,    
-		timeout: 2000,
-		success: function (response) {
-			$('#allele').html(response);
-			
-		}
-		,error: function(x, t, m) {
-	      //  if(t==="timeout") { 
-	        //log error to gene page so we know this is down not just 0.
-			var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
-	    	$('#allele').html(errorMsg);
-	    }
-	});
+
+        var debug = getURLParameter('debug');
+        var debugp = "";
         
-        var debug = true;
+      //  console.log("debug: " + debug)
         
-        if(!debug) {
+        if(debug && debug === "true") {
             
-            $('#order2').hide();
-            
+            debugp = "?debug=true";
+    
+            $.ajax({
+                    url: '../genesAllele/' + gene_id + debugp,    
+                    timeout: 2000,
+                    success: function (response) {
+                            $('#allele').html(response);
+
+                    }
+                    ,error: function(x, t, m) {
+                  //  if(t==="timeout") { 
+                    //log error to gene page so we know this is down not just 0.
+                            var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
+                    $('#allele').html(errorMsg);
+                }
+            });
+
         }
         else {
+            $('#order').hide();
+        }
+//                
+//        if(!debug && debug !== "true") {
+//            
+//            $('#order2').hide();
+//            
+//        }
+//        else {
         
 	$.ajax({
-		url: '../genesAllele2/' + gene_id,    
+		url: '../genesAllele2/' + gene_id + debugp,    
 		timeout: 2000,
 		success: function (response) {
                     
@@ -60,7 +78,7 @@ jQuery(document).ready(	function() {
                 }
 	});
         
-        }
+ //       }
         
         $('.qcData').each(function(){
             var type = $(this).data("type");
