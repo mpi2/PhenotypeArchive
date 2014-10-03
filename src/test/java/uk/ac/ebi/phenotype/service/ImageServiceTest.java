@@ -2,8 +2,10 @@ package uk.ac.ebi.phenotype.service;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -142,6 +144,29 @@ public class ImageServiceTest {
 			}
 			assertTrue(imagesResponse.getFacetFields().size() > 0);
 			// assertTrue(imageDTOs.getList().size()>1);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testGetImagesAnnotationsDetailsByOmeroId(){
+		QueryResponse imagesResponse;
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/query?q=gene_accession_id:%22MGI:2384986%22&fq=biological_sample_group:experimental&fq=procedure_name:X-ray&facet=true&facet.field=parameter_stable_id
+		List<String>omeroIds=new ArrayList<String>();
+		omeroIds.add("5814");
+		omeroIds.add("5815");
+		
+		try {
+			imagesResponse = imageService.getImagesAnnotationsDetailsByOmeroId(omeroIds);
+			for (SolrDocument doc : imagesResponse.getResults()) {
+				System.out.println("omero_id="+doc.get("omero_id"));
+				System.out.println(doc);
+				assertTrue((int)doc.get("omero_id")==5814 || (int)doc.get("omero_id")==5815);
+
+			}
+			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
