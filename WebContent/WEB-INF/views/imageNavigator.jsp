@@ -16,6 +16,7 @@ var mediaBaseUrl = "${mediaBaseUrl}";
 console.log(mediaBaseUrl);
 var solrUrl='${solrUrl}';
 </script>
+<link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
 </HEAD>
 <BODY>
  	<A id="prev">Previous</A>.
