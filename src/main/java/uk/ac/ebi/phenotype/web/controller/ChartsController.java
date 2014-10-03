@@ -15,15 +15,7 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -35,39 +27,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.chart.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.unidimensional.AbrChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.unidimensional.ScatterChartAndData;
-import uk.ac.ebi.phenotype.chart.unidimensional.ScatterChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalDataSet;
-import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalStatsObject;
+import uk.ac.ebi.phenotype.chart.unidimensional.*;
 import uk.ac.ebi.phenotype.chart.utils.ChartData;
 import uk.ac.ebi.phenotype.chart.utils.ChartType;
-import uk.ac.ebi.phenotype.chart.utils.Constants;
 import uk.ac.ebi.phenotype.chart.utils.GraphUtils;
-import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
-import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
-import uk.ac.ebi.phenotype.dao.OrganisationDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class ChartsController {
@@ -131,7 +111,7 @@ public class ChartsController {
      * @param zygosity
      * @param phenotypingCenter
      * @param strategies
-     * @param acc
+     * @param accessionsParams
      * @param model
      * @return
      * @throws GenomicFeatureNotFoundException
@@ -163,11 +143,9 @@ public class ChartsController {
     /**
      * Will only ever return one chart!
      * 
-     * @param chartId
      * @param accession
      * @param strain
      * @param metadataGroup
-     * @param parameterIds
      * @param parameterStableIds
      * @param gender
      * @param zygosity
@@ -346,7 +324,7 @@ public class ChartsController {
                 log.error(ExceptionUtils.getFullStackTrace(e));
                 statsError = true;
             }
-                        
+
             model.addAttribute("pipeline", pipeline);
             model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
             model.addAttribute("allelicCompositionString", allelicCompositionString);
@@ -390,7 +368,9 @@ public class ChartsController {
         }
 
         Set<String> allGraphUrlSet = new LinkedHashSet<>();
-        for (String geneId : geneIds) {
+	    String allParameters = "";
+
+	    for (String geneId : geneIds) {
 
             GenomicFeature gene = genesDao.getGenomicFeatureByAccession(geneId);
 
@@ -402,9 +382,12 @@ public class ChartsController {
 
             model.addAttribute("gene", gene);
 
+		    List<String> pNames = new ArrayList<>();
+
             for (String parameterId : paramIds) {
 
                 Parameter parameter = pipelineDAO.getParameterByStableId(parameterId);
+	            pNames.add(StringUtils.capitalize(parameter.getName()) + " ("+parameter.getStableId()+")");
 
                 if (parameter == null) {
                     throw new ParameterNotFoundException("Parameter " + parameterId + " can't be found.", parameterId);
@@ -417,9 +400,13 @@ public class ChartsController {
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
             }// end of parameterId iterations
-        }// end of gene iterations
+
+		    allParameters = StringUtils.join(pNames, ", ");
+
+	    }// end of gene iterations
 
         model.addAttribute("allGraphUrlSet", allGraphUrlSet);
+	    model.addAttribute("allParameters", allParameters);
 
         return "stats";
     }

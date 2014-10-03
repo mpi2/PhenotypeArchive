@@ -4,6 +4,7 @@
 
 <t:genericpage>
 
+    <jsp:attribute name="title">${allParameters} chart for ${gene.name}</jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a href='${baseUrl}/genes/${gene.id.accession}'>${gene.symbol}</a></jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
         <jsp:attribute name="header">
