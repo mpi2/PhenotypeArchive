@@ -13,12 +13,12 @@
  
  
  <frameset cols="50%,50%">
- <frameset rows=90%,10%>
+ <frameset rows=85%,15%>
 <frame name="control" id="control" src="http://ves-ebi-cf/omero/webgateway/img_detail/${param['ctrImgId']}/" name="top">
 
 <frame name="navControl" id="navControl" src="imageNavigator?controlOrExp=control"></frame>
 </frameset>
-<frameset rows=90%,10%>
+<frameset rows=85%,15%>
 <frame name="experimental" id="experimental" src="http://ves-ebi-cf/omero/webgateway/img_detail/${param['expImgId']}/" name="top">
 <frame name="expControl" id="expControl" src="imageNavigator?controlOrExp=experimental"></frame>
 </frameset>
