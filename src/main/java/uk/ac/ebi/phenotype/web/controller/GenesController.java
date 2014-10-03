@@ -743,13 +743,13 @@ public class GenesController {
 	public String genesAllele2(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
 
-		List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
+		//List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
 		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo2(acc);
         
                 log.info("#### genesAllele2...");
                 log.info("#### genesAllele2: constructs2: " + constructs2);
                 
-		model.addAttribute("alleleProducts", constructs);
+	//	model.addAttribute("alleleProducts", constructs);
 		model.addAttribute("alleleProducts2", constructs2);
                 
                 String debug = request.getParameter("debug");
