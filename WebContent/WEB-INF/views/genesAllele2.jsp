@@ -4,7 +4,7 @@
 
 <c:choose>
 <c:when test="${alleleProducts.size() > 0}">
-<table class="reduce nonwrap">
+<table class="reduce nonwrap">        
         <thead>
                 <tr>
                         <th>Product</th>
@@ -21,7 +21,7 @@
                         <tr>
                             
                             <c:choose>
-                                <c:when test="${not empty alleleProduct['product_url']}">
+                                <c:when test="${not empty alleleProduct['product_url'] and not empty debug}">
                                     <td><a title="click to visit solr" href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
                                 </c:when>
                                 <c:otherwise>
@@ -59,16 +59,14 @@
                                         <div style="padding:3px;"><a href="${alleleProduct['genbank_file']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                 </c:if>
                             </td>
-                            <td>
+                            <td style="text-align:center">
 
-                                <c:if test="${not empty alleleProduct['ikmc_project_id']}">
+                                <c:if test="${not empty alleleProduct['ikmc_project_id'] and not empty debug}">
                                 <a title="project page" href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmc_project_id']}"><i class="fa fa-clipboard"></i></a>
                                 </c:if>
 
-                                <c:if test="${not empty alleleProduct['mgi_accession_id']}">
-                                <c:if test="${not empty alleleProduct['allele_name']}">
-                                <a title="allele project page" href="${baseUrl}/alleles/${alleleProduct['mgi_accession_id']}/${alleleProduct['allele_name']}/"><i class="fa fa-clipboard fa-2x"></i></a>
-                                </c:if>
+                                <c:if test="${not empty alleleProduct['mgi_accession_id'] and not empty alleleProduct['allele_name']}">
+                                    <a title="allele project page" href="${baseUrl}/alleles/${alleleProduct['mgi_accession_id']}/${alleleProduct['allele_name']}/"><i class="fa fa-clipboard fa-2x"></i></a>
                                 </c:if>
 
                             </td>

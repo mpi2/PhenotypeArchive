@@ -7,8 +7,11 @@
 <jsp:body>
 
 <h1 class="title" id="top">${mgi_accession_id}</h1>
+        <c:if test="${not empty debug}">
 <p>${versionDate}</p>
-</br>                        
+        </c:if>
+
+            </br>                        
 
         <c:if test="${not empty message}">
             <div style="font-size: 120%;">
@@ -26,12 +29,20 @@
     <c:forEach var="item" items="${list_alleles}" varStatus="listx">
         <tr>
             <td>
-    <c:if test="${empty item['link']}">
-                <p>${item['display_name']}</p>
-    </c:if>
-    <c:if test="${not empty item['link']}">
-                <a href="${baseUrl}/alleles/${item['mgi_accession_id']}/${item['allele_name_e']}" target="_blank">${item['display_name']}</a>
-    </c:if>
+
+        <c:choose>
+        <c:when test="${not empty debug}">
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name_debug']}</a>
+        </c:when>
+        <c:otherwise>
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name']}</a>
+        </c:otherwise>
+        </c:choose>
+        
+        
+        
+        
+        
             </td>
         <tr>
     </c:forEach>
@@ -50,7 +61,19 @@
     <c:forEach var="item" items="${list_none_alleles}" varStatus="listx">
         <tr>
             <td>
-                <a href="${baseUrl}/alleles/${item['mgi_accession_id']}/${item['allele_name_e']}" target="_blank">${item['display_name']}</a>
+
+
+        <c:choose>
+        <c:when test="${not empty debug}">
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name_debug']}</a>
+        </c:when>
+        <c:otherwise>
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name']}</a>
+        </c:otherwise>
+        </c:choose>
+
+
+
             </td>
         <tr>
     </c:forEach>
