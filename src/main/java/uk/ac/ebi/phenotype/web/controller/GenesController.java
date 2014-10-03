@@ -424,7 +424,7 @@ public class GenesController {
 		for (FacetField facet : expressionfacets) {
 			if (facet.getValueCount() != 0) {
 				for (Count value : facet.getValues()) {
-					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName", value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
+					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "selected_top_level_ma_term", value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
 					if (response != null) {
 						facetToDocs.put(value.getName(), response.getResults());
 					}
