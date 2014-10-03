@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 
@@ -361,19 +362,22 @@ public class DataTableController {
 					
 					// MP -> HP computational mapping
 					
-					Set<String> hpTerms = mpService.getComputationalHPTerms(doc);
-					
+					Set<SimpleOntoTerm> hpTerms = mpService.getComputationalHPTerms(doc);
 					String mappedHpTerms = null;
 					
 					if ( hpTerms.size() > 1 ){
-						mappedHpTerms = "<ul class='hpTerms'><li>" + StringUtils.join(hpTerms, "</li><li>") + "</li></ul>";
+						for ( SimpleOntoTerm term : hpTerms ){
+							mappedHpTerms += "<li>" + term.getTermName() + "</li>";
+						}
+						mappedHpTerms = "<ul class='hpTerms'>" + mappedHpTerms + "</ul>";
 					}
 					else {
 						Iterator hi = hpTerms.iterator();
-						mappedHpTerms = hi.next().toString();
+						SimpleOntoTerm term = (SimpleOntoTerm) hi.next();
+						mappedHpTerms = term.getTermName();
 					}
 					mpCol += "<div class='subinfo'>" 
-							  + "<span class='label'>computationally mapped HP terms</span>: " 
+							  + "<span class='label'>computationally mapped HP term</span>: " 
 							  + mappedHpTerms
 							  + "</div>";
 				}

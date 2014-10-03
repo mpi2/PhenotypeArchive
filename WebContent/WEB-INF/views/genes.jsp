@@ -26,6 +26,9 @@
                             <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                             </c:if>
+                             <c:if test="${not empty impcImageFacets}">
+                            <li><a href="#section-impc-images">Impc Images</a></li>
+                            </c:if>
                             <c:if test="${not empty diseaseAssociations}">
                             <li><a href="#section-disease">Potential Disease Models</a></li>
                             </c:if>
@@ -364,11 +367,11 @@
                                 </div>
                             </c:if>
                             
-                            <!-- nicolas accordion for images here -->
+                            
                              <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
-                                    <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
                                     
@@ -384,7 +387,7 @@
                                                     
                                                         <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
                                                             <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
-                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" count="${entry.count}"></t:impcimgdisplay2>
                                                                 </a>
                                                         </c:forEach>
                                                     

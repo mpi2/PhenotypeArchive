@@ -16,11 +16,24 @@ var mediaBaseUrl = "${mediaBaseUrl}";
 console.log(mediaBaseUrl);
 var solrUrl='${solrUrl}';
 </script>
+<link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
 </HEAD>
 <BODY>
- 	<A id="prev">Previous</A>.
-    <A id="next">Next</A>.
-    
-    
+<div class="region region-content">
+                <div class="block">
+                    <div class="content">
+                    	<div class="section">
+                               
+    								<div class="caption">
+    										<div class="btn" id="prev">< < Previous</div>
+    										<div class="btn" id="next">Next > ></div>
+    											<div id="annotations" name="annotations">
+    											</div>
+    								</div>
+								
+						</div>
+					</div>
+				</div>
+</div>
 </BODY>
 </HTML>

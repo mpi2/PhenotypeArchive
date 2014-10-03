@@ -124,7 +124,7 @@
 							<div class="with-label"> <span class="label">Computationally mapped HP term</span>
 								<ul>
 									<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
-										<li>${hpTerm}</li> 
+										<li>${hpTerm.termName}</li> 
 										<c:if test="${loop.last}">&nbsp;</c:if>
 									</c:forEach>
 								</ul>
