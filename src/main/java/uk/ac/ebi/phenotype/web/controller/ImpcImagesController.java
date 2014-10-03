@@ -69,7 +69,7 @@ public class ImpcImagesController {
 
 	@RequestMapping("/imageComparator")
 	public String imageComparator(HttpServletRequest request, Model model) {
-		String page="imageComparator2";
+		String page="imageComparator";
 		System.out.println("calling imageComparator");
 //		String[] omeroIds = request.getParameterValues("imgId");
 //		if(omeroIds==null || omeroIds.length==0){
