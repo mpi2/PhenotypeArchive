@@ -422,7 +422,7 @@
 	       				else {
 	       					q = '"' + encodeURIComponent(this.value) + '"';
 	       				}	
-	       				alert()
+	       				
 	       				document.location.href = baseUrl + '/search?q=' + q + '#fq=' + fqStr + '&facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
