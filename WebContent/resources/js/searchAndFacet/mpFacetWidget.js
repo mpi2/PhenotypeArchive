@@ -70,15 +70,18 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
-	    			//console.log(json);
+	    			console.log(json);
 	    				    	    	
 	    	    	//var aTopLevelCount = json.facet_counts.facet_fields['annotatedHigherLevelMpTermName'];	 
 	    	    	var aTopLevelCount = json.facet_counts.facet_fields[facetField];
 	    	    	var mpUlContainer = $("<ul></ul>");
+	    	    	var liContainer_viable  = null;
+	    	    	var liContainer_fertile = null;
 	    	    	
 	    	    	// top level MP terms
-	    	    	for ( var i=0;  i<aTopLevelCount.length; i+=2 ){	    		
-	    	    		if ( aTopLevelCount[i] == 'mammalian phenotype'){
+	    	    	for ( var i=0;  i<aTopLevelCount.length; i+=2 ){	
+	    	    		var topLevelName = aTopLevelCount[i];
+	    	    		if ( topLevelName == 'mammalian phenotype'){
 	    	    			continue;
 	    	    		}
 	        		
@@ -88,17 +91,31 @@
 	        			var liContainer = $("<li></li>").attr({'class':'fcat'});
 	        			liContainer.removeClass('grayout').addClass(isGrayout);
 	        			
-	        			//var coreField = 'mp|annotatedHigherLevelMpTermName|' + aTopLevelCount[i] + '|' + count;
-	        			var coreField = 'mp|' + facetField + '|' + aTopLevelCount[i] + '|' + count;
+	        			//var coreField = 'mp|annotatedHigherLevelMpTermName|' + topLevelName + '|' + count;
+	        			var coreField = 'mp|' + facetField + '|' + topLevelName + '|' + count;
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 							    	    
-	    	    		var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i].replace(' phenotype', ''));
+	    	    		var flabel = $('<span></span>').attr({'class':'flabel'}).text(topLevelName.replace(' phenotype', ''));
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-						liContainer.append(chkbox, flabel, fcount);
 						
-						mpUlContainer.append(liContainer);
-	    	    	}    		    	    	
-	    	    		    			 
+						liContainer.append(chkbox, flabel, fcount);
+						console.log(topLevelName + ' : '+ count);
+						if ( topLevelName == 'reproductive system phenotype' ){
+							flabel.addClass('fertility');
+							liContainer_fertile = liContainer;
+						}
+						else if ( topLevelName == 'mortality/aging' ){
+							flabel.addClass('viability');
+							liContainer_viable = liContainer;
+						}
+						else {
+							mpUlContainer.append(liContainer);
+						}
+	    	    	} 
+	    	    	
+	    	    	mpUlContainer.prepend(liContainer_fertile);
+	    	    	mpUlContainer.prepend(liContainer_viable);
+	    	    	
 	    			// update all subfacet counts of this facet 
 	        		$('div.flist li#mp > ul').append(mpUlContainer); 
 	        		
