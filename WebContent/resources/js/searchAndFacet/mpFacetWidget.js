@@ -113,6 +113,7 @@
 						}
 	    	    	} 
 	    	    	
+	    	    	// move these 2 top level MPs to top of facet list
 	    	    	mpUlContainer.prepend(liContainer_fertile);
 	    	    	mpUlContainer.prepend(liContainer_viable);
 	    	    	
