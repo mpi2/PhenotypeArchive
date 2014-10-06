@@ -105,28 +105,59 @@
 
 
         <c:choose>
-        <c:when test="${false}">
-
-            <h5 style="color:red">OLD</h5>
-
+        <c:when test="${true}">
         <table>
-            <c:forEach var="status" items="${summary['statuses']}" varStatus="statusx">
-                <tr style="background-color: ${status['COLOUR']} !important;">
-                    <td style="width:30%">${status['TEXT']}</td>
+            <c:if test="${not empty summary['status_mice']}">
+
+                <tr style="background-color: ${summary['status_mice']['COLOUR']} !important;">
+
+                    <td style="width:30%">${summary['status_mice']['TEXT']}</td>
+
                     <td>
-                    <c:if test="${not empty status['ORDER']}">
-                    <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+                        
+                        
+                    <c:if test="${not empty summary['status_mice']['orders']}">
+                        <a id="mice_order_contact_button" class="btn btn-lg" href="#mice_block"> <i class="fa fa-shopping-cart"></i> ORDER </a>
                     </c:if>
-                    <c:if test="${not empty status['CONTACT']}">
-                    <!-- TODO: turn orange-->
-                    <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
+                    <c:if test="${not empty summary['status_mice']['contacts']}">
+                        <a id="mice_order_contact_button" class="btn btn-lg" href="#mice_block"> <i class="fa  fa-envelope"></i> CONTACT </a>
                     </c:if>
-                    <c:if test="${not empty status['DETAILS']}">
-                    <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
+                    <c:if test="${not empty summary['status_mice']['details']}">
+                        <a class="btn btn-lg" href="${summary['status_mice']['details'][0]}"> <i class="fa  fa-info "></i> DETAILS </a>
                     </c:if>
-                </td>
+                        
+                 
+                    </td>
+
                 </tr>
-            </c:forEach>
+
+            </c:if>
+
+            <c:if test="${not empty summary['status_es_cells']}">
+
+                <tr style="background-color: ${summary['status_es_cells']['COLOUR']} !important;">
+
+                    <td style="width:30%">${summary['status_es_cells']['TEXT']}</td>
+
+                    <td>
+                        
+
+                    <c:if test="${not empty summary['status_es_cells']['orders']}">
+                        <a id="es_cell_order_contact_button" class="btn btn-lg" href="#es_cell_block"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+                    </c:if>
+                    <c:if test="${not empty summary['status_es_cells']['contacts']}">
+                        <a id="es_cell_order_contact_button" class="btn btn-lg" href="#es_cell_block"> <i class="fa  fa-envelope"></i> CONTACT </a>
+                    </c:if>
+                    <c:if test="${not empty summary['status_es_cells']['details']}">
+                        <a class="btn btn-lg" href="${summary['status_es_cells']['details'][0]}"> <i class="fa  fa-envelope"></i> DETAILS </a>
+                    </c:if>
+                        
+
+                    </td>
+
+                </tr>
+
+            </c:if>
         </table>
 
         </c:when>
@@ -299,7 +330,7 @@
 <c:if test="${not empty mice}">
     <div class="section">
         <div class="inner">
-        <h3>Mice</h3>
+        <h3 id="mice_block">Mice</h3>
         <div class="dataset_content">
             <table id="mouse_table">
             <thead>
@@ -397,7 +428,7 @@
 
 	<div class="section">
 		<div class="inner">
-			<h3>ES Cells</h3>
+			<h3 id="es_cell_block">ES Cells</h3>
 
 <div class="dataset_content">
   <table id="es_cell_table">

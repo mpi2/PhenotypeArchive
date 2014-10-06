@@ -18,19 +18,16 @@
  */
 jQuery(document).ready(	function() {
 
-function getURLParameter(name) {
-  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-}
-
-
+        function getURLParameter(name) {
+          return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+        }
 
 //code for setting ENU links on Gene Page	
 
         var debug = getURLParameter('debug');
         var debugp = "";
         
-      //  console.log("debug: " + debug)
-        
+       
         if(debug && debug === "true") {
             
             debugp = "?debug=true";
@@ -54,13 +51,6 @@ function getURLParameter(name) {
         else {
             $('#order').hide();
         }
-//                
-//        if(!debug && debug !== "true") {
-//            
-//            $('#order2').hide();
-//            
-//        }
-//        else {
         
 	$.ajax({
 		url: '../genesAllele2/' + gene_id + debugp,    
@@ -77,9 +67,7 @@ function getURLParameter(name) {
                     $('#allele2').html(errorMsg);
                 }
 	});
-        
- //       }
-        
+                
         $('.qcData').each(function(){
             var type = $(this).data("type");
             var name = $(this).data("name");
@@ -114,23 +102,23 @@ function getURLParameter(name) {
         });
 
     function toggleTable(id) {
-        $("#" + id + "_toggle").on({'click':function(event){
+        var target = "#" + id + "_toggle";
+        $(target).on({'click':function(event){
         event.preventDefault();
         $("#" + id + " .rest").toggle("fast");
         
-        if($("#" + id + "_toggle").hasClass("toggle_closed")) {
-            $("#" + id + "_toggle").removeClass("toggle_closed");
-            $("#" + id + "_toggle").addClass("toggle_open");
-            var type = $( "#" + id + "_toggle" ).data( "type" );
-            var count = $( "#" + id + "_toggle" ).data( "count" );
-            $("#" + id + "_toggle").text("Hide " + type);
+        if($(target).hasClass("toggle_closed")) {
+            $(target).removeClass("toggle_closed");
+            $(target).addClass("toggle_open");
+            var type = $(target).data( "type" );
+            $(target).text("Hide " + type);
         }
         else {
-            $("#" + id + "_toggle").removeClass("toggle_open");
-            $("#" + id + "_toggle").addClass("toggle_closed");
-            var type = $( "#" + id + "_toggle" ).data( "type" );
-            var count = $( "#" + id + "_toggle" ).data( "count" );
-            $("#" + id + "_toggle").text("Show all " + count + " " + type);
+            $(target).removeClass("toggle_open");
+            $(target).addClass("toggle_closed");
+            var type = $(target).data( "type" );
+            var count = $(target).data( "count" );
+            $(target).text("Show all " + count + " " + type);
         }
         }});
     }
@@ -138,5 +126,17 @@ function getURLParameter(name) {
     toggleTable("mouse_table");
     toggleTable("es_cell_table");
     toggleTable("targeting_vector_table");
+
+    $("#mice_order_contact_button").on({'click':function(event){
+        if($("#mouse_table_toggle").hasClass("toggle_closed")) {
+            $( "#mouse_table_toggle" ).trigger( "click" );
+        }
+    }});
+
+    $("#es_cell_order_contact_button").on({'click':function(event){
+        if($("#es_cell_table_toggle").hasClass("toggle_closed")) {
+            $( "#es_cell_table_toggle" ).trigger( "click" );
+        }
+    }});
 
 });
