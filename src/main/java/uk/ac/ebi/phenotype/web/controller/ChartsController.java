@@ -40,6 +40,7 @@ import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
 import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
+import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
@@ -321,7 +322,7 @@ public class ChartsController {
                 			 
                 		 case PIE:
                 			 
-                			 viabilityDTO=viabilityChartAndDataProvider.doViabilityData();
+                			 viabilityDTO=ViabilityChartAndDataProvider.doViabilityData();
                 			 model.addAttribute("pieChart", viabilityDTO);
 
                 		 default:

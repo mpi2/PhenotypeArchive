@@ -1,7 +1,7 @@
-package uk.ac.ebi.phenotype.web.controller;
+package uk.ac.ebi.phenotype.chart;
 
 
-public class viabilityChartAndDataProvider {
+public class ViabilityChartAndDataProvider {
 
 	public static Object doViabilityData() {
 
