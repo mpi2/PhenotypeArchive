@@ -3,11 +3,11 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <c:choose>
-<c:when test="${alleleProducts.size() > 0}">
-<table class="reduce nonwrap">
+<c:when test="${alleleProducts2.size() > 0}">
+<table class="reduce nonwrap">        
         <thead>
                 <tr>
-                        <th>Product (new)</th>
+                        <th>Product</th>
                         <th style="width:15%">Type</th>
                         <th>Strain of Origin</th>
                         <th>MGI Allele Name</th>
@@ -19,31 +19,53 @@
         <tbody>
                 <c:forEach var="alleleProduct" items="${alleleProducts2}" varStatus="status">
                         <tr>
-                            <td>${alleleProduct["product"]}</td>
+                            
+                            <c:choose>
+                                <c:when test="${not empty alleleProduct['product_url'] and not empty debug}">
+                                    <td><a title="click to visit solr" href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
+                                </c:when>
+                                <c:otherwise>
+                                    <td>${alleleProduct["product"]}</td>
+                                </c:otherwise>
+                            </c:choose>
+
+                                                                        
+                                    
+                            
+                                    
+                                    
+                                    
+                                    
                             <td>${alleleProduct["allele_description"]}</td>
-                            <td>${alleleProduct["genetic_background"]}</td>
+                            
+                            <c:choose>
+                                <c:when test="${empty alleleProduct['genetic_background']}">
+                                    <td style="text-align:center">&horbar;</td>
+                                </c:when>
+                                <c:otherwise>
+                                    <td>${alleleProduct["genetic_background"]}</td>
+                                </c:otherwise>
+                            </c:choose>
+                            
+                            
                             <td>${alleleProduct["mgi_allele_name"]}</td>
                             <td>
                                 <c:if test="${not empty alleleProduct['allele_image']}">
                                         <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['allele_image']}?simple=true.jpg">
                                                 <i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
                                 </c:if>
-
+                                
                                 <c:if test="${not empty alleleProduct['genbank_file']}">
                                         <div style="padding:3px;"><a href="${alleleProduct['genbank_file']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                 </c:if>
                             </td>
-                            <td>
+                            <td style="text-align:center">
 
-                                <c:if test="${not empty alleleProduct['ikmc_project_id']}">
+                                <c:if test="${not empty alleleProduct['ikmc_project_id'] and not empty debug}">
                                 <a title="project page" href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmc_project_id']}"><i class="fa fa-clipboard"></i></a>
                                 </c:if>
 
-                                <c:if test="${not empty alleleProduct['mgi_accession_id']}">
-                                <c:if test="${not empty alleleProduct['allele_name']}">
-                                <a title="allele project page" href="${baseUrl}/alleles/${alleleProduct['mgi_accession_id']}/${alleleProduct['allele_name']}"><i class="fa fa-clipboard fa-2x"></i></a>
-                                </c:if>
-                                </c:if>
+                                <a title="allele project page" href="${baseUrl}/${alleleProduct['url_new']}"><i class="fa fa-clipboard fa-2x"></i></a>
 
                             </td>
                             <td>
@@ -51,9 +73,13 @@
                                 <c:forEach var="order" items="${alleleProduct['orders']}" varStatus="orderx">
                                     <a class="btn btn-sm" href="${order['url']}"> <i class="fa fa-shopping-cart"></i>${order['name']}</a>&nbsp;
                                 </c:forEach>
+                                    
+                                    
+                                <c:if test="${empty alleleProduct['orders']}">
                                 <c:forEach var="contact" items="${alleleProduct['contacts']}" varStatus="contactx">
                                     <a class="btn btn-sm" href="${contact['url']}"> <i class="fa fa-envelope"></i>${contact['name']}</a>
                                 </c:forEach>
+                                </c:if>
 
                             </td>
                         </tr>

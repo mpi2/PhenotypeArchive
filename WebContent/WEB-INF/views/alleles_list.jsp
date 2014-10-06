@@ -6,9 +6,12 @@
 
 <jsp:body>
 
-<h1 class="title" id="top">Alleles Test</h1>
+<h1 class="title" id="top">${mgi_accession_id}</h1>
+        <c:if test="${not empty debug}">
 <p>${versionDate}</p>
-</br>                        
+        </c:if>
+
+            </br>                        
 
         <c:if test="${not empty message}">
             <div style="font-size: 120%;">
@@ -17,26 +20,78 @@
         </c:if>
 
 <div style="font-size: 120%;">
+    
+    
+    
+    <c:if test="${empty list_alleles and empty list_none_alleles}">
+        <p>Not found!</p>
+    </c:if>
+
+    
+    
+    
+    <c:if test="${not empty list_alleles}">
+    
+    <h3>Alleles</h3>
 
     <table>
-    <c:forEach var="item" items="${list}" varStatus="listx">
+    <c:forEach var="item" items="${list_alleles}" varStatus="listx">
         <tr>
-        
             <td>
-                <a href="${baseUrl}/alleles/${item['mgi_accession_id']}/${item['allele_name_e']}" target="_blank">${item['marker_symbol']}<sup>${item['allele_name']}</sup></a>
+
+        <c:choose>
+        <c:when test="${not empty debug}">
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name_debug']}</a>
+        </c:when>
+        <c:otherwise>
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name']}</a>
+        </c:otherwise>
+        </c:choose>
+        
+        
+        
+        
+        
             </td>
-            
-<!--            <td><a target="_blank" href="${item['solr_product_mouse']}">Solr Product Mouse</a></td>
-            <td><a target="_blank" href="${item['solr_product_es_cell']}">Solr Product Cell</a></td>
-            <td><a target="_blank" href="${item['solr_product_targeting_vector']}">Solr Product Vector</a></td>
-            <td><a target="_blank" href="${item['solr_allele2_alleles']}">Solr Allele2 Allele</a></td>
-            <td><a target="_blank" href="${item['solr_allele2_genes']}">Solr Allele2 Gene</a></td>-->
-            
         <tr>
     </c:forEach>
     </table>
+    
+    </c:if>
+
+
+
+
+    <c:if test="${not empty list_none_alleles}">
+    
+    <h3>Potential Alleles</h3>
+
+    <table>
+    <c:forEach var="item" items="${list_none_alleles}" varStatus="listx">
+        <tr>
+            <td>
+
+
+        <c:choose>
+        <c:when test="${not empty debug}">
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name_debug']}</a>
+        </c:when>
+        <c:otherwise>
+            <a href="${baseUrl}/${item['url']}" target="_blank">${item['display_name']}</a>
+        </c:otherwise>
+        </c:choose>
+
+
+
+            </td>
+        <tr>
+    </c:forEach>
+    </table>
+    
+    </c:if>
 
 </div>
+
 
 </jsp:body>
   

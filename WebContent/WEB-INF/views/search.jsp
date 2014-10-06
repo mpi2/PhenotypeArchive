@@ -344,7 +344,9 @@
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
 		       			$.ajax({
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax" + solrBq,				       			
+		       				
+		       				// use double qf fields to deal with exact and partial string match
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,				       			
 			       			dataType: "jsonp",
 			       			'jsonp': 'json.wrf',
 			       			data: {
