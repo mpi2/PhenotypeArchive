@@ -45,27 +45,27 @@ public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
     // TODO: get rid!
-    private static final String VERSIONDATE = "Fri Oct 3 2014";
+    private static final String VERSIONDATE = "Mon Oct 6 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;
 
-    private HashMap<String, String> makeItem(Map<String, Object> map2) {
-        HashMap<String, String> map = new HashMap<>();
-        map.put("marker_symbol", (String)map2.get("marker_symbol"));
-        map.put("allele_name", (String)map2.get("allele_name"));
-        map.put("mgi_accession_id", (String)map2.get("mgi_accession_id"));
-        map.put("type", (String)map2.get("type"));
-        map.put("display_name_debug", (String)map2.get("display_name_debug"));
-        map.put("display_name", (String)map2.get("display_name"));
-        map.put("url", (String)map2.get("url"));
-        
-        log.info("#### makeItem...");
-        log.info("#### makeItem: map2: " + map2);
-        log.info("#### makeItem: map: " + map);
-
-        return map;
-    }
+//    private HashMap<String, String> makeItem(Map<String, Object> map2) {
+//        HashMap<String, String> map = new HashMap<>();
+//        map.put("marker_symbol", (String)map2.get("marker_symbol"));
+//        map.put("allele_name", (String)map2.get("allele_name"));
+//        map.put("mgi_accession_id", (String)map2.get("mgi_accession_id"));
+//        map.put("type", (String)map2.get("type"));
+//        map.put("display_name_debug", (String)map2.get("display_name_debug"));
+//        map.put("display_name", (String)map2.get("display_name"));
+//        map.put("url", (String)map2.get("url"));
+//        
+//        log.info("#### makeItem...");
+//        log.info("#### makeItem: map2: " + map2);
+//        log.info("#### makeItem: map: " + map);
+//
+//        return map;
+//    }
 
     @RequestMapping("/qc_data/{alleleType}/{type}/{name}")
     public String qcData(
@@ -91,17 +91,17 @@ public class AllelesController {
         log.info("#### alleles1...");
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(acc);
-        List<Map<String, String>> list_alleles = new ArrayList<>();
-        List<Map<String, String>> list_none_alleles = new ArrayList<>();
+        List<Map<String, Object>> list_alleles = new ArrayList<>();
+        List<Map<String, Object>> list_none_alleles = new ArrayList<>();
         String mgi_accession_id = "Unknown";
 
         if (list1 != null) {
             for (Map<String, Object> item : list1) {
                 if(((String) item.get("allele_name")).equals("None")) {
-                    list_none_alleles.add(makeItem(item));
+                    list_none_alleles.add(item);
                 }
                 else {
-                    list_alleles.add(makeItem(item));
+                    list_alleles.add(item);
                 }
                 mgi_accession_id = (String)item.get("mgi_accession_id");
             }
