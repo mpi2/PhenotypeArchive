@@ -105,29 +105,60 @@
 
 
         <c:choose>
-        <c:when test="${false}">
-
-            <h5 style="color:red">OLD</h5>
-
+        <c:when test="${true}">
         <table>
-            <c:forEach var="status" items="${summary['statuses']}" varStatus="statusx">
-                <tr style="background-color: ${status['COLOUR']} !important;">
-                    <td style="width:30%">${status['TEXT']}</td>
+            <c:if test="${not empty summary['status_mice']}">
+
+                <tr style="background-color: ${summary['status_mice']['COLOUR']} !important;">
+
+                    <td style="width:30%">${summary['status_mice']['TEXT']}</td>
+
                     <td>
-                    <c:if test="${not empty status['ORDER']}">
-                    <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+                        
+                        
+                    <c:if test="${not empty summary['status_mice']['orders']}">
+                        <a id="mice_order_contact_button" class="btn btn-lg" href="#mice_block"> <i class="fa fa-shopping-cart"></i> ORDER </a>
                     </c:if>
-                    <c:if test="${not empty status['CONTACT']}">
-                    <!-- TODO: turn orange-->
-                    <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
+                    <c:if test="${not empty summary['status_mice']['contacts']}">
+                        <a id="mice_order_contact_button" class="btn btn-lg" href="#mice_block"> <i class="fa  fa-envelope"></i> CONTACT </a>
                     </c:if>
-                    <c:if test="${not empty status['DETAILS']}">
-                    <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
+                    <c:if test="${not empty summary['status_mice']['details']}">
+                        <a class="btn btn-lg" href="${summary['status_mice']['details'][0]}"> <i class="fa  fa-info "></i> DETAILS </a>
                     </c:if>
-                </td>
+                        
+                 
+                    </td>
+
                 </tr>
-            </c:forEach>
-        <table>
+
+            </c:if>
+
+            <c:if test="${not empty summary['status_es_cells']}">
+
+                <tr style="background-color: ${summary['status_es_cells']['COLOUR']} !important;">
+
+                    <td style="width:30%">${summary['status_es_cells']['TEXT']}</td>
+
+                    <td>
+                        
+
+                    <c:if test="${not empty summary['status_es_cells']['orders']}">
+                        <a id="es_cell_order_contact_button" class="btn btn-lg" href="#es_cell_block"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+                    </c:if>
+                    <c:if test="${not empty summary['status_es_cells']['contacts']}">
+                        <a id="es_cell_order_contact_button" class="btn btn-lg" href="#es_cell_block"> <i class="fa  fa-envelope"></i> CONTACT </a>
+                    </c:if>
+                    <c:if test="${not empty summary['status_es_cells']['details']}">
+                        <a class="btn btn-lg" href="${summary['status_es_cells']['details'][0]}"> <i class="fa  fa-envelope"></i> DETAILS </a>
+                    </c:if>
+                        
+
+                    </td>
+
+                </tr>
+
+            </c:if>
+        </table>
 
         </c:when>
         <c:otherwise>
@@ -177,7 +208,7 @@
                 </tr>
 
             </c:if>
-        <table>
+        </table>
 
         </c:otherwise>
         </c:choose>
@@ -192,7 +223,6 @@
         </c:if>
     </div>
     </div>
-</div>
 
 
 
@@ -300,7 +330,7 @@
 <c:if test="${not empty mice}">
     <div class="section">
         <div class="inner">
-        <h3>Mice</h3>
+        <h3 id="mice_block">Mice</h3>
         <div class="dataset_content">
             <table id="mouse_table">
             <thead>
@@ -341,10 +371,14 @@
                 <td>${mouse['genetic_background']}</td>
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
-                <td><a class="hasTooltip" href="${baseUrl}/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
+                <td>
+                    <a class="hasTooltip" href="${baseUrl}/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
                     <div class="hidden">
                         <div class="qcData" data-type="mouse" data-name="${mouse['colony_name']}" data-alleletype="${mouse['allele_type']}"></div>
                     </div>
+                    <c:if test="${not empty mouse['qc_about']}">
+                        (&nbsp;<a target="_blank" href="${mouse['qc_about']}">about</a>&nbsp;)
+                    </c:if>
                 </td>
                 <td>
 
@@ -394,7 +428,7 @@
 
 	<div class="section">
 		<div class="inner">
-			<h3>ES Cells</h3>
+			<h3 id="es_cell_block">ES Cells</h3>
 
 <div class="dataset_content">
   <table id="es_cell_table">
@@ -438,10 +472,15 @@
 
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
-        <td><a class="hasTooltip" href="${baseUrl}/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
+        <td>
+            <a class="hasTooltip" href="${baseUrl}/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
             <div class="hidden">
-                <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>
+                <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>                    
             </div>
+            <c:if test="${not empty es_cell['qc_about']}">
+                (&nbsp;<a target="_blank" href="${es_cell['qc_about']}">about</a>&nbsp;)
+            </c:if>
+            
         </td>
 
         <td style="text-align: center;">${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
@@ -576,7 +615,7 @@
 
         <c:if test="${targeting_vectors.size() > 1}">
             <p class="textright">
-                <a id="targeting_vector_table_toggle" data-count='${mice.size()}' data-type='Targeting Vectors' class="toggle_closed">Show all ${targeting_vectors.size()} Targeting Vectors</a>
+                <a id="targeting_vector_table_toggle" data-count='${targeting_vectors.size()}' data-type='Targeting Vectors' class="toggle_closed">Show all ${targeting_vectors.size()} Targeting Vectors</a>
             </p>
         </c:if>
 
