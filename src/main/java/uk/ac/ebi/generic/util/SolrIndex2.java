@@ -876,7 +876,7 @@ public class SolrIndex2 {
         }
 
         HashMap<String, String> map2 = new HashMap<>();
-        map2.put("TEXT", phraseMap.get("no-cell-prod"));
+        map2.put("TEXT", phraseMap.get("no-cells-prod"));
         map2.put("TEXT2", "");
         listNotFound.add(map2);
         return listNotFound;
@@ -1527,34 +1527,38 @@ public class SolrIndex2 {
         hash.put("debug", debug ? "true" : "false");
         Map<String, Object> mapper = getGeneProductInfo(hash);
         
-        if(!mapper.containsKey("targeting_vectors") || ((List<Map<String, Object>>)mapper.get("targeting_vectors")).size() < 1) {
-            JSONObject jsonObject1 = getResults(url);
+        if(mapper == null || !mapper.containsKey("targeting_vectors") || ((List<Map<String, Object>>)mapper.get("targeting_vectors")).size() < 1) {
+      //  if(mapper == null || !mapper.containsKey("targeting_vectors")) {
+       //     List<Map<String, Object>> tv = (List<Map<String, Object>>)mapper.get("targeting_vectors");
+       //     if(tv == null || tv.size() < 1) {
+                JSONObject jsonObject1 = getResults(url);
 
-            JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+                JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
 
-            if (docs.size() < 1) {
-                log.info("#### No rows returned for the query!");
-                return mapper;
-            }
-            
-            String marker_symbol = "";
-            
-            List<Map<String, Object>> targeting_vectors = new ArrayList<>();
-            for (Object doc : docs) {
-                JSONObject jsonObject2 = (JSONObject) doc;
-                String type = jsonObject2.getString("type");
-
-                if (type.equals("targeting_vector")) {
-                    Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
-                    String ms = (String)targeting_vector.get("marker_symbol");
-                    marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
-                    targeting_vectors.add(targeting_vector);
+                if (docs.size() < 1) {
+                    log.info("#### No rows returned for the query!");
+                    return mapper;
                 }
+
+                String marker_symbol = "";
+
+                List<Map<String, Object>> tv = new ArrayList<>();
+                for (Object doc : docs) {
+                    JSONObject jsonObject2 = (JSONObject) doc;
+                    String type = jsonObject2.getString("type");
+
+                    if (type.equals("targeting_vector")) {
+                        Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
+                        String ms = (String)targeting_vector.get("marker_symbol");
+                        marker_symbol = marker_symbol.length() == 0 && ms != null && ms.length() > 0 ? ms : marker_symbol;
+                        tv.add(targeting_vector);
+                    }
+                }
+
+                mapper.put("targeting_vectors", tv);
+                mapper.put("title", marker_symbol);
             }
-            
-            mapper.put("targeting_vectors", targeting_vectors);
-            mapper.put("title", marker_symbol);
-        }
+      //  }
         
         return mapper;
     }
@@ -1968,16 +1972,19 @@ public class SolrIndex2 {
         log.info("#### getGeneProductInfoStatusesEsCellAlt: foundMap: " + foundMap);
         log.info("#### getGeneProductInfoStatusesEsCellAlt: notFoundMap: " + notFoundMap);
 
-        if (foundMap.size() > 0) {
+        if (!foundMap.isEmpty()) {
             return foundMap;
         }
 
-        if (notFoundMap.size() > 0) {
+        if (!notFoundMap.isEmpty()) {
             return notFoundMap;
         }
-
-        notFoundMap.put("TEXT", phraseMap.get("no-cell-prod"));
+        
+        notFoundMap.put("TEXT", phraseMap.get("no-cells-prod"));
         notFoundMap.put("TEXT2", "");
+
+        log.info("#### getGeneProductInfoStatusesEsCellAlt: default return: " + notFoundMap);
+
         return notFoundMap;
     }
 
