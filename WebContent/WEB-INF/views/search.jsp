@@ -231,7 +231,7 @@
        		    	}
        		    	else if (! facet){
        		    		
-       		    		//alert('2')
+       		    		//alert('2: ' + input)
        		    		// user hits enter before autosuggest pops up	
        		    		// ie, facet info is unknown
        		    		
@@ -239,6 +239,14 @@
        		    			// work out the mapped mp_id and fire off the query
 	       		    		_convertHp2MpAndSearch(input);
        		    		} 
+       		    		else if ( input.match(/MP%3A\d+ - (.+)/) ){
+       		    			// hover over hp mp mapping but not selecting 
+       		    			// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
+       		    			var matched = input.match(/MP%3A\d+ - (.+)/); 
+       		    			var mpTerm = '"' + matched[1] + '"';
+       		    			var fqStr = $.fn.getCurrentFq('mp');
+       		    			document.location.href = baseUrl + '/search?q=mp_term:' + mpTerm + '#fq=' + fqStr + '&facet=mp'; 
+       		    		}
        		    		else {
 	       		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
 	       		    			// if there is no existing facet filter, reload with q
@@ -378,10 +386,10 @@
 			       							}
 			       							aKV.push("<span class='" + facet + "'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 			       							
-			       							if (i == 0){
+			       							/*if (i == 0){
 			       								// take the first found in autosuggest and open that facet
 			       								MPI2.searchAndFacetConfig.matchedFacet = facet;			       							
-			       							}
+			       							}*/
 			       						}
 			       					}
 			       				}
@@ -396,7 +404,7 @@
 	       			minLength: 3,
 	       			select: function( event, ui ) {
 	       				// select by mouse / KB
-	       				//console.log(this.value + ' vs ' + ui.item.label);
+	       				console.log(this.value + ' vs ' + ui.item.label);
 	       				var oriText = $(ui.item.label).text();
 	       				var facet = $(ui.item.label).attr('class') == 'hp' ? 'mp' : $(ui.item.label).attr('class');
 	       				

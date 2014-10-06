@@ -283,3 +283,6 @@ span.showMore {
 	cursor: pointer;
 	font-size: 11px;
 }
+span.viability, span.fertility {
+	font-weight: bold;
+}
