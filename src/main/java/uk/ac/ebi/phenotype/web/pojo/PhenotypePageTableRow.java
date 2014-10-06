@@ -22,6 +22,9 @@ package uk.ac.ebi.phenotype.web.pojo;
 
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
+import java.util.Map;
+
+
 /**
  *
  * @author mrelac
@@ -29,13 +32,13 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
  * Phenotype page's 'phenotypes' HTML table.
  */
 public class PhenotypePageTableRow extends DataTableRow {
-    
+
     public PhenotypePageTableRow() {
         super();
     }
     
-    public PhenotypePageTableRow(PhenotypeCallSummary pcs, String baseUrl) {
-        super(pcs, baseUrl);
+    public PhenotypePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
+        super(pcs, baseUrl, config);
     }
     
     /**
@@ -57,7 +60,11 @@ public class PhenotypePageTableRow extends DataTableRow {
         if (o.phenotypeTerm == null || this.phenotypeTerm == null) {
             return -1;
         }
-        
+
+	    if (allele == null || o.allele == null) {
+		    return -1;
+	    }
+
         // Phenotype Page sorting
         int pvalueOp = this.pValue.compareTo(o.pValue);
         if (pvalueOp == 0) {

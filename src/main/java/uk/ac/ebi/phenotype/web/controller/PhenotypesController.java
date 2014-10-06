@@ -15,24 +15,6 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -60,23 +42,28 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.Synonym;
+import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
-import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.util.ParameterComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.util.ProcedureComparator;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypePageTableRow;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.*;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 
 @Controller
 public class PhenotypesController {
@@ -158,7 +145,8 @@ public class PhenotypesController {
         Set<OntologyTerm> mpSiblings = new HashSet();
         Set<OntologyTerm> goTerms = new HashSet();
         Set<Synonym> synonymTerms = new HashSet();
-
+        Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
+        
         try {
 
         	JSONArray docs = solrIndex
@@ -198,6 +186,10 @@ public class PhenotypesController {
                 }
             }
 
+            if (mpData.containsKey("hp_term")) {
+            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
+            }
+            
             if (mpData.containsKey("ma_id")) {
                 terms = mpData.getJSONArray("ma_id");
                 for (Object maObj : terms) {
@@ -236,7 +228,7 @@ public class PhenotypesController {
         model.addAttribute("go", goTerms);
         model.addAttribute("siblings", mpSiblings);
         model.addAttribute("synonyms", synonymTerms);
-        
+        model.addAttribute("hpTerms", computationalHPTerms);
         
         
         // Query the images for this phenotype
@@ -316,9 +308,11 @@ public class PhenotypesController {
             List<String> sex = new ArrayList();
             sex.add(pcs.getSex().toString());
 
-            DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString());
+            DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 
-            // Collapse rows on sex
+
+
+	        // Collapse rows on sex
             if (phenotypes.containsKey(pr)) {
                 pr = phenotypes.get(pr);
                 TreeSet<String> sexes = new TreeSet();

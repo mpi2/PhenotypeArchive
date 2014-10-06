@@ -15,32 +15,12 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONException;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -60,7 +40,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex2;
@@ -70,19 +49,10 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.Xref;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -203,7 +173,7 @@ public class GenesController {
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		if (gene == null) {
-			log.warn("Gene status for " + acc + " can't be found.");
+			log.warn("Gene object from database for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
 
@@ -382,7 +352,7 @@ public class GenesController {
 		Map<DataTableRow, DataTableRow> phenotypes = new HashMap<DataTableRow, DataTableRow>();
 
 		for (PhenotypeCallSummary pcs : phenotypeList) {
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString());
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 			
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr)) {
@@ -461,7 +431,7 @@ public class GenesController {
 		for (FacetField facet : expressionfacets) {
 			if (facet.getValueCount() != 0) {
 				for (Count value : facet.getValues()) {
-					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName", value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
+					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "selected_top_level_ma_term", value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
 					if (response != null) {
 						facetToDocs.put(value.getName(), response.getResults());
 					}
@@ -541,7 +511,8 @@ public class GenesController {
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException {
 
-		imageService.getImpcImagesForGenePage(acc, model, 1, 4, false);
+		imageService.getImpcImagesForGenePage(acc, model, 0, 1, false);
+		//imageService.getControlAndExperimentalImpcImages(acc, model, null, null, 0, 1, "Adult Lac Z");
 
 	}
 

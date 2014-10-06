@@ -277,3 +277,12 @@ div.subinfo ul li, span.imgAnnots ul li {
 span.label {
 	color: gray;
 }
+span.showMore {
+	margin-left: 18px;
+	color: #0978A1;
+	cursor: pointer;
+	font-size: 11px;
+}
+span.viability, span.fertility {
+	font-weight: bold;
+}

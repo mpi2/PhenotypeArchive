@@ -22,6 +22,9 @@ package uk.ac.ebi.phenotype.web.pojo;
 
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
+import java.util.Map;
+
+
 /**
  *
  * @author mrelac
@@ -29,13 +32,13 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
  * Gene page's 'phenotypes' HTML table.
  */
 public class GenePageTableRow extends DataTableRow {
-    
+
     public GenePageTableRow() {
         super();
     }
     
-    public GenePageTableRow(PhenotypeCallSummary pcs, String baseUrl) {
-        super(pcs, baseUrl);
+    public GenePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
+        super(pcs, baseUrl, config);
     }
     
     /**

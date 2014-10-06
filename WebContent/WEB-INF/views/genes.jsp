@@ -26,6 +26,9 @@
                             <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                             </c:if>
+                             <c:if test="${not empty impcImageFacets}">
+                            <li><a href="#section-impc-images">Impc Images</a></li>
+                            </c:if>
                             <c:if test="${not empty diseaseAssociations}">
                             <li><a href="#section-disease">Potential Disease Models</a></li>
                             </c:if>
@@ -349,7 +352,7 @@
                                     <div class="inner">
                                         <div class="alert alert-info">
                                             <h5>Caution</h5>
-                                            <p>This is the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.</p>
+                                            <p>These are the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.</p>
                                         </div>
                                     </div>
                                     <div class="dcc-heatmap-root">
@@ -364,33 +367,39 @@
                                 </div>
                             </c:if>
                             
-                            <!-- nicolas accordion for images here -->
+                            
                              <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
-                                    <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
-                                        <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
+                                    
+                                        
                                             <div class="accordion-group">
                                                 <div class="accordion-heading">
-                                                    ${entry.name} (${entry.count})
+                                                   <%--  ${entry.name} (${entry.count}) --%>
+                                                   ${fn:length(impcImageFacets)} Image Parameters
                                                 </div>
                                                 <div class="accordion-body">
-                                                    <ul>
+                                                <ul>
+                                                <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
+                                                    
                                                         <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
-                                                            
-                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
-                                                                
+                                                            <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" count="${entry.count}"></t:impcimgdisplay2>
+                                                                </a>
                                                         </c:forEach>
-                                                    </ul>
-                                                    <div class="clear"></div>
+                                                    
+                                                    <%-- <div class="clear"></div>
                                                     <c:if test="${entry.count>5}">
-                                                        <p class="textright"><a href="${baseUrl}/impcImages/ContAndExp?gene_accession_id=${acc}&procedure_name=${entry.name}&rows=100000"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
-                                                    </c:if>
+                                                        <p class="textright"><a href="${baseUrl}/imagePicker/${acc}/${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+                                                    </c:if> --%>
+                                                  </c:forEach><!-- solrFacets end -->
+                                                  </ul>
                                                 </div><!--  end of accordion body -->
                                             </div>
-                                        </c:forEach><!-- solrFacets end -->
+                                       
 
                                     </div><!--  end of inner -->
                                 </div> <!-- end of section -->

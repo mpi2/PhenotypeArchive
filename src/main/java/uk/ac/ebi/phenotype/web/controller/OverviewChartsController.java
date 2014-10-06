@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import uk.ac.ebi.phenotype.chart.categorical.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.categorical.CategoricalSet;
-import uk.ac.ebi.phenotype.chart.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.unidimensional.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.utils.ChartData;
-import uk.ac.ebi.phenotype.chart.utils.StackedBarsData;
+import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.CategoricalSet;
+import uk.ac.ebi.phenotype.chart.ChartData;
+import uk.ac.ebi.phenotype.chart.StackedBarsData;
+import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl;

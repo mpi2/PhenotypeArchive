@@ -8,7 +8,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
-import uk.ac.ebi.phenotype.chart.utils.SignificantType;
+import uk.ac.ebi.phenotype.chart.SignificantType;
 
 /**
  * 

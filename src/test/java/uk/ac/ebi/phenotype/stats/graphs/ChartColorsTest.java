@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.ebi.phenotype.chart.utils.ChartColors;
+import uk.ac.ebi.phenotype.chart.ChartColors;
 
 public class ChartColorsTest {
 

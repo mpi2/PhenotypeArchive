@@ -18,7 +18,10 @@ package uk.ac.ebi.phenotype.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -31,7 +34,9 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 
 @Service
 public class MpService {
@@ -81,7 +86,7 @@ public class MpService {
 		System.out.println("solr query in basicbean="+solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		
-		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet();
+		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
 			for(Count count: ff.getValues()){
 				String mpArray[]=count.getName().split("___");
@@ -116,4 +121,21 @@ public class MpService {
         return children;
     }
     
+    // get computationally mapped HP terms of MP from Solr json doc of an MP
+    public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
+    	// this mapping is computational
+    	List<String> hpIds = doc.getJSONArray("hp_id");
+    	List<String> hpTerms = doc.getJSONArray("hp_term");
+    	
+    	Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
+    	
+    	for ( int i=0; i< hpIds.size(); i++  ){
+    		SimpleOntoTerm term = new SimpleOntoTerm();
+    		term.setTermId(hpIds.get(i));
+    		term.setTermName(hpTerms.get(i));
+    		computationalHPTerms.add(term);
+		}
+    	
+    	return computationalHPTerms;
+    }
 }

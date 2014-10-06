@@ -15,22 +15,13 @@
  */
 package uk.ac.ebi.phenotype.web.pojo;
 
+import uk.ac.ebi.phenotype.pojo.*;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
-
-import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 /**
  *
@@ -48,10 +39,22 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
  */
 public abstract class DataTableRow implements Comparable<DataTableRow> {
 
-    @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
-    public static enum PhenotypeRowType {
+
+	public Map<String, String> getConfig() {
+
+		return config;
+	}
+
+
+	public void setConfig(Map<String, String> config) {
+
+		this.config = config;
+	}
+
+
+	public static enum PhenotypeRowType {
 
         GENE_PAGE_ROW, PHENOTYPE_PAGE_ROW
     }
@@ -76,8 +79,9 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     public DataTableRow() { }
 
 
-    public DataTableRow(PhenotypeCallSummary pcs, String baseUrl) {
+    public DataTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
 
+	    this.config = config;
         List<String> sex = new ArrayList<String>();
         sex.add(pcs.getSex().toString());
         this.setGid(pcs.getgId());
@@ -213,8 +217,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 				url += "&phenotyping_center=" + phenotypingCenter;
 			}
         } else {
-			url += "/phenoview/?gid=" + gid;
-			url += "&qeid=" + phenotypeTerm.getId().getAccession();
+		    // Need to use the drupal base url because phenoview is not mapped under the /data url
+		    url = config.get("drupalBaseUrl");
+		    url += "/../phenoview/?gid=" + gid;
+		    url += "&qeid=" + phenotypeTerm.getId().getAccession();
         }
         return url;
     }

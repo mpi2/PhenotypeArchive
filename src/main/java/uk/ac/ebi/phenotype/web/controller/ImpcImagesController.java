@@ -2,22 +2,29 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 
 //import Glacier2.CannotCreateSessionException;
@@ -30,20 +37,86 @@ public class ImpcImagesController {
 	ImageService imageService;
 
 
+	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
+	public String imagePicker(@PathVariable String acc, @PathVariable String parameter_stable_id, Model model)
+	throws SolrServerException {
+
+		System.out.println("calling image picker");
+
+		// get experimental images
+		// we will also want to call the getControls method and display side by
+		// side
+		SolrDocumentList experimental = new SolrDocumentList();
+		QueryResponse responseExperimental2 = imageService.getImagesForGeneByParameter(acc, parameter_stable_id, "experimental", 10000, null, null, null);
+		if (responseExperimental2 != null) {
+			experimental.addAll(responseExperimental2.getResults());
+		}
+		System.out.println("list size=" + experimental.size());
+		SolrDocumentList controls = new SolrDocumentList();
+		// QueryResponse responseControl =
+		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
+		// "control", 6, null, null, null);
+		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
+		int numberOfControls = 6;
+		int daysEitherSide = 30;// get a month either side
+		QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, SexType.female, daysEitherSide);
+
+		if (responseControl != null) {
+			controls.addAll(responseControl.getResults());
+		}
+		System.out.println("experimental size=" + experimental.size());
+		model.addAttribute("experimental", experimental);
+		System.out.println("controls size=" + controls.size());
+		model.addAttribute("controls", controls);
+		return "imagePicker";
+	}
+
+
+	@RequestMapping("/imageComparator")
+	public String imageComparator(HttpServletRequest request, Model model) {
+
+		String page = "imageComparator";
+		System.out.println("calling imageComparator");
+		// String[] omeroIds = request.getParameterValues("imgId");
+		// if(omeroIds==null || omeroIds.length==0){
+		// System.out.println("error no items selected");
+		// model.addAttribute("error", "You need to select at least one image");
+		// return page;
+		// }
+		//
+		// for (String value : omeroIds) {
+		// System.out.println("omeroId=" + value);
+		// }
+		// model.addAttribute("omeroIds", omeroIds);
+
+		return page;
+	}
+
+
+	@RequestMapping("/imageNavigator")
+	public String imageControlNavigator(HttpServletRequest request, Model model) {
+
+		String page = "imageNavigator";
+		System.out.println("calling imageNavigator");
+		return page;
+	}
+
+
 	@RequestMapping("/impcImages/ContAndExp*")
-	public String imagesControlAndExperimental(
-	HttpServletRequest request, Model model)
-	throws SolrServerException, IOException, URISyntaxException {	
+	public String imagesControlAndExperimental(HttpServletRequest request, Model model)
+	throws SolrServerException, IOException, URISyntaxException {
+
 		System.out.println("calling imagesContAndExp");
 		String solrQueryString = request.getQueryString();
-		System.out.println("solrQueryString="+solrQueryString);
-		String acc=request.getParameter("gene_accession_id");
-		String procedureName=request.getParameter("procedure_name");
-		String parameterStableId=request.getParameter("parameter_stable_id");
-		imageService.getControlAndExperimentalImpcImages(acc, model,procedureName, parameterStableId, 5, 100, true, "Adult LacZ");
+		System.out.println("solrQueryString=" + solrQueryString);
+		String acc = request.getParameter("gene_accession_id");
+		String procedureName = request.getParameter("procedure_name");
+		String parameterStableId = request.getParameter("parameter_stable_id");
+		imageService.getControlAndExperimentalImpcImages(acc, model, procedureName, parameterStableId, 5, 100, "Adult LacZ");
 		return "impcImagesContAndExp";
 	}
-	
+
+
 	@RequestMapping("/impcImages/images*")
 	public String allImages(HttpServletRequest request, Model model)
 	throws SolrServerException, IOException, URISyntaxException {
@@ -56,8 +129,6 @@ public class ImpcImagesController {
 		this.sendQueryStringToSolr(request, model);
 		return "impcImages";
 	}
-	
-	
 
 
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
@@ -91,8 +162,10 @@ public class ImpcImagesController {
 			// only add to our new query string if not rows or length as we want
 			// to set those to specific values in the jsp
 			if (!key.equals("rows") && !key.equals("start")) {
-				if(value.contains("MGI:")){
-					value=value.replace("MGI:", "MGI\\:");//for mgi ids for example encode the :
+				if (value.contains("MGI:")) {
+					value = value.replace("MGI:", "MGI\\:");// for mgi ids for
+															// example encode
+															// the :
 				}
 				newQueryString += "&" + key + "=" + value;
 				// If the same key has multiple values (check boxes)
@@ -104,9 +177,8 @@ public class ImpcImagesController {
 			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
-		System.out.println("newQueryString="+newQueryString);
+		System.out.println("newQueryString=" + newQueryString);
 		QueryResponse imageResponse = imageService.getResponseForSolrQuery(newQueryString);
-		
 
 		if (imageResponse.getResults() != null) {
 			model.addAttribute("images", imageResponse.getResults());

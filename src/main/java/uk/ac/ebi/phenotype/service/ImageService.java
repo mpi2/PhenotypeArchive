@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -234,8 +235,8 @@ public class ImageService {
 			return;
 		}
 
-		List<FacetField> facets = solrR.getFacetFields();
-		if (facets == null) {
+		List<FacetField> procedures = solrR.getFacetFields();
+		if (procedures == null) {
 			log.error("no facets from solr data source for acc=" + acc);
 			return;
 		}
@@ -243,19 +244,25 @@ public class ImageService {
 		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
 		List<Count> filteredCounts = new ArrayList<Count>();
 
-		for (FacetField facet : facets) {
-			if (facet.getValueCount() != 0) {
+		for (FacetField procedureFacet : procedures) {
+			
+			if (procedureFacet.getValueCount() != 0) {
+				
+//				for (FacetField procedureFacet : procedures) {
+//				System.out.println("proc facet name="+procedureFacet.getName());
+//				this.getControlAndExperimentalImpcImages(acc, model, procedureFacet.getCount().getName(), null, 1, 1, "Adult LacZ");
+//			}
 
 				// get rid of wholemount expression/Adult LacZ facet as this is
 				// displayed seperately in the using the other method
 				// need to put the section in genes.jsp!!!
-				for (Count count : facets.get(0).getValues()) {
+				for (Count count : procedures.get(0).getValues()) {
 					if (!count.getName().equals("Adult LacZ")) {
 						filteredCounts.add(count);
 					}
 				}
 
-				for (Count count : facet.getValues()) {
+				for (Count procedure : procedureFacet.getValues()) {
 					SolrDocumentList list = new SolrDocumentList();// list of
 																	// image
 																	// docs to
@@ -265,42 +272,13 @@ public class ImageService {
 																	// section
 																	// of the
 																	// gene page
-					if (!count.getName().equals("Wholemount Expression")) {
-						QueryResponse responseExperimental = this.getImagesForGeneByProcedure(acc, count.getName(), null, "experimental", 1, null, null, null);
+					if (!procedure.getName().equals("Wholemount Expression")) {
+						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, "Adult Lac Z");
 						
-						for (SexType sex : SexType.values()) {
-							if (!sex.equals(SexType.hermaphrodite)) {
-								// get 5 images if available for this experiment
-								// type
-
-								// need to add sex to experimental call
-								// get information from first experimetal image
-								// and
-								// get the parameters for this next call to get
-								// appropriate control images
-								if (responseExperimental.getResults().size() > 0) {
-									SolrDocument imgDoc = responseExperimental.getResults().get(0);
-									QueryResponse responseExperimental2 = this.getImagesForGeneByProcedure(acc, count.getName(), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, sex, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
-									
-										getControls(numberOfControls, list, sex, imgDoc);
-									
-									if (responseExperimental2 != null) {
-										list.addAll(responseExperimental2.getResults());
-									}
-								}
-
-								for (SolrDocument doc : list) {
-									System.out.println("group=" + doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
-								}
-								facetToDocs.put(count.getName(), list);
-							}
-						}
 					}
 				}
 			}
 
-			model.addAttribute("impcImageFacets", filteredCounts);
-			model.addAttribute("impcFacetToDocs", facetToDocs);
 		}
 
 	}
@@ -328,10 +306,20 @@ public class ImageService {
 		return list;
 	}
 
-
-	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, boolean getAllParameters, String excludedProcedureName)
+	/**
+	 * 
+	 * @param acc gene accession mandatory
+	 * @param model mvc model
+	 * @param procedureName mandatory
+	 * @param parameterStableId optional if we want to restrict to a parameter make not null
+	 * @param numberOfControls can be 0 or any other number
+	 * @param numberOfExperimental can be 0 or any other int
+	 * @param excludedProcedureName for example if we don't want "Adult Lac Z" returned
+	 * @throws SolrServerException
+	 */
+	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, String excludedProcedureName)
 	throws SolrServerException {
-
+		SexType sex=SexType.female;
 		model.addAttribute("acc",acc);//forward the gene id along to the new page for links
 		QueryResponse solrR = this.getParameterFacetsForGeneByProcedure(acc, procedureName, "experimental");
 		if (solrR == null) {
@@ -371,8 +359,8 @@ public class ImageService {
 					if (!count.getName().equals(excludedProcedureName)) {
 						QueryResponse responseExperimental = this.getImagesForGeneByParameter(acc, count.getName(), "experimental", 1, null, null, null);
 						
-						for (SexType sex : SexType.values()) {
-							if (!sex.equals(SexType.hermaphrodite)) {
+						//for (SexType sex : SexType.values()) {
+							//if (!sex.equals(SexType.hermaphrodite)) {
 								// get 5 images if available for this experiment
 								// type
 
@@ -404,8 +392,8 @@ public class ImageService {
 									System.out.println("group=" + doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
 								}
 								facetToDocs.put(count.getName(), list);
-							}
-						}
+							//}
+						//}
 					}
 				}
 
@@ -425,8 +413,23 @@ public class ImageService {
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + controlOrExperimental);
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
-		solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":" + procedureName);
+		solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + procedureName+"\"");
 		solrQuery.addFacetField(ObservationDTO.PARAMETER_STABLE_ID);
+		// solrQuery.setRows(0);
+		QueryResponse response = solr.query(solrQuery);
+		return response;
+
+	}
+	
+	public QueryResponse getImagesAnnotationsDetailsByOmeroId(List<String> omeroIds)
+	throws SolrServerException {
+//e.g. http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/query?q=omero_id:(5815 5814)
+		SolrQuery solrQuery = new SolrQuery();
+		String omeroIdString="omero_id:(";
+		String result = StringUtils.join(omeroIds, " OR ");
+		omeroIdString+=result+")";
+		solrQuery.setQuery(omeroIdString);
+		System.out.println(omeroIdString);
 		// solrQuery.setRows(0);
 		QueryResponse response = solr.query(solrQuery);
 		return response;

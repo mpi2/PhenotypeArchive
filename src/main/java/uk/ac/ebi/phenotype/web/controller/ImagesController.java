@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -57,6 +58,7 @@ import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
+import uk.ac.ebi.phenotype.service.ImageService;
 
 @Controller
 public class ImagesController {
@@ -68,6 +70,7 @@ public class ImagesController {
 
 	// Initialize the translation map of solr field names -> English names
 	private Set<String> doNotShowFields = new HashSet<String>() {
+
 		private static final long serialVersionUID = 1L;
 		{
 			add("!expName");
@@ -76,6 +79,7 @@ public class ImagesController {
 
 	// Initialize the translation map of solr field names -> English names
 	private HashMap<String, String> solrFieldToEnglish = new HashMap<String, String>() {
+
 		private static final long serialVersionUID = 1L;
 		{
 			put("expName", "Procedure");
@@ -87,6 +91,7 @@ public class ImagesController {
 		}
 	};
 
+	
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
 
@@ -96,86 +101,65 @@ public class ImagesController {
 	@Autowired
 	OntologyTermDAO otDAO;
 
-	@RequestMapping("/largeImage")
-	public String largeImage(Model model) {
-		return "largeImage";
-	}
+
 
 	@RequestMapping("/images*")
-	public String allImages(
-			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-			@RequestParam(required = false, defaultValue = "25", value = "length") int length,
-			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
-			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
-			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
-			@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField,
-			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
-			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
-			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
-			HttpServletRequest request, Model model) throws SolrServerException {
+	public String allImages(@RequestParam(required = false, defaultValue = "0", value = "start") int start, @RequestParam(required = false, defaultValue = "25", value = "length") int length, @RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn, @RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId, @RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId, @RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField, @RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField, @RequestParam(required = false, defaultValue = "", value = "qf") String qf, @RequestParam(required = false, defaultValue = "", value = "defType") String defType, @RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, HttpServletRequest request, Model model)
+	throws SolrServerException {
 
-		handleImagesRequest(request, start, length, qIn, mpId, geneId,
-				filterField, qf, defType, maId, model);
+		handleImagesRequest(request, start, length, qIn, mpId, geneId, filterField, qf, defType, maId, model);
 
-		model.addAttribute("breadcrumbText",
-				getBreadcrumbs(request, qIn, mpId, geneId, filterField, maId));
+		model.addAttribute("breadcrumbText", getBreadcrumbs(request, qIn, mpId, geneId, filterField, maId));
 
 		return "images";
 	}
 
+
 	@RequestMapping("/imagesb*")
-	public String allImagesb(
-			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-			@RequestParam(required = false, defaultValue = "25", value = "length") int length,
-			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
-			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
-			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
-			@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField,
-			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
-			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
-			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
-			HttpServletRequest request, Model model)
-			throws SolrServerException, IOException, URISyntaxException {
-		//only need to send the solr query part of the url to solr
+	public String allImagesb(@RequestParam(required = false, defaultValue = "0", value = "start") int start, @RequestParam(required = false, defaultValue = "25", value = "length") int length, @RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn, @RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId, @RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId, @RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField, @RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField, @RequestParam(required = false, defaultValue = "", value = "qf") String qf, @RequestParam(required = false, defaultValue = "", value = "defType") String defType, @RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, HttpServletRequest request, Model model)
+	throws SolrServerException, IOException, URISyntaxException {
+
+		// only need to send the solr query part of the url to solr
 		sendQueryStringToSolr(request, model);
-//add breadcrumbs using different method than for images.jsp that is called from genes or phenotypes pages
-		String emptyString="*:*";
-		String queryString="";
-		if(filterField.length>0) {
-			if(!filterField[0].equals(emptyString)) {
-				queryString+=filterField[0];
+		// add breadcrumbs using different method than for images.jsp that is
+		// called from genes or phenotypes pages
+		String emptyString = "*:*";
+		String queryString = "";
+		if (filterField.length > 0) {
+			if (!filterField[0].equals(emptyString)) {
+				queryString += filterField[0];
 			}
-			
+
 		}
-		if(qIn!=null && !qIn.equals(emptyString)) {
-			queryString+= " AND search keyword: \"" + qIn + "\"";//URLDecoder.decode(request.getQueryString(), "UTF-8");
+		if (qIn != null && !qIn.equals(emptyString)) {
+			queryString += " AND search keyword: \"" + qIn + "\"";// URLDecoder.decode(request.getQueryString(),
+																	// "UTF-8");
+		} else {
+			queryString += " AND search keyword: \"\"";
 		}
-		else {
-			queryString+= " AND search keyword: \"\""; 
-		}
-		queryString=queryString.replace("annotatedHigherLevelMpTermName", "phenotype");
-		queryString=queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
-		queryString=queryString.replace("expName", "procedure");
-		queryString=queryString.replace("subtype", "gene_subtype");
+		queryString = queryString.replace("annotatedHigherLevelMpTermName", "phenotype");
+		queryString = queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
+		queryString = queryString.replace("expName", "procedure");
+		queryString = queryString.replace("subtype", "gene_subtype");
 		model.addAttribute("breadcrumbText", queryString);
 
 		return "imagesb";
 	}
 
+
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
-			throws IOException, URISyntaxException {
+	throws IOException, URISyntaxException {
 
 		String queryString = request.getQueryString();
 		String startString = "0";
-		String rowsString = "25";//the number of images passed back for each solr request
+		String rowsString = "25";// the number of images passed back for each
+									// solr request
 		if (request.getParameter("start") != null) {
 			startString = request.getParameter("start");
 		}
-//		if (request.getParameter("rows") != null) {
-//			rowsString = request.getParameter("rows");
-//		}
+		// if (request.getParameter("rows") != null) {
+		// rowsString = request.getParameter("rows");
+		// }
 
 		// Map params = request.getParameterMap();
 		// Map newParamsMap=new HashMap<>();
@@ -186,12 +170,13 @@ public class ImagesController {
 		Enumeration keys = request.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
-			//System.out.println("key=" + key);
+			// System.out.println("key=" + key);
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
-			//System.out.println("value=" + value);
-			//only add to our new query string if not rows or length as we want to set those to specific values in the jsp
+			// System.out.println("value=" + value);
+			// only add to our new query string if not rows or length as we want
+			// to set those to specific values in the jsp
 			if (!key.equals("rows") && !key.equals("start")) {
 				newQueryString += "&" + key + "=" + value;
 				// If the same key has multiple values (check boxes)
@@ -202,17 +187,15 @@ public class ImagesController {
 				}
 			}
 		}
-		newQueryString+="&start="+startString+"&rows="+rowsString;
-		
-		//System.out.println("queryString=" + newQueryString);
-		JSONObject imageResults = JSONRestUtil.getResults(config
-				.get("internalSolrUrl") + "/images/select?" + newQueryString);
+		newQueryString += "&start=" + startString + "&rows=" + rowsString;
+
+		// System.out.println("queryString=" + newQueryString);
+		JSONObject imageResults = JSONRestUtil.getResults(config.get("internalSolrUrl") + "/images/select?" + newQueryString);
 		JSONArray imageDocs = JSONRestUtil.getDocArray(imageResults);
 		if (imageDocs != null) {
 			model.addAttribute("images", imageDocs);
-			int numberFound = JSONRestUtil
-					.getNumberFoundFromJsonResponse(imageResults);
-			//System.out.println("image count=" + numberFound);
+			int numberFound = JSONRestUtil.getNumberFoundFromJsonResponse(imageResults);
+			// System.out.println("image count=" + numberFound);
 			model.addAttribute("imageCount", numberFound);
 			model.addAttribute("q", newQueryString);
 			// model.addAttribute("filterQueries", filterQueries);
@@ -227,6 +210,7 @@ public class ImagesController {
 			model.addAttribute("solrImagesError", "");
 		}
 	}
+
 
 	/**
 	 * Returns an HTML string representation of the "last mile" breadcrumb
@@ -246,8 +230,7 @@ public class ImagesController {
 	 * @return a raw HTML string containing the pieces of the query assembled
 	 *         into a breadcrumb fragment
 	 */
-	private String getBreadcrumbs(HttpServletRequest request, String qIn,
-			String mpId, String geneId, String[] filterField, String maId) {
+	private String getBreadcrumbs(HttpServletRequest request, String qIn, String mpId, String geneId, String[] filterField, String maId) {
 
 		String baseUrl = (String) request.getAttribute("baseUrl");
 
@@ -259,22 +242,19 @@ public class ImagesController {
 
 		if (!geneId.equals("")) {
 			// 3 is the MGI database ID
-			GenomicFeature gf = gfDAO.getGenomicFeatureByAccessionAndDbId(
-					geneId, 3);
+			GenomicFeature gf = gfDAO.getGenomicFeatureByAccessionAndDbId(geneId, 3);
 			String value = gf.getSymbol();
-//			String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
-//					+ gf.getSymbol() + "</a>";
-//			breadcrumbs.add("gene: \"" + geneBc + "\"");
+			// String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
+			// + gf.getSymbol() + "</a>";
+			// breadcrumbs.add("gene: \"" + geneBc + "\"");
 			breadcrumbs.add("gene: \"" + geneId + "\"");
 		}
 
 		if (!mpId.equals("")) {
 			// 5 is the Mammalian Phenotype database ID
-			OntologyTerm mpTerm = otDAO
-					.getOntologyTermByAccessionAndDatabaseId(mpId, 5);
+			OntologyTerm mpTerm = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5);
 			String value = mpTerm.getName();
-			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>"
-					+ value + "</a>";
+			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + value + "</a>";
 			breadcrumbs.add("phenotype: \"" + mpBc + "\"");
 		}
 
@@ -282,13 +262,11 @@ public class ImagesController {
 			// 5 is the Mammalian Phenotype database ID
 			OntologyTerm maTerm = otDAO.getOntologyTermByAccession(maId);
 			String value = maTerm.getName();
-			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + maId + "'>"
-					+ value + "</a>";
+			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + maId + "'>" + value + "</a>";
 			breadcrumbs.add("anatomy: \"" + mpBc + "\"");
 		}
 
-		if (!qIn.equals("") && !qIn.equals("*:*") && !qIn.equals("*")
-				&& qIn.contains(":")) {
+		if (!qIn.equals("") && !qIn.equals("*:*") && !qIn.equals("*") && qIn.contains(":")) {
 			String[] parts = qIn.split(":");
 			String key = solrFieldToEnglish.get(parts[0]);
 			String value = parts[1].replaceAll("%20", " ").replaceAll("\"", "");
@@ -298,8 +276,7 @@ public class ImagesController {
 		if (!filterField.equals("")) {
 			for (String field : filterField) {
 
-				String formatted = field.replaceAll("%20", " ").replaceAll(
-						"\"", "");
+				String formatted = field.replaceAll("%20", " ").replaceAll("\"", "");
 
 				ArrayList<String> orFields = new ArrayList<String>();
 
@@ -308,9 +285,7 @@ public class ImagesController {
 					if (!doNotShowFields.contains(parts[0])) {
 						String key = solrFieldToEnglish.get(parts[0]);
 						if (key == null) {
-							log.error("Cannot find "
-									+ parts[0]
-									+ " in translation map. Add the mapping in ImagesController static constructor");
+							log.error("Cannot find " + parts[0] + " in translation map. Add the mapping in ImagesController static constructor");
 							key = parts[0]; // default the key to the solr field
 											// name (ugly!)
 						}
@@ -318,18 +293,14 @@ public class ImagesController {
 						String value = parts[1];
 
 						if (key.equals("Anatomy")) {
-							value = "<a href='"
-									+ baseUrl
-									+ "/search#q=*&core=images&fq=annotated_or_inferred_higherLevelMaTermName:\""
-									+ value + "\"'>" + value + "</a>";
+							value = "<a href='" + baseUrl + "/search#q=*&core=images&fq=annotated_or_inferred_higherLevelMaTermName:\"" + value + "\"'>" + value + "</a>";
 							orFields.add(key.toLowerCase() + ": \"" + value + "\"");
 						} else {
 							orFields.add(key.toLowerCase() + ": \"" + value + "\"");
 						}
 					}
 				}
-				String bCrumb = org.apache.commons.lang.StringUtils.join(
-						orFields, " OR ");
+				String bCrumb = org.apache.commons.lang.StringUtils.join(orFields, " OR ");
 
 				// Surround the clauses joined with OR by parens
 				if (orFields.size() > 1) {
@@ -345,10 +316,9 @@ public class ImagesController {
 		return org.apache.commons.lang.StringUtils.join(breadcrumbs, " AND ");
 	}
 
-	private void handleImagesRequest(HttpServletRequest request, int start,
-			int length, String q, String mpId, String geneId,
-			String[] filterField, String qf, String defType, String maId,
-			Model model) throws SolrServerException {
+
+	private void handleImagesRequest(HttpServletRequest request, int start, int length, String q, String mpId, String geneId, String[] filterField, String qf, String defType, String maId, Model model)
+	throws SolrServerException {
 
 		System.out.println("query string=" + request.getQueryString());
 		String queryTerms = ""; // used for a human readable String of the query
@@ -356,7 +326,7 @@ public class ImagesController {
 		QueryResponse imageDocs = null;
 		String filterQueries = "";
 		for (String field : filterField) {
-			//System.out.println("filterField in controller=" + field);
+			// System.out.println("filterField in controller=" + field);
 			filterQueries += "&fq=" + field;
 		}
 		java.util.List<String> filterList = Arrays.asList(filterField);
@@ -370,15 +340,14 @@ public class ImagesController {
 		if (!mpId.equals("")) {
 			queryTerms = mpId;
 			q = "annotationTermId:" + mpId.replace("MP:", "MP\\:");
-			queryTerms = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5)
-					.getName();
+			queryTerms = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5).getName();
 		}
 
 		if (!maId.equals("")) {
 			queryTerms = maId;
 			q = "annotationTermId:" + maId.replace("MA:", "MA\\:");
 			queryTerms = otDAO.getOntologyTermByAccession(maId).getName();
-			//System.out.println("query term set to:" + queryTerms);
+			// System.out.println("query term set to:" + queryTerms);
 		}
 
 		if (mpId.equals("") && geneId.equals("") && maId.equals("")) {
@@ -386,8 +355,7 @@ public class ImagesController {
 		}
 
 		if (!q.equals("*:*")) {
-			queryTerms += " "
-					+ q.replaceAll("expName:", "").replaceAll("\"", "");
+			queryTerms += " " + q.replaceAll("expName:", "").replaceAll("\"", "");
 			// q = q + " AND " + qIn;
 		}
 
@@ -397,16 +365,14 @@ public class ImagesController {
 
 		}
 
-		//System.out.println("q=" + q);
+		// System.out.println("q=" + q);
 
-		imageDocs = imagesSolrDao.getFilteredDocsForQuery(q, filterList, qf,
-				defType, start, length);
+		imageDocs = imagesSolrDao.getFilteredDocsForQuery(q, filterList, qf, defType, start, length);
 		if (imageDocs != null) {
 			model.addAttribute("images", imageDocs.getResults());
-//			System.out.println("image count="
-//					+ imageDocs.getResults().getNumFound());
-			model.addAttribute("imageCount", imageDocs.getResults()
-					.getNumFound());
+			// System.out.println("image count="
+			// + imageDocs.getResults().getNumFound());
+			model.addAttribute("imageCount", imageDocs.getResults().getNumFound());
 			model.addAttribute("q", q);
 			model.addAttribute("filterQueries", filterQueries);
 			model.addAttribute("filterField", filterField);
@@ -421,14 +387,15 @@ public class ImagesController {
 		}
 	}
 
+
 	private String humanizeStrings(String[] filterField, String queryTerms) {
+
 		List<String> terms = new ArrayList<String>();
 		for (String filter : filterField) {
 			// System.out.println("filterField="+filter);
 			if (!filter.equals("annotationTermId:M*")) {// dont add M* to human
 														// readable form
-				terms.add(WordUtils.capitalize(filter.replaceAll(".*:", "")
-						.replaceAll("\"", "")));
+				terms.add(WordUtils.capitalize(filter.replaceAll(".*:", "").replaceAll("\"", "")));
 			}
 		}
 		queryTerms += ": " + StringUtils.join(terms, ", ");

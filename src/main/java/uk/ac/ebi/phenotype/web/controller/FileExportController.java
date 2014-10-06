@@ -15,34 +15,12 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.HibernateException;
@@ -56,19 +34,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.dao.AlleleDAO;
-import uk.ac.ebi.phenotype.dao.OrganisationDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.StrainDAO;
-import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.Organisation;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
-import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.Strain;
+import uk.ac.ebi.phenotype.dao.*;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
+import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
@@ -77,6 +45,20 @@ import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypePageTableRow;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
+
+import uk.ac.ebi.phenotype.service.MpService;
 
 @Controller
 public class FileExportController {
@@ -109,7 +91,10 @@ public class FileExportController {
 
     @Autowired
     AlleleDAO alleleDAO;
-
+    
+    @Autowired
+	private MpService mpService;
+    
     @Autowired
     private PhenotypeCallSummarySolr phenoDAO;
 
@@ -648,7 +633,7 @@ public class FileExportController {
         String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";	
         
         List<String> rowData = new ArrayList();
-        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term"); // column names	
+        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -688,6 +673,24 @@ public class FileExportController {
                 data.add(NO_INFO_MSG);
             }
 
+            if (doc.has("hp_term")) {
+            	Set<SimpleOntoTerm> hpTerms = mpService.getComputationalHPTerms(doc);
+            	List<String> terms = new ArrayList<String>();
+            	List<String> ids   = new ArrayList<String>();
+            
+            	for(SimpleOntoTerm term : hpTerms ){
+            		ids.add(term.getTermId());
+            		terms.add(term.getTermName());
+            	}
+            	
+                data.add(StringUtils.join(terms, "|"));
+                data.add(StringUtils.join(ids, "|"));
+            } 
+            else {
+                data.add(NO_INFO_MSG);
+                data.add(NO_INFO_MSG);
+            }
+            
             rowData.add(StringUtils.join(data, "\t"));
         }
         return rowData;
@@ -851,7 +854,10 @@ public class FileExportController {
         		+ "\tCandidate genes by phenotype - IMPC data"
         		+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
         		+ "\tCandidate genes by phenotype - MGI data"
-        		+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus"); 
+        		+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus"
+        		//+ "\tGene symbol"
+        		//+ "\tGene id"
+        		); 
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -873,7 +879,14 @@ public class FileExportController {
             data.add(doc.getString("impc_novel_predicted_in_locus"));
             data.add(doc.getString("mgi_predicted"));
             data.add(doc.getString("mgi_novel_predicted_in_locus"));
-
+            //JSONArray gsyms = doc.getJSONArray("marker_symbol");
+            
+            //System.out.println(gsyms);
+            
+            //String gids = doc.getJSONArray("mgi_accession_id").toString();
+            
+            
+            
             rowData.add(StringUtils.join(data, "\t"));
         }
         return rowData;
@@ -899,7 +912,7 @@ public class FileExportController {
             }
             ArrayList<GenePageTableRow> phenotypes = new ArrayList();
             for (PhenotypeCallSummary pcs : phenotypeList) {
-                GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl);
+                GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config);
                 phenotypes.add(pr);
             }
             Collections.sort(phenotypes);                                       // sort in same order as gene page.
@@ -928,7 +941,7 @@ public class FileExportController {
             ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
             res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
             for (PhenotypeCallSummary pcs : phenotypeList) {
-                PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl);
+                PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config);
 
                 if (pr.getParameter() != null && pr.getProcedure() != null) {
                     phenotypes.add(pr);

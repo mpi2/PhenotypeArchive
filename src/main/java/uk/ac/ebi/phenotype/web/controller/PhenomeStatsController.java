@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import uk.ac.ebi.phenotype.chart.utils.ColorCodingPalette;
-import uk.ac.ebi.phenotype.chart.utils.Constants;
-import uk.ac.ebi.phenotype.chart.utils.PhenomeChartProvider;
+import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
+import uk.ac.ebi.phenotype.chart.Constants;
+import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;

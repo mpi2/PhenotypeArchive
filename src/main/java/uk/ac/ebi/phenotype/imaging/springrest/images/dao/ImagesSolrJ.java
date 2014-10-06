@@ -126,7 +126,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		if (filterQuery != "") {
 			solrQuery.addFilterQuery(filterQuery);
 		}
-
+		System.out.println("exp facet query="+solrQuery.toString());
 		return server.query(solrQuery);
 	}
 
@@ -144,7 +144,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		System.out.println("processedGeneId="+processedGeneId);
 		log.debug("eventually gene id will be here and we'll need an extra filter");
 		//changed facet field from annotated_or_inferred_higherLevelMaTermName to as old field not there anymore higherLevelMaTermName
-		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","annotated_or_inferred_higherLevelMaTermName", 0,5, "accession:"+processedGeneId);
+		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","selected_top_level_ma_term", 0,5, "accession:"+processedGeneId);
 		return solrResp;
 	}
 	

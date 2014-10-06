@@ -176,6 +176,10 @@
 	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	
+	<!-- mp to hp mapping -->
+	<field name="hp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	
 	<!--  MA stuff -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
