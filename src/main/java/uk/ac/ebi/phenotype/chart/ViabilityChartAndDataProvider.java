@@ -1,12 +1,17 @@
 package uk.ac.ebi.phenotype.chart;
 
+import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+
+@Service
 public class ViabilityChartAndDataProvider {
 
-	public static Object doViabilityData() {
+	public ViabilityDTO doViabilityData(Parameter parameter, ExperimentDTO experiment) {
 
-		// TODO Auto-generated method stub
-		return null;
+		System.out.println("calling do viabiltyData!");
+		return new ViabilityDTO();
 	}
 
 }
