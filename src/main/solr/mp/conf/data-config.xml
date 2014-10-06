@@ -33,7 +33,7 @@
 		<!-- term infos: ID, name, definition -->
 
 		<entity dataSource="ontodb" name="mp_term_infos"			
-			query="select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'" >
+			query="select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001' order by ti.term_id" >
 
 			<field column="dataType" name="dataType"/>
 			<field column="term_id" name="mp_id" />
