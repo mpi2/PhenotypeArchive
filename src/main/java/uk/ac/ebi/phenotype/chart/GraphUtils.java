@@ -79,6 +79,10 @@ public class GraphUtils {
 		}
 		if (chartType != null) {
 			accessionAndParam += seperator + "chart_type=" + chartType;
+			if(chartType==ChartType.PIE){
+				urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
+				return urls;
+			}
 		}else {
 			// find out the default chart type
 			accessionAndParam += seperator + "chart_type=" + getDefaultChartType(parameter);			
