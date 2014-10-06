@@ -14,8 +14,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import uk.ac.ebi.phenotype.chart.utils.PipelineProcedureData;
-import uk.ac.ebi.phenotype.chart.utils.PipelineProcedureTablesCreator;
+import uk.ac.ebi.phenotype.chart.PipelineProcedureData;
+import uk.ac.ebi.phenotype.chart.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;

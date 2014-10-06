@@ -26,7 +26,7 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.chart.utils.MouseDataPoint;
+import uk.ac.ebi.phenotype.chart.MouseDataPoint;
 
 /**
  * 

@@ -47,7 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import uk.ac.ebi.phenotype.chart.categorical.CategoriesExclude;
+import uk.ac.ebi.phenotype.chart.CategoriesExclude;
 
 @Entity
 @Table(name = "phenotype_parameter")

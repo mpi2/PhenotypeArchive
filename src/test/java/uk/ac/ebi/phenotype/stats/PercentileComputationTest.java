@@ -15,8 +15,8 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import uk.ac.ebi.phenotype.chart.utils.ChartUtils;
-import uk.ac.ebi.phenotype.chart.utils.PercentileComputation;
+import uk.ac.ebi.phenotype.chart.ChartUtils;
+import uk.ac.ebi.phenotype.chart.PercentileComputation;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
