@@ -21,6 +21,15 @@
 
 <div style="font-size: 120%;">
     
+    
+    
+    <c:if test="${empty list_alleles and empty list_none_alleles}">
+        <p>Not found!</p>
+    </c:if>
+
+    
+    
+    
     <c:if test="${not empty list_alleles}">
     
     <h3>Alleles</h3>

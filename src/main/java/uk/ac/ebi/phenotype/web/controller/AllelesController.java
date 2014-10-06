@@ -93,7 +93,7 @@ public class AllelesController {
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(acc);
         List<Map<String, Object>> list_alleles = new ArrayList<>();
         List<Map<String, Object>> list_none_alleles = new ArrayList<>();
-        String mgi_accession_id = "Unknown";
+        String mgi_accession_id = acc;
 
         if (list1 != null) {
             for (Map<String, Object> item : list1) {
@@ -103,7 +103,7 @@ public class AllelesController {
                 else {
                     list_alleles.add(item);
                 }
-                mgi_accession_id = (String)item.get("mgi_accession_id");
+               // mgi_accession_id = (String)item.get("mgi_accession_id");
             }
         }
 
