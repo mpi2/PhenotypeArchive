@@ -181,6 +181,7 @@ public class ChartsController {
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
+        Object viabilityDTO=null;
 
         boolean statsError = false;
 
@@ -271,7 +272,7 @@ public class ChartsController {
             		// chartType might still be null after this
             	}
                 if (chartType != null){
-                	switch (chartType) {
+					switch (chartType) {
                 		
                 		 case UNIDIMENSIONAL_SCATTER_PLOT:
                 		
@@ -311,6 +312,11 @@ public class ChartsController {
                 			 timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
                 			 model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
                 			 break;
+                			 
+                		 case PIE:
+                			 
+                			 viabilityDTO=viabilityChartAndDataProvider.doViabilityData();
+                			 model.addAttribute("pieChart", viabilityDTO);
 
                 		 default:
 
