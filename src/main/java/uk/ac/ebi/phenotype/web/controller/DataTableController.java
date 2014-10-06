@@ -363,7 +363,7 @@ public class DataTableController {
 					// MP -> HP computational mapping
 					
 					Set<SimpleOntoTerm> hpTerms = mpService.getComputationalHPTerms(doc);
-					String mappedHpTerms = null;
+					String mappedHpTerms = "";
 					
 					if ( hpTerms.size() > 1 ){
 						for ( SimpleOntoTerm term : hpTerms ){
