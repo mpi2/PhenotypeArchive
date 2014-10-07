@@ -429,7 +429,7 @@
 					<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
 
 					<!-- other gene related fields -->	
-					<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
+					
 					<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
                     <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
                     <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
@@ -443,7 +443,7 @@
                     <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
                     <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
                   	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
-                  	
+                  	<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
                   	<field column="preqc_gene_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
                   	<field column="latest_phenotype_status" name="latest_phenotype_status" />
                   	
