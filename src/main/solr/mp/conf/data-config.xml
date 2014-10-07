@@ -384,6 +384,7 @@
                   	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
                   	
                   	<field column="latest_phenotype_status_tmp" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+                  	<field column="latest_phenotype_status" name="latest_phenotype_status" />
                   	
                   	<!-- production/phenotyping centers -->
 					<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
@@ -446,6 +447,7 @@
                   	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
                   	
                   	<field column="latest_phenotype_status_tmp" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+                  	<field column="latest_phenotype_status" name="latest_phenotype_status" />
                   	
                   	<!-- production/phenotyping centers -->
 					<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
