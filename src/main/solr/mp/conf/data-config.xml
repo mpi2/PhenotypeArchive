@@ -4,9 +4,9 @@
 	<script type='text/javascript'><![CDATA[
 		
 		function mp2PhenotypingStatusMapping(row){
-			if (row.get('preqc_mp_id')){
+			if (row.get('preqc_mp_id')  || row.get('preqc_gene_id')){
 				row.put('latest_phenotype_status', 'Phenotyping Started'); 
-			}	
+			}
 			else if (row.get('impc')){
 				row.put('latest_phenotype_status', 'Phenotyping Complete'); 
 			}	
@@ -16,7 +16,8 @@
 			}	
 			else if (row.get('legacy')){
 				row.put('legacy_phenotype_status', '1'); 
-			}			        		
+			}
+						        		
 	   		return row; 
 		}
 
@@ -383,9 +384,6 @@
                     <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
                   	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
                   	
-                  	<field column="latest_phenotype_status_tmp" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
-                  	<field column="latest_phenotype_status" name="latest_phenotype_status" />
-                  	
                   	<!-- production/phenotyping centers -->
 					<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 					<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />
@@ -446,7 +444,8 @@
                     <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
                   	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
                   	
-                  	<field column="latest_phenotype_status_tmp" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+                  	
+                  	<field column="preqc_gene_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
                   	<field column="latest_phenotype_status" name="latest_phenotype_status" />
                   	
                   	<!-- production/phenotyping centers -->
