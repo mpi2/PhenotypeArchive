@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class DiseaseBean {
 
+	public static final String MGI_ACCESSION_ID = "marker_accession";
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
 	public static final String DISEASE_TERM = "disease_term";
@@ -38,6 +39,9 @@ public class DiseaseBean {
 	public static final String MGI_NOVEL_PREDICTED_IN_LOCUS = "mgi_novel_predicted_in_locus";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS = "impc_novel_predicted_in_locus";
 	public static final String DISEASE_HUMAN_PHENOTYPES = "disease_human_phenotypes";
+
+	@Field(MGI_ACCESSION_ID)
+	private String mgiAccessionId;
 
 	@Field(DISEASE_ID)
 	private String diseaseId;
@@ -80,6 +84,18 @@ public class DiseaseBean {
 
 	@Field(DISEASE_HUMAN_PHENOTYPES)
 	private List<String> diseaseHumanPhenotypes;
+
+	public String getMgiAccessionId() {
+
+		return mgiAccessionId;
+	}
+
+
+	public void setMgiAccessionId(String mgiAccessionId) {
+
+		this.mgiAccessionId = mgiAccessionId;
+	}
+
 
 	/**
 	 * @return the disease_id

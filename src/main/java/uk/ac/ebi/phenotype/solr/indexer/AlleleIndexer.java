@@ -59,13 +59,19 @@ public class AlleleIndexer {
 	private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
 	private static Connection connection;
 
-	private static final int BATCH_SIZE = 250;
+	private static final int BATCH_SIZE = 2500;
 
 	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
 	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
 	private static final String EXPERIMENT_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/experiment";
 	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
-	private static final String ALLELE_URL = "http://localhost:8983/solr/allele";
+	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
+
+	// Map gene MGI ID to sanger allele bean
+	private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
+
+	// Map gene MGI ID to disease bean
+	private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
 
 	private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
 	static {
@@ -109,6 +115,17 @@ public class AlleleIndexer {
 		query.setRows(BATCH_SIZE);
 
 		try {
+
+			logger.info("Populating lookups");
+
+			populateStatusLookup();
+			logger.info("Populated status lookup, {} records", statusLookup.size());
+
+			populateDiseaseLookup();
+			logger.info("Populated disease lookup, {} records", diseaseLookup.size());
+
+			alleleCore.deleteByQuery("*:*");
+
 			while (start <= rows) {
 				query.setStart(start);
 				QueryResponse response = sangerAlleleCore.query(query);
@@ -117,24 +134,32 @@ public class AlleleIndexer {
 
 				// Convert to Allele DTOs
 				Map<String, AlleleDTO> alleles = convertSangerGeneBeans(sangerGenes);
+
 				// Look up the marker synonyms
 				lookupMarkerSynonyms(alleles);
+
 				// Look up the legacy phenotype statuses
 				lookupLegacyPhenotypes(alleles);
+
 				// Look up the human mouse symbols
 				lookupHumanMouseSymbols(alleles);
+
 				// Look up the ES cell status
 				lookupEsCellStatus(alleles);
+
 				// Look up the disease data
 				lookupDiseaseData(alleles);
+
 				// Do the mappings
 				doSangerAlleleMapping(alleles);
 
 				// Now index the alleles
 				indexAlleles(alleles);
-				System.exit(0);
 
 				start += BATCH_SIZE;
+
+				logger.info("Indexed {} records", start);
+
 			}
 		} catch (SolrServerException e) {
 			logger.error("Solr exception fetching or indexing alleles: {}", e.getMessage());
@@ -144,6 +169,38 @@ public class AlleleIndexer {
 
 		logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
 	}
+
+
+	private void populateStatusLookup() throws SolrServerException {
+		SolrQuery query = new SolrQuery("*:*");
+		query.setRows(Integer.MAX_VALUE);
+		query.addFilterQuery("type:allele");
+
+		QueryResponse response = sangerAlleleCore.query(query);
+		List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
+		for (SangerAlleleBean allele : sangerAlleles) {
+			if( ! statusLookup.containsKey(allele.getMgiAccessionId())) {
+				statusLookup.put(allele.getMgiAccessionId(), new ArrayList<SangerAlleleBean>());
+			}
+			statusLookup.get(allele.getMgiAccessionId()).add(allele);
+		}
+	}
+
+	private void populateDiseaseLookup() throws SolrServerException {
+		SolrQuery query = new SolrQuery("*:*");
+		query.setRows(Integer.MAX_VALUE);
+		query.addFilterQuery("type:disease_gene_summary");
+
+		QueryResponse response = phenodigmCore.query(query);
+		List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
+		for (DiseaseBean disease : diseases) {
+			if( ! diseaseLookup.containsKey(disease.getMgiAccessionId())) {
+				diseaseLookup.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
+			}
+			diseaseLookup.get(disease.getMgiAccessionId()).add(disease);
+		}
+	}
+
 
 	private Map<String, AlleleDTO> convertSangerGeneBeans(List<SangerGeneBean> beans) {
 		Map<String, AlleleDTO> map = new HashMap<>(beans.size());
@@ -229,7 +286,7 @@ public class AlleleIndexer {
 		for (String id : alleles.keySet()) {
 			try {
 				AlleleDTO dto = alleles.get(id);
-				query.setQuery("mouse_symbol:" + dto.getMarkerSymbol());
+				query.setQuery("mouse_symbol:\"" + dto.getMarkerSymbol() + "\"");
 				QueryResponse response = humanMouseCore.query(query);
 				SolrDocumentList docs = response.getResults();
 				if (docs.size() > 0) {
@@ -240,7 +297,7 @@ public class AlleleIndexer {
 					dto.setHumanGeneSymbol(new ArrayList<String>(hms));
 				}
 			} catch (SolrServerException e) {
-//				logger.error("Solr exception looking up mouse symbol for {}: {}", id, e.getMessage());
+				logger.error("Solr exception looking up mouse symbol for {}: {}", id, e.getMessage());
 			}
 		}
 	}
@@ -259,77 +316,125 @@ public class AlleleIndexer {
 	}
 
 	private void lookupEsCellStatus(Map<String, AlleleDTO> alleles) {
-		SolrQuery query = new SolrQuery();
-		query.addFilterQuery("type:allele");
-		query.setRows(100);
+//		SolrQuery query = new SolrQuery();
+//		query.addFilterQuery("type:allele");
+//		query.setRows(100);
+//
+//		logger.debug("Starting ES cell status lookup");
+//		for (String id : alleles.keySet()) {
+//			try {
+//				AlleleDTO dto = alleles.get(id);
+//				query.setQuery("mgi_accession_id:\"" + id + "\"");
+//				QueryResponse response = sangerAlleleCore.query(query);
+//				List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
+//				for (SangerAlleleBean sab : sangerAlleles) {
+//					dto.getAlleleName().add(sab.getAlleleName());
+//					dto.setImitsEsCellStatus(sab.getEsCellStatus());
+//					dto.setImitsMouseStatus(sab.getMouseStatus());
+//					dto.getPhenotypeStatus().add(sab.getPhenotypeStatus());
+//					dto.getProductionCentre().add(sab.getProductionCentre());
+//					dto.getPhenotypingCentre().add(sab.getPhenotypingCentre());
+//				}
+//			} catch (SolrServerException e) {
+//				logger.error("Solr exception looking up ES cell status for {}: {}", id, e.getMessage());
+//			}
+//		}
 
-		logger.debug("Starting ES cell status lookup");
 		for (String id : alleles.keySet()) {
-			try {
-				AlleleDTO dto = alleles.get(id);
-				query.setQuery("mgi_accession_id:\"" + id + "\"");
-				QueryResponse response = sangerAlleleCore.query(query);
-				List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
-				for (SangerAlleleBean sab : sangerAlleles) {
-					dto.getAlleleName().add(sab.getAlleleName());
-					dto.setImitsEsCellStatus(sab.getEsCellStatus());
-					dto.setImitsMouseStatus(sab.getMouseStatus());
-					dto.getPhenotypeStatus().add(sab.getPhenotypeStatus());
-					dto.getProductionCentre().add(sab.getProductionCentre());
-					dto.getPhenotypingCentre().add(sab.getPhenotypingCentre());
-				}
-			} catch (SolrServerException e) {
-				logger.error("Solr exception looking up ES cell status for {}: {}", id, e.getMessage());
+			AlleleDTO dto = alleles.get(id);
+
+			if (! statusLookup.containsKey(id)) {
+				continue;
+			}
+
+			for (SangerAlleleBean sab : statusLookup.get(id)) {
+				dto.getAlleleName().add(sab.getAlleleName());
+				dto.setImitsEsCellStatus(sab.getEsCellStatus());
+				dto.setImitsMouseStatus(sab.getMouseStatus());
+				dto.getPhenotypeStatus().add(sab.getPhenotypeStatus());
+				dto.getProductionCentre().add(sab.getProductionCentre());
+				dto.getPhenotypingCentre().add(sab.getPhenotypingCentre());
 			}
 		}
+
 		logger.debug("Finished ES cell status lookup");
 	}
 
 	private void lookupDiseaseData(Map<String, AlleleDTO> alleles) {
-		SolrQuery query = new SolrQuery();
-		query.addFilterQuery("type:disease_gene_summary");
-		query.setRows(BATCH_SIZE);
+//		SolrQuery query = new SolrQuery();
+//		query.addFilterQuery("type:disease_gene_summary");
+//		query.setRows(BATCH_SIZE);
 
 		logger.debug("Starting disease data lookup");
 		for (String id : alleles.keySet()) {
-			query.setQuery("marker_accession:\"" + id + "\"");
+//			query.setQuery("marker_accession:\"" + id + "\"");
+//			AlleleDTO dto = alleles.get(id);
+//			try {
+//				long count = 0;
+//				int start = 0;
+//				while (start <= count) {
+//					query.setStart(start);
+//					QueryResponse response = phenodigmCore.query(query);
+//					count = response.getResults().getNumFound();
+//					List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
+//					for (DiseaseBean db : diseases) {
+//						dto.getDiseaseId().add(db.getDiseaseId());
+//						dto.getDiseaseSource().add(db.getDiseaseSource());
+//						dto.getDiseaseTerm().add(db.getDiseaseTerm());
+//						if (db.getDiseaseAlts() != null) {
+//							dto.getDiseaseAlts().addAll(db.getDiseaseAlts());
+//						}
+//						if (db.getDiseaseClasses() != null) {
+//							dto.getDiseaseClasses().addAll(db.getDiseaseClasses());
+//						}
+//						dto.getHumanCurated().add(db.isHumanCurated());
+//						dto.getMouseCurated().add(db.isMouseCurated());
+//						dto.getMgiPredicted().add(db.isMgiPredicted());
+//						dto.getImpcPredicted().add(db.isImpcPredicted());
+//						dto.getMgiPredictedKnownGene().add(db.isMgiPredictedKnownGene());
+//						dto.getImpcPredictedKnownGene().add(db.isImpcPredictedKnownGene());
+//						dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
+//						dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
+//						if (db.getDiseaseHumanPhenotypes() != null) {
+//							dto.getDiseaseHumanPhenotypes().addAll(db.getDiseaseHumanPhenotypes());
+//						}
+//					}
+//					start += BATCH_SIZE;
+//				}
+//				logger.debug("Processed {} rows for {}", count, id);
+//			} catch (SolrServerException e) {
+//				logger.error("Solr exception looking up ES cell status for {}: {}", id, e.getMessage());
+//			}
+
 			AlleleDTO dto = alleles.get(id);
-			try {
-				long count = 0;
-				int start = 0;
-				while (start <= count) {
-					query.setStart(start);
-					QueryResponse response = phenodigmCore.query(query);
-					count = response.getResults().getNumFound();
-					List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
-					for (DiseaseBean db : diseases) {
-						dto.getDiseaseId().add(db.getDiseaseId());
-						dto.getDiseaseSource().add(db.getDiseaseSource());
-						dto.getDiseaseTerm().add(db.getDiseaseTerm());
-						if (db.getDiseaseAlts() != null) {
-							dto.getDiseaseAlts().addAll(db.getDiseaseAlts());
-						}
-						if (db.getDiseaseClasses() != null) {
-							dto.getDiseaseClasses().addAll(db.getDiseaseClasses());
-						}
-						dto.getHumanCurated().add(db.isHumanCurated());
-						dto.getMouseCurated().add(db.isMouseCurated());
-						dto.getMgiPredicted().add(db.isMgiPredicted());
-						dto.getImpcPredicted().add(db.isImpcPredicted());
-						dto.getMgiPredictedKnownGene().add(db.isMgiPredictedKnownGene());
-						dto.getImpcPredictedKnownGene().add(db.isImpcPredictedKnownGene());
-						dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
-						dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
-						if (db.getDiseaseHumanPhenotypes() != null) {
-							dto.getDiseaseHumanPhenotypes().addAll(db.getDiseaseHumanPhenotypes());
-						}
-					}
-					start += BATCH_SIZE;
-				}
-				logger.debug("Processed {} rows for {}", count, id);
-			} catch (SolrServerException e) {
-				logger.error("Solr exception looking up ES cell status for {}: {}", id, e.getMessage());
+
+			if (! diseaseLookup.containsKey(id)) {
+				continue;
 			}
+
+			for (DiseaseBean db : diseaseLookup.get(id)) {
+				dto.getDiseaseId().add(db.getDiseaseId());
+				dto.getDiseaseSource().add(db.getDiseaseSource());
+				dto.getDiseaseTerm().add(db.getDiseaseTerm());
+				if (db.getDiseaseAlts() != null) {
+					dto.getDiseaseAlts().addAll(db.getDiseaseAlts());
+				}
+				if (db.getDiseaseClasses() != null) {
+					dto.getDiseaseClasses().addAll(db.getDiseaseClasses());
+				}
+				dto.getHumanCurated().add(db.isHumanCurated());
+				dto.getMouseCurated().add(db.isMouseCurated());
+				dto.getMgiPredicted().add(db.isMgiPredicted());
+				dto.getImpcPredicted().add(db.isImpcPredicted());
+				dto.getMgiPredictedKnownGene().add(db.isMgiPredictedKnownGene());
+				dto.getImpcPredictedKnownGene().add(db.isImpcPredictedKnownGene());
+				dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
+				dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
+				if (db.getDiseaseHumanPhenotypes() != null) {
+					dto.getDiseaseHumanPhenotypes().addAll(db.getDiseaseHumanPhenotypes());
+				}
+			}
+
 		}
 		logger.debug("Finished disease data lookup");
 	}
