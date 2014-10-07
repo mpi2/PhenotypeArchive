@@ -327,7 +327,7 @@
 	<copyField source="mp_term" dest="auto_suggest" />
 	<copyField source="mp_term_synonym" dest="auto_suggest" />   
 	<copyField source="mp_definition" dest="auto_suggest" />
-		
+	
 	<copyField source="top_level_mp_id" dest="auto_suggest" />
 	<copyField source="top_level_mp_term" dest="auto_suggest" />
 	<copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
@@ -397,6 +397,8 @@
 
 	<copyField source="parameter_stable_id" dest="auto_suggest" /> 
 	<copyField source="parameter_name" dest="auto_suggest" /> 	
+	
+	<copyField source="preqc_gene_id" dest="mgi_accession_id" />
 	
 	<!--  qf bucket list -->
 	<copyField source="mgi_accession_id" dest="geneQf" /> 
