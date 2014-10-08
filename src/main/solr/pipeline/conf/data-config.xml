@@ -26,9 +26,9 @@
 	]]></script>
 
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />     
-	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
-	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/> 
+	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="60000"/>        
+	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="60000"/>
+	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="60000"/> 
 	
 	<document name="mega_pipeline_indexing">
 
