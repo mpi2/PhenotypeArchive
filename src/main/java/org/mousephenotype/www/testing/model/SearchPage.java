@@ -737,7 +737,12 @@ public class SearchPage {
         weInput.clear();
         weInput.sendKeys(searchString + "\n");
         
-        return getResultCount();
+        WebElement resultMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='mpi2-search']")));
+        
+        if (resultMsg.getText().contains("returned no entry"))
+            return 0;
+        else
+            return getResultCount();
     }
     
     /**

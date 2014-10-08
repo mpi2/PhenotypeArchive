@@ -364,7 +364,7 @@ public class ChartsController {
             model.addAttribute("statsError", statsError);
 
         } else {
-            log.info("empty experiment");
+           System.out.println("empty experiment");
             model.addAttribute("emptyExperiment", true);
         }
 

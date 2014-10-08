@@ -28,10 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -102,6 +104,7 @@ public class SearchPageTest {
     private PhenotypePipelineDAO phenotypePipelineDAO;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     
     // These constants define the default number of iterations for each that uses them. -1 means iterate over all.
     private final int MAX_MGI_LINK_CHECK_COUNT = 5;                             // -1 means test all links.
@@ -701,83 +704,146 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, cores.size(), cores.size());
     }
-
+    
     @Test
 //@Ignore
-    public void testFacetCounts() throws Exception {
+    public void testFacetCountsNoSearchTerm() throws Exception {
         testCount++;
         System.out.println();
-        String testName = "testFacetCounts";
+        String testName = "testFacetCountsNoSearchTerm";
         System.out.println("----- " + testName + " -----");
         Date start = new Date();
         
         successList.clear();
         errorList.clear();
-        String message;
         
-        int i = 0;
-        for (String s : paramList ){
-            try {
-                System.out.println();
-                JSONObject geneResults = JSONRestUtil.getResults(solrUrl + s);
-
-                int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");
-                String facet = cores.get(i);
-
-                String target = baseUrl + "/search#" + params.get(facet) + "&facet=" + facet;
-                System.out.println("testFacetCounts[" + i + "]: Testing URL " + target);
-                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        for (String core : cores) {
+            String target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
+            PageStatus status = facetCountEngine(target);
+            if (status.hasErrors()) {
+                sumErrorList.add("[FAILED] - " + testName + "\n" + status.toStringErrorMessages());
+                TestUtils.printEpilogue(testName, start, status.getErrorMessages(), null, successList, paramList.size(), paramList.size());
+                fail("There were " + sumErrorList.size() + " errors.");
+            } else if (status.hasWarnings()) {
+                sumErrorList.add("[WARNINGS] - " + testName + "\n" + status.toStringWarningMessages());
+                TestUtils.printEpilogue(testName, start, status.getWarningMessages(), null, successList, paramList.size(), paramList.size());
+            } else {
+                System.out.println("[PASSED] - " + testName);
+                sumSuccessList.add("passed");
+            }
                 
-                // wait for ajax response before doing the test
-                wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span#resultCount a")));
-
-                // test facet panel loaded ok
-                int facetCountFromPage = searchPage.getFacetCount(facet);
-                
-                if (facetCountFromSolr != facetCountFromPage) {
-                    message = "FAIL: facet count from Solr: " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
-                    errorList.add(message);
-                    System.out.println(message);
-                }
-
-                // test dataTable loaded ok
-                //System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
-                String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");
-                //System.out.println("check: " + parts[0]);
-                int dataTableFoundCount = Integer.parseInt(parts[0]);
-
-                if ( facetCountFromSolr == dataTableFoundCount){
-                    message = "OK: comparing facet counts for " + facet;
-                    System.out.println(message);
-                    successList.add(message);
-                }
-                else {
-                    message = "FAIL: expected Solr facet count " + facetCountFromSolr + " but page showed " + dataTableFoundCount;
-                    errorList.add(message);
-                    System.out.println(message);
-                }
-                i++;
-            }
-            catch (TimeoutException te) {
-                message = te.getLocalizedMessage();
-                errorList.add(message);
-                System.out.println(message);
-            }
-            catch(Exception e){
-                e.printStackTrace();
-                sumErrorList.add("EXCEPTION in testFacetCounts(): " + e.getLocalizedMessage());
-            }
-            TestUtils.sleep(100);
+            System.out.println();
         }
+    }
 
-        if (successList.size() == paramList.size() ){
-            System.out.println("[PASSED] - " + testName);
-            sumSuccessList.add("passed");
+    private class SearchTermGroup {
+        private final String pageTarget;
+        private final String solrTarget;
+
+        public SearchTermGroup(String pageTarget, String solrTarget) {
+            this.pageTarget = pageTarget;
+            this.solrTarget = solrTarget;
         }
-        else {
-            sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
-            TestUtils.printEpilogue(testName, start, errorList, null, successList, paramList.size(), paramList.size());
-            fail("There were " + sumErrorList.size() + " errors.");
+    }
+    // Here's a good site to use for decoding: http://meyerweb.com/eric/tools/dencoder/
+    SearchTermGroup[] staticSearchTermGroups = {
+          new SearchTermGroup("leprot", "leprot")           // leprot
+        , new SearchTermGroup("!",      "!")                // !    %21
+        , new SearchTermGroup("@",      "@")                // @    %40
+        , new SearchTermGroup("€",      "\\%E2%82%AC")      // €    %E2%82%AC
+        , new SearchTermGroup("£",      "\\%C2%A3")         // £    %C2%A3
+        , new SearchTermGroup("\\%23",  "\\%23")            // #    %23
+        , new SearchTermGroup("$",      "$")                // $    %24
+        , new SearchTermGroup("\\%25",  "\\%25")            // %    %25
+        , new SearchTermGroup("^",      "^")                // ^    %5E
+        , new SearchTermGroup("\\%26",  "\\%26")            // &    %26
+        , new SearchTermGroup("\\*",    "\\%2A")            // *    %2A
+        , new SearchTermGroup("(",      "(")                // (    %28
+        , new SearchTermGroup(")",      ")")                // )    %29
+        , new SearchTermGroup("-",      "-")                // -    %2D (hyphen)
+        , new SearchTermGroup("_",      "_")                // _    %5F (underscore)
+        , new SearchTermGroup("\\=",    "\\=")              // =    %3D
+        , new SearchTermGroup("\\%2B",  "\\%2B")            // +    %2B
+        , new SearchTermGroup("\\[",    "\\[")              // [    %5B
+        , new SearchTermGroup("\\]",    "\\]")              // [    %5D
+        , new SearchTermGroup("{",      "\\%7B")            // {    %7B
+        , new SearchTermGroup("}",      "\\%7D")            // }    %7D
+        , new SearchTermGroup("\\:",    "\\:")              // :    %3A
+        , new SearchTermGroup(";",      ";")                // ;    %3B
+        , new SearchTermGroup("'",      "'")                // '    %27 (single quote)
+        , new SearchTermGroup("\\\"",   "\\\"")             // "    %22 (double quote)
+        , new SearchTermGroup("|",      "|")                // |    %7C
+        , new SearchTermGroup(",",      ",")                // ,    %2C (comma)
+        , new SearchTermGroup(".",      ".")                // .    %2E (period)
+        , new SearchTermGroup("<",      "<")                // <    %3C
+        , new SearchTermGroup(">",      ">")                // >    %3E
+        , new SearchTermGroup("\\%2F",  "\\%2F")            // /    %2F
+        , new SearchTermGroup("\\?",    "\\?")              // ?    %3F
+        , new SearchTermGroup("`",      "`")                // `    %60 (backtick)
+        , new SearchTermGroup("\\~",    "\\~")              // ~    %7E
+        , new SearchTermGroup("é",      "\\%C3%A9")         // é    %C3%A9
+        , new SearchTermGroup("å",      "\\%C3%A5")         // å    %C3%A5
+        , new SearchTermGroup("ç",      "\\%C3%A7")         // ç    %C3%A7
+        , new SearchTermGroup("ß",      "\\%C3%9F")         // ß    %C3%9F
+        , new SearchTermGroup("č",      "\\%C4%8D")         // č    %C4%8D
+        , new SearchTermGroup("ü",      "\\%C3%BC")         // ü    %C3%BC
+        , new SearchTermGroup("ö",      "\\%C3%B6")         // ö    %C3%B6
+    };
+    @Test
+//@Ignore
+    public void testFacetCountsSpecialCharacters() throws Exception {
+        testCount++;
+        System.out.println();
+        String testName = "testFacetCountsSpecialCharacters";
+        System.out.println("----- " + testName + " -----");
+        Date start = new Date();
+        
+        successList.clear();
+        errorList.clear();
+        
+        // Create an array of SearchTermGroup from searchTermGroups that expands the original list by 4,
+        // prepending '*', appending '*', and prepending AND appending '*' to the original searchTermGroups values.
+        // Example:  "leprot", "leprot" becomes:
+        //      "leprot",   "leprot"
+        //      "*leprot",  "*leprot"
+        //      "leprot*",  "leprot*"
+        //      "*leprot*", "*leprot*"
+        List<SearchTermGroup> searchTermGroupListWildcard = new ArrayList();
+        for (SearchTermGroup staticSearchTermGroup : staticSearchTermGroups) {
+            searchTermGroupListWildcard.add(new SearchTermGroup(staticSearchTermGroup.pageTarget, staticSearchTermGroup.solrTarget));
+            searchTermGroupListWildcard.add(new SearchTermGroup("*" + staticSearchTermGroup.pageTarget, "*" + staticSearchTermGroup.solrTarget));
+            searchTermGroupListWildcard.add(new SearchTermGroup(staticSearchTermGroup.pageTarget + "*", staticSearchTermGroup.solrTarget + "*"));
+            searchTermGroupListWildcard.add(new SearchTermGroup("*" + staticSearchTermGroup.pageTarget + "*", "*" + staticSearchTermGroup.solrTarget + "*"));
+        }
+        SearchTermGroup[] searchTermGroupWildcard = searchTermGroupListWildcard.toArray(new SearchTermGroup[0]);
+        
+        for (SearchTermGroup searchTermGroup : searchTermGroupWildcard) {
+
+            // Build the solarUrlCounts.
+            Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
+
+            Set<Map.Entry<String, Integer>> entrySet = solrCoreCountMap.entrySet();
+            for (Map.Entry<String, Integer> entry : entrySet) {
+                log.info("Core: " + entry.getKey() + ". Count: " + entry.getValue());
+            }
+
+            String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
+
+            PageStatus status = facetCountEngine(target, searchTermGroup);
+
+            if (status.hasErrors()) {
+                sumErrorList.add("[FAILED] - " + testName + "\n" + status.toStringErrorMessages());
+                TestUtils.printEpilogue(testName, start, status.getErrorMessages(), null, successList, paramList.size(), paramList.size());
+                fail("There were " + sumErrorList.size() + " errors.");
+            } else if (status.hasWarnings()) {
+                sumErrorList.add("[WARNINGS] - " + testName + "\n" + status.toStringWarningMessages());
+                TestUtils.printEpilogue(testName, start, status.getWarningMessages(), null, successList, paramList.size(), paramList.size());
+            } else {
+                System.out.println("[PASSED] - " + testName + " (" + searchTermGroup.pageTarget + ")");
+                sumSuccessList.add("passed");
+            }
+            
+            System.out.println();
         }
     }
 
@@ -791,7 +857,6 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
 //@Ignore
     public void testJiraMPII_806() throws Exception {
         Date start = new Date();
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         successList.clear();
         errorList.clear();
         testCount++;
@@ -821,74 +886,6 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }
 
-    @Test
-//@Ignore
-    public void testSpecialCharacters() throws Exception {
-        Date start = new Date();
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        PageStatus status = new PageStatus();
-        
-        successList.clear();
-        errorList.clear();
-        testCount++;
-        System.out.println();
-        String testName = "testSpecialCharacters";
-        System.out.println("----- " + testName + " -----");
-        
-        try {
-            checkSpecialPhraseWildcard(wait, status, "leprot");
-            checkSpecialPhraseWildcard(wait, status, "!");
-            checkSpecialPhraseWildcard(wait, status, "@");
-            checkSpecialPhraseWildcard(wait, status, "€");
-            checkSpecialPhraseWildcard(wait, status, "£");
-            checkSpecialPhraseWildcard(wait, status, "#");
-            checkSpecialPhraseWildcard(wait, status, "$");
-            checkSpecialPhraseWildcard(wait, status, "%");
-            checkSpecialPhraseWildcard(wait, status, "^");
-            checkSpecialPhraseWildcard(wait, status, "&");
-            checkSpecialPhraseWildcard(wait, status, "*");
-            checkSpecialPhraseWildcard(wait, status, "(");
-            checkSpecialPhraseWildcard(wait, status, ")");
-            checkSpecialPhraseWildcard(wait, status, "-");
-            checkSpecialPhraseWildcard(wait, status, "_");
-            checkSpecialPhraseWildcard(wait, status, "=");
-            checkSpecialPhraseWildcard(wait, status, "+");
-            checkSpecialPhraseWildcard(wait, status, "[");
-            checkSpecialPhraseWildcard(wait, status, "]");
-            checkSpecialPhraseWildcard(wait, status, "{");
-            checkSpecialPhraseWildcard(wait, status, "}");
-            checkSpecialPhraseWildcard(wait, status, ";");
-            checkSpecialPhraseWildcard(wait, status, ":");
-            checkSpecialPhraseWildcard(wait, status, "'");
-            checkSpecialPhraseWildcard(wait, status, "\"");
-            checkSpecialPhraseWildcard(wait, status, "\\");
-            checkSpecialPhraseWildcard(wait, status, "|");
-            checkSpecialPhraseWildcard(wait, status, ",");
-            checkSpecialPhraseWildcard(wait, status, "<");
-            checkSpecialPhraseWildcard(wait, status, ".");
-            checkSpecialPhraseWildcard(wait, status, ">");
-            checkSpecialPhraseWildcard(wait, status, "/");
-            checkSpecialPhraseWildcard(wait, status, "?");
-            checkSpecialPhraseWildcard(wait, status, "`");
-            checkSpecialPhraseWildcard(wait, status, "~");
-            checkSpecialPhraseWildcard(wait, status, "é");
-            checkSpecialPhraseWildcard(wait, status, "å");
-            checkSpecialPhraseWildcard(wait, status, "ç");
-            checkSpecialPhraseWildcard(wait, status, "ß");
-            checkSpecialPhraseWildcard(wait, status, "č");
-            checkSpecialPhraseWildcard(wait, status, "ü");
-            checkSpecialPhraseWildcard(wait, status, "ö");
-        } catch (Exception e) {
-            System.out.println("EXCEPTION: SearchPageTest.testSpecialCharacters(): Message: " + e.getLocalizedMessage());
-        } finally {
-            if (status.hasErrors()) {
-                errorList.add(status.toStringErrorMessages());
-            }
-
-            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
-        }
-    }
-    
     @Test
 //@Ignore
     public void testDefaultDownload() throws Exception {
@@ -960,121 +957,6 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
     // PRIVATE METHODS
     
     
-    // rawPhrase is the phrase without any preceeding or trailing '*' wildcard characters. cookedPhrase is with '*' wildcard(s).
-    private void checkSpecialPhrase(WebDriverWait wait, PageStatus status, String rawPhrase, String cookedPhrase) {
-        String queryStr = baseUrl + "/search";
-        
-        try {
-            driver.get(queryStr);
-        } catch (Exception e) {
-            errorList.add("EXCEPTION: " + e.getLocalizedMessage() + "\nqueryString: '" + queryStr + "'");
-            return;
-        }
-        
-        WebElement weInput = driver.findElement(By.cssSelector("input#s"));
-        weInput.clear();
-        weInput.sendKeys(cookedPhrase + "\n");
-        System.out.println("\n\nChecking search for special phrase '" + cookedPhrase + "'");
-        String xpathSelector = "//table[@id='geneGrid']/tbody/tr";
-        List<WebElement> elements;
-        
-        try {
-            elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(xpathSelector)));
-        } catch (Exception e) {
-            errorList.add("Exception waiting for sendKeys table results. Skipping ...  Error message: " + e.getLocalizedMessage());
-            return;
-        }
-        
-        // Issue the solr query and get the match result count per core.
-        HashMap<String, Integer> coreCounts = querySolr(cookedPhrase, status);
-        
-        // Scrape the 'match result count per core' from the page and compare it against the solr results.
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, phenotypePipelineDAO, baseUrl);
-        
-        int totalCount = 0;
-        if (searchPage.getFacetCount(SearchPage.Facet.ANATOMY) != coreCounts.get(SearchPage.ANATOMY_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.ANATOMY_CORE) + " Anatomy core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.ANATOMY) + ".");
-            totalCount += coreCounts.get(SearchPage.ANATOMY_CORE);
-        }
-        if (searchPage.getFacetCount(SearchPage.Facet.DISEASES) != coreCounts.get(SearchPage.DISEASE_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.DISEASE_CORE) + " Disease core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.DISEASES) + ".");
-            totalCount += coreCounts.get(SearchPage.DISEASE_CORE);
-        }
-        if (searchPage.getFacetCount(SearchPage.Facet.GENES) != coreCounts.get(SearchPage.GENE_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.GENE_CORE) + " Gene core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.GENES) + ".");
-            totalCount += coreCounts.get(SearchPage.GENE_CORE);
-        }
-        if (searchPage.getFacetCount(SearchPage.Facet.IMAGES) != coreCounts.get(SearchPage.IMAGES_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.IMAGES_CORE) + " images core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.IMAGES) + ".");
-            totalCount += coreCounts.get(SearchPage.IMAGES_CORE);
-        }
-        if (searchPage.getFacetCount(SearchPage.Facet.PHENOTYPES) != coreCounts.get(SearchPage.PHENOTYPE_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.PHENOTYPE_CORE) + " Phenotype core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.PHENOTYPES) + ".");
-            totalCount += coreCounts.get(SearchPage.PHENOTYPE_CORE);
-        }
-        if (searchPage.getFacetCount(SearchPage.Facet.PROCEDURES) != coreCounts.get(SearchPage.PROCEDURES_CORE)) {
-            errorList.add("Expected " + coreCounts.get(SearchPage.PROCEDURES_CORE) + " Procedures core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getFacetCount(SearchPage.Facet.PROCEDURES) + ".");
-            totalCount += coreCounts.get(SearchPage.PROCEDURES_CORE);
-        }
-        
-        // If there are expected results, check the first 10 for presence of phrase.
-        if (totalCount > 0) {
-            for (int i = 0; i < Math.min(elements.size(), 10); i++) {
-                WebElement aTr = elements.get(i);
-                if ( ! containsPhrase(rawPhrase)) {
-                    errorList.add("Expected result to contain '" + rawPhrase + "' but it didn't. Result: '" + aTr.getText() + "'");
-                }
-            }
-        }
-
-        System.out.println("gene count:       " + coreCounts.get(SearchPage.GENE_CORE));
-        System.out.println("phenotype count:  " + coreCounts.get(SearchPage.PHENOTYPE_CORE));
-        System.out.println("disease count:    " + coreCounts.get(SearchPage.DISEASE_CORE));
-        System.out.println("anatomy count:    " + coreCounts.get(SearchPage.ANATOMY_CORE));
-        System.out.println("procedures count: " + coreCounts.get(SearchPage.PROCEDURES_CORE));
-        System.out.println("images count:     " + coreCounts.get(SearchPage.IMAGES_CORE));
-        
-        TestUtils.sleep(100);
-    }
-    
-    // 'None', 'Pre', 'Post', and 'Both' refer to the count/position of the wildcard '*' character(s).
-    private void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase) {
-        checkSpecialPhrase(wait, status, phrase, phrase);
-        if ( ! phrase.equals("*")) {                                            // Special case: for "*", test only "*".
-            checkSpecialPhrase(wait, status, phrase, "*" + phrase);
-            checkSpecialPhrase(wait, status, phrase, phrase + "*");
-            checkSpecialPhrase(wait, status, phrase, "*" + phrase + "*");
-        }
-    }
-    
-    private boolean containsPhrase(String rawPhrase) {
-        boolean found = false;
-        
-        // In order to see the contents of the span, we need to hover over the gene first.
-        Actions builder = new Actions(driver);
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        
-        try {
-            WebElement geneElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']")));
-
-            Actions hoverOverGene = builder.moveToElement(geneElement);
-            hoverOverGene.perform();
-            List<WebElement> spanElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']/span[@class='subMatch']")));
-
-            for (WebElement spanElement : spanElements) {
-                String spanText = spanElement.getText().toLowerCase();
-                if (spanText.contains(rawPhrase.toLowerCase())) {
-                    found = true;
-                    break;
-                }
-             }
-        } catch (Exception e) {
-            System.out.println("EXCEPTION: SearchPageTest.containsPhrase() while waiting to hover. Error message: " + e.getLocalizedMessage());
-        }
-        
-        return found;
-    }
-    
     /**
      * Executes download verification. <code>searchPhrase</code> is used to
      * specify the search characters to send to the server. It may be null or empty.
@@ -1136,112 +1018,94 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
             TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
         }
     }
-    
-    private final int GENE_INDEX = 0;
-    private final int PHENOTYPE_INDEX = 1;
-    private final int DISEASE_INDEX = 2;
-    private final int ANATOMY_INDEX = 3;
-    private final int PROCEDURES_INDEX = 4;
-    private final int IMAGES_INDEX = 5;
-        
-    private HashMap<String, Integer> querySolr(String cookedPhrase, PageStatus status) {
-        HashMap<String, Integer> coreCountHash = new HashMap();
-        final String[] coreNames = { SearchPage.GENE_CORE, SearchPage.PHENOTYPE_CORE, SearchPage.DISEASE_CORE, SearchPage.ANATOMY_CORE, SearchPage.PROCEDURES_CORE, SearchPage.IMAGES_CORE };
-        final int[] counts = { 0, 0, 0, 0, 0, 0 };
 
-        String initialWildcard = "";
-        String trailingWildcard = "";
 
-        // In preparation for escaping characters, *don't* escape leading and/or trailing wildcard characters.
-        String rawPhrase = cookedPhrase;
-        if (cookedPhrase.length() > 1) {
-            if (cookedPhrase.startsWith("*")) {
-                initialWildcard = "*";
-                rawPhrase = cookedPhrase.substring(1);
-            }
-            if (rawPhrase.endsWith("*")) {
-                trailingWildcard = "*";
-                rawPhrase = rawPhrase.substring(0, rawPhrase.length() - 1);
-            }
-        }
-        
-        // Before URLEncoding, escape any phrase characters that solr requires be escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \
-        String escapedRawPhrase = rawPhrase.replace("\\", "\\\\");              // Escape the '\\' separately to avoid double-escaping.
-        
-        escapedRawPhrase = escapedRawPhrase
-                .replace("+", "\\+")
-                .replace("-", "\\-")
-                .replace("&&", "\\&\\&")
-                .replace("||", "\\|\\|")
-                .replace("!", "\\!")
-                .replace("(", "\\(")
-                .replace(")", "\\)")
-                .replace("{", "\\{")
-                .replace("}", "\\}")
-                .replace("[", "\\[")
-                .replace("]", "\\]")
-                .replace("^", "\\^")
-                .replace("\"", "\\\\")
-                .replace("~", "\\~")
-                .replace("*", "\\*")
-                .replace("?", "\\?")
-                .replace(":", "\\:");
-            
-        String escapedEncodedRawPhrase = escapedRawPhrase;
-        try { escapedEncodedRawPhrase = URLEncoder.encode(escapedEncodedRawPhrase, "UTF-8"); } catch (Exception e) { }
-        
-        String escapedEncodedCookedPhrase = initialWildcard + escapedEncodedRawPhrase + trailingWildcard;
-System.out.println("escapedEncodedCookedPhrase = '" + escapedEncodedCookedPhrase + "'");
-        String newQueryString = "/autosuggest/select?q=auto_suggest:" + escapedEncodedCookedPhrase + "&wt=json&rows=1000000";
-        JSONObject jsonData;
-        JSONArray docs;
-        try {
-            
-            jsonData = JSONRestUtil.getResults(solrUrl + newQueryString);
-            docs = JSONRestUtil.getDocArray(jsonData);
-        } catch (Exception e) {
-            status.addError("ERROR: JSON results are null for phrase '" + cookedPhrase + "', which probably means the character wasn't properly escaped. Local error message:\n" + e.getLocalizedMessage());
-            return coreCountHash;
-        }
-        
-        for (int i = 0; i < docs.size(); i++) {
-            String docType = docs.getJSONObject(i).getString("docType");
-            switch (docType) {
-                case SearchPage.GENE_CORE:
-                    counts[GENE_INDEX]++;
-                    break;
-
-                case SearchPage.PHENOTYPE_CORE:
-                    counts[PHENOTYPE_INDEX]++;
-                    break;
-
-                case SearchPage.DISEASE_CORE:
-                    counts[DISEASE_INDEX]++;
-                    break;
-
-                case SearchPage.ANATOMY_CORE:
-                    counts[ANATOMY_INDEX]++;
-                    break;
-
-                case SearchPage.PROCEDURES_CORE:
-                    counts[PROCEDURES_INDEX]++;
-                    break;
-
-                case SearchPage.IMAGES_CORE:
-                    counts[IMAGES_INDEX]++;
-                    break;
-
-            }
-        }
-        
-        for (int i = 0; i < coreNames.length; i++) {
-            coreCountHash.put(coreNames[i], counts[i]);
-        }
-        
-System.out.println("URL: " + solrUrl + newQueryString);
-        return coreCountHash;
+    /**
+     * Invokes the facet count engine with no search term.
+     * @param target the page target URL
+     * @return page status
+     */
+    private PageStatus facetCountEngine(String target) {
+        return facetCountEngine(target, null);
     }
     
+    /**
+     * Invokes the facet count engine with the specified, [already escaped if necessary] search term.
+     * @param target the page target URL
+     * @param searchTerm the desired search term
+     * @return page status
+     */
+    private PageStatus facetCountEngine(String target, SearchTermGroup searchTermGroup) {
+        PageStatus status = new PageStatus();
+        String message;
+        
+        System.out.println("Page target: " + target);
+        
+        // Get the solarUrlCounts.
+        Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
+        if (solrCoreCountMap == null) {
+            message = "FAIL: Unable to get facet count from Solr.";
+            status.addError(message);
+            System.out.println(message);
+        }
+
+        System.out.println("facetCountEngine(): Page target URL: " + target);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+
+        // Verify that the core counts returned by solr match the facet counts on the page.
+        for (String core : cores) {
+            int facetCountFromPage = searchPage.getFacetCount(core);
+            int facetCountFromSolr = (int)solrCoreCountMap.get(core);
+
+            if (facetCountFromSolr != facetCountFromPage) {
+                message = "FAIL: facet count from Solr: " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
+                status.addError(message);
+                System.out.println(message);
+            }
+        }
+        
+        return status;
+    }
+    
+    /**
+     * Queries each of the six search solr cores for the number of occurrences
+     * of <code>searchPhrase</code> (which may be null), returning a
+     * <code>Map</code> keyed by core name containing the occurrence count for
+     * each core.
+     *
+     * @param searchTermGroup The search phrase to use when querying the cores. If
+     * null, the count is unfiltered.
+     * @return the <code>searchPhrase</code> occurrence count
+     */
+    private Map<String, Integer> getSolrCoreCounts(SearchTermGroup searchTermGroup) {
+        Map<String, Integer> solrCoreCountMap = new HashMap();
+        
+        for (int i = 0; i < paramList.size(); i++) {
+            String solrQueryString = paramList.get(i);
+            try {
+                if (searchTermGroup != null) {
+                    solrQueryString = solrQueryString.replace("&q=*:*", "&q=" + searchTermGroup.solrTarget);
+                }
+        
+                String fqSolrQueryString = solrUrl + solrQueryString;
+                
+                JSONObject geneResults = JSONRestUtil.getResults(fqSolrQueryString);
+                int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");
+                String facet = cores.get(i);
+                solrCoreCountMap.put(facet, facetCountFromSolr);
+            } catch (TimeoutException te) {
+                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts() timeout!");
+                return null;
+            }
+            catch(Exception e){
+                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts(): " + e.getLocalizedMessage());
+                return null;
+            }
+        }
+        
+        return solrCoreCountMap;
+    }
+
     private void specialStrQueryTest(String testName, String qry) throws Exception {
         testCount++;
         System.out.println();
