@@ -51,7 +51,7 @@ public class HttpProxy {
 
 		// Convert spaces to the URL encoded form
 		URL escapedUrl = new URL(url.toExternalForm().replace(" ", "%20"));
-		log.info("PARSING URL: " + escapedUrl);
+		log.info("PARSING Solr URL: " + escapedUrl);
 
 		String content = "";
 
