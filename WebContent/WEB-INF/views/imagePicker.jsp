@@ -14,6 +14,8 @@
   <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css">
   <link rel="stylesheet" type="text/css" href="examples.css">
   <link rel="stylesheet" type="text/css" href="image-picker/image-picker.css"> -->
+  
+  <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
  <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
 
@@ -29,59 +31,53 @@
 <!-- http://rvera.github.io/image-picker/ -->
 </head>
 <body>
-<form action="../../imageComparator" method="get">
-<select name="ctrImgId" multiple size="2" class="image-picker show-html">
-  <!-- <option data-img-src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/5812/200" value="1">Cute Kitten 1</option>
-  <option data-img-src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/4739/200" value="2">Cute Kitten 2</option>
-  <option data-img-src="http://placekitten.com/130/200" value="3">Cute Kitten 3</option>
-  <option data-img-src="http://placekitten.com/270/200" value="4">Cute Kitten 4</option> -->
-   <c:if test="${not empty controls}">
-                                        
-                                           
-                                                   <%--  ${entry.name} (${entry.count}) --%>
-          
-                                                
-                                                        <c:forEach var="img" items="${controls}">
-                                                            
-                                                                <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
-                                                                <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
-   												 					<c:if test="${not empty img.sex}">${img.sex}</c:if>
-   												 					<c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
-   												 				</option>
-                                                        		 
-                                                        </c:forEach>
-                                                    
-                                      
 
-                                  
-  </c:if>	
-  </select>
-  <select name="expImgId" multiple size="2" class="image-picker show-html">		
-  <c:if test="${not empty experimental}">
-                                        
-                                           
-                                                   <%--  ${entry.name} (${entry.count}) --%>
-          
-                                                
-                                                        <c:forEach var="img" items="${experimental}">
-                                                       <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
-                                                       		<%-- <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>  --%>
-                                                 			<c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
-   												 			<c:if test="${not empty img.sex}">${img.sex}</c:if>
-   												 			<c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
-   												 		</option>
-                                                        	 
-                                                        </c:forEach>
-                                                    
-                                      
 
-                                  
-  </c:if>			
-</select>
-<input type="submit" value="Click to display selected images">
-</form>
-
- 
+<div class="region region-content">
+	<div class="block">
+    	<div class="content">
+        	<div class="node">
+                           
+        	<form action="../../imageComparator" method="get">
+        	 <h1 class="title" id="top">Controls</h1>
+				<div class=section">
+					<div class="inner">
+						<select name="ctrImgId" multiple size="2" class="image-picker show-html">
+  							<c:if test="${not empty controls}">
+                            	<c:forEach var="img" items="${controls}">
+                                <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
+                                	<option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
+   										<c:if test="${not empty img.sex}">${img.sex}</c:if>
+   										<%-- <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if> --%>
+   									</option>
+                             	</c:forEach>
+  							</c:if>	
+  						</select>
+  					</div>
+  				</div>
+  				<h1 class="title" id="top">Experimental</h1>
+  				<div class="section">
+  					<div class="inner">
+  						<select name="expImgId" multiple size="2" class="image-picker show-html">		
+  						<c:if test="${not empty experimental}">
+                            <c:forEach var="img" items="${experimental}">
+                                <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
+                                    <c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
+   									<c:if test="${not empty img.sex}">${img.sex}</c:if>
+   									<%-- <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if> --%>
+   								</option>
+                            </c:forEach>
+						</c:if>			
+						</select>
+					</div>
+				</div>
+				<input type="submit" value="Click to display selected images">
+			</form>
+		
+	</div>
+ </div>
+</div>
+</div>
 </body>
 
 </html>

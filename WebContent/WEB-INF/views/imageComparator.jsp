@@ -11,6 +11,12 @@
 <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
 </head>
  
+ <c:if  test="${fn:length(param['ctrImgId'])==0 && fn:length(param['expImgId'])==0}">
+ <h1 class="title">No Images Selected - please select some experimental and/or control images to view.</h1>
+ <!-- <div class="section">
+ <div class="inner"> 
+ </div></div> -->
+ </c:if>
  <c:choose>
  <c:when  test="${fn:length(param['ctrImgId'])>0 && fn:length(param['expImgId'])>0}">
   <frameset cols="50%,50%">
