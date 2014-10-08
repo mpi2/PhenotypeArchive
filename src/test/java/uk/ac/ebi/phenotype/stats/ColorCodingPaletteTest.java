@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import uk.ac.ebi.phenotype.chart.utils.ColorCodingPalette;
+import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 
 
 

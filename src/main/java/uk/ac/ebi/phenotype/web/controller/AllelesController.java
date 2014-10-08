@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,55 +45,27 @@ public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
     // TODO: get rid!
-    private static final String VERSIONDATE = "Wed Sep 10 2014";
+    private static final String VERSIONDATE = "Mon Oct 6 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;
 
-    // TODO: remove me!
-
-    private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
-        HashMap<String, String> map = new HashMap<>();
-        map.put("marker_symbol", marker_symbol);
-        map.put("allele_name", allele_name);
-        map.put("allele_name_e", URLEncoder.encode(allele_name));
-        map.put("mgi_accession_id", mgi_accession_id);
-        map.put("solr_product", "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q="
-                + "marker_symbol:" + marker_symbol
-                + "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=");
-
-        log.info("#### makeItem...");
-
-        HashMap<String, String> params1 = new HashMap<>();
-        params1.put("allele_name", allele_name);
-        params1.put("marker_symbol", marker_symbol);
-        params1.put("type", "mouse");
-        map.put("solr_product_mouse", solrIndex2.getGeneProductCoreUrl2(params1));
-
-        params1 = new HashMap<>();
-        params1.put("allele_name", allele_name);
-        params1.put("marker_symbol", marker_symbol);
-        params1.put("type", "es_cell");
-        map.put("solr_product_es_cell", solrIndex2.getGeneProductCoreUrl2(params1));
-
-        params1 = new HashMap<>();
-        params1.put("allele_name", allele_name);
-        params1.put("marker_symbol", marker_symbol);
-        params1.put("type", "targeting_vector");
-        map.put("solr_product_targeting_vector", solrIndex2.getGeneProductCoreUrl2(params1));
-
-        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q="
-                + "TEMPLATE"
-                + "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=&indent=on";
-
-        map.put("solr_allele2", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol));
-        map.put("solr_allele2_alleles", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol + " type:allele"));
-        map.put("solr_allele2_genes", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol + " type:gene"));
-
-        log.info("#### makeItem: map: " + map.toString());
-
-        return map;
-    }
+//    private HashMap<String, String> makeItem(Map<String, Object> map2) {
+//        HashMap<String, String> map = new HashMap<>();
+//        map.put("marker_symbol", (String)map2.get("marker_symbol"));
+//        map.put("allele_name", (String)map2.get("allele_name"));
+//        map.put("mgi_accession_id", (String)map2.get("mgi_accession_id"));
+//        map.put("type", (String)map2.get("type"));
+//        map.put("display_name_debug", (String)map2.get("display_name_debug"));
+//        map.put("display_name", (String)map2.get("display_name"));
+//        map.put("url", (String)map2.get("url"));
+//        
+//        log.info("#### makeItem...");
+//        log.info("#### makeItem: map2: " + map2);
+//        log.info("#### makeItem: map: " + map);
+//
+//        return map;
+//    }
 
     @RequestMapping("/qc_data/{alleleType}/{type}/{name}")
     public String qcData(
@@ -111,113 +81,6 @@ public class AllelesController {
         return "qcData";
     }
 
-    // TODO: remove me!
-
-    @RequestMapping("/alleles")
-    public String alleles0(
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-
-        log.info("#### alleles0...");
-
-        List<String> targetList = new ArrayList<>();
-        targetList.add("marker_symbol:Art4");
-        targetList.add("marker_symbol:Foxj3");
-        targetList.add("marker_symbol:Cib2");
-        targetList.add("marker_symbol:Nxn");
-        targetList.add("marker_symbol:Morn1");
-        targetList.add("marker_symbol:Cbx1");
-        targetList.add("marker_symbol:Zfp111");
-        targetList.add("marker_symbol:Arhgef6");
-        targetList.add("marker_symbol:Heyl");
-
-        targetList.add("marker_symbol:Selenbp2");
-        targetList.add("marker_symbol:Foxn4");
-        targetList.add("marker_symbol:Ccdc13");
-
-        String qs = StringUtils.join(targetList, " OR ");
-
-        HashMap<String, String> params1 = new HashMap<>();
-
-        //String qs2 = URLEncoder.encode("(" + qs + ")" + " AND type:mouse");
-        String qs2 = URLEncoder.encode("(" + qs + ")");
-
-        params1.put("multi", qs2);
-
-        List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
-
-//        targetList = new ArrayList<>();
-//        targetList.add("marker_symbol:Selenbp2");
-//        List<Map<String, Object>> list2 = solrIndex2.getProductGeneDetails(params1);
-
-        List<Map<String, String>> list = new ArrayList<>();
-
-        for (Map<String, Object> item : list1) {
-            log.info("#### alleles0: item: " + item.toString());
-            if(!item.get("marker_symbol").equals("Selenbp2") && !item.get("marker_symbol").equals("Foxn4") && !item.get("marker_symbol").equals("Ccdc13")) {
-                if(item.get("allele_type").equals("e")) {
-                    continue;
-                }
-            }
-            Map<String, String> i = makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id"));
-            if(i != null) {
-                list.add(i);
-            }
-        }
-
-        model.addAttribute("list", list);
-
-        model.addAttribute("versionDate", VERSIONDATE);
-
-        return "alleles_list";
-    }
-
-    // TODO: remove me!
-
-    @RequestMapping("/alleles2")
-    public String alleles0Alt(
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-
-        log.info("#### alleles0Alt...");
-
-        List<String> targetList = new ArrayList<>();
-        targetList.add("marker_symbol:*");
-
-        String qs = StringUtils.join(targetList, " OR ");
-
-        HashMap<String, String> params1 = new HashMap<>();
-
-        String qs2 = URLEncoder.encode("(" + qs + ")");
-
-        params1.put("multi", qs2);
-
-        List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
-
-        List<Map<String, String>> list = new ArrayList<>();
-
-        for (Map<String, Object> item : list1) {
-            log.info("#### alleles0: item: " + item.toString());
-            if(!item.get("marker_symbol").equals("Selenbp2") && !item.get("marker_symbol").equals("Foxn4") && !item.get("marker_symbol").equals("Ccdc13")) {
-                if(item.get("allele_type").equals("e")) {
-                    continue;
-                }
-            }
-            Map<String, String> i = makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id"));
-            if(i != null) {
-                list.add(i);
-            }
-        }
-
-        model.addAttribute("list", list);
-
-        model.addAttribute("versionDate", VERSIONDATE);
-
-        return "alleles_list";
-    }
-
     @RequestMapping("/alleles/{acc}")
     public String alleles1(
             @PathVariable String acc,
@@ -228,20 +91,37 @@ public class AllelesController {
         log.info("#### alleles1...");
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(acc);
-        List<Map<String, String>> list = new ArrayList<>();
+        List<Map<String, Object>> list_alleles = new ArrayList<>();
+        List<Map<String, Object>> list_none_alleles = new ArrayList<>();
+        String mgi_accession_id = acc;
 
         if (list1 != null) {
             for (Map<String, Object> item : list1) {
-                list.add(makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id")));
+                if(((String) item.get("allele_name")).equals("None")) {
+                    list_none_alleles.add(item);
+                }
+                else {
+                    list_alleles.add(item);
+                }
+               // mgi_accession_id = (String)item.get("mgi_accession_id");
             }
         }
 
-        log.info("#### alleles1: list1: " + list1);
+        log.info("#### alleles1: list1: " + list1);        
+        
+        model.addAttribute("mgi_accession_id", mgi_accession_id);
 
-        model.addAttribute("list", list);
+        model.addAttribute("list_alleles", list_alleles);
+        model.addAttribute("list_none_alleles", list_none_alleles);
 
         model.addAttribute("versionDate", VERSIONDATE);
 
+        String debug = request.getParameter("debug");
+        boolean d = debug != null && debug.equals("true");
+        if(d) {
+            model.addAttribute("debug", "true");
+        }
+        
         return "alleles_list";
     }
 
@@ -335,11 +215,15 @@ public class AllelesController {
             String projectId) throws MalformedURLException, IOException, URISyntaxException {
 
         if (projectId == null) {
+            log.info("#### getMutagenesisDetails: no project id!");
             return null;
         }
 
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + projectId + "/detail";
 
+        log.info("#### getMutagenesisDetails: url: ");
+        log.info(url);
+        
         HttpProxy proxy = new HttpProxy();
         String content;
 
@@ -353,6 +237,8 @@ public class AllelesController {
         log.info("#### content: " + content);
 
         JSONArray json = (JSONArray) JSONSerializer.toJSON(content);
+
+        log.info("#### before: " + json);
 
         Map<String, String> mapper = new HashMap<>();
         mapper.put("UC", "UTR + start codon + CDS");
@@ -395,6 +281,9 @@ public class AllelesController {
                 }
             }
         }
+
+        log.info("#### after: " + json);
+
         return json;
     }
 
@@ -406,20 +295,69 @@ public class AllelesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-        return allelesCommon(acc, allele_name, model, request, attributes, false);
+        log.info("#### AllelesController::alleles2");
+        log.info("#### acc: " + acc);
+        log.info("#### allele_name: " + allele_name);
+
+        String debug = request.getParameter("debug");
+        log.info("#### alleles1: debug: " + debug);        
+        boolean d = debug != null && debug.equals("true");
+        
+        return allelesCommon(acc, allele_name, model, request, attributes);
     }
 
-    // TODO: remove me!
-
-    @RequestMapping("/alleles/{acc}/{allele_name}/{debug}")
+    @RequestMapping("/alleles/{acc}/{cassette}/{design_id}")
     public String alleles3(
             @PathVariable String acc,
-            @PathVariable String allele_name,
-            @PathVariable String debug,
+            @PathVariable String cassette,
+            @PathVariable String design_id,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-        return allelesCommon(acc, allele_name, model, request, attributes, debug.equals("debug"));
+
+        log.info("#### AllelesController::alleles3");
+        log.info("#### acc: " + acc);
+        log.info("#### cassette: " + cassette);
+        log.info("#### design_id: " + design_id);
+
+        return allelesCommon2(acc, cassette, design_id, model, request, attributes);
+    }
+
+    public String allelesCommon2(
+            String acc,
+            String cassette,
+            String design_id,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        String debug = request.getParameter("debug");
+        log.info("#### allelesCommon: debug: " + debug);        
+        boolean d = debug != null && debug.equals("true");
+        if(d) {
+            model.addAttribute("debug", "true");
+        }
+        
+        Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, cassette, design_id, d);
+
+        if (constructs == null) {
+            return "alleles";
+        }
+
+        model.addAttribute("mice", constructs.get("mice"));
+        model.addAttribute("es_cells", constructs.get("es_cells"));
+        model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
+        model.addAttribute("summary", constructs.get("summary"));
+
+        model.addAttribute("title", constructs.get("title"));
+
+        log.info("#### mice: " + constructs.get("mice"));
+        log.info("#### es_cells: " + constructs.get("es_cells"));
+        log.info("#### targeting_vectors: " + constructs.get("targeting_vectors"));
+        log.info("#### summary: " + constructs.get("summary"));
+        log.info("#### title: " + constructs.get("title"));
+
+        return "alleles";
     }
 
     public String allelesCommon(
@@ -427,14 +365,20 @@ public class AllelesController {
             String allele_name,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes,
-            boolean debug) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-        log.info("#### AllelesController::alleles");
+        log.info("#### AllelesController::allelesCommon");
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);
 
-        Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, allele_name, debug);
+        String debug = request.getParameter("debug");
+        log.info("#### allelesCommon: debug: " + debug);        
+        boolean d = debug != null && debug.equals("true");
+        if(d) {
+            model.addAttribute("debug", "true");
+        }
+        
+        Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, allele_name, d);
 
         if (constructs == null) {
             return "alleles";
@@ -473,42 +417,6 @@ public class AllelesController {
 
         log.info("#### mutagenesis: " + mutagenesis);
 
-        return "mutagenesis";
-    }
-
-    // TODO: remove me!
-
-    private void addMutagenesisExample(List<Map<String, String>> list, String key, String value) {
-        Map<String, String> item = new HashMap<>();
-        String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + value + "/detail";
-        String url2 = "/phenotype-archive/mutagenesis/" + value;
-        item.put("name", key);
-        item.put("url", url2);
-        item.put("htgt_url", url);
-        item.put("project", value);
-        item.put("old_url", "http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + value);
-        list.add(item);
-    }
-
-    // TODO: remove me!
-
-    @RequestMapping("/mutagenesis")
-    public String mutagenesis(
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-
-        List<Map<String, String>> list = new ArrayList<>();
-        addMutagenesisExample(list, "Art4", "39216");
-        addMutagenesisExample(list, "Cbx1", "35505");
-        addMutagenesisExample(list, "Zfp111", "79288");
-        addMutagenesisExample(list, "Foxj3", "77075");
-        addMutagenesisExample(list, "Heyl", "24190");
-        addMutagenesisExample(list, "Nxn", "36851");
-        addMutagenesisExample(list, "Cib2", "41713");
-        addMutagenesisExample(list, "Arhgef6", "36825");
-        addMutagenesisExample(list, "Morn1", "82621");
-        model.addAttribute("mutagenesis_examples", list);
         return "mutagenesis";
     }
 

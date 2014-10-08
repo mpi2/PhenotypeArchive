@@ -24,8 +24,15 @@
                                     <td class="centered" colspan="7">Additional Targeting vectors are available for this gene - see links for details: ${alleleProduct["vectorProjectHtml"]}</td>
                                 </c:when>
                                 <c:otherwise>
+
+                                    <c:if test="${not empty alleleProduct['product_url']}">
+                                        <td><a title="click to visit solr" href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
+                                    </c:if>
+                                    <c:if test="${empty alleleProduct['product_url']}">
                                         <td>${alleleProduct["product"]}</td>
-                                        <td>${alleleProduct["alleleType"]}</td>
+                                    </c:if>                                    
+
+                                    <td>${alleleProduct["alleleType"]}</td>
                                         <td>${alleleProduct["strainOfOrigin"]}</td>
                                         <td>${alleleProduct["mgiAlleleName"]}</td>
                                         <td>

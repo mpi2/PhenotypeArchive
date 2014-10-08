@@ -154,6 +154,13 @@ public class GenesController {
 	public String genes(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 
+                String debug = request.getParameter("debug");
+                log.info("#### genesAllele2: debug: " + debug);        
+                boolean d = debug != null && debug.equals("true");
+                if(d) {
+                    model.addAttribute("debug", "true");
+                }
+            
 		processGeneRequest(acc, model, request);
 
 		return "genes";
@@ -707,16 +714,24 @@ public class GenesController {
 	public String genesAllele2(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
 
-		List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
+		//List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
 		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo2(acc);
         
                 log.info("#### genesAllele2...");
                 log.info("#### genesAllele2: constructs2: " + constructs2);
                 
-		model.addAttribute("alleleProducts", constructs);
+	//	model.addAttribute("alleleProducts", constructs);
 		model.addAttribute("alleleProducts2", constructs2);
                 
-                //constructs2.
+                String debug = request.getParameter("debug");
+                log.info("#### genesAllele2: debug: " + debug);        
+                boolean d = debug != null && debug.equals("true");
+                log.info("#### genesAllele2: d: " + d);        
+                if(d) {
+                    model.addAttribute("debug", "true");
+                }
+
+                log.info("#### genesAllele2: model: " + model);
                 
 		return "genesAllele2";
 	}

@@ -27,13 +27,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import uk.ac.ebi.phenotype.chart.categorical.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.categorical.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.chart.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.unidimensional.*;
-import uk.ac.ebi.phenotype.chart.utils.ChartData;
-import uk.ac.ebi.phenotype.chart.utils.ChartType;
-import uk.ac.ebi.phenotype.chart.utils.GraphUtils;
+
+import uk.ac.ebi.phenotype.chart.AbrChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
+import uk.ac.ebi.phenotype.chart.ChartData;
+import uk.ac.ebi.phenotype.chart.ChartType;
+import uk.ac.ebi.phenotype.chart.GraphUtils;
+import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
+import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
+import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
+import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
+import uk.ac.ebi.phenotype.chart.ViabilityDTO;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
@@ -83,6 +91,9 @@ public class ChartsController {
    
     @Autowired
     private AbrChartAndTableProvider abrChartAndTableProvider;
+    
+    @Autowired
+    private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
 
     @Autowired
     private ExperimentService experimentService;
@@ -100,6 +111,7 @@ public class ChartsController {
     public String rootForward() {
         return "redirect:/search";
     }
+    
 
     /**
      * This method should take in the parameters and then generate a skeleton
@@ -146,7 +158,7 @@ public class ChartsController {
      * @param accession
      * @param strain
      * @param metadataGroup
-     * @param parameterStableIds
+     * @param parameterStableId
      * @param gender
      * @param zygosity
      * @param phenotypingCenter
@@ -166,7 +178,7 @@ public class ChartsController {
             @RequestParam(required = false, value = "strain_accession_id") String strain,
             @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
             @RequestParam(required = false, value = "metadata_group") String metadataGroup,
-            @RequestParam(required = false, value = "parameter_stable_id") String parameterStableIds,
+            @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId,
             @RequestParam(required = false, value = "gender") String[] gender,
             @RequestParam(required = false, value = "zygosity") String[] zygosity,
             @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
@@ -181,6 +193,7 @@ public class ChartsController {
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
+        ViabilityDTO viabilityDTO=null;
 
         boolean statsError = false;
 
@@ -188,9 +201,9 @@ public class ChartsController {
         // parameter throw and exception if we do
 
         // get the parameter object from the stable id
-        Parameter parameter = pipelineDAO.getParameterByStableId(parameterStableIds);
+        Parameter parameter = pipelineDAO.getParameterByStableId(parameterStableId);
         if (parameter == null) {
-            throw new ParameterNotFoundException("Parameter " + parameterStableIds + " can't be found.", parameterStableIds);
+            throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
         String[] parameterUnits = parameter.checkParameterUnits();
@@ -238,9 +251,15 @@ public class ChartsController {
             pipelineId = pipeline.getId();
         }
 
+        //@TODO move this as this is just for testing
+        if(chartType==ChartType.PIE){
+        	//for now lets make up an experiment
+        	return viability(model, null, null);
+        }
         ExperimentDTO experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
         	strain, metaDataGroupString, alleleAccession);
         System.out.println("experiment="+experiment);
+        
 
         if (experiment != null) {
 
@@ -269,9 +288,15 @@ public class ChartsController {
             	if (chartType == null){
             		chartType = GraphUtils.getDefaultChartType(parameter);
             		// chartType might still be null after this
+            		if(chartType==ChartType.PIE){
+            		 viabilityDTO = viabilityChartAndDataProvider.doViabilityData(null, null);
+        			 model.addAttribute("viabilityDTO", viabilityDTO);
+        			 //model.addAttribute("tableData", viabilityDTO);
+        			 return "chart";
+            		}
             	}
                 if (chartType != null){
-                	switch (chartType) {
+					switch (chartType) {
                 		
                 		 case UNIDIMENSIONAL_SCATTER_PLOT:
                 		
@@ -311,7 +336,11 @@ public class ChartsController {
                 			 timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
                 			 model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
                 			 break;
-
+                			 
+                		 case PIE:
+                			 
+                			 viability(model, parameter, experiment);
+                			 break;
                 		 default:
 
                 			 // Trying to graph Unknown observation type
@@ -341,6 +370,14 @@ public class ChartsController {
 
         return "chart";
     }
+
+	private String viability(Model model, Parameter parameter, ExperimentDTO experiment) {
+
+		ViabilityDTO viabilityDTO;
+		viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, experiment);
+		 model.addAttribute("viabilityDTO", viabilityDTO);
+		 return "chart";
+	}
 
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {

@@ -200,6 +200,8 @@
 	<field name="p_value" type="float" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="marker_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="preqc_gene_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />    
 	<field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />  
@@ -325,7 +327,7 @@
 	<copyField source="mp_term" dest="auto_suggest" />
 	<copyField source="mp_term_synonym" dest="auto_suggest" />   
 	<copyField source="mp_definition" dest="auto_suggest" />
-		
+	
 	<copyField source="top_level_mp_id" dest="auto_suggest" />
 	<copyField source="top_level_mp_term" dest="auto_suggest" />
 	<copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
@@ -395,6 +397,8 @@
 
 	<copyField source="parameter_stable_id" dest="auto_suggest" /> 
 	<copyField source="parameter_name" dest="auto_suggest" /> 	
+	
+	<copyField source="preqc_gene_id" dest="mgi_accession_id" />
 	
 	<!--  qf bucket list -->
 	<copyField source="mgi_accession_id" dest="geneQf" /> 

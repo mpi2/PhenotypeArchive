@@ -1094,7 +1094,8 @@
                 filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
             }
             if (facet == 'disease') {
-                filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[qField];
+                filterTxt = typeof MPI2.searchAndFacetConfig.facetFilterLabel[qField] == 'undefined' ? qValue 
+                		: MPI2.searchAndFacetConfig.facetFilterLabel[qField];
             }
 
             var a = $('<a></a>').attr({'rel': oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));
@@ -1472,8 +1473,8 @@
 
         var hashStr = $(location).attr('hash');
         if (hashStr != '' && hashStr.indexOf('fq=') != -1) {
-
             var fqStr;
+            
             if (hashStr.indexOf('&facet=') == -1) {
                 fqStr = hashStr.replace(/#fq=/, '');
             }
@@ -1736,13 +1737,15 @@
             }
         }
         else if (facet == 'mp') {
+        	oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
+        	
             if (q.match(/^MP:\d*$/i)) {
                 oParams.q = q.toUpperCase();
                 oParams.qf = 'mp_id';
             }
             //else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){
             else if (q.match(wildCardStr) && q != '*:*') {
-                oParams.bq = 'mp_term:' + q.replace(/\*/g, '') + '^1000'
+                oParams.bq += ' mp_term:' + q.replace(/\*/g, '') + '^1000'
                         + ' mp_term_synonym:' + q.replace(/\*/g, '') + '^500'
                         + ' mp_definition:' + q.replace(/\*/g, '') + '^100';
             }
