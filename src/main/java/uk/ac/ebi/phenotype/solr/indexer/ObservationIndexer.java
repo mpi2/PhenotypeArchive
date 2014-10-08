@@ -187,7 +187,9 @@ public class ObservationIndexer {
 
 				o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).id);
 				o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
-				o.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).stableId);
+				String procedureStableId = procedureMap.get(r.getInt("procedure_id")).stableId;
+				o.setProcedureStableId(procedureStableId);
+				o.setProcedureGroup(procedureStableId.substring(0, procedureStableId.lastIndexOf("_")));
 
 				o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).id);
 				o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
