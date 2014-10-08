@@ -67,7 +67,7 @@ public class AllelesController {
 //        return map;
 //    }
 
-    @RequestMapping("/qc_data/{alleleType}/{type}/{name}")
+    @RequestMapping("/alleles/qc_data/{alleleType}/{type}/{name}")
     public String qcData(
             @PathVariable String alleleType,
             @PathVariable String type,
@@ -78,6 +78,15 @@ public class AllelesController {
 
         HashMap<String, HashMap<String, List<String>>> constructs = solrIndex2.getAlleleQcInfo(alleleType, type, name);
         model.addAttribute("qcData", constructs);
+        
+        String simple = request.getParameter("simple");
+        boolean s = simple != null && simple.equals("true");
+        if(s) {
+            return "qcDataSimple";
+        }        
+        
+        log.info("#### qcData: model: " + model);
+        
         return "qcData";
     }
 
@@ -391,6 +400,10 @@ public class AllelesController {
 
         model.addAttribute("title", constructs.get("title"));
 
+        //                    <a class="hasTooltip" href="${baseUrl}/alleles/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
+        //model.addAttribute("qc_data_mouse", "alleles/qc_data/" + constructs.get("mice").get("title"));
+
+        
         log.info("#### mice: " + constructs.get("mice"));
         log.info("#### es_cells: " + constructs.get("es_cells"));
         log.info("#### targeting_vectors: " + constructs.get("targeting_vectors"));
