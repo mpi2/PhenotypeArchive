@@ -17,7 +17,6 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -63,7 +62,6 @@ public class AlleleIndexer {
 
 	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
 	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
-	private static final String EXPERIMENT_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/experiment";
 	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
 	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
 
@@ -94,14 +92,12 @@ public class AlleleIndexer {
 
 	private SolrServer sangerAlleleCore;
 	private SolrServer humanMouseCore;
-	private SolrServer experimentCore;
 	private SolrServer phenodigmCore;
 	private SolrServer alleleCore;
 
 	public AlleleIndexer() {
 		this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
 		this.humanMouseCore = new HttpSolrServer(HUMAN_MOUSE_URL);
-		this.experimentCore = new HttpSolrServer(EXPERIMENT_URL);
 		this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
 		this.alleleCore = new HttpSolrServer(ALLELE_URL);
 	}
@@ -125,6 +121,7 @@ public class AlleleIndexer {
 			logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
 			alleleCore.deleteByQuery("*:*");
+			alleleCore.commit();
 
 			while (start <= rows) {
 				query.setStart(start);
@@ -138,11 +135,11 @@ public class AlleleIndexer {
 				// Look up the marker synonyms
 				lookupMarkerSynonyms(alleles);
 
-				// Look up the legacy phenotype statuses
-				lookupLegacyPhenotypes(alleles);
-
 				// Look up the human mouse symbols
 				lookupHumanMouseSymbols(alleles);
+
+				// Do the first set of mappings
+				doSangerAlleleMapping(alleles);
 
 				// Look up the ES cell status
 				lookupEsCellStatus(alleles);
@@ -150,7 +147,7 @@ public class AlleleIndexer {
 				// Look up the disease data
 				lookupDiseaseData(alleles);
 
-				// Do the mappings
+				// Do the second set of mappings
 				doSangerAlleleMapping(alleles);
 
 				// Now index the alleles
@@ -257,27 +254,6 @@ public class AlleleIndexer {
 		}
 	}
 
-	private void lookupLegacyPhenotypes(Map<String, AlleleDTO> alleleMap) {
-		// Build the lookup string
-		String lookup = buildIdQuery(alleleMap.keySet());
-
-		String query = "select distinct project_id, gf_acc "
-				+ "from phenotype_call_summary "
-				+ "where p_value < 0.0001 and (project_id = 1 OR project_id = 8) "
-				+ "AND gf_acc IN (" + lookup + ")";
-		try {
-			logger.debug("Starting legacy phenotype lookup");
-			PreparedStatement ps = connection.prepareStatement(query);
-			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				String id = rs.getString("gf_acc");
-				alleleMap.get(id).setLegacyPhenotypeStatus(1);
-			}
-			logger.debug("Finished legacy phenotype lookup");
-		} catch (SQLException sqle) {
-			logger.error("SQL Exception looking up legacy phenotypes: {}", sqle.getMessage());
-		}
-	}
 
 	private void lookupHumanMouseSymbols(Map<String, AlleleDTO> alleles) {
 		SolrQuery query = new SolrQuery();
@@ -316,29 +292,6 @@ public class AlleleIndexer {
 	}
 
 	private void lookupEsCellStatus(Map<String, AlleleDTO> alleles) {
-//		SolrQuery query = new SolrQuery();
-//		query.addFilterQuery("type:allele");
-//		query.setRows(100);
-//
-//		logger.debug("Starting ES cell status lookup");
-//		for (String id : alleles.keySet()) {
-//			try {
-//				AlleleDTO dto = alleles.get(id);
-//				query.setQuery("mgi_accession_id:\"" + id + "\"");
-//				QueryResponse response = sangerAlleleCore.query(query);
-//				List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
-//				for (SangerAlleleBean sab : sangerAlleles) {
-//					dto.getAlleleName().add(sab.getAlleleName());
-//					dto.setImitsEsCellStatus(sab.getEsCellStatus());
-//					dto.setImitsMouseStatus(sab.getMouseStatus());
-//					dto.getPhenotypeStatus().add(sab.getPhenotypeStatus());
-//					dto.getProductionCentre().add(sab.getProductionCentre());
-//					dto.getPhenotypingCentre().add(sab.getPhenotypingCentre());
-//				}
-//			} catch (SolrServerException e) {
-//				logger.error("Solr exception looking up ES cell status for {}: {}", id, e.getMessage());
-//			}
-//		}
 
 		for (String id : alleles.keySet()) {
 			AlleleDTO dto = alleles.get(id);
@@ -361,50 +314,9 @@ public class AlleleIndexer {
 	}
 
 	private void lookupDiseaseData(Map<String, AlleleDTO> alleles) {
-//		SolrQuery query = new SolrQuery();
-//		query.addFilterQuery("type:disease_gene_summary");
-//		query.setRows(BATCH_SIZE);
 
 		logger.debug("Starting disease data lookup");
 		for (String id : alleles.keySet()) {
-//			query.setQuery("marker_accession:\"" + id + "\"");
-//			AlleleDTO dto = alleles.get(id);
-//			try {
-//				long count = 0;
-//				int start = 0;
-//				while (start <= count) {
-//					query.setStart(start);
-//					QueryResponse response = phenodigmCore.query(query);
-//					count = response.getResults().getNumFound();
-//					List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
-//					for (DiseaseBean db : diseases) {
-//						dto.getDiseaseId().add(db.getDiseaseId());
-//						dto.getDiseaseSource().add(db.getDiseaseSource());
-//						dto.getDiseaseTerm().add(db.getDiseaseTerm());
-//						if (db.getDiseaseAlts() != null) {
-//							dto.getDiseaseAlts().addAll(db.getDiseaseAlts());
-//						}
-//						if (db.getDiseaseClasses() != null) {
-//							dto.getDiseaseClasses().addAll(db.getDiseaseClasses());
-//						}
-//						dto.getHumanCurated().add(db.isHumanCurated());
-//						dto.getMouseCurated().add(db.isMouseCurated());
-//						dto.getMgiPredicted().add(db.isMgiPredicted());
-//						dto.getImpcPredicted().add(db.isImpcPredicted());
-//						dto.getMgiPredictedKnownGene().add(db.isMgiPredictedKnownGene());
-//						dto.getImpcPredictedKnownGene().add(db.isImpcPredictedKnownGene());
-//						dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
-//						dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
-//						if (db.getDiseaseHumanPhenotypes() != null) {
-//							dto.getDiseaseHumanPhenotypes().addAll(db.getDiseaseHumanPhenotypes());
-//						}
-//					}
-//					start += BATCH_SIZE;
-//				}
-//				logger.debug("Processed {} rows for {}", count, id);
-//			} catch (SolrServerException e) {
-//				logger.error("Solr exception looking up ES cell status for {}: {}", id, e.getMessage());
-//			}
 
 			AlleleDTO dto = alleles.get(id);
 
@@ -444,15 +356,16 @@ public class AlleleIndexer {
 	}
 
 	private void doSangerAlleleMapping(Map<String, AlleleDTO> alleles) {
+
 		for (AlleleDTO allele : alleles.values()) {
-			if (StringUtils.isNotBlank(allele.getLatestPhenotypeStatus())) {
+			if (allele.getLatestPhenotypeStatus() != null) {
 				allele.setImitsPhenotypeStatus(allele.getLatestPhenotypeStatus());
 			}
 
-			if (StringUtils.isNotBlank(allele.getImitsEsCellStatus()) || StringUtils.isNotBlank(allele.getGeneLatestEsCellStatus())) {
+			if (allele.getImitsEsCellStatus()!=null || allele.getGeneLatestEsCellStatus()!=null) {
 				String esCellStatus = null;
 				boolean latest;
-				if (StringUtils.isNotBlank(allele.getImitsEsCellStatus())) {
+				if (allele.getImitsEsCellStatus()!=null) {
 					esCellStatus = allele.getImitsEsCellStatus();
 					latest = false;
 				} else {
@@ -465,7 +378,7 @@ public class AlleleIndexer {
 				}
 
 				if (latest) {
-					if (StringUtils.isNotBlank(esCellStatus)) {
+					if (esCellStatus!=null) {
 						allele.setLatestProductionStatus(esCellStatus);
 					}
 					allele.setLatestEsCellStatus(esCellStatus);
@@ -474,10 +387,10 @@ public class AlleleIndexer {
 				}
 			}
 
-			if (StringUtils.isNotBlank(allele.getImitsMouseStatus()) || StringUtils.isNotBlank(allele.getGeneLatestMouseStatus())) {
+			if (allele.getImitsMouseStatus()!=null || allele.getGeneLatestMouseStatus()!=null) {
 				String mouseStatus = null;
 				boolean latest;
-				if (StringUtils.isNotBlank(allele.getImitsMouseStatus())) {
+				if (allele.getImitsMouseStatus()!=null) {
 					mouseStatus = allele.getImitsMouseStatus();
 					latest = false;
 				} else {
@@ -490,7 +403,7 @@ public class AlleleIndexer {
 				}
 
 				if (latest) {
-					if (StringUtils.isNotBlank(mouseStatus)) {
+					if (mouseStatus!=null) {
 						allele.setLatestProductionStatus(mouseStatus);
 					}
 					allele.setLatestMouseStatus(mouseStatus);

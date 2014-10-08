@@ -15,10 +15,10 @@
  */
 package uk.ac.ebi.phenotype.service.dto;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.solr.client.solrj.beans.Field;
 
 /**
  * @author Matt Pearce
@@ -46,7 +46,6 @@ public class AlleleDTO {
 	public static final String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
 	public static final String IMITS_PHENOTYPE_STATUS = "imits_phenotype_status";
 	public static final String GF_ACC = "gf_acc";
-	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
 	public static final String LATEST_PRODUCTION_CENTRE = "latest_production_centre";
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
 	public static final String ALLELE_NAME = "allele_name";
@@ -71,8 +70,6 @@ public class AlleleDTO {
 	public static final String MGI_NOVEL_PREDICTED_IN_LOCUS = "mgi_novel_predicted_in_locus";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS = "impc_novel_predicted_in_locus";
 	public static final String DISEASE_HUMAN_PHENOTYPES = "disease_human_phenotypes";
-	public static final String QC_GENE = "qcGene";
-	public static final String HAS_QC = "hasQc";
 
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;
@@ -114,8 +111,6 @@ public class AlleleDTO {
 
 	@Field(GF_ACC)
 	private String gfAcc;
-	@Field(LEGACY_PHENOTYPE_STATUS)
-	private int legacyPhenotypeStatus;
 
 	@Field(LATEST_PHENOTYPING_CENTRE)
 	private List<String> latestPhenotypingCentre;
@@ -167,10 +162,6 @@ public class AlleleDTO {
 	private List<Boolean> impcNovelPredictedInLocus = new ArrayList<>();
 	@Field(DISEASE_HUMAN_PHENOTYPES)
 	private List<String> diseaseHumanPhenotypes = new ArrayList<>();
-	@Field(QC_GENE)
-	private String qcGene;
-	@Field(HAS_QC)
-	private int hasQc;
 
 	/**
 	 * @return the mgiAccessionId
@@ -440,21 +431,6 @@ public class AlleleDTO {
 	 */
 	public void setGfAcc(String gfAcc) {
 		this.gfAcc = gfAcc;
-	}
-
-	/**
-	 * @return the legacyPhenotypeStatus
-	 */
-	public int getLegacyPhenotypeStatus() {
-		return legacyPhenotypeStatus;
-	}
-
-	/**
-	 * @param legacyPhenotypeStatus
-	 *            the legacyPhenotypeStatus to set
-	 */
-	public void setLegacyPhenotypeStatus(int legacyPhenotypeStatus) {
-		this.legacyPhenotypeStatus = legacyPhenotypeStatus;
 	}
 
 	/**
@@ -809,38 +785,60 @@ public class AlleleDTO {
 	}
 
 	/**
-	 * @param latestProductionCentre the latestProductionCentre to set
+	 * @returnthe latestProductionCentre
 	 */
 	public List<String> getLatestProductionCentre() {
 		return latestProductionCentre;
 	}
 
-	/**
-	 * @return the qcGene
-	 */
-	public String getQcGene() {
-		return qcGene;
-	}
 
-	/**
-	 * @param qcGene the qcGene to set
-	 */
-	public void setQcGene(String qcGene) {
-		this.qcGene = qcGene;
-	}
 
-	/**
-	 * @return the hasQc
-	 */
-	public int getHasQc() {
-		return hasQc;
-	}
+	@Override
+	public String toString() {
 
-	/**
-	 * @param hasQc the hasQc to set
-	 */
-	public void setHasQc(int hasQc) {
-		this.hasQc = hasQc;
+		return "AlleleDTO{" +
+			"mgiAccessionId='" + mgiAccessionId + '\'' +
+			", dataType='" + dataType + '\'' +
+			", markerType='" + markerType + '\'' +
+			", markerSymbol='" + markerSymbol + '\'' +
+			", markerSynonym=" + markerSynonym +
+			", markerName='" + markerName + '\'' +
+			", humanGeneSymbol=" + humanGeneSymbol +
+			", geneLatestEsCellStatus='" + geneLatestEsCellStatus + '\'' +
+			", latestEsCellStatus='" + latestEsCellStatus + '\'' +
+			", geneLatestMouseStatus='" + geneLatestMouseStatus + '\'' +
+			", latestMouseStatus='" + latestMouseStatus + '\'' +
+			", latestProjectStatus='" + latestProjectStatus + '\'' +
+			", latestProductionStatus='" + latestProductionStatus + '\'' +
+			", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
+			", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
+			", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
+			", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
+			", gfAcc='" + gfAcc + '\'' +
+			", latestPhenotypingCentre=" + latestPhenotypingCentre +
+			", latestProductionCentre=" + latestProductionCentre +
+			", alleleName=" + alleleName +
+			", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
+			", esCellStatus=" + esCellStatus +
+			", imitsMouseStatus='" + imitsMouseStatus + '\'' +
+			", mouseStatus=" + mouseStatus +
+			", phenotypeStatus=" + phenotypeStatus +
+			", productionCentre=" + productionCentre +
+			", phenotypingCentre=" + phenotypingCentre +
+			", diseaseId=" + diseaseId +
+			", diseaseSource=" + diseaseSource +
+			", diseaseTerm=" + diseaseTerm +
+			", diseaseAlts=" + diseaseAlts +
+			", diseaseClasses=" + diseaseClasses +
+			", humanCurated=" + humanCurated +
+			", mouseCurated=" + mouseCurated +
+			", mgiPredicted=" + mgiPredicted +
+			", impcPredicted=" + impcPredicted +
+			", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
+			", impcPredictedKnownGene=" + impcPredictedKnownGene +
+			", mgiNovelPredictedInLocus=" + mgiNovelPredictedInLocus +
+			", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
+			", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes +
+			'}';
 	}
-
 }
