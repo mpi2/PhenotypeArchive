@@ -70,7 +70,7 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
-	    			console.log(json);
+	    			//console.log(json);
 	    				    	    	
 	    	    	//var aTopLevelCount = json.facet_counts.facet_fields['annotatedHigherLevelMpTermName'];	 
 	    	    	var aTopLevelCount = json.facet_counts.facet_fields[facetField];
@@ -99,7 +99,7 @@
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
 						liContainer.append(chkbox, flabel, fcount);
-						console.log(topLevelName + ' : '+ count);
+						
 						if ( topLevelName == 'reproductive system phenotype' ){
 							flabel.addClass('fertility');
 							liContainer_fertile = liContainer;
@@ -113,6 +113,7 @@
 						}
 	    	    	} 
 	    	    	
+	    	    	// move these 2 top level MPs to top of facet list
 	    	    	mpUlContainer.prepend(liContainer_fertile);
 	    	    	mpUlContainer.prepend(liContainer_viable);
 	    	    	
