@@ -57,8 +57,8 @@ jQuery(document).ready(	function() {
 		timeout: 2000,
 		success: function (response) {
                     
-                    console.log("genesAllele2:");
-                    console.log(response);
+                  //  console.log("genesAllele2:");
+                  //  console.log(response);
                     
                     $('#allele2').html(response);			
 		}
@@ -72,15 +72,30 @@ jQuery(document).ready(	function() {
             var type = $(this).data("type");
             var name = $(this).data("name");
             var alleleType = $(this).data("alleletype");
-      
-            var url = '../../qc_data/' + alleleType + '/' + type + '/' + name;
+            
+            var url = '../../qc_data/' + alleleType + '/' + type + '/' + name + "?simple=true";
+
+            if(! alleleType || ! type || ! name) {
+                console.log("#### ignore: " + url);
+                $(this).html('<p>Not found!</p>');
+                return;
+            }
+                  
+        //    console.log("url: " + url);
+            
         	$.ajax({
 		    url: url,    
 		    timeout: 2000,
                     context: this,
 		    success: function (response) {
-			$(this).html(response);
-
+                        
+                        try {
+                            $(this).html(response);
+                        }
+                        catch(err) {
+                            console.log("#### Exception: " + err);
+                        }
+                       
 		    }
 		    ,error: function(x, t, m) {
 			var errorMsg='<td>QC Data Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve QC Data infomation</font></td>';
