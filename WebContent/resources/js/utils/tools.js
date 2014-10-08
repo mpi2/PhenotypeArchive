@@ -1047,7 +1047,7 @@
             var facet = this.facet;
             var qField = this.qField;
             var qValue = this.qValue;
-console.log(qField + ' --- ' + qValue);
+
             var thisLi = $('ul#facetFilter li.' + facet);
 
             if (!$('div.ffilter').is(':visible')) {
