@@ -1094,7 +1094,8 @@
                 filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
             }
             if (facet == 'disease') {
-                filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[qField];
+                filterTxt = typeof MPI2.searchAndFacetConfig.facetFilterLabel[qField] == 'undefined' ? qValue 
+                		: MPI2.searchAndFacetConfig.facetFilterLabel[qField];
             }
 
             var a = $('<a></a>').attr({'rel': oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));
