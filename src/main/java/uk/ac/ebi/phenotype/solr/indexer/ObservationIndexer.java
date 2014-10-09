@@ -220,6 +220,10 @@ public class ObservationIndexer {
 					// Line level data
 
 					BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
+					if (b == null) {
+						logger.error("Cannot find biological model for experiment {}", r.getString("experiment_id"));
+						continue;
+					}
 					o.setBiologicalModelId(b.biologicalModelId);
 					o.setGeneAccession(b.geneAcc);
 					o.setGeneSymbol(b.geneSymbol);
