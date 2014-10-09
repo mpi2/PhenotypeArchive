@@ -102,7 +102,7 @@ public class AlleleIndexer {
 		this.alleleCore = new HttpSolrServer(ALLELE_URL);
 	}
 
-	public void run() {
+	public void run() throws IOException, SolrServerException {
 		int start = 0;
 		long rows = 0;
 		long startTime = new Date().getTime();
@@ -110,60 +110,54 @@ public class AlleleIndexer {
 		query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
 		query.setRows(BATCH_SIZE);
 
-		try {
+		logger.info("Populating lookups");
 
-			logger.info("Populating lookups");
+		populateStatusLookup();
+		logger.info("Populated status lookup, {} records", statusLookup.size());
 
-			populateStatusLookup();
-			logger.info("Populated status lookup, {} records", statusLookup.size());
+		populateDiseaseLookup();
+		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
-			populateDiseaseLookup();
-			logger.info("Populated disease lookup, {} records", diseaseLookup.size());
+		alleleCore.deleteByQuery("*:*");
+		alleleCore.commit();
 
-			alleleCore.deleteByQuery("*:*");
-			alleleCore.commit();
+		while (start <= rows) {
+			query.setStart(start);
+			QueryResponse response = sangerAlleleCore.query(query);
+			rows = response.getResults().getNumFound();
+			List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
 
-			while (start <= rows) {
-				query.setStart(start);
-				QueryResponse response = sangerAlleleCore.query(query);
-				rows = response.getResults().getNumFound();
-				List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
+			// Convert to Allele DTOs
+			Map<String, AlleleDTO> alleles = convertSangerGeneBeans(sangerGenes);
 
-				// Convert to Allele DTOs
-				Map<String, AlleleDTO> alleles = convertSangerGeneBeans(sangerGenes);
+			// Look up the marker synonyms
+			lookupMarkerSynonyms(alleles);
 
-				// Look up the marker synonyms
-				lookupMarkerSynonyms(alleles);
+			// Look up the human mouse symbols
+			lookupHumanMouseSymbols(alleles);
 
-				// Look up the human mouse symbols
-				lookupHumanMouseSymbols(alleles);
+			// Do the first set of mappings
+			doSangerAlleleMapping(alleles);
 
-				// Do the first set of mappings
-				doSangerAlleleMapping(alleles);
+			// Look up the ES cell status
+			lookupEsCellStatus(alleles);
 
-				// Look up the ES cell status
-				lookupEsCellStatus(alleles);
+			// Look up the disease data
+			lookupDiseaseData(alleles);
 
-				// Look up the disease data
-				lookupDiseaseData(alleles);
+			// Do the second set of mappings
+			doSangerAlleleMapping(alleles);
 
-				// Do the second set of mappings
-				doSangerAlleleMapping(alleles);
+			// Now index the alleles
+			indexAlleles(alleles);
 
-				// Now index the alleles
-				indexAlleles(alleles);
+			start += BATCH_SIZE;
 
-				start += BATCH_SIZE;
+			logger.info("Indexed {} records", start);
 
-				logger.info("Indexed {} records", start);
-
-			}
-		} catch (SolrServerException e) {
-			logger.error("Solr exception fetching or indexing alleles: {}", e.getMessage());
-		} catch (IOException e) {
-			logger.error("IO Exception indexing alleles: {}", e.getMessage());
 		}
 
+		alleleCore.commit();
 		logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
 	}
 
