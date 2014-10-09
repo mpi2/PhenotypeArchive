@@ -11,12 +11,6 @@
     <div style="font-size: 110%; font-weight: bold;">
         <p>${summary['allele_description']}</p>
         <c:if test="${not empty summary['statuses']}">
-
-
-
-
-        <c:choose>
-        <c:when test="${true}">
         <table>
             <c:if test="${not empty summary['status_mice']}">
 
@@ -24,8 +18,7 @@
 
                     <td style="width:30%">${summary['status_mice']['TEXT']}</td>
 
-                    <td>
-                        
+                    <td>                        
                         
                     <c:if test="${not empty summary['status_mice']['orders']}">
                         <a id="mice_order_contact_button" class="btn btn-lg" href="#mice_block"> <i class="fa fa-shopping-cart"></i> ORDER </a>
@@ -35,8 +28,7 @@
                     </c:if>
                     <c:if test="${not empty summary['status_mice']['details']}">
                         <a class="btn btn-lg" href="${summary['status_mice']['details'][0]}"> <i class="fa  fa-info "></i> DETAILS </a>
-                    </c:if>
-                        
+                    </c:if>                        
                  
                     </td>
 
@@ -50,8 +42,7 @@
 
                     <td style="width:30%">${summary['status_es_cells']['TEXT']}</td>
 
-                    <td>
-                        
+                    <td>                        
 
                     <c:if test="${not empty summary['status_es_cells']['orders']}">
                         <a id="es_cell_order_contact_button" class="btn btn-lg" href="#es_cell_block"> <i class="fa fa-shopping-cart"></i> ORDER </a>
@@ -61,8 +52,7 @@
                     </c:if>
                     <c:if test="${not empty summary['status_es_cells']['details']}">
                         <a class="btn btn-lg" href="${summary['status_es_cells']['details'][0]}"> <i class="fa  fa-envelope"></i> DETAILS </a>
-                    </c:if>
-                        
+                    </c:if>                        
 
                     </td>
 
@@ -70,67 +60,7 @@
 
             </c:if>
         </table>
-
-        </c:when>
-        <c:otherwise>
-
-
-        <table>
-            <c:if test="${not empty summary['status_mice']}">
-
-                <tr style="background-color: ${summary['status_mice']['COLOUR']} !important;">
-
-                    <td style="width:30%">${summary['status_mice']['TEXT']}</td>
-
-                    <td>
-                    <c:forEach var="order" items="${summary['status_mice']['orders']}" varStatus="statusx">
-                        <a class="btn btn-lg" href="${order}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
-                    </c:forEach>
-                    <c:forEach var="contact" items="${summary['status_mice']['contacts']}" varStatus="statusx">
-                        <a class="btn btn-lg" href="${contact}"> <i class="fa  fa-envelope"></i> CONTACT </a>
-                    </c:forEach>
-                    <c:forEach var="detail" items="${summary['status_mice']['details']}" varStatus="statusx">
-                        <a class="btn btn-lg" href="${detail}"> <i class="fa  fa-info "></i> DETAILS </a>
-                    </c:forEach>
-                    </td>
-
-                </tr>
-
-            </c:if>
-
-            <c:if test="${not empty summary['status_es_cells']}">
-
-                <tr style="background-color: ${summary['status_es_cells']['COLOUR']} !important;">
-
-                    <td style="width:30%">${summary['status_es_cells']['TEXT']}</td>
-
-                    <td>
-                    <c:forEach var="order" items="${summary['status_es_cells']['orders']}" varStatus="statusx">
-                        <a class="btn btn-lg" href="${order}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
-                    </c:forEach>
-                    <c:forEach var="contact" items="${summary['status_es_cells']['contacts']}" varStatus="statusx">
-                        <a class="btn btn-lg" href="${contact}"> <i class="fa  fa-envelope"></i> CONTACT </a>
-                    </c:forEach>
-                    <c:forEach var="detail" items="${summary['status_es_cells']['details']}" varStatus="statusx">
-                        <a class="btn btn-lg" href="${detail}"> <i class="fa  fa-envelope"></i> DETAILS </a>
-                    </c:forEach>
-                    </td>
-
-                </tr>
-
-            </c:if>
-        </table>
-
-        </c:otherwise>
-        </c:choose>
-
-
-
-
-
-
-
-
+            
         </c:if>
     </div>
     </div>
@@ -139,17 +69,56 @@
 
 
 
-        <c:if test="${not empty summary['map_image']}">
 	<div class="section">
 		<div class="inner">
-			<h3>Allele Map</h3>
 
+        <c:if test="${not empty summary['map_image']}">
+			<h3>Allele Map</h3>
         <div id="image">
-            <img src="${summary['map_image']}" width="930px">
+            <img alt="image not found!" src="${summary['map_image']}" width="930px">
         </div>
         </c:if>
 
+
+                        
+                        
+                        <style>
+                            .wrap_table  { display: block; }
+                            .wrap_table  td {display: inline-block; }
+                        </style>
+                        
+                        
         <c:if test="${not empty summary['buttons']}">
+
+        <table class="wrap_table">
+                <tr>
+            
+                <c:forEach var="button" items="${summary['button_gear']}" varStatus="buttonx">
+
+                    <td data-count="${buttonx.count}">
+                        <a class="btn" href="${button['url']}"><i class="fa fa-info"></i> ${button['name']} </a>
+                    </td>
+                    
+                </c:forEach>
+
+                </tr>
+
+        </table >
+
+        </c:if>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+        <c:if test="${not empty summary['buttons_xxx']}">
         <table >
             <tr>
             <td>
@@ -212,6 +181,7 @@
         </c:if>
 
 
+            <c:if test="${false}">
         <table>
             <tr>
             <c:if test="${not empty summary['tools']}">
@@ -226,9 +196,10 @@
             </c:if>
             </tr>
         </table>
+            </c:if>
 
 		</div>
 	</div>
                 </div>
 
-                </c:if>
+</c:if>

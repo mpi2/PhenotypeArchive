@@ -1,8 +1,8 @@
 /**
  * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -12,9 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * toggle: used for the image dropdown.
- * 
+ *
  */
 jQuery(document).ready(	function() {
 
@@ -22,25 +22,25 @@ jQuery(document).ready(	function() {
           return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
         }
 
-//code for setting ENU links on Gene Page	
+//code for setting ENU links on Gene Page
 
         var debug = getURLParameter('debug');
         var debugp = "";
-        
-       
+
+
         if(debug && debug === "true") {
-            
+
             debugp = "?debug=true";
-    
+
             $.ajax({
-                    url: '../genesAllele/' + gene_id + debugp,    
+                    url: '../genesAllele/' + gene_id + debugp,
                     timeout: 2000,
                     success: function (response) {
                             $('#allele').html(response);
 
                     }
                     ,error: function(x, t, m) {
-                  //  if(t==="timeout") { 
+                  //  if(t==="timeout") {
                     //log error to gene page so we know this is down not just 0.
                             var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
                     $('#allele').html(errorMsg);
@@ -51,51 +51,63 @@ jQuery(document).ready(	function() {
         else {
             $('#order').hide();
         }
-        
-	$.ajax({
-		url: '../genesAllele2/' + gene_id + debugp,    
-		timeout: 2000,
-		success: function (response) {
-                    
-                  //  console.log("genesAllele2:");
-                  //  console.log(response);
-                    
-                    $('#allele2').html(response);			
-		}
-		,error: function(x, t, m) {
-                    var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
-                    $('#allele2').html(errorMsg);
-                }
-	});
-                
+
+        //console.log("####  url:" + '../genesAllele2/' + gene_id + debugp);
+        //console.log("####  baseUrl:" + baseUrl);
+        //console.log("####  url:" + baseUrl + '/genesAllele2/' + gene_id + debugp);
+
+        try {
+            $.ajax({
+                    //url: '../genesAllele2/' + gene_id + debugp,
+                    url: baseUrl + '/genesAllele2/' + gene_id + debugp,
+
+                    timeout: 2000,
+                    success: function (response) {
+
+                      //  console.log("genesAllele2:");
+                      //  console.log(response);
+
+                        $('#allele2').html(response);
+                    }
+                    ,error: function(x, t, m) {
+                        var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
+                        $('#allele2').html(errorMsg);
+                    }
+            });
+        }
+        catch(err) {
+            console.log("#### Exception: " + err);
+        }
+
         $('.qcData').each(function(){
             var type = $(this).data("type");
             var name = $(this).data("name");
             var alleleType = $(this).data("alleletype");
-            
-            var url = '../../qc_data/' + alleleType + '/' + type + '/' + name + "?simple=true";
+
+            //var url = '../../qc_data/' + alleleType + '/' + type + '/' + name + "?simple=true";
+            var url = baseUrl + '/alleles/qc_data/' + alleleType + '/' + type + '/' + name + "?simple=true";
 
             if(! alleleType || ! type || ! name) {
-                console.log("#### ignore: " + url);
+                //console.log("#### ignore: " + url);
                 $(this).html('<p>Not found!</p>');
                 return;
             }
-                  
-        //    console.log("url: " + url);
-            
+
+            //console.log("#### 2. url: " + url);
+
         	$.ajax({
-		    url: url,    
+		    url: url,
 		    timeout: 2000,
                     context: this,
 		    success: function (response) {
-                        
+
                         try {
                             $(this).html(response);
                         }
                         catch(err) {
                             console.log("#### Exception: " + err);
                         }
-                       
+
 		    }
 		    ,error: function(x, t, m) {
 			var errorMsg='<td>QC Data Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve QC Data infomation</font></td>';
@@ -121,7 +133,7 @@ jQuery(document).ready(	function() {
         $(target).on({'click':function(event){
         event.preventDefault();
         $("#" + id + " .rest").toggle("fast");
-        
+
         if($(target).hasClass("toggle_closed")) {
             $(target).removeClass("toggle_closed");
             $(target).addClass("toggle_open");
