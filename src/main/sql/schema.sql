@@ -553,7 +553,7 @@ CREATE TABLE live_sample (
 	developmental_stage_db_id INT(10) NOT NULL, 
 	sex                       ENUM('female', 'hermaphrodite', 'male'),
 	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
-	date_of_birth             TIMESTAMP,
+	date_of_birth             TIMESTAMP NULL,
 	
 	PRIMARY KEY (id),
 	KEY colony_idx (colony_id),
