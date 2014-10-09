@@ -1159,6 +1159,7 @@ public class SolrIndex2 {
 
     class CassetteAlleleTypeManager {
         private Map<String, Boolean> _map;      // = new HashMap<>();
+        @SuppressWarnings("FieldMayBeFinal")
         private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
         private CassetteAlleleTypeManager() {
@@ -1198,7 +1199,7 @@ public class SolrIndex2 {
             
             //return _map.containsKey(allele_name + cassette + allele_type);
             boolean b = _map.containsKey(cassette + allele_type);
-            log.info("#### CassetteAlleleTypeManager: has: b: '" + b);
+            log.info("#### CassetteAlleleTypeManager: has: b: " + b);
             return b;
         }
     }
