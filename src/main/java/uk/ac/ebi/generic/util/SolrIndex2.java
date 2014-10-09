@@ -1153,10 +1153,13 @@ public class SolrIndex2 {
             return null;
         }
     }
+    
+    //3. Only display Targeting Vectors if the targeting vector is different from all the targeting_vectors that created the ES Cells. 
+    //The targeting vector is only considered to be different if the cassette and allele_type is different
 
     class CassetteAlleleTypeManager {
-        private Map<String, Boolean> _map = new HashMap<>();
-      //  private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+        private Map<String, Boolean> _map;      // = new HashMap<>();
+        private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
         private CassetteAlleleTypeManager() {
         }
@@ -1170,10 +1173,12 @@ public class SolrIndex2 {
             for(Map<String, Object> item : list) {
                 put(item);
             }
+         
+            log.info("#### CassetteAlleleTypeManager: _map: " + _map);
         }
 
         public void put(Map<String, Object> es_cell) {
-            String allele_name = (String)es_cell.get("allele_name");
+          //  String allele_name = (String)es_cell.get("allele_name");
             String cassette = (String)es_cell.get("cassette");
             String allele_type = (String)es_cell.get("allele_type");
 
@@ -1182,16 +1187,19 @@ public class SolrIndex2 {
 
          //   log.info("#### CassetteAlleleTypeManager: put: '" + allele_name + "' '" + cassette + "' '" + allele_type + "'");
         }
-        public boolean has(Map<String, Object> es_cell) {
-            String allele_name = (String)es_cell.get("allele_name");
-            String cassette = (String)es_cell.get("cassette");
-            String allele_type = (String)es_cell.get("allele_type");
+        public boolean has(Map<String, Object> tv) {
+          //  String allele_name = (String)es_cell.get("allele_name");
+            String cassette = (String)tv.get("cassette");
+            String allele_type = (String)tv.get("allele_type");
 
             //log.info("#### CassetteAlleleTypeManager: has: " + allele_name + cassette + allele_type);
          //   log.info("#### CassetteAlleleTypeManager: has: '" + allele_name + "' '" + cassette + "' '" + allele_type + "'");
+            log.info("#### CassetteAlleleTypeManager: has: '" + cassette + "' '" + allele_type + "'");
             
             //return _map.containsKey(allele_name + cassette + allele_type);
-            return _map.containsKey(cassette + allele_type);
+            boolean b = _map.containsKey(cassette + allele_type);
+            log.info("#### CassetteAlleleTypeManager: has: b: '" + b);
+            return b;
         }
     }
 
@@ -1260,10 +1268,13 @@ public class SolrIndex2 {
             targeting_vector_names.put((String)es_cell.get("targeting_vector"), true);
         }
 
-        targeting_vectors = filterGeneProductInfo2TargetingVectors(targeting_vectors);
+       // targeting_vectors = filterGeneProductInfo2TargetingVectors(targeting_vectors);
 
         for(Map<String, Object> targeting_vector : targeting_vectors) {
-            if( ! cat_mgr.has(targeting_vector) && ! targeting_vector_names.containsKey((String)targeting_vector.get("name")) ) {
+            //if( ! cat_mgr.has(targeting_vector) && ! targeting_vector_names.containsKey((String)targeting_vector.get("name")) ) {
+            //if( ! targeting_vector_names.containsKey((String)targeting_vector.get("name")) ) {
+            if( ! cat_mgr.has(targeting_vector) ) {
+                cat_mgr.put(targeting_vector);
                 array.add(targeting_vector);
             }
         }
@@ -1321,7 +1332,7 @@ public class SolrIndex2 {
 
         return mapper;
     }
-
+   
     private Map<String, Object> getSummary(
             String accession,
             String allele_name,
@@ -1419,9 +1430,88 @@ public class SolrIndex2 {
             return null;
         }
 
-        return summaries.get(0);
+        Map<String, Object> s = summaries.get(0);
+        
+        s.put("button_gear", getSummaryDetails(mapper, s));
+        
+        return s;
     }
 
+    private Map<String, Object> addButton(String key, String value) {
+        Map<String, Object> button = new HashMap<>();
+        button.put("name", key);
+        button.put("url", value);
+        return button;
+    }
+    
+    private List<Map<String, Object>> getSummaryDetails(Map<String, Object> mapper, Map<String, Object> s) {
+        List<Map<String, Object>> buttons = new ArrayList<>();
+
+        if(s.containsKey("genbank")) {
+            buttons.add(addButton("Genbank File", (String)s.get("genbank")));
+        }
+        if(s.containsKey("mutagenesis_url")) {
+            buttons.add(addButton("Mutagenesis Prediction", (String)s.get("mutagenesis_url")));
+        }
+        if(s.containsKey("southern_tool")) {
+            buttons.add(addButton("Southern Tool", (String)s.get("southern_tool")));
+        }
+        if(s.containsKey("lrpcr_genotyping_primers")) {
+            buttons.add(addButton("LRPCR Genotyping Primers", (String)s.get("lrpcr_genotyping_primers")));
+        }
+        
+        if(s.containsKey("browsers")) {
+            List<HashMap<String, String>> l = (List<HashMap<String, String>>)s.get("browsers");
+            if(l.size() > 0) {
+                buttons.add(addButton("Ensembl", (String)l.get(0).get("url")));        
+            }
+        }
+        
+        if(mapper.containsKey("loa_assays")) {
+            Map<String, String> ll = (Map<String, String>)mapper.get("loa_assays");
+            
+           // log.info("#### getSummaryDetails: ll: " + ll);
+
+            if(ll != null && ll.containsKey("upstream")) {
+                buttons.add(addButton("LOA (upstream)", (String)ll.get("upstream")));
+            }
+            if(ll != null && ll.containsKey("downstream")) {
+                buttons.add(addButton("LOA (downstream)", (String)ll.get("downstream")));
+            }
+            if(ll != null && ll.containsKey("critical")) {
+                buttons.add(addButton("LOA (critical)", (String)ll.get("critical")));
+            }
+        }
+        
+//        for(int i =0; i< 10; i++) {
+//            buttons.add(addButton("hello! hello! hello!", "whatever"));
+//        }
+
+        log.info("#### getSummaryDetails: buttons: " + buttons);
+        
+        return buttons;
+    }    
+    
+    private List<Map<String, Object>> getSummaryDetails_1(Map<String, Object> mapper, Map<String, Object> s) {
+        List<Map<String, Object>> buttons = new ArrayList<>();
+
+        buttons.add(addButton("Genbank File", (String)s.get("genbank")));
+        buttons.add(addButton("Mutagenesis Prediction", (String)s.get("mutagenesis_url")));
+        buttons.add(addButton("Southern Tool", (String)s.get("southern_tool")));
+        buttons.add(addButton("LRPCR Genotyping Primers", (String)s.get("lrpcr_genotyping_primers")));
+        
+        List<HashMap<String, String>> l = (List<HashMap<String, String>>)s.get("browsers");
+        buttons.add(addButton("Ensembl", (String)l.get(0).get("url")));        
+                
+        Map<String, String> ll = (Map<String, String>)mapper.get("loa_assays");
+
+        buttons.add(addButton("LOA (upstream)", (String)ll.get("upstream")));
+        buttons.add(addButton("LOA (downstream)", (String)ll.get("downstream")));
+        buttons.add(addButton("LOA (critical)", (String)ll.get("critical")));
+        
+        return buttons;
+    }    
+    
     // Allele Type:{allele type} Design_id: {design_id} Cassette: {cassette}
 
     private void fixAlleleName(Map<String, Object> targeting_vector) {
