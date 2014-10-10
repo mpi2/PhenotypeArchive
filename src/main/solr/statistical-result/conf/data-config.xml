@@ -85,7 +85,7 @@
                         gender_female_ko_estimate, gender_female_ko_stderr_estimate, gender_female_ko_pvalue,
                         gender_male_ko_estimate, gender_male_ko_stderr_estimate, gender_male_ko_pvalue,
                         classification_tag, additional_information
-                    FROM stats_unidimensional_results)
+                    FROM stats_unidimensional_results WHERE dependent_variable NOT LIKE '%FER%' AND dependent_variable NOT LIKE '%VIA%')
                     UNION ALL
                         (SELECT
                         CONCAT(dependent_variable, '_', id) as doc_id,
@@ -108,7 +108,7 @@
                         NULL AS gender_female_ko_estimate, NULL AS gender_female_ko_stderr_estimate, NULL AS gender_female_ko_pvalue,
                         NULL AS gender_male_ko_estimate, NULL AS gender_male_ko_stderr_estimate, NULL AS gender_male_ko_pvalue,
                         NULL AS classification_tag, NULL AS additional_information
-                    FROM stats_categorical_results)
+                    FROM stats_categorical_results WHERE dependent_variable NOT LIKE '%FER%' AND dependent_variable NOT LIKE '%VIA%')
     			">
 
             <field name="doc_id" column="doc_id"/>
