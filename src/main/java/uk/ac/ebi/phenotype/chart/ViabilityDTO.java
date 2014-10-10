@@ -9,8 +9,25 @@ public class ViabilityDTO {
 	private String totalChart = "";
 	private String maleChart="";
 	private String femaleChart="";
+	String category="";//should get set to e.g. Homozygous - Viable
 
 	
+	
+	public String getCategory() {
+	
+		return category;
+	}
+
+
+
+	
+	public void setCategory(String category) {
+	
+		this.category = category;
+	}
+
+
+
 	public String getTotalChart() {
 		return totalChart;
 	}
