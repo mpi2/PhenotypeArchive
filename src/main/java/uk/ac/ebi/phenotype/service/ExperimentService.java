@@ -491,27 +491,7 @@ public class ExperimentService {
         return viabilityDTO;
     }
 
-    /**
-     * first method to call to populate the viabilityDTO
-     * @param parameterId
-     * @param pipelineId
-     * @param acc
-     * @param object
-     * @param phenotypingCenterId
-     * @param object2
-     * @param strain
-     * @param metadataGroup
-     * @param includeResults
-     * @param alleleAccession
-     * @return
-     */
-    private ViabilityDTO getViabilityOutcome(Integer parameterId, Integer pipelineId, String acc, Object object, Integer phenotypingCenterId, Object object2, String strain, String metadataGroup, boolean includeResults, String alleleAccession) {
-    	ViabilityDTO viabilityDTO=new ViabilityDTO();
-		ObservationDTO observation = os.getViabilityObservation(parameterId, pipelineId, acc, phenotypingCenterId, strain, metadataGroup, false, alleleAccession);
-		return null;
-	}
-
-	/**
+   	/**
      * Should only return 1 experimentDTO - returns null if none and exception
      * if more than 1 - used by ajax charts
      * 
