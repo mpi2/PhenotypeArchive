@@ -199,13 +199,13 @@ public class ImageService {
 		c.add(Calendar.DATE, 7);
 		Date after = c.getTime();
 		//1995-12-31T23:59:59.999Z
-		System.out.println("date="+date+"weekBefore="+before);
+		//System.out.println("date="+date+"weekBefore="+before);
 		String fromDate = org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(before);
 		String toDate=org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(after);
-		System.out.println("date="+fromDate+"weekBefore="+toDate);
+		//System.out.println("date="+fromDate+"weekBefore="+toDate);
 		solrQuery.addFilterQuery("date_of_experiment:["+fromDate+" TO "+toDate+"]");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println(solrQuery);
+		//System.out.println(solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;

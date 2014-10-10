@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.chart.ViabilityDTO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
@@ -179,6 +180,7 @@ public class ExperimentService {
              if (experiment.getAlleleAccession() == null) {
                 experiment.setAlleleAccession(observation.getAlleleAccession());
             }
+             
 
             experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
             experiment.getSexes().add(SexType.valueOf(observation.getSex()));
@@ -461,8 +463,46 @@ public class ExperimentService {
         LOG.debug("--- getting p for : " + parameterStableId);
         return getExperimentDTO(p.getId(), pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
     }
-
+    
     /**
+     * Should only return 1 experimentDTO - returns null if none and exception
+     * if more than 1 - used by ajax charts
+     * 
+     * @param parameterId
+     * @param acc
+     * @param genderList
+     * @param zyList
+     * @param phenotypingCenterId
+     * @param strain
+     * @param metadataGroup
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws SpecificExperimentException
+     */
+    public ViabilityDTO getSpecificViabilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
+        ViabilityDTO viabilityDTO=new ViabilityDTO();
+        Map<String, Float> paramNameToDataPoint = new HashMap<>();
+            //for viability we don't need to filter on Sex or Zygosity
+        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+        ObservationDTO outcomeObservation = observations.get(0);  
+        System.out.println("specific outcome="+observations);
+           System.out.println("category of observation="+outcomeObservation.getCategory());
+       viabilityDTO.setCategory(observations.get(0).getCategory());
+       for(int i=3;i<13; i++){
+    	   String formatted = String.format("%02d",i);
+           System.out.println("Number with leading zeros: " + formatted);
+    	   String param="IMPC_VIA_0"+formatted+"_001";
+           List<ObservationDTO> observationsForCounts = os.getViabilityData(param, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+           System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
+           System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
+           paramNameToDataPoint.put(param,observationsForCounts.get(0).getDataPoint() );
+       }
+        return viabilityDTO;
+    }
+
+   	/**
      * Should only return 1 experimentDTO - returns null if none and exception
      * if more than 1 - used by ajax charts
      * 

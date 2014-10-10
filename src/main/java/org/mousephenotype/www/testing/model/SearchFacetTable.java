@@ -72,7 +72,7 @@ public abstract class SearchFacetTable {
     public void clickToolbox(SearchPage.WindowState desiredWindowState) {
         String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
         switch (desiredWindowState) {
-            case CLOSE:
+            case CLOSED:
                 if (style.contains("block;"))
                     driver.findElement(By.xpath("//span[@id='dnld']")).click();
                 break;
@@ -89,7 +89,7 @@ public abstract class SearchFacetTable {
      */
     public SearchPage.WindowState getToolboxState() {
         String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        return (style.contains("block;") ? SearchPage.WindowState.OPEN : SearchPage.WindowState.CLOSE);
+        return (style.contains("block;") ? SearchPage.WindowState.OPEN : SearchPage.WindowState.CLOSED);
     }
 
     /**
