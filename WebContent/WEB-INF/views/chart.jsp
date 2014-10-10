@@ -11,7 +11,9 @@
 <c:otherwise>
 										
 									
-
+<c:if test="${viabilityDTO!=null}">
+ 	<h1 class="title">${viabilityDTO.category}</h1>
+ 	</c:if>
 	<h2 class="title" id="section-associations"> 
 						Allele -
 		<t:formatAllele>${symbol}</t:formatAllele>

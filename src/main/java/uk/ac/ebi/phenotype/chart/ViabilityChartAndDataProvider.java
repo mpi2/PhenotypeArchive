@@ -18,7 +18,7 @@ public class ViabilityChartAndDataProvider {
 		totalLabelToNumber.put("WT", 10);
 		totalLabelToNumber.put("HET", 10);
 		totalLabelToNumber.put("HOM", 20);
-		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (male and female)");
+		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)");
 		viabilityDTO.setTotalChart(totalChart);
 		
 		Map<String, Integer> maleLabelToNumber = new HashMap<>();

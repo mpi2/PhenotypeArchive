@@ -3,8 +3,8 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
  	<!-- PieChart here -->
- 	<%-- ${viabilityDTO.totalChart} --%>
  	<c:if test="${viabilityDTO!=null}">
+ 
             		<div id="totalChart">
 								</div>
    								<script type="text/javascript">

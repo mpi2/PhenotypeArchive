@@ -581,6 +581,52 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
 	}
+	
+	public List<ObservationDTO> getViabilityData(String parameterStableId, Integer pipelineId, String gene, List<String> zygosities, Integer organisationId, String strain, SexType sex, String metaDataGroup, String alleleAccession)
+	throws SolrServerException {
+
+		List<ObservationDTO> resultsDTO;
+		SolrQuery query = new SolrQuery()
+			.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + gene.replace(":", "\\:"))
+			.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
+			.setStart(0)
+			.setRows(10000);
+
+		if (pipelineId != null) {
+			query.addFilterQuery(ObservationDTO.PIPELINE_ID + ":" + pipelineId);
+		}
+
+		if (zygosities != null && zygosities.size() > 0 && zygosities.size() != 3) {
+			if (zygosities.size() == 2) {
+				query.addFilterQuery(ObservationDTO.ZYGOSITY + ":(" + zygosities.get(0) + " OR " + zygosities.get(1) + ")");
+			} else {
+				if (!zygosities.get(0).equalsIgnoreCase("null")) {
+					query.addFilterQuery(ObservationDTO.ZYGOSITY + ":" + zygosities.get(0));
+				}
+			}
+
+		}
+		if (strain != null) {
+			query.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:"));
+		}
+		if (organisationId != null) {
+			query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER_ID + ":" + organisationId);
+		}
+		if (sex != null) {
+			query.addFilterQuery(ObservationDTO.SEX + ":" + sex);
+		}
+		if (metaDataGroup != null) {
+			query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":\"" + metaDataGroup + "\"");
+		}
+		if (alleleAccession != null) {
+			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
+		}
+		System.out.println("observation  service query = " + query);
+
+		QueryResponse response = solr.query(query);
+		resultsDTO = response.getBeans(ObservationDTO.class);
+		return resultsDTO;
+	}
 
 	/**
 	 * Return a list of a triplets of pipeline stable id, phenotyping center and
