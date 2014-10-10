@@ -251,12 +251,16 @@ public class ChartsController {
             pipelineId = pipeline.getId();
         }
 
+        ExperimentDTO experiment=null;
         //@TODO move this as this is just for testing
-        if(chartType==ChartType.PIE){
-        	//for now lets make up an experiment
-        	return viability(model, null, null);
-        }
-        ExperimentDTO experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
+        if(parameterStableId.equals("IMPC_VIA_001_001")){
+       	//Its a viability outcome param which means its a line level query so we don't use the normal experiment query in experiment service
+        ViabilityDTO viability=experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, 
+    	strain, metaDataGroupString, alleleAccession);
+       
+       	return viability(model, null, viability);
+       }
+        experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
         	strain, metaDataGroupString, alleleAccession);
         System.out.println("experiment="+experiment);
         
@@ -337,10 +341,6 @@ public class ChartsController {
                 			 model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
                 			 break;
                 			 
-                		 case PIE:
-                			 
-                			 viability(model, parameter, experiment);
-                			 break;
                 		 default:
 
                 			 // Trying to graph Unknown observation type
@@ -371,10 +371,8 @@ public class ChartsController {
         return "chart";
     }
 
-	private String viability(Model model, Parameter parameter, ExperimentDTO experiment) {
-
-		ViabilityDTO viabilityDTO;
-		viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, experiment);
+	private String viability(Model model, Parameter parameter, ViabilityDTO viabilityDTO) {
+		viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viabilityDTO);
 		 model.addAttribute("viabilityDTO", viabilityDTO);
 		 return "chart";
 	}
@@ -441,7 +439,7 @@ public class ChartsController {
 		    allParameters = StringUtils.join(pNames, ", ");
 
 	    }// end of gene iterations
-
+System.out.println("all graphs="+StringUtils.join(allGraphUrlSet, "\n"));
         model.addAttribute("allGraphUrlSet", allGraphUrlSet);
 	    model.addAttribute("allParameters", allParameters);
 

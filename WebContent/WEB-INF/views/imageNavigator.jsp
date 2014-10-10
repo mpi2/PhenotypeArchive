@@ -12,9 +12,11 @@
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script src="${baseUrl}/js/imaging/imageComparator.js"></script>
 <script type="text/javascript">
-var mediaBaseUrl = "${mediaBaseUrl}";
-console.log(mediaBaseUrl);
+var baseUrl="${baseUrl}";
 var solrUrl='${solrUrl}';
+var drupalBaseUrl = "${drupalBaseUrl}";
+var mediaBaseUrl = "${mediaBaseUrl}";
+var impcMediaBaseUrl="${impcMediaBaseUrl}";
 </script>
 <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
 </HEAD>
