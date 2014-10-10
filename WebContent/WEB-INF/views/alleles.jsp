@@ -372,7 +372,19 @@
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
                 <td>
-                    <a class="hasTooltip" href="${baseUrl}/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
+                   
+                    
+<c:choose>
+    <c:when test='${not empty mouse["qc_data_url"]}'>
+            <a class="hasTooltip" href="${baseUrl}/${mouse['qc_data_url']}">QC data</a>
+</c:when>
+<c:otherwise>
+            <a class="hasTooltip" href="#">QC data</a>
+</c:otherwise>
+</c:choose>
+                    
+                    
+                    
                     <div class="hidden">
                         <div class="qcData" data-type="mouse" data-name="${mouse['colony_name']}" data-alleletype="${mouse['allele_type']}"></div>
                     </div>
@@ -472,8 +484,20 @@
 
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
-        <td>
-            <a class="hasTooltip" href="${baseUrl}/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
+        <td>           
+            
+<c:choose>
+    <c:when test='${not empty es_cell["qc_data_url"]}'>
+            <a class="hasTooltip" href="${baseUrl}/${es_cell['qc_data_url']}">QC data</a>
+</c:when>
+<c:otherwise>
+            <a class="hasTooltip" href="#">QC data</a>
+</c:otherwise>
+</c:choose>
+            
+            
+            
+            
             <div class="hidden">
                 <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>                    
             </div>

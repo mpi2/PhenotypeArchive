@@ -459,12 +459,23 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata()
 	throws SolrServerException {
 
-		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":unidimensional").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
-																																																																							// at
-																																																																							// least
-																																																																							// 2
-																																																																							// fields
-		ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":unidimensional")
+			.setRows(0)
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetPivotField(StringUtils.join(Arrays.asList(
+				ObservationDTO.PHENOTYPING_CENTER_ID,
+				ObservationDTO.PIPELINE_ID,
+				ObservationDTO.PARAMETER_ID,
+				ObservationDTO.STRAIN_ACCESSION_ID,
+				ObservationDTO.ZYGOSITY,
+				ObservationDTO.METADATA_GROUP,
+				ObservationDTO.ALLELE_ACCESSION_ID,
+				ObservationDTO.GENE_ACCESSION_ID), ","));
 
 		QueryResponse response = solr.query(query);
 
@@ -482,12 +493,17 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	public List<Map<String, String>> getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata()
 	throws SolrServerException {
 
-		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":categorical").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
-																																																																						// at
-																																																																						// least
-																																																																						// 2
-																																																																						// fields
-		ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.SEX + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
+		List<String> pivotFields = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.PIPELINE_ID, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID);
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":categorical")
+			.setRows(0)
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetPivotField(StringUtils.join(pivotFields, ","));
 
 		QueryResponse response = solr.query(query);
 		LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
@@ -501,12 +517,17 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	public List<Map<String, String>> getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadataByParameter(String parameterStableId)
 	throws SolrServerException {
 
-		SolrQuery query = new SolrQuery().setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":categorical").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
-																																																																																				// at
-																																																																																				// least
-																																																																																				// 2
-																																																																																				// fields
-		ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.SEX + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
+		List<String> pivotFields = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.PIPELINE_ID, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID);
+
+		SolrQuery query = new SolrQuery()
+			.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":categorical")
+			.setRows(0)
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetPivotField(StringUtils.join(pivotFields, ","));
 
 		QueryResponse response = solr.query(query);
 
@@ -519,7 +540,11 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	throws SolrServerException {
 
 		List<ObservationDTO> resultsDTO;
-		SolrQuery query = new SolrQuery().setQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + gene.replace(":", "\\:")).addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId).setStart(0).setRows(10000);
+		SolrQuery query = new SolrQuery()
+			.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + gene.replace(":", "\\:"))
+			.addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId)
+			.setStart(0)
+			.setRows(10000);
 
 		if (pipelineId != null) {
 			query.addFilterQuery(ObservationDTO.PIPELINE_ID + ":" + pipelineId);
@@ -529,12 +554,9 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 			if (zygosities.size() == 2) {
 				query.addFilterQuery(ObservationDTO.ZYGOSITY + ":(" + zygosities.get(0) + " OR " + zygosities.get(1) + ")");
 			} else {
-				if (!zygosities.get(0).equalsIgnoreCase("null")) query.addFilterQuery(ObservationDTO.ZYGOSITY + ":" + zygosities.get(0));// only
-																																			// option
-																																			// is
-																																			// one
-																																			// left
-
+				if (!zygosities.get(0).equalsIgnoreCase("null")) {
+					query.addFilterQuery(ObservationDTO.ZYGOSITY + ":" + zygosities.get(0));
+				}
 			}
 
 		}
@@ -559,16 +581,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
 	}
-/*	
-	http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?
-		q=gene_accession_id%3AMGI%5C%3A2652819&fq=parameter_id%3A1217&
-		fq=pipeline_id%3A1&fq=zygosity%3Ahomozygote&fq=strain_accession_id%3AMGI%5C%3A2164831&fq=phenotyping_center_id%3A8&
-		fq=metadata_group%3A%224d983b616ec12c6907a824eb9290cdc5%22&fq=allele_accession_id%3AMGI%5C%3A4435406&start=0&rows=10000
 
-		q=gene_accession_id%3AMGI%5C%3A2652819&fq=parameter_id%3A1223&
-		fq=pipeline_id%3A1&fq=zygosity%3Ahomozygote&fq=strain_accession_id%3AMGI%5C%3A2164831&fq=phenotyping_center_id%3A8&
-		fq=metadata_group%3A%224d983b616ec12c6907a824eb9290cdc5%22&fq=allele_accession_id%3AMGI%5C%3A4435406&start=0&rows=10000
-*/
 	/**
 	 * Return a list of a triplets of pipeline stable id, phenotyping center and
 	 * allele accession

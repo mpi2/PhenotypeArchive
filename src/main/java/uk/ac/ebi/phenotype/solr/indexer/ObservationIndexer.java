@@ -16,6 +16,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import uk.ac.ebi.phenotype.pojo.BiologicalSampleType;
+import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import javax.sql.DataSource;
@@ -187,7 +189,9 @@ public class ObservationIndexer {
 
 				o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).id);
 				o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
-				o.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).stableId);
+				String procedureStableId = procedureMap.get(r.getInt("procedure_id")).stableId;
+				o.setProcedureStableId(procedureStableId);
+				o.setProcedureGroup(procedureStableId.substring(0, procedureStableId.lastIndexOf("_")));
 
 				o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).id);
 				o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
@@ -216,6 +220,10 @@ public class ObservationIndexer {
 					// Line level data
 
 					BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
+					if (b == null) {
+						logger.error("Cannot find biological model for experiment {}", r.getString("experiment_id"));
+						continue;
+					}
 					o.setBiologicalModelId(b.biologicalModelId);
 					o.setGeneAccession(b.geneAcc);
 					o.setGeneSymbol(b.geneSymbol);
@@ -225,6 +233,8 @@ public class ObservationIndexer {
 					o.setStrainName(b.strainName);
 					o.setPhenotypingCenter(b.phenotypingCenterName);
 					o.setPhenotypingCenterId(b.phenotypingCenterId);
+					o.setSex(SexType.not_applicable.getName());
+					o.setZygosity(ZygosityType.not_applicable.getName());
 
 					// All line level parameters are sample group "experimental" due to the nature of the
 					// procedures (i.e. no control mice will go through VIA or FER procedures.)

@@ -2,21 +2,6 @@
 
 	<script type='text/javascript'><![CDATA[
 		
-		function hasQc(row){
-			if (row.get('qcGene')){
-				row.put('hasQc', 1); 
-			}									        		
-	   		return row; 
-		}
-		
-		function srcMapping(row){
-			if (row.get('gf_acc')){
-				row.put('legacy_phenotype_status', '1'); 
-			}	
-						        		
-	   		return row; 
-		}    
-			
 		// mapping for es cell/mouse/phenotyping statuses
 		function mapping(row){
 			if (row.get('mgi_accession_id')){
@@ -156,17 +141,6 @@
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 			<field column="imits_phenotype_status" name="imits_phenotype_status" />
 
-			<!-- legacy project_id:1 (UMODIC), project_id:8 (MGP) -->
-			<entity dataSource="komp2db" name="legacyPipe"
-				processor="CachedSqlEntityProcessor" 
-				query="select distinct project_id, gf_acc from phenotype_call_summary where p_value &lt; 0.0001 and (project_id = 1 OR project_id = 8)"
-				where="gf_acc=doc.mgi_accession_id" 
-				transformer="script:srcMapping" >
-				
-				<field column="gf_acc" naem="gf_acc" />	
-				<field column="legacy_phenotype_status" name="legacy_phenotype_status" />
-			</entity>
-			 
 			<!-- production/phenotyping centers -->
 			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 			<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />							                   	
@@ -197,23 +171,7 @@
                	
 			</entity>
 			
-			
-			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
-			<!-- now use legacy_phenotype_status  
-			<entity dataSource="experiment_core" name="qcCheck" 
-				stream="true"  
-				onError="continue"
-				url="q=gene_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession_id&amp;rows=1"
-				processor="XPathEntityProcessor" 
-				forEach="/response/result/doc/" 
-				transformer="script:hasQc" >				
-
-				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
-				<field column="hasQc" name="hasQc" />		
-			</entity>			
-			-->
-			
-			<!-- disease associated with this gene -->			
+			<!-- disease associated with this gene -->
 			<entity dataSource="phenodigm_core" name="ddoc" 
 				stream="true" 
 				url="q=marker_accession:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:disease_gene_summary&amp;rows=9999999&amp;wt=normal"

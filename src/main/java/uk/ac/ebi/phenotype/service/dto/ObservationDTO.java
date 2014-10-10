@@ -1,13 +1,12 @@
 package uk.ac.ebi.phenotype.service.dto;
 
+import org.apache.solr.client.solrj.beans.Field;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.solr.client.solrj.beans.Field;
-
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 public class ObservationDTO {
 
@@ -35,6 +34,7 @@ public class ObservationDTO {
     public final static String PROCEDURE_ID = "procedure_id";
     public final static String PROCEDURE_NAME = "procedure_name";
     public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
+	public final static String PROCEDURE_GROUP = "procedure_group";
     public final static String PARAMETER_ID = "parameter_id";
     public final static String PARAMETER_NAME = "parameter_name";
     public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
@@ -81,6 +81,9 @@ public class ObservationDTO {
 
     @Field(PROCEDURE_STABLE_ID)
     private String procedureStableId;
+
+	@Field(PROCEDURE_GROUP)
+	private String procedureGroup;
 
     @Field(PARAMETER_STABLE_ID)
     private String parameterStableId;
@@ -371,6 +374,7 @@ public class ObservationDTO {
     @Override
     public String toString() {
         return "id=" + id
+	        + ", procedure=" + procedureGroup
                 + ", parameterId=" + parameterId
                 + ", phenotypingCenterId=" + phenotypingCenterId
                 + ", biologicalModelId=" + biologicalModelId
@@ -449,7 +453,20 @@ public class ObservationDTO {
         this.procedureStableId = procedureStableId;
     }
 
-    /**
+
+	public String getProcedureGroup() {
+
+		return procedureGroup;
+	}
+
+
+	public void setProcedureGroup(String procedureGroup) {
+
+		this.procedureGroup = procedureGroup;
+	}
+
+
+	/**
      * @return the parameterStableId
      */
     public String getParameterStableId() {
@@ -520,8 +537,8 @@ public class ObservationDTO {
      * @param strainAccessionId
      *            the strainAccessionId to set
      */
-    public void setStrain(String strain) {
-        this.strainAccessionId = strain;
+    public void setStrain(String strainAccessionId) {
+        this.strainAccessionId = strainAccessionId;
     }
 
     /**
@@ -592,7 +609,7 @@ public class ObservationDTO {
     }
 
     /**
-     * @param organisationId
+     * @param phenotypingCenterId
      *            the organisationId to set
      */
     public void setPhenotypingCenterId(Integer phenotypingCenterId) {
@@ -622,7 +639,7 @@ public class ObservationDTO {
     }
 
     /**
-     * @param organisation
+     * @param phenotypingCenter
      *            the organisation to set
      */
     public void setPhenotypingCenter(String phenotypingCenter) {
