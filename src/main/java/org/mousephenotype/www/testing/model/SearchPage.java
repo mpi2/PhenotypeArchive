@@ -21,6 +21,8 @@
 package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import org.openqa.selenium.By;
@@ -64,6 +66,13 @@ public class SearchPage {
     public static final String PROCEDURES_CORE = "procedures";
     public static final String IMAGES_CORE     = "images";
     
+    // These are the li id attribute names.
+    public static final String GENE_ID       = "gene";
+    public static final String PHENOTYPE_ID  = "mp";
+    public static final String DISEASE_ID    = "disease";
+    public static final String ANATOMY_ID    = "ma";
+    public static final String PROCEDURES_ID = "pipeline";
+    public static final String IMAGES_ID     = "images";
     
     public enum DownloadType {
         PAGINATED_TSV,
@@ -74,12 +83,64 @@ public class SearchPage {
     // The facets shown on the left.
     
     public enum Facet {
-        GENES,
-        PHENOTYPES,
-        DISEASES,
-        ANATOMY,
-        PROCEDURES,
-        IMAGES 
+        GENES(GENE_CORE),
+        PHENOTYPES(PHENOTYPE_CORE),
+        DISEASES(DISEASE_CORE),
+        ANATOMY(ANATOMY_CORE),
+        PROCEDURES(PROCEDURES_CORE),
+        IMAGES(IMAGES_CORE);
+        
+        private final String coreName;
+        private String facetId = "";
+        
+        Facet(String coreName) {
+            this.coreName = coreName;
+            
+            switch (coreName) {
+                case GENE_CORE:
+                    this.facetId = GENE_ID;
+                    break;
+                    
+                case PHENOTYPE_CORE:
+                    this.facetId = PHENOTYPE_ID;
+                    break;
+                    
+                case DISEASE_CORE:
+                    this.facetId = DISEASE_ID;
+                    break;
+                    
+                case ANATOMY_CORE:
+                    this.facetId = ANATOMY_ID;
+                    break;
+                    
+                case PROCEDURES_CORE:
+                    this.facetId = PROCEDURES_ID;
+                    break;
+                    
+                case IMAGES_CORE:
+                    this.facetId = IMAGES_ID;
+                    break;
+            }
+        }
+        public String getCoreName() {
+            return coreName;
+        }
+        public String getFacetId() {
+            return facetId;
+        }
+    }
+    
+    public class FacetFilter {
+        public final Facet facet;
+        public final List<String> subfacetTexts = new ArrayList();
+        
+        public FacetFilter() {
+            this(Facet.GENES);
+        }
+        
+        public FacetFilter(Facet facet) {
+            this.facet = facet;
+        }
     }
     
     // Page directives (i.e. pagination buttons)
@@ -97,7 +158,7 @@ public class SearchPage {
     
     public enum WindowState {
         OPEN,
-        CLOSE
+        CLOSED
     };
     
     /**
@@ -139,6 +200,112 @@ public class SearchPage {
             }
             this.target = target;
         }
+    }
+    
+    /**
+     * Returns the state of the facet: OPEN or CLOSED.
+     * @param facet facet to be queried
+     * @return the state of the facet: OPEN or CLOSED.
+     */
+    public WindowState getFacetState(Facet facet) {
+        String facetId = facet.getFacetId();
+        WebElement facetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("li#" + facetId)));
+        
+        return facetElement.getAttribute("class").contains("open") ? WindowState.OPEN : WindowState.CLOSED;
+    }
+    
+    /**
+     * Return a <code>HashMap&lt;Facet, FacetFilter&gt;</code> containing the 
+     * facet and related filter text. The HashMap is empty if there are no filters.
+     *
+     * @return A <code>HashMap&lt;Facet, FacetFilter&gt;</code> containing the 
+     * facet and related filter text. The HashMap is empty if there are no filters.
+     */
+    public HashMap<Facet, FacetFilter> getFacetFilter() {
+        HashMap<Facet, FacetFilter> results = new HashMap();
+        
+        // If there are no filters, div.ffilter's style property will be 'display: none;'.
+        WebElement ffilterElement = driver.findElement(By.xpath("//div[@class='ffilter']"));
+        if (hasFilters()) {
+            List<WebElement> liElements = ffilterElement.findElements(By.cssSelector("ul#facetFilter > li"));
+            for (WebElement liElement : liElements) {
+                FacetFilter facetFilter;
+                String facetName = liElement.findElement(By.cssSelector("span")).getText();
+                switch (facetName) {
+                    case "Gene":
+                        facetFilter = new FacetFilter(Facet.GENES);
+                        break;
+                        
+                    case "Phenotype":
+                        facetFilter = new FacetFilter(Facet.PHENOTYPES);
+                        break;
+                        
+                    case "Disease":
+                        facetFilter = new FacetFilter(Facet.DISEASES);
+                        break;
+                        
+                    case "Anatomy":
+                        facetFilter = new FacetFilter(Facet.ANATOMY);
+                        break;
+                        
+                    case "Pipeline":
+                        facetFilter = new FacetFilter(Facet.PROCEDURES);
+                        break;
+                        
+                    case "Images":
+                        facetFilter = new FacetFilter(Facet.IMAGES);
+                        break;
+                        
+                    default:
+                        continue;
+                }
+                
+                List<WebElement> ulElements = liElement.findElements(By.cssSelector("ul"));
+                for (WebElement ulElement : ulElements) {
+                    facetFilter.subfacetTexts.add(ulElement.findElement(By.cssSelector("li a")).getText());
+                }
+                
+                results.put(facetFilter.facet, facetFilter);
+            }
+        }
+           
+        return results;
+    }
+    
+    /**
+     * Opens the specified facet if it is not already open.
+     * @param facet the facet to open.
+     */
+    public void openFacet(Facet facet) {
+        if (getFacetState(facet) == WindowState.CLOSED) {
+            clickFacet(facet);
+        }
+    }
+    
+    /**
+     * Closes the specified facet if it is not already closed.
+     * @param facet the facet to close.
+     */
+    public void closeFacet(Facet facet) {
+        if (getFacetState(facet) == WindowState.OPEN) {
+            clickFacet(facet);
+        }
+    }
+    
+    public void clearFilters() {
+        if (hasFilters()) {
+            driver.findElement(By.xpath("//span[@id='rmFilters']")).click();
+        }
+    }
+    
+    /**
+     * Returns true if there are any filters; false otherwise.
+     * @return true if there are any filters; false otherwise.
+     */
+    public boolean hasFilters() {
+        // If there are no filters, div.ffilter's style property will be 'display: none;'.
+        WebElement ffilterElement = driver.findElement(By.xpath("//div[@class='ffilter']"));
+        return ! (ffilterElement.getAttribute("style").contains("display: none"));
     }
     
     public void clickDownloadButton(DownloadType downloadType) {
@@ -289,7 +456,7 @@ public class SearchPage {
     public void clickToolbox(WindowState desiredWindowState) {
         String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
         switch (desiredWindowState) {
-            case CLOSE:
+            case CLOSED:
                 if (style.contains("block;"))
                     driver.findElement(By.xpath("//span[@id='dnld']")).click();
                 break;
@@ -634,7 +801,7 @@ public class SearchPage {
     
     public WindowState getToolboxState() {
         String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        return (style.contains("block;") ? WindowState.OPEN : WindowState.CLOSE);
+        return (style.contains("block;") ? WindowState.OPEN : WindowState.CLOSED);
     }
     
     /**

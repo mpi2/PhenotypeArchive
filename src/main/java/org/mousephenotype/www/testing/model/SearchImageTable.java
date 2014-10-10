@@ -66,7 +66,7 @@ public class SearchImageTable extends SearchFacetTable {
     public void setCurrentView(ImageFacetView view) {
         if (getCurrentView() != view) {
             SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
-            clickToolbox(SearchPage.WindowState.CLOSE);
+            clickToolbox(SearchPage.WindowState.CLOSED);
             WebElement imgViewSwitcherElement = driver.findElement(By.cssSelector("span#imgViewSwitcher"));
             TestUtils.scrollToTop(driver, imgViewSwitcherElement, -50);         // Scroll 'Show Image View' link into view.
             driver.findElement(By.cssSelector("span#imgViewSwitcher")).click();
