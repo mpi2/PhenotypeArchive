@@ -1,12 +1,5 @@
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -14,14 +7,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
-import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class AbrChartAndTableProvider {
@@ -46,22 +45,27 @@ public class AbrChartAndTableProvider {
 
 	
 	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession){
-		
+
+		Set<ZygosityType> zygosities = null;
 		// get data 
     	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
     	data.put("control", new ArrayList<UnidimensionalStatsObject>() );
     	data.put("hom", new ArrayList<UnidimensionalStatsObject>() );
+
 		UnidimensionalStatsObject emptyObj = new UnidimensionalStatsObject();
+		emptyObj.setMean(null);
+		emptyObj.setSd(null);
+
     	String procedureUrl = null;
     	String unit = pipelineDAO.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnit();
-    	emptyObj.setMean(null);
-    	emptyObj.setSd(null);
-    	
+
     	for (String parameterStableId : Constants.ABR_PARAMETERS){
     		Integer paramId = pipelineDAO.getParameterByStableId(parameterStableId).getId();
     		System.out.println("Getting experiment for " + parameterStableId);
     		try {
     			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenterId, strain, metadataGroup, alleleAccession);
+			    zygosities = experiment.getZygosities();
+
 				if (experiment != null){
 					if (procedureUrl == null){
 						procedureUrl = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
@@ -81,21 +85,28 @@ public class AbrChartAndTableProvider {
     	
     	// We've got everything, get the chart now.
     	    	
-		return getCustomChart(data, procedureUrl, unit);
+		return getCustomChart(data, procedureUrl, unit, zygosities);
 	}
 	
-	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit){
+	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities){
 		// area range and line for control
 		// line for mutants
 		// dot for click
 		
 		JSONArray categories = new JSONArray();
 		String title = "Evoked ABR Threshold (6, 12, 18, 24, 30 kHz)";
+
+		JSONArray clickControlSD = new JSONArray(); // whiskers +/- sd
+		JSONArray clickHomSD = new JSONArray(); // whiskers +/- sd
+		JSONArray clickControl = new JSONArray();
+		JSONArray clickHoms = new JSONArray();
+
 		JSONArray controlSD = new JSONArray(); // whiskers +/- sd
 		JSONArray homSD = new JSONArray(); // whiskers +/- sd
 		JSONArray control = new JSONArray();
 		JSONArray homs = new JSONArray();
-		Integer decimalNumber = 2; 
+
+		Integer decimalNumber = 2;
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		String empty = null;
 		
@@ -103,42 +114,99 @@ public class AbrChartAndTableProvider {
 			categories.put(pipelineDAO.getParameterByStableId(abrId).getName());
 		}
 		try {
+			boolean first = true;
 			for (UnidimensionalStatsObject c : data.get("control")){
-				
+
 				JSONArray obj = new JSONArray();
 				obj.put(c.getLabel());
 				obj.put(c.getMean());
-				control.put(obj);
 
-				obj = new JSONArray();
-				obj.put(c.getLabel());
-				if (c.getMean() != null){
-					obj.put(c.getMean() - c.getSd());
-					obj.put(c.getMean() + c.getSd());
-				}else {
+				if(first) {
+
+					first = false;
+
+					clickControl.put(obj);
+					obj = new JSONArray();
+					obj.put(c.getLabel());
+					if (c.getMean() != null){
+						obj.put(c.getMean() - c.getSd());
+						obj.put(c.getMean() + c.getSd());
+					}else {
+						obj.put(empty);
+						obj.put(empty);
+					}
+					clickControlSD.put(obj);
+
+					obj = new JSONArray();
+					obj.put(c.getLabel());
 					obj.put(empty);
+					control.put(obj);
+
 					obj.put(empty);
+					controlSD.put(obj);
+
+				} else {
+					control.put(obj);
+
+					obj = new JSONArray();
+					obj.put(c.getLabel());
+					if (c.getMean() != null){
+						obj.put(c.getMean() - c.getSd());
+						obj.put(c.getMean() + c.getSd());
+					}else {
+						obj.put(empty);
+						obj.put(empty);
+					}
+					controlSD.put(obj);
 				}
-				controlSD.put(obj);
 
 			}
+
+			first = true;
 			for (UnidimensionalStatsObject hom : data.get("hom")){
 				JSONArray obj = new JSONArray();
 				obj.put(hom.getLabel());
 				obj.put(hom.getMean());
-				homs.put(obj);
-				
-				obj = new JSONArray();
-				obj.put(hom.getLabel());
-				// in case data is missing for one parameter
-				if (hom.getMean() != null){
-					obj.put(hom.getMean() - hom.getSd());
-					obj.put(hom.getMean() + hom.getSd());
-				}else{
+
+				if(first) {
+					first = false;
+					clickHoms.put(obj);
+
+					obj = new JSONArray();
+					obj.put(hom.getLabel());
+					// in case data is missing for one parameter
+					if (hom.getMean() != null){
+						obj.put(hom.getMean() - hom.getSd());
+						obj.put(hom.getMean() + hom.getSd());
+					}else{
+						obj.put(empty);
+						obj.put(empty);
+					}
+					clickHomSD.put(obj);
+					obj = new JSONArray();
+					obj.put(hom.getLabel());
 					obj.put(empty);
+					homs.put(obj);
+
 					obj.put(empty);
+					homSD.put(obj);
+
+				} else {
+					homs.put(obj);
+
+					obj = new JSONArray();
+					obj.put(hom.getLabel());
+					// in case data is missing for one parameter
+					if (hom.getMean() != null){
+						obj.put(hom.getMean() - hom.getSd());
+						obj.put(hom.getMean() + hom.getSd());
+					}else{
+						obj.put(empty);
+						obj.put(empty);
+					}
+					homSD.put(obj);
 				}
-				homSD.put(obj);
+
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -192,6 +260,73 @@ public class AbrChartAndTableProvider {
 			     "   } ]"+
 			    "});"+
 			"});" ;
+
+		chart =
+			"$(function () {"+
+				"$('#chartABR').highcharts({"+
+				"  title: { text: '" + title + "' },"+
+				"  subtitle: {  useHTML: true,  text: '" + procedureLink + "'}, " +
+				"  xAxis: {   categories: "  + categories + "},"+
+				"  yAxis: {   title: {    text: '" + unit + "'  }  },"+
+				"  tooltip: {valueSuffix: ' " + unit + "', shared:true },"+
+				"  legend: { },"+
+				"  credits: { enabled: false },  " +
+				"  series: [ {"+
+				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+"',"+
+				"    data: " + clickHoms.toString() + "," +
+				"    zIndex: 1,"+
+				"    color: \""+ colors.get(0) +"\", " +
+				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
+				"  }, {"+
+				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+" SD',"+
+				"    data: " + clickHomSD.toString() + "," +
+				"    type: 'errorbar',"+
+				"    linkedTo: ':previous',"+
+				"    color: \""+ colors.get(0) +"\","+
+				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" +
+				"  },{"+
+				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+"',"+
+				"    data: " + homs.toString() + "," +
+				"    zIndex: 1,"+
+				"    color: \""+ colors.get(0) +"\","+
+				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }," +
+				"  }, {"+
+				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+" SD',"+
+				"    data: " + homSD.toString() + "," +
+				"    type: 'errorbar',"+
+				"    linkedTo: ':previous',"+
+				"    color: \""+ colors.get(0) +"\","+
+				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f} )<br/>', shared:true }" +
+				"  },{"+
+				"    name: 'Control',"+
+				"    data: " + clickControl.toString() + "," +
+				"    zIndex: 1,"+
+				"    color: \""+ colors.get(1) +"\", " +
+				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
+				"  }, {"+
+				"    name: 'Control SD',"+
+				"    data: " + clickControlSD.toString() + "," +
+				"    type: 'errorbar',"+
+				"    linkedTo: ':previous',"+
+				"    color: \""+ colors.get(1) +"\","+
+				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" +
+				"  },{"+
+				"    name: 'Control',"+
+				"    data: " + control.toString() + "," +
+				"    zIndex: 1,"+
+				"    color: \""+ colors.get(1) +"\", " +
+				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
+				"  }, {"+
+				"    name: 'Control SD',"+
+				"    data: " + controlSD.toString() + "," +
+				"    type: 'errorbar',"+
+				"    linkedTo: ':previous',"+
+				"    color: \""+ colors.get(1) +"\","+
+				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" +
+				"  } ]"+
+				"});"+
+			"});" ;
+
 		return chart;
 		}
 	
