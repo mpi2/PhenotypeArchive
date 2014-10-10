@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.chart.ViabilityDTO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
@@ -179,6 +180,7 @@ public class ExperimentService {
              if (experiment.getAlleleAccession() == null) {
                 experiment.setAlleleAccession(observation.getAlleleAccession());
             }
+             
 
             experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
             experiment.getSexes().add(SexType.valueOf(observation.getSex()));
@@ -461,8 +463,55 @@ public class ExperimentService {
         LOG.debug("--- getting p for : " + parameterStableId);
         return getExperimentDTO(p.getId(), pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
     }
+    
+    /**
+     * Should only return 1 experimentDTO - returns null if none and exception
+     * if more than 1 - used by ajax charts
+     * 
+     * @param parameterId
+     * @param acc
+     * @param genderList
+     * @param zyList
+     * @param phenotypingCenterId
+     * @param strain
+     * @param metadataGroup
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws SpecificExperimentException
+     */
+    public ViabilityDTO getSpecificViabilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
+        ViabilityDTO viabilityDTO=new ViabilityDTO();
+            //for viability we don't need to filter on Sex or Zygosity
+        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+           System.out.println("specific outcome="+observations);
+           System.out.println("category of observation="+observations.get(0).getCategory());
+       
+        return viabilityDTO;
+    }
 
     /**
+     * first method to call to populate the viabilityDTO
+     * @param parameterId
+     * @param pipelineId
+     * @param acc
+     * @param object
+     * @param phenotypingCenterId
+     * @param object2
+     * @param strain
+     * @param metadataGroup
+     * @param includeResults
+     * @param alleleAccession
+     * @return
+     */
+    private ViabilityDTO getViabilityOutcome(Integer parameterId, Integer pipelineId, String acc, Object object, Integer phenotypingCenterId, Object object2, String strain, String metadataGroup, boolean includeResults, String alleleAccession) {
+    	ViabilityDTO viabilityDTO=new ViabilityDTO();
+		ObservationDTO observation = os.getViabilityObservation(parameterId, pipelineId, acc, phenotypingCenterId, strain, metadataGroup, false, alleleAccession);
+		return null;
+	}
+
+	/**
      * Should only return 1 experimentDTO - returns null if none and exception
      * if more than 1 - used by ajax charts
      * 

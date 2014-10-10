@@ -4,22 +4,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-
-
 public class ViabilityDTO {
 
-	public String getPieChart(){
-Map<String, Integer> labelToNumber=new HashMap<String, Integer>();
-		
-		int femaleOnly=10;
-		int maleOnly=20;
-		int both=40;
-		int total=100;
-		labelToNumber.put("Female only",10);
-		labelToNumber.put("Male only", maleOnly);
-		labelToNumber.put("Both sexes", both);
-		String chart=PieChartCreator.getPieChart(labelToNumber);
-		return chart;
+	private String totalChart = "";
+	private String maleChart="";
+	private String femaleChart="";
+
+	
+	public String getTotalChart() {
+		return totalChart;
 	}
+
+
+	
+	public String getMaleChart() {
+		return maleChart;
+	}
+
+
+	
+	public String getFemaleChart() {
+		return femaleChart;
+	}
+
+	public void setTotalChart(String totalChart) {
+		this.totalChart=totalChart;
+	}
+
+
+	public void setMaleChart(String maleChart) {
+		this.maleChart = maleChart;
+	}
+	
+	public void setFemaleChart(String femaleChart){
+		this.femaleChart=femaleChart;
+	}
+
 }

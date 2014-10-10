@@ -83,7 +83,7 @@ public class ObservationService extends BasicService {
 
 
 	public ObservationService(String solrUrl) {
-
+System.out.println("setting observationService solrUrl="+solrUrl);
 		solr = new HttpSolrServer(solrUrl);
 	}
 
@@ -553,7 +553,7 @@ public class ObservationService extends BasicService {
 		if (alleleAccession != null) {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
-		LOG.debug("observation  service query = " + query);
+		System.out.println("observation  service query = " + query);
 
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);

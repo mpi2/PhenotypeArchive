@@ -3,9 +3,9 @@ $(document).ready(function(){
 console.log('comparator js ready');
 
 //mediaBaseUrl=https://dev.mousephenotype.org/data/media
-var mediaBaseUrl='http://ves-ebi-cf/omero/';
-var detailUrlExt='webgateway/img_detail/';
-var url=mediaBaseUrl+detailUrlExt;
+//var mediaBaseUrl='http://wwwdev.ebi.ac.uk/mi/media/omero/';
+var detailUrlExt='/img_detail/';
+var url=impcMediaBaseUrl+detailUrlExt;
 var annotationBreak='<br/>';
 //console.log('solrUrl='+solrUrl);
 //get all the ids from the parameter list and get solrDocs for each

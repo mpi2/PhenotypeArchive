@@ -8,15 +8,29 @@ import org.json.JSONArray;
 
 
 public class PieChartCreator {
+String pieChart="";
 
-	public static String getPieChart(Map<String, Integer> labelToNumber){
+
+
+
+	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title){
+		
+//		int femaleOnly=10;
+//		int maleOnly=20;
+//		int both=40;
+//		int total=100;
+//		labelToNumber.put("Female only",10);
+//		labelToNumber.put("Male only", maleOnly);
+//		labelToNumber.put("Both sexes", both);
+		
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
+		
 				
-		String chart = "$(function () { $('#viabilityChart').highcharts({ "
+		String chart = "$(function () { $('#"+chartId+"').highcharts({ "
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	
 				 + " colors:"+colorArray+", "
-				 + " title: {  text: '' }, "
+				 + " title: {  text: '"+title+"' }, "
 				 + " credits: { enabled: false }, "
 				 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
 				 + " plotOptions: { "
@@ -38,4 +52,6 @@ public class PieChartCreator {
 		
 		return chart;
 	}
+	
+
 }
