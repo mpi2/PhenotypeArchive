@@ -940,6 +940,9 @@ public class SearchPage {
             
             if (status.hasErrors()) {
                 System.out.println("VALIDATION ERRORS:\n" + status.toStringErrorMessages());
+            } else {
+                System.out.println("TEST for facet " + facet + " (download type " + downloadType + "): OK");
+                System.out.println();
             }
         }
         
