@@ -22,12 +22,16 @@ import org.apache.solr.client.solrj.beans.Field;
  */
 public class SangerAlleleBean {
 
+	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String ALLELE_NAME = "allele_name";
 	public static final String ES_CELL_STATUS = "es_cell_status";
 	public static final String MOUSE_STATUS = "mouse_status";
 	public static final String PHENOTYPE_STATUS = "phenotype_status";
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
+
+	@Field(MGI_ACCESSION_ID)
+	private String mgiAccessionId;
 
 	@Field(ALLELE_NAME)
 	private String alleleName;
@@ -46,6 +50,19 @@ public class SangerAlleleBean {
 
 	@Field(PHENOTYPING_CENTRE)
 	private String phenotypingCentre;
+
+
+	public String getMgiAccessionId() {
+
+		return mgiAccessionId;
+	}
+
+
+	public void setMgiAccessionId(String mgiAccessionId) {
+
+		this.mgiAccessionId = mgiAccessionId;
+	}
+
 
 	/**
 	 * @return the alleleName

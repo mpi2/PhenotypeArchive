@@ -252,7 +252,6 @@ public class SearchPageTest {
     
     @Test
 //@Ignore
-    //@TODO likely test logic error? When only one summary facet filter and that one is unchecked the facet will close- making the checkbox unavailable. 
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -264,69 +263,83 @@ public class SearchPageTest {
         String message;
         successList.clear();
         errorList.clear();
-        String queryStr = "";
+        String target = baseUrl + "/search";
+        log.debug("target Page URL: " + target);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
         
-        for (Map.Entry entry : params.entrySet()) {
-            String facet = entry.getKey().toString();
-
-
-            queryStr = baseUrl + "/search#" + entry.getValue();
-            //System.out.println(queryStr);
-            driver.get(queryStr);
-            driver.navigate().refresh();
-
-            // input element of a subfacet
-            String elem1 = "div.flist li#" + facet + " li.fcat input";
-            String filterVals1 = null;
-            try {
-                new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.flist")));
-                filterVals1 = driver.findElement(By.cssSelector(elem1)).getAttribute("rel");
-            }
-            catch(Exception e){
-                message = "Failed to find facet checkbox filter for " + facet + " facet on " + testName
-                        + ":\n\tURL: " + queryStr + "\n\telem1 = " + elem1;
+        // For each core:
+        //   Click the first subfacet.
+        //   Check that it is selected.
+        //   Check that there is a filter matching the selected facet above the Genes facet.
+        //   Click the first subfacet again to unselect it.
+        //   Check that it is unselected.
+        //   Check that there is no filter matching the just-unselected facet above the Genes facet.
+        for (String core :  cores) {
+            String subfacetCheckboxCssSelector = "li#" + core + " li.fcat input[type='checkbox']";
+            String subfacetTextCssSelector = "li#" + core + " li.fcat span.flabel";
+            int iterationErrorCount = 0;
+            Facet facet = searchPage.getFacetByCoreName(core);
+            searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
+            log.debug("opening facet " + facet);
+            
+            WebElement firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
+            firstSubfacetElement.click();                                       // Select the first subfacet.
+            
+            searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
+            if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
+                iterationErrorCount++;
+                message = "Failed to check input filter for " + facet + " facet.";
                 errorList.add(message);
-                continue;
+                log.error(message);
             }
-
-            driver.findElement(By.cssSelector(elem1)).click();
-            if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
-                //System.out.println(facet + " filter checked");
-                message = "Failed to check input filter for " + facet + " facet on " + testName;
-                errorList.add(message);
-            }
-
-            String elem2 = "ul#facetFilter li li.ftag a";
-            String filterVals2;
-            try {
-                filterVals2 = driver.findElement(By.cssSelector(elem2)).getAttribute("rel");
-            }
-            catch (Exception e){
-                message = "Failed to find filter on filter box for " + facet + " facet on " + testName;
-                //System.out.println("   " + message);
-                errorList.add(message);
-                continue;
-            }
-            // compare input with filter on filter summary box
-            if ( filterVals1.equals(filterVals2) ){
-
-                // now tests removing filter also unchecks inputbox
-                driver.findElement(By.cssSelector(elem2)).click();
-                if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
-                    //System.out.println("   " + facet + " OK");
-                    successList.add(facet);
-                }
-                else {
-                    message = "Failed to uncheck input filter for " + facet + " facet on " + testName + ". URL: " + driver.getCurrentUrl();
-                    errorList.add(message);
+            
+            // Check that there is a filter matching the selected facet above the Genes facet.
+            String facetText = driver.findElement(By.cssSelector(subfacetTextCssSelector)).getText();
+            HashMap<Facet, SearchPage.FacetFilter> facetFilterHash = searchPage.getFacetFilter();
+            List<String> facetFilterText = facetFilterHash.get(facet).subfacetTexts;
+            boolean found = false;
+            for (String facetFilter : facetFilterText) {
+                if (facetFilter.contains(facetText)) {
+                    found = true;
+                    break;
                 }
             }
-            else {
-                message = "[FAILED]: " + facet + " facet on " + testName;
+            if ( ! found) {
+                iterationErrorCount++;
+                message = "ERROR: Couldn't find subfacet '" + facetText + "' in facet " + facet;
                 errorList.add(message);
-                continue;
+                log.error(message);
             }
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            
+            searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
+            firstSubfacetElement.click();                                       // Deselect the first subfacet.
+            
+            searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
+            
+            // The page becomes stale after the click() above, so we must re-fetch the WebElement objects.
+            firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
+            
+            if (firstSubfacetElement.isSelected()) {                            // Verify that the subfacet is no longer selected.
+                iterationErrorCount++;
+                message = "Failed to uncheck input filter for " + facet + " facet.";
+                errorList.add(message);
+                log.error(message);
+            }
+            
+            // Check that there are no filters.
+            if (searchPage.hasFilters()) {
+                iterationErrorCount++;
+                message = "ERROR: Expected filters to be cleared, but there were filters in place for facet " + facet;
+                errorList.add(message);
+                log.error(message);
+            }
+            
+            if (iterationErrorCount == 0) {
+                log.info("   " + core + " OK");
+                successList.add(core);
+            }
+            
+            searchPage.clearFilters();
         }
         System.out.println();
         if ( successList.size() == params.size() ){
@@ -340,7 +353,7 @@ public class SearchPageTest {
         }
         System.out.println();
     }
-
+    
     @Test
 //@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
@@ -871,7 +884,7 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
          driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
          
          // Wait for dropdown list to appear with 'blood glucose'.
-        String xpathSelector = "//ul[@id=\"ui-id-1\"]/li/a";
+        String xpathSelector = "//ul[@id='ui-id-1']/li[@class='ui-menu-item']/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
         if ( ! element.getText().contains("fasting glucose")) {
             errorList.add("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
@@ -882,6 +895,9 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
                 errorList.add("ERROR: Expected 'Found xxx genes' message. Text = '" + element.getText() + "'");
             }
         }
+        
+        if ((errorList.isEmpty() && (exceptionList.isEmpty())))
+            successList.add((testName + ": OK"));
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }

@@ -54,7 +54,7 @@
 		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 
 		<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-		<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+		<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
 		<googleAnalytics></googleAnalytics>
 		<liveSite>false</liveSite>
 		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
@@ -1113,7 +1113,7 @@
 				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
 				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
 				<liveSite>false</liveSite>
 			</properties>
 
@@ -1149,7 +1149,7 @@
 				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
 				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
 				<seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 				<liveSite>false</liveSite>
 			</properties>
@@ -1189,7 +1189,7 @@
 				<internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
 				<drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-				<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
 				<seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 				<liveSite>false</liveSite>
 			</properties>
@@ -1247,7 +1247,7 @@
 				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
 				<drupalBaseUrl>https://test.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
 				<liveSite>false</liveSite>
 			</properties>
 
@@ -1281,7 +1281,7 @@
 				<internalSolrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
 				<drupalBaseUrl>http://localhost:8084</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
 				<liveSite>false</liveSite>
 			</properties>
 
@@ -1315,7 +1315,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
                 <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_beta</buildIndexesSolrUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-                <impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-33310077-1</googleAnalytics>
                 <liveSite>false</liveSite>
             </properties>
@@ -1374,7 +1374,7 @@
                	<buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_live</buildIndexesSolrUrl>
                 <phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
-                <impcMediaBaseUrl>http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
                 <liveSite>true</liveSite>
             </properties>
