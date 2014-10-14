@@ -146,7 +146,7 @@
     
     <field name="p_value" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="effect_size" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="external_id" type="string" indexed="false" stored="true" required="false" multiValued="false" />
+    <field name="external_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 
    
