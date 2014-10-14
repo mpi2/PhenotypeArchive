@@ -28,14 +28,14 @@ public class ViabilityChartAndDataProvider {
 		Set<Entry<String, ObservationDTO>> entrySet = viabilityDTO.getParamNameToDataPoint().entrySet();
 		for(Entry<String, ObservationDTO> entry:entrySet){
 			String paramName=entry.getValue().getParameterName();
-			System.out.println("entry="+entry.getKey()+WordUtils.capitalize(entry.getValue().getParameterName())+" value="+entry.getValue().getDataPoint());
+			System.out.println("entry="+entry.getKey()+" "+WordUtils.capitalize(entry.getValue().getParameterName())+" value="+entry.getValue().getDataPoint());
 			if(paramName.contains("pups")){
 				totals.add(entry.getValue());
 			}
-			if(paramName.contains("male")){
+			if(paramName.contains(" male ") && !paramName.contains(" total ")){
 				male.add(entry.getValue());
 			}
-			if(paramName.contains("female")){
+			if(paramName.contains("female") && !paramName.contains(" total ")){
 				female.add(entry.getValue());
 			}
 		}
