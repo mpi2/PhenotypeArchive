@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ViabilityDTO {
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
-	Map<String, Float> paramNameToDataPoint = new HashMap<>();
+public class ViabilityDTO {
+	//
+	
+	Map<String, ObservationDTO> paramNameToDataPoint = new HashMap<>();
 
 	private String totalChart = "";
 	private String maleChart = "";
@@ -14,13 +17,13 @@ public class ViabilityDTO {
 	String category = "";// should get set to e.g. Homozygous - Viable
 
 
-	public Map<String, Float> getParamNameToDataPoint() {
+	public Map<String, ObservationDTO> getParamNameToDataPoint() {
 
 		return paramNameToDataPoint;
 	}
 
 
-	public void setParamNameToDataPoint(Map<String, Float> paramNameToDataPoint) {
+	public void setParamNameToDataPoint(Map<String, ObservationDTO> paramNameToDataPoint) {
 
 		this.paramNameToDataPoint = paramNameToDataPoint;
 	}

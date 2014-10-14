@@ -483,7 +483,7 @@ public class ExperimentService {
      */
     public ViabilityDTO getSpecificViabilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
         ViabilityDTO viabilityDTO=new ViabilityDTO();
-        Map<String, Float> paramNameToDataPoint = new HashMap<>();
+        Map<String, ObservationDTO> paramNameToDataPoint = new HashMap<>();
             //for viability we don't need to filter on Sex or Zygosity
         List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
         ObservationDTO outcomeObservation = observations.get(0);  
@@ -495,10 +495,14 @@ public class ExperimentService {
            System.out.println("Number with leading zeros: " + formatted);
     	   String param="IMPC_VIA_0"+formatted+"_001";
            List<ObservationDTO> observationsForCounts = os.getViabilityData(param, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+           if(observationsForCounts.size()>1){
+        	   System.err.println("More than one observation found for a viability request!!!");
+           }
            System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
            System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
-           paramNameToDataPoint.put(param,observationsForCounts.get(0).getDataPoint() );
+           paramNameToDataPoint.put(param,observationsForCounts.get(0));
        }
+       viabilityDTO.setParamNameToDataPoint(paramNameToDataPoint);
         return viabilityDTO;
     }
 
