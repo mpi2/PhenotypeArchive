@@ -324,14 +324,17 @@ public class FileExportController {
                 response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 
                 String sheetName = fileName;
-                ExcelWorkBook Wb = null;
 
-		// Remove the title row (row 0) from the list and assign it to
-                // the string array for the spreadsheet
-                String[] titles = dataRows.remove(0).split("\t");
-                Wb = new ExcelWorkBook(titles, composeXlsTableData(dataRows), sheetName);
-
-                wb = Wb.fetchWorkBook();
+                String[] titles = new String[0];
+                String[][] tableData = new String[0][0];
+                if ( ! dataRows.isEmpty()) {
+                    // Remove the title row (row 0) from the list and assign it to
+                    // the string array for the spreadsheet
+                    titles = dataRows.remove(0).split("\t");
+                    tableData = composeXlsTableData(dataRows);
+                }
+                
+                wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
                 ServletOutputStream output = response.getOutputStream();
                 try {
                     wb.write(output);
@@ -419,7 +422,6 @@ public class FileExportController {
                                     for (ExperimentDTO experiment : experimentList) {
                                         rows.addAll(experiment.getTabbedToString(ppDAO));
                                     }
-                                    rows.add("\n\n");
                                 }
                             }
                         }
