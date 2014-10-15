@@ -137,7 +137,9 @@ public class AlleleIndexer {
 			lookupHumanMouseSymbols(alleles);
 
 			// Do the first set of mappings
-			doSangerAlleleMapping(alleles);
+			// MP: I think this only needs to be done once, after the ES cell status
+			// lookup.
+			// doSangerAlleleMapping(alleles);
 
 			// Look up the ES cell status
 			lookupEsCellStatus(alleles);
@@ -349,6 +351,10 @@ public class AlleleIndexer {
 		alleleCore.addBeans(alleles.values(), 60000);
 	}
 
+	/**
+	 * Equivalent to mapping(row) Javascript method in DIH script.
+	 * @param alleles
+	 */
 	private void doSangerAlleleMapping(Map<String, AlleleDTO> alleles) {
 
 		for (AlleleDTO allele : alleles.values()) {
@@ -372,11 +378,14 @@ public class AlleleIndexer {
 				}
 
 				if (latest) {
-					if (esCellStatus!=null) {
+					if (!"".equals(esCellStatus)) {
+						// Single value
 						allele.setLatestProductionStatus(esCellStatus);
 					}
+					// Single value
 					allele.setLatestEsCellStatus(esCellStatus);
 				} else {
+					// Multi value
 					allele.getEsCellStatus().add(esCellStatus);
 				}
 			}
@@ -397,12 +406,15 @@ public class AlleleIndexer {
 				}
 
 				if (latest) {
-					if (mouseStatus!=null) {
+					if (!"".equals(mouseStatus)) {
+						// Single-valued
 						allele.setLatestProductionStatus(mouseStatus);
 					}
+					// Single value
 					allele.setLatestMouseStatus(mouseStatus);
 				} else {
-					allele.setGeneLatestMouseStatus(mouseStatus);
+					// Multi value
+					allele.getMouseStatus().add(mouseStatus);
 				}
 			}
 		}
