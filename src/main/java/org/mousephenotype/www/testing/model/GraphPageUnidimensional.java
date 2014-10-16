@@ -23,6 +23,7 @@ package org.mousephenotype.www.testing.model;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -122,20 +123,24 @@ public class GraphPageUnidimensional extends GraphPage {
         }
         
         // Validate 'More statistics' drop-down. Clicking either the arrow or the link should toggle the toggle_table1 div.
-        WebElement toggle_table1 = driver.findElement(By.xpath("//div[@id='toggle_table1']"));
-        String style = toggle_table1.getAttribute("style");
-        if ( ! style.equals("display: none;"))
-            status.addError("ERROR: Expected 'More statistics' drop-down to start collapsed.");
-        WebElement i = driver.findElement(By.xpath("//i[@id='toggle_table_button1']"));
-        i.click();      // Click the link. That should open the toggle.
-        style = toggle_table1.getAttribute("style");
-        if ( ! style.contains("display: block;"))
-            status.addError("ERROR: Expected 'More statistics' drop-down to be expanded.");
-        i.click();      // Click the link again. That should close the toggle.
-        style = toggle_table1.getAttribute("style");
-        if ( ! style.contains("display: none;"))
-            status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");
-        
+        List<WebElement> moreStatistics = driver.findElements(By.xpath("//div[@id='toggle_table1']"));
+        if (moreStatistics.isEmpty()) {
+            status.addError("ERROR: Expected 'More statistics' link but wasn't found.");
+        } else {
+            WebElement toggle_table1 = driver.findElement(By.xpath("//div[@id='toggle_table1']"));
+            String style = toggle_table1.getAttribute("style");
+            if ( ! style.equals("display: none;"))
+                status.addError("ERROR: Expected 'More statistics' drop-down to start collapsed.");
+            WebElement i = driver.findElement(By.xpath("//i[@id='toggle_table_button1']"));
+            i.click();      // Click the link. That should open the toggle.
+            style = toggle_table1.getAttribute("style");
+            if ( ! style.contains("display: block;"))
+                status.addError("ERROR: Expected 'More statistics' drop-down to be expanded.");
+            i.click();      // Click the link again. That should close the toggle.
+            style = toggle_table1.getAttribute("style");
+            if ( ! style.contains("display: none;"))
+                status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");
+        }
         
         status.add(validateDownload());                     // Validate download streams.
         
@@ -252,8 +257,9 @@ public class GraphPageUnidimensional extends GraphPage {
             }
             HashMap<String, HashMap<String, Integer>> zygosityHash = groupHash.get(group);
             // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
-            if (group.toLowerCase().equals("control"))
+            if (group.toLowerCase().equals("control")) {
                 zygosity = group.toLowerCase();
+            }
             if ( ! zygosityHash.containsKey(zygosity)) {
                 zygosityHash.put(zygosity, new HashMap<String, Integer>());
             }
@@ -271,10 +277,15 @@ public class GraphPageUnidimensional extends GraphPage {
 
             // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
             String zygosityKey = (row.group == GraphContinuousTable.Group.CONTROL ? row.group.toString().toLowerCase() : row.zygosity.toLowerCase());
-            Integer downloadValue = groupHash
+
+            // Sometimes some of these components are null. Wrap this in a try block.
+            Integer downloadValue = null;
+            try {
+                downloadValue = groupHash
                     .get(row.group.toString().toLowerCase())
                     .get(zygosityKey)
                     .get(row.sex.toString().toLowerCase());
+                } catch (Exception e) { }
             downloadValue = (downloadValue == null ? 0 : downloadValue);    // 0 count values on the page have no hash entry (i.e. returned hash value is null).
             if ( ! pageValue.equals(downloadValue)) {
                 status.addError("ERROR: validating " + row.group.toString() + "." + row.zygosity + "." + row.sex.toString() + ": " +
@@ -309,7 +320,7 @@ public class GraphPageUnidimensional extends GraphPage {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
             // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
             // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            String downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDivGlobal']")).getAttribute("data-exporturl");
+            String downloadTargetUrlBase = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDivGlobal']"))).getAttribute("data-exporturl");
             String downloadTargetTsv = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "tsv", "/export?");
 
             // Get the download stream data.
@@ -332,7 +343,7 @@ public class GraphPageUnidimensional extends GraphPage {
             status.add(super.validateDownload(downloadData, new DownloadGraphMapUnidimensional())); // ... and validate it
             
             // Validate the counts.
-            validateDownloadCounts(downloadData);                                               // Specific Unidimensional 'continuousTable' validation
+            status.add(validateDownloadCounts(downloadData));                                               // Specific Unidimensional 'continuousTable' validation
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "ERROR: GraphPageUnidimensional.validateDownload(): Expected page for ID " + id + "(" + target + ") but found none.";
             status.addError(message);
