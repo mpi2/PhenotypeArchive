@@ -29,6 +29,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -177,8 +178,9 @@ public class GraphPageCategorical extends GraphPage {
             }
             HashMap<String, HashMap<String, HashMap<String, Integer>>> zygosityHash = groupHash.get(group);
             // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
-            if (group.toLowerCase().equals("control"))
+            if (group.toLowerCase().equals("control")) {
                 zygosity = group.toLowerCase();
+            }
             if ( ! zygosityHash.containsKey(zygosity)) {
                 zygosityHash.put(zygosity, new HashMap<String, HashMap<String, Integer>>());
             }
@@ -203,11 +205,16 @@ public class GraphPageCategorical extends GraphPage {
                 
                 // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
                 String zygosityKey = (row.group == GraphCatTable.Group.CONTROL ? row.group.toString().toLowerCase() : row.zygosity.toLowerCase());
-                Integer downloadValue = groupHash
-                        .get(row.group.toString().toLowerCase())
-                        .get(zygosityKey)
-                        .get(entry.getKey().toLowerCase())
-                        .get(row.sex.toString().toLowerCase());
+
+                // Sometimes some of these components are null. Wrap this in a try block.
+                Integer downloadValue = null;
+                try {
+                    downloadValue = groupHash
+                            .get(row.group.toString().toLowerCase())
+                            .get(zygosityKey)
+                            .get(entry.getKey().toLowerCase())
+                            .get(row.sex.toString().toLowerCase());
+                } catch (Exception e) { }
                 downloadValue = (downloadValue == null ? 0 : downloadValue);    // 0 count values on the page have no hash entry (i.e. returned hash value is null).
                 if ( ! pageValue.equals(downloadValue)) {
                     status.addError("ERROR: validating " + row.group.toString() + "." + row.zygosity + "." + entry.getKey() + "." + row.sex.toString() + ": " +
@@ -245,7 +252,7 @@ public class GraphPageCategorical extends GraphPage {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
             // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
             // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            String downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDivGlobal']")).getAttribute("data-exporturl");
+            String downloadTargetUrlBase = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDivGlobal']"))).getAttribute("data-exporturl");
             String downloadTargetTsv = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "tsv", "/export?");
             
             // Get the download stream data.
