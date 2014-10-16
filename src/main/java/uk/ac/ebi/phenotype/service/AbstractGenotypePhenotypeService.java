@@ -72,7 +72,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	public List<AggregateCountXYBean> getAggregateCountXYBean(Map <String, Long> map ){
 		List<AggregateCountXYBean> res = new ArrayList<>();
 		for (String key : map.keySet()){
-			AggregateCountXYBean bean = new AggregateCountXYBean( 10, key, key, "xAttribute", map.get(key).toString(), map.get(key).toString(), "yAttribute");
+//			new AggregateCountXYBean(aggregateCount, xValue, xName, xAttribute, yValue, yName, yAttribute);
+			AggregateCountXYBean bean = new AggregateCountXYBean( 10, key, key, "xAttribute", map.get(key).toString(), "Total", "yAttribute");
 			res.add(bean);
 		}
 		return res;
