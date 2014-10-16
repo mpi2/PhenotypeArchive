@@ -51,7 +51,9 @@ public class SolrIndex2 {
     private static final String NOT_COMPLETE = "placeholder";
     private static final String ALLELE_NAME_FIELD = "allele_name_str";
     private static final String ALLELE_TYPE_FIELD = "allele_type";
-    private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8985";
+    //private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8985";
+    //private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8998";
+    private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8983";
 
     public JSONObject getResults(String url) throws IOException,
             URISyntaxException {
