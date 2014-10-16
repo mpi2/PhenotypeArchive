@@ -122,22 +122,28 @@ public class GraphPageUnidimensional extends GraphPage {
             status.addError("ERROR: unidimensional graph has no continuousTable. URL: " + target);
         }
         
-        // Validate 'More statistics' drop-down. Clicking either the arrow or the link should toggle the toggle_table1 div.
-        List<WebElement> moreStatistics = driver.findElements(By.xpath("//div[@id='toggle_table1']"));
-        if (moreStatistics.isEmpty()) {
+        String moreStatisticsIXpath = "//i[@id='toggle_table_buttondivChart_1']";
+        String moreStatisticsDivXpath = "//div[@id='toggle_tabledivChart_1']";
+        List<WebElement> moreStatisticsList = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(moreStatisticsIXpath)));
+        
+        if (moreStatisticsList.isEmpty()) {
             status.addError("ERROR: Expected 'More statistics' link but wasn't found.");
         } else {
-            WebElement toggle_table1 = driver.findElement(By.xpath("//div[@id='toggle_table1']"));
-            String style = toggle_table1.getAttribute("style");
+            WebElement moreStatisticsIElement = moreStatisticsList.get(0);
+            WebElement moreStatisticsDivElement = driver.findElement(By.xpath(moreStatisticsDivXpath));
+            String style = moreStatisticsDivElement.getAttribute("style");
             if ( ! style.equals("display: none;"))
                 status.addError("ERROR: Expected 'More statistics' drop-down to start collapsed.");
-            WebElement i = driver.findElement(By.xpath("//i[@id='toggle_table_button1']"));
-            i.click();      // Click the link. That should open the toggle.
-            style = toggle_table1.getAttribute("style");
+            
+            moreStatisticsIElement.click();
+            wait.until(ExpectedConditions.visibilityOf(moreStatisticsDivElement));
+            style = moreStatisticsDivElement.getAttribute("style");
             if ( ! style.contains("display: block;"))
                 status.addError("ERROR: Expected 'More statistics' drop-down to be expanded.");
-            i.click();      // Click the link again. That should close the toggle.
-            style = toggle_table1.getAttribute("style");
+            
+            moreStatisticsIElement.click();
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(moreStatisticsDivXpath)));
+            style = moreStatisticsDivElement.getAttribute("style");
             if ( ! style.contains("display: none;"))
                 status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");
         }
