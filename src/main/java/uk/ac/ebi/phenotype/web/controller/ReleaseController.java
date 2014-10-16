@@ -183,7 +183,7 @@ public class ReleaseController {
 		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
 		
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
-			gpService.getAggregateCountXYBean(gpService.getDistributionOfAnnotationsByMPTopLevel(null)), "title", "subTitle", "yAxisLegend", "yAxisUnit", "containerId");
+			gpService.getAggregateCountXYBean(gpService.getDistributionOfAnnotationsByMPTopLevel(null)), "title", "subTitle", "yAxisLegend", "yAxisUnit", "distribution");
 		
 		/**
 		 * Get all former releases: releases but the current one

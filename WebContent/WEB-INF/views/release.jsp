@@ -183,6 +183,14 @@
 					</table>
 					<p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
 					
+					<h3>Distribution of Phenotype Annotations</h3>
+					<div id="distribution">
+						<script type="text/javascript">
+							${annotationDistributionChart}
+						</script>
+					</div>
+					
+					
 					<h3>Procedures</h3>
 					<div id="lineProcedureChart">
 					<script type="text/javascript">
