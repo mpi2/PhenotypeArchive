@@ -195,13 +195,14 @@ public class AnalyticsChartProvider {
 		    "        tooltip: {\n"+
 		    "            headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>',\n"+
 		    "            pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +\n"+
-		    "                '<td style=\"padding:0\"><b>{point.y:.1f} "+yAxisUnit+"</b></td></tr>',\n"+
+		    "                '<td style=\"padding:0\"><b>{point.y:.0f} "+yAxisUnit+"</b></td></tr>',\n"+
 		    "            footerFormat: '</table>',\n"+
 		    "            shared: true,\n"+
 		    "            useHTML: true\n"+
 		    "        },\n"+
 		    "        plotOptions: {\n"+
 		    "            column: {\n"+
+		    "            	 stacking: 'normal',\n"+
 		    "                pointPadding: 0.2,\n"+
 		    "                borderWidth: 0\n"+
 		    "            }\n"+

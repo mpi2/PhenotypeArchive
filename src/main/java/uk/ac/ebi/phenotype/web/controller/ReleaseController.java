@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.PostQcService;
 
 @Controller
@@ -182,8 +183,12 @@ public class ReleaseController {
 		
 		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
 		
+		Map<String, Map<String, Long>> annotationDistribution = new HashMap<>();
+		annotationDistribution.put(ZygosityType.heterozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.heterozygote));
+		annotationDistribution.put(ZygosityType.homozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.homozygote));
+		annotationDistribution.put(ZygosityType.hemizygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
-			gpService.getAggregateCountXYBean(gpService.getDistributionOfAnnotationsByMPTopLevel(null)), "title", "subTitle", "yAxisLegend", "yAxisUnit", "distribution");
+			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", " lines", "distribution");
 		
 		/**
 		 * Get all former releases: releases but the current one
