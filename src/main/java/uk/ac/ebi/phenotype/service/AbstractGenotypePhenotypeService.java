@@ -493,8 +493,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	public PhenotypeFacetResult getPhenotypeFacetResultByGenomicFeatures(Set<String> genomicFeatures)
 	throws IOException, URISyntaxException {
 
-		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-		System.out.println("SOLR URL = " + solrUrl);
+		String solrUrl = solr.getBaseURL();
 		// build OR query from a list of genes (assuming they have MGI ids
 		StringBuilder geneClause = new StringBuilder(genomicFeatures.size()*15);
 		boolean start = true;

@@ -199,7 +199,7 @@
 					</div>
 					
 					<h3>Allele Types</h3>
-							<table id="allele_types">
+						<table id="allele_types">
 						<thead>
 						<tr>
 							<th class="headerSort">Mutation</th>
@@ -224,6 +224,38 @@
 						<div class="clear"></div>
 					</div><!--  closing off inner here -->
 				</div><!-- closing off section -->
+			
+			<div class="section">
+								<h2 class="title" id="section-associations"> Latest status for IDG gene set </h2>		
+		            <div class="inner">
+		            	
+									<div class="half">
+										<div id="genotypeStatusChart">
+			            		<script type="text/javascript">
+																		$
+																		{
+																			genotypeStatusChart
+																					.getChart()
+																		}
+																	</script> 
+										</div>       	
+									</div>
+									<div class="half">
+			            	<div id="phenotypeStatusChart">
+			            		<script type="text/javascript">
+																		$
+																		{
+																			phenotypeStatusChart
+																					.getChart()
+																		}
+																	</script> 
+										</div>   
+									</div>
+		            	  <div class="clear"></div>   
+		            </div>
+		            
+		        </div> <!-- section -->
+					
 			
 				<div class="section">
 				
