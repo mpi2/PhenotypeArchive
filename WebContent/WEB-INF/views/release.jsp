@@ -226,7 +226,7 @@
 				</div><!-- closing off section -->
 			
 			<div class="section">
-								<h2 class="title" id="section-associations"> Latest status for IDG gene set </h2>		
+								<h2 class="title" id="section-associations"> Status </h2>		
 		            <div class="inner">
 		            	
 									<div class="half">
