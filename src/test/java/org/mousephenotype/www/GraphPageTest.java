@@ -45,9 +45,9 @@ import org.mousephenotype.www.testing.model.GridMap;
 import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.PhenotypeTableGene;
 import org.mousephenotype.www.testing.model.TestUtils;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -167,6 +167,83 @@ public class GraphPageTest {
         System.out.println("In this instance, a record is a categorical graph.");
         List<TestUtils.GraphData> graphUrls = TestUtils.getGraphUrls(solrUrl, ObservationType.categorical, 1000);
         graphTestEngine(testName, graphUrls);
+    }
+    
+    @Test
+//@Ignore
+    public void testPreQcGraph() {
+        String testName = "testPreQcGraph";
+        
+        List<TestUtils.GraphData> graphUrls = TestUtils.getGraphUrls(solrUrl, ObservationType.unidimensional, 1000);
+
+        String target;
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        PageStatus status = new PageStatus();
+        String graphUrl = "";
+
+        int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " preQc graphs.");
+
+        // Loop through the gene pages looking for graphs of the requested type. Test each graph.
+        int graphCount = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        int i = 0;
+        
+        for (TestUtils.GraphData graph : graphUrls) {
+            try {
+                if (graphCount >= targetCount) {
+                    break;
+                }
+                target = baseUrl + "/genes/" + graph.getGeneId();
+                System.out.println("Looking for preQc graphs on gene page URL[" + i + "]:\t" + target);
+                i++;
+           
+                // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
+                driver.get(target);
+                PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, target);
+                ptGene.load();
+                GridMap data = ptGene.getData();
+                // Start rowIndex at 1 to skip over heading row.
+                for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
+                    graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
+                            
+                    // Select only preQc links, identified by /phenoview/
+                    if (graphUrl.contains("/phenoview/")) {
+                        System.out.println("\tpreQc graph[ " + graphCount + "] URL: " + graphUrl);
+                        // If the graph page doesn't load, log it.
+                        try {
+                            driver.get(graphUrl);
+                            // Make sure there is a div.viz-tools.
+                            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.viz-tools")));
+                            message = "[PASSED]";
+                            System.out.println("\t\t" + message);
+                            successList.add(message);
+                        } catch (Exception e) {
+                            message = "\t\t[FAILED]";
+                            System.out.println(message);
+                            errorList.add(message);
+                        } finally {
+                            graphCount++;
+                            if (graphCount >= targetCount) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }  catch (Exception e) {
+                message = "[FAILED] - Graph Page URL: " + graphUrl;
+                System.out.println(message);
+                exceptionList.add(message);
+            }
+        }
+            
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, graphUrls.size());
+        System.out.println();
     }
     
     @Test
