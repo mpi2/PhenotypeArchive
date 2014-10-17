@@ -233,6 +233,13 @@ public class GraphPageTest {
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
                     Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE));
                     graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
+                    
+                    // Skip over preQc links, identified by /phenoview/
+                    if (graphUrl.contains("/phenoview/")) {
+//     System.out.println("Skipping graphUrl " + graphUrl);
+                        continue;
+                    }
+                    
                     if ((pagePvalue != null) && (pagePvalue > 0.0)) {
 //System.out.println("Comparing '" + pagePvalue + "' to '" + graph.getpValue() + "' (difference: " + (pagePvalue - graph.getpValue()) + ")");
                         if (TestUtils.equals(pagePvalue, graph.getpValue())) {
