@@ -45,7 +45,7 @@ public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
     // TODO: get rid!
-    private static final String VERSIONDATE = "Mon Oct 6 2014";
+    private static final String VERSIONDATE = "Mon Oct 20 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;
@@ -59,7 +59,7 @@ public class AllelesController {
 //        map.put("display_name_debug", (String)map2.get("display_name_debug"));
 //        map.put("display_name", (String)map2.get("display_name"));
 //        map.put("url", (String)map2.get("url"));
-//        
+//
 //        log.info("#### makeItem...");
 //        log.info("#### makeItem: map2: " + map2);
 //        log.info("#### makeItem: map: " + map);
@@ -78,15 +78,15 @@ public class AllelesController {
 
         HashMap<String, HashMap<String, List<String>>> constructs = solrIndex2.getAlleleQcInfo(alleleType, type, name);
         model.addAttribute("qcData", constructs);
-        
+
         String simple = request.getParameter("simple");
         boolean s = simple != null && simple.equals("true");
         if(s) {
             return "qcDataSimple";
-        }        
-        
+        }
+
         log.info("#### qcData: model: " + model);
-        
+
         return "qcData";
     }
 
@@ -116,8 +116,8 @@ public class AllelesController {
             }
         }
 
-        log.info("#### alleles1: list1: " + list1);        
-        
+        log.info("#### alleles1: list1: " + list1);
+
         model.addAttribute("mgi_accession_id", mgi_accession_id);
 
         model.addAttribute("list_alleles", list_alleles);
@@ -130,11 +130,21 @@ public class AllelesController {
         if(d) {
             model.addAttribute("debug", "true");
         }
-        
+
         return "alleles_list";
     }
 
-    // see http://stackoverflow.com/questions/81346/most-efficient-way-to-increment-a-map-value-in-java
+//    @RequestMapping("/alleles")
+//    public String alleles0(
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+//
+//        log.info("#### alleles0...");
+//
+//        return alleles1("Cbx1", model, request, attributes);
+//    }
+
     private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
 
         if (transcripts == null) {
@@ -232,7 +242,7 @@ public class AllelesController {
 
         log.info("#### getMutagenesisDetails: url: ");
         log.info(url);
-        
+
         HttpProxy proxy = new HttpProxy();
         String content;
 
@@ -309,9 +319,9 @@ public class AllelesController {
         log.info("#### allele_name: " + allele_name);
 
         String debug = request.getParameter("debug");
-        log.info("#### alleles1: debug: " + debug);        
+        log.info("#### alleles1: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
-        
+
         return allelesCommon(acc, allele_name, model, request, attributes);
     }
 
@@ -341,12 +351,12 @@ public class AllelesController {
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
         String debug = request.getParameter("debug");
-        log.info("#### allelesCommon: debug: " + debug);        
+        log.info("#### allelesCommon: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
         if(d) {
             model.addAttribute("debug", "true");
         }
-        
+
         Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, cassette, design_id, d);
 
         if (constructs == null) {
@@ -381,12 +391,12 @@ public class AllelesController {
         log.info("#### allele_name: " + allele_name);
 
         String debug = request.getParameter("debug");
-        log.info("#### allelesCommon: debug: " + debug);        
+        log.info("#### allelesCommon: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
         if(d) {
             model.addAttribute("debug", "true");
         }
-        
+
         Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, allele_name, d);
 
         if (constructs == null) {
@@ -403,7 +413,7 @@ public class AllelesController {
         //                    <a class="hasTooltip" href="${baseUrl}/alleles/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
         //model.addAttribute("qc_data_mouse", "alleles/qc_data/" + constructs.get("mice").get("title"));
 
-        
+
         log.info("#### mice: " + constructs.get("mice"));
         log.info("#### es_cells: " + constructs.get("es_cells"));
         log.info("#### targeting_vectors: " + constructs.get("targeting_vectors"));
