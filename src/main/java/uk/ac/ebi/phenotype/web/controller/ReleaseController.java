@@ -237,7 +237,6 @@ public class ReleaseController {
 		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		
-		System.out.println("PHEN DISTRIB CHART " + phenotypingDistributionChart);
 		return null;
 	}
 }

@@ -99,13 +99,8 @@ public class AlleleService {
 			solrQuery.addFacetField(statusField);
 			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
-			res.put("Phenotype Attempt Registered", null);
-			res.put("Phenotyping Started", null);
-			res.put("Phenotyping Complete", null);
-			System.out.println("before + + " + res.navigableKeySet().toString());
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
-				System.out.println("\t" +  c.getName());
 				if (!(c.getName().equalsIgnoreCase("Cre Excision Started") || c.getName().equals(""))){
 					res.put(c.getName(), c.getCount());
 				}
@@ -113,7 +108,6 @@ public class AlleleService {
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-		System.out.println("returning + + " + res.navigableKeySet().toString());
 		return res;
 	}
 	
