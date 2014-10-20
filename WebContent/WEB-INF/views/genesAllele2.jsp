@@ -22,7 +22,7 @@
                             
                             <c:choose>
                                 <c:when test="${not empty alleleProduct['product_url'] and not empty debug}">
-                                    <td><a title="click to visit solr" href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
+                                    <td><a title="click to visit solr" href="${alleleProduct['product_url']}">${alleleProduct["product"]}</a></td>
                                 </c:when>
                                 <c:otherwise>
                                     <td>${alleleProduct["product"]}</td>

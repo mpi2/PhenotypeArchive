@@ -277,6 +277,13 @@
 	                                            </ul>
 	                                            </c:forEach>
 
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="alert alert-info">There are currently no post QC phenotype associations for the gene ${gene.symbol} </div> <br/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    
+                                    <c:if test='${hasPreQcData || summaryNumber > 0}'>
                                             <!-- Associations table -->
                                             <h5>Filter this table</h5>
 
@@ -323,12 +330,7 @@
                                                 </div>
                                             </div>
 
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="alert alert-info">There are currently no phenotype associations for the gene ${gene.symbol} </div>
-                                        </c:otherwise>
-                                    </c:choose>
-
+																		</c:if>
                                     <!-- Show list of links to data for every center/pipeline/allele combination -->
                                     <c:if test="${!(empty dataMapList)}">
                                         <p class="with-label no-margin">

@@ -443,6 +443,7 @@ public class TestUtils {
             docs = JSONRestUtil.getDocArray(jsonData);
         } catch (Exception e) {
             System.out.println("ERROR: JSON results are null for graph type '" + graphType + "'. Local error message:\n" + e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
         
         if (docs != null) {

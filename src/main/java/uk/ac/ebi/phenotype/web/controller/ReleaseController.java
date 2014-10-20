@@ -3,10 +3,11 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +22,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.AlleleService;
+import uk.ac.ebi.phenotype.service.AlleleService.AlleleField;
 import uk.ac.ebi.phenotype.service.PostQcService;
 
 @Controller
@@ -29,9 +34,15 @@ public class ReleaseController {
 
 	@Autowired
 	private AnalyticsDAO analyticsDAO;
-	
+
 	@Autowired
 	private PostQcService gpService;
+
+	@Autowired
+	private UnidimensionalChartAndTableProvider chartProvider;
+	
+	@Autowired 
+	AlleleService as;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -182,9 +193,33 @@ public class ReleaseController {
 		
 		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
 		
+		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
+		annotationDistribution.put(ZygosityType.heterozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.heterozygote));
+		annotationDistribution.put(ZygosityType.homozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.homozygote));
+		annotationDistribution.put(ZygosityType.hemizygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
-			gpService.getAggregateCountXYBean(gpService.getDistributionOfAnnotationsByMPTopLevel(null)), "title", "subTitle", "yAxisLegend", "yAxisUnit", "containerId");
+			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", " lines", "distribution");
 		
+		Set<String> allPhenotypingCenters = as.getFacets(AlleleField.PHENOTYPING_CENTRE);
+		TreeMap<String, TreeMap<String, Long>> phenotypingDistribution = new TreeMap<>();
+		for (String center : allPhenotypingCenters){
+			if (!center.equals("")){
+				phenotypingDistribution.put(center, as.getStatusCountByPhenotypingCenter(center, AlleleField.PHENOTYPING_STATUS));
+			}
+		}
+		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
+		gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", "phenotypeStatusByCenterChart");
+	
+		Set<String> allGenotypingCenters = as.getFacets(AlleleField.PRODUCTION_CENTER);
+		TreeMap<String, TreeMap<String, Long>> genotypingDistribution = new TreeMap<>();
+		for (String center : allGenotypingCenters){
+			if (!center.equals("")){
+				genotypingDistribution.put(center, as.getStatusCountByProductionCenter(center, AlleleField.GENE_LATEST_MOUSE_STATUS));
+			}
+		}
+		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
+		gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", "genotypeStatusByCenterChart");
+	
 		/**
 		 * Get all former releases: releases but the current one
 		 */
@@ -205,7 +240,12 @@ public class ReleaseController {
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
+		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotyping Status", "genotypeStatusChart" ));
+		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotyping Status", "phenotypeStatusChart"));
+		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
+		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
 		
+		System.out.println(genotypingDistributionChart);
 		return null;
 	}
 }

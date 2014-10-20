@@ -43,7 +43,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	 * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
 	 * @author tudose
 	 */
-	public Map <String, Long> getDistributionOfAnnotationsByMPTopLevel(ZygosityType zygosity){
+	public TreeMap <String, Long> getDistributionOfAnnotationsByMPTopLevel(ZygosityType zygosity){
 		
 		SolrQuery query = new SolrQuery();
 		
@@ -61,7 +61,9 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		
 		try {
 			QueryResponse response = solr.query(query);
-			return getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+			TreeMap<String, Long> res = new TreeMap<>();
+			res.putAll(getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
+			return res;
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
@@ -69,11 +71,17 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	}
 	
 	
-	public List<AggregateCountXYBean> getAggregateCountXYBean(Map <String, Long> map ){
+	public List<AggregateCountXYBean> getAggregateCountXYBean(TreeMap <String, TreeMap<String, Long>> map ){
 		List<AggregateCountXYBean> res = new ArrayList<>();
-		for (String key : map.keySet()){
-			AggregateCountXYBean bean = new AggregateCountXYBean( 10, key, key, "xAttribute", map.get(key).toString(), map.get(key).toString(), "yAttribute");
-			res.add(bean);
+		System.out.println(" GETTING AGGREGATE " + map.keySet());
+	
+		for (String category : map.navigableKeySet()){
+			System.out.println("CATEGORY " + category);
+			for (String bin : map.get(category).navigableKeySet()){
+				System.out.println("\tBIN " + bin);
+				AggregateCountXYBean bean = new AggregateCountXYBean( map.get(category).get(bin).intValue(), bin, bin, "xAttribute", category, category, "yAttribute");
+				res.add(bean);
+			}
 		}
 		return res;
 	}
@@ -490,8 +498,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	public PhenotypeFacetResult getPhenotypeFacetResultByGenomicFeatures(Set<String> genomicFeatures)
 	throws IOException, URISyntaxException {
 
-		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-		System.out.println("SOLR URL = " + solrUrl);
+		String solrUrl = solr.getBaseURL();
 		// build OR query from a list of genes (assuming they have MGI ids
 		StringBuilder geneClause = new StringBuilder(genomicFeatures.size()*15);
 		boolean start = true;
@@ -684,17 +691,18 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
 	public PhenotypeCallSummary createSummaryCall(Object doc, Boolean preQc){
 		JSONObject phen = (JSONObject) doc;
-		System.out.println("doc_id :: " + phen.getString("doc_id") + ", preQc:: " + preQc);
+		JSONArray topLevelMpTermNames; 
+		JSONArray topLevelMpTermIDs;
 		String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
 		String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
 		PhenotypeCallSummary sum = new PhenotypeCallSummary();
 		OntologyTerm phenotypeTerm = new OntologyTerm();
-		phenotypeTerm.setName(mpTerm);
-		phenotypeTerm.setDescription(mpTerm);
-
 		DatasourceEntityId mpEntity = new DatasourceEntityId();
+		
 		mpEntity.setAccession(mpId);
 		phenotypeTerm.setId(mpEntity);
+		phenotypeTerm.setName(mpTerm);
+		phenotypeTerm.setDescription(mpTerm);
 		sum.setPhenotypeTerm(phenotypeTerm);
 
 		// Set the Gid field required for linking to phenoview, which is stored in the
@@ -706,8 +714,6 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		sum.setPreQC(preQc);
 
 		// check the top level categories
-		JSONArray topLevelMpTermNames; 
-		JSONArray topLevelMpTermIDs;
 		if (phen.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
 			topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
 			topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
@@ -728,9 +734,10 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 			toplevelTerm.setId(tlmpEntity);
 			topLevelPhenotypeTerms.add(toplevelTerm);
 		}
+		
 		sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
-
 		sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
+		
 		if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {
 			Allele allele = new Allele();
 			allele.setSymbol(phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL));
@@ -754,6 +761,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
 			sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
 		}
+		
 		// GenomicFeature gene=new GenomicFeature();
 		// gene.
 		// allele.setGene(gene);

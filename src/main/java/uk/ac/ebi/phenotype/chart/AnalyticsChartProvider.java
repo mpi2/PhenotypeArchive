@@ -155,11 +155,12 @@ public class AnalyticsChartProvider {
 	}
 	
 	
-	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId) {
+	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId, Boolean stacked) {
 
-		String chartString=
-			
+		String chartString= 			
 			"$(function () {\n"+
+			"	Highcharts.setOptions({"+
+			"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox) + "});" +
 		    "    $('#"+ containerId +"').highcharts({\n"+
 		    "        chart: {\n"+
 		    "            type: 'column',\n"+
@@ -195,13 +196,13 @@ public class AnalyticsChartProvider {
 		    "        tooltip: {\n"+
 		    "            headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>',\n"+
 		    "            pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +\n"+
-		    "                '<td style=\"padding:0\"><b>{point.y:.1f} "+yAxisUnit+"</b></td></tr>',\n"+
+		    "                '<td style=\"padding:0\"><b>{point.y:.0f} "+yAxisUnit+"</b></td></tr>',\n"+
 		    "            footerFormat: '</table>',\n"+
 		    "            shared: true,\n"+
 		    "            useHTML: true\n"+
 		    "        },\n"+
 		    "        plotOptions: {\n"+
-		    "            column: {\n"+
+		    "            column: {\n" + ((stacked) ? "            	 stacking: 'normal',\n" : "")+
 		    "                pointPadding: 0.2,\n"+
 		    "                borderWidth: 0\n"+
 		    "            }\n"+
@@ -215,7 +216,7 @@ public class AnalyticsChartProvider {
 	}
 		    
 	public String generateAggregateCountByProcedureChart(
-			String dataReleaseversion,
+			String dataReleaseVersion,
 			List<AggregateCountXYBean> data,
 			String title,
 			String subTitle,
@@ -280,11 +281,10 @@ public class AnalyticsChartProvider {
 
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId);
+		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true);
 
 		return chartString;
 	}
