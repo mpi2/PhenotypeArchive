@@ -51,8 +51,6 @@ public class SolrIndex2 {
     private static final String NOT_COMPLETE = "placeholder";
     private static final String ALLELE_NAME_FIELD = "allele_name_str";
     private static final String ALLELE_TYPE_FIELD = "allele_type";
-    //private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8985";
-    //private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8998";
     private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8983";
 
     public JSONObject getResults(String url) throws IOException,
@@ -608,7 +606,7 @@ public class SolrIndex2 {
         String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
         String url = "";
         if(mgi_accession_id != null && mgi_accession_id.length() > 0) {
-            url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q=" +
+            url = "http://ikmc.vm.bytemark.co.uk:8983/solr/product/select?indent=on&version=2.2&q=" +
                     "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:" + type +
                     "&fq=&start=0&rows=100&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
         }

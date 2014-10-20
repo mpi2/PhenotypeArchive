@@ -95,9 +95,13 @@
             
                 <c:forEach var="button" items="${summary['button_gear']}" varStatus="buttonx">
 
+                    <c:if test="${not empty button['url']}">
+                    
                     <td data-count="${buttonx.count}">
                         <a class="btn" href="${button['url']}"><i class="fa fa-info"></i> ${button['name']} </a>
                     </td>
+
+                    </c:if>
                     
                 </c:forEach>
 
