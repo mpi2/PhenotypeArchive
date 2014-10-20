@@ -244,6 +244,11 @@
 			         <div>
 			         <h3>By Center</h3>
 			         		<div class="half">
+				           	<div id="genotypeStatusByCenterChart">
+				           		<script type="text/javascript">${genotypingDistributionChart}</script> 
+										</div>   
+									</div>
+			         		<div class="half">
 				           	<div id="phenotypeStatusByCenterChart">
 				           		<script type="text/javascript">${phenotypingDistributionChart}</script> 
 										</div>   

@@ -14,6 +14,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
 import uk.ac.ebi.phenotype.util.PhenotypingStatusComparator;
+import uk.ac.ebi.phenotype.util.ProductionStatusComparator;
 
 
 public class AlleleService {
@@ -25,17 +26,20 @@ public class AlleleService {
 	
 	public static final class AlleleField {
 		public final static String GENE_LATEST_EC_CELL_STATUS = "gene_latest_es_cell_status";
-		public final static String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
 		public final static String GENE_LATEST_MOUSE_STATUS = "gene_latest_mouse_status";
 		public final static String MGI_ACCESSION_ID = "mgi_accession_id";
 		public final static String MARKER_SYMBOL = "marker_symbol";
 		public final static String TOP_LEVEL_MP_ID="top_level_mp_id";
-		public final static String PHENOTYPING_CENTRE = "phenotyping_centre";
-		public final static String LATEST_PHENOTYPING_CENTER = "latest_phenotyping_centre";
-		public final static String LATEST_PRODUCTION_CENTER = "latest_production_centre";
-		public final static String PRODUCTION_CENTER = "production_centre";
-		public static final String PHENOTYPING_STATUS = "phenotype_status";
 		
+		public final static String LATEST_PHENOTYPING_CENTER = "latest_phenotyping_centre";
+		public final static String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
+		public final static String PHENOTYPING_CENTRE = "phenotyping_centre";
+		public static final String PHENOTYPING_STATUS = "phenotype_status";
+
+		public final static String LATEST_PRODUCTION_CENTER = "latest_production_centre";
+		public final static String LATEST_PRODUCTION_STATUS = "latest_production_status";
+		public final static String PRODUCTION_CENTER = "production_centre";
+		public final static String MOUSE_STATUS = "mouse_status";
 	}	
 	
 
@@ -102,6 +106,38 @@ public class AlleleService {
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
 				if (!(c.getName().equalsIgnoreCase("Cre Excision Started") || c.getName().equals(""))){
+					res.put(c.getName(), c.getCount());
+				}
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+	
+	public TreeMap<String, Long> getStatusCountByProductionCenter(String center, String statusField) {
+
+		TreeMap<String, Long> res = new TreeMap<>(new ProductionStatusComparator());
+		SolrQuery solrQuery = new SolrQuery();
+		QueryResponse solrResponse;
+		
+		if (center != null){
+			String geneQuery = AlleleField.LATEST_PRODUCTION_CENTER + ":\"" + center + "\"";
+			solrQuery.setQuery(geneQuery);
+		}else {
+			solrQuery.setQuery("*:*");
+		}
+		
+		solrQuery.setRows(1);
+		solrQuery.setFacet(true);
+		solrQuery.setFacetLimit(-1);
+		try {
+			solrQuery.addFacetField(statusField);
+			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
+			solrResponse = solr.query(solrQuery);
+			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
+				// We don't want to show everything
+				if (!c.getName().equals("")){
 					res.put(c.getName(), c.getCount());
 				}
 			}

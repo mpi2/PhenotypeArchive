@@ -210,9 +210,16 @@ public class ReleaseController {
 		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
 		gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", "phenotypeStatusByCenterChart");
 	
-//		Set<String> allGenotypingCenters = as.getFacets(AlleleField.PRODUCTION_CENTER);
-		
-		
+		Set<String> allGenotypingCenters = as.getFacets(AlleleField.PRODUCTION_CENTER);
+		TreeMap<String, TreeMap<String, Long>> genotypingDistribution = new TreeMap<>();
+		for (String center : allGenotypingCenters){
+			if (!center.equals("")){
+				genotypingDistribution.put(center, as.getStatusCountByProductionCenter(center, AlleleField.GENE_LATEST_MOUSE_STATUS));
+			}
+		}
+		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
+		gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", "genotypeStatusByCenterChart");
+	
 		/**
 		 * Get all former releases: releases but the current one
 		 */
@@ -233,10 +240,12 @@ public class ReleaseController {
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
-		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
-		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotyping Status", "genotypeStatusChart" ));
+		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotyping Status", "phenotypeStatusChart"));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
+		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
 		
+		System.out.println(genotypingDistributionChart);
 		return null;
 	}
 }
