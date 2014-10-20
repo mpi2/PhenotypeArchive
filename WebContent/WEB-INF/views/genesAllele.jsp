@@ -26,7 +26,7 @@
                                 <c:otherwise>
 
                                     <c:if test="${not empty alleleProduct['product_url']}">
-                                        <td><a title="click to visit solr" href="${alleleProduct["product_url"]}">${alleleProduct["product"]}</a></td>
+                                        <td><a title="click to visit solr" href="${alleleProduct['product_url']}">${alleleProduct["product"]}</a></td>
                                     </c:if>
                                     <c:if test="${empty alleleProduct['product_url']}">
                                         <td>${alleleProduct["product"]}</td>
