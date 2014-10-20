@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.AlleleService;
+import uk.ac.ebi.phenotype.service.AlleleService.AlleleField;
 import uk.ac.ebi.phenotype.service.PostQcService;
 
 @Controller
@@ -196,9 +198,18 @@ public class ReleaseController {
 		annotationDistribution.put(ZygosityType.hemizygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
 			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", " lines", "distribution");
-		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
-		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
-
+		
+		Set<String> allPhenotypingCenters = as.getFacets(AlleleField.PHENOTYPING_CENTRE);
+		Map<String, Map<String, Long>> phenotypingDistribution = new HashMap<>();
+		for (String center : allPhenotypingCenters){
+			phenotypingDistribution.put(center, as.getStatusCount(null, AlleleField.PHENOTYPING_STATUS));
+		}
+		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
+		gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", "phenotypeStatusByCenterChart");
+	
+//		Set<String> allGenotypingCenters = as.getFacets(AlleleField.PRODUCTION_CENTER);
+		
+		
 		/**
 		 * Get all former releases: releases but the current one
 		 */
@@ -219,7 +230,11 @@ public class ReleaseController {
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
+		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
+		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		
+		System.out.println("ANN DISTRIB CHART " + annotationDistributionChart);
 		return null;
 	}
 }

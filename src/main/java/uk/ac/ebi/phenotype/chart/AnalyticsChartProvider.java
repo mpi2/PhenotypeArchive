@@ -155,7 +155,7 @@ public class AnalyticsChartProvider {
 	}
 	
 	
-	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId) {
+	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId, Boolean stacked) {
 
 		String chartString=
 			
@@ -201,8 +201,7 @@ public class AnalyticsChartProvider {
 		    "            useHTML: true\n"+
 		    "        },\n"+
 		    "        plotOptions: {\n"+
-		    "            column: {\n"+
-		    "            	 stacking: 'normal',\n"+
+		    "            column: {\n" + ((stacked) ? "            	 stacking: 'normal',\n" : "")+
 		    "                pointPadding: 0.2,\n"+
 		    "                borderWidth: 0\n"+
 		    "            }\n"+
@@ -281,11 +280,10 @@ public class AnalyticsChartProvider {
 
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId);
+		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true);
 
 		return chartString;
 	}

@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,12 @@ public class AlleleService {
 		public final static String MGI_ACCESSION_ID = "mgi_accession_id";
 		public final static String MARKER_SYMBOL = "marker_symbol";
 		public final static String TOP_LEVEL_MP_ID="top_level_mp_id";
+		public final static String PHENOTYPING_CENTRE = "phenotyping_centre";
+		public final static String LATEST_PHENOTYPING_CENTER = "latest_phenotyping_centre";
+		public final static String LATEST_PRODUCTION_CENTER = "latest_production_centre";
+		public final static String PRODUCTION_CENTER = "production_centre";
+		public static final String PHENOTYPING_STATUS = "phenotype_status";
+		
 	}	
 	
 
@@ -70,4 +77,24 @@ public class AlleleService {
 		return res;
 	}
 	
+	
+	public Set<String> getFacets(String field){
+		SolrQuery solrQuery = new SolrQuery();
+		QueryResponse solrResponse;
+		Set<String> res = new HashSet<>();
+		solrQuery.setQuery("*:*");
+		solrQuery.setFacet(true);
+		solrQuery.setFacetLimit(-1);
+		solrQuery.addFacetField(field);
+		System.out.println(this.getClass().getEnclosingMethod() + "   " + solr.getBaseURL() + "/select?" + solrQuery);
+		try {
+			solrResponse = solr.query(solrQuery);
+			for (Count c : solrResponse.getFacetField(field).getValues()) {
+				res.add(c.getName());
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
 }

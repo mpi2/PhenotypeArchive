@@ -231,30 +231,28 @@
 		            	
 									<div class="half">
 										<div id="genotypeStatusChart">
-			            		<script type="text/javascript">
-																		$
-																		{
-																			genotypeStatusChart
-																					.getChart()
-																		}
-																	</script> 
+			            		<script type="text/javascript">${genotypeStatusChart.getChart()}</script> 
 										</div>       	
 									</div>
 									<div class="half">
 			            	<div id="phenotypeStatusChart">
-			            		<script type="text/javascript">
-																		$
-																		{
-																			phenotypeStatusChart
-																					.getChart()
-																		}
-																	</script> 
+			            		<script type="text/javascript">${phenotypeStatusChart.getChart()}</script> 
 										</div>   
 									</div>
 		            	  <div class="clear"></div>   
-		            </div>
+		            	  
+			         <div>
+			         <h3>By Center</h3>
+			         		<div class="half">
+				           	<div id="phenotypingDistributionChart">
+				           		<script type="text/javascript">${phenotypingDistributionChart}</script> 
+										</div>   
+									</div>
+			      	   <div class="clear"></div>   
+			         </div>   	  
+		         </div>
 		            
-		        </div> <!-- section -->
+		   </div> <!-- section -->
 					
 			
 				<div class="section">
