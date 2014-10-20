@@ -43,7 +43,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	 * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
 	 * @author tudose
 	 */
-	public Map <String, Long> getDistributionOfAnnotationsByMPTopLevel(ZygosityType zygosity){
+	public TreeMap <String, Long> getDistributionOfAnnotationsByMPTopLevel(ZygosityType zygosity){
 		
 		SolrQuery query = new SolrQuery();
 		
@@ -61,7 +61,9 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		
 		try {
 			QueryResponse response = solr.query(query);
-			return getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+			TreeMap<String, Long> res = new TreeMap<>();
+			res.putAll(getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
+			return res;
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
@@ -69,11 +71,14 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	}
 	
 	
-	public List<AggregateCountXYBean> getAggregateCountXYBean(Map <String, Map<String, Long>> map ){
+	public List<AggregateCountXYBean> getAggregateCountXYBean(TreeMap <String, TreeMap<String, Long>> map ){
 		List<AggregateCountXYBean> res = new ArrayList<>();
-		for (String category : map.keySet()){
-			for (String bin : map.get(category).keySet()){
-	//			new AggregateCountXYBean(aggregateCount, xValue, xName, xAttribute, yValue, yName, yAttribute);
+		System.out.println(" GETTING AGGREGATE " + map.keySet());
+	
+		for (String category : map.navigableKeySet()){
+			System.out.println("CATEGORY " + category);
+			for (String bin : map.get(category).navigableKeySet()){
+				System.out.println("\tBIN " + bin);
 				AggregateCountXYBean bean = new AggregateCountXYBean( map.get(category).get(bin).intValue(), bin, bin, "xAttribute", category, category, "yAttribute");
 				res.add(bean);
 			}

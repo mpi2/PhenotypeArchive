@@ -2,8 +2,8 @@ package uk.ac.ebi.phenotype.service;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -12,6 +12,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+
+import uk.ac.ebi.phenotype.util.PhenotypingStatusComparator;
 
 
 public class AlleleService {
@@ -60,13 +62,13 @@ public class AlleleService {
 		}else {
 			solrQuery.setQuery("*:*");
 		}
-		solrQuery.setRows(1).setFacet(true);
+		solrQuery.setRows(1);
+		solrQuery.setFacet(true);
+		solrQuery.setFacetLimit(-1);
 		try {
-			// add facet for latest_project_status
 			solrQuery.addFacetField(statusField);
-			System.out.println("---- " + solr.getBaseURL() + "/select?" + solrQuery);
+			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
-			// put all values in the hash
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				res.put(c.getName(), c.getCount());
 			}
@@ -77,6 +79,43 @@ public class AlleleService {
 		return res;
 	}
 	
+	public TreeMap<String, Long> getStatusCountByPhenotypingCenter(String center, String statusField) {
+
+		TreeMap<String, Long> res = new TreeMap<>(new PhenotypingStatusComparator());
+		SolrQuery solrQuery = new SolrQuery();
+		QueryResponse solrResponse;
+		
+		if (center != null){
+			String geneQuery = AlleleField.PHENOTYPING_CENTRE + ":\"" + center + "\"";
+			solrQuery.setQuery(geneQuery);
+		}else {
+			solrQuery.setQuery("*:*");
+		}
+		
+		solrQuery.setRows(1);
+		solrQuery.setFacet(true);
+		solrQuery.setFacetLimit(-1);
+		try {
+			solrQuery.addFacetField(statusField);
+			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
+			solrResponse = solr.query(solrQuery);
+			res.put("Phenotype Attempt Registered", null);
+			res.put("Phenotyping Started", null);
+			res.put("Phenotyping Complete", null);
+			System.out.println("before + + " + res.navigableKeySet().toString());
+			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
+				// We don't want to show everything
+				System.out.println("\t" +  c.getName());
+				if (!(c.getName().equalsIgnoreCase("Cre Excision Started") || c.getName().equals(""))){
+					res.put(c.getName(), c.getCount());
+				}
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		System.out.println("returning + + " + res.navigableKeySet().toString());
+		return res;
+	}
 	
 	public Set<String> getFacets(String field){
 		SolrQuery solrQuery = new SolrQuery();

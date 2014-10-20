@@ -244,7 +244,7 @@
 			         <div>
 			         <h3>By Center</h3>
 			         		<div class="half">
-				           	<div id="phenotypingDistributionChart">
+				           	<div id="phenotypeStatusByCenterChart">
 				           		<script type="text/javascript">${phenotypingDistributionChart}</script> 
 										</div>   
 									</div>

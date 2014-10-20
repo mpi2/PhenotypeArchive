@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -192,7 +193,7 @@ public class ReleaseController {
 		
 		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
 		
-		Map<String, Map<String, Long>> annotationDistribution = new HashMap<>();
+		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
 		annotationDistribution.put(ZygosityType.heterozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.heterozygote));
 		annotationDistribution.put(ZygosityType.homozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.homozygote));
 		annotationDistribution.put(ZygosityType.hemizygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote));
@@ -200,9 +201,11 @@ public class ReleaseController {
 			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", " lines", "distribution");
 		
 		Set<String> allPhenotypingCenters = as.getFacets(AlleleField.PHENOTYPING_CENTRE);
-		Map<String, Map<String, Long>> phenotypingDistribution = new HashMap<>();
+		TreeMap<String, TreeMap<String, Long>> phenotypingDistribution = new TreeMap<>();
 		for (String center : allPhenotypingCenters){
-			phenotypingDistribution.put(center, as.getStatusCount(null, AlleleField.PHENOTYPING_STATUS));
+			if (!center.equals("")){
+				phenotypingDistribution.put(center, as.getStatusCountByPhenotypingCenter(center, AlleleField.PHENOTYPING_STATUS));
+			}
 		}
 		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
 		gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", "phenotypeStatusByCenterChart");
@@ -234,7 +237,7 @@ public class ReleaseController {
 		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		
-		System.out.println("ANN DISTRIB CHART " + annotationDistributionChart);
+		System.out.println("PHEN DISTRIB CHART " + phenotypingDistributionChart);
 		return null;
 	}
 }

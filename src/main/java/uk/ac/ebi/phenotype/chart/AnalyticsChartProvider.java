@@ -157,9 +157,10 @@ public class AnalyticsChartProvider {
 	
 	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId, Boolean stacked) {
 
-		String chartString=
-			
+		String chartString= 			
 			"$(function () {\n"+
+			"	Highcharts.setOptions({"+
+			"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox) + "});" +
 		    "    $('#"+ containerId +"').highcharts({\n"+
 		    "        chart: {\n"+
 		    "            type: 'column',\n"+
@@ -215,7 +216,7 @@ public class AnalyticsChartProvider {
 	}
 		    
 	public String generateAggregateCountByProcedureChart(
-			String dataReleaseversion,
+			String dataReleaseVersion,
 			List<AggregateCountXYBean> data,
 			String title,
 			String subTitle,
