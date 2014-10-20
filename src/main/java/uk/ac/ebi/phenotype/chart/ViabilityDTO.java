@@ -9,7 +9,21 @@ import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 public class ViabilityDTO {
 	//
 	
-	Map<String, ObservationDTO> paramNameToDataPoint = new HashMap<>();
+	Map<String, ObservationDTO> paramStableIdToObservation= new HashMap<>();
+
+	
+	public Map<String, ObservationDTO> getParamStableIdToObservation() {
+	
+		return paramStableIdToObservation;
+	}
+
+
+	
+	public void setParamStableIdToObservation(Map<String, ObservationDTO> paramStableIdToObservation) {
+	
+		this.paramStableIdToObservation = paramStableIdToObservation;
+	}
+
 
 	private String totalChart = "";
 	private String maleChart = "";
@@ -17,16 +31,6 @@ public class ViabilityDTO {
 	String category = "";// should get set to e.g. Homozygous - Viable
 
 
-	public Map<String, ObservationDTO> getParamNameToDataPoint() {
-
-		return paramNameToDataPoint;
-	}
-
-
-	public void setParamNameToDataPoint(Map<String, ObservationDTO> paramNameToDataPoint) {
-
-		this.paramNameToDataPoint = paramNameToDataPoint;
-	}
 
 
 	public String getCategory() {

@@ -483,14 +483,14 @@ public class ExperimentService {
      */
     public ViabilityDTO getSpecificViabilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
         ViabilityDTO viabilityDTO=new ViabilityDTO();
-        Map<String, ObservationDTO> paramNameToDataPoint = new HashMap<>();
+        Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
             //for viability we don't need to filter on Sex or Zygosity
         List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
         ObservationDTO outcomeObservation = observations.get(0);  
         System.out.println("specific outcome="+observations);
            System.out.println("category of observation="+outcomeObservation.getCategory());
        viabilityDTO.setCategory(observations.get(0).getCategory());
-       for(int i=3;i<13; i++){
+       for(int i=3;i<15; i++){
     	   String formatted = String.format("%02d",i);
            System.out.println("Number with leading zeros: " + formatted);
     	   String param="IMPC_VIA_0"+formatted+"_001";
@@ -500,9 +500,9 @@ public class ExperimentService {
            }
            System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
            System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
-           paramNameToDataPoint.put(param,observationsForCounts.get(0));
+           paramStableIdToObservation.put(param,observationsForCounts.get(0));
        }
-       viabilityDTO.setParamNameToDataPoint(paramNameToDataPoint);
+       viabilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
         return viabilityDTO;
     }
 

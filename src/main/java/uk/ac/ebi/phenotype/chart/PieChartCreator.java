@@ -32,7 +32,7 @@ String pieChart="";
 				 + " colors:"+colorArray+", "
 				 + " title: {  text: '"+title+"' }, "
 				 + " credits: { enabled: false }, "
-				 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
+				 + " tooltip: {  pointFormat: '{point.y}: <b>{point.percentage:.1f}%</b>'},"
 				 + " plotOptions: { "
 				 	+ "pie: { "
 				 		+ "size: 200, "
