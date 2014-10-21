@@ -884,7 +884,7 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
          driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
          
          // Wait for dropdown list to appear with 'blood glucose'.
-        String xpathSelector = "//ul[@id=\"ui-id-1\"]/li/a";
+        String xpathSelector = "//ul[@id='ui-id-1']/li[@class='ui-menu-item']/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
         if ( ! element.getText().contains("fasting glucose")) {
             errorList.add("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
@@ -895,6 +895,9 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
                 errorList.add("ERROR: Expected 'Found xxx genes' message. Text = '" + element.getText() + "'");
             }
         }
+        
+        if ((errorList.isEmpty() && (exceptionList.isEmpty())))
+            successList.add((testName + ": OK"));
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }

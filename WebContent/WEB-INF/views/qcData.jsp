@@ -51,7 +51,7 @@
 
 <c:choose>
 <c:when test='${qcData.equals("pass")}'>
-    <td style="color: blue;">${qcData}</td>
+    <td style="color: green;font-weight: bold;">${qcData}</td>
 </c:when>
 <c:otherwise>
     <td style="color: red;">${qcData}</td>

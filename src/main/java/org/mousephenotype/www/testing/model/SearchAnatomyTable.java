@@ -65,6 +65,7 @@ public class SearchAnatomyTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadData) {
+        String message;
         PageStatus status = new PageStatus();
         HashMap<String, String[]> downloadHash = new HashMap();
         
@@ -87,12 +88,17 @@ public class SearchAnatomyTable extends SearchFacetTable {
             // Verify the components.
             
             // anatomyId.
-            if ( ! pageRow.anatomyId.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID]))
-                status.addError("ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyId = '" + pageRow.anatomyId + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID] + "'.");
-            
+            if ( ! pageRow.anatomyId.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID])) {
+                message = "ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyId = '" + pageRow.anatomyId + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID] + "'.";
+                status.addError(message);
+                System.out.println(message);
+            }            
             // anatomyIdLink.
-            if ( ! pageRow.anatomyIdLink.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK]))
-                status.addError("ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyIdLink = '" + pageRow.anatomyIdLink + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK] + "'.");
+            if ( ! pageRow.anatomyIdLink.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK])) {
+                message = "ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyIdLink = '" + pageRow.anatomyIdLink + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK] + "'.";
+                status.addError(message);
+                System.out.println(message);
+            }
             
             // synonyms collection.
             HashMap<String, String> downloadSynonymHash = new HashMap();
@@ -106,7 +112,9 @@ public class SearchAnatomyTable extends SearchFacetTable {
             for (String pageSynonym : pageRow.synonyms) {
                 String downloadSynonym = downloadSynonymHash.get(pageSynonym);
                 if (downloadSynonym == null) {
-                    status.addError("ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value synonym = '" + pageSynonym + "' was not found in the download file.");
+                    message = "ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value synonym = '" + pageSynonym + "' was not found in the download file.";
+                    status.addError(message);
+                    System.out.println(message);
                 }
                 downloadSynonymHash.remove(downloadSynonym);
             }

@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONException;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex2;
@@ -53,6 +55,7 @@ import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.PreQcService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -63,6 +66,7 @@ import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -75,44 +79,36 @@ import java.util.*;
 public class GenesController {
 
 	private final Logger log = LoggerFactory.getLogger(GenesController.class);
+	private static final int numberOfImagesToDisplay = 5;
 
 	RegisterInterestDrupalSolr registerInterest;
 
 	@Autowired
 	private DatasourceDAO datasourceDao;
-
+	@Autowired
+	private PhenotypeSummaryDAO phenSummary;
 	@Autowired
 	private GenomicFeatureDAO genesDao;
-
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
-
-	@Autowired
-	ImageService imageService;
-
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
 
 	@Autowired
 	SolrIndex solrIndex;
-
-        @Autowired
-        SolrIndex2 solrIndex2;
-        
+    @Autowired
+    SolrIndex2 solrIndex2;
+	@Autowired
+	ImageService imageService;
 	@Autowired
 	private GeneService geneService;
-
 	@Autowired
 	private ObservationService observationService;
-
 	@Autowired
-	private PhenotypeSummaryDAO phenSummary;
-
+	private PreQcService preqcService;
+	
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
-
-	private static final int numberOfImagesToDisplay = 5;
-
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -204,35 +200,36 @@ public class GenesController {
 		 */
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
+		
 
+		String prodStatusIcons = "Neither production nor phenotyping status available ";
+		// Get list of triplets of pipeline, allele acc, phenotyping center
+		// to link to an experiment page will all data
 		try {
 			// model.addAttribute("phenotypeSummary",
 			// phenSummary.getSummary(acc));
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+			
 			// add number of top level terms
 			int total = 0;
 			for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-
-		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
-
-		// Get list of triplets of pipeline, allele acc, phenotyping center
-		// to link to an experiment page will all data
-		try {
-
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
+			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
+			model.addAttribute("hasPreQcData", hasPreQc);
+			
+			Map<String, String> prod = geneService.getProductionStatus(acc, request);
+			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
+			model.addAttribute("orderPossible", prod.get("orderPossible"));			
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		// code for assessing if the person is logged in and if so have they
@@ -244,6 +241,7 @@ public class GenesController {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
 			getImpcImages(acc, model);
+
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
 			log.info("images solr not available");
@@ -252,15 +250,17 @@ public class GenesController {
 
 		processPhenotypes(acc, model, "", request);
 
+		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
 		model.addAttribute("request", request);
-		model.addAttribute("acc", acc);
-
+		model.addAttribute("acc", acc);		
+		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
+		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
+		
 		// add in the disease predictions from phenodigm
 		processDisease(acc, model);
 
 		// ES Cell and IKMC Allele check (Gautier)
-
 		String solrCoreName = "allele";
 		String mode = "ikmcAlleleGrid";
 		int countIKMCAlleles = 0;
@@ -276,18 +276,7 @@ public class GenesController {
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
-
-		String prodStatusIcons = "Neither production nor phenotyping status available ";
-
-		try {
-
-			Map<String, String> prod = geneService.getProductionStatus(acc, request);
-			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
-			model.addAttribute("orderPossible", prod.get("orderPossible"));
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		}
-		model.addAttribute("prodStatusIcons", prodStatusIcons);
+		
 	}
 
 
@@ -714,13 +703,11 @@ public class GenesController {
 	public String genesAllele2(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
 
-		//List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
 		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo2(acc);
         
                 log.info("#### genesAllele2...");
                 log.info("#### genesAllele2: constructs2: " + constructs2);
                 
-	//	model.addAttribute("alleleProducts", constructs);
 		model.addAttribute("alleleProducts2", constructs2);
                 
                 String debug = request.getParameter("debug");

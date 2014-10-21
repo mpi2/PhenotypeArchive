@@ -81,13 +81,10 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	throws Exception {
 
 		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, null);
-		System.out.println("Here are the top level terms : " + summary.keySet());
 		PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
 		for (String id : summary.keySet()) {
 			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id, null);
-			System.out.println("Num found: " + resp.getNumFound());
 			String sex = getSexesRepresentationForPhenotypesSet(resp);
-			System.out.println("Sex: " + sex);
 			HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 			long n = resp.getNumFound();
 			PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);
@@ -105,10 +102,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 			HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, zyg);	
 			for (String id: summary.keySet()){
 				SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id, zyg);
-				System.out.println("\n Zygosity " + zyg);
-				System.out.println("Num found: " + resp.getNumFound());
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
-				System.out.println("Sex: " + sex);
 				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 				long n = resp.getNumFound();
 				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);
@@ -117,7 +111,6 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 			if (resSummary.getTotalPhenotypesNumber() > 0){
 				res.put(zyg, resSummary);
 			}
-			System.out.println("res keys " + res.keySet().size());
 		}
 		return res;
 	}

@@ -193,7 +193,7 @@ public class ChartsController {
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
-        ViabilityDTO viabilityDTO=null;
+       
 
         boolean statsError = false;
 
@@ -257,8 +257,9 @@ public class ChartsController {
        	//Its a viability outcome param which means its a line level query so we don't use the normal experiment query in experiment service
         ViabilityDTO viability=experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, 
     	strain, metaDataGroupString, alleleAccession);
-       
-       	return viability(model, null, viability);
+        ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+		 model.addAttribute("viabilityDTO", viabilityDTO);
+		 return "chart";
        }
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
         	strain, metaDataGroupString, alleleAccession);
@@ -289,16 +290,16 @@ public class ChartsController {
             }
 
             try {
-            	if (chartType == null){
-            		chartType = GraphUtils.getDefaultChartType(parameter);
-            		// chartType might still be null after this
-            		if(chartType==ChartType.PIE){
-            		 viabilityDTO = viabilityChartAndDataProvider.doViabilityData(null, null);
-        			 model.addAttribute("viabilityDTO", viabilityDTO);
-        			 //model.addAttribute("tableData", viabilityDTO);
-        			 return "chart";
-            		}
-            	}
+//            	if (chartType == null){
+//            		chartType = GraphUtils.getDefaultChartType(parameter);
+//            		// chartType might still be null after this
+//            		if(chartType==ChartType.PIE){
+//            		 viabilityDTO = viabilityChartAndDataProvider.doViabilityData(null, null);
+//        			 model.addAttribute("viabilityDTO", viabilityDTO);
+//        			 //model.addAttribute("tableData", viabilityDTO);
+//        			 return "chart";
+//            		}
+//            	}
                 if (chartType != null){
 					switch (chartType) {
                 		
@@ -371,11 +372,7 @@ public class ChartsController {
         return "chart";
     }
 
-	private String viability(Model model, Parameter parameter, ViabilityDTO viabilityDTO) {
-		viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viabilityDTO);
-		 model.addAttribute("viabilityDTO", viabilityDTO);
-		 return "chart";
-	}
+	
 
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {

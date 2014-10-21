@@ -2,6 +2,21 @@
 
 	<script type='text/javascript'><![CDATA[
 		
+		function hasQc(row){
+			if (row.get('qcGene')){
+				row.put('hasQc', 1); 
+			}									        		
+	   		return row; 
+		}
+		
+		function srcMapping(row){
+			if (row.get('gf_acc')){
+				row.put('legacy_phenotype_status', '1'); 
+			}	
+						        		
+	   		return row; 
+		}    
+			
 		// mapping for es cell/mouse/phenotyping statuses
 		function mapping(row){
 			if (row.get('mgi_accession_id')){
@@ -86,6 +101,7 @@
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />	
 	<dataSource name="sanger_allele" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
    	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+   	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	
   <document name="docs">
@@ -141,6 +157,17 @@
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 			<field column="imits_phenotype_status" name="imits_phenotype_status" />
 
+			<!-- legacy project_id:1 (UMODIC), project_id:8 (MGP) -->
+			<entity dataSource="komp2db" name="legacyPipe"
+				processor="CachedSqlEntityProcessor" 
+				query="select distinct project_id, gf_acc from phenotype_call_summary where p_value &lt; 0.0001 and (project_id = 1 OR project_id = 8)"
+				where="gf_acc=doc.mgi_accession_id" 
+				transformer="script:srcMapping" >
+				
+				<field column="gf_acc" naem="gf_acc" />	
+				<field column="legacy_phenotype_status" name="legacy_phenotype_status" />
+			</entity>
+			 
 			<!-- production/phenotyping centers -->
 			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 			<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />							                   	
@@ -171,7 +198,23 @@
                	
 			</entity>
 			
-			<!-- disease associated with this gene -->
+			
+			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
+			<!-- now use legacy_phenotype_status  
+			<entity dataSource="experiment_core" name="qcCheck" 
+				stream="true"  
+				onError="continue"
+				url="q=gene_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession_id&amp;rows=1"
+				processor="XPathEntityProcessor" 
+				forEach="/response/result/doc/" 
+				transformer="script:hasQc" >				
+
+				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
+				<field column="hasQc" name="hasQc" />		
+			</entity>			
+			-->
+			
+			<!-- disease associated with this gene -->			
 			<entity dataSource="phenodigm_core" name="ddoc" 
 				stream="true" 
 				url="q=marker_accession:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:disease_gene_summary&amp;rows=9999999&amp;wt=normal"
@@ -190,13 +233,15 @@
 				<field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
 				<field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
 				<field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
+				<field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
+				<field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
+				<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
 				
 				<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
 				<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
 				<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
-				<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" />
-				 
-				<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  		
+				<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
+								
 			</entity>
 							
 		</entity>

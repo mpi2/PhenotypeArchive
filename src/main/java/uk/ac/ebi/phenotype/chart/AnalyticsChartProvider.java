@@ -155,11 +155,12 @@ public class AnalyticsChartProvider {
 	}
 	
 	
-	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId) {
+	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId, Boolean stacked) {
 
-		String chartString=
-			
+		String chartString= 			
 			"$(function () {\n"+
+			"	Highcharts.setOptions({"+
+			"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox) + "});" +
 		    "    $('#"+ containerId +"').highcharts({\n"+
 		    "        chart: {\n"+
 		    "            type: 'column',\n"+
@@ -195,13 +196,13 @@ public class AnalyticsChartProvider {
 		    "        tooltip: {\n"+
 		    "            headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>',\n"+
 		    "            pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +\n"+
-		    "                '<td style=\"padding:0\"><b>{point.y:.1f} "+yAxisUnit+"</b></td></tr>',\n"+
+		    "                '<td style=\"padding:0\"><b>{point.y:.0f} "+yAxisUnit+"</b></td></tr>',\n"+
 		    "            footerFormat: '</table>',\n"+
 		    "            shared: true,\n"+
 		    "            useHTML: true\n"+
 		    "        },\n"+
 		    "        plotOptions: {\n"+
-		    "            column: {\n"+
+		    "            column: {\n" + ((stacked) ? "            	 stacking: 'normal',\n" : "")+
 		    "                pointPadding: 0.2,\n"+
 		    "                borderWidth: 0\n"+
 		    "            }\n"+
@@ -213,9 +214,120 @@ public class AnalyticsChartProvider {
 		return chartString;
 		
 	}
-		    
+		
+	public String generateSexualDimorphismChart(HashMap<String, Integer>sexualDimorphismSummary, String title, String containerId) {
+		
+		Integer totalWithDimorphism = sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - different size as males greater") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - females only") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - males only");
+		 
+		
+		
+		String chart = " $(function () {" +			
+			"		    var colors = Highcharts.getOptions().colors," +
+			"		        categories = ['Same', 'Different']," +
+			"		        data = [{\n" +
+			"		            y: " + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + ",\n" +
+			"		            color: colors[0],\n" +
+			"		            drilldown: {\n" +
+			"		                name: 'Same',\n" +
+			"		                categories: [''],\n" +
+			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + "],\n" +
+			"		                color: colors[1]\n" +
+			"		            }\n" +
+			"		        }, {\n" +
+			"		            y: " + totalWithDimorphism + ",\n" +
+			"		            color: colors[1],\n" +
+			"		            drilldown: {\n" +
+			"		                name: 'Different',\n" +
+			"		                categories: ['different directions for sexes', 'different size female greater', 'different size male greater', 'females only', 'females only'],\n" +
+			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + ", " +
+										sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") + ", " + 
+										sexualDimorphismSummary.get("If phenotype is significant - different size as males greater")+ ", " + 
+										sexualDimorphismSummary.get("If phenotype is significant - females only")+ ", " + 
+										sexualDimorphismSummary.get("If phenotype is significant - males only") + "],\n" +
+			"		                color: colors[1]\n" +
+			"		            }\n" +
+			"		        }\n" +
+			"		        ],\n" +
+			"		        browserData = [],\n" +
+			"		        versionsData = [],\n" +
+			"		        i,\n" +
+			"		        j,\n" +
+			"		        dataLen = data.length,\n" +
+			"		        drillDataLen,\n" +
+			"		        brightness;\n" +
+			"		    for (i = 0; i < dataLen; i += 1) {\n" +
+			"		        browserData.push({\n" +
+			"		            name: categories[i],\n" +
+			"		            y: data[i].y,\n" +
+			"		            color: data[i].color\n" +
+			"		        });\n" +
+			"		        drillDataLen = data[i].drilldown.data.length;\n" +
+			"		        for (j = 0; j < drillDataLen; j += 1) {\n" +
+			"		            brightness = 0.2 - (j / drillDataLen) / 5;\n" +
+			"		            versionsData.push({\n" +
+			"		                name: data[i].drilldown.categories[j],\n" +
+			"		                y: data[i].drilldown.data[j],\n" +
+			"		                color: Highcharts.Color(data[i].color).brighten(brightness).get()\n" +
+			"		            });\n" +
+			"		        }\n" +
+			"		    }\n" +
+			"		    $('#" + containerId + "').highcharts({\n" +
+			"		        chart: {\n" +
+			"		            type: 'pie'\n" +
+			"		        },\n" +
+			"		        title: {\n" +
+			"		            text: '" + title + "'\n" +
+			"		        },\n" +
+			"		        yAxis: {\n" +
+			"		            title: {\n" +
+			"		                text: 'Total percent market share'\n" +
+			"		            }\n" +
+			"		        },\n" +
+			"		        plotOptions: {\n" +
+			"		            pie: {\n" +
+			"		                shadow: false,\n" +
+			"		                center: ['50%', '50%']\n" +
+			"		            }\n" +
+			"		        },\n" +
+			"		        tooltip: {\n" +
+			"		            valueSuffix: '%'\n" +
+			"		        },\n" +
+			"		        series: [{\n" +
+			"		            name: 'Browsers',\n" +
+			"		            data: browserData,\n" +
+			"		            size: '60%',\n" +
+			"		            dataLabels: {\n" +
+			"		                formatter: function () {\n" +
+			"		                    return this.y > 5 ? this.point.name : null;\n" +
+			"		                },\n" +
+			"		                color: 'white',\n" +
+			"		                distance: -30\n" +
+			"		            }\n" +
+			"		        }, {\n" +
+			"		            name: 'Versions',\n" +
+			"		            data: versionsData,\n" +
+			"		            size: '80%',\n" +
+			"		            innerSize: '60%',\n" +
+			"		            dataLabels: {\n" +
+			"		                formatter: function () {\n" +
+			"		                    // display only if larger than 1\n" +
+			"		                    return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + '%'  : null;\n" +
+			"		                }\n" +
+			"		            }\n" +
+			"		        }]\n" +
+			"		    });\n" +
+			"		});";
+				
+				
+		return chart;
+	}
+	
 	public String generateAggregateCountByProcedureChart(
-			String dataReleaseversion,
+			String dataReleaseVersion,
 			List<AggregateCountXYBean> data,
 			String title,
 			String subTitle,
@@ -280,11 +392,10 @@ public class AnalyticsChartProvider {
 
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId);
+		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true);
 
 		return chartString;
 	}
