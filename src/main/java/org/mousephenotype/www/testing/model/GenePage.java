@@ -31,6 +31,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -80,10 +81,56 @@ public class GenePage {
     
     /**
      * 
+     * @return A list of top level MP terms.
+     */
+    public List<String> getAssociatedImageSections() {
+        List<String> associatedImageSections = new ArrayList();
+        List<WebElement> associatedImageSectionElements = driver.findElements(By.className("accordion-heading"));
+        for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
+            associatedImageSections.add(associatedImageSectionElement.getText());
+        }
+        
+        return associatedImageSections;      
+    }
+    
+    /**
+     * 
+     * @return All of the enabled abnormality strings (those that start with the
+     * class name 'sprite').
+     */
+    public List<String> getEnabledAbnormalities() {
+        List<String> abnormalityStrings = new ArrayList();
+        
+        List<WebElement> enabledAbnormalityElementList = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[starts-with(@class, 'sprite')]"));
+     
+        for (WebElement enabledAbnormalityElement : enabledAbnormalityElementList) {
+            String abnormality = enabledAbnormalityElement.getAttribute("oldtitle");
+            abnormalityStrings.add(abnormality);
+        }
+        
+        return abnormalityStrings;
+    }
+    
+    /**
+     * 
      * @return the base url
      */
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    /**
+     * 
+     * @return all button labels in a <code>List</code>.
+     */
+    public List<String> getButtonLabels() {
+        List<String> buttonLabels = new ArrayList();
+        List<WebElement> buttons = driver.findElements(By.className("btn"));
+        for (WebElement button : buttons) {
+            buttonLabels.add(button.getText());
+        }
+        
+        return buttonLabels;
     }
 
     /**
@@ -122,10 +169,47 @@ public class GenePage {
 
     /**
      * 
+     * @return all section titles in a <code>List</code>.
+     */
+    public List<String> getSectionTitles() {
+        List<String> sectionTitles = new ArrayList();
+        List<WebElement> sections = driver.findElements(By.className("title"));
+        for (WebElement sectionElement : sections) {
+            sectionTitles.add(sectionElement.getText());
+        }
+        
+        return sectionTitles;
+    }
+    
+    /**
+     * 
      * @return The target URL
      */
     public String getTarget() {
         return target;
+    }
+    
+    /**
+     * 
+     * @return the title ('Gene: Akt2')
+     */
+    public String getTitle() {
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("top")));
+        return element.getText();
+    }
+    
+    /**
+     * 
+     * @return A list of top level MP terms.
+     */
+    public List<String> getTopLevelMPs() {
+        List<String> topLevelMPs = new ArrayList();
+        Select selectTopLevel = new Select(driver.findElement(By.id("top_level_mp_term_name")));
+        for (WebElement option : selectTopLevel.getOptions()) {
+            topLevelMPs.add(option.getAttribute("value"));
+        }
+        
+        return topLevelMPs;      
     }
     
     /**
