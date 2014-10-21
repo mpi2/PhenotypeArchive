@@ -254,13 +254,22 @@
 										</div>   
 									</div>
 			      	   <div class="clear"></div>   
-			         </div>   	  
+			         </div> 
+			         <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
+			           	  
 		         </div>
 		            
-		            <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
-		   </div> <!-- section -->
+		      </div> <!-- section -->
 					
-			
+				<div class="section">
+						<h2 class="title" id="section-associations"> Sexual Dimorphism </h2>		
+		            <div class="inner">
+										<div id="sexualDimorphismChart">
+			            		<script type="text/javascript">${sexualDimorphismChart}</script> 
+										</div>       	
+		         </div>		            
+		    </div> <!-- section -->
+		    
 				<div class="section">
 				
 			    <h2 class="title" id="phenome-links">Phenotype Associations</h2>

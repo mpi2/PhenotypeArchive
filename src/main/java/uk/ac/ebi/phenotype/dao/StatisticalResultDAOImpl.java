@@ -41,7 +41,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 /**
  * 
  * The statistical result data access object is a wrapper to get access to
- * the results stored in the databased once the statistical pipeline has been
+ * the results stored in the database once the statistical pipeline has been
  * run on the categorical, unidimensional and derived parameters.
  * 
  * @author Jonathan Warren <jwarren@ebi.ac.uk>
@@ -461,6 +461,26 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			}
 		}
 		return result;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public HashMap<String, Integer> getSexualDimorphismSummary()
+	throws SQLException {
+		
+		HashMap<String, Integer> res = new HashMap<>();
+		String query = "SELECT COUNT(*), classification_tag FROM komp2.stat_result_phenotype_call_summary srpc "+
+			"INNER JOIN phenotype_call_summary pcs on pcs.id = srpc.phenotype_call_summary_id "+
+			"INNER JOIN stats_unidimensional_results sur ON srpc.unidimensional_result_id=sur.id "+
+			"GROUP BY classification_tag;";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				res.put(resultSet.getString("classification_tag"), resultSet.getInt("COUNT(*)"));
+			}
+		}
+		return res;
 	}
 
 }
