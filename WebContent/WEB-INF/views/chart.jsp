@@ -33,7 +33,6 @@
 					<jsp:include page="abrFrag.jsp"/>
 			</c:when>
 			<c:when test="${param['chart_type'] eq 'PIE'}">
-			Pie chart should be here
 					<jsp:include page="pieFrag.jsp"/>
 			</c:when>
 			<c:otherwise>
