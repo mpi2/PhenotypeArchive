@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.WordUtils;
 import org.springframework.stereotype.Service;
@@ -24,31 +25,34 @@ public class ViabilityChartAndDataProvider {
 		Map<String, ObservationDTO> paramStableIdToObservation = viabilityDTO.getParamStableIdToObservation();
 		List<ObservationDTO> totals=new ArrayList<>();
 		totals.add(paramStableIdToObservation.get(ViabilityDTO.totalPupsWt));
-		totals.add(paramStableIdToObservation.get(ViabilityDTO.totalPupsHet));
 		totals.add(paramStableIdToObservation.get(ViabilityDTO.totalPupsHom));
+		totals.add(paramStableIdToObservation.get(ViabilityDTO.totalPupsHet));
 		
 		List<ObservationDTO> male=new ArrayList<>();
-		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleHet));
-		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleHom));
 		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleWt));
+		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleHom));
+		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleHet));
+		
 		
 		List<ObservationDTO> female=new ArrayList<>();
-		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHet));
-		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHom));
-		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleWt));
 		
-		Map<String, Integer> totalLabelToNumber = new HashMap<>();
+	
+		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleWt));
+		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHom));
+		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHet));
+		
+		Map<String, Integer> totalLabelToNumber = new TreeMap<>();
 		for(ObservationDTO ob:totals){
 		totalLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 		}
 		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)");
 		viabilityDTO.setTotalChart(totalChart);
 		
-		Map<String, Integer> maleLabelToNumber = new HashMap<>();
+		Map<String, Integer> maleLabelToNumber = new TreeMap<>();
 		for(ObservationDTO ob:male){
 			maleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 		}
-		Map<String, Integer> femaleLabelToNumber = new HashMap<>();
+		Map<String, Integer> femaleLabelToNumber = new TreeMap<>();
 		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart", "Male Counts");
 		viabilityDTO.setMaleChart(maleChart);
 		
