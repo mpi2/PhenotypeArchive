@@ -16,12 +16,10 @@ String pieChart="";
 	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title){
 		
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
-		JSONArray colorArray = new JSONArray(colors);
-		
 				
 		String chart = "$(function () { $('#"+chartId+"').highcharts({ "
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	
-				 + " colors:"+colorArray+", "
+				 + " colors:"+colors+", "
 				 + " title: {  text: '"+title+"' }, "
 				 + " credits: { enabled: false }, "
 				 + " tooltip: {  pointFormat: '{point.y}: <b>{point.percentage:.1f}%</b>'},"

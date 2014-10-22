@@ -94,7 +94,7 @@ public class ChartColors {
 	public static List<String> getHighDifferenceColorsRgba(Double alpha) {	
         List<String> colorStrings=new ArrayList<String>(); 
 		for(String colorString:ChartColors.highDifferenceColors) {
-			colorStrings.add("rgba("+colorString+"," +alpha+")");
+			colorStrings.add("\'rgba("+colorString+"," +alpha+")\'");
 		}
 		
 		return colorStrings;
