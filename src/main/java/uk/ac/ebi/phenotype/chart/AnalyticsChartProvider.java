@@ -221,13 +221,13 @@ public class AnalyticsChartProvider {
 		 	sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") +
 		 	sexualDimorphismSummary.get("If phenotype is significant - different size as males greater") +
 		 	sexualDimorphismSummary.get("If phenotype is significant - females only") +
-		 	sexualDimorphismSummary.get("If phenotype is significant - males only");
+		 	sexualDimorphismSummary.get("If phenotype is significant - males only") +
+		 	sexualDimorphismSummary.get("If phenotype is significant it is for the one genotype tested");
 		Integer total = totalWithDimorphism + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally");
-		
 		
 		String chart = " $(function () {" +			
 			"		    var colors = Highcharts.getOptions().colors," +
-			"		        categories = ['Equally for both sexes', 'Different'],"+ 
+			"		        categories = ['Equal accross sexes', 'Sexual Dimorphism'],"+ 
 			"		        data = [{\n" +
 			"		            y: " + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + ",\n" +
 			"		            color: colors[0],\n" +
@@ -242,12 +242,13 @@ public class AnalyticsChartProvider {
 			"		            color: colors[1],\n" +
 			"		            drilldown: {\n" +
 			"		                name: 'Different',\n" +
-			"		                categories: ['Different directions for sexes', 'Different size female greater', 'Different size male greater', 'Females only', 'Males only'],\n" +
+			"		                categories: ['Different directions for sexes', 'Different size female greater', 'Different size male greater', 'Females only', 'Males only', 'One genotype tested'],\n" +
 			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + ", " +
 										sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") + ", " + 
 										sexualDimorphismSummary.get("If phenotype is significant - different size as males greater")+ ", " + 
 										sexualDimorphismSummary.get("If phenotype is significant - females only")+ ", " + 
-										sexualDimorphismSummary.get("If phenotype is significant - males only") + "],\n" +
+										sexualDimorphismSummary.get("If phenotype is significant - males only") + ", " +
+										sexualDimorphismSummary.get("If phenotype is significant it is for the one genotype tested") + "],\n" +
 			"		                color: colors[1]\n" +
 			"		            }\n" +
 			"		        }\n" +

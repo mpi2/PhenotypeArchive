@@ -266,7 +266,22 @@
 		            <div class="inner">
 										<div id="sexualDimorphismChart">
 			            		<script type="text/javascript">${sexualDimorphismChart}</script> 
-										</div>       	
+										</div>  
+										
+										<table>
+										<thead>
+											<tr>
+											<th class="headerSort">Status</th>
+											<th class="headerSort">Number of Calls</th>
+											</tr>
+										</thead>
+										<tbody>
+											<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
+												<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+											</c:forEach>
+										</tbody>
+													
+										</table>     	
 		         </div>		            
 		    </div> <!-- section -->
 		    
