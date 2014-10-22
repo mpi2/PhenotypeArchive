@@ -575,7 +575,6 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		if (alleleAccession != null) {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
-		System.out.println("observation  service query = " + query);
 
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);
@@ -621,7 +620,6 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		if (alleleAccession != null) {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
-		System.out.println("observation  service query = " + query);
 
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);

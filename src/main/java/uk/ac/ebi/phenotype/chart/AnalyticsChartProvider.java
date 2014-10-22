@@ -214,7 +214,118 @@ public class AnalyticsChartProvider {
 		return chartString;
 		
 	}
-		    
+		
+	public String generateSexualDimorphismChart(HashMap<String, Integer>sexualDimorphismSummary, String title, String containerId) {
+		
+		Integer totalWithDimorphism = sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - different size as males greater") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - females only") +
+		 	sexualDimorphismSummary.get("If phenotype is significant - males only");
+		 
+		
+		
+		String chart = " $(function () {" +			
+			"		    var colors = Highcharts.getOptions().colors," +
+			"		        categories = ['Same', 'Different']," +
+			"		        data = [{\n" +
+			"		            y: " + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + ",\n" +
+			"		            color: colors[0],\n" +
+			"		            drilldown: {\n" +
+			"		                name: 'Same',\n" +
+			"		                categories: [''],\n" +
+			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + "],\n" +
+			"		                color: colors[1]\n" +
+			"		            }\n" +
+			"		        }, {\n" +
+			"		            y: " + totalWithDimorphism + ",\n" +
+			"		            color: colors[1],\n" +
+			"		            drilldown: {\n" +
+			"		                name: 'Different',\n" +
+			"		                categories: ['different directions for sexes', 'different size female greater', 'different size male greater', 'females only', 'females only'],\n" +
+			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + ", " +
+										sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") + ", " + 
+										sexualDimorphismSummary.get("If phenotype is significant - different size as males greater")+ ", " + 
+										sexualDimorphismSummary.get("If phenotype is significant - females only")+ ", " + 
+										sexualDimorphismSummary.get("If phenotype is significant - males only") + "],\n" +
+			"		                color: colors[1]\n" +
+			"		            }\n" +
+			"		        }\n" +
+			"		        ],\n" +
+			"		        browserData = [],\n" +
+			"		        versionsData = [],\n" +
+			"		        i,\n" +
+			"		        j,\n" +
+			"		        dataLen = data.length,\n" +
+			"		        drillDataLen,\n" +
+			"		        brightness;\n" +
+			"		    for (i = 0; i < dataLen; i += 1) {\n" +
+			"		        browserData.push({\n" +
+			"		            name: categories[i],\n" +
+			"		            y: data[i].y,\n" +
+			"		            color: data[i].color\n" +
+			"		        });\n" +
+			"		        drillDataLen = data[i].drilldown.data.length;\n" +
+			"		        for (j = 0; j < drillDataLen; j += 1) {\n" +
+			"		            brightness = 0.2 - (j / drillDataLen) / 5;\n" +
+			"		            versionsData.push({\n" +
+			"		                name: data[i].drilldown.categories[j],\n" +
+			"		                y: data[i].drilldown.data[j],\n" +
+			"		                color: Highcharts.Color(data[i].color).brighten(brightness).get()\n" +
+			"		            });\n" +
+			"		        }\n" +
+			"		    }\n" +
+			"		    $('#" + containerId + "').highcharts({\n" +
+			"		        chart: {\n" +
+			"		            type: 'pie'\n" +
+			"		        },\n" +
+			"		        title: {\n" +
+			"		            text: '" + title + "'\n" +
+			"		        },\n" +
+			"		        yAxis: {\n" +
+			"		            title: {\n" +
+			"		                text: 'Total percent market share'\n" +
+			"		            }\n" +
+			"		        },\n" +
+			"		        plotOptions: {\n" +
+			"		            pie: {\n" +
+			"		                shadow: false,\n" +
+			"		                center: ['50%', '50%']\n" +
+			"		            }\n" +
+			"		        },\n" +
+			"		        tooltip: {\n" +
+			"		            valueSuffix: '%'\n" +
+			"		        },\n" +
+			"		        series: [{\n" +
+			"		            name: 'Browsers',\n" +
+			"		            data: browserData,\n" +
+			"		            size: '60%',\n" +
+			"		            dataLabels: {\n" +
+			"		                formatter: function () {\n" +
+			"		                    return this.y > 5 ? this.point.name : null;\n" +
+			"		                },\n" +
+			"		                color: 'white',\n" +
+			"		                distance: -30\n" +
+			"		            }\n" +
+			"		        }, {\n" +
+			"		            name: 'Versions',\n" +
+			"		            data: versionsData,\n" +
+			"		            size: '80%',\n" +
+			"		            innerSize: '60%',\n" +
+			"		            dataLabels: {\n" +
+			"		                formatter: function () {\n" +
+			"		                    // display only if larger than 1\n" +
+			"		                    return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + '%'  : null;\n" +
+			"		                }\n" +
+			"		            }\n" +
+			"		        }]\n" +
+			"		    });\n" +
+			"		});";
+				
+				
+		return chart;
+	}
+	
 	public String generateAggregateCountByProcedureChart(
 			String dataReleaseVersion,
 			List<AggregateCountXYBean> data,

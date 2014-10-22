@@ -24,6 +24,7 @@ import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
+import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.AlleleService;
 import uk.ac.ebi.phenotype.service.AlleleService.AlleleField;
@@ -34,16 +35,16 @@ public class ReleaseController {
 
 	@Autowired
 	private AnalyticsDAO analyticsDAO;
+	@Autowired 
+	private StatisticalResultDAO statisticalResultDAO;
 
 	@Autowired
 	private PostQcService gpService;
-
-	@Autowired
-	private UnidimensionalChartAndTableProvider chartProvider;
-	
 	@Autowired 
 	AlleleService as;
 	
+	@Autowired
+	private UnidimensionalChartAndTableProvider chartProvider;	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
@@ -219,7 +220,9 @@ public class ReleaseController {
 		}
 		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
 		gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", "genotypeStatusByCenterChart");
-	
+		
+		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(statisticalResultDAO.getSexualDimorphismSummary(), "Titlee", "sexualDimorphismChart" ); 
+		
 		/**
 		 * Get all former releases: releases but the current one
 		 */
@@ -244,8 +247,9 @@ public class ReleaseController {
 		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotyping Status", "phenotypeStatusChart"));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
-		
-		System.out.println(genotypingDistributionChart);
+		model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
+		System.out.println(sexualDimorphismChart);
+		System.out.println(statisticalResultDAO.getSexualDimorphismSummary());
 		return null;
 	}
 }

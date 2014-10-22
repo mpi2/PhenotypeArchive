@@ -61,13 +61,7 @@ public class GenePageTableRow extends DataTableRow {
         if (o.phenotypeTerm == null || this.phenotypeTerm == null) {
             return -1;
         }
-        
-        // Debugging:
-//int i = 0;
-//for (String s: sexes) {
-//    System.out.println("GenePageTableRow: graphUrl: " + graphUrl + ". P-VALUE: " + getPrValueAsString() + ". SEXES COUNT: " + sexes.size() + ". SEXES[" + i++ + "]: " + s);
-//}
-        
+              
         // Gene Page sorting
         int pvalueOp = this.pValue.compareTo(o.pValue);
         if (pvalueOp == 0) {
@@ -75,6 +69,8 @@ public class GenePageTableRow extends DataTableRow {
             if (phenotypeOp == 0) {
              	int procedureOp = this.procedure.getName().compareTo(o.procedure.getName());
                 if (procedureOp == 0) {
+                	System.out.println(this.toString());
+                	System.out.println("GenePageTableRow: MP: " + this.phenotypeTerm.getName() + ". P-VALUE: " + getPrValueAsString() + " parameter " + o.parameter.getId());
                     int parameterOp = this.parameter.getName().compareTo(o.parameter.getName());
                     if (parameterOp == 0) {
                         int phenotypingCenterOp = this.phenotypingCenter.compareTo(o.phenotypingCenter);

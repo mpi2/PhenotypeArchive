@@ -604,7 +604,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 				unidimensionalObservation.setDataPoint(Float.parseFloat(firstDimensionValue));
 			} catch (NumberFormatException ex) {
 				// can be "null" can be "/" and many others!
-				logger.info(ex.getMessage());
+				logger.debug(ex.getMessage());
 				unidimensionalObservation.setMissingFlag(true);
 			}
 
