@@ -221,8 +221,7 @@ public class AnalyticsChartProvider {
 		 	sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") +
 		 	sexualDimorphismSummary.get("If phenotype is significant - different size as males greater") +
 		 	sexualDimorphismSummary.get("If phenotype is significant - females only") +
-		 	sexualDimorphismSummary.get("If phenotype is significant - males only") +
-		 	sexualDimorphismSummary.get("If phenotype is significant it is for the one genotype tested");
+		 	sexualDimorphismSummary.get("If phenotype is significant - males only") ;
 		Integer total = totalWithDimorphism + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally");
 		
 		String chart = " $(function () {" +			
@@ -242,13 +241,13 @@ public class AnalyticsChartProvider {
 			"		            color: colors[1],\n" +
 			"		            drilldown: {\n" +
 			"		                name: 'Different',\n" +
-			"		                categories: ['Different directions for sexes', 'Different size female greater', 'Different size male greater', 'Females only', 'Males only', 'One genotype tested'],\n" +
-			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + ", " +
+			"		                categories: ['Different size female greater', 'Different size male greater', 'Females only', 'Males only', 'One genotype tested', 'Different directions for sexes'],\n" +
+			"		                data: [" +
 										sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") + ", " + 
 										sexualDimorphismSummary.get("If phenotype is significant - different size as males greater")+ ", " + 
 										sexualDimorphismSummary.get("If phenotype is significant - females only")+ ", " + 
 										sexualDimorphismSummary.get("If phenotype is significant - males only") + ", " +
-										sexualDimorphismSummary.get("If phenotype is significant it is for the one genotype tested") + "],\n" +
+										sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + "],\n" +
 			"		                color: colors[1]\n" +
 			"		            }\n" +
 			"		        }\n" +
@@ -298,10 +297,14 @@ public class AnalyticsChartProvider {
 			"		            }\n" +
 			"		        },\n" +
 			"		        tooltip: {\n" +
-			"		            valueSuffix: '%'\n" +
+			"		            formatter: function () {\n" +
+			"							var div = this.y*100/" + total +";\n" +
+			"							var percent = div.toFixed(2);\n	" +	
+			"		                    return 'Phenotype Calls<br/> ' + this.point.name + ':<b> ' + percent + '%</b> (' + this.y + ')' ;\n" +
+			"		                },\n" +
 			"		        },\n" +
 			"		        series: [{\n" +
-			"		            name: 'Browsers',\n" +
+			"		            name: 'Phenotype Calls',\n" +
 			"		            data: browserData,\n" +
 			"		            size: '60%',\n" +
 			"		            dataLabels: {\n" +
