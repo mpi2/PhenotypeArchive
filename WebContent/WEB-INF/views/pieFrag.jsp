@@ -6,7 +6,7 @@
 <c:if test="${viabilityDTO!=null}">
 
                      	
-            		<div id="totalChart" class="onethird">
+            		<div id="totalChart" class="onethirdForPie ">
 								</div>
    								<script type="text/javascript">
 		${viabilityDTO.totalChart}
@@ -15,7 +15,7 @@
 
 	
 
-            		<div id="maleChart" class="onethird">
+            		<div id="maleChart" class="onethirdForPie ">
 								</div>
    								<script type="text/javascript">
 		${viabilityDTO.maleChart}
@@ -24,7 +24,7 @@
 	
 	
 	
-            		<div id="femaleChart" class="onethird">
+            		<div id="femaleChart" class="onethirdForPie ">
 								</div>
    								<script type="text/javascript">
 		${viabilityDTO.femaleChart}

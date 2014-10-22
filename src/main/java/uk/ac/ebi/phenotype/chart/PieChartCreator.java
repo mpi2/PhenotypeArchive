@@ -37,7 +37,7 @@ String pieChart="";
 		for (Map.Entry<String, Integer> entry : labelToNumber.entrySet()){
 					chart+="['"+entry.getKey()+"', " +entry.getValue()+ " ],";
 			}
-			chart+=	"]  }]"
+			chart+=	"]}]"
 		+" }); });";
 		
 		return chart;
