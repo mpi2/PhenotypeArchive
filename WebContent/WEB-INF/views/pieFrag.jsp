@@ -2,45 +2,40 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
- 	<!-- PieChart here -->
- 	<c:if test="${viabilityDTO!=null}">
- 
-            		<div id="totalChart">
+<!-- PieChart here -->
+<c:if test="${viabilityDTO!=null}">
+
+                     	
+            		<div id="totalChart" class="onethird">
 								</div>
    								<script type="text/javascript">
 		${viabilityDTO.totalChart}
 	</script>
-								<div class="section half">
-								<%-- <a href="${acc}?${fn:replace(pageContext.request.queryString, 
-                                'UNIDIMENSIONAL_BOX_PLOT', 'UNIDIMENSIONAL_SCATTER_PLOT')}">Graph by date</a> --%>
-                                </div><div class="section half"></div>
-	</c:if>
+								
+
 	
-	<!-- PieChart here -->
-<%--  	${viabilityDTO.maleChart} --%>
- 	<c:if test="${viabilityDTO!=null}">
-            		<div id="maleChart">
+
+            		<div id="maleChart" class="onethird">
 								</div>
    								<script type="text/javascript">
 		${viabilityDTO.maleChart}
 	</script>
-								<div class="section half">
-								<%-- <a href="${acc}?${fn:replace(pageContext.request.queryString, 
-                                'UNIDIMENSIONAL_BOX_PLOT', 'UNIDIMENSIONAL_SCATTER_PLOT')}">Graph by date</a> --%>
-                                </div><div class="section half"></div>
-	</c:if>
+								
 	
-	<!-- PieChart here -->
- 	<%-- ${viabilityDTO.femaleChart} --%>
- 	<c:if test="${viabilityDTO!=null}">
-            		<div id="femaleChart">
+	
+	
+            		<div id="femaleChart" class="onethird">
 								</div>
    								<script type="text/javascript">
 		${viabilityDTO.femaleChart}
 	</script>
-								<div class="section half">
-								<%-- <a href="${acc}?${fn:replace(pageContext.request.queryString, 
-                                'UNIDIMENSIONAL_BOX_PLOT', 'UNIDIMENSIONAL_SCATTER_PLOT')}">Graph by date</a> --%>
-                                </div><div class="section half"></div>
-	</c:if>
 	
+	<table>
+	<tr><th></th><th>WT</th><th>Hom</th><th>Het</th><th>Total</th></tr>
+	<tr>
+	<td>Male and Female</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_004_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_006_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_005_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_003_001'].dataPoint}</td>
+	</tr>
+	<tr><td>Male</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_007_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_009_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_008_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_010_001'].dataPoint}</tr>
+	<tr><td>Female</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_011_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_013_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_012_001'].dataPoint}</td><td>${viabilityDTO.paramStableIdToObservation['IMPC_VIA_014_001'].dataPoint}	</tr>
+	</table>	
+</c:if>
