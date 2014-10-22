@@ -262,6 +262,9 @@ public class ChartsController {
 		 //we need the biological model for the line level param so just get the first observation from the first entry and get the biologicalModelId
 		 BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
          setTitlesForGraph(model, expBiologicalModel);
+         model.addAttribute("pipeline", pipeline);
+         model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+         model.addAttribute("phenotypingCenter", phenotypingCenter);
 		 return "chart";
        }
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
