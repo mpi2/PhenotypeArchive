@@ -221,19 +221,18 @@ public class AnalyticsChartProvider {
 		 	sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") +
 		 	sexualDimorphismSummary.get("If phenotype is significant - different size as males greater") +
 		 	sexualDimorphismSummary.get("If phenotype is significant - females only") +
-		 	sexualDimorphismSummary.get("If phenotype is significant - males only");
-		 
-		
+		 	sexualDimorphismSummary.get("If phenotype is significant - males only") ;
+		Integer total = totalWithDimorphism + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally");
 		
 		String chart = " $(function () {" +			
 			"		    var colors = Highcharts.getOptions().colors," +
-			"		        categories = ['Same', 'Different']," +
+			"		        categories = ['Equal accross sexes', 'Sexual Dimorphism'],"+ 
 			"		        data = [{\n" +
 			"		            y: " + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + ",\n" +
 			"		            color: colors[0],\n" +
 			"		            drilldown: {\n" +
-			"		                name: 'Same',\n" +
-			"		                categories: [''],\n" +
+			"		                name: 'Phenotype is significant for both sexes equally',\n" +
+			"		                categories: ['Equal accross sexes'],\n" +
 			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + "],\n" +
 			"		                color: colors[1]\n" +
 			"		            }\n" +
@@ -242,12 +241,13 @@ public class AnalyticsChartProvider {
 			"		            color: colors[1],\n" +
 			"		            drilldown: {\n" +
 			"		                name: 'Different',\n" +
-			"		                categories: ['different directions for sexes', 'different size female greater', 'different size male greater', 'females only', 'females only'],\n" +
-			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + ", " +
+			"		                categories: ['Different size female greater', 'Different size male greater', 'Females only', 'Males only', 'One genotype tested', 'Different directions for sexes'],\n" +
+			"		                data: [" +
 										sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") + ", " + 
 										sexualDimorphismSummary.get("If phenotype is significant - different size as males greater")+ ", " + 
 										sexualDimorphismSummary.get("If phenotype is significant - females only")+ ", " + 
-										sexualDimorphismSummary.get("If phenotype is significant - males only") + "],\n" +
+										sexualDimorphismSummary.get("If phenotype is significant - males only") + ", " +
+										sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + "],\n" +
 			"		                color: colors[1]\n" +
 			"		            }\n" +
 			"		        }\n" +
@@ -276,6 +276,9 @@ public class AnalyticsChartProvider {
 			"		        }\n" +
 			"		    }\n" +
 			"		    $('#" + containerId + "').highcharts({\n" +
+			"				credits: {\n" +
+		    "			         enabled: false\n" +
+		    "      			},\n"+		    
 			"		        chart: {\n" +
 			"		            type: 'pie'\n" +
 			"		        },\n" +
@@ -294,15 +297,21 @@ public class AnalyticsChartProvider {
 			"		            }\n" +
 			"		        },\n" +
 			"		        tooltip: {\n" +
-			"		            valueSuffix: '%'\n" +
+			"		            formatter: function () {\n" +
+			"							var div = this.y*100/" + total +";\n" +
+			"							var percent = div.toFixed(2);\n	" +	
+			"		                    return 'Phenotype Calls<br/> ' + this.point.name + ':<b> ' + percent + '%</b> (' + this.y + ')' ;\n" +
+			"		                },\n" +
 			"		        },\n" +
 			"		        series: [{\n" +
-			"		            name: 'Browsers',\n" +
+			"		            name: 'Phenotype Calls',\n" +
 			"		            data: browserData,\n" +
 			"		            size: '60%',\n" +
 			"		            dataLabels: {\n" +
 			"		                formatter: function () {\n" +
-			"		                    return this.y > 5 ? this.point.name : null;\n" +
+			"							var div = this.y*100/" + total +";\n" +
+			"							var percent = div.toFixed(2);\n	" +	
+			"		                    return this.point.name + ':<br/> ' + percent + '% (' + this.y + ')' ;\n" +
 			"		                },\n" +
 			"		                color: 'white',\n" +
 			"		                distance: -30\n" +
@@ -314,8 +323,9 @@ public class AnalyticsChartProvider {
 			"		            innerSize: '60%',\n" +
 			"		            dataLabels: {\n" +
 			"		                formatter: function () {\n" +
-			"		                    // display only if larger than 1\n" +
-			"		                    return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + '%'  : null;\n" +
+			"							var div = this.y*100/" + total +";\n" +
+			"							var percent = div.toFixed(2);\n	" +	
+			"		                    return (this.point.name != 'Equal accross sexes') ? '<b>' + this.point.name + ':</b> ' + percent + '% (' + this.y + ')'  : null;\n" +
 			"		                }\n" +
 			"		            }\n" +
 			"		        }]\n" +
