@@ -232,7 +232,7 @@ public class AnalyticsChartProvider {
 			"		            color: colors[0],\n" +
 			"		            drilldown: {\n" +
 			"		                name: 'Phenotype is significant for both sexes equally',\n" +
-			"		                categories: ['Both sexes equally'],\n" +
+			"		                categories: ['Equal accross sexes'],\n" +
 			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + "],\n" +
 			"		                color: colors[1]\n" +
 			"		            }\n" +
@@ -311,7 +311,7 @@ public class AnalyticsChartProvider {
 			"		                formatter: function () {\n" +
 			"							var div = this.y*100/" + total +";\n" +
 			"							var percent = div.toFixed(2);\n	" +	
-			"		                    return this.y > 5 ? this.point.name + ':<br/> ' + percent + '% (' + this.y + ')'  : null;\n" +
+			"		                    return this.point.name + ':<br/> ' + percent + '% (' + this.y + ')' ;\n" +
 			"		                },\n" +
 			"		                color: 'white',\n" +
 			"		                distance: -30\n" +
@@ -325,7 +325,7 @@ public class AnalyticsChartProvider {
 			"		                formatter: function () {\n" +
 			"							var div = this.y*100/" + total +";\n" +
 			"							var percent = div.toFixed(2);\n	" +	
-			"		                    return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + percent + '% (' + this.y + ')'  : null;\n" +
+			"		                    return (this.point.name != 'Equal accross sexes') ? '<b>' + this.point.name + ':</b> ' + percent + '% (' + this.y + ')'  : null;\n" +
 			"		                }\n" +
 			"		            }\n" +
 			"		        }]\n" +
