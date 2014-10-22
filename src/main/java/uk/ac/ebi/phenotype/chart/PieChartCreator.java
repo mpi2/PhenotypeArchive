@@ -15,14 +15,6 @@ String pieChart="";
 
 	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title){
 		
-//		int femaleOnly=10;
-//		int maleOnly=20;
-//		int both=40;
-//		int total=100;
-//		labelToNumber.put("Female only",10);
-//		labelToNumber.put("Male only", maleOnly);
-//		labelToNumber.put("Both sexes", both);
-		
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
 		
