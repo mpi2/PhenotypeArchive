@@ -260,7 +260,7 @@ public class ReleaseController {
 		model.addAttribute("fertilityChart", getFertilityChart(chartsProvider, fertilityDistrib));
 		model.addAttribute("fertilityMap", fertilityDistrib);
 		model.addAttribute("viabilityMap", viabilityMap);
-		model.addAttribute("fertilityChart", getViabilityChart(chartsProvider, viabilityMap));
+		model.addAttribute("viabilityChart", getViabilityChart(chartsProvider, viabilityMap));
 		
 		System.out.println(getFertilityChart(chartsProvider, fertilityDistrib));
 		return null;
