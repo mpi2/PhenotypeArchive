@@ -221,7 +221,9 @@ public class ReleaseController {
 		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
 		gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", "genotypeStatusByCenterChart");
 		
-		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(statisticalResultDAO.getSexualDimorphismSummary(), "Titlee", "sexualDimorphismChart" ); 
+		
+		HashMap<String, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
+		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" ); 
 		
 		/**
 		 * Get all former releases: releases but the current one
@@ -248,6 +250,7 @@ public class ReleaseController {
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
 		model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
+		model.addAttribute("sexualDimorphismSummary", sexualDimorphismSummary);
 		System.out.println(sexualDimorphismChart);
 		System.out.println(statisticalResultDAO.getSexualDimorphismSummary());
 		return null;
