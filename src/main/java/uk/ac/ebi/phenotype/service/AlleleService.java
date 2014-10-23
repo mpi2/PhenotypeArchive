@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
+import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.util.PhenotypingStatusComparator;
 import uk.ac.ebi.phenotype.util.ProductionStatusComparator;
 
@@ -21,28 +22,8 @@ public class AlleleService {
 
 
 	private HttpSolrServer solr;
-
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 	
-	public static final class AlleleField {
-		public final static String GENE_LATEST_EC_CELL_STATUS = "gene_latest_es_cell_status";
-		public final static String GENE_LATEST_MOUSE_STATUS = "gene_latest_mouse_status";
-		public final static String MGI_ACCESSION_ID = "mgi_accession_id";
-		public final static String MARKER_SYMBOL = "marker_symbol";
-		public final static String TOP_LEVEL_MP_ID="top_level_mp_id";
-		
-		public final static String LATEST_PHENOTYPING_CENTER = "latest_phenotyping_centre";
-		public final static String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
-		public final static String PHENOTYPING_CENTRE = "phenotyping_centre";
-		public static final String PHENOTYPING_STATUS = "phenotype_status";
-
-		public final static String LATEST_PRODUCTION_CENTER = "latest_production_centre";
-		public final static String LATEST_PRODUCTION_STATUS = "latest_production_status";
-		public final static String PRODUCTION_CENTER = "production_centre";
-		public final static String MOUSE_STATUS = "mouse_status";
-	}	
-	
-
 	public AlleleService(String solrUrl) {
 		solr = new HttpSolrServer(solrUrl);
 
@@ -60,7 +41,7 @@ public class AlleleService {
 		QueryResponse solrResponse;
 		
 		if (geneIds != null){
-			String geneQuery = AlleleField.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
+			String geneQuery = AlleleDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
 			System.out.println("geneQuery: " + geneQuery);
 			solrQuery.setQuery(geneQuery);
 		}else {
@@ -90,7 +71,7 @@ public class AlleleService {
 		QueryResponse solrResponse;
 		
 		if (center != null){
-			String geneQuery = AlleleField.PHENOTYPING_CENTRE + ":\"" + center + "\"";
+			String geneQuery = AlleleDTO.PHENOTYPING_CENTRE + ":\"" + center + "\"";
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");
@@ -122,7 +103,7 @@ public class AlleleService {
 		QueryResponse solrResponse;
 		
 		if (center != null){
-			String geneQuery = AlleleField.LATEST_PRODUCTION_CENTER + ":\"" + center + "\"";
+			String geneQuery = AlleleDTO.LATEST_PRODUCTION_CENTRE + ":\"" + center + "\"";
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");
