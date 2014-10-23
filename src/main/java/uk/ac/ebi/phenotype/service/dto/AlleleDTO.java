@@ -56,7 +56,6 @@ public class AlleleDTO {
 	public static final String PHENOTYPE_STATUS = "phenotype_status";
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
-	public static final String PHENOTYPING_STATUS = "phenotyping_status";
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
 	public static final String DISEASE_TERM = "disease_term";
@@ -134,8 +133,6 @@ public class AlleleDTO {
 	private List<String> productionCentre = new ArrayList<>();
 	@Field(PHENOTYPING_CENTRE)
 	private List<String> phenotypingCentre = new ArrayList<>();
-	@Field(PHENOTYPING_STATUS)
-	private List<String> phenotypingStatus = new ArrayList<>();
 
 	@Field(DISEASE_ID)
 	private List<String> diseaseId = new ArrayList<>();
@@ -794,22 +791,6 @@ public class AlleleDTO {
 		return latestProductionCentre;
 	}
 	
-	/**
-	 * @return the phenotypingStatus
-	 */
-	public List<String> getPhenotypingStatus() {
-	
-		return phenotypingStatus;
-	}
-	
-	/**
-	 * @param phenotypingStatus the phenotypingStatus to set
-	 */
-	public void setPhenotypingStatus(List<String> phenotypingStatus) {
-	
-		this.phenotypingStatus = phenotypingStatus;
-	}
-
 	@Override
 	public String toString() {
 

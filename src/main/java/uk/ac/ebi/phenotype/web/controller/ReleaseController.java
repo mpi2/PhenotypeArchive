@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -208,7 +209,7 @@ public class ReleaseController {
 		TreeMap<String, TreeMap<String, Long>> phenotypingDistribution = new TreeMap<>();
 		for (String center : allPhenotypingCenters){
 			if (!center.equals("")){
-				phenotypingDistribution.put(center, as.getStatusCountByPhenotypingCenter(center, AlleleDTO.PHENOTYPING_STATUS));
+				phenotypingDistribution.put(center, as.getStatusCountByPhenotypingCenter(center, AlleleDTO.PHENOTYPE_STATUS));
 			}
 		}
 		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
@@ -262,12 +263,22 @@ public class ReleaseController {
 	
 	public HashMap<String, Long> getFertilityMap(){
 
-		Set<String> allMutantColonies = os.getAllColonyIds();
+		Set<String> fertileColonies = os.getAllColonyIds();
+		Set<String> maleInfertileColonies = new HashSet<>();
+		Set<String> femaleInfertileColonies = new HashSet<>();
+		Set<String> bothSexesInfertileColonies;
+		
 		Set<String> mps = gpService.getFertilityAssociatedMps();
 		for (String mp : mps){
 			HashMap<String, Long> fertilityDistribution = gpService.getFertilityDistribution(mp);
 			System.out.println("fertilityDistribution :: " + mp + " :: " + fertilityDistribution);
 		}
+		bothSexesInfertileColonies = maleInfertileColonies;
+		bothSexesInfertileColonies.retainAll(femaleInfertileColonies);
+		fertileColonies.removeAll(maleInfertileColonies);
+		fertileColonies.removeAll(femaleInfertileColonies);
+		maleInfertileColonies.removeAll(bothSexesInfertileColonies);
+		femaleInfertileColonies.removeAll(bothSexesInfertileColonies);
 		return null;
 	}
 
