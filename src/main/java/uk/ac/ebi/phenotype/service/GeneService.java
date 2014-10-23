@@ -55,7 +55,7 @@ public class GeneService {
 
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
-	public static final class GeneDTOValue {
+	public static final class GeneFieldValue {
 		public final static String CENTRE_WTSI = "WTSI";
 		public final static String PHENOTYPE_STATUS_COMPLETE = "Phenotyping Complete";
 		public final static String PHENOTYPE_STATUS_STARTED = "Phenotyping Started";
