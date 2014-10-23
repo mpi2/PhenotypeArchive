@@ -285,6 +285,57 @@
 		         </div>		            
 		    </div> <!-- section -->
 		    
+		    
+		    <div class="section">
+						<h2 class="title" id="section-associations"> Fertility and Viability </h2>		
+		            <div class="inner">
+										
+										<div class="half">
+											<div id="fertilityChart">
+				            		<script type="text/javascript">${fertilityChart}</script> 
+											</div>  
+											
+											<table>
+											<thead>
+												<tr>
+												<th class="headerSort">Fertility</th>
+												<th class="headerSort">Number of Strains</th>
+												</tr>
+											</thead>
+											<tbody>
+												<c:forEach var="status" items="${fertilityMap.entrySet()}">
+													<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+												</c:forEach>
+											</tbody>
+														
+											</table>   
+									</div>  	
+									
+									<div class="half">
+											<div id="fertilityChart">
+				            		<script type="text/javascript"></script> 
+											</div>  
+											
+											<table>
+											<thead>
+												<tr>
+												<th class="headerSort">Viability</th>
+												<th class="headerSort">Number of Strains</th>
+												</tr>
+											</thead>
+											<tbody>
+												<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
+													<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+												</c:forEach>
+											</tbody>
+														
+											</table>   
+									</div>  	
+									
+									<div class="clear"> </div>
+		         </div>		            
+		    </div> <!-- section -->
+		    
 				<div class="section">
 				
 			    <h2 class="title" id="phenome-links">Phenotype Associations</h2>

@@ -340,7 +340,6 @@ public class AnalyticsChartProvider {
 	public String getSlicedPieChart(Map<String, Integer> slicedOut, Map<String, Integer> notSliced, String title, String containerId){
 			
 			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
-			JSONArray colorArray = new JSONArray(colors);	
 			
 			JSONArray data = new JSONArray();
 			try {
@@ -359,15 +358,16 @@ public class AnalyticsChartProvider {
 					data.put(obj);
 				}
 				
-				String chart = "$(function () { $('#pieChart').highcharts({ "
+				String chart = "$(function () { $('#" + containerId + "').highcharts({ "
 						 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	
-						 + " colors:"+colorArray+", "
-						 + " title: {  text: '' }, "
+						 + " colors:" + colors + ", "
+						 + " title: {  text: '" + title + "' }, "
 						 + " credits: { enabled: false }, "
 						 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
 						 + " plotOptions: { "
 						 	+ "pie: { "
 						 		+ "size: 200, "
+						 		+"showInLegend: true, "
 						 		+ "allowPointSelect: true, "
 						 		+ "cursor: 'pointer', "
 						 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "

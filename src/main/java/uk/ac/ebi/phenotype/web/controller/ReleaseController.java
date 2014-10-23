@@ -227,8 +227,8 @@ public class ReleaseController {
 		
 		HashMap<String, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
 		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" ); 
-	
-//		String fertilityChart = chartsProvider.getSlicedPieChart(slicedOut, notSliced, "Fertility Distribution", "fertilityChart");
+		
+		HashMap<String, Integer> fertilityDistrib = getFertilityMap();
 		
 		/**
 		 * Get all former releases: releases but the current one
@@ -256,7 +256,9 @@ public class ReleaseController {
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
 		model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
 		model.addAttribute("sexualDimorphismSummary", sexualDimorphismSummary);
-		System.out.println("getFertilityMap :: " + getFertilityMap());
+		model.addAttribute("fertilityChart", getFertilityChart(chartsProvider, fertilityDistrib));
+		model.addAttribute("fertilityMap", fertilityDistrib);
+		
 		return null;
 	}
 	
@@ -288,6 +290,15 @@ public class ReleaseController {
 		res.put("fertile", fertileColonies.size());
 		
 		return res;
+	}
+	
+	public String getFertilityChart(AnalyticsChartProvider chartProvider, HashMap<String, Integer> fertilityMap){
+		
+		HashMap<String, Integer> slicedOut = new HashMap<>(fertilityMap);
+		slicedOut.remove("fertile");
+		HashMap<String, Integer> notSliced = new HashMap<>();
+		notSliced.put("fertile" , fertilityMap.get("fertile"));
+		return chartProvider.getSlicedPieChart(slicedOut, notSliced, "Fertility Distribution", "fertilityChart");
 	}
 
 }
