@@ -312,6 +312,18 @@ public class TestUtils {
     }
     
     /**
+     * 
+     * @param graphUrl The graph URL being tested
+     * @return true if this is a preQC link; false otherwise.
+     */
+    public static boolean isPreQcLink(String graphUrl) {
+        if (graphUrl == null)
+            return false;
+        
+        return graphUrl.contains("/phenoview/");
+    }
+    
+    /**
      * Given an initialized <code>WebDriver</code> instance and a selenium URL,
      * prints the test environment for the test associated with <code>driver<code>.
      * @param driver the initialized <code>WebDriver</code> instance
