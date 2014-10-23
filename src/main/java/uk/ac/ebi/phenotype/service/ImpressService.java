@@ -109,7 +109,7 @@ public class ImpressService {
 	public String getPipelineUrlByStableId(String stableId){
 		Integer pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null){
-			return config.get("drupalBaseUrl") + "/impress/impress/displaySOP/" + pipelineKey;
+			return config.get("drupalBaseUrl") + "/impress/procedures/" + pipelineKey;
 		}
 		else return "#";
 	}

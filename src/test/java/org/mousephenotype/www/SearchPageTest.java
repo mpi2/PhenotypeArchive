@@ -922,6 +922,15 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
     
     @Test
 //@Ignore
+    public void testBrachydactyly() throws Exception {
+        String testName = "testBrachydactyly";
+        String searchString = "brachydactyly";
+        
+        downloadTestEngine(testName, searchString);
+    }
+    
+    @Test
+//@Ignore
     public void testLegDownload() throws Exception {
         String testName = "testLegDownload";
         String searchString = "leg";

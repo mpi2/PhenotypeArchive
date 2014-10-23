@@ -790,9 +790,7 @@ public class AlleleDTO {
 	public List<String> getLatestProductionCentre() {
 		return latestProductionCentre;
 	}
-
-
-
+	
 	@Override
 	public String toString() {
 

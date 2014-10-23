@@ -298,7 +298,7 @@ public class GenePageTest {
      * testIterations.properties with this test's name as the lvalue and the
      * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
-     * @throws SolrServerException 
+     * @throws SolrServerException [
      */
     @Test
 //@Ignore
@@ -655,7 +655,7 @@ public class GenePageTest {
         }
         
         //test that the order mouse and es cells content from viveks team exists on the page
-        WebElement orderAlleleDiv = driver.findElement(By.id("allele2"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
+        WebElement orderAlleleDiv = driver.findElement(By.id("allele"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
         String text = orderAlleleDiv.getText();
         if (text.length() < 100) {
             message = "Order Mouse content: [FAILED]. less than 100 characters: \n\t'" + text + "'";
@@ -664,12 +664,11 @@ public class GenePageTest {
         } else {
             System.out.println("Order Mouse content: [PASSED]\n");
         }
-            
-        if (status.hasErrors()) {
-            System.out.println(status.toStringErrorMessages());
-            errorList.add("Akt2 test failures.");
+        
+        if ((errorList.isEmpty() && (exceptionList.isEmpty()))) {
+            successList.add("Akt2 test: [PASSED]");
         } else {
-            successList.add("SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target);
+            errorList.add("Akt2 test: [FAILED]. URL: " + target);
         }
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);

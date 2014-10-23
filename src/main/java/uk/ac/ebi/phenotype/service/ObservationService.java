@@ -1492,8 +1492,28 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 
 	}
 
-
 	public HttpSolrServer getSolrServer() {
 		return solr;
 	}
+	
+	
+	public Set<String> getAllColonyIds(){
+		SolrQuery q = new SolrQuery();
+		q.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		q.setFacet(true);
+		q.setFacetMinCount(1);
+		q.setFacetLimit(-1);
+		q.setRows(0);
+		q.addFacetField(ObservationDTO.COLONY_ID);
+		
+		try {
+			return getFacets(solr.query(q)).keySet();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	
 }

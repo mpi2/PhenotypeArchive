@@ -73,12 +73,9 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	
 	public List<AggregateCountXYBean> getAggregateCountXYBean(TreeMap <String, TreeMap<String, Long>> map ){
 		List<AggregateCountXYBean> res = new ArrayList<>();
-		System.out.println(" GETTING AGGREGATE " + map.keySet());
 	
 		for (String category : map.navigableKeySet()){
-			System.out.println("CATEGORY " + category);
 			for (String bin : map.get(category).navigableKeySet()){
-				System.out.println("\tBIN " + bin);
 				AggregateCountXYBean bean = new AggregateCountXYBean( map.get(category).get(bin).intValue(), bin, bin, "xAttribute", category, category, "yAttribute");
 				res.add(bean);
 			}
@@ -825,6 +822,41 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 			System.err.println("procedure_stable_id");
 		}
 		return sum;
+	}
+	
+	
+	public HashMap<String, Long> getFertilityDistribution(String mpTermName){
+
+		SolrQuery q = new SolrQuery();
+		q.setQuery(GenotypePhenotypeDTO.MP_TERM_NAME + ":\"" + mpTermName + "\"");
+		q.setFacet(true);
+		q.setFacetMinCount(1);
+		q.addFacetField(GenotypePhenotypeDTO.COLONY_ID);
+		
+		try {
+			return (getFacets(solr.query(q))).get(GenotypePhenotypeDTO.COLONY_ID);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public Set<String> getFertilityAssociatedMps(){
+
+		SolrQuery q = new SolrQuery();
+		q.setQuery(GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":*_FER_*");
+		q.setFacet(true);
+		q.setFacetMinCount(1);
+		q.addFacetField(GenotypePhenotypeDTO.MP_TERM_NAME);
+		
+		try {
+			return (getFacets(solr.query(q))).get(GenotypePhenotypeDTO.MP_TERM_NAME).keySet();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 	
 	

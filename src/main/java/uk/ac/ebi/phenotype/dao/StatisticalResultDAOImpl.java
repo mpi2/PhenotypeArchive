@@ -472,6 +472,7 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		String query = "SELECT COUNT(*), classification_tag FROM komp2.stat_result_phenotype_call_summary srpc "+
 			"INNER JOIN phenotype_call_summary pcs on pcs.id = srpc.phenotype_call_summary_id "+
 			"INNER JOIN stats_unidimensional_results sur ON srpc.unidimensional_result_id=sur.id "+
+			"WHERE pcs.p_value < 0.0001 " +
 			"GROUP BY classification_tag;";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {

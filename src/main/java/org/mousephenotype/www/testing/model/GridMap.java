@@ -21,6 +21,7 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -52,6 +53,29 @@ public class GridMap {
         for (String colHeading : data[0]) {
             colNameHash.put(colHeading, i);
         }
+    }
+    
+    /**
+     * Creates a <code>GridMap</code> instance
+     * 
+     * @param dataList the data store
+     * @param target the target URL of the page containing the data
+     */
+    public GridMap(List<List<String>> dataList, String target) {
+        data = new String[dataList.size()][dataList.get(0).size()];
+        for (int rowIndex = 0; rowIndex <  dataList.size(); rowIndex++) {
+            List<String> row = dataList.get(rowIndex);
+            for (int colIndex = 0; colIndex < row.size(); colIndex++) {
+                String cellValue = row.get(colIndex);
+                data[rowIndex][colIndex] = cellValue;
+            }
+        }
+        
+        for (String colHeading : data[0]) {
+            colNameHash.put(colHeading, 0);
+        }
+        
+        this.target = target;
     }
     
     public String[][] getData() {
