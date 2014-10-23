@@ -312,8 +312,8 @@
 									</div>  	
 									
 									<div class="half">
-											<div id="fertilityChart">
-				            		<script type="text/javascript"></script> 
+											<div id="viabilityChart">
+				            		<script type="text/javascript">${viabilityChart}</script> 
 											</div>  
 											
 											<table>
@@ -324,7 +324,7 @@
 												</tr>
 											</thead>
 											<tbody>
-												<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
+												<c:forEach var="status" items="${viabilityMap.entrySet()}">
 													<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
 												</c:forEach>
 											</tbody>

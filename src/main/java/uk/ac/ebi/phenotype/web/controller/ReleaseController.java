@@ -229,6 +229,7 @@ public class ReleaseController {
 		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" ); 
 		
 		HashMap<String, Integer> fertilityDistrib = getFertilityMap();
+		HashMap<String, Integer> viabilityMap = getViabilityMap();
 		
 		/**
 		 * Get all former releases: releases but the current one
@@ -258,7 +259,10 @@ public class ReleaseController {
 		model.addAttribute("sexualDimorphismSummary", sexualDimorphismSummary);
 		model.addAttribute("fertilityChart", getFertilityChart(chartsProvider, fertilityDistrib));
 		model.addAttribute("fertilityMap", fertilityDistrib);
+		model.addAttribute("viabilityMap", viabilityMap);
+		model.addAttribute("fertilityChart", getViabilityChart(chartsProvider, viabilityMap));
 		
+		System.out.println(getFertilityChart(chartsProvider, fertilityDistrib));
 		return null;
 	}
 	
@@ -270,8 +274,8 @@ public class ReleaseController {
 		Set<String> femaleInfertileColonies = new HashSet<>();
 		Set<String> bothSexesInfertileColonies;
 
-		maleInfertileColonies = gpService.getFertilityDistribution("male infertility", "IMPC").keySet();
-		femaleInfertileColonies = gpService.getFertilityDistribution("female infertility", "IMPC").keySet();
+		maleInfertileColonies = gpService.getAssociationsDistribution("male infertility", "IMPC").keySet();
+		femaleInfertileColonies = gpService.getAssociationsDistribution("female infertility", "IMPC").keySet();
 				
 		bothSexesInfertileColonies = new HashSet<>(maleInfertileColonies);
 		bothSexesInfertileColonies.retainAll(femaleInfertileColonies);
@@ -296,6 +300,30 @@ public class ReleaseController {
 		HashMap<String, Integer> notSliced = new HashMap<>();
 		notSliced.put("fertile" , fertilityMap.get("fertile"));
 		return chartProvider.getSlicedPieChart(slicedOut, notSliced, "Fertility Distribution", "fertilityChart");
+	}
+	
+	public String getViabilityChart(AnalyticsChartProvider chartProvider, HashMap<String, Integer> fertilityMap){
+		
+		HashMap<String, Integer> slicedOut = new HashMap<>(fertilityMap);
+		slicedOut.remove("viable");
+		HashMap<String, Integer> notSliced = new HashMap<>();
+		notSliced.put("viable" , fertilityMap.get("viable"));
+		return chartProvider.getSlicedPieChart(slicedOut, notSliced, "Viability Distribution", "viabilityChart");
+	}
+	
+	public HashMap<String , Integer> getViabilityMap(){
+		Set<String> partialLethality = gpService.getAssociationsDistribution("partial preweaning lethality", "IMPC").keySet();
+		Set<String> completeLethality = gpService.getAssociationsDistribution("complete preweaning lethality", "IMPC").keySet();
+		Set<String> all = os.getAllIMPCColonyIds();
+		all.removeAll(partialLethality);
+		all.removeAll(completeLethality);
+
+		HashMap<String, Integer> res = new HashMap<>();
+		res.put("partial preweaning lethality", partialLethality.size());
+		res.put("complete preweaning lethality", completeLethality.size());
+		res.put("viable", all.size());
+		
+		return res;
 	}
 
 }

@@ -826,10 +826,9 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	
 	/**
 	 * 
-	 * @param mpTermName
 	 * @return map <colony_id, occurences>
 	 */
-	public HashMap<String, Long> getFertilityDistribution(String mpTermName, String resource){
+	public HashMap<String, Long> getAssociationsDistribution(String mpTermName, String resource){
 
 		String query = GenotypePhenotypeDTO.MP_TERM_NAME + ":\"" + mpTermName + "\"";
 		if (resource != null){
@@ -850,6 +849,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		
 		return null;
 	}
+
 	
 	public Set<String> getFertilityAssociatedMps(){
 
