@@ -282,9 +282,8 @@ public class CategoricalChartAndTableProvider {
 											// variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
-		JSONArray colorArray = new JSONArray(colors);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
-		+ "colors:" + colorArray + ", "
+		+ "colors:" + colors + ", "
 		+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
 		+ "chart: { renderTo: '" + chartId + "', type: 'column' }, "
 		+ "title: { text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true }, "
@@ -399,7 +398,6 @@ public class CategoricalChartAndTableProvider {
 		String procedureDescription = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
-		JSONArray colorArray = new JSONArray(colors);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart_"
 		+ chartId
@@ -407,7 +405,7 @@ public class CategoricalChartAndTableProvider {
 		+ chartId
 		+ " = new Highcharts.Chart({ "
 		+ "tooltip : "+ toolTipFunction
-		+ ", colors:" + colorArray
+		+ ", colors:" + colors
 		+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column' }, "
 		+ "title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true  }, "
 		+ "credits: { enabled: false }, "

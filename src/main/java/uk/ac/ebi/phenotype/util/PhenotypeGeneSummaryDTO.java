@@ -122,11 +122,11 @@ public class PhenotypeGeneSummaryDTO {
 	protected String getPiechart(int maleOnly, int femaleOnly, int both, int total){
 	
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
-		JSONArray colorArray = new JSONArray(colors);	
+			
 		
 		String chart = "$(function () { $('#pieChart').highcharts({ "
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	
-				 + " colors:"+colorArray+", "
+				 + " colors:"+colors+", "
 				 + " title: {  text: '' }, "
 				 + " credits: { enabled: false }, "
 				 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"

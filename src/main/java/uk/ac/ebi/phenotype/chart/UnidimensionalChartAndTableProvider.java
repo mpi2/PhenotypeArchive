@@ -328,8 +328,7 @@ public class UnidimensionalChartAndTableProvider {
 
 		}// end of scatter loop
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
-		JSONArray colorArray = new JSONArray(colors);
-		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colorArray 
+		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors 
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    ,"
 			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
