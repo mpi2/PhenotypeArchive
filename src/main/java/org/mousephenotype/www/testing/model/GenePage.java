@@ -284,25 +284,27 @@ public class GenePage {
         // If there is a 'phenotypes' HTML table, validate it.
         if (hasPhenotypesTable) {
             // Validate that there is a 'pheontypes' HTML table by loading it.
-            GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
-
+            ptGene.load();                                                      // Load all of the phenotypes table pageMap data. Use preAndPostQcList.
+            List<List<String>> preAndPostQcList = ptGene.getPreAndPostQcList();
             int sexIconCount = 0;
             String cell;
-            for (String[] row : pageMap.getBody()) {
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX];
+            int i = 0;
+            for (List<String> row : preAndPostQcList) {
+                if (i++ == 0)
+                    continue;
+                cell = row.get(PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX);
                 if ((cell.equals("male")) || (cell.equals("female")))
                     sexIconCount++;
                 else if (cell.equals("both"))
                     sexIconCount += 2;
 
                 //   Verify p value.
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE];
+                cell = row.get(PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE);
                 if (cell == null) {
                     status.addError("Missing or invalid P Value. URL: " + target);
                 }
 
-                // Validate that the graph link is not missing.
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
+                cell = row.get(PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
@@ -592,6 +594,10 @@ public class GenePage {
      */
     private PageStatus validateDownload(GridMap pageMap, GridMap downloadData) {
         PageStatus status = new PageStatus();
+        
+        // If the downloadData body has no data, no more validation need be done.
+        if (downloadData.getBody().length == 0)
+            return status;
         
         // Check that the phenotypes table page line count equals the download stream line count.
         // Since the phenotypes table contains a single row for both sexes but the download file

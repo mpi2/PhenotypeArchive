@@ -136,3 +136,5 @@ button.exportButton{
 .overviewSelect{
 	max-width: 100%;	
 }
+
+.onethirdForPie               { float: left; width: 33%; }
