@@ -193,7 +193,7 @@ public class ChartsController {
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
-        ViabilityDTO viabilityDTO=null;
+       
 
         boolean statsError = false;
 
@@ -257,8 +257,15 @@ public class ChartsController {
        	//Its a viability outcome param which means its a line level query so we don't use the normal experiment query in experiment service
         ViabilityDTO viability=experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, 
     	strain, metaDataGroupString, alleleAccession);
-       
-       	return viability(model, null, viability);
+        ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+		 model.addAttribute("viabilityDTO", viabilityDTO);
+		 //we need the biological model for the line level param so just get the first observation from the first entry and get the biologicalModelId
+		 BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
+         setTitlesForGraph(model, expBiologicalModel);
+         model.addAttribute("pipeline", pipeline);
+         model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+         model.addAttribute("phenotypingCenter", phenotypingCenter);
+		 return "chart";
        }
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
         	strain, metaDataGroupString, alleleAccession);
@@ -275,30 +282,20 @@ public class ChartsController {
 
             String xAxisTitle = xUnits;
 
-            // use some sort of map to pass in these or helper method? so we
-            // don't have to redo title, subtitle for each one??
-            String allelicCompositionString = "unknown";
-            String symbol = "unknown";
-            String geneticBackgroundString = "unknown";
-
             BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
-            if (expBiologicalModel != null) {
-                allelicCompositionString = expBiologicalModel.getAllelicComposition();
-                symbol = expBiologicalModel.getAlleles().get(0).getSymbol();
-                geneticBackgroundString = expBiologicalModel.getGeneticBackground();
-            }
+            setTitlesForGraph(model, expBiologicalModel);
 
             try {
-            	if (chartType == null){
-            		chartType = GraphUtils.getDefaultChartType(parameter);
-            		// chartType might still be null after this
-            		if(chartType==ChartType.PIE){
-            		 viabilityDTO = viabilityChartAndDataProvider.doViabilityData(null, null);
-        			 model.addAttribute("viabilityDTO", viabilityDTO);
-        			 //model.addAttribute("tableData", viabilityDTO);
-        			 return "chart";
-            		}
-            	}
+//            	if (chartType == null){
+//            		chartType = GraphUtils.getDefaultChartType(parameter);
+//            		// chartType might still be null after this
+//            		if(chartType==ChartType.PIE){
+//            		 viabilityDTO = viabilityChartAndDataProvider.doViabilityData(null, null);
+//        			 model.addAttribute("viabilityDTO", viabilityDTO);
+//        			 //model.addAttribute("tableData", viabilityDTO);
+//        			 return "chart";
+//            		}
+//            	}
                 if (chartType != null){
 					switch (chartType) {
                 		
@@ -356,9 +353,6 @@ public class ChartsController {
 
             model.addAttribute("pipeline", pipeline);
             model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
-            model.addAttribute("allelicCompositionString", allelicCompositionString);
-            model.addAttribute("symbol", symbol);
-            model.addAttribute("geneticBackgroundString", geneticBackgroundString);
             model.addAttribute("phenotypingCenter", phenotypingCenter);
             model.addAttribute("experimentNumber", experimentNumber);
             model.addAttribute("statsError", statsError);
@@ -371,11 +365,25 @@ public class ChartsController {
         return "chart";
     }
 
-	private String viability(Model model, Parameter parameter, ViabilityDTO viabilityDTO) {
-		viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viabilityDTO);
-		 model.addAttribute("viabilityDTO", viabilityDTO);
-		 return "chart";
+
+	private void setTitlesForGraph(Model model, BiologicalModel expBiologicalModel) {
+
+		String allelicCompositionString = "unknown";
+		String symbol = "unknown";
+		String geneticBackgroundString = "unknown";
+
+		
+		if (expBiologicalModel != null) {
+		    allelicCompositionString = expBiologicalModel.getAllelicComposition();
+		    symbol = expBiologicalModel.getAlleles().get(0).getSymbol();
+		    geneticBackgroundString = expBiologicalModel.getGeneticBackground();
+		    model.addAttribute("allelicCompositionString", allelicCompositionString);
+		    model.addAttribute("symbol", symbol);
+		    model.addAttribute("geneticBackgroundString", geneticBackgroundString);
+		}
 	}
+
+	
 
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {

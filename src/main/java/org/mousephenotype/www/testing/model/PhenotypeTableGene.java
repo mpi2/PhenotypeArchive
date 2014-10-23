@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -38,7 +40,10 @@ public class PhenotypeTableGene {
     protected WebDriver driver;
     protected WebDriverWait wait;
     protected String target;
-    private GridMap data;
+    private GridMap data;       // Contains postQc rows only.
+    private List<List<String>> preQcList;
+    private List<List<String>> postQcList;
+    private List<List<String>> preAndPostQcList;
 
     public static final int COL_INDEX_PHENOTYPES_PHENOTYPE           =  0;
     public static final int COL_INDEX_PHENOTYPES_ALLELE              =  1;
@@ -87,11 +92,12 @@ public class PhenotypeTableGene {
     }
 
     /**
-     * Pulls <code>numRows</code> rows of data and column access variables from
-     * the gene page's 'phenotypes' HTML table.
+     * Pulls <code>numRows</code> rows of postQc data and column access
+     * variables from the gene page's 'phenotypes' HTML table.
      *
-     * @param numRows the number of phenotype table rows to return, including
-     * the heading row. To specify all rows, set <code>numRows</code> to null.
+     * @param numRows the number of postQc phenotype table rows to return,
+     * including the heading row. To specify all postQc rows, set
+     * <code>numRows</code> to null.
      * @return <code>numRows</code> rows of data and column access variables
      * from the gene page's 'phenotypes' HTML table.
      */
@@ -100,6 +106,9 @@ public class PhenotypeTableGene {
             numRows = computeTableRowCount();
         
         String[][] dataArray;
+        preQcList = new ArrayList();
+        postQcList = new ArrayList();
+        preAndPostQcList = new ArrayList();
         String value;
         
         // Wait for page.
@@ -111,55 +120,83 @@ public class PhenotypeTableGene {
         int numCols = headings.size();
 
         dataArray = new String[numRows][numCols];                               // Allocate space for the data.
-        int colIndex = 0;
+        int sourceColIndex = 0;
         for (WebElement heading : headings) {                                   // Copy the heading values.
-            dataArray[0][colIndex] = heading.getText();
-            colIndex++;
+            dataArray[0][sourceColIndex] = heading.getText();
+            sourceColIndex++;
         }
-        
+        preQcList.add(Arrays.asList(dataArray[0]));
+        postQcList.add(Arrays.asList(dataArray[0]));
+        preAndPostQcList.add(Arrays.asList(dataArray[0]));
         // Loop through all of the tr objects for this page, gathering the data.
-        int rowIndex = 1;
+        int sourceRowIndex = 1;
 
         for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
-            colIndex = 0;
+            boolean isPreQcLink = false;
+            sourceColIndex = 0;
             for (WebElement cell : cells) {
-                if (colIndex == COL_INDEX_PHENOTYPES_ALLELE) {
-                    String sup = cell.findElement(By.cssSelector("sup")).getText();
-                    value = cell.findElement(By.cssSelector("a")).getText();
-                    AlleleParser ap = new AlleleParser(value, sup);
-                    value = ap.toString();
-                } else if (colIndex == COL_INDEX_PHENOTYPES_PHENOTYPE) {
+                if (sourceColIndex == COL_INDEX_PHENOTYPES_ALLELE) {
+                    // If the allele is a link, gather the link info; otherwise, set the allele component to an empty string as there is no link.
+                    List<WebElement> anchorElement = cell.findElements(By.cssSelector("a"));
+                    if (anchorElement.isEmpty()) {
+                        value = "";
+                    } else {
+                        String sup = cell.findElement(By.cssSelector("sup")).getText();
+                        value = cell.findElement(By.cssSelector("a")).getText();
+                        AlleleParser ap = new AlleleParser(value, sup);
+                        value = ap.toString();
+                    }
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PHENOTYPE) {
                     value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
-                } else if (colIndex == COL_INDEX_PHENOTYPES_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
                     if (sex.size() == 2) {
                         value = "both";
                     } else {
                         value = sex.get(0).getAttribute("alt").toLowerCase();
                     }
-                } else if (colIndex == COL_INDEX_PHENOTYPES_GRAPH) {                    // Extract the graph url from the <a> anchor and decode it.
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_GRAPH) {                    // Extract the graph url from the <a> anchor and decode it.
                     value = cell.findElement(By.cssSelector("a")).getAttribute("href");
                     value = TestUtils.urlDecode(value);
+                    isPreQcLink = TestUtils.isPreQcLink(value);
                 } else {
                     value = cell.getText();
                 }
                 
-                dataArray[rowIndex][colIndex] = value;
-                colIndex++;
+                dataArray[sourceRowIndex][sourceColIndex] = value;
+                sourceColIndex++;
             }
 
-            rowIndex++;
+            // If the graph link is a postQc link, increment the index and return when we have the number of requested rows.
+            if (isPreQcLink) {
+                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
+            } else {
+                postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the preQc list.
 //System.out.println();
-            if (rowIndex >= numRows) {                                          // Return when we have the number of requested rows.
-                data = new GridMap(dataArray, target);
-                return data;
+                if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
+                    data = new GridMap(postQcList, target);
+                    return data;
+                }
             }
+            preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
+            sourceRowIndex++;
         }
         
-        data = new GridMap(dataArray, target);
-        
+        data = new GridMap(postQcList, target);
         return data;
+    }
+
+    public List<List<String>> getPreQcList() {
+        return preQcList;
+    }
+
+    public List<List<String>> getPostQcList() {
+        return postQcList;
+    }
+
+    public List<List<String>> getPreAndPostQcList() {
+        return preAndPostQcList;
     }
     
     /**

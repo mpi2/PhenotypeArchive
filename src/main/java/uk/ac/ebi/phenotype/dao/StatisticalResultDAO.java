@@ -16,17 +16,18 @@
 package uk.ac.ebi.phenotype.dao;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.chart.MouseDataPoint;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.chart.MouseDataPoint;
 
 /**
  * 
@@ -74,5 +75,7 @@ public interface StatisticalResultDAO {
 			int phenotypeCallSummaryId) throws SQLException;
         
     public CategoricalResult getCategoricalStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException;
+    
+    public HashMap<String, Integer> getSexualDimorphismSummary() throws SQLException;
         
 }

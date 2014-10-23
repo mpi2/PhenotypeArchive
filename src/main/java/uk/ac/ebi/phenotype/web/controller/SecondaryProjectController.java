@@ -81,23 +81,15 @@ public class SecondaryProjectController {
 		
 		try {
 			accessions = sp.getAccessionsBySecondaryProjectId(id);
-			model.addAttribute("genotypeStatusChart", 
-				chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
-			model.addAttribute("phenotypeStatusChart", 
-				chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+			model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
+			model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
 			
 			List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
-			
-			System.out.println("LIST LENGTH " + results.size());
-			
-			// generate a chart
 			String chart = phenomeChartProvider.generatePhenomeChartByGenes(
 					results,
 					null,
 					Constants.SIGNIFICANT_P_VALUE);
 			
-	//		model.addAttribute("phenotypeCalls", results);
-	//		model.addAttribute("palette", colorCoding.getPalette());
 			model.addAttribute("chart", chart);
 		} catch (SQLException e) {
 			e.printStackTrace();

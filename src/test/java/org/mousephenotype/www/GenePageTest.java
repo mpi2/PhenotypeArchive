@@ -26,9 +26,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.GenePage;
@@ -40,7 +41,6 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -298,7 +298,7 @@ public class GenePageTest {
      * testIterations.properties with this test's name as the lvalue and the
      * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
-     * @throws SolrServerException 
+     * @throws SolrServerException [
      */
     @Test
 //@Ignore
@@ -382,8 +382,10 @@ public class GenePageTest {
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        int sectionErrorCount;
+        int numOccurrences;
         
-        PageStatus status = new PageStatus();
+        PageStatus status;
         String message;
         Date start = new Date();
         
@@ -392,25 +394,30 @@ public class GenePageTest {
         String geneId = "MGI:104874";
         String target = baseUrl + "/genes/" + geneId;
         System.out.println("URL: " + target);
+        GenePage genePage;
         
-        // Wait for page to load.
         try {
-            driver.get(target);
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
-        } catch (NoSuchElementException | TimeoutException te) {
-            message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-            status.addError(message);
+            genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
         } catch (Exception e) {
-            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            status.addError(message);
+            message = "ERROR: Failed to load gene page URL: " + target;
+            System.out.println(message);
+            fail(message);
+            return;
         }
-        
+
         // Title
-        assertTrue("Expected top id title 'Akt2'", driver.findElement(By.id("top")).getText().contains("Akt2"));
-        
-        // Section titles (e.g. 'Gene: Akt2', 'Phenotype associations for Akt2', 'Pre-QC phenotype heatmap', etc.)
-        List<WebElement> sections = driver.findElements(By.className("title"));
+        String title = genePage.getTitle();
+        if (title.contains("Akt2")) {
+            System.out.println("Title: [PASSED]\n");
+        } else {
+            message = "Title: [FAILED]: Expected title to contain 'Akt2' but it was not found. Title: '" + title + "'";
+            errorList.add(message);
+            System.out.println(message + "\n");
+        }
+
+        // Section Titles: count and values (e.g. 'Gene: Akt2', 'Phenotype associations for Akt2', 'Pre-QC phenotype heatmap', etc.)
         // ... count
+        sectionErrorCount = 0;
         String[] sectionTitlesArray = {"Gene: Akt2",
                                        "Phenotype associations for Akt2",
                                        "Pre-QC phenotype heatmap",
@@ -418,113 +425,250 @@ public class GenePageTest {
                                        "Expression",
                                        "Potential Disease Models",
                                        "Order Mouse and ES Cells",};
-        int i = 0;
-        if (sections.size() != sectionTitlesArray.length) {
-            System.out.println("section titles size=" + sections.size());
-            for (WebElement section : sections) {
-                System.out.println("section[" + i++ + "]: " + section.getText());
-            }
-            status.addError("Expected 6 section titles but found " + sections.size() + ".");
-        }
-        // ... Section titles
-        List<String> sectionTitles = new ArrayList(Arrays.asList(sectionTitlesArray));
-        for (WebElement webElement : sections) {
-            String text = webElement.getText();
-            if ( ! sectionTitles.contains(text)) {
-                status.addError("Expected section named '" + text + "' but wasn't found.");
-            }
-        }
-        
-        // Buttons
-        List<WebElement> buttons = driver.findElements(By.className("btn"));
-        // ... count
-        if (buttons.size() != 3) {
-            status.addError("Expected 3 buttons but found " + buttons.size());
-        }
-        // ... Button text
-        String[] buttonTitlesArray = { "Login to register interest", "Order", "KOMP" };
-        List<String> buttonTitles = new ArrayList(Arrays.asList(buttonTitlesArray));
-        for (WebElement webElement : buttons) {
-            String buttonText = webElement.getText();
-            if ( ! buttonTitles.contains(buttonText)) {
-                status.addError("Expected button with title '" + buttonText + "' but none was found.");
-            }
-        }
-        
-        // Phenotype association icons
-        List<WebElement> enabledIcons = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[starts-with(@class, 'sprite')]"));
-        
-        // ... count
-        if (enabledIcons.size() != 5) {
-            status.addError("Expected 5 'abnormalities' icons but found " + enabledIcons.size());
-        }
-        // oldtitles
-        String[] oldTitlesArray = { 
-                                    "growth/size/body phenotype"
-                                  , "homeostasis/metabolism phenotype or adipose tissue phenotype"
-                                  , "behavior/neurological phenotype or nervous system phenotype"
-                                  , "skeleton phenotype"
-                                  , "immune system phenotype or hematopoietic system phenotype" };
-        List<String> oldTitles = new ArrayList(Arrays.asList(oldTitlesArray));
-        for (WebElement enabledIcon : enabledIcons) {
-            String oldTitle = enabledIcon.getAttribute("oldtitle");
-            if ( ! oldTitles.contains(oldTitle)) {
-                status.addError("Expected abnormalities icon with id '" + oldTitle + "' but none was found.");
-            }
-        }
-        
-        // "Top level MP: All" drop-down
-        Select selectTopLevel = new Select(driver.findElement(By.id("top_level_mp_term_name")));
-        // ... count
-        if (selectTopLevel.getOptions().size() != 5) {
-            status.addError("Expected 5 \"Top level MP: All\" options but found " + selectTopLevel.getOptions().size() + ".");
+        List<String> expectedSectionTitles = Arrays.asList(sectionTitlesArray);
+        List<String> actualSectionTitles = genePage.getSectionTitles();
+        if (actualSectionTitles.size() != sectionTitlesArray.length) {
+            sectionErrorCount++;
+            message = "Section Titles (count): [FAILED]. Expected " + sectionTitlesArray.length + " section titles but found " + actualSectionTitles.size() + ".";
+            errorList.add(message);
+            System.out.println(message + "\n");
+        } else {
+            System.out.println("Section Titles (count): [PASSED]\n");
         }
         // ... values
-        String[] topLevelValuesArray = { "behavior/neurological phenotype"
-                                       , "growth/size/body phenotype"
-                                       , "hematopoietic system phenotype"
-                                       , "homeostasis/metabolism phenotype"
-                                       , "skeleton phenotype"  };
-        List<String> topLevelValues = new ArrayList(Arrays.asList(topLevelValuesArray));
-        for (WebElement option : selectTopLevel.getOptions()) {
-            if ( ! topLevelValues.contains(option.getAttribute("value")))
-                status.addError("Expected Top level MP: All option \"" + option.getAttribute("value") + "\" but none was found.");
+        status = new PageStatus();
+        for (String expectedSectionTitle : expectedSectionTitles) {
+            if ( ! actualSectionTitles.contains(expectedSectionTitle)) {
+                message = "Section Titles (values): [FAILED]. Mismatch: Expected section named '" + expectedSectionTitle + "' but wasn't found.";
+                status.addError(message);
+                sectionErrorCount++;
+            }
         }
-
-        // Phenotype Associated Images and Expression sections
-        List<WebElement> imagesAndExpression = driver.findElements(By.className("accordion-heading"));
+        for (String actualSectionTitle : actualSectionTitles) {
+            if ( ! expectedSectionTitles.contains(actualSectionTitle)) {
+                message = "Section Titles (values): [FAILED]. Mismatch: Found section named '" + actualSectionTitle + "' but wasn't expected.";
+                status.addError(message);
+                sectionErrorCount++;
+            } else {
+                numOccurrences = TestUtils.count(actualSectionTitles, actualSectionTitle);
+                if (numOccurrences > 1) {
+                    message = "Section Titles (values): [FAILED]. " + numOccurrences + " occurrences of '" + actualSectionTitle + "' were found.";
+                    status.addError(message);
+                    sectionErrorCount++;
+                }
+            }
+        }
+        if (sectionErrorCount == 0) {
+            System.out.println("Section Titles (values): [PASSED]\n");
+        } else {
+            // Dump out all titles.
+            for (int i = 0; i < actualSectionTitles.size(); i++) {
+                String sectionTitle = actualSectionTitles.get(i);
+                System.out.println("\t[" + i + "]: " + sectionTitle);
+            }
+            
+            // Dump out the missing ones.
+            System.out.println(status.toStringErrorMessages());
+            
+            // Add missing ones to error list.
+            errorList.addAll(status.getErrorMessages());
+        }
+        
+        // Buttons: count and labels
         // ... count
-        if (imagesAndExpression.size() != 11) {
-            status.addError("Expected 2 \"Phenotype Associated Images\" values and 9 \"Expression\" values (11 total) but found " + imagesAndExpression.size());
+        sectionErrorCount = 0;
+        String[] buttonLabelsArray = {"Login to register interest",
+                                      "Order",
+                                      "KOMP",
+                                      "EUMMCR",};
+        List<String> expectedButtonLabels = Arrays.asList(buttonLabelsArray);
+        List<String> actualButtonLabels = genePage.getButtonLabels();
+        if (actualButtonLabels.size() != buttonLabelsArray.length) {
+            sectionErrorCount++;
+            message = "Buttons (count): [FAILED]. Expected " + buttonLabelsArray.length + " buttons but found " + actualButtonLabels.size() + ".";
+            errorList.add(message);
+            System.out.println(message + "\n");
+        } else {
+            System.out.println("Buttons (count): [PASSED]\n");
         }
         // ... values
-        String[] phenotypeAssociatedImagesArray = {
-                  "Xray (167)"
-                , "Tail Epidermis Wholemount (5)"
-                , "Musculoskeletal System (2)"
-                , "Nervous System (2)"
-                , "Adipose Tissue (1)"
-                , "Cardiovascular System (1)"
-                , "Digestive System (1)"
-                , "Integumental System (1)"
-                , "Renal/urinary System (1)"
-                , "Reproductive System (1)"
-                , "Respiratory System (1)"};
-        List<String> accHeaderStrings = new ArrayList(Arrays.asList(phenotypeAssociatedImagesArray));
-        for (WebElement webElement : imagesAndExpression) {
-            String text = webElement.getText();
-            assertTrue("Expected Phenotype Associated Images / Expression value \"" + text + "\" but none was found", accHeaderStrings.contains(text));
+        status = new PageStatus();
+        for (String expectedSectionTitle : expectedButtonLabels) {
+            if ( ! actualButtonLabels.contains(expectedSectionTitle)) {
+                message = "Buttons (values): [FAILED]. Mismatch: Expected button named '" + expectedSectionTitle + "' but wasn't found.";
+                status.addError(message);
+                sectionErrorCount++;
+            }
         }
-
+        for (String actualButtonLabel : actualButtonLabels) {
+            if ( ! expectedButtonLabels.contains(actualButtonLabel)) {
+                message = "Buttons (values): [FAILED]. Mismatch: Found button named '" + actualButtonLabel + "' but wasn't expected.";
+                status.addError(message);
+                sectionErrorCount++;
+            } else {
+                numOccurrences = TestUtils.count(actualButtonLabels, actualButtonLabel);
+                if (numOccurrences > 1) {
+                    message = "Buttons (values): [FAILED]. " + numOccurrences + " occurrences of '" + actualButtonLabel + "' were found.";
+                    status.addError(message);
+                    sectionErrorCount++;
+                }
+            }
+        }
+        if (sectionErrorCount == 0) {
+            System.out.println("Buttons (values): [PASSED]\n");
+        } else {
+            // Dump out all buttons.
+            for (int i = 0; i < actualButtonLabels.size(); i++) {
+                String sectionTitle = actualButtonLabels.get(i);
+                System.out.println("\t[" + i + "]: " + sectionTitle);
+            }
+            
+            // Dump out the missing ones.
+            System.out.println(status.toStringErrorMessages());
+            
+            // Add missing ones to error list.
+            errorList.addAll(status.getErrorMessages());
+        }
+        
+        // Enabled Abnormalities: count and strings
+        // ... count
+        sectionErrorCount = 0;
+        numOccurrences = 0;
+        String[] expectedAbnormalitiesArray = { 
+                "growth/size/body phenotype"
+              , "homeostasis/metabolism phenotype or adipose tissue phenotype"
+              , "behavior/neurological phenotype or nervous system phenotype"
+              , "skeleton phenotype"
+              , "immune system phenotype or hematopoietic system phenotype" };
+        List<String> expectedAbnormalities = Arrays.asList(expectedAbnormalitiesArray);
+        List<String> actualAbnormalities = genePage.getEnabledAbnormalities();
+        if (actualAbnormalities.size() != expectedAbnormalitiesArray.length) {
+            sectionErrorCount++;
+            message = "Enabled Abnormalities (count): [FAILED]. Expected " + expectedAbnormalitiesArray.length + " strings but found " + actualAbnormalities.size() + ".";
+            errorList.add(message);
+            System.out.println(message + "\n");
+        } else {
+            System.out.println("Enabled Abnormalities (count): [PASSED]\n");
+        }
+        // ... values
+        status = new PageStatus();
+        for (String expectedAbnormality : expectedAbnormalities) {
+            if ( ! actualAbnormalities.contains(expectedAbnormality)) {
+                message = "Enabled Abnormalities (values): [FAILED]. Mismatch: Expected enabled abnormality named '" + expectedAbnormality + "' but wasn't found.";
+                status.addError(message);
+                sectionErrorCount++;
+            }
+        }
+        for (String actualAbnormality : actualAbnormalities) {
+            if ( ! expectedAbnormalities.contains(actualAbnormality)) {
+                message = "Enabled Abnormalities (values): [FAILED]. Mismatch: Found enabled abnormality named '" + actualAbnormality + "' but wasn't expected.";
+                status.addError(message);
+                sectionErrorCount++;
+            } else {
+                numOccurrences = TestUtils.count(actualAbnormalities, actualAbnormality);
+                if (numOccurrences > 1) {
+                    message = "Enabled Abnormalities (values): [FAILED]. " + numOccurrences + " occurrences of '" + actualAbnormality + "' were found.";
+                    status.addError(message);
+                    sectionErrorCount++;
+                }
+            }
+        }
+        if (sectionErrorCount == 0) {
+            System.out.println("Enabled Abnormalities (values): [PASSED]\n");
+        } else {
+            // Dump out all enabled abnormalities.
+            for (int i = 0; i < actualAbnormalities.size(); i++) {
+                String actualAbnormality = actualAbnormalities.get(i);
+                System.out.println("\t[" + i + "]: " + actualAbnormality);
+            }
+            
+            // Dump out the missing/duplicated ones.
+            System.out.println(status.toStringErrorMessages());
+            
+            // Add missing titles to error list.
+            errorList.addAll(status.getErrorMessages());
+        }
+        
+        // Phenotype Associated Images and Expression sections: count and strings
+        // ... count
+        sectionErrorCount = 0;
+        numOccurrences = 0;
+        String[] expectedAssociatedImageSectionArray = {
+                      "Xray (167)"
+                    , "Tail Epidermis Wholemount (5)"
+                    , "Musculoskeletal System (2)"
+                    , "Nervous System (2)"
+                    , "Adipose Tissue (1)"
+                    , "Cardiovascular System (1)"
+                    , "Digestive System (1)"
+                    , "Integumental System (1)"
+                    , "Renal/urinary System (1)"
+                    , "Reproductive System (1)"
+                    , "Respiratory System (1)"};
+        List<String> expectedAssociatedImageSections = Arrays.asList(expectedAssociatedImageSectionArray);
+        List<String> actualAssociatedImageSections = genePage.getAssociatedImageSections();
+        if (actualAssociatedImageSections.size() != expectedAssociatedImageSectionArray.length) {
+            sectionErrorCount++;
+            message = "Associated Image Sections (count): [FAILED]. Expected " + expectedAssociatedImageSectionArray.length + " strings but found " + actualAssociatedImageSections.size() + ".";
+            errorList.add(message);
+            System.out.println(message + "\n");
+        } else {
+            System.out.println("Associate Image Sections (count): [PASSED]\n");
+        }
+        // ... values
+        status = new PageStatus();
+        for (String expectedAssociatedImageSection : expectedAssociatedImageSections) {
+            if ( ! actualAssociatedImageSections.contains(expectedAssociatedImageSection)) {
+                message = "Associated Image Sections (values): [FAILED]. Mismatch: Expected associated image section named '" + expectedAssociatedImageSection + "' but wasn't found.";
+                status.addError(message);
+                sectionErrorCount++;
+            }
+        }
+        for (String actualAssociatedImageSection : actualAssociatedImageSections) {
+            if ( ! expectedAssociatedImageSections.contains(actualAssociatedImageSection)) {
+                message = "Associated Image Sections (values): [FAILED]. Mismatch: Found associated image section named '" + actualAssociatedImageSection + "' but wasn't expected.";
+                status.addError(message);
+                sectionErrorCount++;
+            } else {
+                numOccurrences = TestUtils.count(actualAssociatedImageSections, actualAssociatedImageSection);
+                if (numOccurrences > 1) {
+                    message = "Associated Image Sections (values): [FAILED]. " + numOccurrences + " occurrences of '" + actualAssociatedImageSection + "' were found.";
+                    status.addError(message);
+                    sectionErrorCount++;
+                }
+            }
+        }
+        if (sectionErrorCount == 0) {
+            System.out.println("Associated Image Sections (values): [PASSED]\n");
+        } else {
+            // Dump out all associated image sections.
+            for (int i = 0; i < actualAssociatedImageSections.size(); i++) {
+                String actualAssociatedImageSection = actualAssociatedImageSections.get(i);
+                System.out.println("\t[" + i + "]: " + actualAssociatedImageSection);
+            }
+            
+            // Dump out the missing/duplicated ones.
+            System.out.println(status.toStringErrorMessages());
+            
+            // Add missing titles to error list.
+            errorList.addAll(status.getErrorMessages());
+        }
+        
         //test that the order mouse and es cells content from viveks team exists on the page
         WebElement orderAlleleDiv = driver.findElement(By.id("allele"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
-        assertTrue(orderAlleleDiv.getText().length() > 100);//check there is some content in the panel div
-        
-        if (status.hasErrors()) {
-            System.out.println(status.toStringErrorMessages());
-            errorList.add("Akt2 test failures.");
+        String text = orderAlleleDiv.getText();
+        if (text.length() < 100) {
+            message = "Order Mouse content: [FAILED]. less than 100 characters: \n\t'" + text + "'";
+            errorList.add(message);
+            sectionErrorCount++;
         } else {
-            successList.add("SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target);
+            System.out.println("Order Mouse content: [PASSED]\n");
+        }
+        
+        if ((errorList.isEmpty() && (exceptionList.isEmpty()))) {
+            successList.add("Akt2 test: [PASSED]");
+        } else {
+            errorList.add("Akt2 test: [FAILED]. URL: " + target);
         }
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);

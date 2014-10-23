@@ -71,11 +71,11 @@
 
             </c:forEach>
 
-
+ <c:if test="${param.parameter_stable_id != 'IMPC_VIA_001_001'}"><!-- only show downloads if not viability pie charts as we don't have download for line level params yet -->
             <div class="section">
                 <div id="exportIconsDivGlobal"></div>
             </div>
-
+</c:if> 
 
             <script>
 

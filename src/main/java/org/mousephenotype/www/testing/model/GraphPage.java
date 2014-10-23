@@ -20,6 +20,7 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -162,42 +163,54 @@ public class GraphPage {
      */
     protected PageStatus validateDownload(String[][] data, DownloadGraphMap graphMap) {
         PageStatus status = new PageStatus();
+        List<String> errors = new ArrayList();
         
         // Test graph page parameters against first [non-heading] download stream row.
         if (data.length < 2) {
-            status.addError(("ERROR: Expected at least one row of data."));
+            errors.add("Expected at least one row of data.");
         } else {
             String cellValue = data[1][graphMap.getColIndexAlleleSymbol()].trim();
             if (getAlleleSymbol().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page alleleSymbol: '" + getAlleleSymbol() + "'. Download alleleSymbol: '" + cellValue + "'");
+                errors.add("mismatch: page alleleSymbol: '" + getAlleleSymbol() + "'. Download alleleSymbol: '" + cellValue + "'");
             }
-            cellValue = data[1][graphMap.getColIndexBackground()];
+            cellValue = data[1][graphMap.getColIndexBackground()].trim();
             if (getBackground().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page background: '" + getBackground() + "'. Download background: '" + cellValue + "'");
+                errors.add("mismatch: page background: '" + getBackground() + "'. Download background: '" + cellValue + "'");
             }
-            cellValue = data[1][graphMap.getColIndexGeneSymbol()];
+            cellValue = data[1][graphMap.getColIndexGeneSymbol()].trim();
             if (getGeneSymbol().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page geneSymbol: '" + getGeneSymbol() + "'. Download geneSymbol: '" + cellValue + "'");
+                errors.add("mismatch: page geneSymbol: '" + getGeneSymbol() + "'. Download geneSymbol: '" + cellValue + "'");
             }
-            cellValue = data[1][graphMap.getColIndexMetadataGroup()];
+            cellValue = data[1][graphMap.getColIndexMetadataGroup()].trim();
             if (getMetadataGroup().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page metadataGroup: '" + getMetadataGroup() + "'. Download metadataGroup: '" + cellValue + "'");
+                errors.add("mismatch: page metadataGroup: '" + getMetadataGroup() + "'. Download metadataGroup: '" + cellValue + "'");
             }
-            cellValue = data[1][graphMap.getColIndexParameterName()];
+            cellValue = data[1][graphMap.getColIndexParameterName()].trim();
             if (getParameterName().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page parameterName: '" + getParameterName() + "'. Download parameterName: '" + cellValue + "'");
+                errors.add("mismatch: page parameterName: '" + getParameterName() + "'. Download parameterName: '" + cellValue + "'");
             }
-            cellValue = data[1][graphMap.getColIndexParameterStableId()];
+            cellValue = data[1][graphMap.getColIndexParameterStableId()].trim();
             if (getParameterStableId().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page parameterStableId: '" + getParameterStableId() + "'. Download parameterStableId: '" + cellValue + "'");
+                errors.add("mismatch: page parameterStableId: '" + getParameterStableId() + "'. Download parameterStableId: '" + cellValue + "'");
             }
-            cellValue = data[1][graphMap.getColIndexPhenotypingCenter()];
+            cellValue = data[1][graphMap.getColIndexPhenotypingCenter()].trim();
             if (getPhenotypingCenter().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page phenotypingCenter: '" + getPhenotypingCenter() + "'. Download phenotypingCenter: '" + cellValue + "'");
+                errors.add("mismatch: page phenotypingCenter: '" + getPhenotypingCenter() + "'. Download phenotypingCenter: '" + cellValue + "'");
             }
-            cellValue = data[1][graphMap.getColIndexPipelineName()];
+            cellValue = data[1][graphMap.getColIndexPipelineName()].trim();
             if (getPipelineName().trim().compareToIgnoreCase(cellValue) != 0) {
-                status.addError("ERROR: mismatch: page pipelineName: '" + getPipelineName() + "'. Download pipelineName: '" + cellValue + "'");
+                errors.add("mismatch: page pipelineName: '" + getPipelineName() + "'. Download pipelineName: '" + cellValue + "'");
+            }
+        }
+        
+        if ( ! errors.isEmpty()) {
+            for (int i = 0; i < errors.size(); i++) {
+                if (i == 0) {
+                    status.addError("ERROR: Target: " + target + "\n\t" + errors.get(i));
+                } else {
+                    status.addError(errors.get(i));
+                    
+                }
             }
         }
         
@@ -294,7 +307,7 @@ public class GraphPage {
                     titleElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-associations']")));
                     break;
                 } catch (Exception e) {
-                    System.out.println("Waiting " + (i + 1 * 10) + " milliseconds.");
+//                    System.out.println("Waiting " + ((i * 10) + 10) + " milliseconds.");
                     TestUtils.sleep(10);
                 }
                 if (titleElement != null)
@@ -337,10 +350,10 @@ public class GraphPage {
 //  System.out.println("graphType:         '" + this.graphType + "'");
             
         } catch (NoSuchElementException | TimeoutException te ) {
-            System.out.println("Expected page for ID " + id + "(" + target + ") but found none. URL: " + target);
+            System.out.println("Expected page for ID " + id + "(" + target + ") but found none. Page URL:\n\t" + target);
             throw te;
         } catch (Exception e) {
-            System.out.println("EXCEPTION processing page: " + e.getLocalizedMessage() + "\nURL: " + target);
+            System.out.println("EXCEPTION processing page: " + e.getLocalizedMessage() + ". Page URL:\n\t" + target);
             throw e;
         }
     }

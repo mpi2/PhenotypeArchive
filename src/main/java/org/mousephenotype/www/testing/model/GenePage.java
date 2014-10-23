@@ -31,6 +31,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -80,10 +81,56 @@ public class GenePage {
     
     /**
      * 
+     * @return A list of top level MP terms.
+     */
+    public List<String> getAssociatedImageSections() {
+        List<String> associatedImageSections = new ArrayList();
+        List<WebElement> associatedImageSectionElements = driver.findElements(By.className("accordion-heading"));
+        for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
+            associatedImageSections.add(associatedImageSectionElement.getText());
+        }
+        
+        return associatedImageSections;      
+    }
+    
+    /**
+     * 
+     * @return All of the enabled abnormality strings (those that start with the
+     * class name 'sprite').
+     */
+    public List<String> getEnabledAbnormalities() {
+        List<String> abnormalityStrings = new ArrayList();
+        
+        List<WebElement> enabledAbnormalityElementList = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[starts-with(@class, 'sprite')]"));
+     
+        for (WebElement enabledAbnormalityElement : enabledAbnormalityElementList) {
+            String abnormality = enabledAbnormalityElement.getAttribute("oldtitle");
+            abnormalityStrings.add(abnormality);
+        }
+        
+        return abnormalityStrings;
+    }
+    
+    /**
+     * 
      * @return the base url
      */
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    /**
+     * 
+     * @return all button labels in a <code>List</code>.
+     */
+    public List<String> getButtonLabels() {
+        List<String> buttonLabels = new ArrayList();
+        List<WebElement> buttons = driver.findElements(By.className("btn"));
+        for (WebElement button : buttons) {
+            buttonLabels.add(button.getText());
+        }
+        
+        return buttonLabels;
     }
 
     /**
@@ -122,10 +169,47 @@ public class GenePage {
 
     /**
      * 
+     * @return all section titles in a <code>List</code>.
+     */
+    public List<String> getSectionTitles() {
+        List<String> sectionTitles = new ArrayList();
+        List<WebElement> sections = driver.findElements(By.className("title"));
+        for (WebElement sectionElement : sections) {
+            sectionTitles.add(sectionElement.getText());
+        }
+        
+        return sectionTitles;
+    }
+    
+    /**
+     * 
      * @return The target URL
      */
     public String getTarget() {
         return target;
+    }
+    
+    /**
+     * 
+     * @return the title ('Gene: Akt2')
+     */
+    public String getTitle() {
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("top")));
+        return element.getText();
+    }
+    
+    /**
+     * 
+     * @return A list of top level MP terms.
+     */
+    public List<String> getTopLevelMPs() {
+        List<String> topLevelMPs = new ArrayList();
+        Select selectTopLevel = new Select(driver.findElement(By.id("top_level_mp_term_name")));
+        for (WebElement option : selectTopLevel.getOptions()) {
+            topLevelMPs.add(option.getAttribute("value"));
+        }
+        
+        return topLevelMPs;      
     }
     
     /**
@@ -200,25 +284,27 @@ public class GenePage {
         // If there is a 'phenotypes' HTML table, validate it.
         if (hasPhenotypesTable) {
             // Validate that there is a 'pheontypes' HTML table by loading it.
-            GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
-
+            ptGene.load();                                                      // Load all of the phenotypes table pageMap data. Use preAndPostQcList.
+            List<List<String>> preAndPostQcList = ptGene.getPreAndPostQcList();
             int sexIconCount = 0;
             String cell;
-            for (String[] row : pageMap.getBody()) {
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX];
+            int i = 0;
+            for (List<String> row : preAndPostQcList) {
+                if (i++ == 0)
+                    continue;
+                cell = row.get(PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX);
                 if ((cell.equals("male")) || (cell.equals("female")))
                     sexIconCount++;
                 else if (cell.equals("both"))
                     sexIconCount += 2;
 
                 //   Verify p value.
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE];
+                cell = row.get(PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE);
                 if (cell == null) {
                     status.addError("Missing or invalid P Value. URL: " + target);
                 }
 
-                // Validate that the graph link is not missing.
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
+                cell = row.get(PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
@@ -508,6 +594,10 @@ public class GenePage {
      */
     private PageStatus validateDownload(GridMap pageMap, GridMap downloadData) {
         PageStatus status = new PageStatus();
+        
+        // If the downloadData body has no data, no more validation need be done.
+        if (downloadData.getBody().length == 0)
+            return status;
         
         // Check that the phenotypes table page line count equals the download stream line count.
         // Since the phenotypes table contains a single row for both sexes but the download file

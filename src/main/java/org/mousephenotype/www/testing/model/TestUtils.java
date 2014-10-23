@@ -193,6 +193,28 @@ public class TestUtils {
     }
     
     /**
+     * Searches <code>list</code> for <code>searchToken</code>, returning the
+     * number of times <code>searchToken</code> appears in <code>list</code>.
+     *
+     * @param list the list to search
+     * @param searchToken the token to search for
+     * @return the number of times <code>searchToken</code> appears in <code>list</code>.
+     */
+    public static int count(List<String> list, String searchToken) {
+        int retVal = 0;
+        
+        if ((list == null) || (list.isEmpty()))
+            return retVal;
+        
+        for (String s : list) {
+            if (s.contains(searchToken))
+                retVal++;
+        }
+        
+        return retVal;
+    }
+    
+    /**
      * Given a source array of 'array of String' and a starting index in that
      * array, copies <code>coune</code> 'array of String' elements into a new
      * array returned to the caller.
@@ -287,6 +309,18 @@ public class TestUtils {
         }
         
         return true;
+    }
+    
+    /**
+     * 
+     * @param graphUrl The graph URL being tested
+     * @return true if this is a preQC link; false otherwise.
+     */
+    public static boolean isPreQcLink(String graphUrl) {
+        if (graphUrl == null)
+            return false;
+        
+        return graphUrl.contains("/phenoview/");
     }
     
     /**
@@ -443,6 +477,7 @@ public class TestUtils {
             docs = JSONRestUtil.getDocArray(jsonData);
         } catch (Exception e) {
             System.out.println("ERROR: JSON results are null for graph type '" + graphType + "'. Local error message:\n" + e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
         
         if (docs != null) {

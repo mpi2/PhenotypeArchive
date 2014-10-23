@@ -47,6 +47,7 @@ import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
+import uk.ac.ebi.phenotype.service.PreQcService;
 import uk.ac.ebi.phenotype.util.ParameterComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
@@ -63,45 +64,40 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 
 @Controller
 public class PhenotypesController {
 
     private final Logger log = LoggerFactory.getLogger(PhenotypesController.class);
-
-    @Autowired
-    ObservationService os;
+    private static final int numberOfImagesToDisplay = 5;
 
     @Autowired
     private OntologyTermDAO ontoTermDao;
-
     @Autowired
     private PhenotypeCallSummarySolr phenoDAO;
-
-    @Autowired
-    private SolrIndex solrIndex;
-
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
-
     @Autowired
     private ImagesSolrDao imagesSolrDao;
 
     @Autowired
+    private SolrIndex solrIndex;
+    @Autowired
     private ExperimentService experimentService;
-
     @Autowired
 	@Qualifier("postqcService")
     PostQcService gpService;
-
     @Autowired
     MpService mpService;
+    @Autowired
+    ObservationService os;
+    @Autowired 
+    PreQcService preqcService;
 
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
-
-    private static final int numberOfImagesToDisplay = 5;
 
     /**
      * Phenotype controller loads information required for displaying the
@@ -156,67 +152,66 @@ public class PhenotypesController {
         	
         	int nbDocs = docs.size();
         	
-        	if ( nbDocs == 0 ) {
+        	if ( nbDocs == 0 && preqcService.getGenesBy(phenotype_id, null).isEmpty()) {
         		// do something
-        		model.addAttribute("isImpcSlimTerm", false);
+        		model.addAttribute("hasData", false);
         	} else {
-        	
-        	model.addAttribute("isImpcSlimTerm", true);
-        	
-            JSONObject mpData = docs.getJSONObject(0);
-            JSONArray terms;
-
-            if (mpData.containsKey("mp_term")) {
-                String term = mpData.getString("mp_term");
-                oTerm.setName(term);
-            }
-
-            if (mpData.containsKey("mp_definition")) {
-                String definition = mpData.getString("mp_definition");
-                oTerm.setDescription(definition);
-            }
-
-            if (mpData.containsKey("mp_term_synonym")) {
-                JSONArray syonymsArray = mpData.getJSONArray("mp_term_synonym");
-                for (Object syn : syonymsArray) {
-                    String synm = (String) syn;
-                    Synonym synonym = new Synonym();
-                    synonym.setSymbol(synm);
-                    synonymTerms.add(synonym);
-                }
-            }
-
-            if (mpData.containsKey("hp_term")) {
-            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
-            }
-            
-            if (mpData.containsKey("ma_id")) {
-                terms = mpData.getJSONArray("ma_id");
-                for (Object maObj : terms) {
-                    String id = (String) maObj;
-                    anatomyTerms.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 8));
-                }
-            }
-
-            if (mpData.containsKey("sibling_mp_id")) {
-                terms = mpData.getJSONArray("sibling_mp_id");
-                for (Object obj : terms) {
-                    String id = (String) obj;
-                    if ( ! id.equals(phenotype_id)) {
-                        mpSiblings.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 5));
-                    }
-                }
-            }
-
-            if (mpData.containsKey("go_id")) {
-                terms = mpData.getJSONArray("go_id");
-                for (Object obj : terms) {
-                    String id = (String) obj;
-                    goTerms.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 11));
-                }
-            }
-
-        } 
+	        	model.addAttribute("hasData", true);
+	        	
+	            JSONObject mpData = docs.getJSONObject(0);
+	            JSONArray terms;
+	
+	            if (mpData.containsKey("mp_term")) {
+	                String term = mpData.getString("mp_term");
+	                oTerm.setName(term);
+	            }
+	
+	            if (mpData.containsKey("mp_definition")) {
+	                String definition = mpData.getString("mp_definition");
+	                oTerm.setDescription(definition);
+	            }
+	
+	            if (mpData.containsKey("mp_term_synonym")) {
+	                JSONArray syonymsArray = mpData.getJSONArray("mp_term_synonym");
+	                for (Object syn : syonymsArray) {
+	                    String synm = (String) syn;
+	                    Synonym synonym = new Synonym();
+	                    synonym.setSymbol(synm);
+	                    synonymTerms.add(synonym);
+	                }
+	            }
+	
+	            if (mpData.containsKey("hp_term")) {
+	            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
+	            }
+	            
+	            if (mpData.containsKey("ma_id")) {
+	                terms = mpData.getJSONArray("ma_id");
+	                for (Object maObj : terms) {
+	                    String id = (String) maObj;
+	                    anatomyTerms.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 8));
+	                }
+	            }
+	
+	            if (mpData.containsKey("sibling_mp_id")) {
+	                terms = mpData.getJSONArray("sibling_mp_id");
+	                for (Object obj : terms) {
+	                    String id = (String) obj;
+	                    if ( ! id.equals(phenotype_id)) {
+	                        mpSiblings.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 5));
+	                    }
+	                }
+	            }
+	
+	            if (mpData.containsKey("go_id")) {
+	                terms = mpData.getJSONArray("go_id");
+	                for (Object obj : terms) {
+	                    String id = (String) obj;
+	                    goTerms.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 11));
+	                }
+	            }
+	
+	        } 
         	
         } catch (Exception e) {
             e.printStackTrace();

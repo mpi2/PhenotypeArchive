@@ -183,6 +183,14 @@
 					</table>
 					<p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
 					
+					<h3>Distribution of Phenotype Annotations</h3>
+					<div id="distribution">
+						<script type="text/javascript">
+							${annotationDistributionChart}
+						</script>
+					</div>
+					
+					
 					<h3>Procedures</h3>
 					<div id="lineProcedureChart">
 					<script type="text/javascript">
@@ -191,7 +199,7 @@
 					</div>
 					
 					<h3>Allele Types</h3>
-							<table id="allele_types">
+						<table id="allele_types">
 						<thead>
 						<tr>
 							<th class="headerSort">Mutation</th>
@@ -217,6 +225,66 @@
 					</div><!--  closing off inner here -->
 				</div><!-- closing off section -->
 			
+			<div class="section">
+								<h2 class="title" id="section-associations"> Status </h2>		
+		            <div class="inner">
+		            	
+									<div class="half">
+										<div id="genotypeStatusChart">
+			            		<script type="text/javascript">${genotypeStatusChart.getChart()}</script> 
+										</div>       	
+									</div>
+									<div class="half">
+			            	<div id="phenotypeStatusChart">
+			            		<script type="text/javascript">${phenotypeStatusChart.getChart()}</script> 
+										</div>   
+									</div>
+		            	  <div class="clear"></div>   
+		            	  
+			         <div>
+			         <h3>By Center</h3>
+			         		<div class="half">
+				           	<div id="genotypeStatusByCenterChart">
+				           		<script type="text/javascript">${genotypingDistributionChart}</script> 
+										</div>   
+									</div>
+			         		<div class="half">
+				           	<div id="phenotypeStatusByCenterChart">
+				           		<script type="text/javascript">${phenotypingDistributionChart}</script> 
+										</div>   
+									</div>
+			      	   <div class="clear"></div>   
+			         </div> 
+			         <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
+			           	  
+		         </div>
+		            
+		      </div> <!-- section -->
+					
+				<div class="section">
+						<h2 class="title" id="section-associations"> Sexual Dimorphism </h2>		
+		            <div class="inner">
+										<div id="sexualDimorphismChart">
+			            		<script type="text/javascript">${sexualDimorphismChart}</script> 
+										</div>  
+										
+										<table>
+										<thead>
+											<tr>
+											<th class="headerSort">Status</th>
+											<th class="headerSort">Number of Calls</th>
+											</tr>
+										</thead>
+										<tbody>
+											<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
+												<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+											</c:forEach>
+										</tbody>
+													
+										</table>     	
+		         </div>		            
+		    </div> <!-- section -->
+		    
 				<div class="section">
 				
 			    <h2 class="title" id="phenome-links">Phenotype Associations</h2>

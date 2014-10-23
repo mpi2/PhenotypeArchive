@@ -321,7 +321,7 @@ public class PhenotypePageTest {
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }
     
-// @Ignore
+//@Ignore
     @Test
     public void testDefinitionAndSynonymCount() throws SolrServerException {
         String testName = "testDefinitionAndSynonymCount";

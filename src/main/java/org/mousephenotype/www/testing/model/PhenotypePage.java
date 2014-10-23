@@ -218,25 +218,28 @@ public class PhenotypePage {
         // If there is a 'phenotypes' HTML table, validate it.
         if (hasPhenotypesTable) {
             // Validate that there is a 'pheontypes' HTML table by loading it.
-            GridMap pageMap = ptPhenotype.load();                               // Load all of the phenotypes table pageMap data.
-
+            ptPhenotype.load();                                                 // Load all of the phenotypes table pageMap data.
+            List<List<String>> preAndPostQcList = ptPhenotype.getPreAndPostQcList();
             int sexIconCount = 0;
             String cell;
-            for (String[] row : pageMap.getBody()) {
-                cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX];
+            int i = 0;
+            for (List<String> row : preAndPostQcList) {
+                if (i++ == 0)
+                    continue;
+                cell = row.get(PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
                 if ((cell.equals("male")) || (cell.equals("female")))
                     sexIconCount++;
                 else if (cell.equals("both"))
                     sexIconCount += 2;
 
                 //   Verify p value.
-                cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE];
+                cell = row.get(PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE);
                 if (cell == null) {
                     status.addError("Missing or invalid P Value. URL: " + target);
                 }
 
                 // Validate that the graph link is not missing.
-                cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH];
+                cell = row.get(PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH);
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
