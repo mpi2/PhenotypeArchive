@@ -1507,7 +1507,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		q.addFacetField(ObservationDTO.COLONY_ID);
 		
 		try {
-			return getFacets(solr.query(q)).keySet();
+			return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}

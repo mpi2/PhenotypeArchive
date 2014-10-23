@@ -824,7 +824,11 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		return sum;
 	}
 	
-	
+	/**
+	 * 
+	 * @param mpTermName
+	 * @return map <colony_id, occurences>
+	 */
 	public HashMap<String, Long> getFertilityDistribution(String mpTermName){
 
 		SolrQuery q = new SolrQuery();

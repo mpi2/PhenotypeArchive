@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -336,6 +337,55 @@ public class AnalyticsChartProvider {
 		return chart;
 	}
 	
+	public String getSlicedPieChart(Map<String, Integer> slicedOut, Map<String, Integer> notSliced, String title, String containerId){
+			
+			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+			JSONArray colorArray = new JSONArray(colors);	
+			
+			JSONArray data = new JSONArray();
+			try {
+				for ( Entry<String, Integer> entry : slicedOut.entrySet()){
+					JSONObject obj = new JSONObject();
+					obj.put("name", entry.getKey());
+					obj.put("y", entry.getValue());
+					obj.put("sliced", true);
+					obj.put("selected", true);
+					data.put(obj);
+				}
+				for ( Entry<String, Integer> entry : notSliced.entrySet()){
+					JSONObject obj = new JSONObject();
+					obj.put("name", entry.getKey());
+					obj.put("y", entry.getValue());
+					data.put(obj);
+				}
+				
+				String chart = "$(function () { $('#pieChart').highcharts({ "
+						 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	
+						 + " colors:"+colorArray+", "
+						 + " title: {  text: '' }, "
+						 + " credits: { enabled: false }, "
+						 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
+						 + " plotOptions: { "
+						 	+ "pie: { "
+						 		+ "size: 200, "
+						 		+ "allowPointSelect: true, "
+						 		+ "cursor: 'pointer', "
+						 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
+						 		+ "style: { color: '#666', width:'60px' }  }  },"
+						 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} }"
+						 + " },"
+					+ " series: [{  type: 'pie',   name: '',  "
+						+ "data: " + data + "  }]"
+				+" }); });";
+				
+				return chart;
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+	}
+	
 	public String generateAggregateCountByProcedureChart(
 			String dataReleaseVersion,
 			List<AggregateCountXYBean> data,
@@ -485,7 +535,6 @@ public class AnalyticsChartProvider {
 				// this is hardcoded for the moment
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

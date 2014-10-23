@@ -228,7 +228,7 @@ public class ReleaseController {
 		HashMap<String, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
 		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" ); 
 	
-		
+//		String fertilityChart = chartsProvider.getSlicedPieChart(slicedOut, notSliced, "Fertility Distribution", "fertilityChart");
 		
 		/**
 		 * Get all former releases: releases but the current one
@@ -261,25 +261,33 @@ public class ReleaseController {
 	}
 	
 	
-	public HashMap<String, Long> getFertilityMap(){
+	public HashMap<String, Integer> getFertilityMap(){
 
 		Set<String> fertileColonies = os.getAllColonyIds();
+		System.out.println("fertileColonies " + fertileColonies);
 		Set<String> maleInfertileColonies = new HashSet<>();
 		Set<String> femaleInfertileColonies = new HashSet<>();
 		Set<String> bothSexesInfertileColonies;
-		
-		Set<String> mps = gpService.getFertilityAssociatedMps();
-		for (String mp : mps){
-			HashMap<String, Long> fertilityDistribution = gpService.getFertilityDistribution(mp);
-			System.out.println("fertilityDistribution :: " + mp + " :: " + fertilityDistribution);
-		}
-		bothSexesInfertileColonies = maleInfertileColonies;
+
+		maleInfertileColonies = gpService.getFertilityDistribution("male infertility").keySet();
+		System.out.println("male" +  maleInfertileColonies);
+		femaleInfertileColonies = gpService.getFertilityDistribution("female infertility").keySet();
+		System.out.println("female" + femaleInfertileColonies);
+				
+		bothSexesInfertileColonies = new HashSet<>(maleInfertileColonies);
 		bothSexesInfertileColonies.retainAll(femaleInfertileColonies);
 		fertileColonies.removeAll(maleInfertileColonies);
 		fertileColonies.removeAll(femaleInfertileColonies);
 		maleInfertileColonies.removeAll(bothSexesInfertileColonies);
 		femaleInfertileColonies.removeAll(bothSexesInfertileColonies);
-		return null;
+		
+		HashMap<String, Integer> res = new HashMap<>();
+		res.put("female infertile", femaleInfertileColonies.size());
+		res.put("male infertile", maleInfertileColonies.size());
+		res.put("both sexes infertile", bothSexesInfertileColonies.size());
+		res.put("fertile", fertileColonies.size());
+		
+		return res;
 	}
 
 }
