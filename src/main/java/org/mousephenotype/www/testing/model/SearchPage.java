@@ -936,10 +936,8 @@ public class SearchPage {
         for (DownloadType downloadType : downloadTypes) {
             data = getDownload(downloadType, baseUrl);                          // Get the data for this download type.
             SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
-            if (table == null) {
-                status.addError("ERROR: SearchPage.validateDownload(): facetTable is null!");
-            } else {
-                status.add(table.validateDownload(data));                           // Validate it.
+            if (table != null) {
+                status.add(table.validateDownload(data));                       // Validate it.
             }
 
             if (status.hasErrors()) {
