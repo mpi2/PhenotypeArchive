@@ -265,16 +265,13 @@ public class ReleaseController {
 	
 	public HashMap<String, Integer> getFertilityMap(){
 
-		Set<String> fertileColonies = os.getAllColonyIds();
-		System.out.println("fertileColonies " + fertileColonies);
+		Set<String> fertileColonies = os.getAllIMPCColonyIds();
 		Set<String> maleInfertileColonies = new HashSet<>();
 		Set<String> femaleInfertileColonies = new HashSet<>();
 		Set<String> bothSexesInfertileColonies;
 
-		maleInfertileColonies = gpService.getFertilityDistribution("male infertility").keySet();
-		System.out.println("male" +  maleInfertileColonies);
-		femaleInfertileColonies = gpService.getFertilityDistribution("female infertility").keySet();
-		System.out.println("female" + femaleInfertileColonies);
+		maleInfertileColonies = gpService.getFertilityDistribution("male infertility", "IMPC").keySet();
+		femaleInfertileColonies = gpService.getFertilityDistribution("female infertility", "IMPC").keySet();
 				
 		bothSexesInfertileColonies = new HashSet<>(maleInfertileColonies);
 		bothSexesInfertileColonies.retainAll(femaleInfertileColonies);
