@@ -826,13 +826,17 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	
 	/**
 	 * 
-	 * @param mpTermName
 	 * @return map <colony_id, occurences>
 	 */
-	public HashMap<String, Long> getFertilityDistribution(String mpTermName){
+	public HashMap<String, Long> getAssociationsDistribution(String mpTermName, String resource){
 
+		String query = GenotypePhenotypeDTO.MP_TERM_NAME + ":\"" + mpTermName + "\"";
+		if (resource != null){
+			query += " AND " + GenotypePhenotypeDTO.RESOURCE_NAME + ":" + resource ;
+		}
+		
 		SolrQuery q = new SolrQuery();
-		q.setQuery(GenotypePhenotypeDTO.MP_TERM_NAME + ":\"" + mpTermName + "\"");
+		q.setQuery(query);
 		q.setFacet(true);
 		q.setFacetMinCount(1);
 		q.addFacetField(GenotypePhenotypeDTO.COLONY_ID);
@@ -845,6 +849,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		
 		return null;
 	}
+
 	
 	public Set<String> getFertilityAssociatedMps(){
 

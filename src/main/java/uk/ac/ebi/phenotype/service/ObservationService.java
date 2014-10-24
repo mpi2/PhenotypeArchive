@@ -1497,9 +1497,9 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	}
 	
 	
-	public Set<String> getAllColonyIds(){
+	public Set<String> getAllIMPCColonyIds(){
 		SolrQuery q = new SolrQuery();
-		q.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		q.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental AND "+ ObservationDTO.DATASOURCE_NAME + ":IMPC");
 		q.setFacet(true);
 		q.setFacetMinCount(1);
 		q.setFacetLimit(-1);
