@@ -237,7 +237,7 @@ public class PreqcIndexer {
 						parameter = cnode.getTextContent();
 						break;
 					case "phenotypingCenter":
-						phenotypingCenter = cnode.getTextContent();
+						phenotypingCenter = cnode.getTextContent().toUpperCase();
 						break;
 					}
 				}
@@ -295,8 +295,8 @@ public class PreqcIndexer {
 			o.setParameterName(parameterSid2NameMapping.get(parameter));
 			o.setParameterStableId(parameter);
 
-			if (EncodedOrganisationConversionMap.imitsCenters.containsKey(phenotypingCenter)) {
-				o.setPhenotypingCenter(EncodedOrganisationConversionMap.imitsCenters.get(phenotypingCenter));
+			if (EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter)) {
+				o.setPhenotypingCenter(EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter));
 			} else {
 				o.setPhenotypingCenter(phenotypingCenter);
 			}
