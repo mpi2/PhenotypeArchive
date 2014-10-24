@@ -110,7 +110,7 @@ public class PhenotypePageTest {
     @Before
     public void setup() {
         if (Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
-            timeout_in_seconds = Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
+            timeout_in_seconds = 60;                                            // Use 1 minute rather than the default 4 seconds, as some of the pages take a long time to load.
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
         
