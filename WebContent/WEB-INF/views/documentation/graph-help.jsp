@@ -36,8 +36,10 @@
 
                             <h3><a name="data" href='#'>Where is the data coming from?</a></h3>
                             <p>
-                                Currently data for the graphs are obtained from legacy data with associated phenotype calls, p values and effect sizes as calculated from <a href="http://www.europhenome.org/"> Europhenome</a>. Association tables from gene and phenotype pages contain links to the original data in the Europhenome resource. Graphs next to these links are new graphs representing the same data from Europhenome.</p>  
-                            <p> Rows in tables with IMPC for the "Analysis" use the same data set but the p values and other model fitting estimates are calculated by the new IMPC statistical methods. New data from the IMPC procedures once quality controlled is also available with an IMPC label. 
+                                Data for the graphs are obtained both from the IMPC phenotyping centers as well as the <a href="http://www.europhenome.org/"> Europhenome</a> legacy project.
+                                The table of genotype to phenotype associations on the gene and phenotype pages include links to graphs of the data and more information about the processing used to determine statistical significance.</p>
+
+                            <p> The p values and other model fitting estimates are calculated using the <a hre="statistics-help">IMPC statistical methods</a>.
                                 <img src="img/graph_links.png">
                             </p>
 
@@ -109,6 +111,38 @@
                             <img src="img/graph_box_normal.png">
                             <p>Where an observation can be measured on a continuous basis (e.g. red blood cell counts or tail length), we display them in a mixed box and scatter plot. The first columns contain box plots for Wild Type (control), Homozygote then Heterozygote mutants for female then the columns representing males. The second set of columns contain scatter plots for the same sets of data. Hover over the box in the graph will show the basic statistics for that set of data: 
                                 <img src="img/graph_box_with_labels.png">
+
+                            </p>
+                            <p>
+                            Below the graph is a table showing the output of the statistical test used to determine if this data is statistically significant:
+                            <img src="img/stats_mm_table.png">
+                                </p>
+                            <p>In the top left of the table is the global p value used to determine if this is a statistically significant result.<br />
+                                The Classification column displays the effect of sexual dimorphism on this association (<a href="http://en.wikipedia.org/wiki/Sexual_dimorphism">sexual dimorphism</a> is the phenomenon when the genotype affects the sexes differently). The possible results are
+                            </p>
+                            <dl>
+                                <dt>No significant change</dt>
+                                <dd>The effect is not statistically significant</dd>
+                                <dt>Can not differentiate genders</dt>
+                                <dd>For the measured parameter, there is a significant effect, but there is not enough power to determine sexual dimorphism</dd>
+                                <dt>Both genders equally</dt>
+                                <dd>For the measured parameter, both sexes are effected equally</dd>
+                                <dt>Female only</dt>
+                                <dd>For the measured parameter, only the females are effected</dd>
+                                <dt>Male only</dt>
+                                <dd>For the measured parameter, only the males are effected</dd>
+                                <dt>Different effect size, females greater</dt>
+                                <dd>For the measured parameter, there is an effect on males but the size of the effect on females is greater.</dd>
+                                <dt>Different effect size, males greater</dt>
+                                <dd>For the measured parameter, there is an effect on females but the size of the effect on males is greater.</dd>
+                                <dt>Female and male different directions</dt>
+                                <dd>For the measured parameter, the effect on one sex is increased while the other sex is decreased.</dd>
+                                <dt>If phenotype is significant it is for the one genotype tested</dt>
+                                <dd>For the measured parameter, there was no data for one of the sexes, so sexual dimorphism cannot be determined.</dd>
+                            </dl>
+
+                            <p>
+                            The <strong>more statistics</strong> link at the bottom of the table will display additional output related to the statistical method.
                             </p>
 
                             <h3><a name="time_graphs" href='#'>Time Series Graphs</a></h3>
