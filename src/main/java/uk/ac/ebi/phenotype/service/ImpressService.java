@@ -46,7 +46,7 @@ public class ImpressService {
 				.setFields(ImpressDTO.PROCEDURE_STABLE_KEY);
 
 			QueryResponse response = solr.query(query);
-
+//System.out.println("impress in getprocedureStablekey response ="+response);
 			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
