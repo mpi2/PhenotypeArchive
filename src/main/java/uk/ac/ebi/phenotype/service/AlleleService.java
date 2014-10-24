@@ -52,7 +52,7 @@ public class AlleleService {
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
+//			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				res.put(c.getName(), c.getCount());
@@ -82,7 +82,7 @@ public class AlleleService {
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
+//			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
@@ -114,7 +114,7 @@ public class AlleleService {
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
+//			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
