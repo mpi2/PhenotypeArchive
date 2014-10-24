@@ -1,10 +1,7 @@
 package uk.ac.ebi.phenotype.chart;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.json.JSONArray;
 
 
 public class PieChartCreator {
@@ -13,7 +10,7 @@ String pieChart="";
 
 
 
-	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title){
+	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, Map<String,String> colorMap){
 		
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 				
@@ -28,7 +25,7 @@ String pieChart="";
 				 		+ "size: 200, "
 				 		+ "allowPointSelect: true, "
 				 		+ "cursor: 'pointer', "
-				 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
+				 		+ "dataLabels: { distance: 1, enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
 				 		+ "style: { color: '#666', width:'60px' }  }  },"
 				 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} }"
 				 + " },"
