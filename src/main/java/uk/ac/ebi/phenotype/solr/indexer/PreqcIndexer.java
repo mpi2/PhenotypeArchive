@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import uk.ac.ebi.phenotype.data.imits.EncodedOrganisationConversionMap;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 
 import javax.annotation.Resource;
@@ -236,7 +237,11 @@ public class PreqcIndexer {
 						parameter = cnode.getTextContent();
 						break;
 					case "phenotypingCenter":
-						phenotypingCenter = cnode.getTextContent();
+						if (EncodedOrganisationConversionMap.imitsCenters.containsKey(cnode.getTextContent())) {
+							phenotypingCenter = EncodedOrganisationConversionMap.imitsCenters.get(cnode.getTextContent());
+						} else {
+							phenotypingCenter = cnode.getTextContent();
+						}
 						break;
 					}
 				}
