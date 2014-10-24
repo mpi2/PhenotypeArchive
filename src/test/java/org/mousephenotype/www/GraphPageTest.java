@@ -207,7 +207,7 @@ public class GraphPageTest {
                 driver.get(target);
                 PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, target);
                 ptGene.load();
-                GridMap data = ptGene.getData();
+                GridMap data = new GridMap(ptGene.getPreAndPostQcList(), target);
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
                     graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);

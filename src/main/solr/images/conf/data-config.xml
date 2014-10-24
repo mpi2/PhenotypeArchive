@@ -239,27 +239,53 @@
 					-->
 					
 					<!-- selected higher level backtrace of this MA term -->    
-					<entity dataSource="ontods" name="ma_node_2_selected_top_level_mapping" 
-						processor="CachedSqlEntityProcessor" 
-						onError="continue"
-						query="select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"
-						where="term_id=maAnnotations.TERM_ID">
-					
-						<field column="term_id" name="selected_top_level_ma_id" />
-						<field column="name" name="selected_top_level_ma_term" /> 								
-					
-						<!-- synonym of this MP term -->
-						<entity dataSource="ontods" name="topMa_synonyms"
-							processor="CachedSqlEntityProcessor" 
-							query="select term_id, syn_name from ma_synonyms"
-							where="term_id=ma_node_2_selected_top_level_mapping.term_id">
-							
-							<field column="syn_name" name="selected_top_level_ma_term_synonym" />
-						</entity>
-					
-					
-					</entity>	
-					
+					<!--<entity dataSource="ontods" name="ma_node_2_selected_top_level_mapping" -->
+						<!--processor="CachedSqlEntityProcessor" -->
+						<!--onError="continue"-->
+						<!--query="select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"-->
+						<!--where="term_id=maAnnotations.TERM_ID">-->
+					<!---->
+						<!--<field column="term_id" name="selected_top_level_ma_id" />-->
+						<!--<field column="name" name="selected_top_level_ma_term" /> 								-->
+					<!---->
+						<!--&lt;!&ndash; synonym of this MP term &ndash;&gt;-->
+						<!--<entity dataSource="ontods" name="topMa_synonyms"-->
+							<!--processor="CachedSqlEntityProcessor" -->
+							<!--query="select term_id, syn_name from ma_synonyms"-->
+							<!--where="term_id=ma_node_2_selected_top_level_mapping.term_id">-->
+							<!---->
+							<!--<field column="syn_name" name="selected_top_level_ma_term_synonym" />-->
+						<!--</entity>-->
+					<!---->
+					<!---->
+					<!--</entity>	-->
+
+                    <entity dataSource="ontodb" name="ma_node2term"
+                            query="select node_id from ma_node2term where term_id='${maAnnotations.TERM_ID}'">
+
+                        <!-- higher level backtrace of this MA term -->
+                        <entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping"
+                                processor="CachedSqlEntityProcessor"
+                                onError="continue"
+                                query="select distinct m.node_id, ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"
+                                where="node_id=ma_node2term.node_id">
+
+                            <field column="term_id" name="selected_top_level_ma_id" />
+                            <field column="name" name="selected_top_level_ma_term" />
+
+                            <!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+                            <entity dataSource="ontodb" name="topMa2Syn"
+                                    processor="CachedSqlEntityProcessor"
+                                    onError="continue"
+                                    query="select term_id, syn_name from ma_synonyms"
+                                    where="term_id=ma_node_2_selected_top_level_mapping.term_id">
+
+                                <field column="syn_name" name="selected_top_level_ma_term_synonym" />
+                            </entity>
+                        </entity>
+
+                    </entity>
+
 				</entity>
 
 				<entity dataSource="komp2ds" name="mpAnnotations" query="select * from ANN_ANNOTATION where FOREIGN_KEY_ID=${tag.ID} and TERM_ID like 'MP%'">

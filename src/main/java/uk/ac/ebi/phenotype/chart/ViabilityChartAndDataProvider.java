@@ -43,23 +43,29 @@ public class ViabilityChartAndDataProvider {
 		
 		Map<String, Integer> totalLabelToNumber = new TreeMap<>();
 		for(ObservationDTO ob:totals){
+			if(Math.round(ob.getDataPoint())>0){
 		totalLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+			}
 		}
-		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)");
+		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)", ChartColors.getZygosityColorMap());
 		viabilityDTO.setTotalChart(totalChart);
 		
 		Map<String, Integer> maleLabelToNumber = new TreeMap<>();
 		for(ObservationDTO ob:male){
+			if(Math.round(ob.getDataPoint())>0){
 			maleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+			}
 		}
 		Map<String, Integer> femaleLabelToNumber = new TreeMap<>();
-		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart", "Male Counts");
+		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart", "Male Counts", ChartColors.getZygosityColorMap());
 		viabilityDTO.setMaleChart(maleChart);
 		
 		for(ObservationDTO ob:female){
+			if(Math.round(ob.getDataPoint())>0){
 			femaleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+			}
 		}
-		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart", "Female Counts");
+		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart", "Female Counts", ChartColors.getZygosityColorMap());
 		viabilityDTO.setFemaleChart(femaleChart);
 		return viabilityDTO;
 	}
