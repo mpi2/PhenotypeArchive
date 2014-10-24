@@ -51,6 +51,7 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
+import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
@@ -200,7 +201,7 @@ public class GenesController {
 		 */
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-		
+		HashSet<String> topLevelMpGroups = new HashSet<> ();
 
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of triplets of pipeline, allele acc, phenotyping center
@@ -209,7 +210,17 @@ public class GenesController {
 			// model.addAttribute("phenotypeSummary",
 			// phenSummary.getSummary(acc));
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-			model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
+				for (PhenotypeSummaryType phen : summary.getBothPhenotypes()){
+					topLevelMpGroups.add(phen.getGroup());
+				}
+				for (PhenotypeSummaryType phen : summary.getMalePhenotypes()){
+					topLevelMpGroups.add(phen.getGroup());
+				}
+				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes()){
+					topLevelMpGroups.add(phen.getGroup());
+				}
+			}
 			
 			// add number of top level terms
 			int total = 0;
@@ -248,18 +259,6 @@ public class GenesController {
 			model.addAttribute("imageErrors", "Something is wrong Images are not being returned when normally they would");
 		}
 
-		processPhenotypes(acc, model, "", request);
-
-		model.addAttribute("prodStatusIcons", prodStatusIcons);
-		model.addAttribute("gene", gene);
-		model.addAttribute("request", request);
-		model.addAttribute("acc", acc);		
-		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
-		
-		// add in the disease predictions from phenodigm
-		processDisease(acc, model);
-
 		// ES Cell and IKMC Allele check (Gautier)
 		String solrCoreName = "allele";
 		String mode = "ikmcAlleleGrid";
@@ -272,6 +271,19 @@ public class GenesController {
 			model.addAttribute("countIKMCAllelesError", Boolean.TRUE);
 			e.printStackTrace();
 		}
+		
+		processPhenotypes(acc, model, "", request);
+
+		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+		model.addAttribute("prodStatusIcons", prodStatusIcons);
+		model.addAttribute("gene", gene);
+		model.addAttribute("request", request);
+		model.addAttribute("acc", acc);		
+		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
+		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
+		model.addAttribute("topLevelMpGroups", topLevelMpGroups);
+		// add in the disease predictions from phenodigm
+		processDisease(acc, model);
 
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);

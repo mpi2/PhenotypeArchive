@@ -1,7 +1,9 @@
 package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.bcel.generic.RETURN;
@@ -155,5 +157,19 @@ String marker="marker:{"
 	public static JSONObject getMarkerJSONObject(SexType sex, ZygosityType zygosityType) throws JSONException {
 		String markerString=getMarkerString(sex, zygosityType).replace("marker:", "");
 		return new JSONObject(markerString);
+	}
+	
+	/**
+	 * get a map of WT and ZygosityType Strings to color RGB String e.g. Homozygous, "239, 123, 11"
+	 * @return
+	 */
+	public static Map<String,String> getZygosityColorMap(){
+		//"239, 123, 11" ,  "9, 120, 161", "119, 119, 119",
+		Map<String,String> zygColorMap=new HashMap<>();
+		zygColorMap.put("WT", "239, 123, 11");
+		zygColorMap.put(ZygosityType.homozygote.name(),"9, 120, 161" );
+		zygColorMap.put(ZygosityType.heterozygote.name(),"119, 119, 119" );
+		zygColorMap.put(ZygosityType.hemizygote.name(),"238, 238, 180" );
+		return zygColorMap;
 	}
 }
