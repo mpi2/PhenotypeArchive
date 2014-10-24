@@ -282,7 +282,7 @@
 										</thead>
 										<tbody>
 											<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
-												<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+												<tr><td>${status.getKey().getText()}</td><td>${status.getValue()}</td></tr>
 											</c:forEach>
 										</tbody>
 													
