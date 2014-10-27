@@ -119,7 +119,7 @@ public class GraphPageTest {
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
-    private final int TIMEOUT_IN_SECONDS = 4;
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
     
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
