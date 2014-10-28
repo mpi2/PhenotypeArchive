@@ -187,8 +187,7 @@ public class ExperimentService {
 
             // includeResults variable skips the results when gathering
             // experiments for calculating the results (performance)
-            if (experiment.getResults() == null && experiment.getExperimentalBiologicalModelId() != null && includeResults
-                    ) {
+            if (experiment.getResults() == null && experiment.getExperimentalBiologicalModelId() != null && includeResults) {
                 
                 String phenotypingCenter = observation.getPhenotypingCenter();
                 String parameterStableId = observation.getParameterStableId();
@@ -524,9 +523,9 @@ public class ExperimentService {
      * @throws SpecificExperimentException
      */
     public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
-        List<ExperimentDTO> experimentList = new ArrayList<>();
+        
+    	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
-
 
         // if gender list is size 2 assume both sexes so no filter needed
         if (genderList.isEmpty() || genderList.size() == 2) {

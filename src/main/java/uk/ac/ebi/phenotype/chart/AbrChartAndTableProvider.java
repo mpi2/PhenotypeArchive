@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -7,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -20,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -50,8 +53,11 @@ public class AbrChartAndTableProvider {
 		// get data 
     	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
     	data.put("control", new ArrayList<UnidimensionalStatsObject>() );
-    	data.put("hom", new ArrayList<UnidimensionalStatsObject>() );
 
+    	for (String zygosity: zyList){
+        	data.put(zygosity, new ArrayList<UnidimensionalStatsObject>() );
+    	}
+    	
 		UnidimensionalStatsObject emptyObj = new UnidimensionalStatsObject();
 		emptyObj.setMean(null);
 		emptyObj.setSd(null);
@@ -61,22 +67,24 @@ public class AbrChartAndTableProvider {
 
     	for (String parameterStableId : Constants.ABR_PARAMETERS){
     		Integer paramId = pipelineDAO.getParameterByStableId(parameterStableId).getId();
-    		System.out.println("Getting experiment for " + parameterStableId);
     		try {
     			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenterId, strain, metadataGroup, alleleAccession);
 			    zygosities = experiment.getZygosities();
-
-				if (experiment != null){
+			    if (experiment != null){
 					if (procedureUrl == null){
 						procedureUrl = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 					}
 					data.get("control").add(getMeans("control", experiment));
-					data.get("hom").add(getMeans("hom", experiment));
+					for (ZygosityType z : zygosities){
+						data.get(z.toString()).add(getMeans(z.toString(), experiment));
+					}
 				}
 				else {
 					emptyObj.setLabel(pipelineDAO.getParameterByStableId(parameterStableId).getName());
 					data.get("control").add(emptyObj);
-					data.get("hom").add(emptyObj);
+					for (String z : zyList){
+						data.get(z).add(emptyObj);
+					}
 				}
     		} catch (SolrServerException | IOException | URISyntaxException | SpecificExperimentException e) {
 				e.printStackTrace();
@@ -84,23 +92,17 @@ public class AbrChartAndTableProvider {
     	}
     	
     	// We've got everything, get the chart now.
-    	    	
 		return getCustomChart(data, procedureUrl, unit, zygosities);
 	}
 	
 	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities){
-		// area range and line for control
-		// line for mutants
-		// dot for click
-		
+				
 		JSONArray categories = new JSONArray();
 		String title = "Evoked ABR Threshold (6, 12, 18, 24, 30 kHz)";
 
-		JSONArray controlSD = new JSONArray(); // whiskers +/- sd
-		JSONArray homSD = new JSONArray(); // whiskers +/- sd
-		JSONArray control = new JSONArray();
-		JSONArray homs = new JSONArray();
-
+		Map<String, JSONArray> standardDeviation = new LinkedMap();
+		Map<String, JSONArray> lines = new LinkedMap();
+		
 		Integer decimalNumber = 2;
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		String empty = null;
@@ -125,69 +127,61 @@ public class AbrChartAndTableProvider {
 				JSONArray obj = new JSONArray();
 				obj.put(c.getLabel());
 				obj.put(c.getMean());
-
+				JSONArray sdobj = new JSONArray();
+				sdobj.put(c.getLabel());
+				if (c.getMean() != null){
+					sdobj.put(c.getMean() - c.getSd());
+					sdobj.put(c.getMean() + c.getSd());
+				}else {
+					sdobj.put(empty);
+					sdobj.put(empty);
+				}
+				
 				if(first) {
+					standardDeviation.put("control", new JSONArray());
+					lines.put("control", new JSONArray());
 					first = false;
-					control.put(obj);
-					control.put(emptyObj);
-					controlSD.put(obj);
-					controlSD.put(emptyObj);
+					lines.get("control").put(obj);
+					lines.get("control").put(emptyObj);
+					standardDeviation.get("control").put(sdobj);
+					standardDeviation.get("control").put(emptyObj);
 				} else {
-					control.put(obj);
-
-					obj = new JSONArray();
-					obj.put(c.getLabel());
-					if (c.getMean() != null){
-						obj.put(c.getMean() - c.getSd());
-						obj.put(c.getMean() + c.getSd());
-					}else {
-						obj.put(empty);
-						obj.put(empty);
-					}
-					controlSD.put(obj);
+					lines.get("control").put(obj);
+					standardDeviation.get("control").put(sdobj);
 				}
 			}
-
-			first = true;
-			for (UnidimensionalStatsObject hom : data.get("hom")){
-				JSONArray obj = new JSONArray();
-				obj.put(hom.getLabel());
-				obj.put(hom.getMean());
-
-				if(first) {
-					first = false;
-					homs.put(obj);
-					homs.put(emptyObj);
-
-					obj = new JSONArray();
+			for (ZygosityType zyg : zygosities){			
+				first = true;
+				for (UnidimensionalStatsObject hom : data.get(zyg.toString())){
+					JSONArray obj = new JSONArray();
 					obj.put(hom.getLabel());
-					// in case data is missing for one parameter
+					obj.put(hom.getMean());
+					
+					JSONArray sdobj = new JSONArray();
+					sdobj.put(hom.getLabel());
+					
 					if (hom.getMean() != null){
-						obj.put(hom.getMean() - hom.getSd());
-						obj.put(hom.getMean() + hom.getSd());
-					}else{
-						obj.put(empty);
-						obj.put(empty);
+						sdobj.put(hom.getMean() - hom.getSd());
+						sdobj.put(hom.getMean() + hom.getSd());
+					}else {
+						sdobj.put(empty);
+						sdobj.put(empty);
 					}
-					homSD.put(obj);
-					homSD.put(emptyObj);
-
-				} else {
-					homs.put(obj);
-
-					obj = new JSONArray();
-					obj.put(hom.getLabel());
-					// in case data is missing for one parameter
-					if (hom.getMean() != null){
-						obj.put(hom.getMean() - hom.getSd());
-						obj.put(hom.getMean() + hom.getSd());
-					}else{
-						obj.put(empty);
-						obj.put(empty);
+					if(first) {
+						first = false;
+						standardDeviation.put(zyg.toString(), new JSONArray());
+						lines.put(zyg.toString(), new JSONArray());
+						// add empty datapoint too to keep the click separated
+						lines.get(zyg.toString()).put(obj);
+						lines.get(zyg.toString()).put(emptyObj);
+						standardDeviation.get(zyg.toString()).put(sdobj);
+						standardDeviation.get(zyg.toString()).put(emptyObj);
+					} else {
+						lines.get(zyg.toString()).put(obj);
+						standardDeviation.get(zyg.toString()).put(sdobj);
 					}
-					homSD.put(obj);
+	
 				}
-
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -203,28 +197,32 @@ public class AbrChartAndTableProvider {
 				"  tooltip: {valueSuffix: ' " + unit + "', shared:true },"+
 				"  legend: { },"+
 				"  credits: { enabled: false },  " +
-				"  series: [ {"+
-				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+"',"+
-				"    data: " + homs.toString() + "," +
-				"    zIndex: 1,"+
-				"    color: "+ colors.get(0) +","+
-				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }," +
-				"  }, {"+
-				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+" SD',"+
-				"    data: " + homSD.toString() + "," +
-				"    type: 'errorbar',"+
-				"    linkedTo: ':previous',"+
-				"    color: "+ colors.get(0) +","+
-				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f} )<br/>', shared:true }" +
-				"  },{"+
+				"  series: [ ";
+		
+				for (ZygosityType zyg: zygosities){
+					chart += "   { name: '"+ StringUtils.capitalize(zyg.getName())+"',"+
+					"    data: " + lines.get(zyg.getName()).toString() + "," +
+					"    zIndex: 1,"+
+					"    color: "+ colors.get(0) +","+
+					"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }," +
+					"  }, {"+
+					"    name: '"+ StringUtils.capitalize(zyg.getName())+" SD',"+
+					"    data: " + standardDeviation.get(zyg.getName()).toString() + "," +
+					"    type: 'errorbar',"+
+					"    linkedTo: ':previous',"+
+					"    color: "+ colors.get(0) +","+
+					"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f} )<br/>', shared:true }" +
+					"  },";
+				}
+				chart += "{"+
 				"    name: 'Control',"+
-				"    data: " + control.toString() + "," +
+				"    data: " + lines.get("control").toString() + "," +
 				"    zIndex: 1,"+
 				"    color: "+ colors.get(1) +", " +
 				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
 				"  }, {"+
 				"    name: 'Control SD',"+
-				"    data: " + controlSD.toString() + "," +
+				"    data: " + standardDeviation.get("control").toString() + "," +
 				"    type: 'errorbar',"+
 				"    linkedTo: ':previous',"+
 				"    color: "+ colors.get(1) +","+
@@ -245,8 +243,14 @@ public class AbrChartAndTableProvider {
 		if (typeOfData.equals("control")){
 			dataPoints = exp.getControls();
 			
-		}else if (typeOfData.equals("hom")) {
-			dataPoints = exp.getHomozygoteMutants();	
+		}else{
+			if (typeOfData.equalsIgnoreCase(ZygosityType.homozygote.getName())) {
+				dataPoints = exp.getHomozygoteMutants();
+			} else if (typeOfData.equals( typeOfData.equals(ZygosityType.hemizygote.getName()) )){
+				dataPoints = exp.getHemizygoteMutants();				
+			} else if (typeOfData.equals(ZygosityType.heterozygote.getName())){
+				dataPoints = exp.getHeterozygoteMutants();	
+			}
 			res.setAllele(exp.getAlleleAccession());
 			res.setLine("Not control");
 			res.setGeneticBackground(exp.getStrain());
@@ -260,7 +264,6 @@ public class AbrChartAndTableProvider {
 			res.setSampleSize(dataPoints.size());
 			res.setSd(ChartUtils.getDecimalAdjustedFloat(new Float(stats.getStandardDeviation()), decimalPlaces));
 		}
-		System.out.println(res);
 		return res;
 	}
 }
