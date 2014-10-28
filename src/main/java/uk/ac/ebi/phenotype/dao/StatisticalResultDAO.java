@@ -22,6 +22,7 @@ import java.util.Map;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.MouseDataPoint;
+import uk.ac.ebi.phenotype.chart.SignificantType;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -76,6 +77,6 @@ public interface StatisticalResultDAO {
         
     public CategoricalResult getCategoricalStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException;
     
-    public HashMap<String, Integer> getSexualDimorphismSummary() throws SQLException;
+    public HashMap<SignificantType, Integer> getSexualDimorphismSummary() throws SQLException;
         
 }

@@ -4,7 +4,8 @@
 
 
 <!-- categorical here -->
-				
+				<c:if test="${categoricalResultAndChart.experiment.metadataGroup!=null}">Metadata Group - ${categoricalResultAndChart.experiment.metadataGroup}</c:if>
+  					
  				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">
   				 	
 								<div id="chart${experimentNumber}">

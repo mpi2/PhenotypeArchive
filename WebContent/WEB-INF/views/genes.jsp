@@ -223,22 +223,12 @@
                                                 <div class="no-sprite sprite_endocrine_exocrine_gland_phenotype " data-hasqtip="27" title="endocrine/exocrine gland phenotype"></div>
                                                 <div class="no-sprite sprite_vision_eye_phenotype" data-hasqtip="27" title="vision/eye phenotype"></div>
 
-																								<c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">	                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}">
-	                                                 		<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-	                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-																											</c:if>
-	                                                </c:forEach>
-	                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes()}">
-	                                                    <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-	                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-	                                                    </c:if>
-	                                                </c:forEach>
-	                                                <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.get(zyg).getMalePhenotypes()}">
-	                                                    <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-	                                                        <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-	                                                    </c:if>
-	                                                </c:forEach>
-	                                             </c:forEach>
+																								<c:forEach var="group" items="${topLevelMpGroups}">
+	                                                <c:if test="${group != 'mammalian phenotype' }">
+	                                                 	<div class="sprite sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
+																									</c:if>
+																								</c:forEach>
+																								
                                             </div>
 
                                 						<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>

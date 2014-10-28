@@ -575,7 +575,8 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		if (alleleAccession != null) {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
-
+		System.out.println("getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession Solr query = " 
+			+ solr.getBaseURL() + "/select?" + query);
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
@@ -1497,9 +1498,9 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	}
 	
 	
-	public Set<String> getAllColonyIds(){
+	public Set<String> getAllIMPCColonyIds(){
 		SolrQuery q = new SolrQuery();
-		q.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		q.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental AND "+ ObservationDTO.DATASOURCE_NAME + ":IMPC");
 		q.setFacet(true);
 		q.setFacetMinCount(1);
 		q.setFacetLimit(-1);
@@ -1507,7 +1508,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		q.addFacetField(ObservationDTO.COLONY_ID);
 		
 		try {
-			return getFacets(solr.query(q)).keySet();
+			return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}

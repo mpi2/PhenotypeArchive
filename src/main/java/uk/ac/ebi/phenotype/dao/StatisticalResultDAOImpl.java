@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.MouseDataPoint;
+import uk.ac.ebi.phenotype.chart.SignificantType;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -465,20 +466,23 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 
 	@Override
 	@Transactional(readOnly = true)
-	public HashMap<String, Integer> getSexualDimorphismSummary()
+	/**
+	 * IMPC only
+	 */
+	public HashMap<SignificantType, Integer> getSexualDimorphismSummary()
 	throws SQLException {
 		
-		HashMap<String, Integer> res = new HashMap<>();
+		HashMap<SignificantType, Integer> res = new HashMap<>();
 		String query = "SELECT COUNT(*), classification_tag FROM komp2.stat_result_phenotype_call_summary srpc "+
 			"INNER JOIN phenotype_call_summary pcs on pcs.id = srpc.phenotype_call_summary_id "+
 			"INNER JOIN stats_unidimensional_results sur ON srpc.unidimensional_result_id=sur.id "+
-			"WHERE pcs.p_value < 0.0001 " +
+			"WHERE pcs.p_value < 0.0001 AND pcs.external_db_id=22 " + // IMPC only
 			"GROUP BY classification_tag;";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				res.put(resultSet.getString("classification_tag"), resultSet.getInt("COUNT(*)"));
+				res.put(SignificantType.getValue(resultSet.getString("classification_tag")), resultSet.getInt("COUNT(*)"));
 			}
 		}
 		return res;

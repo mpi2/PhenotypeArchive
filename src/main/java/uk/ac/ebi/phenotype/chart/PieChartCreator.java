@@ -1,10 +1,11 @@
 package uk.ac.ebi.phenotype.chart;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.json.JSONArray;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 
 public class PieChartCreator {
@@ -13,10 +14,29 @@ String pieChart="";
 
 
 
-	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title){
+	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, Map<String, String> map){
+		List<String> colors=new ArrayList<>();;
+		if(map==null){//if no colormap then use highdifference colors as default
+		colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		}else{
+			for(Entry<String, Integer> entry: labelToNumber.entrySet()){
+				System.out.println("entry="+entry.getKey()+" "+entry.getValue());
+				if(entry.getKey().contains("WT")){
+					colors.add(map.get("WT"));
+				}
+				if(entry.getKey().contains("Homozygous")){
+					colors.add(map.get(ZygosityType.homozygote.name()));
+				}
+				if(entry.getKey().contains("Heterozygous")){
+					colors.add(map.get(ZygosityType.heterozygote.name()));
+				}
+				if(entry.getKey().contains("Hemizygous")){
+					colors.add(map.get(ZygosityType.hemizygote.name()));
+				}
+			}
+		}
+		System.out.println("colors in pie chart="+colors);
 		
-		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
-				
 		String chart = "$(function () { $('#"+chartId+"').highcharts({ "
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	
 				 + " colors:"+colors+", "
@@ -28,7 +48,7 @@ String pieChart="";
 				 		+ "size: 200, "
 				 		+ "allowPointSelect: true, "
 				 		+ "cursor: 'pointer', "
-				 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
+				 		+ "dataLabels: { distance: 1, enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
 				 		+ "style: { color: '#666', width:'60px' }  }  },"
 				 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} }"
 				 + " },"

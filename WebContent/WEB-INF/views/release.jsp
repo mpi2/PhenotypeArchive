@@ -183,15 +183,7 @@
 					</table>
 					<p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
 					
-					<h3>Distribution of Phenotype Annotations</h3>
-					<div id="distribution">
-						<script type="text/javascript">
-							${annotationDistributionChart}
-						</script>
-					</div>
-					
-					
-					<h3>Procedures</h3>
+						<h3>Procedures</h3>
 					<div id="lineProcedureChart">
 					<script type="text/javascript">
 						${lineProcedureChart}
@@ -223,43 +215,55 @@
 						</div>
 						<div class="clear"></div>
 					</div><!--  closing off inner here -->
+					</div>
+					
+					<div class="section">
+					<h2>Distribution of Phenotype Annotations</h3>
+					<div class="inner">
+						<div id="distribution">
+							<script type="text/javascript">
+								${annotationDistributionChart}
+							</script>
+						</div>
+					</div>	
 				</div><!-- closing off section -->
+		
+		
 			
 			<div class="section">
-								<h2 class="title" id="section-associations"> Status </h2>		
-		            <div class="inner">
-		            	
-									<div class="half">
-										<div id="genotypeStatusChart">
-			            		<script type="text/javascript">${genotypeStatusChart.getChart()}</script> 
-										</div>       	
-									</div>
-									<div class="half">
-			            	<div id="phenotypeStatusChart">
-			            		<script type="text/javascript">${phenotypeStatusChart.getChart()}</script> 
-										</div>   
-									</div>
-		            	  <div class="clear"></div>   
-		            	  
-			         <div>
-			         <h3>By Center</h3>
-			         		<div class="half">
-				           	<div id="genotypeStatusByCenterChart">
-				           		<script type="text/javascript">${genotypingDistributionChart}</script> 
-										</div>   
-									</div>
-			         		<div class="half">
-				           	<div id="phenotypeStatusByCenterChart">
-				           		<script type="text/javascript">${phenotypingDistributionChart}</script> 
-										</div>   
-									</div>
-			      	   <div class="clear"></div>   
-			         </div> 
-			         <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
-			           	  
-		         </div>
-		            
-		      </div> <!-- section -->
+				<h2 class="title" id="section-associations"> Status </h2>		
+		      <div class="inner">
+		           	
+			       <h3>Overall</h3>
+							<div class="half">
+								<div id="genotypeStatusChart">
+			          		<script type="text/javascript">${genotypeStatusChart.getChart()}</script> 
+								</div>       	
+							</div>
+							<div class="half">
+			         	<div id="phenotypeStatusChart">
+			          		<script type="text/javascript">${phenotypeStatusChart.getChart()}</script> 
+								</div>   
+							</div>
+		         	  <div class="clear"></div>   
+		         	  
+			        <div>
+			        <h3>By Center</h3>
+			       		<div class="half">
+				         	<div id="genotypeStatusByCenterChart">
+				         		<script type="text/javascript">${genotypingDistributionChart}</script> 
+							</div>   
+							</div>
+			       		<div class="half">
+				         	<div id="phenotypeStatusByCenterChart">
+				         		<script type="text/javascript">${phenotypingDistributionChart}</script> 
+								</div>   
+							</div>
+			   	   	<div class="clear"></div>   
+			      </div> 
+			      <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>  
+		      </div>     
+		    </div> <!-- section -->
 					
 				<div class="section">
 						<h2 class="title" id="section-associations"> Sexual Dimorphism </h2>		
@@ -277,7 +281,7 @@
 										</thead>
 										<tbody>
 											<c:forEach var="status" items="${sexualDimorphismSummary.entrySet()}">
-												<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+												<tr><td>${status.getKey().getText()}</td><td>${status.getValue()}</td></tr>
 											</c:forEach>
 										</tbody>
 													
@@ -285,6 +289,61 @@
 		         </div>		            
 		    </div> <!-- section -->
 		    
+		    
+		    <div class="section">
+						<h2 class="title" id="section-associations"> Fertility and Viability </h2>		
+		            <div class="inner">
+										
+										<div class="half">
+											<div id="fertilityChart">
+				            		<script type="text/javascript">${fertilityChart}</script> 
+											</div>  
+											
+											<table>
+											<thead>
+												<tr>
+												<th class="headerSort">Fertility</th>
+												<th class="headerSort">Number of Strains</th>
+												</tr>
+											</thead>
+											<tbody>
+												<c:forEach var="status" items="${fertilityMap.entrySet()}">
+													<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+												</c:forEach>
+											</tbody>
+														
+											</table>   
+									</div>  	
+									
+									<div class="half">
+											<div id="viabilityChart">
+				            		<script type="text/javascript">${viabilityChart}</script> 
+											</div>  
+											
+											<table>
+											<thead>
+												<tr>
+												<th class="headerSort">Viability</th>
+												<th class="headerSort">Number of Strains</th>
+												</tr>
+											</thead>
+											<tbody>
+												<c:forEach var="status" items="${viabilityMap.entrySet()}">
+													<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
+												</c:forEach>
+											</tbody>
+														
+											</table>   
+									</div>  	
+									
+									<div class="clear"> </div>
+		         </div>		            
+		    </div> <!-- section -->
+		    
+		
+		
+		
+		
 				<div class="section">
 				
 			    <h2 class="title" id="phenome-links">Phenotype Associations</h2>

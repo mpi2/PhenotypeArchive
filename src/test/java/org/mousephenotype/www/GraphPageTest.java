@@ -119,7 +119,7 @@ public class GraphPageTest {
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
-    private final int TIMEOUT_IN_SECONDS = 4;
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
     
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
@@ -207,7 +207,7 @@ public class GraphPageTest {
                 driver.get(target);
                 PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, target);
                 ptGene.load();
-                GridMap data = ptGene.getData();
+                GridMap data = new GridMap(ptGene.getPreAndPostQcList(), target);
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
                     graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);

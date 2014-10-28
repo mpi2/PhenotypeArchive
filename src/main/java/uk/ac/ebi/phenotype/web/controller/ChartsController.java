@@ -60,310 +60,284 @@ import java.util.*;
 @Controller
 public class ChartsController {
 
-    private final Logger log = LoggerFactory.getLogger(ChartsController.class);
+	private final Logger log = LoggerFactory.getLogger(ChartsController.class);
 
-    @Autowired
-    private BiologicalModelDAO bmDAO;
+	@Autowired
+	private BiologicalModelDAO bmDAO;
 
-    @Autowired
-    private PhenotypePipelineDAO pipelineDAO;
+	@Autowired
+	private PhenotypePipelineDAO pipelineDAO;
 
-    @Autowired
-    private GenomicFeatureDAO genesDao;
+	@Autowired
+	private GenomicFeatureDAO genesDao;
 
-    @Autowired
-    private OrganisationDAO organisationDAO;
+	@Autowired
+	private OrganisationDAO organisationDAO;
 
-    @Autowired
-    private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
+	@Autowired
+	private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
 
-    @Autowired
-    private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
+	@Autowired
+	private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
 
-    @Autowired
-    private TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
+	@Autowired
+	private TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
 
-    @Autowired
-    private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
+	@Autowired
+	private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
 
-    @Autowired
-    private ScatterChartAndTableProvider scatterChartAndTableProvider;
-   
-    @Autowired
-    private AbrChartAndTableProvider abrChartAndTableProvider;
-    
-    @Autowired
-    private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
+	@Autowired
+	private ScatterChartAndTableProvider scatterChartAndTableProvider;
 
-    @Autowired
-    private ExperimentService experimentService;
-    
-    @Autowired
-    private ImpressService is;
+	@Autowired
+	private AbrChartAndTableProvider abrChartAndTableProvider;
 
-    /**
-     * Runs when the request missing an accession ID. This redirects to the
-     * search page which defaults to showing all genes in the list
-     * 
-     * @return string to instruct spring to redirect to the search page
-     */
-    @RequestMapping("/stats")
-    public String rootForward() {
-        return "redirect:/search";
-    }
-    
+	@Autowired
+	private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
 
-    /**
-     * This method should take in the parameters and then generate a skeleton
-     * jsp page with urls that can be called by a jquery ajax requests for each
-     * graph div and table div
-     * 
-     * @param parameterIds
-     * @param gender
-     * @param zygosity
-     * @param phenotypingCenter
-     * @param strategies
-     * @param accessionsParams
-     * @param model
-     * @return
-     * @throws GenomicFeatureNotFoundException
-     * @throws ParameterNotFoundException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws SolrServerException
-     */
-    @RequestMapping("/charts")
-    public String charts(
-            @RequestParam(required = false, value = "accession") String[] accessionsParams,
-            @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
-            @RequestParam(required = false, value = "gender") String[] gender,
-            @RequestParam(required = false, value = "zygosity") String[] zygosity,
-            @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
-            @RequestParam(required = false, value = "strategy") String[] strategies,
-            @RequestParam(required = false, value = "strain") String[] strains,
-            @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
-            @RequestParam(required = false, value = "chart_type") ChartType chartType,
-            @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
-            @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
-            Model model)
-            throws GenomicFeatureNotFoundException, ParameterNotFoundException,
-            IOException, URISyntaxException, SolrServerException {
-    	System.out.println("charts ::: chart_type=" + chartType);
-        return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
-    }
+	@Autowired
+	private ExperimentService experimentService;
 
-    /**
-     * Will only ever return one chart!
-     * 
-     * @param accession
-     * @param strain
-     * @param metadataGroup
-     * @param parameterStableId
-     * @param gender
-     * @param zygosity
-     * @param phenotypingCenter
-     * @param strategies
-     * @param model
-     * @return
-     * @throws GenomicFeatureNotFoundException
-     * @throws ParameterNotFoundException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws SolrServerException
-     */
-    @RequestMapping("/chart")
-    public String chart(
-            @RequestParam(required = true, value = "experimentNumber") String experimentNumber,
-            @RequestParam(required = false, value = "accession") String[] accession,
-            @RequestParam(required = false, value = "strain_accession_id") String strain,
-            @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
-            @RequestParam(required = false, value = "metadata_group") String metadataGroup,
-            @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId,
-            @RequestParam(required = false, value = "gender") String[] gender,
-            @RequestParam(required = false, value = "zygosity") String[] zygosity,
-            @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
-            @RequestParam(required = false, value = "strategy") String[] strategies,
-            @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
-            @RequestParam(required = false, value = "chart_type") ChartType chartType,
-            @RequestParam(required = false, value = "standAlone") boolean standAlone,
-            Model model) throws GenomicFeatureNotFoundException,
-            ParameterNotFoundException, IOException, URISyntaxException,
-            SolrServerException, SpecificExperimentException {
+	@Autowired
+	private ImpressService is;
 
-        UnidimensionalDataSet unidimensionalChartDataSet = null;
-        ChartData timeSeriesForParam = null;
-        CategoricalResultAndCharts categoricalResultAndChart = null;
-       
 
-        boolean statsError = false;
+	/**
+	 * Runs when the request missing an accession ID. This redirects to the
+	 * search page which defaults to showing all genes in the list
+	 * 
+	 * @return string to instruct spring to redirect to the search page
+	 */
+	@RequestMapping("/stats")
+	public String rootForward() {
 
-        // TODO need to check we don't have more than one accession and one
-        // parameter throw and exception if we do
+		return "redirect:/search";
+	}
 
-        // get the parameter object from the stable id
-        Parameter parameter = pipelineDAO.getParameterByStableId(parameterStableId);
-        if (parameter == null) {
-            throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
-        }
 
-        String[] parameterUnits = parameter.checkParameterUnits();
-        String xUnits = "";
-        String yUnits = "";
+	/**
+	 * This method should take in the parameters and then generate a skeleton
+	 * jsp page with urls that can be called by a jquery ajax requests for each
+	 * graph div and table div
+	 * 
+	 * @param parameterIds
+	 * @param gender
+	 * @param zygosity
+	 * @param phenotypingCenter
+	 * @param strategies
+	 * @param accessionsParams
+	 * @param model
+	 * @return
+	 * @throws GenomicFeatureNotFoundException
+	 * @throws ParameterNotFoundException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws SolrServerException
+	 */
+	@RequestMapping("/charts")
+	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams, @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds, @RequestParam(required = false, value = "gender") String[] gender, @RequestParam(required = false, value = "zygosity") String[] zygosity, @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter, @RequestParam(required = false, value = "strategy") String[] strategies, @RequestParam(required = false, value = "strain") String[] strains, @RequestParam(required = false, value = "metadata_group") String[] metadataGroup, @RequestParam(required = false, value = "chart_type") ChartType chartType, @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds, @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession, Model model)
+	throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
 
-        if (parameterUnits.length > 0) {
-            xUnits = parameterUnits[0];
-        }
-        if (parameterUnits.length > 1) {
-            yUnits = parameterUnits[1];
-        }
+		System.out.println("charts ::: chart_type=" + chartType);
+		return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+	}
 
-        ObservationType observationTypeForParam = Utilities.checkType(parameter);
-        log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
 
-        List<String> genderList = getParamsAsList(gender);
+	/**
+	 * Will only ever return one chart!
+	 * 
+	 * @param accession
+	 * @param strain
+	 * @param metadataGroup
+	 * @param parameterStableId
+	 * @param gender
+	 * @param zygosity
+	 * @param phenotypingCenter
+	 * @param strategies
+	 * @param model
+	 * @return
+	 * @throws GenomicFeatureNotFoundException
+	 * @throws ParameterNotFoundException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws SolrServerException
+	 */
+	@RequestMapping("/chart")
+	public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber, @RequestParam(required = false, value = "accession") String[] accession, @RequestParam(required = false, value = "strain_accession_id") String strain, @RequestParam(required = false, value = "allele_accession_id") String alleleAccession, @RequestParam(required = false, value = "metadata_group") String metadataGroup, @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId, @RequestParam(required = false, value = "gender") String[] gender, @RequestParam(required = false, value = "zygosity") String[] zygosity, @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter, @RequestParam(required = false, value = "strategy") String[] strategies, @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId, @RequestParam(required = false, value = "chart_type") ChartType chartType, @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
+	throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
 
-        // Use the first phenotyping center passed in (ignore the others?)
-        // should only now be one center at this stage for one graph/experiment
-        // TODO put length check and exception here
-        // List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
-        Integer phenotypingCenterId = null;
-        if (phenotypingCenter != null) {
-            try {
-                phenotypingCenterId = organisationDAO.getOrganisationByName(phenotypingCenter).getId();
-            } catch (NullPointerException e) {
-                log.error("Cannot find center ID for organisation with name " + phenotypingCenter);
-            }
-        }
+		UnidimensionalDataSet unidimensionalChartDataSet = null;
+		ChartData timeSeriesForParam = null;
+		CategoricalResultAndCharts categoricalResultAndChart = null;
 
-        String metaDataGroupString = null;
-        if (metadataGroup != null) {
-            metaDataGroupString = metadataGroup;
-        }
+		boolean statsError = false;
 
-        List<String> zyList = getParamsAsList(zygosity);
+		// TODO need to check we don't have more than one accession and one
+		// parameter throw and exception if we do
 
-        Integer pipelineId = null;
-        Pipeline pipeline = null;
+		// get the parameter object from the stable id
+		Parameter parameter = pipelineDAO.getParameterByStableId(parameterStableId);
+		if (parameter == null) { throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId); }
 
-        if (pipelineStableId != null && !pipelineStableId.equals("")) {
-            log.debug("pipe stable id=" + pipelineStableId);
-            pipeline = pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
-            pipelineId = pipeline.getId();
-        }
+		String[] parameterUnits = parameter.checkParameterUnits();
+		String xUnits = "";
+		String yUnits = "";
 
-        ExperimentDTO experiment=null;
-        //@TODO move this as this is just for testing
-        if(parameterStableId.equals("IMPC_VIA_001_001")){
-       	//Its a viability outcome param which means its a line level query so we don't use the normal experiment query in experiment service
-        ViabilityDTO viability=experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, 
-    	strain, metaDataGroupString, alleleAccession);
-        ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
-		 model.addAttribute("viabilityDTO", viabilityDTO);
-		 //we need the biological model for the line level param so just get the first observation from the first entry and get the biologicalModelId
-		 BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
-         setTitlesForGraph(model, expBiologicalModel);
-         model.addAttribute("pipeline", pipeline);
-         model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
-         model.addAttribute("phenotypingCenter", phenotypingCenter);
-		 return "chart";
-       }
-        experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
-        	strain, metaDataGroupString, alleleAccession);
-        System.out.println("experiment="+experiment);
-        
+		if (parameterUnits.length > 0) {
+			xUnits = parameterUnits[0];
+		}
+		if (parameterUnits.length > 1) {
+			yUnits = parameterUnits[1];
+		}
 
-        if (experiment != null) {
+		ObservationType observationTypeForParam = Utilities.checkType(parameter);
+		log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
 
-            if (pipeline == null) {
-                // if we don't already have the pipeline for this experiment
-                // from the url params lets get it via the experiment returned
-                pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
-            }
+		List<String> genderList = getParamsAsList(gender);
 
-            String xAxisTitle = xUnits;
+		// Use the first phenotyping center passed in (ignore the others?)
+		// should only now be one center at this stage for one graph/experiment
+		// TODO put length check and exception here
+		// List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
+		Integer phenotypingCenterId = null;
+		if (phenotypingCenter != null) {
+			try {
+				phenotypingCenterId = organisationDAO.getOrganisationByName(phenotypingCenter).getId();
+			} catch (NullPointerException e) {
+				log.error("Cannot find center ID for organisation with name " + phenotypingCenter);
+			}
+		}
 
-            BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
-            setTitlesForGraph(model, expBiologicalModel);
+		String metaDataGroupString = null;
+		if (metadataGroup != null) {
+			metaDataGroupString = metadataGroup;
+		}
 
-            try {
-//            	if (chartType == null){
-//            		chartType = GraphUtils.getDefaultChartType(parameter);
-//            		// chartType might still be null after this
-//            		if(chartType==ChartType.PIE){
-//            		 viabilityDTO = viabilityChartAndDataProvider.doViabilityData(null, null);
-//        			 model.addAttribute("viabilityDTO", viabilityDTO);
-//        			 //model.addAttribute("tableData", viabilityDTO);
-//        			 return "chart";
-//            		}
-//            	}
-                if (chartType != null){
+		List<String> zyList = getParamsAsList(zygosity);
+
+		Integer pipelineId = null;
+		Pipeline pipeline = null;
+
+		if (pipelineStableId != null && !pipelineStableId.equals("")) {
+			log.debug("pipe stable id=" + pipelineStableId);
+			pipeline = pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
+			pipelineId = pipeline.getId();
+		}
+
+		ExperimentDTO experiment = null;
+		// @TODO move this as this is just for testing
+		if (parameterStableId.equals("IMPC_VIA_001_001")) {
+			// Its a viability outcome param which means its a line level query
+			// so we don't use the normal experiment query in experiment service
+			ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+			model.addAttribute("viabilityDTO", viabilityDTO);
+			// we need the biological model for the line level param so just get
+			// the first observation from the first entry and get the
+			// biologicalModelId
+			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
+			setTitlesForGraph(model, expBiologicalModel);
+			model.addAttribute("pipeline", pipeline);
+			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+			model.addAttribute("phenotypingCenter", phenotypingCenter);
+			return "chart";
+		}
+		experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+		System.out.println("experiment=" + experiment);
+
+		if (experiment != null) {
+
+			if (pipeline == null) {
+				// if we don't already have the pipeline for this experiment
+				// from the url params lets get it via the experiment returned
+				pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
+			}
+
+			String xAxisTitle = xUnits;
+
+			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
+			setTitlesForGraph(model, expBiologicalModel);
+
+			try {
+				// if (chartType == null){
+				// chartType = GraphUtils.getDefaultChartType(parameter);
+				// // chartType might still be null after this
+				// if(chartType==ChartType.PIE){
+				// viabilityDTO =
+				// viabilityChartAndDataProvider.doViabilityData(null, null);
+				// model.addAttribute("viabilityDTO", viabilityDTO);
+				// //model.addAttribute("tableData", viabilityDTO);
+				// return "chart";
+				// }
+				// }
+				if (chartType != null) {
 					switch (chartType) {
-                		
-                		 case UNIDIMENSIONAL_SCATTER_PLOT:
-                		
-                			 ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
-                			 model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-                			 if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-                				 // if unidimensional add the unidimensional data so we
-                				 // can create the tables
-                				 List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-                				 unidimensionalChartDataSet = new UnidimensionalDataSet();
-                				 unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
-                				 model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-                			 }
-                			 break;
-                		 
-                		 case UNIDIMENSIONAL_ABR_PLOT:
-                			 
-                			 // get experiments for other parameters too 
-                			 model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, 
-                			 	strain, metaDataGroupString, alleleAccession));
-                		
-                		 case UNIDIMENSIONAL_BOX_PLOT:
+						case UNIDIMENSIONAL_SCATTER_PLOT:
 
-                			 unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
-                			 model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-                			 break;
+							ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
+							model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-                		 case CATEGORICAL_STACKED_COLUMN:
+							if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+								// if unidimensional add the unidimensional data
+								// so we
+								// can create the tables
+								List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+								unidimensionalChartDataSet = new UnidimensionalDataSet();
+								unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+								model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+							}
+							break;
 
-                			 categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
-                			 model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-                			 break;
+						case UNIDIMENSIONAL_ABR_PLOT:
 
-                		 case TIME_SERIES_LINE:
+							// get experiments for other parameters too
+							model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession));
 
-                			 timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
-                			 model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
-                			 break;
-                			 
-                		 default:
+						case UNIDIMENSIONAL_BOX_PLOT:
 
-                			 // Trying to graph Unknown observation type
-	                        log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-	                        break;
-                	}
-                }
+							unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
+							model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+							break;
 
-            } catch (SQLException e) {
-                log.error(ExceptionUtils.getFullStackTrace(e));
-                statsError = true;
-            }
+						case CATEGORICAL_STACKED_COLUMN:
 
-            model.addAttribute("pipeline", pipeline);
-            model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
-            model.addAttribute("phenotypingCenter", phenotypingCenter);
-            model.addAttribute("experimentNumber", experimentNumber);
-            model.addAttribute("statsError", statsError);
+							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
+							model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+							break;
 
-        } else {
-           System.out.println("empty experiment");
-            model.addAttribute("emptyExperiment", true);
-        }
+						case TIME_SERIES_LINE:
 
-        return "chart";
-    }
+							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
+							break;
+
+						default:
+
+							// Trying to graph Unknown observation type
+							log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+							break;
+					}
+				}
+
+			} catch (SQLException e) {
+				log.error(ExceptionUtils.getFullStackTrace(e));
+				statsError = true;
+			}
+
+			model.addAttribute("pipeline", pipeline);
+			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+			model.addAttribute("phenotypingCenter", phenotypingCenter);
+			model.addAttribute("experimentNumber", experimentNumber);
+			model.addAttribute("statsError", statsError);
+
+		} else {
+			System.out.println("empty experiment");
+			model.addAttribute("emptyExperiment", true);
+		}
+
+		return "chart";
+	}
 
 
 	private void setTitlesForGraph(Model model, BiologicalModel expBiologicalModel) {
@@ -372,159 +346,164 @@ public class ChartsController {
 		String symbol = "unknown";
 		String geneticBackgroundString = "unknown";
 
-		
 		if (expBiologicalModel != null) {
-		    allelicCompositionString = expBiologicalModel.getAllelicComposition();
-		    symbol = expBiologicalModel.getAlleles().get(0).getSymbol();
-		    geneticBackgroundString = expBiologicalModel.getGeneticBackground();
-		    model.addAttribute("allelicCompositionString", allelicCompositionString);
-		    model.addAttribute("symbol", symbol);
-		    model.addAttribute("geneticBackgroundString", geneticBackgroundString);
+			allelicCompositionString = expBiologicalModel.getAllelicComposition();
+			symbol = expBiologicalModel.getAlleles().get(0).getSymbol();
+			geneticBackgroundString = expBiologicalModel.getGeneticBackground();
+			model.addAttribute("allelicCompositionString", allelicCompositionString);
+			model.addAttribute("symbol", symbol);
+			model.addAttribute("geneticBackgroundString", geneticBackgroundString);
 		}
 	}
 
-	
 
-    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
-    String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
-        GraphUtils graphUtils = new GraphUtils(experimentService);
-        List<String> geneIds = getParamsAsList(accessionsParams);
-        List<String> paramIds = getParamsAsList(parameterIds);
-        List<String> genderList = getParamsAsList(gender);
-        List<String> phenotypingCentersList = getParamsAsList(phenotypingCenter);
-        List<String> strainsList = getParamsAsList(strains);
-        List<String> metadataGroups = getParamsAsList(metadataGroup);
-        List<String> pipelineStableIds = getParamsAsList(pipelineStableIdsArray);
-        List<String> alleleAccessions = getParamsAsList(alleleAccession);
-        
-        // add sexes explicitly here so graphs urls are created separately
-        if (genderList.isEmpty()) {
-            genderList.add(SexType.male.name());
-            genderList.add(SexType.female.name());
-        }
+	private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
+	throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
 
-        List<String> zyList = getParamsAsList(zygosity);
-        if (zyList.isEmpty()) {
-            zyList.add(ZygosityType.homozygote.name());
-            zyList.add(ZygosityType.heterozygote.name());
-            zyList.add(ZygosityType.hemizygote.name());
-        }
+		GraphUtils graphUtils = new GraphUtils(experimentService);
+		List<String> geneIds = getParamsAsList(accessionsParams);
+		List<String> paramIds = getParamsAsList(parameterIds);
+		List<String> genderList = getParamsAsList(gender);
+		List<String> phenotypingCentersList = getParamsAsList(phenotypingCenter);
+		List<String> strainsList = getParamsAsList(strains);
+		List<String> metadataGroups = getParamsAsList(metadataGroup);
+		List<String> pipelineStableIds = getParamsAsList(pipelineStableIdsArray);
+		List<String> alleleAccessions = getParamsAsList(alleleAccession);
 
-        Set<String> allGraphUrlSet = new LinkedHashSet<>();
-	    String allParameters = "";
+		// add sexes explicitly here so graphs urls are created separately
+		if (genderList.isEmpty()) {
+			genderList.add(SexType.male.name());
+			genderList.add(SexType.female.name());
+		}
 
-	    for (String geneId : geneIds) {
+		List<String> zyList = getParamsAsList(zygosity);
+		if (zyList.isEmpty()) {
+			zyList.add(ZygosityType.homozygote.name());
+			zyList.add(ZygosityType.heterozygote.name());
+			zyList.add(ZygosityType.hemizygote.name());
+		}
 
-            GenomicFeature gene = genesDao.getGenomicFeatureByAccession(geneId);
+		Set<String> allGraphUrlSet = new LinkedHashSet<>();
+		String allParameters = "";
 
-            if (gene == null) {
-                throw new GenomicFeatureNotFoundException("Gene " + geneId + " can't be found.", geneId);
-            }
+		for (String geneId : geneIds) {
 
-            log.info(gene.toString());
+			GenomicFeature gene = genesDao.getGenomicFeatureByAccession(geneId);
 
-            model.addAttribute("gene", gene);
+			if (gene == null) { throw new GenomicFeatureNotFoundException("Gene " + geneId + " can't be found.", geneId); }
 
-		    List<String> pNames = new ArrayList<>();
+			log.info(gene.toString());
 
-            for (String parameterId : paramIds) {
+			model.addAttribute("gene", gene);
 
-                Parameter parameter = pipelineDAO.getParameterByStableId(parameterId);
-	            pNames.add(StringUtils.capitalize(parameter.getName()) + " ("+parameter.getStableId()+")");
+			List<String> pNames = new ArrayList<>();
 
-                if (parameter == null) {
-                    throw new ParameterNotFoundException("Parameter " + parameterId + " can't be found.", parameterId);
-                }
+			for (String parameterId : paramIds) {
 
-                // instead of an experiment list here we need just the outline
-                // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, 
-                	phenotypingCentersList, strainsList, metadataGroups, chartType, alleleAccessions);
-                allGraphUrlSet.addAll(graphUrlsForParam);
+				Parameter parameter = pipelineDAO.getParameterByStableId(parameterId);
+				pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
 
-            }// end of parameterId iterations
+				if (parameter == null) { throw new ParameterNotFoundException("Parameter " + parameterId + " can't be found.", parameterId); }
 
-		    allParameters = StringUtils.join(pNames, ", ");
+				// instead of an experiment list here we need just the outline
+				// of the experiments - how many, observation types
+				Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, chartType, alleleAccessions);
+				allGraphUrlSet.addAll(graphUrlsForParam);
 
-	    }// end of gene iterations
-System.out.println("all graphs="+StringUtils.join(allGraphUrlSet, "\n"));
-        model.addAttribute("allGraphUrlSet", allGraphUrlSet);
-	    model.addAttribute("allParameters", allParameters);
+			}// end of parameterId iterations
 
-        return "stats";
-    }
+			allParameters = StringUtils.join(pNames, ", ");
 
-    /**
-     * Exception handler for gene not found
-     * @param exception of proper type to indicate gene not found
-     * @return model and view for error page
-     */
-    @ExceptionHandler(GenomicFeatureNotFoundException.class)
-    public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
+		}// end of gene iterations
+		System.out.println("all graphs=" + StringUtils.join(allGraphUrlSet, "\n"));
+		model.addAttribute("allGraphUrlSet", allGraphUrlSet);
+		model.addAttribute("allParameters", allParameters);
 
-        log.error(exception.getMessage());
+		return "stats";
+	}
 
-        ModelAndView mv = new ModelAndView("identifierError");
-        mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "MGI gene");
-        mv.addObject("exampleURI", "/charts?accession=MGI:104874");
 
-        return mv;
-    }
+	/**
+	 * Exception handler for gene not found
+	 * 
+	 * @param exception
+	 *            of proper type to indicate gene not found
+	 * @return model and view for error page
+	 */
+	@ExceptionHandler(GenomicFeatureNotFoundException.class)
+	public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
 
-    /**
-     * Exception handler for parameter not found
-     * @param exception of proper type to indicate parameter not found
-     * @return model and view for error page
-     */
-    @ExceptionHandler(ParameterNotFoundException.class)
-    public ModelAndView handleParameterNotFoundException(ParameterNotFoundException exception) {
+		log.error(exception.getMessage());
 
-        log.error(exception.getMessage());
+		ModelAndView mv = new ModelAndView("identifierError");
+		mv.addObject("errorMessage", exception.getMessage());
+		mv.addObject("acc", exception.getAcc());
+		mv.addObject("type", "MGI gene");
+		mv.addObject("exampleURI", "/charts?accession=MGI:104874");
 
-        ModelAndView mv = new ModelAndView("identifierError");
-        mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "Parameter");
-        mv.addObject("exampleURI", "/charts?accession=MGI:98373&parameterId=M-G-P_014_001_001&gender=male&zygosity=homozygote&phenotypingCenter=WTSI");
+		return mv;
+	}
 
-        return mv;
-    }
 
-    /**
-     * Exception handler for experiment not found
-     * @param exception of proper type to indicate experiment not found
-     * @return model and view for error page
-     */
-    @ExceptionHandler(SpecificExperimentException.class)
-    public ModelAndView handleSpecificExperimentException(ParameterNotFoundException exception) {
+	/**
+	 * Exception handler for parameter not found
+	 * 
+	 * @param exception
+	 *            of proper type to indicate parameter not found
+	 * @return model and view for error page
+	 */
+	@ExceptionHandler(ParameterNotFoundException.class)
+	public ModelAndView handleParameterNotFoundException(ParameterNotFoundException exception) {
 
-        log.error(exception.getMessage());
+		log.error(exception.getMessage());
 
-        ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
-        mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "Parameter");
+		ModelAndView mv = new ModelAndView("identifierError");
+		mv.addObject("errorMessage", exception.getMessage());
+		mv.addObject("acc", exception.getAcc());
+		mv.addObject("type", "Parameter");
+		mv.addObject("exampleURI", "/charts?accession=MGI:98373&parameterId=M-G-P_014_001_001&gender=male&zygosity=homozygote&phenotypingCenter=WTSI");
 
-        return mv;
-    }
+		return mv;
+	}
 
-    /**
-     * Convenience method that just changes an array [] to a more modern LIst (I
-     * hate arrays! :) )
-     * 
-     * @param parameterIds
-     * @return
-     */
-    private List<String> getParamsAsList(String[] parameterIds) {
-        List<String> paramIds;
-        if (parameterIds == null) {
-            paramIds = new ArrayList<String>();
-        } else {
-            paramIds = Arrays.asList(parameterIds);
-        }
-        return paramIds;
-    }
+
+	/**
+	 * Exception handler for experiment not found
+	 * 
+	 * @param exception
+	 *            of proper type to indicate experiment not found
+	 * @return model and view for error page
+	 */
+	@ExceptionHandler(SpecificExperimentException.class)
+	public ModelAndView handleSpecificExperimentException(ParameterNotFoundException exception) {
+
+		log.error(exception.getMessage());
+
+		ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
+		mv.addObject("errorMessage", exception.getMessage());
+		mv.addObject("acc", exception.getAcc());
+		mv.addObject("type", "Parameter");
+
+		return mv;
+	}
+
+
+	/**
+	 * Convenience method that just changes an array [] to a more modern LIst (I
+	 * hate arrays! :) )
+	 * 
+	 * @param parameterIds
+	 * @return
+	 */
+	private List<String> getParamsAsList(String[] parameterIds) {
+
+		List<String> paramIds;
+		if (parameterIds == null) {
+			paramIds = new ArrayList<String>();
+		} else {
+			paramIds = Arrays.asList(parameterIds);
+		}
+		return paramIds;
+	}
 
 }

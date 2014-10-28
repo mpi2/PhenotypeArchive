@@ -1,7 +1,10 @@
 package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.bcel.generic.RETURN;
@@ -50,7 +53,7 @@ public class ChartColors {
 	 * @return
 	 */
 	public static String  getRgbaString(SexType sexType, int index, Double alpha) {
-		String defaultColor="rgba(9, 120, 161, 0.5)";
+		String defaultColor="\'rgba(9, 120, 161, 0.5)\'";
 		if(index>=maleRgb.size()) {
 			System.err.println("no color found returning default");
 			index=index % maleRgb.size();
@@ -58,17 +61,17 @@ public class ChartColors {
 			return defaultColor;
 		}
 		if(sexType.equals(SexType.male)) {
-		return "rgba("+maleRgb.get(index)+"," +alpha+")";
+		return "\'rgba("+maleRgb.get(index)+"," +alpha+")\'";
 		}
 		if(sexType.equals(SexType.female)) {
-			return "rgba("+femaleRgb.get(index)+"," +alpha+")";
+			return "\'rgba("+femaleRgb.get(index)+"," +alpha+"\')";
 			}
 		System.err.println("no color found returning default");
 		return defaultColor;
 	}
 	
 	public static String getDefaultControlColor (Double alpha){
-		return "rgba("+femaleRgb.get(3)+"," +alpha+")";
+		return "\'rgba("+femaleRgb.get(3)+"," +alpha+")\'";
 	}
 	
 	public static List<String> getFemaleMaleColorsRgba(Double alpha) {
@@ -85,7 +88,7 @@ public class ChartColors {
 	public static List<String> getMaleColorsRgba(Double alpha) {
 		List<String> colorStrings = new ArrayList<String>();
 		for (String colorString : ChartColors.maleRgb) {
-			colorStrings.add("rgba(" + colorString + "," + alpha + ")");
+			colorStrings.add("\'rgba(" + colorString + "," + alpha + ")\'");
 		}
 
 		return colorStrings;
@@ -101,11 +104,11 @@ public class ChartColors {
 	}
 
 	public static String getMutantColor(Double alpha) {
-		return "rgba("+mutantColor+"," +alpha+")";
+		return "\'rgba("+mutantColor+"," +alpha+")\'";
 	}
 	
 	public static String getWTColor(Double alpha) {
-		return "rgba("+wtColor+"," +alpha+")";
+		return "\'rgba("+wtColor+"," +alpha+")\'";
 	}
 	
 	/**
@@ -147,7 +150,7 @@ String marker="marker:{"
 			+"symbol: '"+symbol
 			+"', fillColor:  '"+fillColor+"'," +
 					" lineWidth: 1,"
-		    +" lineColor: '"+lineColor+ "' "
+		    +" lineColor: "+lineColor+ " "
       +" }";
 		return marker;
 	}
@@ -155,5 +158,19 @@ String marker="marker:{"
 	public static JSONObject getMarkerJSONObject(SexType sex, ZygosityType zygosityType) throws JSONException {
 		String markerString=getMarkerString(sex, zygosityType).replace("marker:", "");
 		return new JSONObject(markerString);
+	}
+	
+	/**
+	 * get a deefault list of colors for WT and zygosities, color RGB String e.g. Homozygous, "239, 123, 11"
+	 * @return
+	 */
+	public static Map<String,String> getZygosityColorMap(){
+		//"239, 123, 11" ,  "9, 120, 161", "119, 119, 119",
+		Map<String,String> zygColorMap=new LinkedHashMap<>();
+		zygColorMap.put("WT", ChartColors.getWTColor(alphaBox));
+		zygColorMap.put(ZygosityType.homozygote.name(),getHighDifferenceColorsRgba(alphaBox).get(1) );
+		zygColorMap.put(ZygosityType.heterozygote.name(),getHighDifferenceColorsRgba(alphaBox).get(2));
+		zygColorMap.put(ZygosityType.hemizygote.name(),getHighDifferenceColorsRgba(alphaBox).get(3) );
+		return zygColorMap;
 	}
 }

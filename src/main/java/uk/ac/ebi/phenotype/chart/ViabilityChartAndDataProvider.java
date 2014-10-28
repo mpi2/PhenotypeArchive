@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,25 +42,31 @@ public class ViabilityChartAndDataProvider {
 		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHom));
 		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHet));
 		
-		Map<String, Integer> totalLabelToNumber = new TreeMap<>();
+		Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
 		for(ObservationDTO ob:totals){
+			if(Math.round(ob.getDataPoint())>0){
 		totalLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+			}
 		}
-		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)");
+		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)", ChartColors.getZygosityColorMap());
 		viabilityDTO.setTotalChart(totalChart);
 		
-		Map<String, Integer> maleLabelToNumber = new TreeMap<>();
+		Map<String, Integer> maleLabelToNumber = new LinkedHashMap<>();
 		for(ObservationDTO ob:male){
+			if(Math.round(ob.getDataPoint())>0){
 			maleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+			}
 		}
-		Map<String, Integer> femaleLabelToNumber = new TreeMap<>();
-		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart", "Male Counts");
+		Map<String, Integer> femaleLabelToNumber = new LinkedHashMap<>();
+		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart", "Male Counts", ChartColors.getZygosityColorMap());
 		viabilityDTO.setMaleChart(maleChart);
 		
 		for(ObservationDTO ob:female){
+			if(Math.round(ob.getDataPoint())>0){
 			femaleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+			}
 		}
-		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart", "Female Counts");
+		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart", "Female Counts", ChartColors.getZygosityColorMap());
 		viabilityDTO.setFemaleChart(femaleChart);
 		return viabilityDTO;
 	}
