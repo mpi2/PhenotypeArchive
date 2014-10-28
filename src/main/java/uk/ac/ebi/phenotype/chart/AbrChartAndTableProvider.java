@@ -96,11 +96,6 @@ public class AbrChartAndTableProvider {
 		JSONArray categories = new JSONArray();
 		String title = "Evoked ABR Threshold (6, 12, 18, 24, 30 kHz)";
 
-		JSONArray clickControlSD = new JSONArray(); // whiskers +/- sd
-		JSONArray clickHomSD = new JSONArray(); // whiskers +/- sd
-		JSONArray clickControl = new JSONArray();
-		JSONArray clickHoms = new JSONArray();
-
 		JSONArray controlSD = new JSONArray(); // whiskers +/- sd
 		JSONArray homSD = new JSONArray(); // whiskers +/- sd
 		JSONArray control = new JSONArray();
@@ -109,12 +104,22 @@ public class AbrChartAndTableProvider {
 		Integer decimalNumber = 2;
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		String empty = null;
+		JSONArray emptyObj = new JSONArray();
+		emptyObj.put("");
+		emptyObj.put(empty);
+		emptyObj.put(empty);
 		
 		for (String abrId: Constants.ABR_PARAMETERS){
 			categories.put(pipelineDAO.getParameterByStableId(abrId).getName());
+			try {
+				categories.put(1, ""); // empty category with null data so that the points won't be connected
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		}
 		try {
 			boolean first = true;
+			
 			for (UnidimensionalStatsObject c : data.get("control")){
 
 				JSONArray obj = new JSONArray();
@@ -122,29 +127,11 @@ public class AbrChartAndTableProvider {
 				obj.put(c.getMean());
 
 				if(first) {
-
 					first = false;
-
-					clickControl.put(obj);
-					obj = new JSONArray();
-					obj.put(c.getLabel());
-					if (c.getMean() != null){
-						obj.put(c.getMean() - c.getSd());
-						obj.put(c.getMean() + c.getSd());
-					}else {
-						obj.put(empty);
-						obj.put(empty);
-					}
-					clickControlSD.put(obj);
-
-					obj = new JSONArray();
-					obj.put(c.getLabel());
-					obj.put(empty);
 					control.put(obj);
-
-					obj.put(empty);
+					control.put(emptyObj);
 					controlSD.put(obj);
-
+					controlSD.put(emptyObj);
 				} else {
 					control.put(obj);
 
@@ -159,7 +146,6 @@ public class AbrChartAndTableProvider {
 					}
 					controlSD.put(obj);
 				}
-
 			}
 
 			first = true;
@@ -170,7 +156,8 @@ public class AbrChartAndTableProvider {
 
 				if(first) {
 					first = false;
-					clickHoms.put(obj);
+					homs.put(obj);
+					homs.put(emptyObj);
 
 					obj = new JSONArray();
 					obj.put(hom.getLabel());
@@ -182,14 +169,8 @@ public class AbrChartAndTableProvider {
 						obj.put(empty);
 						obj.put(empty);
 					}
-					clickHomSD.put(obj);
-					obj = new JSONArray();
-					obj.put(hom.getLabel());
-					obj.put(empty);
-					homs.put(obj);
-
-					obj.put(empty);
 					homSD.put(obj);
+					homSD.put(emptyObj);
 
 				} else {
 					homs.put(obj);
@@ -212,56 +193,7 @@ public class AbrChartAndTableProvider {
 			e.printStackTrace();
 		}
 		
-		String chart = 
-		"$(function () {"+
-			"$('#chartABR').highcharts({"+
-			   	 "title: { text: '" + title + "' },"+		
-				 "subtitle: {  useHTML: true,  text: '" + procedureLink + "'}, " +	
-			     " xAxis: {   categories: "  + categories + "},"+			
-			     " yAxis: {   title: {    text: '" + unit + "'  }  },"+			
-			     " tooltip: {valueSuffix: ' " + unit + "', shared:true },"+			
-			     " legend: { },"+ 
-			     " credits: { enabled: false },  " +
-			     " series: [ {"+
-						" name: 'Homozygotes',"+
-						" data: " + homs.toString() + "," + 
-						" zIndex: 1,"+
-						" color: \""+ colors.get(0) +"\","+
-						" tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }," + 
-						
-				 " }, {"+
-				     " name: 'Homozygote SD',"+
-				     " data: " + homSD.toString() + "," + 
-//				     " type: 'arearange',"+
-				     " type: 'errorbar',"+
-//				     " lineWidth: 0,"+
-				     " linkedTo: ':previous',"+
-				     " color: \""+ colors.get(0) +"\","+
-//				     " fillOpacity: 0.3,"+
-//				     " zIndex: 0"+
-				     " tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f} )<br/>', shared:true }" + 
-			     "   },{"+
-				     " name: 'Control',"+
-				     " data: " + control.toString() + "," + 
-				     " zIndex: 1,"+
-				     " color: \""+ colors.get(1) +"\", " +
-				     " tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" + 	
-			     " }, {"+
-				     " name: 'Control SD',"+
-				     " data: " + controlSD.toString() + "," + 
-//				     " type: 'arearange',"+
-				     " type: 'errorbar',"+
-//				     " lineWidth: 0,"+
-				     " linkedTo: ':previous',"+
-				     " color: \""+ colors.get(1) +"\","+
-//				     " fillOpacity: 0.3,"+
-//				     " zIndex: 0"+
-				     " tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" + 
-			     "   } ]"+
-			    "});"+
-			"});" ;
-
-		chart =
+		String chart =
 			"$(function () {"+
 				"$('#chartABR').highcharts({"+
 				"  title: { text: '" + title + "' },"+
@@ -273,60 +205,33 @@ public class AbrChartAndTableProvider {
 				"  credits: { enabled: false },  " +
 				"  series: [ {"+
 				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+"',"+
-				"    data: " + clickHoms.toString() + "," +
-				"    zIndex: 1,"+
-				"    color: \""+ colors.get(0) +"\", " +
-				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
-				"  }, {"+
-				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+" SD',"+
-				"    data: " + clickHomSD.toString() + "," +
-				"    type: 'errorbar',"+
-				"    linkedTo: ':previous',"+
-				"    color: \""+ colors.get(0) +"\","+
-				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" +
-				"  },{"+
-				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+"',"+
 				"    data: " + homs.toString() + "," +
 				"    zIndex: 1,"+
-				"    color: \""+ colors.get(0) +"\","+
+				"    color: "+ colors.get(0) +","+
 				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }," +
 				"  }, {"+
 				"    name: '"+ StringUtils.capitalize(StringUtils.join(zygosities, ", "))+" SD',"+
 				"    data: " + homSD.toString() + "," +
 				"    type: 'errorbar',"+
 				"    linkedTo: ':previous',"+
-				"    color: \""+ colors.get(0) +"\","+
+				"    color: "+ colors.get(0) +","+
 				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f} )<br/>', shared:true }" +
-				"  },{"+
-				"    name: 'Control',"+
-				"    data: " + clickControl.toString() + "," +
-				"    zIndex: 1,"+
-				"    color: \""+ colors.get(1) +"\", " +
-				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
-				"  }, {"+
-				"    name: 'Control SD',"+
-				"    data: " + clickControlSD.toString() + "," +
-				"    type: 'errorbar',"+
-				"    linkedTo: ':previous',"+
-				"    color: \""+ colors.get(1) +"\","+
-				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" +
 				"  },{"+
 				"    name: 'Control',"+
 				"    data: " + control.toString() + "," +
 				"    zIndex: 1,"+
-				"    color: \""+ colors.get(1) +"\", " +
+				"    color: "+ colors.get(1) +", " +
 				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
 				"  }, {"+
 				"    name: 'Control SD',"+
 				"    data: " + controlSD.toString() + "," +
 				"    type: 'errorbar',"+
 				"    linkedTo: ':previous',"+
-				"    color: \""+ colors.get(1) +"\","+
+				"    color: "+ colors.get(1) +","+
 				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" +
 				"  } ]"+
 				"});"+
-			"});" ;
-
+			"});" ; 
 		return chart;
 		}
 	
