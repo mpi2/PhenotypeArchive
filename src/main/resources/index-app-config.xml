@@ -138,7 +138,6 @@
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
 				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
-				<entry key="omeroRootUrl" value="${omeroRootUrl}" />
 			</map>
 		</property>
 	</bean>
