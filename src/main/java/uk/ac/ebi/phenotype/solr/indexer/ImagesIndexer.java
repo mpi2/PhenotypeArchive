@@ -123,14 +123,14 @@ public class ImagesIndexer {
 				//System.out.println("imageDTO="+imageDTO);
 				while (resultSet.next()) {
 					String fullResFilePath=resultSet.getString("FULL_RESOLUTION_FILE_PATH");
-					System.out.println("fullResFilePath="+fullResFilePath);
+					//System.out.println("fullResFilePath="+fullResFilePath);
 					imageDTO.setFullResolutionFilePath(fullResFilePath);
 					int omeroId=resultSet.getInt("omero_id");
 					imageDTO.setOmeroId(omeroId);
 					//need to add a full path to image in omero as part of api
 					//e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
 					if(omeroId!=0 && downloadFilePath!=null){
-					System.out.println("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
+					//System.out.println("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
 					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
 					}else{
 						System.out.println("omero id is null for "+downloadFilePath);
