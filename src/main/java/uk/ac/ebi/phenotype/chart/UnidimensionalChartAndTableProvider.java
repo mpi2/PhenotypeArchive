@@ -333,12 +333,12 @@ public class UnidimensionalChartAndTableProvider {
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
 			+ "{ return '<b>Observation</b><br/>' + this.point.y; } "
 			+ "else { return '<b>Genotype: ' + this.key + '</b>"
-				+ "<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'"
-				+ "<br/>Upper Quartile: ' + this.point.options.q3 + '"
-				+ "<br/>Median: ' + this.point.options.median + '"
-				+ "<br/>Lower Quartile: ' + this.point.options.q1 + '"
-				+ "<br/>LQ - 1.5 * IQR: ' + this.point.low + '"
-				+ "; } } }    ,"
+			+ "<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '"
+			+ "<br/>Upper Quartile: ' + this.point.options.q3 + '"
+			+ "<br/>Median: ' + this.point.options.median + '"
+			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
+			+ "<br/>LQ - 1.5 * IQR: ' + this.point.low"
+			+ "; } } }    ,"
 			+ " title: {  text: 'BLAAH <span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
@@ -347,6 +347,8 @@ public class UnidimensionalChartAndTableProvider {
 			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 
 			+ " yAxis: { " + "max: " + max + ",  min: " + min + "," + "labels: { },title: { text: '" + yAxisTitle + "' } }, " 
 			+ "\n series: [" + seriesData + "] }); });";
+
+		System.out.println("\n\n"+ chartString ) ;
 		
 		return chartString;
 	}
