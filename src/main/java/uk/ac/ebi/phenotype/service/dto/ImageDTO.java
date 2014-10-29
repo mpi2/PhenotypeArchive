@@ -21,6 +21,14 @@ public class ImageDTO extends ObservationDTO {
 	@Field(DOWNLOAD_URL)
 	private String downloadUrl;
 	
+	
+	public String getDownloadUrl() {
+	
+		return downloadUrl;
+	}
+
+
+
 	public int getOmeroId() {
 	
 		return omeroId;

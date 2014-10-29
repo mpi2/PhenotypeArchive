@@ -110,22 +110,31 @@ public class ImagesIndexer {
 		// TODO: Need to batch these up to do a set of images at a time (currently works, but the number of images will grow beyond what can be handled in a single query)
 		List<uk.ac.ebi.phenotype.service.dto.ImageDTO> imageObservations = observationService.getAllImageDTOs();
 
-		logger.info("image observations size=" + imageObservations.size());
+		System.out.println("image observations size=" + imageObservations.size());
 
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(getExtraImageInfoSQL)) {
 
 			for(ImageDTO imageDTO: imageObservations){
 				String downloadFilePath=imageDTO.getDownloadFilePath();
+				System.out.println("trying downloadfilePath="+downloadFilePath);
 				statement.setString(1, downloadFilePath);
 
 				ResultSet resultSet = statement.executeQuery();
+				System.out.println("imageDTO="+imageDTO);
 				while (resultSet.next()) {
-					imageDTO.setFullResolutionFilePath(resultSet.getString("FULL_RESOLUTION_FILE_PATH"));
+					String fullResFilePath=resultSet.getString("FULL_RESOLUTION_FILE_PATH");
+					System.out.println("fullResFilePath="+fullResFilePath);
+					imageDTO.setFullResolutionFilePath(fullResFilePath);
 					int omeroId=resultSet.getInt("omero_id");
 					imageDTO.setOmeroId(omeroId);
 					//need to add a full path to image in omero as part of api
 					//e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
-					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
+//					if(omeroId!=0 && downloadFilePath!=null){
+//					System.out.println("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
+//					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
+//					}else{
+//						System.out.println("omero id is null for "+downloadFilePath);
+//					}
 				}
 			}
 
