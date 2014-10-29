@@ -49,11 +49,8 @@ public class AbrChartAndTableProvider {
 	
 	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession){
 
-		Set<ZygosityType> zygosities = null;
-		// get data 
     	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
     	data.put("control", new ArrayList<UnidimensionalStatsObject>() );
-
     	for (String zygosity: zyList){
         	data.put(zygosity, new ArrayList<UnidimensionalStatsObject>() );
     	}
@@ -62,6 +59,7 @@ public class AbrChartAndTableProvider {
 		emptyObj.setMean(null);
 		emptyObj.setSd(null);
 
+		Set<ZygosityType> zygosities = null;
     	String procedureUrl = null;
     	String unit = pipelineDAO.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnit();
 
