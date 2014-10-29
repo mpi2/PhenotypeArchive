@@ -347,8 +347,6 @@ public class UnidimensionalChartAndTableProvider {
 			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 
 			+ " yAxis: { " + "max: " + max + ",  min: " + min + "," + "labels: { },title: { text: '" + yAxisTitle + "' } }, " 
 			+ "\n series: [" + seriesData + "] }); });";
-
-		System.out.println("\n\n"+ chartString ) ;
 		
 		return chartString;
 	}
