@@ -15,11 +15,13 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * class to load the image data into the solr core - use for impc data first
@@ -41,6 +43,9 @@ public class ImagesIndexer {
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
+	
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
 
 
 
@@ -79,9 +84,12 @@ public class ImagesIndexer {
 
 		}
 		// Wire up spring support for this application
+		
+		
 		ImagesIndexer main = new ImagesIndexer();
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
+		//System.out.println("solrUrl="+solrUrl);
 		main.runSolrIndexImagesUpdate();
 
 		logger.info("Process finished.  Exiting.");
@@ -91,6 +99,9 @@ public class ImagesIndexer {
 
 	private void runSolrIndexImagesUpdate()
 	throws SolrServerException, IOException {
+		
+		String omeroRootUrl=config.get("omeroRootUrl");
+		System.out.println("omeroRootUrl="+omeroRootUrl);
 
 		final String getExtraImageInfoSQL = "SELECT FULL_RESOLUTION_FILE_PATH, omero_id, "+ ImageDTO.DOWNLOAD_FILE_PATH + ", "+ImageDTO.FULL_RESOLUTION_FILE_PATH +
 			" FROM image_record_observation " +
@@ -111,6 +122,9 @@ public class ImagesIndexer {
 				while (resultSet.next()) {
 					imageDTO.setFullResolutionFilePath(resultSet.getString("FULL_RESOLUTION_FILE_PATH"));
 					imageDTO.setOmeroId(resultSet.getInt("omero_id"));
+					//need to add a full path to image in omero as part of api
+					//e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
+					imageDTO.setDownloadUrl(omeroRootUrl+"/webgateway/render_image/");
 				}
 			}
 
