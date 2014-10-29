@@ -77,6 +77,8 @@ public class SearchPhenotypeTable extends SearchFacetTable {
           , "Mammalian phenotype definition"
           , "Mammalian phenotype synonym"
           , "Mammalian phenotype top level term"
+          , "Computationally mapped human phenotype terms"
+          , "Computationally mapped human phenotype term Ids"
         };
         validateDownloadHeading("PHENOTYPE", status, expectedHeadingList, downloadData[0]);
         
@@ -89,8 +91,9 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             String[] row = downloadData[i];
             downloadHash.put(row[DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_TERM], row);
         }
-        
+// int i = 0;
         for (PhenotypeRow pageRow : bodyRows) {
+// System.out.println("[" + i++ + "]: phenotypeTerm: " + pageRow.phenotypeTerm);
             String[] downloadRow = downloadHash.get(pageRow.phenotypeTerm);
             if (downloadRow == null) {
                 status.addError("PHENOTYPE MISMATCH: page value phenotypeTerm = '" + pageRow.phenotypeTerm + "' was not found in the download file.");
@@ -122,7 +125,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
 
             // synonyms collection.
             HashMap<String, String> downloadSynonymHash = new HashMap();
-            String rawSynonymString = downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_SYNONYM];
+            String rawSynonymString = downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS];
             if ((rawSynonymString != null) && ( ! rawSynonymString.isEmpty())) {
                 String[] downloadSynonyms = rawSynonymString.split("\\|");
                 for (String downloadSynonym : downloadSynonyms) {
@@ -142,6 +145,30 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                     status.addError("PHENOTYPE MISMATCH: phenotypeTerm '" + pageRow.phenotypeTerm + "' page value synonym = '" + pageSynonym + "' was not found in the download file.");
                 }
                 downloadSynonymHash.remove(downloadSynonym);
+            }
+
+            // HP Terms collection.
+            HashMap<String, String> downloadHPTermHash = new HashMap();
+            String rawHPTermString = downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS];
+            if ((rawHPTermString != null) && ( ! rawHPTermString.isEmpty())) {
+                String[] downloadHPTerms = rawHPTermString.split("\\|");
+                for (String downloadHPTerm : downloadHPTerms) {
+                    downloadHPTermHash.put(downloadHPTerm.trim(), downloadHPTerm.trim());
+                }
+            }
+            // If page HPTerms are empty, validate that download is empty too.
+            if (pageRow.hpTerms.isEmpty()) {
+                downloadValue = downloadHPTermHash.get(NO_INFO_AVAILABLE);
+                if ((downloadValue == null) || ( ! downloadHPTermHash.get(NO_INFO_AVAILABLE).equals(NO_INFO_AVAILABLE))) {
+                    status.addError("PHENOTYPE MISMATCH: HP Term '" + pageRow.phenotypeTerm + "' page has no hp terms but download has " + downloadHPTermHash.size() + ".");
+                }
+            }
+            for (String downloadHPTerm : pageRow.hpTerms) {
+                String downloadSynonym = downloadHPTermHash.get(downloadHPTerm);
+                if (downloadSynonym == null) {
+                    status.addError("PHENOTYPE MISMATCH: phenotypeTerm '" + pageRow.phenotypeTerm + "' page value hp term = '" + downloadHPTerm + "' was not found in the download file.");
+                }
+                downloadHPTermHash.remove(downloadSynonym);
             }
         }
 
@@ -173,6 +200,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 if ( ! mpColElements.isEmpty()) {
                     PhenotypeDetails phenotypeDetails = new PhenotypeDetails(mpColElements.get(0));
                     phenotypeRow.synonyms = phenotypeDetails.synonyms;                                                  // synonym list.
+                    phenotypeRow.hpTerms  = phenotypeDetails.hpTerms;                                                   // hp terms.
                 }
                 phenotypeRow.definition = bodyRowElementList.get(1).getText();                                          // definition.
                 
@@ -194,6 +222,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      */
     private class PhenotypeDetails {
         private List<String> synonyms = new ArrayList();
+        private List<String> hpTerms  = new ArrayList();
         
         public PhenotypeDetails(WebElement mpColElement) {        
             
@@ -206,14 +235,44 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 Actions hoverOverTerm = builder.moveToElement(mpColElement);
                 hoverOverTerm.perform();                                        // Hover over the term.
                 
-                List<WebElement> synonymElements = mpColElement.findElements(By.cssSelector("div.subinfo ul.synonym li"));
-                if ( ! synonymElements.isEmpty()) {
-                    for (WebElement synonymElement : synonymElements) {
-                        synonyms.add(synonymElement.getText());
+                // synonyms and hpterms are both optional. If present, they are held within 'div.subinfo'.
+                List<WebElement> subinfoElements = mpColElement.findElements(By.cssSelector("div.subinfo"));
+                for (WebElement subinfoElement : subinfoElements) {
+                    WebElement labelElement = subinfoElement.findElement(By.cssSelector("span.label"));
+                    List<WebElement> synonymElements;
+                    switch (labelElement.getText()) {
+                        case "synonym":
+                            synonymElements = subinfoElement.findElements(By.cssSelector("ul.synonym li"));
+                            if ( ! synonymElements.isEmpty()) {
+                                for (WebElement synonymElement : synonymElements) {
+                                    synonyms.add(synonymElement.getText());
+                                }
+                            } else {
+                                // A pheno entry with a single synonym appears as text in the subinfo div.
+                                synonymElements = subinfoElement.findElements(By.cssSelector("span.label"));
+                                if ( ! synonymElements.isEmpty()) {
+                                    String ss = subinfoElement.getText().trim().replaceFirst("synonym: ", "");
+                                    synonyms.add(ss);
+                                }
+                            }
+                            break;
+                            
+                        case "computationally mapped HP term":
+                            List<WebElement> hpTermElements = subinfoElement.findElements(By.cssSelector("div.subinfo ul.hpTerms li"));
+                            if ( ! hpTermElements.isEmpty()) {
+                                for (WebElement hpTermElement : hpTermElements) {
+                                    hpTerms.add(hpTermElement.getText());
+                                }
+                            } else {
+                                // A pheno entry with a single hpterm appears as text in the subinfo div.
+                                hpTermElements = subinfoElement.findElements(By.cssSelector("span.label"));
+                                if ( ! hpTermElements.isEmpty()) {
+                                    String ss = subinfoElement.getText().trim().replaceFirst("computationally mapped HP term: ", "");
+                                    hpTerms.add(ss);
+                                }
+                            }
+                            break;
                     }
-                } else {
-                    // Egad. synonyms can have colons as text.
-                    synonyms.add(mpColElement.findElement(By.cssSelector("div.subinfo")).getText().trim().replaceFirst("synonym: ", ""));
                 }
             } catch (Exception e) {
                 System.out.println("EXCEPTION: SearchPhenotypeTable.PhenotypeDetails.PhenotypeDetails() while waiting to hover. Error message: " + e.getLocalizedMessage());
@@ -227,6 +286,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
         private String phenotypeIdLink = "";
         private String definition      = "";
         private List<String> synonyms   = new ArrayList();
+        private List<String> hpTerms   = new ArrayList();
         
         @Override
         public String toString() {
@@ -234,7 +294,9 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                  + "'  phenotypeId: '"   + phenotypeId
                  + "'  phenotypeLink: '" + phenotypeIdLink
                  + "'  definition: '"    + definition
-                 + "'  synonyms: '"      + toStringSynonyms() + "'";
+                 + "'  synonyms: '"      + toStringSynonyms() + "'"
+                 + "'  hpTerms: '"       + toStringHpTerms() + "'"
+                    ;
         }
         
         public String toStringSynonyms() {
@@ -249,6 +311,17 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             return retVal;
         }
         
+        public String toStringHpTerms() {
+            String retVal = "";
+            
+            for (int i = 0; i < hpTerms.size(); i++) {
+                if (i > 0)
+                    retVal += ", ";
+                retVal += hpTerms.get(i);
+            }
+            
+            return retVal;
+        }
     }
 
 }
