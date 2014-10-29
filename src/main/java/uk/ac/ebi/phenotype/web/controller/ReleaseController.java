@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
+import uk.ac.ebi.phenotype.chart.SignificantType;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
@@ -225,7 +226,7 @@ public class ReleaseController {
 		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2", 
 		gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", "genotypeStatusByCenterChart");
 		
-		HashMap<String, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
+		HashMap<SignificantType, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
 		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" ); 
 		
 		HashMap<String, Integer> fertilityDistrib = getFertilityMap();

@@ -40,7 +40,7 @@ public enum SignificantType {
 		return null;
 	}
 
-	public SignificantType getValue(String databaseSignificanceType){
+	public static SignificantType getValue(String databaseSignificanceType){
 		switch(databaseSignificanceType){
 		case "If phenotype is significant - both sexes equally":
 			return both_equally;

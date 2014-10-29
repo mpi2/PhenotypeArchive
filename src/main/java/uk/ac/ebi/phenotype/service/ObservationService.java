@@ -575,7 +575,8 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		if (alleleAccession != null) {
 			query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
 		}
-
+		System.out.println("getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession Solr query = " 
+			+ solr.getBaseURL() + "/select?" + query);
 		QueryResponse response = solr.query(query);
 		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;

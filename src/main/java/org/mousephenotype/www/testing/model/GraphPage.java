@@ -368,11 +368,11 @@ public class GraphPage {
                 WebElement alleleElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='chart'][@graphurl]/p")));
 
                 String line1 = alleleElement.getText();
-                String[] part1 = line1.split("Phenotyping Center -");
-                this.background = part1[0].replace("Background - involves:", "").replace("&nbsp;", "").trim();
-                String[] part2 = part1[1].split("Pipeline - ");
+                String[] part1 = line1.split("Phenotyping Center - ");
+                this.background = part1[0].replace("Background -", "").replace("&nbsp;", "").trim();
+                String[] part2 = part1[1].split("Pipeline -");
                 this.phenotypingCenter = part2[0].replace("Phenotyping Center -", "").replace("&nbsp;", "").trim();
-                this.pipelineName = part2[1].replace("Pipeline - ", "").replace("&nbsp;", "").trim();
+                this.pipelineName = part2[1].replace("Pipeline -", "").replace("&nbsp;", "").trim();
             } catch (Exception e) {
                 System.out.println("Line1Parser threw exception: " + e.getLocalizedMessage());
                 throw e;

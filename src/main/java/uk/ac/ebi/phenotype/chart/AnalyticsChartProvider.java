@@ -216,25 +216,25 @@ public class AnalyticsChartProvider {
 		
 	}
 		
-	public String generateSexualDimorphismChart(HashMap<String, Integer>sexualDimorphismSummary, String title, String containerId) {
+	public String generateSexualDimorphismChart(HashMap<SignificantType, Integer>sexualDimorphismSummary, String title, String containerId) {
 		
-		Integer totalWithDimorphism = sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") +
-		 	sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") +
-		 	sexualDimorphismSummary.get("If phenotype is significant - different size as males greater") +
-		 	sexualDimorphismSummary.get("If phenotype is significant - females only") +
-		 	sexualDimorphismSummary.get("If phenotype is significant - males only") ;
-		Integer total = totalWithDimorphism + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally");
+		Integer totalWithDimorphism = sexualDimorphismSummary.get(SignificantType.different_directions) +
+		 	sexualDimorphismSummary.get(SignificantType.female_greater) +
+		 	sexualDimorphismSummary.get(SignificantType.male_greater) +
+		 	sexualDimorphismSummary.get(SignificantType.female_only) +
+		 	sexualDimorphismSummary.get(SignificantType.male_only);
+		Integer total = totalWithDimorphism + sexualDimorphismSummary.get(SignificantType.both_equally);
 		
 		String chart = " $(function () {" +			
 			"		    var colors = Highcharts.getOptions().colors," +
 			"		        categories = ['Equal accross sexes', 'Sexual Dimorphism'],"+ 
 			"		        data = [{\n" +
-			"		            y: " + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + ",\n" +
+			"		            y: " + sexualDimorphismSummary.get(SignificantType.both_equally) + ",\n" +
 			"		            color: colors[0],\n" +
 			"		            drilldown: {\n" +
 			"		                name: 'Phenotype is significant for both sexes equally',\n" +
 			"		                categories: ['Equal accross sexes'],\n" +
-			"		                data: [" + sexualDimorphismSummary.get("If phenotype is significant - both sexes equally") + "],\n" +
+			"		                data: [" + sexualDimorphismSummary.get(SignificantType.both_equally) + "],\n" +
 			"		                color: colors[1]\n" +
 			"		            }\n" +
 			"		        }, {\n" +
@@ -242,13 +242,14 @@ public class AnalyticsChartProvider {
 			"		            color: colors[1],\n" +
 			"		            drilldown: {\n" +
 			"		                name: 'Different',\n" +
-			"		                categories: ['Different size female greater', 'Different size male greater', 'Females only', 'Males only', 'One genotype tested', 'Different directions for sexes'],\n" +
+			"		                categories: ['"+SignificantType.female_greater + "', '" + SignificantType.male_greater + "', '" + SignificantType.female_only 
+													+"', '" + SignificantType.male_only + "', '" + SignificantType.different_directions + "'],\n" +
 			"		                data: [" +
-										sexualDimorphismSummary.get("If phenotype is significant - different size as females greater") + ", " + 
-										sexualDimorphismSummary.get("If phenotype is significant - different size as males greater")+ ", " + 
-										sexualDimorphismSummary.get("If phenotype is significant - females only")+ ", " + 
-										sexualDimorphismSummary.get("If phenotype is significant - males only") + ", " +
-										sexualDimorphismSummary.get("If phenotype is significant - different direction for the sexes") + "],\n" +
+										sexualDimorphismSummary.get(SignificantType.female_greater) + ", " + 
+										sexualDimorphismSummary.get(SignificantType.male_greater)+ ", " + 
+										sexualDimorphismSummary.get(SignificantType.female_only)+ ", " + 
+										sexualDimorphismSummary.get(SignificantType.male_only) + ", " +
+										sexualDimorphismSummary.get(SignificantType.different_directions) + "],\n" +
 			"		                color: colors[1]\n" +
 			"		            }\n" +
 			"		        }\n" +
@@ -339,8 +340,7 @@ public class AnalyticsChartProvider {
 	
 	public String getSlicedPieChart(Map<String, Integer> slicedOut, Map<String, Integer> notSliced, String title, String containerId){
 			
-			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
-			
+			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);			
 			JSONArray data = new JSONArray();
 			try {
 				for ( Entry<String, Integer> entry : slicedOut.entrySet()){
@@ -398,14 +398,11 @@ public class AnalyticsChartProvider {
 			URISyntaxException {
 
 		JSONArray series=new JSONArray();
-
 		JSONArray categories = new JSONArray();
-
 		List<String> categoriesList = new ArrayList<String>();
 		Map<String, List<AggregateCountXYBean>> centerMap = new HashMap<String, List<AggregateCountXYBean>>();
 
 		try {
-
 			// List categories first
 			// List centers
 			for (AggregateCountXYBean bean: data) {
@@ -421,14 +418,11 @@ public class AnalyticsChartProvider {
 					beans = centerMap.get(bean.getyValue());
 				}
 				beans.add(bean);
-
 			}
 
 			// build by center specific list
 			for (String center: centerMap.keySet()) {
-
 				List<AggregateCountXYBean> beans = centerMap.get(center);
-
 				JSONObject containerJsonObject=new JSONObject();
 				JSONArray dataArray=new JSONArray();
 
@@ -443,18 +437,14 @@ public class AnalyticsChartProvider {
 						}
 					}
 					dataArray.put(countLines);
-
 				}
-
 				containerJsonObject.put("data", dataArray);
 				containerJsonObject.put("name", center);
 				series.put(containerJsonObject);
-
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-
 		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true);
 
 		return chartString;
@@ -480,7 +470,6 @@ public class AnalyticsChartProvider {
 		try {
 
 			// generate categories (release by release asc)
-
 			for (String release: releases) {
 				categories.put(release);
 			}
@@ -490,13 +479,9 @@ public class AnalyticsChartProvider {
 			Collections.sort(keys);
 
 			// We use all keys provided
-
-
 			for (String trendProperty : keys) {
-
 				// new series
 				List<AggregateCountXYBean> beans = trendsMap.get(trendProperty);
-
 				JSONObject containerJsonObject=new JSONObject();
 				JSONArray dataArray=new JSONArray();
 				// this is not performant but we need to plot the missing values
@@ -514,11 +499,9 @@ public class AnalyticsChartProvider {
 					}
 				}
 				containerJsonObject.put("data", dataArray);
-				System.out.println(trendProperty + " " +  trendsSeriesTypes.get(trendProperty));
 				containerJsonObject.put("type", trendsSeriesTypes.get(trendProperty));
 				String name = (trendsSeriesNames.containsKey(trendProperty)) ? trendsSeriesNames.get(trendProperty) : trendProperty;
 				containerJsonObject.put("name", name);
-				
 				
 				if (trendProperty.equals("statistically_significant_calls")) {
 					containerJsonObject.put("yAxis", 1);
@@ -530,7 +513,6 @@ public class AnalyticsChartProvider {
 				containerJsonObject.put("tooltip", tooltip);
 
 				series.put(containerJsonObject);
-
 				count++;
 				// this is hardcoded for the moment
 			}
