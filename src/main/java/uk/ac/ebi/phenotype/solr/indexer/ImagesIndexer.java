@@ -100,8 +100,8 @@ public class ImagesIndexer {
 	private void runSolrIndexImagesUpdate()
 	throws SolrServerException, IOException {
 		
-		String omeroRootUrl=config.get("omeroRootUrl");
-		System.out.println("omeroRootUrl="+omeroRootUrl);
+		String impcMediaBaseUrl=config.get("impcMediaBaseUrl");
+		System.out.println("omeroRootUrl="+impcMediaBaseUrl);
 
 		final String getExtraImageInfoSQL = "SELECT FULL_RESOLUTION_FILE_PATH, omero_id, "+ ImageDTO.DOWNLOAD_FILE_PATH + ", "+ImageDTO.FULL_RESOLUTION_FILE_PATH +
 			" FROM image_record_observation " +
@@ -125,7 +125,7 @@ public class ImagesIndexer {
 					imageDTO.setOmeroId(omeroId);
 					//need to add a full path to image in omero as part of api
 					//e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
-					imageDTO.setDownloadUrl(omeroRootUrl+"/webgateway/render_image/"+omeroId);
+					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
 				}
 			}
 
