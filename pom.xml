@@ -59,6 +59,7 @@
 		<liveSite>false</liveSite>
 		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
 		<phenodigm.solrserver>http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
+		<omeroRootUrl>https://wwwdev.ebi.ac.uk/mi/media/omero</omeroRootUrl>
 	</properties>
 
 	<dependencies>

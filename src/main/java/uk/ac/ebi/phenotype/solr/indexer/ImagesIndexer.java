@@ -121,10 +121,11 @@ public class ImagesIndexer {
 				ResultSet resultSet = statement.executeQuery();
 				while (resultSet.next()) {
 					imageDTO.setFullResolutionFilePath(resultSet.getString("FULL_RESOLUTION_FILE_PATH"));
-					imageDTO.setOmeroId(resultSet.getInt("omero_id"));
+					int omeroId=resultSet.getInt("omero_id");
+					imageDTO.setOmeroId(omeroId);
 					//need to add a full path to image in omero as part of api
 					//e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
-					imageDTO.setDownloadUrl(omeroRootUrl+"/webgateway/render_image/");
+					imageDTO.setDownloadUrl(omeroRootUrl+"/webgateway/render_image/"+omeroId);
 				}
 			}
 
