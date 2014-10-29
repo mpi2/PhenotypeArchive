@@ -339,7 +339,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
 			+ "<br/>LQ - 1.5 * IQR: ' + this.point.low"
 			+ "; } } }    ,"
-			+ " title: {  text: 'BLAAH <span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
+			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
 			+ " legend: { enabled: false }, "
