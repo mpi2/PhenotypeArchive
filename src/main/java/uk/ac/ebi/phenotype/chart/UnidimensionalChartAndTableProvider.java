@@ -330,7 +330,15 @@ public class UnidimensionalChartAndTableProvider {
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
-			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    ,"
+			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
+			+ "{ return '<b>Observation</b><br/>' + this.point.y; } "
+			+ "else { return '<b>Genotype: ' + this.key + '</b>"
+				+ "<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'"
+				+ "<br/>Upper Quartile: ' + this.point.options.q3 + '"
+				+ "<br/>Median: ' + this.point.options.median + '"
+				+ "<br/>Lower Quartile: ' + this.point.options.q1 + '"
+				+ "<br/>LQ - 1.5 * IQR: ' + this.point.low + '"
+				+ "; } } }    ,"
 			+ " title: {  text: 'BLAAH <span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
