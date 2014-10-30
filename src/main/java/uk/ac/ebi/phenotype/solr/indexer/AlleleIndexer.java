@@ -23,6 +23,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -101,7 +102,7 @@ public class AlleleIndexer {
 	public AlleleIndexer() {
 
 		this.humanMouseCore = new HttpSolrServer(HUMAN_MOUSE_URL);
-		this.alleleCore = new HttpSolrServer(ALLELE_URL);
+		this.alleleCore = new ConcurrentUpdateSolrServer(ALLELE_URL,5000,3);
 
 		// Use system proxy if set for external solr servers
 		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
@@ -142,8 +143,8 @@ public class AlleleIndexer {
 		populateDiseaseLookup();
 		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
-//		alleleCore.deleteByQuery("*:*");
-//		alleleCore.commit();
+		alleleCore.deleteByQuery("*:*");
+		alleleCore.commit();
 
 		while (start <= rows) {
 			query.setStart(start);
