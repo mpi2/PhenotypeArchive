@@ -131,7 +131,9 @@ public class ImagesIndexer {
 					//e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
 					if(omeroId!=0 && downloadFilePath!=null){
 					//System.out.println("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
-					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
+						///webgateway/archived_files/download/
+					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/archived_files/download/"+omeroId);
+					imageDTO.setJpegUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
 					}else{
 						System.out.println("omero id is null for "+downloadFilePath);
 					}
