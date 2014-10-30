@@ -142,8 +142,8 @@ public class AlleleIndexer {
 		populateDiseaseLookup();
 		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
-		alleleCore.deleteByQuery("*:*");
-		alleleCore.commit();
+//		alleleCore.deleteByQuery("*:*");
+//		alleleCore.commit();
 
 		while (start <= rows) {
 			query.setStart(start);
