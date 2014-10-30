@@ -24,7 +24,6 @@ import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -103,17 +102,13 @@ public class AlleleIndexer {
 	public AlleleIndexer() {
 
 		this.humanMouseCore = new HttpSolrServer(HUMAN_MOUSE_URL);
-		this.alleleCore = new ConcurrentUpdateSolrServer(ALLELE_URL, 5000, 3);
+		this.alleleCore = new HttpSolrServer(ALLELE_URL);
 
 		// Use system proxy if set for external solr servers
 		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
 
 			String PROXY_HOST = System.getProperty("http.proxyHost");
 			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
-//			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
-//			DefaultHttpClient client = new DefaultHttpClient();
-//			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-
 
 			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
 			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
