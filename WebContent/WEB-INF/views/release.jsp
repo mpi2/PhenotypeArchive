@@ -438,27 +438,36 @@
 						<div id="phenotypesDiv">	
 							<div class="container span12">				
 									<h3>Trends</h3>
-					<div id="trendsChart">
-					<script type="text/javascript">
-						${trendsChart}
-					</script>
-					</div>
-					<div id="datapointsTrendsChart">
-					<script type="text/javascript">
-						${datapointsTrendsChart}
-					</script>
-					</div>
-					<div id="topLevelTrendsChart">
-					<script type="text/javascript">
-						${topLevelTrendsChart}
-					</script>
-					</div>
-					<h3>Previous Releases</h3>
-					<ul>
-					<c:forEach var="release" items="${releases}">
-					<li><a href="${baseUrl}/release_notes/IMPC_Release_Notes_${release}.html">Release ${release} notes</a></li>
-					</c:forEach>
-					</ul>
+									<div id="trendsChart">
+									<script type="text/javascript">
+										${trendsChart}
+									</script>
+									</div>
+									<br/>
+									<br/>
+									<br/>
+									<div id="datapointsTrendsChart">
+									<script type="text/javascript">
+										${datapointsTrendsChart}
+									</script>
+									</div>
+									<br/>
+									<br/>
+									<br/>
+									<div id="topLevelTrendsChart">
+									<script type="text/javascript">
+										${topLevelTrendsChart}
+									</script>
+									</div>
+									<br/>
+									<br/>
+									<br/>
+									<h3>Previous Releases</h3>
+									<ul>
+									<c:forEach var="release" items="${releases}">
+									<li><a href="${baseUrl}/release_notes/IMPC_Release_Notes_${release}.html">Release ${release} notes</a></li>
+									</c:forEach>
+									</ul>
 							</div>
 						</div>
 					</div>
