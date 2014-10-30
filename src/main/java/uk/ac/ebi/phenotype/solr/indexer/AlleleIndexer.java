@@ -66,7 +66,7 @@ public class AlleleIndexer {
 	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
 	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
 	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
-	private static final String ALLELE_URL = "http://localhost:8080/internal_dev/allele";
+	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
 
 	// Map gene MGI ID to sanger allele bean
 	private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
