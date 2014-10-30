@@ -18,8 +18,9 @@ package uk.ac.ebi.phenotype.solr.indexer;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.http.HttpHost;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -102,18 +103,23 @@ public class AlleleIndexer {
 	public AlleleIndexer() {
 
 		this.humanMouseCore = new HttpSolrServer(HUMAN_MOUSE_URL);
-		this.alleleCore = new ConcurrentUpdateSolrServer(ALLELE_URL,5000,3);
+		this.alleleCore = new ConcurrentUpdateSolrServer(ALLELE_URL, 5000, 3);
 
 		// Use system proxy if set for external solr servers
 		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
 
 			String PROXY_HOST = System.getProperty("http.proxyHost");
 			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
-			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
-			DefaultHttpClient client = new DefaultHttpClient();
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+//			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
+//			DefaultHttpClient client = new DefaultHttpClient();
+//			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 
-			logger.info("Using Proxy Settings: " + System.getProperty("http.proxyHost") + " on port: " + System.getProperty("http.proxyPort"));
+
+			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
+			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+			CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+
+			logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
 			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
 			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
