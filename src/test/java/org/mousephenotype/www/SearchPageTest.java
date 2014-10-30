@@ -109,7 +109,7 @@ public class SearchPageTest {
     // These constants define the default number of iterations for each that uses them. -1 means iterate over all.
     private final int MAX_MGI_LINK_CHECK_COUNT = 5;                             // -1 means test all links.
     private final int MAX_PHENOTYPE_TEST_PAGE_COUNT = 10;                       // -1 means test all pages.
-    private final int TIMEOUT_IN_SECONDS = 15;
+    private final int TIMEOUT_IN_SECONDS = 120;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
 
     // These variables define the actual number of iterations for each test that uses them.
@@ -221,11 +221,72 @@ public class SearchPageTest {
     
     @Test
 //@Ignore
-    public void autosuggestTest() throws Exception {
+    public void testAutosuggestForSpecificKnownGenes() throws Exception {
+        testCount++;
+        String testName = "testAutosuggestForSpecificKnownGenes";
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        Date start = new Date();
+
+        successList.clear();
+        errorList.clear();
+
+        String newQueryString = "/gene/select?q=marker_symbol:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=marker_symbol&wt=json";
+        Random rn = new Random();
+        int startIndex = rn.nextInt(40000 - 0 + 1) + 1;
+        int nbRows = 20;
+        System.out.println("TESTING autosuggest for " + nbRows + " random gene symbols");
+
+        newQueryString+="&start="+startIndex+"&rows="+nbRows;
+
+        JSONObject geneResults = JSONRestUtil.getResults(solrUrl + newQueryString);
+        JSONArray docs = JSONRestUtil.getDocArray(geneResults);
+        String message;
+        
+        if (docs != null) {
+            for (int i = 0; i < docs.size(); i++) {
+                String geneSymbol = docs.getJSONObject(i).getString("marker_symbol");
+                String target = baseUrl + "/search";
+                
+                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+                System.out.println("Testing symbol " + String.format("%3d", i) + ": "+ String.format("%-15s",geneSymbol) + "\t=>\t. URL: " + driver.getCurrentUrl());
+                
+                List<SearchPage.AutosuggestRow> autoSuggestions = searchPage.getAutosuggest(geneSymbol);
+                
+                boolean found = false;
+                for (SearchPage.AutosuggestRow row : autoSuggestions) {
+//                    log.info("annotationType: '" + row.annotationType + "'. value: '" + row.value + "'");
+                    if (row.value.equalsIgnoreCase(geneSymbol)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    System.out.println("[PASSED]");
+                    successList.add(geneSymbol);
+                } else {
+                    message = "[FAILED]: Expected to find gene id '" + geneSymbol + "' in the autosuggest list but it was not found.";
+                    for (SearchPage.AutosuggestRow row : autoSuggestions) {
+                        message += "\n" + row.toString();
+                    }
+                    System.out.println(message);
+                    errorList.add(message);
+                }
+            }
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, null, successList, docs.size(), docs.size());
+
+        System.out.println();
+    }
+    
+    @Test
+//@Ignore
+    public void testAutosuggestMinCharacters() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
          System.out.println();
-         String testName = "autosuggestTest";
+         String testName = "testAutosuggestMinCharacters";
          System.out.println("----- " + testName + " -----");
 
          String queryStr = baseUrl + "/search";
@@ -353,7 +414,7 @@ public class SearchPageTest {
         }
         System.out.println();
     }
-    
+        
     @Test
 //@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
@@ -534,7 +595,7 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
         for (String expectedGeneId : geneIds) {
             String target = baseUrl + "/search";
             SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
-            searchPage.submitSearch(expectedGeneId);
+            searchPage.submitSearch(expectedGeneId + "\n");
             boolean found = false;
             String message = "";
             try {
@@ -1009,7 +1070,7 @@ geneSymbol1 = "Del(7Gabrb3-Ube3a)1Yhj";
             SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
 
             if (! searchString.isEmpty()) {
-                searchPage.submitSearch(searchString);
+                searchPage.submitSearch(searchString + "\n");
             }
 
             SearchPage.Facet[] facets = {

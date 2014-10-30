@@ -348,8 +348,6 @@ public class UnidimensionalChartAndTableProvider {
 			+ " yAxis: { " + "max: " + max + ",  min: " + min + "," + "labels: { },title: { text: '" + yAxisTitle + "' } }, " 
 			+ "\n series: [" + seriesData + "] }); });";
 
-		System.out.println("\n\n"+ chartString ) ;
-		
 		return chartString;
 	}
 
