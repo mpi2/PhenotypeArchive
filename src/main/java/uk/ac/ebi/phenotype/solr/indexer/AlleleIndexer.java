@@ -17,6 +17,9 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.http.HttpHost;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -63,7 +66,7 @@ public class AlleleIndexer {
 	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
 	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
 	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
-	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
+	private static final String ALLELE_URL = "http://localhost:8080/internal_dev/allele";
 
 	// Map gene MGI ID to sanger allele bean
 	private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
@@ -96,9 +99,29 @@ public class AlleleIndexer {
 	private SolrServer alleleCore;
 
 	public AlleleIndexer() {
-		this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
+
+		// Use system proxy if set
+		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
+
+			String PROXY_HOST = System.getProperty("http.proxyHost");
+			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
+			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
+			DefaultHttpClient client = new DefaultHttpClient();
+			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+
+			logger.info("Using Proxy Settings: " + System.getProperty("http.proxyHost") + " on port: " + System.getProperty("http.proxyPort"));
+
+			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
+			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
+
+		} else {
+
+			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
+			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
+
+		}
+
 		this.humanMouseCore = new HttpSolrServer(HUMAN_MOUSE_URL);
-		this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
 		this.alleleCore = new HttpSolrServer(ALLELE_URL);
 	}
 
