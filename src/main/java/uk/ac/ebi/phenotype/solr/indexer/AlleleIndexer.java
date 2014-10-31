@@ -134,10 +134,10 @@ public class AlleleIndexer {
 
 		logger.info("Populating lookups");
 
-		populateStatusLookup();
+//		populateStatusLookup();
 		logger.info("Populated status lookup, {} records", statusLookup.size());
 
-		populateDiseaseLookup();
+//		populateDiseaseLookup();
 		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
 		alleleCore.deleteByQuery("*:*");
