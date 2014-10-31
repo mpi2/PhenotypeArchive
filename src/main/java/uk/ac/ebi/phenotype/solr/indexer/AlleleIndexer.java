@@ -76,7 +76,7 @@ public class AlleleIndexer {
 	private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
 
 	// Set of MGI IDs that have legacy projects
-	private static Set<String> legacyProjectLookup = new HashSet<>();
+	private static Map<String, Integer> legacyProjectLookup = new HashMap<>();
 
 
 	private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
@@ -212,7 +212,7 @@ public class AlleleIndexer {
 
 			while (rs.next()) {
 
-				legacyProjectLookup.add(rs.getString("gf_acc"));
+				legacyProjectLookup.put(rs.getString("gf_acc"), 1);
 
 			}
 		} catch (SQLException e) {
@@ -287,7 +287,7 @@ public class AlleleIndexer {
 		for (String id : alleles.keySet()) {
 			AlleleDTO dto = alleles.get(id);
 
-			if( legacyProjectLookup.contains(dto.getGfAcc())) {
+			if( legacyProjectLookup.containsKey(dto.getGfAcc())) {
 				dto.setLegacyPhenotypeStatus(1);
 			}
 
