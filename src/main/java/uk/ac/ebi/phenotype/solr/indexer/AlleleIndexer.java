@@ -179,9 +179,6 @@ public class AlleleIndexer {
 			// Look up the ES cell status
 			lookupEsCellStatus(alleles);
 
-			// Look up the Legacy project status
-			lookupLegacyProjectStatus(alleles);
-
 			// Look up the disease data
 			lookupDiseaseData(alleles);
 
@@ -273,6 +270,10 @@ public class AlleleIndexer {
 			dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
 			dto.setLatestProjectStatus(bean.getLatestProjectStatus());
 
+			if( legacyProjectLookup.containsKey(bean.getMgiAccessionId())) {
+				dto.setLegacyPhenotypeStatus(1);
+			}
+
 			// Do the additional mappings
 			dto.setDataType(AlleleDTO.ALLELE_DATA_TYPE);
 
@@ -280,20 +281,6 @@ public class AlleleIndexer {
 		}
 
 		return map;
-	}
-
-	private void lookupLegacyProjectStatus(Map<String, AlleleDTO> alleles) {
-
-		for (String id : alleles.keySet()) {
-			AlleleDTO dto = alleles.get(id);
-
-			if( legacyProjectLookup.containsKey(dto.getGfAcc())) {
-				dto.setLegacyPhenotypeStatus(1);
-			}
-
-		}
-
-		logger.debug("Finished legacy project status lookup");
 	}
 
 	private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleles) {
