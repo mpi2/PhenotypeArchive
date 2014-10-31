@@ -69,10 +69,10 @@ public class AlleleParser {
      * delimiters, to parse
      */
     public AlleleParser(String rawAllele, String sup) {
-        gene = rawAllele.replace(sup, "");
-        alleleSub = sup;
+        gene = rawAllele.replace(sup, "").trim();
+        alleleSub = sup.trim();
     }
-
+    
     /**
      * 
      * @return the gene part, e.g. given the string <b>Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;</b>,
