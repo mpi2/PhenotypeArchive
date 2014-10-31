@@ -239,7 +239,7 @@ public class GraphPageCategorical extends GraphPage {
      * 
      * @return validation results
      */
-    private PageStatus validateDownload() {
+     private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
         
         // Validate that the [required] <code>catTable</code> HTML table exists.
