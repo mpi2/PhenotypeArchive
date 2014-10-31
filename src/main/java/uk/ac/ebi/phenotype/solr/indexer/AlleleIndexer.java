@@ -239,6 +239,7 @@ public class AlleleIndexer {
 			dto.setLatestPhenotypeStatus(bean.getLatestPhenotypeStatus());
 			dto.setLatestProductionCentre(bean.getLatestProductionCentre());
 			dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
+			dto.setLatestProjectStatus(bean.getLatestProjectStatus());
 
 			// Do the additional mappings
 			dto.setDataType(AlleleDTO.ALLELE_DATA_TYPE);
