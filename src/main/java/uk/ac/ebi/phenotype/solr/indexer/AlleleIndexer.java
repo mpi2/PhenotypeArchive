@@ -165,7 +165,7 @@ public class AlleleIndexer {
 			// Do the first set of mappings
 			// MP: I think this only needs to be done once, after the ES cell status
 			// lookup.
-			// doSangerAlleleMapping(alleles);
+			doSangerAlleleMapping(alleles);
 
 			// Look up the ES cell status
 			lookupEsCellStatus(alleles);
