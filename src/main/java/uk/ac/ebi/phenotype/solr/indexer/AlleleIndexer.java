@@ -17,10 +17,6 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.http.HttpHost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -105,26 +101,26 @@ public class AlleleIndexer {
 		this.alleleCore = new HttpSolrServer(ALLELE_URL);
 
 		// Use system proxy if set for external solr servers
-		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
-
-			String PROXY_HOST = System.getProperty("http.proxyHost");
-			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
-
-			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-			CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-			logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
-			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
-
-		} else {
+//		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
+//
+//			String PROXY_HOST = System.getProperty("http.proxyHost");
+//			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
+//
+//			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
+//			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+//			CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+//
+//			logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+//
+//			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
+//			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
+//
+//		} else {
 
 			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
 			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
 
-		}
+//		}
 
 	}
 
@@ -144,9 +140,10 @@ public class AlleleIndexer {
 		populateDiseaseLookup();
 		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
-//		alleleCore.deleteByQuery("*:*");
-//		alleleCore.commit();
+		alleleCore.deleteByQuery("*:*");
+		alleleCore.commit();
 
+		System.exit(0);
 		while (start <= rows) {
 			query.setStart(start);
 			QueryResponse response = sangerAlleleCore.query(query);
