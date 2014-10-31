@@ -75,6 +75,10 @@ public class AlleleIndexer {
 	// Map gene MGI ID to disease bean
 	private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
 
+	// Set of MGI IDs that have legacy projects
+	private static Set<String> legacyProjectLookup = new HashSet<>();
+
+
 	private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
 	static {
 		ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
@@ -144,6 +148,9 @@ public class AlleleIndexer {
 		populateDiseaseLookup();
 		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
+		populateLegacyLookup();
+		logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
+
 		alleleCore.deleteByQuery("*:*");
 		alleleCore.commit();
 
@@ -165,10 +172,15 @@ public class AlleleIndexer {
 			// Do the first set of mappings
 			// MP: I think this only needs to be done once, after the ES cell status
 			// lookup.
+			// JM: Tried doing it once, but it left out all the latest_status fields.
+			// so I commented it back in
 			doSangerAlleleMapping(alleles);
 
 			// Look up the ES cell status
 			lookupEsCellStatus(alleles);
+
+			// Look up the Legacy project status
+			lookupLegacyProjectStatus(alleles);
 
 			// Look up the disease data
 			lookupDiseaseData(alleles);
@@ -187,6 +199,26 @@ public class AlleleIndexer {
 
 		alleleCore.commit();
 		logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
+	}
+
+
+	private void populateLegacyLookup() throws SolrServerException {
+
+		String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
+
+		try (PreparedStatement ps = connection.prepareStatement(query)) {
+
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				legacyProjectLookup.add(rs.getString("gf_acc"));
+
+			}
+		} catch (SQLException e) {
+			logger.error("SQL Exception looking up legacy projects: {}", e.getMessage());
+		}
+
 	}
 
 
@@ -250,21 +282,35 @@ public class AlleleIndexer {
 		return map;
 	}
 
-	private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleleMap) {
+	private void lookupLegacyProjectStatus(Map<String, AlleleDTO> alleles) {
+
+		for (String id : alleles.keySet()) {
+			AlleleDTO dto = alleles.get(id);
+
+			if( legacyProjectLookup.contains(dto.getGfAcc())) {
+				dto.setLegacyPhenotypeStatus(1);
+			}
+
+		}
+
+		logger.debug("Finished legacy project status lookup");
+	}
+
+	private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleles) {
 		// Build the lookup string
-		String lookup = buildIdQuery(alleleMap.keySet());
+		String lookup = buildIdQuery(alleles.keySet());
 
 		String query = "select s.acc as id, s.symbol as marker_synonym, gf.name as marker_name "
-				+ "from synonym s, genomic_feature gf "
-				+ "where s.acc=gf.acc "
-				+ "and gf.acc IN (" + lookup + ")";
+			+ "from synonym s, genomic_feature gf "
+			+ "where s.acc=gf.acc "
+			+ "and gf.acc IN (" + lookup + ")";
 		try {
 			logger.debug("Starting marker synonym lookup");
 			PreparedStatement ps = connection.prepareStatement(query);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				String id = rs.getString("id");
-				AlleleDTO allele = alleleMap.get(id);
+				AlleleDTO allele = alleles.get(id);
 				if (allele.getMarkerSynonym() == null) {
 					allele.setMarkerSynonym(new ArrayList<String>());
 				}
@@ -276,6 +322,7 @@ public class AlleleIndexer {
 			logger.error("SQL Exception looking up marker symbols: {}", sqle.getMessage());
 		}
 	}
+
 
 
 	private void lookupHumanMouseSymbols(Map<String, AlleleDTO> alleles) {

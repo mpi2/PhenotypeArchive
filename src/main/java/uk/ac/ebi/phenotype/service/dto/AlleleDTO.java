@@ -51,6 +51,7 @@ public class AlleleDTO {
 	public static final String ALLELE_NAME = "allele_name";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
+	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
 	public static final String IMITS_MOUSE_STATUS = "imits_mouse_status";
 	public static final String MOUSE_STATUS = "mouse_status";
 	public static final String PHENOTYPE_STATUS = "phenotype_status";
@@ -108,6 +109,9 @@ public class AlleleDTO {
 	private String latestPhenotypeStatus;
 	@Field(IMITS_PHENOTYPE_STATUS)
 	private String imitsPhenotypeStatus;
+	@Field(LEGACY_PHENOTYPE_STATUS)
+	private Integer legacyPhenotypeStatus;
+
 
 	@Field(GF_ACC)
 	private String gfAcc;
@@ -162,6 +166,19 @@ public class AlleleDTO {
 	private List<Boolean> impcNovelPredictedInLocus = new ArrayList<>();
 	@Field(DISEASE_HUMAN_PHENOTYPES)
 	private List<String> diseaseHumanPhenotypes = new ArrayList<>();
+
+	public Integer getLegacyPhenotypeStatus() {
+
+		return legacyPhenotypeStatus;
+	}
+
+
+	public void setLegacyPhenotypeStatus(Integer legacyPhenotypeStatus) {
+
+		this.legacyPhenotypeStatus = legacyPhenotypeStatus;
+	}
+
+
 
 	/**
 	 * @return the mgiAccessionId
@@ -811,6 +828,7 @@ public class AlleleDTO {
 			", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
 			", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
 			", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
+			", legacyPhenotypeStatus='" + legacyPhenotypeStatus + '\'' +
 			", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
 			", gfAcc='" + gfAcc + '\'' +
 			", latestPhenotypingCentre=" + latestPhenotypingCentre +
