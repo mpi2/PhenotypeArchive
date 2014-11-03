@@ -254,6 +254,7 @@ public class ChartsController {
 			//http://localhost:8080/phenotype-archive/charts?accession=MGI:1918788&parameter_stable_id=IMPC_FER_001_001
 			FertilityDTO fertility = experimentService.getSpecificFertilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
 			FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
+			if(fertilityDTO!=null){
 			model.addAttribute("fertilityDTO", fertilityDTO);
 			// we need the biological model for the line level param so just get
 			// the first observation from the first entry and get the
@@ -263,6 +264,7 @@ public class ChartsController {
 			model.addAttribute("pipeline", pipeline);
 			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
 			model.addAttribute("phenotypingCenter", phenotypingCenter);
+			}
 			return "chart";
 		}
 		experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
