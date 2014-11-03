@@ -33,6 +33,8 @@ import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartType;
+import uk.ac.ebi.phenotype.chart.FertilityChartAndDataProvider;
+import uk.ac.ebi.phenotype.chart.FertilityDTO;
 import uk.ac.ebi.phenotype.chart.GraphUtils;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
@@ -94,6 +96,9 @@ public class ChartsController {
 
 	@Autowired
 	private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
+	
+	@Autowired
+	private FertilityChartAndDataProvider fertilityChartAndDataProvider;
 
 	@Autowired
 	private ExperimentService experimentService;
@@ -225,8 +230,7 @@ public class ChartsController {
 		}
 
 		ExperimentDTO experiment = null;
-		// @TODO move this as this is just for testing
-		if (parameterStableId.equals("IMPC_VIA_001_001")) {
+		if (parameterStableId.startsWith("IMPC_VIA_")) {
 			// Its a viability outcome param which means its a line level query
 			// so we don't use the normal experiment query in experiment service
 			ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
@@ -236,6 +240,25 @@ public class ChartsController {
 			// the first observation from the first entry and get the
 			// biologicalModelId
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
+			setTitlesForGraph(model, expBiologicalModel);
+			model.addAttribute("pipeline", pipeline);
+			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+			model.addAttribute("phenotypingCenter", phenotypingCenter);
+			return "chart";
+		}
+		
+		if (parameterStableId.startsWith("IMPC_FER_")) {
+			// Its a fertility outcome param which means its a line level query
+			// so we don't use the normal experiment query in experiment service
+			//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/query?q=parameter_stable_id:IMPC_FER_*&facet=true&facet.field=parameter_stable_id&rows=300&fq=gene_accession_id:%22MGI:1918788%22
+			//http://localhost:8080/phenotype-archive/charts?accession=MGI:1918788&parameter_stable_id=IMPC_FER_001_001
+			FertilityDTO fertility = experimentService.getSpecificFertilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+			FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
+			model.addAttribute("fertilityDTO", fertilityDTO);
+			// we need the biological model for the line level param so just get
+			// the first observation from the first entry and get the
+			// biologicalModelId
+			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
 			model.addAttribute("pipeline", pipeline);
 			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
@@ -326,7 +349,7 @@ public class ChartsController {
 			}
 
 			model.addAttribute("pipeline", pipeline);
-			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+			//model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
 			model.addAttribute("phenotypingCenter", phenotypingCenter);
 			model.addAttribute("experimentNumber", experimentNumber);
 			model.addAttribute("statsError", statsError);
