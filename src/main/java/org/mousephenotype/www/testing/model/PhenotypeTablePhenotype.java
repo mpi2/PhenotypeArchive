@@ -20,8 +20,6 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -138,21 +136,23 @@ public class PhenotypeTablePhenotype {
 
         // Loop through all of the tr objects for this page, gathering the data.
         int sourceRowIndex = 1;
-        
+//int rowIndex = 0;
         for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
             boolean isPreQcLink = false;
             sourceColIndex = 0;
             for (WebElement cell : cells) {
+//System.out.println("tagName = " + cell.getTagName() +  ". text = " + cell.getText());
+//System.out.println("rowIndex = " + rowIndex++);
                 if (sourceColIndex == COL_INDEX_PHENOTYPES_GENE_ALLELE) {
-                    // If the allele is a link, gather the link info; otherwise, set the allele component to an empty string as there is no link.
-                    List<WebElement> anchorElement = cell.findElements(By.cssSelector("a"));
-                    if (anchorElement.isEmpty()) {
+                    String rawAllele = cell.findElement(By.cssSelector("span.smallerAlleleFont")).getText();
+                    List<WebElement> alleleElements = cell.findElements(By.cssSelector("sup"));
+                    
+                    if (alleleElements.isEmpty()) {
                         value = "";
                     } else {
                         String sup = cell.findElement(By.cssSelector("sup")).getText();
-                        value = cell.findElement(By.cssSelector("a")).getText();
-                        AlleleParser ap = new AlleleParser(value, sup);
+                        AlleleParser ap = new AlleleParser(rawAllele, sup);
                         value = ap.toString();
                     }
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PHENOTYPE) {
@@ -181,7 +181,6 @@ public class PhenotypeTablePhenotype {
                 preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
             } else {
                 postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the preQc list.
-//System.out.println();
                 if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
                     data = new GridMap(postQcList, target);
                     return data;

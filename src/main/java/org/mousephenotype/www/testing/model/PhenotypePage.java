@@ -289,6 +289,12 @@ public class PhenotypePage {
         if ( ! ap.toString().equals(downloadCell))
             colErrors.add("ERROR on download row[" + downloadIndex + "]: allele mismatch. Page: '" + ap.alleleSub + "'. Download: '" + downloadCell + "'");
 
+        // The allele is allowed to be blank only if this is a pre-qc graph link.
+        String graphUrl = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_PHENOTYPES_GRAPH);
+        if ((pageCell.isEmpty()) && (TestUtils.isPreQcLink(graphUrl))) {
+            colErrors.add("ERROR on download row[" + downloadIndex + "]: Post-QC graph has no allele. Allele: '" + pageCell + "'. Graph URL: '" + graphUrl + "'");
+        }
+        
         pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_ZYGOSITY);
         downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_ZYGOSITY).trim();
         if ( ! pageCell.equals(downloadCell))
