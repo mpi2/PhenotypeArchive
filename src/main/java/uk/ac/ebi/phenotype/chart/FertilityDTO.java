@@ -9,6 +9,23 @@ import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 public class FertilityDTO {
 
 	private String category;
+	private String totalChart;
+
+	
+	public String getCategory() {
+	
+		return category;
+	}
+
+
+
+	
+	public String getTotalChart() {
+	
+		return totalChart;
+	}
+
+
 
 	public void setCategory(String category) {
 
@@ -29,6 +46,14 @@ public class FertilityDTO {
 	public void setParamStableIdToObservation(Map<String, ObservationDTO> paramStableIdToObservation) {
 	
 		this.paramStableIdToObservation = paramStableIdToObservation;
+	}
+
+
+
+	public void setTotalChart(String totalChart) {
+
+		this.totalChart=totalChart;
+		
 	}
 
 

@@ -515,7 +515,7 @@ public class ExperimentService {
         System.out.println("specific outcome="+observations);
            System.out.println("category of observation="+outcomeObservation.getCategory());
            fertilityDTO.setCategory(observations.get(0).getCategory());
-       for(int i=1;i<13; i++){
+       for(int i=1;i<14; i++){
     	   String formatted = String.format("%02d",i);
            System.out.println("Number with leading zeros: " + formatted);
     	   String param="IMPC_FER_0"+formatted+"_001";
@@ -531,6 +531,14 @@ public class ExperimentService {
            }
            
        }
+       //do for "IMPC_FER_019_001" Gross findings female 
+       List<ObservationDTO> observationsForCounts = os.getViabilityData("IMPC_FER_019_001", pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+       if(observationsForCounts.size()>0){
+    	   System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
+           System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
+    	   paramStableIdToObservation.put("IMPC_FER_019_001",observationsForCounts.get(0));
+       }
+       
        fertilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
         return fertilityDTO;
     }
