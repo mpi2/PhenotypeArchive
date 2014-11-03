@@ -39,17 +39,15 @@
 		<seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 
 		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
-		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+
+		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly
 			to EBI servers for performance -->
-		<!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl> 
-			<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl> -->
-
-
         <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
         <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
+
         <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes</buildIndexesSolrUrl>
         <preqcXmlfile>/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/PhenotypeCallSummary.xml</preqcXmlfile>
-
+        <human2mouseFile>/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/HMD_HumanPhenotype.rpt</human2mouseFile>
 
 		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 
@@ -59,6 +57,7 @@
 		<liveSite>false</liveSite>
 		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
 		<phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
+        <imits.solrserver>http://ikmc.vm.bytemark.co.uk:8983/solr/allele2</imits.solrserver>
 	</properties>
 
 	<dependencies>
