@@ -183,7 +183,7 @@
                             
                             <img src="img/graph_abr.png">
                             <p>Auditory Brain Stem Responce data is plotted in the context of the whole serie of ABR measurements, as opposed to plotting each parameter 
-                            	separately. We plot data from the following parameters: click, 6kHz, 12kHz, 18kHz, 24kHz, 30kHz. 
+                            	separately. We plot data from the following parameters: click, 6kHz, 12kHz, 18kHz, 24kHz, 30kHz, where the click is separated from the rest of the data. 
                             	For each parameter we plot the mean of it's respective measurements. If one parameter does not have any points it means no data is available. 
       											</p>
 
