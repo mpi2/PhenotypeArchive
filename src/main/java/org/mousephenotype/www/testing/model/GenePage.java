@@ -101,11 +101,12 @@ public class GenePage {
     public List<String> getEnabledAbnormalities() {
         List<String> abnormalityStrings = new ArrayList();
         
-        List<WebElement> enabledAbnormalityElementList = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[starts-with(@class, 'sprite')]"));
+        List<WebElement> enabledAbnormalityElementList = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[ not(contains(@class, 'no-sprite'))]"));
      
         for (WebElement enabledAbnormalityElement : enabledAbnormalityElementList) {
             String abnormality = enabledAbnormalityElement.getAttribute("oldtitle");
-            abnormalityStrings.add(abnormality);
+            if ((abnormality != null) && ( ! abnormality.isEmpty()))
+                abnormalityStrings.add(abnormality);
         }
         
         return abnormalityStrings;
@@ -173,9 +174,12 @@ public class GenePage {
      */
     public List<String> getSectionTitles() {
         List<String> sectionTitles = new ArrayList();
-        List<WebElement> sections = driver.findElements(By.className("title"));
+        List<WebElement> sections = driver.findElements(By.cssSelector(".title"));
+        
         for (WebElement sectionElement : sections) {
-            sectionTitles.add(sectionElement.getText());
+            String text = sectionElement.getText().trim();
+            if ((text != null) && ( ! text.isEmpty()))
+                sectionTitles.add(sectionElement.getText());
         }
         
         return sectionTitles;

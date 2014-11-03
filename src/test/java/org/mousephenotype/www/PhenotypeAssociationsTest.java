@@ -30,18 +30,19 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -90,6 +91,9 @@ public class PhenotypeAssociationsTest {
     
     @Autowired
     protected TestUtils testUtils;
+    
+    @Autowired
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
@@ -147,8 +151,7 @@ public class PhenotypeAssociationsTest {
         int sumOfPhenotypeCounts = 0;
         int expectedMinimumResultCount = -1;
         try {
-            driver.get(target);
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
+            GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
             
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
@@ -158,23 +161,10 @@ public class PhenotypeAssociationsTest {
             }
             
             // Get the expected result count.
-            List<WebElement> resultElements = driver.findElements(By.cssSelector("p.resultCount"));
-            WebElement expectedMinimumResultElement = TestUtils.find(resultElements, ANCHOR_STRING);
-            if (expectedMinimumResultElement != null) {
-                String resultCountString = expectedMinimumResultElement.getText().trim().replace(ANCHOR_STRING, "");
-                Integer niResultCount = Utils.tryParseInt(resultCountString);
-                if (niResultCount != null)
-                    expectedMinimumResultCount = niResultCount;
-            }
+            int expectedResultsCount = genePage.getResultsCount();
+            int actualResultsCount =  driver.findElements(By.xpath("//img[@alt = 'Female' or @alt = 'Male']")).size();
             
-            // Loop through the phenotype links, extracting and summing the counts.
-            for (WebElement phenotypeAssociationElement : phenotypeAssociationElements) {
-                Integer thisLinkCount = Utils.tryParseInt(phenotypeAssociationElement.getText());
-                if (thisLinkCount != null)
-                    sumOfPhenotypeCounts += thisLinkCount;
-            }
-            
-            if (expectedMinimumResultCount > sumOfPhenotypeCounts) {
+            if (expectedResultsCount != actualResultsCount) {
                 errorList.add("ERROR: Expected minimum result count of " + expectedMinimumResultCount + " but actual sum of phenotype counts was " + sumOfPhenotypeCounts + " for " + driver.getCurrentUrl());
             } else {
                 successList.add("SUCCESS! expectedMinimumResultCount: " + expectedMinimumResultCount + ". sumOfPhenotypeCounts: " + sumOfPhenotypeCounts + ". URL: " + driver.getCurrentUrl());
