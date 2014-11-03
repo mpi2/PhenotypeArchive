@@ -67,8 +67,8 @@ public class AbrChartAndTableProvider {
     		Integer paramId = pipelineDAO.getParameterByStableId(parameterStableId).getId();
     		try {
     			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenterId, strain, metadataGroup, alleleAccession);
-			    zygosities = experiment.getZygosities();
-			    if (experiment != null){
+			     if (experiment != null){
+			    	zygosities = experiment.getZygosities();
 					if (procedureUrl == null){
 						procedureUrl = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 					}
