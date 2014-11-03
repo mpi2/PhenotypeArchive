@@ -58,7 +58,7 @@
 		<googleAnalytics></googleAnalytics>
 		<liveSite>false</liveSite>
 		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
-		<phenodigm.solrserver>http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
+		<phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
 	</properties>
 
 	<dependencies>
@@ -1352,7 +1352,7 @@
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
                 <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
                	<buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_live</buildIndexesSolrUrl>
-                <phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
+                <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
