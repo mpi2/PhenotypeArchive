@@ -61,9 +61,13 @@ public class ImpcImagesController {
 		int daysEitherSide = 30;// get a month either side
 		QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, SexType.female, daysEitherSide);
 
-		if (responseControl != null) {
+		if (responseControl != null && responseControl.getResults().size()>0) {
 			controls.addAll(responseControl.getResults());
+		}else{
+			daysEitherSide=120;//try a bigger window of time to get controls
+			responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, SexType.female, daysEitherSide);
 		}
+		
 		System.out.println("experimental size=" + experimental.size());
 		model.addAttribute("experimental", experimental);
 		System.out.println("controls size=" + controls.size());

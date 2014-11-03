@@ -179,6 +179,7 @@ public class ImageService {
 
 		//solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
+		System.out.println("images experimental query="+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -187,16 +188,16 @@ public class ImageService {
 
 	public QueryResponse getControlImagesForProcedure(String metadataGroup, String center, String strain, String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex, int daysEitherSide)
 	throws SolrServerException {
-
+		System.out.println("trying to get controls with "+daysEitherSide+" days either side");
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
 		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":" + center, ObservationDTO.METADATA_GROUP + ":" + metadataGroup, ObservationDTO.STRAIN_NAME + ":" + strain, ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter, ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"", "sex:" + sex.name());
 		Calendar c = Calendar.getInstance(); 
 		c.setTime(date); 
-		c.add(Calendar.DATE, -7);
+		c.add(Calendar.DATE, -daysEitherSide);
 		Date before = c.getTime();
 		c.setTime(date); 
-		c.add(Calendar.DATE, 7);
+		c.add(Calendar.DATE, daysEitherSide);
 		Date after = c.getTime();
 		//1995-12-31T23:59:59.999Z
 		//System.out.println("date="+date+"weekBefore="+before);
@@ -205,7 +206,7 @@ public class ImageService {
 		//System.out.println("date="+fromDate+"weekBefore="+toDate);
 		solrQuery.addFilterQuery("date_of_experiment:["+fromDate+" TO "+toDate+"]");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		//System.out.println(solrQuery);
+		System.out.println(solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
