@@ -145,16 +145,22 @@
                             The <strong>more statistics</strong> link at the bottom of the table will display additional output related to the statistical method.
                             </p>
 
-                            <h3><a name="time_graphs" href='#'>Time Series Graphs</a></h3>
+														<!-- Commented out Nov 3rd, 2014 as there is no way (any more) of getting to the timeseries graphs on our portal. -->
+                            <!-- h3><a name="time_graphs" href='#'>Time Series Graphs</a></h3>
                             <img src="img/graph_time_series.png">
                             <p>Where an observation can be measured as a time series (e.g. mean blood glucose concentration), we display the data in a line graph and scatter plot. The line graph will contain lines for wild-type and mutant data for female and for males.  The data points displayed are the mean of all data collected at that timepoint and the whiskers indicate standard deviation.
-                                Hover over the points to see basic statistics about the data.  
+                                Hover over the points to see basic statistics about the data.  </p-->
 
                             <h3><a name="scatter_graphs" href='#'>Scatter Plots Showing Data grouped by Date</a></h3>
                             <img src="img/graph_scatterplot.png">
-                            <p>When the data for a parameter is collected at various points in time, a scatter plot will show each data value on the y a-xis and the date/time the data was collected on the x-axis. 
+                            <p>When the data for a parameter is collected at various points in time, a scatter plot will show each data value on the y a-xis and the date/time the data was collected on the x-axis. </p> 
 
-
+														<h3><a name="scatter_graphs" href='#'>ABR Charts</a></h3>
+                            <img src="img/graph_abr.png">
+                            <p>Auditory Brain Stem Responce data is plotted in the context of the whole serie of ABR measurements, as opposed to plotting each parameter 
+                            separately. We plot data from the following parameters: click, 6kHz, 12kHz, 18kHz, 24kHz, 30kHz. 
+                            For each parameter we plot the mean of it's respective measurements. If one parameter does not have any points it means no data is available. 
+      											</p>
 
                         </div>
 
