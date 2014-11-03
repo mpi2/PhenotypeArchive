@@ -60,8 +60,13 @@
         <property name="soTimeout" value="5000" />
 	</bean>
 
+    <!--  Beans for writing to the solr servers -->
+    <bean id="alleleIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/allele"/>
+        <constructor-arg index="1" value="10000"/> <!--Queue size-->
+        <constructor-arg index="2" value="3"/> <!--Num threads-->
+    </bean>
 
-	<!--  Beans for writing to the solr servers -->
     <bean id="preqcIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc"/>
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
@@ -138,6 +143,7 @@
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
 				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
+                <entry key="human2mouseFilename" value="${human2mouseFile}" />
 			</map>
 		</property>
 	</bean>
