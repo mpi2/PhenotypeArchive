@@ -11,7 +11,7 @@
                     <li><a href="disease-help">Diseases</a> </li>
                     <li><a href="image-help">Images</a></li>
                     <li><a href="statistics-help">Statistics</a> </li>
-                    <li><a href="graph-help">Graphs</a> </li>
+                    <li><a href="graph-help">Charts</a> </li>
                     <li><a href="api-help">RESTful APIs</a>
                     </li>
                 </ul>
