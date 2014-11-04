@@ -51,7 +51,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.MPHPBean;
@@ -78,7 +77,7 @@ public class MPIndexer {
 	/** Destination Solr core */
 	private static final String MP_URL="http://localhost:8983/solr/mp";
 	
-	private static final int BATCH_SIZE = 500;
+	private static final int BATCH_SIZE = 50;
 	
 	private final SolrServer alleleCore;
 	private final SolrServer imagesCore;
@@ -161,12 +160,14 @@ public class MPIndexer {
 			addPhenotype1(mp);
 			addPhenotype2(mp);
 			
+			logger.debug("{}: Built MP DTO {}", count, termId);
+			count ++;
+			
 			mpBatch.add(mp);
 			if (mpBatch.size() == BATCH_SIZE) {
 				// Update the batch, clear the list
 				mpCore.addBeans(mpBatch, 60000);
 				mpBatch.clear();
-				count += BATCH_SIZE;
 				logger.info("Indexed {} beans", count);
 			}
 		}
@@ -568,7 +569,7 @@ public class MPIndexer {
 	private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1() throws SQLException {
 		Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 		
-		String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value &lt;= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
+		String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value <= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
 		PreparedStatement ps = komp2DbConnection.prepareStatement(q);
 		ResultSet rs = ps.executeQuery();
 		int count = 0;
@@ -600,8 +601,8 @@ public class MPIndexer {
 	private Map<String, List<String>> getImpcPipe() throws SQLException {
 		Map<String, List<String>> beans = new HashMap<>();
 		
-		String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value &lt; 0.0001 and external_db_id = 22";
-		PreparedStatement ps = ontoDbConnection.prepareStatement(q);
+		String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 22";
+		PreparedStatement ps = komp2DbConnection.prepareStatement(q);
 		ResultSet rs = ps.executeQuery();
 		int count = 0;
 		while (rs.next()) {
@@ -621,8 +622,8 @@ public class MPIndexer {
 	private Map<String, List<String>> getLegacyPipe() throws SQLException {
 		Map<String, List<String>> beans = new HashMap<>();
 		
-		String q = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value &lt; 0.0001 and external_db_id = 12";
-		PreparedStatement ps = ontoDbConnection.prepareStatement(q);
+		String q = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 12";
+		PreparedStatement ps = komp2DbConnection.prepareStatement(q);
 		ResultSet rs = ps.executeQuery();
 		int count = 0;
 		while (rs.next()) {
@@ -711,13 +712,13 @@ public class MPIndexer {
 			
 			bean.setParameterName(rs.getString("parameter_name"));
 			bean.setParameterStableId(rs.getString("parameter_stable_id"));
-			bean.setParameterStableKey(rs.getString("paramter_stable_key"));
+			bean.setParameterStableKey(rs.getString("parameter_stable_key"));
 			bean.setProcedureName(rs.getString("procedure_name"));
 			bean.setProcedureStableId(rs.getString("procedure_stable_id"));
-			bean.setProcedureStableKey(rs.getString("paramter_stable_key"));
+			bean.setProcedureStableKey(rs.getString("procedure_stable_key"));
 			bean.setPipelineName(rs.getString("pipeline_name"));
 			bean.setPipelineStableId(rs.getString("pipeline_stable_id"));
-			bean.setPipelineStableKey(rs.getString("paramter_stable_key"));
+			bean.setPipelineStableKey(rs.getString("pipeline_key"));
 			
 			if (!beans.containsKey(id)) {
 				beans.put(id, new ArrayList<ParamProcedurePipelineBean>());
@@ -731,84 +732,120 @@ public class MPIndexer {
 	}
 	
 	private void addMpHpTerms(MpDTO mp, List<MPHPBean> hpBeans) {
-		List<String> hpIds = new ArrayList<>(hpBeans.size());
-		List<String> hpTerms = new ArrayList<>(hpBeans.size());
-		
-		for (MPHPBean bean : hpBeans) {
-			hpIds.add(bean.getHpId());
-			hpIds.add(bean.getHpTerm());
+		if (hpBeans != null) {
+			List<String> hpIds = new ArrayList<>(hpBeans.size());
+			List<String> hpTerms = new ArrayList<>(hpBeans.size());
+
+			for (MPHPBean bean : hpBeans) {
+				hpIds.add(bean.getHpId());
+				hpIds.add(bean.getHpTerm());
+			}
+
+			if (mp.getHpId() == null) {
+				mp.setHpId(new ArrayList<String>());
+				mp.setHpTerm(new ArrayList<String>());
+			}
+			mp.getHpId().addAll(hpIds);
+			mp.getHpTerm().addAll(hpTerms);
 		}
-		
-		mp.setHpId(hpIds);
-		mp.setHpTerm(hpTerms);
 	}
 	
 	private void buildNodes(MpDTO mp) {
 		List<Integer> nodeIds = termNodeIds.get(mp.getMpId());
 		
-		for (Integer nodeId : nodeIds) {
-			// Build the top level nodes
-			buildTopLevelNodes(mp, nodeId);
-			buildIntermediateLevelNodes(mp, nodeId);
-			buildChildLevelNodes(mp, nodeId);
-			buildParentLevelNodes(mp, nodeId);
+		if (nodeIds != null) {
+			for (Integer nodeId : nodeIds) {
+				// Build the top level nodes
+				buildTopLevelNodes(mp, nodeId);
+				buildIntermediateLevelNodes(mp, nodeId);
+				buildChildLevelNodes(mp, nodeId);
+				buildParentLevelNodes(mp, nodeId);
+			}
 		}
 	}
 	
 	private void buildTopLevelNodes(MpDTO mp, int nodeId) {
 		List<MPTopLevelTermBean> topLevelTermBeans = topLevelTerms.get(nodeId);
-		List<String> topLevelMpIds = new ArrayList<>(topLevelTermBeans.size());
-		List<String> topLevelMpTerms = new ArrayList<>(topLevelTermBeans.size());
-		List<String> topLevelMpTermIds = new ArrayList<>(topLevelTermBeans.size());
-		Set<String> topLevelSynonyms = new HashSet<>();
-		
-		for (MPTopLevelTermBean bean : topLevelTermBeans) {
-			topLevelMpIds.add(bean.getTermId());
-			topLevelMpTerms.add(bean.getName());
-			topLevelMpTermIds.add(bean.getTopLevelMPTermId());
-			topLevelSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
+		if (topLevelTermBeans != null) {
+			List<String> topLevelMpIds = new ArrayList<>(topLevelTermBeans.size());
+			List<String> topLevelMpTerms = new ArrayList<>(topLevelTermBeans.size());
+			List<String> topLevelMpTermIds = new ArrayList<>(topLevelTermBeans.size());
+			Set<String> topLevelSynonyms = new HashSet<>();
+
+			for (MPTopLevelTermBean bean : topLevelTermBeans) {
+				topLevelMpIds.add(bean.getTermId());
+				topLevelMpTerms.add(bean.getName());
+				topLevelMpTermIds.add(bean.getTopLevelMPTermId());
+				if (mpTermSynonyms.containsKey(bean.getTermId())) {
+					topLevelSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
+				}
+			}
+
+			if (mp.getTopLevelMpId() == null) {
+				mp.setTopLevelMpId(new ArrayList<String>());
+				mp.setTopLevelMpTerm(new ArrayList<String>());
+				mp.setTopLevelMpTermId(new ArrayList<String>());
+				mp.setTopLevelMpTermSynonym(new ArrayList<String>());
+			}
+			mp.getTopLevelMpId().addAll(topLevelMpIds);
+			mp.getTopLevelMpTerm().addAll(topLevelMpTerms);
+			mp.getTopLevelMpTermId().addAll(topLevelMpTermIds);
+			mp.getTopLevelMpTermSynonym().addAll(new ArrayList<String>(topLevelSynonyms));
 		}
-		
-		mp.setTopLevelMpId(topLevelMpIds);
-		mp.setTopLevelMpTerm(topLevelMpTerms);
-		mp.setTopLevelMpTermId(topLevelMpTermIds);
-		mp.setTopLevelMpTermSynonym(new ArrayList<String>(topLevelSynonyms));
 	}
 	
 	private void buildIntermediateLevelNodes(MpDTO mp, int nodeId) {
-		List<String> intermediateTermIds = new ArrayList<>();
-		List<String> intermediateTermNames = new ArrayList<>();
-		Set<String> intermediateSynonyms = new HashSet<>();
-		
-		for (Integer intId : intermediateNodeIds.get(nodeId)) {
-			for (MPTermNodeBean bean : intermediateTerms.get(intId)) {
-				intermediateTermIds.add(bean.getTermId());
-				intermediateTermNames.add(bean.getName());
-				intermediateSynonyms.addAll(mpTermSynonyms.get(intId));
+		if (intermediateNodeIds.containsKey(nodeId)) {
+			List<String> intermediateTermIds = new ArrayList<>();
+			List<String> intermediateTermNames = new ArrayList<>();
+			Set<String> intermediateSynonyms = new HashSet<>();
+
+			for (Integer intId : intermediateNodeIds.get(nodeId)) {
+				for (MPTermNodeBean bean : intermediateTerms.get(intId)) {
+					intermediateTermIds.add(bean.getTermId());
+					intermediateTermNames.add(bean.getName());
+					if (mpTermSynonyms.containsKey(intId)) {
+						intermediateSynonyms.addAll(mpTermSynonyms.get(intId));
+					}
+				}
 			}
+
+			if (mp.getIntermediateMpId() == null) {
+				mp.setIntermediateMpId(new ArrayList<String>());
+				mp.setIntermediateMpTerm(new ArrayList<String>());
+				mp.setIntermediateMpTermSynonym(new ArrayList<String>());
+			}
+			mp.getIntermediateMpId().addAll(intermediateTermIds);
+			mp.getIntermediateMpTerm().addAll(intermediateTermNames);
+			mp.getIntermediateMpTermSynonym().addAll(new ArrayList<String>(intermediateSynonyms));
 		}
-		
-		mp.setIntermediateMpId(intermediateTermIds);
-		mp.setIntermediateMpTerm(intermediateTermNames);
-		mp.setIntermediateMpTermSynonym(new ArrayList<String>(intermediateSynonyms));
 	}
 	
 	private void buildChildLevelNodes(MpDTO mp, int nodeId) {
-		List<String> childTermIds = new ArrayList<>();
-		List<String> childTermNames = new ArrayList<>();
-		Set<String> childSynonyms = new HashSet<>();
-		
-		for (Integer childId : childNodeIds.get(nodeId)) {
-			for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
-				childTermIds.add(bean.getTermId());
-				childTermNames.add(bean.getName());
-				childSynonyms.addAll(mpTermSynonyms.get(childId));
+		if (childNodeIds.containsKey(nodeId)) {
+			List<String> childTermIds = new ArrayList<>();
+			List<String> childTermNames = new ArrayList<>();
+			Set<String> childSynonyms = new HashSet<>();
+
+			for (Integer childId : childNodeIds.get(nodeId)) {
+				for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
+					childTermIds.add(bean.getTermId());
+					childTermNames.add(bean.getName());
+					if (mpTermSynonyms.containsKey(childId)) {
+						childSynonyms.addAll(mpTermSynonyms.get(childId));
+					}
+				}
 			}
+
+			if (mp.getChildMpId() == null) {
+				mp.setChildMpId(new ArrayList<String>());
+				mp.setChildMpTerm(new ArrayList<String>());
+				mp.setChildMpTermSynonym(new ArrayList<String>());
+			}
+			mp.getChildMpId().addAll(childTermIds);
+			mp.getChildMpTerm().addAll(childTermNames);
+			mp.getChildMpTermSynonym().addAll(new ArrayList<String>(childSynonyms));
 		}
-		
-		mp.setChildMpId(childTermIds);
-		mp.setChildMpTerm(childTermNames);
-		mp.setChildMpTermSynonym(new ArrayList<String>(childSynonyms));
 	}
 	
 	private void buildParentLevelNodes(MpDTO mp, int nodeId) {
@@ -817,66 +854,77 @@ public class MPIndexer {
 		Set<String> parentSynonyms = new HashSet<>();
 		
 		for (Integer parentId : parentNodeIds.get(nodeId)) {
-			for (MPTermNodeBean bean : intermediateTerms.get(parentId)) {
-				parentTermIds.add(bean.getTermId());
-				parentTermNames.add(bean.getName());
+			if (intermediateTerms.containsKey(parentId)) {
+				for (MPTermNodeBean bean : intermediateTerms.get(parentId)) {
+					parentTermIds.add(bean.getTermId());
+					parentTermNames.add(bean.getName());
+				}
+			}
+			if (mpTermSynonyms.containsKey(parentId)) {
 				parentSynonyms.addAll(mpTermSynonyms.get(parentId));
 			}
 		}
 		
-		mp.setParentMpId(parentTermIds);
-		mp.setParentMpTerm(parentTermNames);
-		mp.setParentMpTermSynonym(new ArrayList<String>(parentSynonyms));
+		if (mp.getParentMpId() == null) {
+			mp.setParentMpId(new ArrayList<String>());
+			mp.setParentMpTerm(new ArrayList<String>());
+			mp.setParentMpTermSynonym(new ArrayList<String>());
+		}
+		mp.getParentMpId().addAll(parentTermIds);
+		mp.getParentMpTerm().addAll(parentTermNames);
+		mp.getParentMpTermSynonym().addAll(parentSynonyms);
 	}
 	
 	private void addMaRelationships(MpDTO mp, String termId) {
-		List<String> maInferredIds = new ArrayList<>();
-		List<String> maInferredTerms = new ArrayList<>();
-		Set<String> maInferredSynonyms = new HashSet<>();
-		List<String> maTopLevelTermIds = new ArrayList<>();
-		List<String> maTopLevelTerms = new ArrayList<>();
-		Set<String> maTopLevelSynonyms = new HashSet<>();
-		List<String> maChildLevelTermIds = new ArrayList<>();
-		List<String> maChildLevelTerms = new ArrayList<>();
-		Set<String> maChildLevelSynonyms = new HashSet<>();
-		
-		for (MPTermNodeBean maNode : maTermNodes.get(termId)) {
-			String maNodeTermId = maNode.getTermId();
-			maInferredIds.add(maNodeTermId);
-			maInferredTerms.add(maNode.getName());
-			
-			// Look up the synonyms
-			maInferredSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
-			
-			// Look up the top level mappings
-			if (maTopLevelNodes.containsKey(maNodeTermId)) {
-				for (String maTopLevelNodeTerm : maTopLevelNodes.get(maNodeTermId)) {
-					maTopLevelTermIds.add(maNodeTermId);
-					maTopLevelTerms.add(maTopLevelNodeTerm);
+		if (maTermNodes.containsKey(termId)) {
+			List<String> maInferredIds = new ArrayList<>();
+			List<String> maInferredTerms = new ArrayList<>();
+			Set<String> maInferredSynonyms = new HashSet<>();
+			List<String> maTopLevelTermIds = new ArrayList<>();
+			List<String> maTopLevelTerms = new ArrayList<>();
+			Set<String> maTopLevelSynonyms = new HashSet<>();
+			List<String> maChildLevelTermIds = new ArrayList<>();
+			List<String> maChildLevelTerms = new ArrayList<>();
+			Set<String> maChildLevelSynonyms = new HashSet<>();
+
+			for (MPTermNodeBean maNode : maTermNodes.get(termId)) {
+				String maNodeTermId = maNode.getTermId();
+				maInferredIds.add(maNodeTermId);
+				maInferredTerms.add(maNode.getName());
+
+				// Look up the synonyms
+				maInferredSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
+
+				// Look up the top level mappings
+				if (maTopLevelNodes.containsKey(maNodeTermId)) {
+					for (String maTopLevelNodeTerm : maTopLevelNodes.get(maNodeTermId)) {
+						maTopLevelTermIds.add(maNodeTermId);
+						maTopLevelTerms.add(maTopLevelNodeTerm);
+					}
+					maTopLevelSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
 				}
-				maTopLevelSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
-			}
-			
-			// Look up the child level mappings
-			if (maChildLevelNodes.containsKey(maNodeTermId)) {
-				for (MPTermNodeBean childNode : maChildLevelNodes.get(maNodeTermId)) {
-					maChildLevelTermIds.add(childNode.getTermId());
-					maChildLevelTerms.add(childNode.getName());
-					
-					maChildLevelSynonyms.addAll(lookupMaSynonyms(childNode.getTermId()));
+
+				// Look up the child level mappings
+				if (maChildLevelNodes.containsKey(maNodeTermId)) {
+					for (MPTermNodeBean childNode : maChildLevelNodes.get(maNodeTermId)) {
+						maChildLevelTermIds.add(childNode.getTermId());
+						maChildLevelTerms.add(childNode.getName());
+
+						maChildLevelSynonyms.addAll(lookupMaSynonyms(childNode.getTermId()));
+					}
 				}
 			}
+
+			mp.setInferredMaTermId(maInferredIds);
+			mp.setInferredMaTerm(maInferredTerms);
+			mp.setInferredMaTermSynonym(new ArrayList<String>(maInferredSynonyms));
+			mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
+			mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
+			mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>(maTopLevelSynonyms));
+			mp.setInferredChildMaId(maChildLevelTermIds);
+			mp.setInferredChildMaTerm(maChildLevelTerms);
+			mp.setInferredChildMaTermSynonym(new ArrayList<String>(maChildLevelSynonyms));
 		}
-		
-		mp.setInferredMaTermId(maInferredIds);
-		mp.setInferredMaTerm(maInferredTerms);
-		mp.setInferredMaTermSynonym(new ArrayList<String>(maInferredSynonyms));
-		mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
-		mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
-		mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>(maTopLevelSynonyms));
-		mp.setInferredChildMaId(maChildLevelTermIds);
-		mp.setInferredChildMaTerm(maChildLevelTerms);
-		mp.setInferredChildMaTermSynonym(new ArrayList<String>(maChildLevelSynonyms));
 	}
 	
 	private Set<String> lookupMaSynonyms(String maTermId) {
@@ -890,26 +938,34 @@ public class MPIndexer {
 	}
 	
 	private void addPhenotype1(MpDTO mp) {
-		mp.setMgiAccessionId(new ArrayList<String>());
-		mp.setLatestPhenotypeStatus(new ArrayList<String>());
-		
-		for (PhenotypeCallSummaryBean pheno1 : phenotypes1.get(mp.getMpId())) {
-			mp.getMgiAccessionId().add(pheno1.getGfAcc());
-			if (impcBeans.containsKey(pheno1.getMpMgi())) {
-				// From JS mapping script - row.get('impc')
-				mp.getLatestPhenotypeStatus().add("Phenotyping Complete");
+		if (phenotypes1.containsKey(mp.getMpId())) {
+			checkMgiDetails(mp);
+
+			for (PhenotypeCallSummaryBean pheno1 : phenotypes1.get(mp.getMpId())) {
+				mp.getMgiAccessionId().add(pheno1.getGfAcc());
+				if (impcBeans.containsKey(pheno1.getMpMgi())) {
+					// From JS mapping script - row.get('impc')
+					mp.getLatestPhenotypeStatus().add("Phenotyping Complete");
+				}
+				if (legacyBeans.containsKey(pheno1.getMpMgi())) {
+					// From JS mapping script - row.get('legacy')
+					mp.setLegacyPhenotypeStatus(1);
+				}
+				addPreQc(mp, pheno1.getGfAcc());
+				addAllele(mp, alleles.get(pheno1.getGfAcc()), false);
 			}
-			if (legacyBeans.containsKey(pheno1.getMpMgi())) {
-				// From JS mapping script - row.get('legacy')
-				mp.setLegacyPhenotypeStatus(1);
-			}
-			addPreQc(mp, pheno1.getGfAcc());
-			addAllele(mp, alleles.get(pheno1.getGfAcc()), false);
+		}
+	}
+	
+	private void checkMgiDetails(MpDTO mp) {
+		if (mp.getMgiAccessionId() == null) {
+			mp.setMgiAccessionId(new ArrayList<String>());
+			mp.setLatestPhenotypeStatus(new ArrayList<String>());
 		}
 	}
 	
 	private void addPreQc(MpDTO mp, String gfAcc) {
-		SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id=\"" + gfAcc + "\"");
+		SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id:\"" + gfAcc + "\"");
 		query.setFields("mp_term_id", "marker_accession_id");
 		try {
 			QueryResponse response = preqcCore.query(query);
@@ -921,44 +977,95 @@ public class MPIndexer {
 			}
 		} catch (SolrServerException e) {
 			logger.error("Caught error accessing PreQC core: {}", e.getMessage());
+		} catch (Exception e) {
+			logger.error("Caught error accessing PreQC core: {}", e.getMessage());
+			logger.error("Query was: {}", query);
 		}
 	}
 	
 	private void addAllele(MpDTO mp, AlleleDTO allele, boolean includeStatus) {
 		if (allele != null) {
 			initialiseAlleleFields(mp);
-		}
 		
-		// Copy the fields from the allele to the MP
-		// NO TYPE FIELD IN ALLELE DATA!!! mp.getType().add(???)
-		mp.getDiseaseSource().addAll(allele.getDiseaseSource());
-		mp.getDiseaseTerm().addAll(allele.getDiseaseTerm());
-		mp.getDiseaseAlts().addAll(allele.getDiseaseAlts());
-		mp.getDiseaseClasses().addAll(allele.getDiseaseClasses());
-		mp.getHumanCurated().addAll(allele.getHumanCurated());
-		mp.getMouseCurated().addAll(allele.getMouseCurated());
-		mp.getMgiPredicted().addAll(allele.getMgiPredicted());
-		mp.getImpcPredicted().addAll(allele.getImpcPredicted());
-		mp.getDiseaseHumanPhenotypes().addAll(allele.getDiseaseHumanPhenotypes());
-		mp.getMgiPredictedKnownGene().addAll(allele.getMgiPredictedKnownGene());
-		mp.getImpcPredictedKnownGene().addAll(allele.getImpcPredictedKnownGene());
-		mp.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
-		mp.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
-		mp.getMarkerSymbol().add(allele.getMarkerSymbol());
-		mp.getMarkerName().add(allele.getMarkerName());
-		mp.getMarkerSynonym().addAll(allele.getMarkerSynonym());
-		mp.getMarkerType().add(allele.getMarkerType());
-		mp.getHumanGeneSymbol().addAll(allele.getHumanGeneSymbol());
-		// NO STATUS FIELD IN ALLELE DATA!!! mp.getStatus().add(allele.getStatus());
-		mp.getImitsPhenotypeStarted().add(allele.getImitsPhenotypeStarted());
-		mp.getImitsPhenotypeComplete().add(allele.getImitsPhenotypeComplete());
-		mp.getImitsPhenotypeStatus().add(allele.getImitsPhenotypeStatus());
-		mp.getLatestProductionCentre().addAll(allele.getLatestProductionCentre());
-		mp.getLatestPhenotypingCentre().addAll(allele.getLatestPhenotypingCentre());
-		mp.getAlleleName().addAll(allele.getAlleleName());
-		
-		if (includeStatus && allele.getMgiAccessionId() != null) {
-			mp.getLatestPhenotypeStatus().add("Phenotyping Started");
+			// Copy the fields from the allele to the MP
+			// NO TYPE FIELD IN ALLELE DATA!!! mp.getType().add(???)
+			if (allele.getDiseaseSource() != null) {
+				mp.getDiseaseSource().addAll(allele.getDiseaseSource());
+			}
+			if (allele.getDiseaseTerm() != null) {
+				mp.getDiseaseTerm().addAll(allele.getDiseaseTerm());
+			}
+			if (allele.getDiseaseAlts() != null) {
+				mp.getDiseaseAlts().addAll(allele.getDiseaseAlts());
+			}
+			if (allele.getDiseaseClasses() != null) {
+				mp.getDiseaseClasses().addAll(allele.getDiseaseClasses());
+			}
+			if (allele.getHumanCurated() != null) {
+				mp.getHumanCurated().addAll(allele.getHumanCurated());
+			}
+			if (allele.getMouseCurated() != null) {
+				mp.getMouseCurated().addAll(allele.getMouseCurated());
+			}
+			if (allele.getMgiPredicted() != null) {
+				mp.getMgiPredicted().addAll(allele.getMgiPredicted());
+			}
+			if (allele.getImpcPredicted() != null) {
+				mp.getImpcPredicted().addAll(allele.getImpcPredicted());
+			}
+			if (allele.getDiseaseHumanPhenotypes() != null) {
+				mp.getDiseaseHumanPhenotypes().addAll(allele.getDiseaseHumanPhenotypes());
+			}
+			if (allele.getMgiPredictedKnownGene() != null) {
+				mp.getMgiPredictedKnownGene().addAll(allele.getMgiPredictedKnownGene());
+			}
+			if (allele.getImpcPredictedKnownGene() != null) {
+				mp.getImpcPredictedKnownGene().addAll(allele.getImpcPredictedKnownGene());
+			}
+			if (allele.getMgiNovelPredictedInLocus() != null) {
+				mp.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
+			}
+			if (allele.getImpcNovelPredictedInLocus() != null) {
+				mp.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
+			}
+			if (allele.getMarkerSymbol() != null) {
+				mp.getMarkerSymbol().add(allele.getMarkerSymbol());
+			}
+			if (allele.getMarkerName() != null) {
+				mp.getMarkerName().add(allele.getMarkerName());
+			}
+			if (allele.getMarkerSynonym() != null) {
+				mp.getMarkerSynonym().addAll(allele.getMarkerSynonym());
+			}
+			if (allele.getMarkerType() != null) {
+				mp.getMarkerType().add(allele.getMarkerType());
+			}
+			if (allele.getHumanGeneSymbol() != null) {
+				mp.getHumanGeneSymbol().addAll(allele.getHumanGeneSymbol());
+			}
+			// NO STATUS FIELD IN ALLELE DATA!!! mp.getStatus().add(allele.getStatus());
+			if (allele.getImitsPhenotypeStarted() != null) {
+				mp.getImitsPhenotypeStarted().add(allele.getImitsPhenotypeStarted());
+			}
+			if (allele.getImitsPhenotypeComplete() != null) {
+				mp.getImitsPhenotypeComplete().add(allele.getImitsPhenotypeComplete());
+			}
+			if (allele.getImitsPhenotypeStatus() != null) {
+				mp.getImitsPhenotypeStatus().add(allele.getImitsPhenotypeStatus());
+			}
+			if (allele.getLatestProductionCentre() != null) {
+				mp.getLatestProductionCentre().addAll(allele.getLatestProductionCentre());
+			}
+			if (allele.getLatestPhenotypingCentre() != null) {
+				mp.getLatestPhenotypingCentre().addAll(allele.getLatestPhenotypingCentre());
+			}
+			if (allele.getAlleleName() != null) {
+				mp.getAlleleName().addAll(allele.getAlleleName());
+			}
+
+			if (includeStatus && allele.getMgiAccessionId() != null) {
+				mp.getLatestPhenotypeStatus().add("Phenotyping Started");
+			}
 		}
 	}
 	
@@ -997,6 +1104,7 @@ public class MPIndexer {
 	
 	private void addPhenotype2(MpDTO mp) {
 		if (phenotypes2.containsKey(mp.getMpId())) {
+			checkMgiDetails(mp);
 
 			for (PhenotypeCallSummaryBean pheno2 : phenotypes2.get(mp.getMpId())) {
 				addStrains(mp, pheno2.getStrainAcc());
