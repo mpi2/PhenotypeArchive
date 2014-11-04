@@ -272,7 +272,7 @@ public class UnidimensionalChartAndTableProvider {
 				color = ChartColors.getWTColor(ChartColors.alphaScatter);
 			}
 
-			femaleBoxPlotObject = "{" + " color: '" + color + "' ," + " name: 'Observations', data:" + observationsString + ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
+			femaleBoxPlotObject = "{" + " color: " + color + " ," + " name: 'Observations', data:" + observationsString + ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
 
 			seriesData += femaleBoxPlotObject + ",";
 			column++;
@@ -322,17 +322,23 @@ public class UnidimensionalChartAndTableProvider {
 															// second
 			femaleScatterObjectString = "{ " + " 	name: 'Observation', type: 'scatter', data: " + scatterString + ", " + marker +
 			// "marker: { lineWidth: 1}" +
-			", tooltip: { pointFormat: '{point.y:..4f}' }" + "          }";
+			", tooltip: { pointFormat: '{point.y:.4f}' }" + "          }";
 			seriesData += femaleScatterObjectString + ",";// +","+maleBoxPlotObject+", "+maleScatterObjectString;
 			column++;
 
 		}// end of scatter loop
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
-		System.out.println("colors="+colors);
-		JSONArray colorArray=new JSONArray(colors);
-		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colorArray 
+		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
-			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    ,"
+			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
+			+ "{ return '<b>Observation</b><br/>' + this.point.y; } "
+			+ "else { return '<b>Genotype: ' + this.key + '</b>"
+			+ "<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '"
+			+ "<br/>Upper Quartile: ' + this.point.options.q3 + '"
+			+ "<br/>Median: ' + this.point.options.median + '"
+			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
+			+ "<br/>LQ - 1.5 * IQR: ' + this.point.low"
+			+ "; } } }    ,"
 			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
@@ -365,18 +371,6 @@ public class UnidimensionalChartAndTableProvider {
 		
 		String data = "[";
 		// custom order & selection from Terry
-/*		data += "['" + StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) + "], ";
-		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
-*/		
-		
-		
 		if (divId.equalsIgnoreCase("genotypeStatusChart")){
 			// custom statuses to show + custom order
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS) + "], ";

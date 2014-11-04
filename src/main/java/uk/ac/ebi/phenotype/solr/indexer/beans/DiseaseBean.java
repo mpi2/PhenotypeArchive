@@ -38,7 +38,7 @@ public class DiseaseBean {
 	public static final String IMPC_PREDICTED_KNOWN_GENE = "impc_predicted_known_gene";
 	public static final String MGI_NOVEL_PREDICTED_IN_LOCUS = "mgi_novel_predicted_in_locus";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS = "impc_novel_predicted_in_locus";
-	public static final String DISEASE_HUMAN_PHENOTYPES = "disease_human_phenotypes";
+	public static final String DISEASE_HUMAN_PHENOTYPES = "phenotypes";
 
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.chart.FertilityDTO;
 import uk.ac.ebi.phenotype.chart.ViabilityDTO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
@@ -187,8 +188,7 @@ public class ExperimentService {
 
             // includeResults variable skips the results when gathering
             // experiments for calculating the results (performance)
-            if (experiment.getResults() == null && experiment.getExperimentalBiologicalModelId() != null && includeResults
-                    ) {
+            if (experiment.getResults() == null && experiment.getExperimentalBiologicalModelId() != null && includeResults) {
                 
                 String phenotypingCenter = observation.getPhenotypingCenter();
                 String parameterStableId = observation.getParameterStableId();
@@ -505,6 +505,43 @@ public class ExperimentService {
        viabilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
         return viabilityDTO;
     }
+    
+    public FertilityDTO getSpecificFertilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
+    	FertilityDTO fertilityDTO=new FertilityDTO();
+        Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
+            //for viability we don't need to filter on Sex or Zygosity
+        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+        ObservationDTO outcomeObservation = observations.get(0);  
+        System.out.println("specific outcome="+observations);
+           System.out.println("category of observation="+outcomeObservation.getCategory());
+           fertilityDTO.setCategory(observations.get(0).getCategory());
+       for(int i=1;i<14; i++){
+    	   String formatted = String.format("%02d",i);
+           System.out.println("Number with leading zeros: " + formatted);
+    	   String param="IMPC_FER_0"+formatted+"_001";
+    	   System.out.println("fert param="+param);
+           List<ObservationDTO> observationsForCounts = os.getViabilityData(param, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+           if(observationsForCounts.size()>1){
+        	   System.err.println("More than one observation found for a viability request!!!");
+           }
+           if(observationsForCounts.size()>0){
+           System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
+           System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
+           paramStableIdToObservation.put(param,observationsForCounts.get(0));
+           }
+           
+       }
+       //do for "IMPC_FER_019_001" Gross findings female 
+       List<ObservationDTO> observationsForCounts = os.getViabilityData("IMPC_FER_019_001", pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+       if(observationsForCounts.size()>0){
+    	   System.out.println("vai param name="+observationsForCounts.get(0).getParameterName());
+           System.out.println("via data_point="+observationsForCounts.get(0).getDataPoint());
+    	   paramStableIdToObservation.put("IMPC_FER_019_001",observationsForCounts.get(0));
+       }
+       
+       fertilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
+        return fertilityDTO;
+    }
 
    	/**
      * Should only return 1 experimentDTO - returns null if none and exception
@@ -524,9 +561,9 @@ public class ExperimentService {
      * @throws SpecificExperimentException
      */
     public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
-        List<ExperimentDTO> experimentList = new ArrayList<>();
+        
+    	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
-
 
         // if gender list is size 2 assume both sexes so no filter needed
         if (genderList.isEmpty() || genderList.size() == 2) {

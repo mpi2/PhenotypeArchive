@@ -388,7 +388,7 @@ public class PhenotypePageTest {
     
     private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        String target = "";
+        String target;
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
@@ -408,7 +408,8 @@ public class PhenotypePageTest {
             i++;
 
             WebElement mpLinkElement = null;
-            
+//if (i == 1) phenotypeId = "MP:0003491";
+//if (i == 1) phenotypeId = "MP:0005371";
             target = baseUrl + "/phenotypes/" + phenotypeId;
             System.out.println("phenotype[" + i + "] URL: " + target);
             

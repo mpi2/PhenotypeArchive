@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -73,6 +74,8 @@ public class SearchPage {
     public static final String ANATOMY_ID    = "ma";
     public static final String PROCEDURES_ID = "pipeline";
     public static final String IMAGES_ID     = "images";
+    
+    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     
     public enum DownloadType {
         PAGINATED_TSV,
@@ -480,6 +483,54 @@ public class SearchPage {
         }
         
         return anatomyTable;
+    }
+    
+    public class AutosuggestRow {
+        public final String annotationType;
+        public final String value          ;
+        
+        public AutosuggestRow() {
+            this.annotationType = "";
+            this.value          = "";
+        }
+        public AutosuggestRow(String annotationType, String value) {
+            this.annotationType = annotationType;
+            this.value          = value;
+        }
+        
+        @Override
+        public String toString() {
+            return "annotationType " + annotationType + ": '" + annotationType + "'.\tvalue: '" + value + "'";
+        }
+    }
+    
+    /**
+     * Fetches the autosuggest components matching <code>searchString</code>
+     * @param searchString The search string
+     * @return the autosuggest components matching <code>searchString</code>
+     */
+    public List<AutosuggestRow> getAutosuggest(String searchString) {
+        List<AutosuggestRow> results = new ArrayList();
+        
+        if ((searchString == null) || (searchString.trim().isEmpty()))
+            return results;
+        
+        submitSearch(searchString);
+        WebElement autosuggestBlock;
+        try {
+            autosuggestBlock = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul#ui-id-1")));
+        } catch (Exception e) {
+            log.info("SearchPage.getAutosuggest(): no results for search string '" + searchString + "'");
+            return results;
+        }
+        
+        List<WebElement> autosuggestElements = autosuggestBlock.findElements(By.cssSelector("li"));
+        for (WebElement autosuggestElement : autosuggestElements) {
+            String[] parts = autosuggestElement.getText().split(":");
+            results.add(new AutosuggestRow(parts[0].trim(), parts[1].trim()));
+        }
+        
+        return results;
     }
 
     /**
@@ -893,16 +944,18 @@ public class SearchPage {
     }
     
     /**
-     * Submits the string in <code>searchString</code> to the server. This has
-     * the side effect of waiting for the page to finish loading.
+     * Submits the string in <code>searchString</code> to the server. If <code>
+     * searchString</code> is terminated with a newline, the page will submit
+     * the request and wait for the page to finish loading.
      * 
      * @param searchString The keystrokes to be sent to the server
-     * @return the result count.
+     * @return the result count. (<i>don't know if result count is returned if <code>
+     * searchString</code> is not terminated by a newline</i>)
      */
     public int submitSearch(String searchString) {
         WebElement weInput = driver.findElement(By.cssSelector("input#s"));
         weInput.clear();
-        weInput.sendKeys(searchString + "\n");
+        weInput.sendKeys(searchString);
         
         WebElement resultMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='mpi2-search']")));
         

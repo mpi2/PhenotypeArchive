@@ -110,7 +110,7 @@ public class Utilities {
                             valueToInsert = Float.valueOf(value);
                         }
                     } catch (NumberFormatException ex) {
-                        logger.info("Invalid float value: " + value);
+                        logger.debug("Invalid float value: " + value);
                         //TODO need to throw an exception!
                     }
 

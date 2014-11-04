@@ -209,7 +209,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 			PreparedStatement statement = null;
 			ResultSet resultSet = null;
 			List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
-			
 			try (Connection connection = getConnection()) {
 				
 				statement = connection.prepareStatement("SELECT property_value, property_key, data_release_version FROM meta_history WHERE property_key = ? ORDER BY data_release_version ASC");
@@ -217,7 +216,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 				resultSet = statement.executeQuery();
 				
 				while (resultSet.next()) {
-					
 					results.add(new AggregateCountXYBean(
 							resultSet.getInt(1), 
 							resultSet.getString(2),

@@ -64,7 +64,7 @@ public class ChartColors {
 		return "\'rgba("+maleRgb.get(index)+"," +alpha+")\'";
 		}
 		if(sexType.equals(SexType.female)) {
-			return "\'rgba("+femaleRgb.get(index)+"," +alpha+"\')";
+			return "\'rgba("+femaleRgb.get(index)+"," +alpha+")\'";
 			}
 		System.err.println("no color found returning default");
 		return defaultColor;
@@ -137,7 +137,7 @@ public class ChartColors {
 		String fillColor=color;
 		if(zygosityType==null) {// then its WT
 			color=ChartColors.getWTColor(alpha);
-			fillColor="white";
+			fillColor="\'white\'";
 			lineColor=color;
 		}
 		
@@ -148,7 +148,7 @@ public class ChartColors {
 		
 String marker="marker:{"
 			+"symbol: '"+symbol
-			+"', fillColor:  '"+fillColor+"'," +
+			+"', fillColor:  "+fillColor+"," +
 					" lineWidth: 1,"
 		    +" lineColor: "+lineColor+ " "
       +" }";

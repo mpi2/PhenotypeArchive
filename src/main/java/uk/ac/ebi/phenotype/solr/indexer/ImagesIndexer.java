@@ -15,11 +15,13 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * class to load the image data into the solr core - use for impc data first
@@ -41,6 +43,9 @@ public class ImagesIndexer {
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
+	
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
 
 
 
@@ -79,9 +84,12 @@ public class ImagesIndexer {
 
 		}
 		// Wire up spring support for this application
+		
+		
 		ImagesIndexer main = new ImagesIndexer();
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
+		//System.out.println("solrUrl="+solrUrl);
 		main.runSolrIndexImagesUpdate();
 
 		logger.info("Process finished.  Exiting.");
@@ -91,6 +99,9 @@ public class ImagesIndexer {
 
 	private void runSolrIndexImagesUpdate()
 	throws SolrServerException, IOException {
+		
+		String impcMediaBaseUrl=config.get("impcMediaBaseUrl");
+		System.out.println("omeroRootUrl="+impcMediaBaseUrl);
 
 		final String getExtraImageInfoSQL = "SELECT FULL_RESOLUTION_FILE_PATH, omero_id, "+ ImageDTO.DOWNLOAD_FILE_PATH + ", "+ImageDTO.FULL_RESOLUTION_FILE_PATH +
 			" FROM image_record_observation " +
@@ -99,18 +110,33 @@ public class ImagesIndexer {
 		// TODO: Need to batch these up to do a set of images at a time (currently works, but the number of images will grow beyond what can be handled in a single query)
 		List<uk.ac.ebi.phenotype.service.dto.ImageDTO> imageObservations = observationService.getAllImageDTOs();
 
-		logger.info("image observations size=" + imageObservations.size());
+		//System.out.println("image observations size=" + imageObservations.size());
 
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(getExtraImageInfoSQL)) {
 
 			for(ImageDTO imageDTO: imageObservations){
 				String downloadFilePath=imageDTO.getDownloadFilePath();
+				//System.out.println("trying downloadfilePath="+downloadFilePath);
 				statement.setString(1, downloadFilePath);
 
 				ResultSet resultSet = statement.executeQuery();
+				//System.out.println("imageDTO="+imageDTO);
 				while (resultSet.next()) {
-					imageDTO.setFullResolutionFilePath(resultSet.getString("FULL_RESOLUTION_FILE_PATH"));
-					imageDTO.setOmeroId(resultSet.getInt("omero_id"));
+					String fullResFilePath=resultSet.getString("FULL_RESOLUTION_FILE_PATH");
+					//System.out.println("fullResFilePath="+fullResFilePath);
+					imageDTO.setFullResolutionFilePath(fullResFilePath);
+					int omeroId=resultSet.getInt("omero_id");
+					imageDTO.setOmeroId(omeroId);
+					//need to add a full path to image in omero as part of api
+					//e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
+					if(omeroId!=0 && downloadFilePath!=null){
+					//System.out.println("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
+						///webgateway/archived_files/download/
+					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/archived_files/download/"+omeroId);
+					imageDTO.setJpegUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
+					}else{
+						System.out.println("omero id is null for "+downloadFilePath);
+					}
 				}
 			}
 

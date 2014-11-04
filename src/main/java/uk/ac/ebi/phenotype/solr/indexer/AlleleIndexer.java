@@ -17,15 +17,20 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -38,8 +43,10 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -60,16 +67,18 @@ public class AlleleIndexer {
 
 	private static final int BATCH_SIZE = 2500;
 
-	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
-	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
-	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
-	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
-
 	// Map gene MGI ID to sanger allele bean
 	private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
 
+	// Map gene MGI ID to human symbols
+	private static Map<String, Set<String>> humanSymbolLookup = new HashMap<>();
+
 	// Map gene MGI ID to disease bean
 	private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
+
+	// Set of MGI IDs that have legacy projects
+	private static Map<String, Integer> legacyProjectLookup = new HashMap<>();
+
 
 	private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
 	static {
@@ -90,16 +99,48 @@ public class AlleleIndexer {
 		MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
 	}
 
+	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
+	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
+//	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
+//	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
+
 	private SolrServer sangerAlleleCore;
-	private SolrServer humanMouseCore;
 	private SolrServer phenodigmCore;
+
+	@Autowired
+	@Qualifier("alleleIndexing")
 	private SolrServer alleleCore;
 
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+
+
+
+
 	public AlleleIndexer() {
-		this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
-		this.humanMouseCore = new HttpSolrServer(HUMAN_MOUSE_URL);
-		this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-		this.alleleCore = new HttpSolrServer(ALLELE_URL);
+
+		// Use system proxy if set for external solr servers
+		if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
+
+			String PROXY_HOST = System.getProperty("externalProxyHost");
+			Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
+
+			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
+			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+			CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+
+			logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+
+			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
+			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
+
+		} else {
+
+			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
+			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
+
+		}
+
 	}
 
 	public void run() throws IOException, SolrServerException {
@@ -115,8 +156,14 @@ public class AlleleIndexer {
 		populateStatusLookup();
 		logger.info("Populated status lookup, {} records", statusLookup.size());
 
+		populateHumanSymbolLookup();
+		logger.info("Populated human symbol lookup, {} records", humanSymbolLookup.size());
+
 		populateDiseaseLookup();
 		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
+
+		populateLegacyLookup();
+		logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
 
 		alleleCore.deleteByQuery("*:*");
 		alleleCore.commit();
@@ -139,7 +186,9 @@ public class AlleleIndexer {
 			// Do the first set of mappings
 			// MP: I think this only needs to be done once, after the ES cell status
 			// lookup.
-			// doSangerAlleleMapping(alleles);
+			// JM: Tried doing it once, but it left out all the latest_status fields.
+			// so I commented it back in
+			doSangerAlleleMapping(alleles);
 
 			// Look up the ES cell status
 			lookupEsCellStatus(alleles);
@@ -164,6 +213,26 @@ public class AlleleIndexer {
 	}
 
 
+	private void populateLegacyLookup() throws SolrServerException {
+
+		String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
+
+		try (PreparedStatement ps = connection.prepareStatement(query)) {
+
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				legacyProjectLookup.put(rs.getString("gf_acc"), 1);
+
+			}
+		} catch (SQLException e) {
+			logger.error("SQL Exception looking up legacy projects: {}", e.getMessage());
+		}
+
+	}
+
+
 	private void populateStatusLookup() throws SolrServerException {
 		SolrQuery query = new SolrQuery("*:*");
 		query.setRows(Integer.MAX_VALUE);
@@ -177,6 +246,34 @@ public class AlleleIndexer {
 			}
 			statusLookup.get(allele.getMgiAccessionId()).add(allele);
 		}
+	}
+
+	private void populateHumanSymbolLookup() throws IOException {
+
+		File file = new File(config.get("human2mouseFilename"));
+		List<String> lines = FileUtils.readLines(file, "UTF-8");
+
+		for (String line : lines) {
+			String[] pieces = line.trim().split("\t");
+
+			if (pieces.length < 5) {
+				continue;
+			}
+
+			String humanSymbol = pieces[0];
+			String mgiId = pieces[4].trim();
+			if ( ! mgiId.startsWith("MGI:")) {
+				continue;
+			}
+
+			if ( ! humanSymbolLookup.containsKey(mgiId)) {
+				humanSymbolLookup.put(mgiId, new HashSet<String>());
+			}
+
+			(humanSymbolLookup.get(mgiId)).add(humanSymbol);
+
+		}
+
 	}
 
 	private void populateDiseaseLookup() throws SolrServerException {
@@ -213,6 +310,11 @@ public class AlleleIndexer {
 			dto.setLatestPhenotypeStatus(bean.getLatestPhenotypeStatus());
 			dto.setLatestProductionCentre(bean.getLatestProductionCentre());
 			dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
+			dto.setLatestProjectStatus(bean.getLatestProjectStatus());
+
+			if( legacyProjectLookup.containsKey(bean.getMgiAccessionId())) {
+				dto.setLegacyPhenotypeStatus(1);
+			}
 
 			// Do the additional mappings
 			dto.setDataType(AlleleDTO.ALLELE_DATA_TYPE);
@@ -223,21 +325,21 @@ public class AlleleIndexer {
 		return map;
 	}
 
-	private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleleMap) {
+	private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleles) {
 		// Build the lookup string
-		String lookup = buildIdQuery(alleleMap.keySet());
+		String lookup = buildIdQuery(alleles.keySet());
 
 		String query = "select s.acc as id, s.symbol as marker_synonym, gf.name as marker_name "
-				+ "from synonym s, genomic_feature gf "
-				+ "where s.acc=gf.acc "
-				+ "and gf.acc IN (" + lookup + ")";
+			+ "from synonym s, genomic_feature gf "
+			+ "where s.acc=gf.acc "
+			+ "and gf.acc IN (" + lookup + ")";
 		try {
 			logger.debug("Starting marker synonym lookup");
 			PreparedStatement ps = connection.prepareStatement(query);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				String id = rs.getString("id");
-				AlleleDTO allele = alleleMap.get(id);
+				AlleleDTO allele = alleles.get(id);
 				if (allele.getMarkerSynonym() == null) {
 					allele.setMarkerSynonym(new ArrayList<String>());
 				}
@@ -251,27 +353,19 @@ public class AlleleIndexer {
 	}
 
 
+
 	private void lookupHumanMouseSymbols(Map<String, AlleleDTO> alleles) {
-		SolrQuery query = new SolrQuery();
-		query.setFields("human_symbol");
 
 		for (String id : alleles.keySet()) {
-			try {
-				AlleleDTO dto = alleles.get(id);
-				query.setQuery("mouse_symbol:\"" + dto.getMarkerSymbol() + "\"");
-				QueryResponse response = humanMouseCore.query(query);
-				SolrDocumentList docs = response.getResults();
-				if (docs.size() > 0) {
-					Set<String> hms = new HashSet<>();
-					for (SolrDocument doc : docs) {
-						hms.add((String) doc.getFieldValue("human_symbol"));
-					}
-					dto.setHumanGeneSymbol(new ArrayList<String>(hms));
-				}
-			} catch (SolrServerException e) {
-				logger.error("Solr exception looking up mouse symbol for {}: {}", id, e.getMessage());
+			AlleleDTO dto = alleles.get(id);
+
+			if (humanSymbolLookup.containsKey(id)) {
+				dto.setHumanGeneSymbol(new ArrayList<>(humanSymbolLookup.get(id)));
 			}
+
 		}
+
+		logger.debug("Finished human marker symbol lookup");
 	}
 
 	private String buildIdQuery(Collection<String> ids) {

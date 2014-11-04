@@ -21,7 +21,6 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
