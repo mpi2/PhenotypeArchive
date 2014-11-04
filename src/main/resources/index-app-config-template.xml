@@ -87,7 +87,7 @@
     </bean>
 
 
-    <!-- Weaves in transactional advice around @Transactional methods -->
+    <!-- Weaves in transactional advice around annotated Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 

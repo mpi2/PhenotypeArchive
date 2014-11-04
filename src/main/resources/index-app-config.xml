@@ -87,22 +87,23 @@
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
+    <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
+        <constructor-arg value="${buildIndexesSolrUrl}/experiment" />
+    </bean>
+
+
+    <!-- Weaves in transactional advice around annotated Transactional methods -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg value="${buildIndexesSolrUrl}/experiment" />
     </bean>
 
 
-    <!-- Weaves in transactional advice around @Transactional methods -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
-
-
     <!-- Dependencies for observationService -->
     <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
         <constructor-arg ref="sessionFactory" />
-    </bean>
-
-    <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-        <constructor-arg value="${buildIndexesSolrUrl}/experiment" />
     </bean>
 
     <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
