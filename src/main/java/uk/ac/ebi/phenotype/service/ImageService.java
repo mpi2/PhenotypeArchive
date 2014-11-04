@@ -191,7 +191,10 @@ public class ImageService {
 		System.out.println("trying to get controls with "+daysEitherSide+" days either side");
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
-		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":" + center, ObservationDTO.METADATA_GROUP + ":" + metadataGroup, ObservationDTO.STRAIN_NAME + ":" + strain, ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter, ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"", "sex:" + sex.name());
+		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":" + center, ObservationDTO.METADATA_GROUP + ":" + metadataGroup, ObservationDTO.STRAIN_NAME + ":" + strain, ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter, ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
+		if(sex!=null){
+			solrQuery.addFilterQuery(ObservationDTO.SEX+":" + sex.name());
+		}
 		Calendar c = Calendar.getInstance(); 
 		c.setTime(date); 
 		c.add(Calendar.DATE, -daysEitherSide);
@@ -264,15 +267,7 @@ public class ImageService {
 				}
 
 				for (Count procedure : procedureFacet.getValues()) {
-					SolrDocumentList list = new SolrDocumentList();// list of
-																	// image
-																	// docs to
-																	// return to
-																	// the
-																	// procedure
-																	// section
-																	// of the
-																	// gene page
+					
 					if (!procedure.getName().equals("Wholemount Expression")) {
 						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, "Adult Lac Z");
 						
@@ -320,7 +315,7 @@ public class ImageService {
 	 */
 	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, String excludedProcedureName)
 	throws SolrServerException {
-		SexType sex=SexType.female;
+		
 		model.addAttribute("acc",acc);//forward the gene id along to the new page for links
 		QueryResponse solrR = this.getParameterFacetsForGeneByProcedure(acc, procedureName, "experimental");
 		if (solrR == null) {
@@ -371,8 +366,10 @@ public class ImageService {
 								// get the parameters for this next call to get
 								// appropriate control images
 								if (responseExperimental.getResults().size() > 0) {
+									//for(SexType sex : SexType.values()){
 									SolrDocument imgDoc = responseExperimental.getResults().get(0);
-									QueryResponse responseExperimental2 = this.getImagesForGeneByParameter(acc, (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, sex, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
+									//no sex filter on this request
+									QueryResponse responseExperimental2 = this.getImagesForGeneByParameter(acc, (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, null, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
 									
 //										QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 7);
 //										if (responseControl != null && responseControl.getResults().size() > 0) {
@@ -382,11 +379,14 @@ public class ImageService {
 //										} else {
 //											log.error("no control images returned");
 //										}
-									list=getControls(numberOfControls, list, sex, imgDoc);
+									//list=getControls(numberOfControls, list, sex, imgDoc);
+									list=getControls(numberOfControls, list, null, imgDoc);
+									//list=getControls(numberOfControls, list, SexType.male, imgDoc);
 									
 									if (responseExperimental2 != null) {
 										list.addAll(responseExperimental2.getResults());
 									}
+									//}
 								}
 
 								for (SolrDocument doc : list) {
