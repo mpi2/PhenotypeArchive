@@ -34,9 +34,9 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
+import uk.ac.ebi.phenotype.service.dto.MpDTO;
 
 @Service
 public class MpService {
@@ -45,13 +45,6 @@ public class MpService {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
-
-    public static final class MpField {
-        public final static String MP_TERM_ID = "mp_id";
-        private static String TOP_LEVEL_MP_TERM = "top_level_mp_term";
-        private static String CHILD_MP_ID = "child_mp_id";
-    }
-    
     public MpService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
@@ -65,15 +58,18 @@ public class MpService {
     public Set<String> getAllPhenotypes() throws SolrServerException {
 
         SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(MpField.MP_TERM_ID + ":*");
+        solrQuery.setQuery(MpDTO.MP_ID + ":*");
+        solrQuery.setFields(MpDTO.MP_ID);
         solrQuery.setRows(1000000);
-        QueryResponse rsp = null;
+        QueryResponse rsp;
         rsp = solr.query(solrQuery);
-        SolrDocumentList res = rsp.getResults();
-        HashSet<String> allPhenotypes = new HashSet<String>();
-        for (SolrDocument doc : res) {
-            allPhenotypes.add((String) doc.getFieldValue(MpField.MP_TERM_ID));
+        List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+        Set<String> allPhenotypes = new HashSet();
+        
+        for (MpDTO mp : mps) {
+            allPhenotypes.add(mp.getMpId());
         }
+        
         return allPhenotypes;
     }
     
@@ -103,8 +99,8 @@ public class MpService {
     public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException{
     
     	SolrQuery solrQuery = new SolrQuery();
-    	solrQuery.setQuery(MpField.MP_TERM_ID + ":\"" + mpId + "\"");
-    	solrQuery.setFields(MpField.CHILD_MP_ID);
+    	solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
+    	solrQuery.setFields(MpDTO.CHILD_MP_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		
@@ -112,8 +108,8 @@ public class MpService {
 		ArrayList<String> children = new ArrayList<String>();
 		
         for (SolrDocument doc : res) {
-        	if (doc.containsKey(MpField.CHILD_MP_ID)){
-        		for (Object child: doc.getFieldValues(MpField.CHILD_MP_ID)){
+        	if (doc.containsKey(MpDTO.CHILD_MP_ID)){
+        		for (Object child: doc.getFieldValues(MpDTO.CHILD_MP_ID)){
         			children.add((String)child);
         		}
         	}
