@@ -41,6 +41,8 @@ public class ImpcImagesController {
 	public String imagePicker(@PathVariable String acc, @PathVariable String parameter_stable_id, Model model)
 	throws SolrServerException {
 
+		// good example url with control and experimental images
+		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
 		System.out.println("calling image picker");
 
 		// get experimental images
@@ -57,17 +59,24 @@ public class ImpcImagesController {
 		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
 		// "control", 6, null, null, null);
 		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
-		int numberOfControls = 6;
-		int daysEitherSide = 30;// get a month either side
-		QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, SexType.female, daysEitherSide);
-
-		if (responseControl != null && responseControl.getResults().size()>0) {
-			controls.addAll(responseControl.getResults());
-		}else{
-			daysEitherSide=120;//try a bigger window of time to get controls
-			responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, SexType.female, daysEitherSide);
+		int numberOfControlsPerSex = 5;
+		//int daysEitherSide = 30;// get a month either side
+		for (SexType sex : SexType.values()) {
+			SolrDocumentList list=new SolrDocumentList();
+			list=imageService.getControls(numberOfControlsPerSex, list, sex, imgDoc);
+			controls.addAll(list);
+//			QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControlsPerSex, sex, daysEitherSide);
+//
+//			if (responseControl != null && responseControl.getResults().size() > 0) {
+//				controls.addAll(responseControl.getResults());
+//			} else {
+//				daysEitherSide = 120;// try a bigger window of time to get
+//										// controls
+//				responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControlsPerSex, sex, daysEitherSide);
+//				controls.addAll(responseControl.getResults());
+//			}
 		}
-		
+
 		System.out.println("experimental size=" + experimental.size());
 		model.addAttribute("experimental", experimental);
 		System.out.println("controls size=" + controls.size());

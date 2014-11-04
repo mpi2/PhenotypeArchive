@@ -137,7 +137,7 @@ public class MPIndexer {
 		logger.info("Starting indexing loop");
 		
 		// Loop through the mp_term_infos
-		String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001' order by ti.term_id";
+		String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
 		PreparedStatement ps = ontoDbConnection.prepareStatement(q);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
@@ -148,10 +148,9 @@ public class MPIndexer {
 			mp.setMpId(termId);
 			mp.setMpTerm(rs.getString("name"));
 			mp.setMpDefinition(rs.getString("definition"));
-			mp.setMpNodeId(new ArrayList<Integer>());
-			mp.getMpNodeId().add(rs.getInt("node_id"));
 			
 			addMpHpTerms(mp, mphpBeans.get(termId));
+			mp.setMpNodeId(termNodeIds.get(termId));
 			buildNodes(mp);
 			mp.setOntologySubset(ontologySubsets.get(termId));
 			mp.setMpTermSynonym(mpTermSynonyms.get(termId));
@@ -175,6 +174,8 @@ public class MPIndexer {
 		// Make sure the last batch is indexed
 		mpCore.addBeans(mpBatch, 60000);
 		count += mpBatch.size();
+		// Send a final commit
+		mpCore.commit();
 		logger.info("Indexed {} beans", count);
 		
 		logger.info("MP Indexer complete!");

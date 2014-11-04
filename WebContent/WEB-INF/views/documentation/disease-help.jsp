@@ -34,25 +34,40 @@
 
                          <h3>More information about the way IMPC uses disease data.</h3>
 
-                            <h4><a name="explore" href='#'>Explore Disease Data</a></h4>
+                            <h4><a name="explore">Explore Disease Data</a></h4>
                             <p>Type a (partial) disease name or ID (OMIM, Orphanet or DECIPHER), click on the disease facet and the the results grid will return relevant disease pages. 
                                 Eg. Search for "cardiac" diseases:
-                                Click <a href="#details">here</a>  to find out more where the disease data comes from and how it is created.
+                            </p>
+                            <p>    
                                 <img src="img/disease_search.png">
                             </p>
-
-                            <h4><a name="details" href='#'>Disease details pages</a> </h4>
+                            
+                            <h4><a name="details">Disease details pages</a></h4>
                             <p>The IMPC disease details page contains known gene associations and mouse models 
                                 for the disease as well as predicted gene candidates and mouse models based on the
                                 phenotypic similarity of the disease clinical symptoms and the mouse phenotype 
                                 annotations. The latter uses data from both the MGI curated dataset as well as
-                                high-throughput phenotype assignments from the IMPC pipeline. 
-                                <img src="img/disease_details.png">
-                            </p>    
-
-                            <h4><a name="phenodigm" href='#'>PhenoDigm</a> </h4>
+                                high-throughput phenotype assignments from the IMPC pipeline and will display 
+                                the highest score available for this set.
+                            </p>
+                            <p>
+                                <img src="img/disease-detail-header.png">
+                            </p>
+                            <p>
+                                Clicking the row for a disease/gene will expand the row to show the details of the phenotype terms
+                                involved in the association between the disease and the mouse model. The disease phenotypes are
+                                those supplied by the disease resource (OMIM/Orphanet/DECIPHER). The orange number next to the genotype 
+                                is the PhenoDigm score (see below) which is a percentage-based score. These are ranked from highest to 
+                                lowest in two groups. The first group will show the manually curated mouse models from MGI, if present.
+                                The second group will list the purely phenodigm predicted associations.
+                            </p>
+                            <p>
+                                <img src="img/disease-detail-expanded-cell.png">
+                            </p>
+                            
+                            <h4><a name="phenodigm">PhenoDigm</a> </h4>
                             <p>                        
-                                We use our <a href=www.sanger.ac.uk/resources/databases/phenodigm> PhenoDigm</a> 
+                                We use our <a href=http://www.sanger.ac.uk/resources/databases/phenodigm/> PhenoDigm</a> 
                                 algorithm to calculate a percentage similarity score where the best possible mouse
                                 model match to a disease would score 100%. In this interface, we only display
                                 high-scoring (> 60%) matches that show a reasonable phenotypic similarity,
