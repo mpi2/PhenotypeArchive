@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -26,10 +27,10 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -42,8 +43,10 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -64,13 +67,11 @@ public class AlleleIndexer {
 
 	private static final int BATCH_SIZE = 2500;
 
-	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
-	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
-	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
-	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
-
 	// Map gene MGI ID to sanger allele bean
 	private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
+
+	// Map gene MGI ID to human symbols
+	private static Map<String, Set<String>> humanSymbolLookup = new HashMap<>();
 
 	// Map gene MGI ID to disease bean
 	private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
@@ -98,15 +99,25 @@ public class AlleleIndexer {
 		MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
 	}
 
+	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
+	private static final String PHENODIGM_URL = "http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
+//	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
+//	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
+
 	private SolrServer sangerAlleleCore;
-	private SolrServer humanMouseCore;
 	private SolrServer phenodigmCore;
+
+	@Autowired
+	@Qualifier("alleleIndexing")
 	private SolrServer alleleCore;
 
-	public AlleleIndexer() {
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
 
-		this.humanMouseCore = new HttpSolrServer(HUMAN_MOUSE_URL);
-		this.alleleCore = new HttpSolrServer(ALLELE_URL);
+
+
+
+	public AlleleIndexer() {
 
 		// Use system proxy if set for external solr servers
 		if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
@@ -144,6 +155,9 @@ public class AlleleIndexer {
 
 		populateStatusLookup();
 		logger.info("Populated status lookup, {} records", statusLookup.size());
+
+		populateHumanSymbolLookup();
+		logger.info("Populated human symbol lookup, {} records", humanSymbolLookup.size());
 
 		populateDiseaseLookup();
 		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
@@ -234,6 +248,34 @@ public class AlleleIndexer {
 		}
 	}
 
+	private void populateHumanSymbolLookup() throws IOException {
+
+		File file = new File(config.get("human2mouseFilename"));
+		List<String> lines = FileUtils.readLines(file, "UTF-8");
+
+		for (String line : lines) {
+			String[] pieces = line.trim().split("\t");
+
+			if (pieces.length < 5) {
+				continue;
+			}
+
+			String humanSymbol = pieces[0];
+			String mgiId = pieces[4].trim();
+			if ( ! mgiId.startsWith("MGI:")) {
+				continue;
+			}
+
+			if ( ! humanSymbolLookup.containsKey(mgiId)) {
+				humanSymbolLookup.put(mgiId, new HashSet<String>());
+			}
+
+			(humanSymbolLookup.get(mgiId)).add(humanSymbol);
+
+		}
+
+	}
+
 	private void populateDiseaseLookup() throws SolrServerException {
 		SolrQuery query = new SolrQuery("*:*");
 		query.setRows(Integer.MAX_VALUE);
@@ -313,26 +355,17 @@ public class AlleleIndexer {
 
 
 	private void lookupHumanMouseSymbols(Map<String, AlleleDTO> alleles) {
-		SolrQuery query = new SolrQuery();
-		query.setFields("human_symbol");
 
 		for (String id : alleles.keySet()) {
-			try {
-				AlleleDTO dto = alleles.get(id);
-				query.setQuery("mouse_symbol:\"" + dto.getMarkerSymbol() + "\"");
-				QueryResponse response = humanMouseCore.query(query);
-				SolrDocumentList docs = response.getResults();
-				if (docs.size() > 0) {
-					Set<String> hms = new HashSet<>();
-					for (SolrDocument doc : docs) {
-						hms.add((String) doc.getFieldValue("human_symbol"));
-					}
-					dto.setHumanGeneSymbol(new ArrayList<String>(hms));
-				}
-			} catch (SolrServerException e) {
-				logger.error("Solr exception looking up mouse symbol for {}: {}", id, e.getMessage());
+			AlleleDTO dto = alleles.get(id);
+
+			if (humanSymbolLookup.containsKey(id)) {
+				dto.setHumanGeneSymbol(new ArrayList<>(humanSymbolLookup.get(id)));
 			}
+
 		}
+
+		logger.debug("Finished human marker symbol lookup");
 	}
 
 	private String buildIdQuery(Collection<String> ids) {
