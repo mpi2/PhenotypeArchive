@@ -22,7 +22,9 @@ package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -262,97 +264,6 @@ public class PhenotypePage {
     
     
     /**
-     * Compares a single row of a pageMap grid selected by pageMapIndex to a
-     * single row of a downloadData grid selected by downloadIndex.
-     * @param pageMap phenotypes HTML table store
-     * @param downloadData download data store
-     * @param pageMapIndex pageMap row index
-     * @param downloadIndex download row index
-     * @return 
-     */
-    private int compareRowData(GridMap pageMap, GridMap downloadData, int pageMapIndex, int downloadIndex) {
-        // Validate the page's phenotypes HTML table values against the first row of the download values.
-        // If sex = "both", validate against the second download row as well.
-        int errorCount = 0;
-        List<String> colErrors = new ArrayList();
-        String downloadCell;
-        String pageCell;
-
-        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GENE_ALLELE).trim();
-        AlleleParser ap = new AlleleParser(pageCell);
-        
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_GENE).trim();
-        if ( ! ap.gene.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: gene mismatch. Page: '" + ap.gene + "'. Download: '" + downloadCell + "'");
-        
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_ALLELE).trim();
-        if ( ! ap.toString().equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: allele mismatch. Page: '" + ap.alleleSub + "'. Download: '" + downloadCell + "'");
-
-        // The allele is allowed to be blank only if this is a pre-qc graph link.
-        String graphUrl = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_PHENOTYPES_GRAPH);
-        if ((pageCell.isEmpty()) && (TestUtils.isPreQcLink(graphUrl))) {
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: Post-QC graph has no allele. Allele: '" + pageCell + "'. Graph URL: '" + graphUrl + "'");
-        }
-        
-        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_ZYGOSITY);
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_ZYGOSITY).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: zygosity mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-        
-        // Special case: if the page sex is "both", use "female" to compare against the download, as "female" is sorted first in the download.
-        pageCell = pageMap.getCell(1, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
-        pageCell = (pageCell.compareTo("both") == 0 ? "female" : pageCell);
-        downloadCell = downloadData.getCell(1, DownloadPhenotypeMap.COL_INDEX_SEX).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: sex mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-        
-        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPE);
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PHENOTYPE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: phenotype mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER);
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PROCEDURE_PARAMETER).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: procedure | parameter mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER);
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: phenotyping center mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SOURCE);
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_SOURCE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: source mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE);
-        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_P_VALUE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: p value mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        // When testing using http, the download link compare fails because the page url uses http
-        // but the download graph link uses https. Ignore the protocol (but not the hostname).
-        pageCell = TestUtils.removeProtocol(pageMap.getCell(1, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH).trim());
-        
-        downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadPhenotypeMap.COL_INDEX_GRAPH).trim());
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR on download row[" + downloadIndex + "]: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-        
-        if ( ! colErrors.isEmpty()) {
-            System.out.println(colErrors.size() + " errors:");
-            for (String colError : colErrors) {
-                System.out.println("\t" + colError);
-            }
-
-            errorCount++;
-        }
-        
-        return errorCount;
-    }
-    
-    /**
      * Get the full TSV data store
      * @param status Indicates the success or failure of the operation
      * @return the full TSV data store
@@ -504,17 +415,17 @@ public class PhenotypePage {
     /**
      * Internal validation comparing a loaded <code>pageMap</code> store with a
      * loaded <code>downloadData</code> store
-     * @param pageMap A loaded phenotypes table store
+     * @param pageData A loaded phenotypes table store
      * @param downloadData a loaded download store
      * @return status
      */
-    private PageStatus validateDownload(GridMap pageMap, GridMap downloadData) {
+    private PageStatus validateDownload(GridMap pageData, GridMap downloadData) {
         PageStatus status = new PageStatus();
         
-        // Check that the phenotypes table page line count equals the download stream line count.
+        // Validate the phenotypes table page line count against the download stream line count.
         // Since the phenotypes table contains a single row for both sexes but the download file
         // contains a row for every sex, use the phenotypes table's sex count rather than the row count.
-        int sexIconCount = TestUtils.getSexIconCount(pageMap, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
+        int sexIconCount = TestUtils.getSexIconCount(pageData, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
         int bufferedSexIconCount = (int)Math.round(Math.floor(sexIconCount * 1.5));
         
         // If the phenotypes sex count is not equal to the download row count, then:
@@ -536,22 +447,41 @@ public class PhenotypePage {
         
         int errorCount = 0;
 
-        // If the sex is "both", compare the first pheno row to the first ("female") download row
-        // and the second ("male") download row.
-        String downloadCell = downloadData.getCell(0, DownloadPhenotypeMap.COL_INDEX_SEX).trim();
-        String pageCell = pageMap.getCell(0, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX).trim();
-        if (pageCell.equals("both")) {
-            if (downloadCell.equals("female")) {
-                errorCount += compareRowData(pageMap, downloadData, 1, 1);      // download data is ordered 'female', then 'male'. Always check in the order "female", then "male".
-                errorCount += compareRowData(pageMap, downloadData, 1, 2);
-            } else {
-                errorCount += compareRowData(pageMap, downloadData, 1, 2);      // download data is ordered 'male', then 'female'. Always check in the order "female", then "male".
-                errorCount += compareRowData(pageMap, downloadData, 1, 1);
-            }
-        } else {
-            errorCount += compareRowData(pageMap, downloadData, 1, 1);
-        }
+        final int[] pageColumns = {
+              PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GENE_ALLELE
+            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_ZYGOSITY
+            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPE
+            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER
+            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER
+            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SOURCE
+            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH
+        };
+        final int[] downloadColumns = {
+              DownloadPhenotypeMap.COL_INDEX_ALLELE
+            , DownloadPhenotypeMap.COL_INDEX_ZYGOSITY
+            , DownloadPhenotypeMap.COL_INDEX_PHENOTYPE
+            , DownloadPhenotypeMap.COL_INDEX_PROCEDURE_PARAMETER
+            , DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER
+            , DownloadPhenotypeMap.COL_INDEX_SOURCE
+            , DownloadPhenotypeMap.COL_INDEX_GRAPH
+        };
         
+        // Create a pair of sets: one from the page, the other from the download.
+        Set pageSet = TestUtils.createSet(pageData, pageColumns);
+        Set downloadSet = TestUtils.createSet(downloadData, downloadColumns);
+        
+        Set difference = TestUtils.cloneStringSet(pageSet);
+        difference.removeAll(downloadSet);
+        if ( ! difference.isEmpty()) {
+            System.out.println("ERROR: The following data was found on the page but not in the download:");
+            Iterator it = difference.iterator();
+            while (it.hasNext()) {
+                String value = (String)it.next();
+                System.out.println(value);
+                errorCount++;
+            }
+        }
+
         if (errorCount > 0) {
             status.addError("Mismatch.");
         }
