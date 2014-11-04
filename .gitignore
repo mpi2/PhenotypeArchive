@@ -42,3 +42,7 @@ datasourcesConfig.properties
 /nbactions.xml
 /nbactions-web-tests.xml
 /nbactions-beta-web-tests.xml
+
+# Auto-generated Solr files
+/src/main/solr/*/core.properties
+/src/main/solr/*/data
