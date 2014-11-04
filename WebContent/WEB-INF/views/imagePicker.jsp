@@ -49,6 +49,7 @@
                                 <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
                                 	<option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
    										<c:if test="${not empty img.sex}">${img.sex}</c:if>
+   										<%-- <c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}</c:if> --%>
    										<%-- <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if> --%>
    									</option>
                              	</c:forEach>
@@ -65,6 +66,7 @@
                                 <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}">
                                     <c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
    									<c:if test="${not empty img.sex}">${img.sex}</c:if>
+   									<%-- <c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}</c:if> --%>
    									<%-- <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if> --%>
    								</option>
                             </c:forEach>
