@@ -40,6 +40,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -51,6 +52,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.MPHPBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.MPStrainBean;
@@ -76,6 +78,8 @@ public class MPIndexer {
 	/** Destination Solr core */
 	private static final String MP_URL="http://localhost:8983/solr/mp";
 	
+	private static final int BATCH_SIZE = 500;
+	
 	private final SolrServer alleleCore;
 	private final SolrServer imagesCore;
 	private final SolrServer preqcCore;
@@ -99,13 +103,17 @@ public class MPIndexer {
 
 	// MA Term mappings
 	Map<String, List<MPTermNodeBean>> maTermNodes;
-	Map<String, List<String>> maInferredSelectedTermNodes;
+	Map<String, List<String>> maTopLevelNodes;
+	Map<String, List<MPTermNodeBean>> maChildLevelNodes;
 	Map<String, List<String>> maTermSynonyms;
+	
+	// Alleles
+	Map<String, AlleleDTO> alleles;
 	
 	// Phenotype call summaries (1)
 	Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
 	Map<String, List<String>> impcBeans;
-	Map<String, List<String>> legeacyBeans;
+	Map<String, List<String>> legacyBeans;
 	
 	// Phenotype call summaries (2)
 	Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
@@ -120,8 +128,14 @@ public class MPIndexer {
 		this.mpCore = new HttpSolrServer(MP_URL);
 	}
 	
-	public void run() throws SolrServerException, SQLException {
+	public void run() throws SolrServerException, SQLException, IOException {
+		logger.info("Starting MP Indexer...");
 		initialiseSupportingBeans();
+		
+		List<MpDTO> mpBatch = new ArrayList<>(BATCH_SIZE);
+		int count = 0;
+		
+		logger.info("Starting indexing loop");
 		
 		// Loop through the mp_term_infos
 		String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001' order by ti.term_id";
@@ -143,7 +157,26 @@ public class MPIndexer {
 			mp.setOntologySubset(ontologySubsets.get(termId));
 			mp.setMpTermSynonym(mpTermSynonyms.get(termId));
 			mp.setGoId(goIds.get(termId));
+			addMaRelationships(mp, termId);
+			addPhenotype1(mp);
+			addPhenotype2(mp);
+			
+			mpBatch.add(mp);
+			if (mpBatch.size() == BATCH_SIZE) {
+				// Update the batch, clear the list
+				mpCore.addBeans(mpBatch, 60000);
+				mpBatch.clear();
+				count += BATCH_SIZE;
+				logger.info("Indexed {} beans", count);
+			}
 		}
+		
+		// Make sure the last batch is indexed
+		mpCore.addBeans(mpBatch, 60000);
+		count += mpBatch.size();
+		logger.info("Indexed {} beans", count);
+		
+		logger.info("MP Indexer complete!");
 	}
 	
 	private void initialiseSupportingBeans() throws SQLException, SolrServerException {
@@ -165,13 +198,17 @@ public class MPIndexer {
 
 		// MA Term mappings
 		maTermNodes = getMATermNodes();
-		maInferredSelectedTermNodes = getInferredSelectedMATermNodes();
+		maTopLevelNodes = getMaTopLevelNodes();
+		maChildLevelNodes = getMAChildLevelNodes();
 		maTermSynonyms = getMATermSynonyms();
+		
+		// Alleles
+		alleles = getAlleles();
 		
 		// Phenotype call summaries (1)
 		phenotypes1 = getPhenotypeCallSummary1();
 		impcBeans = getImpcPipe();
-		legeacyBeans = getLegacyPipe();
+		legacyBeans = getLegacyPipe();
 		
 		// Phenotype call summaries (2)
 		phenotypes2 = getPhenotypeCallSummary2();
@@ -395,7 +432,7 @@ public class MPIndexer {
 		return beans;
 	}
 	
-	private Map<String, List<String>> getInferredSelectedMATermNodes() throws SQLException {
+	private Map<String, List<String>> getMaTopLevelNodes() throws SQLException {
 		Map<String, List<String>> beans = new HashMap<>();
 		
 		String q = "select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
@@ -412,6 +449,31 @@ public class MPIndexer {
 			count ++;
 		}
 		logger.debug("Loaded {} inferred selected MA term nodes", count);
+		
+		return beans;
+	}
+	
+	private Map<String, List<MPTermNodeBean>> getMAChildLevelNodes() throws SQLException {
+		Map<String, List<MPTermNodeBean>> beans = new HashMap<>();
+		
+		String q = "select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id";
+		PreparedStatement ps = ontoDbConnection.prepareStatement(q);
+		ResultSet rs = ps.executeQuery();
+		int count = 0;
+		while (rs.next()) {
+			String tId = rs.getString("parent_ma_id");
+			String maTermId = rs.getString("child_ma_id");
+			String maTermName = rs.getString("child_ma_term");
+			MPTermNodeBean bean = new MPTermNodeBean();
+			bean.setTermId(maTermId);
+			bean.setName(maTermName);
+			if (!beans.containsKey(tId)) {
+				beans.put(tId, new ArrayList<MPTermNodeBean>());
+			}
+			beans.get(tId).add(bean);
+			count ++;
+		}
+		logger.debug("Loaded {} MA child term nodes", count);
 		
 		return beans;
 	}
@@ -478,6 +540,30 @@ public class MPIndexer {
 		
 		return beans;
 	}
+	
+	
+	private Map<String, AlleleDTO> getAlleles() throws SolrServerException {
+		Map<String, AlleleDTO> alleles = new HashMap<>();
+		
+		int pos = 0;
+		long total = Integer.MAX_VALUE;
+		SolrQuery query = new SolrQuery("*:*");
+		query.setRows(BATCH_SIZE);
+		while (pos < total) {
+			query.setStart(pos);
+			QueryResponse response = alleleCore.query(query);
+			total = response.getResults().getNumFound();
+			List<AlleleDTO> alleleList = response.getBeans(AlleleDTO.class);
+			for (AlleleDTO allele : alleleList) {
+				alleles.put(allele.getMgiAccessionId(), allele);
+			}
+			pos += BATCH_SIZE;
+		}
+		logger.debug("Loaded {} alleles", alleles.size());
+		
+		return alleles;
+	}
+	
 	
 	private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1() throws SQLException {
 		Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
@@ -743,8 +829,224 @@ public class MPIndexer {
 		mp.setParentMpTermSynonym(new ArrayList<String>(parentSynonyms));
 	}
 	
-	private void addTermSubsets(MpDTO mp) {
-		mp.setOntologySubset(ontologySubsets.get(mp.getMpId()));
+	private void addMaRelationships(MpDTO mp, String termId) {
+		List<String> maInferredIds = new ArrayList<>();
+		List<String> maInferredTerms = new ArrayList<>();
+		Set<String> maInferredSynonyms = new HashSet<>();
+		List<String> maTopLevelTermIds = new ArrayList<>();
+		List<String> maTopLevelTerms = new ArrayList<>();
+		Set<String> maTopLevelSynonyms = new HashSet<>();
+		List<String> maChildLevelTermIds = new ArrayList<>();
+		List<String> maChildLevelTerms = new ArrayList<>();
+		Set<String> maChildLevelSynonyms = new HashSet<>();
+		
+		for (MPTermNodeBean maNode : maTermNodes.get(termId)) {
+			String maNodeTermId = maNode.getTermId();
+			maInferredIds.add(maNodeTermId);
+			maInferredTerms.add(maNode.getName());
+			
+			// Look up the synonyms
+			maInferredSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
+			
+			// Look up the top level mappings
+			if (maTopLevelNodes.containsKey(maNodeTermId)) {
+				for (String maTopLevelNodeTerm : maTopLevelNodes.get(maNodeTermId)) {
+					maTopLevelTermIds.add(maNodeTermId);
+					maTopLevelTerms.add(maTopLevelNodeTerm);
+				}
+				maTopLevelSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
+			}
+			
+			// Look up the child level mappings
+			if (maChildLevelNodes.containsKey(maNodeTermId)) {
+				for (MPTermNodeBean childNode : maChildLevelNodes.get(maNodeTermId)) {
+					maChildLevelTermIds.add(childNode.getTermId());
+					maChildLevelTerms.add(childNode.getName());
+					
+					maChildLevelSynonyms.addAll(lookupMaSynonyms(childNode.getTermId()));
+				}
+			}
+		}
+		
+		mp.setInferredMaTermId(maInferredIds);
+		mp.setInferredMaTerm(maInferredTerms);
+		mp.setInferredMaTermSynonym(new ArrayList<String>(maInferredSynonyms));
+		mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
+		mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
+		mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>(maTopLevelSynonyms));
+		mp.setInferredChildMaId(maChildLevelTermIds);
+		mp.setInferredChildMaTerm(maChildLevelTerms);
+		mp.setInferredChildMaTermSynonym(new ArrayList<String>(maChildLevelSynonyms));
+	}
+	
+	private Set<String> lookupMaSynonyms(String maTermId) {
+		Set<String> synonyms = new HashSet<>();
+		
+		if (maTermSynonyms.containsKey(maTermId)) {
+			synonyms.addAll(maTermSynonyms.get(maTermId));
+		}
+		
+		return synonyms;
+	}
+	
+	private void addPhenotype1(MpDTO mp) {
+		mp.setMgiAccessionId(new ArrayList<String>());
+		mp.setLatestPhenotypeStatus(new ArrayList<String>());
+		
+		for (PhenotypeCallSummaryBean pheno1 : phenotypes1.get(mp.getMpId())) {
+			mp.getMgiAccessionId().add(pheno1.getGfAcc());
+			if (impcBeans.containsKey(pheno1.getMpMgi())) {
+				// From JS mapping script - row.get('impc')
+				mp.getLatestPhenotypeStatus().add("Phenotyping Complete");
+			}
+			if (legacyBeans.containsKey(pheno1.getMpMgi())) {
+				// From JS mapping script - row.get('legacy')
+				mp.setLegacyPhenotypeStatus(1);
+			}
+			addPreQc(mp, pheno1.getGfAcc());
+			addAllele(mp, alleles.get(pheno1.getGfAcc()), false);
+		}
+	}
+	
+	private void addPreQc(MpDTO mp, String gfAcc) {
+		SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id=\"" + gfAcc + "\"");
+		query.setFields("mp_term_id", "marker_accession_id");
+		try {
+			QueryResponse response = preqcCore.query(query);
+			for (SolrDocument doc : response.getResults()) {
+				if (doc.getFieldValue("mp_term_id") != null) {
+					// From JS mapping script - row.get('preqc_mp_id')
+					mp.getLatestPhenotypeStatus().add("Phenotyping Started");
+				}
+			}
+		} catch (SolrServerException e) {
+			logger.error("Caught error accessing PreQC core: {}", e.getMessage());
+		}
+	}
+	
+	private void addAllele(MpDTO mp, AlleleDTO allele, boolean includeStatus) {
+		if (allele != null) {
+			initialiseAlleleFields(mp);
+		}
+		
+		// Copy the fields from the allele to the MP
+		// NO TYPE FIELD IN ALLELE DATA!!! mp.getType().add(???)
+		mp.getDiseaseSource().addAll(allele.getDiseaseSource());
+		mp.getDiseaseTerm().addAll(allele.getDiseaseTerm());
+		mp.getDiseaseAlts().addAll(allele.getDiseaseAlts());
+		mp.getDiseaseClasses().addAll(allele.getDiseaseClasses());
+		mp.getHumanCurated().addAll(allele.getHumanCurated());
+		mp.getMouseCurated().addAll(allele.getMouseCurated());
+		mp.getMgiPredicted().addAll(allele.getMgiPredicted());
+		mp.getImpcPredicted().addAll(allele.getImpcPredicted());
+		mp.getDiseaseHumanPhenotypes().addAll(allele.getDiseaseHumanPhenotypes());
+		mp.getMgiPredictedKnownGene().addAll(allele.getMgiPredictedKnownGene());
+		mp.getImpcPredictedKnownGene().addAll(allele.getImpcPredictedKnownGene());
+		mp.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
+		mp.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
+		mp.getMarkerSymbol().add(allele.getMarkerSymbol());
+		mp.getMarkerName().add(allele.getMarkerName());
+		mp.getMarkerSynonym().addAll(allele.getMarkerSynonym());
+		mp.getMarkerType().add(allele.getMarkerType());
+		mp.getHumanGeneSymbol().addAll(allele.getHumanGeneSymbol());
+		// NO STATUS FIELD IN ALLELE DATA!!! mp.getStatus().add(allele.getStatus());
+		mp.getImitsPhenotypeStarted().add(allele.getImitsPhenotypeStarted());
+		mp.getImitsPhenotypeComplete().add(allele.getImitsPhenotypeComplete());
+		mp.getImitsPhenotypeStatus().add(allele.getImitsPhenotypeStatus());
+		mp.getLatestProductionCentre().addAll(allele.getLatestProductionCentre());
+		mp.getLatestPhenotypingCentre().addAll(allele.getLatestPhenotypingCentre());
+		mp.getAlleleName().addAll(allele.getAlleleName());
+		
+		if (includeStatus && allele.getMgiAccessionId() != null) {
+			mp.getLatestPhenotypeStatus().add("Phenotyping Started");
+		}
+	}
+	
+	private void initialiseAlleleFields(MpDTO mp) {
+		if (mp.getType() == null) {
+			mp.setType(new ArrayList<String>());
+			mp.setDiseaseSource(new ArrayList<String>());
+			mp.setDiseaseTerm(new ArrayList<String>());
+			mp.setDiseaseAlts(new ArrayList<String>());
+			mp.setDiseaseClasses(new ArrayList<String>());
+			mp.setHumanCurated(new ArrayList<Boolean>());
+			mp.setMouseCurated(new ArrayList<Boolean>());
+			mp.setMgiPredicted(new ArrayList<Boolean>());
+			mp.setImpcPredicted(new ArrayList<Boolean>());
+			mp.setDiseaseHumanPhenotypes(new ArrayList<String>());
+			mp.setMgiPredictedKnownGene(new ArrayList<Boolean>());
+			mp.setImpcPredictedKnownGene(new ArrayList<Boolean>());
+			mp.setMgiNovelPredictedInLocus(new ArrayList<Boolean>());
+			mp.setImpcNovelPredictedInLocus(new ArrayList<Boolean>());
+			// MGI accession ID should already be set
+			mp.setMarkerSymbol(new ArrayList<String>());
+			mp.setMarkerName(new ArrayList<String>());
+			mp.setMarkerSynonym(new ArrayList<String>());
+			mp.setMarkerType(new ArrayList<String>());
+			mp.setHumanGeneSymbol(new ArrayList<String>());
+			mp.setStatus(new ArrayList<String>());
+			mp.setImitsPhenotypeStarted(new ArrayList<String>());
+			mp.setImitsPhenotypeComplete(new ArrayList<String>());
+			mp.setImitsPhenotypeStatus(new ArrayList<String>());
+			mp.setLatestProductionCentre(new ArrayList<String>());
+			mp.setLatestPhenotypingCentre(new ArrayList<String>());
+			mp.setAlleleName(new ArrayList<String>());
+			mp.setPreqcGeneId(new ArrayList<String>());
+		}
+	}
+	
+	private void addPhenotype2(MpDTO mp) {
+		if (phenotypes2.containsKey(mp.getMpId())) {
+
+			for (PhenotypeCallSummaryBean pheno2 : phenotypes2.get(mp.getMpId())) {
+				addStrains(mp, pheno2.getStrainAcc());
+				addParamProcPipeline(mp, pheno2.getParamProcPipelineId());
+			}
+		}
+	}
+	
+	private void addStrains(MpDTO mp, String strainAcc) {
+		if (strains.containsKey(strainAcc)) {
+			if (mp.getStrainId() == null) {
+				// Initialise the strain lists
+				mp.setStrainId(new ArrayList<String>());
+				mp.setStrainName(new ArrayList<String>());
+			}
+			
+			for (MPStrainBean strain : strains.get(strainAcc)) {
+				mp.getStrainId().add(strain.getAcc());
+				mp.getStrainName().add(strain.getName());
+			}
+		}
+	}
+	
+	private void addParamProcPipeline(MpDTO mp, String pppId) {
+		if (pppBeans.containsKey(pppId)) {
+			if (mp.getParameterName() == null) {
+				// Initialise the PPP lists
+				mp.setParameterName(new ArrayList<String>());
+				mp.setParameterStableId(new ArrayList<String>());
+				mp.setParameterStableKey(new ArrayList<String>());
+				mp.setProcedureName(new ArrayList<String>());
+				mp.setProcedureStableId(new ArrayList<String>());
+				mp.setProcedureStableKey(new ArrayList<String>());
+				mp.setPipelineName(new ArrayList<String>());
+				mp.setPipelineStableId(new ArrayList<String>());
+				mp.setPipelineStableKey(new ArrayList<String>());
+			}
+			
+			for (ParamProcedurePipelineBean pppBean : pppBeans.get(pppId)) {
+				mp.getParameterName().add(pppBean.getParameterName());
+				mp.getParameterStableId().add(pppBean.getParameterStableId());
+				mp.getParameterStableKey().add(pppBean.getParameterStableKey());
+				mp.getProcedureName().add(pppBean.getProcedureName());
+				mp.getProcedureStableId().add(pppBean.getProcedureStableId());
+				mp.getProcedureStableKey().add(pppBean.getProcedureStableKey());
+				mp.getPipelineName().add(pppBean.getPipelineName());
+				mp.getPipelineStableId().add(pppBean.getPipelineStableId());
+				mp.getPipelineStableKey().add(pppBean.getPipelineStableKey());
+			}
+		}
 	}
 	
 
