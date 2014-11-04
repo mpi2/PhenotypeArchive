@@ -88,7 +88,7 @@
     </bean>
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
-        <constructor-arg value="${internalSolrUrl}/experiment" />
+        <constructor-arg value="${buildIndexesSolrUrl}/experiment" />
     </bean>
 
 
@@ -102,7 +102,7 @@
     </bean>
 
     <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-        <constructor-arg value="${internalSolrUrl}/experiment" />
+        <constructor-arg value="${buildIndexesSolrUrl}/experiment" />
     </bean>
 
     <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
