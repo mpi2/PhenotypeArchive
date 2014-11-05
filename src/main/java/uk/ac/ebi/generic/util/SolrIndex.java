@@ -129,7 +129,7 @@ public class SolrIndex {
 			String gridSolrParams, String gridFields, int start, int length)
 			throws IOException, URISyntaxException {
 
-		System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
+//		System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
 		
 		if (core.equals("gene")) {			
 			//gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
@@ -174,14 +174,14 @@ public class SolrIndex {
 		String internalSolrUrl = config.get("internalSolrUrl");
 		String url = internalSolrUrl + "/" + core + "/select?";
 						
-		System.out.println(("BASEURL: " + url));
+//		System.out.println(("BASEURL: " + url));
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";
 		} else if (mode.equals("geneGrid")) {			
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
-			System.out.println("GENE PARAMS: " + url);
+//			System.out.println("GENE PARAMS: " + url);
 		} else if (mode.equals("pipelineGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
@@ -192,11 +192,11 @@ public class SolrIndex {
 			if (!showImgView) {
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
-			System.out.println("IMG PARAMS: " + url);
+//			System.out.println("IMG PARAMS: " + url);
 		} else if (mode.equals("mpGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
-			System.out.println("MP PARAMS: " + url);
+//			System.out.println("MP PARAMS: " + url);
 		} else if (mode.equals("maGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
@@ -473,7 +473,7 @@ public class SolrIndex {
 		String content = "";
 
 		log.debug("GETTING CONTENT FROM: " + url);
-		System.out.println("CHK URL: " + url);
+//		System.out.println("CHK URL: " + url);
 		if (drupalProxy != null) {
 			content = drupalProxy.getContent(new URL(url));
 		} else {

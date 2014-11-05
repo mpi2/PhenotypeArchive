@@ -45,12 +45,12 @@ public class ImageService {
 		SolrQuery solrQuery = new SolrQuery();
 		String[] paramsKeyValues = query.split("&");
 		for (String paramKV : paramsKeyValues) {
-			System.out.println("paramKV=" + paramKV);
+//			System.out.println("paramKV=" + paramKV);
 			String[] keyValue = paramKV.split("=");
 			if (keyValue.length > 1) {
 				String key = keyValue[0];
 				String value = keyValue[1];
-				System.out.println("param=" + key + " value=" + value);
+//				System.out.println("param=" + key + " value=" + value);
 				solrQuery.setParam(key, value);
 			}
 
@@ -62,7 +62,7 @@ public class ImageService {
 		// response wrapper???
 		if (facetFields != null) {
 			for (FacetField facetField : facetFields) {
-				System.out.println("facetFields=" + facetField.getName() + facetField.getValueCount() + facetField.getValues());
+//				System.out.println("facetFields=" + facetField.getName() + facetField.getValueCount() + facetField.getValues());
 			}
 		}
 
@@ -90,7 +90,7 @@ public class ImageService {
 			if (keyValue.length > 1) {
 				String key = keyValue[0];
 				String value = keyValue[1];
-				System.out.println("param=" + key + " value=" + value);
+//				System.out.println("param=" + key + " value=" + value);
 				solrQuery.setParam(key, value);
 			}
 
@@ -181,7 +181,7 @@ public class ImageService {
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("images experimental query=" + solrQuery);
+//		System.out.println("images experimental query=" + solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -499,7 +499,7 @@ public class ImageService {
 		String result = StringUtils.join(omeroIds, " OR ");
 		omeroIdString += result + ")";
 		solrQuery.setQuery(omeroIdString);
-		System.out.println(omeroIdString);
+//		System.out.println(omeroIdString);
 		// solrQuery.setRows(0);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
