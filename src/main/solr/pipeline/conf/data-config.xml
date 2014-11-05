@@ -28,8 +28,7 @@
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />     
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="60000"/>        
 	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="60000"/>
-	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="60000"/> 
-	
+
 	<document name="mega_pipeline_indexing">
 
 		<!-- IMPC pipeline -->
@@ -77,25 +76,6 @@
 						<field column="proc_param_name" name="proc_param_name" />
 					</entity>
 
-					<!-- images annotated to this procedure -->
-					<!-- parameter_stable_id M-G-P_006_001_005 is taking forever to complete
-					<entity dataSource="images_core" name="imgCore" 
-						stream="true" 
-						url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=99999999" 
-						onError="continue"
-						processor="XPathEntityProcessor" 
-						forEach="/response/result/doc/"
-						readTimeout="10000" 
-						connectionTimeout="10000" >
-						
-						<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
-						<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
-						<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
-						<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-					
-					</entity>
-					-->
-
 					<!-- only want IMPress related pipeline -->
 					<entity dataSource="komp2db" name="phenotype_pipeline_procedure" 
 						processor="CachedSqlEntityProcessor" 
@@ -125,7 +105,7 @@
 								<!-- other fields from gene core -->
 								<entity dataSource="allele_core" name="gdoc" 
 									stream="true" 
-									url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1"	
+									url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1&amp;fl=marker_type,marker_symbol,marker_synonym,marker_name,human_gene_symbol,status,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status,latest_production_centre,latest_phenotyping_centre,latest_phenotype_status,legacy_phenotype_status"
 									processor="XPathEntityProcessor" 
 									forEach="/response/result/doc/"
 									readTimeout="10000" connectionTimeout="10000" >
@@ -163,7 +143,7 @@
 								<!-- MP annotated to this parameter -->
 								<entity dataSource="mp_core" name="mpCore" 
 									stream="true" 
-									url="q=mp_id:&quot;${phenotype_call_summary.mp_acc}&quot;&amp;wt=normal&amp;rows=99999"
+									url="q=mp_id:&quot;${phenotype_call_summary.mp_acc}&quot;&amp;wt=normal&amp;rows=99999&amp;fl=mp_id,mp_term,mp_definition,mp_term_synonym,ontology_subset,top_level_mp_id,top_level_mp_term,top_level_mp_term_synonym,intermediate_mp_id,intermediate_mp_term,intermediate_mp_term_synonym,child_mp_id,child_mp_term,child_mp_term_synonym,inferred_ma_id,inferred_ma_term,inferred_ma_term_synonym,inferred_selected_top_level_ma_id,inferred_selected_top_level_ma_term,inferred_selected_top_level_ma_term_synonym,inferred_child_ma_id,inferred_child_ma_term,inferred_child_ma_term_synonym"
 									processor="XPathEntityProcessor" 
 									forEach="/response/result/doc/" 
 									onError="continue"
