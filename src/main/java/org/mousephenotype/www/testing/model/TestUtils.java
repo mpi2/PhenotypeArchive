@@ -29,8 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -212,6 +214,52 @@ public class TestUtils {
         }
         
         return retVal;
+    }
+    
+    /**
+     * Clones an existing set.
+     * @param input set to be cloned
+     * @return a new deep-copy instance of input
+     */
+    public static Set cloneStringSet(Set<String> input) {
+        HashSet resultSet = new HashSet();
+        
+        for (String s : input) {
+            resultSet.add(s);
+        }
+        
+        return resultSet;
+    }
+    
+    /**
+     * Creates a set from <code>input</code> using <code>colIndexes</code>, using
+     * the underscore character as a column delimiter.
+     * 
+     * Example: input.body[][] = "a", "b", "c", "d", "e"
+     *                           "f", "g", "h", "i", "j"
+     * 
+     * colIndexes = 2, 4, 5
+     * 
+     * produces a set that looks like:  "b_d_e_"
+     *                                  "g_i_j_"
+     * @param input Input object
+     * @param colIndexes indexes of columns to be copied
+     * @return a set containing the concatenated values.
+     */
+    public static Set createSet(GridMap input, int[] colIndexes) {
+        HashSet resultSet = new HashSet();
+        
+        String[][] body = input.getBody();
+        for (int rowIndex = 0; rowIndex < body.length; rowIndex++) {
+            String[] row = body[rowIndex];
+            String resultString = "";
+            for (int colIndex : colIndexes) {
+                resultString += row[colIndex] + "_";
+            }
+            resultSet.add(resultString);
+        }
+        
+        return resultSet;
     }
     
     /**
