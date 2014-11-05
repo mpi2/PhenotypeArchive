@@ -707,7 +707,7 @@ public class GenesController {
 
 		List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
 
-                log.info("#### genesAllele...");
+   //             log.info("#### genesAllele...");
 
 		model.addAttribute("alleleProducts", constructs);
 		return "genesAllele";
@@ -719,20 +719,20 @@ public class GenesController {
 
 		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo2(acc);
         
-                log.info("#### genesAllele2...");
-                log.info("#### genesAllele2: constructs2: " + constructs2);
+    //            log.info("#### genesAllele2...");
+   //             log.info("#### genesAllele2: constructs2: " + constructs2);
                 
 		model.addAttribute("alleleProducts2", constructs2);
                 
                 String debug = request.getParameter("debug");
-                log.info("#### genesAllele2: debug: " + debug);        
+    //            log.info("#### genesAllele2: debug: " + debug);        
                 boolean d = debug != null && debug.equals("true");
-                log.info("#### genesAllele2: d: " + d);        
+    //            log.info("#### genesAllele2: d: " + d);        
                 if(d) {
                     model.addAttribute("debug", "true");
                 }
 
-                log.info("#### genesAllele2: model: " + model);
+      //          log.info("#### genesAllele2: model: " + model);
                 
 		return "genesAllele2";
 	}

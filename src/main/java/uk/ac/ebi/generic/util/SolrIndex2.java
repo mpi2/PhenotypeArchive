@@ -610,7 +610,7 @@ public class SolrIndex2 {
                     "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:" + type +
                     "&fq=&start=0&rows=100&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
         }
-        log.info("#### getGeneProductUrlTest: url: " + url);
+//        log.info("#### getGeneProductUrlTest: url: " + url);
         return url;
     }
 
