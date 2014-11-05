@@ -454,6 +454,9 @@ public class SearchPage {
         if (hasImageTable())
             getImageTable().updateImageTableAfterChange();                      // Update the images table to keep it in sync.
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
+        
+        // Sometimes we lose the DOM unless we pause for a second. Don't know what to wait on for clickPageButtn().
+        TestUtils.sleep(1000);
     }
     
     public void clickToolbox(WindowState desiredWindowState) {

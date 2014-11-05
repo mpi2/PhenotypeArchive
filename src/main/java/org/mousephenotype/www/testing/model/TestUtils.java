@@ -233,7 +233,8 @@ public class TestUtils {
     
     /**
      * Creates a set from <code>input</code> using <code>colIndexes</code>, using
-     * the underscore character as a column delimiter.
+     * the underscore character as a column delimiter. Each value is first trimmed,
+     * then lowercased.
      * 
      * Example: input.body[][] = "a", "b", "c", "d", "e"
      *                           "f", "g", "h", "i", "j"
@@ -254,7 +255,7 @@ public class TestUtils {
             String[] row = body[rowIndex];
             String resultString = "";
             for (int colIndex : colIndexes) {
-                resultString += row[colIndex] + "_";
+                resultString += row[colIndex].trim().toLowerCase() + "_";
             }
             resultSet.add(resultString);
         }
