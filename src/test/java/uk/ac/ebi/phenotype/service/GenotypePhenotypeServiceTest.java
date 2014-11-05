@@ -64,7 +64,7 @@ public class GenotypePhenotypeServiceTest {
 
 		List<GenotypePhenotypeDTO> dataset = null;
 		String resource = "IMPC";
-		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource);
 		System.out.println("Top level terms");
 		for (GenotypePhenotypeDTO map: dataset) {
 			System.out.println(" Phenotyping center:" + map.getPhenotypingCenter());
@@ -82,7 +82,7 @@ public class GenotypePhenotypeServiceTest {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
 		List<GenotypePhenotypeDTO> dataset = null;
 		String resource = "IMPC";
-		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME);
+		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource);
 		System.out.println("Intermediate level terms");
 		for (GenotypePhenotypeDTO map: dataset) {
 			System.out.println(" Phenotyping center:" + map.getPhenotypingCenter());
@@ -102,7 +102,7 @@ public class GenotypePhenotypeServiceTest {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
 		List<GenotypePhenotypeDTO> dataset = null;
 		String resource = "IMPC";
-		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME);
+		dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource);
 		System.out.println("Mp terms");
 		for (GenotypePhenotypeDTO map: dataset) {
 			System.out.println(" Phenotyping center:" + map.getPhenotypingCenter());
