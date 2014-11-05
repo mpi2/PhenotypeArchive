@@ -68,7 +68,7 @@
     </bean>
 
     <bean id="preqcIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc"/>
+        <constructor-arg index="0" value="IMPC_SOLRURL/preqc"/>
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
