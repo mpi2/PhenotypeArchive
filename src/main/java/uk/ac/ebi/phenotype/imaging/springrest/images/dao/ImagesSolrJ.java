@@ -116,7 +116,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	private QueryResponse runFacetQuery(String query, String facetField, int start, int length, String filterQuery) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
-		System.out.println("facet solr query=" + query);
+	//	System.out.println("facet solr query=" + query);
 		solrQuery.setQuery(query);
 		solrQuery.setStart(start);
 		solrQuery.setRows(length);
@@ -126,7 +126,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		if (filterQuery != "") {
 			solrQuery.addFilterQuery(filterQuery);
 		}
-		System.out.println("exp facet query="+solrQuery.toString());
+	//	System.out.println("exp facet query="+solrQuery.toString());
 		return server.query(solrQuery);
 	}
 
@@ -134,14 +134,14 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	public QueryResponse getExperimentalFacetForGeneAccession(String geneId) throws SolrServerException {
 		String processedGeneId = SolrUtils.processQuery(geneId);
 		QueryResponse solrResp = this.runFacetQuery("accession:"+processedGeneId,"expName", 0,1, "");
-		System.out.println("images solr expression response number docs="+solrResp.getResults().size());
+//		System.out.println("images solr expression response number docs="+solrResp.getResults().size());
 		return solrResp;
 	}
 	
 	@Override
 	public QueryResponse getExpressionFacetForGeneAccession(String geneId) throws SolrServerException {
 		String processedGeneId = SolrUtils.processQuery(geneId);
-		System.out.println("processedGeneId="+processedGeneId);
+//		System.out.println("processedGeneId="+processedGeneId);
 		log.debug("eventually gene id will be here and we'll need an extra filter");
 		//changed facet field from annotated_or_inferred_higherLevelMaTermName to as old field not there anymore higherLevelMaTermName
 		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","selected_top_level_ma_term", 0,5, "accession:"+processedGeneId);
