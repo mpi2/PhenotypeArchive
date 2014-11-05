@@ -66,18 +66,33 @@
 
             <c:if test="${phenotype.isPreQc()}">
             <td style="text-align:center;color:#EF7B0B;">
+            <c:if test="${not fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001926') && not fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001925') }">
                 <a href="${phenotype.graphUrl }" class="fancybox" style="color:#EF7B0B;;text-decoration:none;">
                     <i class="fa fa-bar-chart-o" alt="Graphs"></i>
                     <i class="fa fa-exclamation" title="This is a preliminary association based on pre QC data."></i>
                 </a>
+                </c:if>
+                <c:if test="${fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001926') || fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001925') }">
+                
+                    <i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
+                    <i class="fa fa-exclamation" title="This is a preliminary association based on pre QC data."></i>
+                
+                </c:if>
             </td>
             </c:if>
 
             <c:if test="${not phenotype.isPreQc()}">
-                <td style="text-align:center;">
-                    <a href="${phenotype.graphUrl }" class="fancybox"><i class="fa fa-bar-chart-o" alt="Graphs"></i>
-                    </a>
-                </td>
+            	
+                	<td style="text-align:center;">
+                		<c:if test="${not fn:containsIgnoreCase(phenotype.graphUrl, 'IMPC_FER_') }">
+                    		<a href="${phenotype.graphUrl }" class="fancybox"><i class="fa fa-bar-chart-o" alt="Graphs"></i>
+                    		</a>
+                    	</c:if>
+                    	<c:if test="${fn:containsIgnoreCase(phenotype.graphUrl, 'IMPC_FER_') }">
+                    		<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
+                    	</c:if>
+                	</td>
+                
             </c:if>
 
 
