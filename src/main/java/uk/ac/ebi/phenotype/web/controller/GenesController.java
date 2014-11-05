@@ -251,7 +251,9 @@ public class GenesController {
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
+			if(!new Boolean((String) request.getAttribute("liveSite"))){
 			getImpcImages(acc, model);
+			}
 
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
