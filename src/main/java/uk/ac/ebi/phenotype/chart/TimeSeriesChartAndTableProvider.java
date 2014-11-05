@@ -209,8 +209,6 @@ public class TimeSeriesChartAndTableProvider {
 				// with strings sooner
 
 				series.put(errorBarsObject);
-				// System.out.println("object for point data="+object);
-				// System.out.println("errorbars="+errorBarsObject);
 				// if(i==0) {
 				// seriesString+=",";
 				// }

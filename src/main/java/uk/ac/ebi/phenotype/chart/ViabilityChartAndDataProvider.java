@@ -21,7 +21,6 @@ public class ViabilityChartAndDataProvider {
 	
 	
 	public ViabilityDTO doViabilityData(Parameter parameter, ViabilityDTO viabilityDTO) {
-		System.out.println("calling do viabiltyData!");
 		//we need 3 sets of data for the 3 graphs
 		Map<String, ObservationDTO> paramStableIdToObservation = viabilityDTO.getParamStableIdToObservation();
 		List<ObservationDTO> totals=new ArrayList<>();

@@ -21,7 +21,6 @@ public class FertilityChartAndDataProvider {
 
 	public FertilityDTO doFertilityData(Parameter parameter, FertilityDTO fertility) {
 
-		System.out.println("calling do fertilityData!");
 		// we need 3 sets of data for the 3 graphs
 		Map<String, ObservationDTO> paramStableIdToObservation = fertility.getParamStableIdToObservation();
 //		List<ObservationDTO> totals = new ArrayList<>();

@@ -20,7 +20,6 @@ String pieChart="";
 		colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		}else{
 			for(Entry<String, Integer> entry: labelToNumber.entrySet()){
-				System.out.println("entry="+entry.getKey()+" "+entry.getValue());
 				if(entry.getKey().contains("WT")){
 					colors.add(map.get("WT"));
 				}
@@ -35,7 +34,6 @@ String pieChart="";
 				}
 			}
 		}
-		System.out.println("colors in pie chart="+colors);
 		
 		String chart = "$(function () { $('#"+chartId+"').highcharts({ "
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	

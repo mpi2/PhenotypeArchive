@@ -45,7 +45,6 @@ public class ChartUtils {
 				int pointIndex=dString.indexOf(".");
 				int length=dString.length();
 				int tempNumber=length-(pointIndex+1);
-				//System.out.println(tempNumber);
 				if(tempNumber>numberOfDecimalPlaces)numberOfDecimalPlaces=tempNumber;
 				i++;
 				if(i>100)break;//only sample the first 100 hopefully representative
