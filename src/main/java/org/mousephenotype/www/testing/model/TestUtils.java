@@ -37,6 +37,7 @@ import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -472,6 +473,27 @@ public class TestUtils {
      */
     public static void scrollToTop(WebDriver driver, WebElement element) {
         scrollToTop(driver, element, null);
+    }
+    
+    /**
+     * There is a selenium bug that silently removes opening parentheses from
+     * a sendkeys string. See http://stackoverflow.com/questions/19704559/selenium-sendkeys-not-working-for-open-brackets-and-harsh-keys-when-using-java
+     * 
+     * This is the workaround.
+     * 
+     * @param element <code>WebElement</code> against which to use the sendKeys
+     * @param text the text to send (may contain open parenthesis)
+     */
+    public static void seleniumSendKeysHack(WebElement element, String text) {
+        char[] chars = text.toCharArray();
+        for (char c : chars) {
+            if (c == '(') {
+                element.sendKeys(Keys.chord(Keys.SHIFT, "9"));
+            } else {
+                StringBuffer sb = new StringBuffer().append(c);
+                element.sendKeys(sb);
+            }
+        }
     }
     
     /**
