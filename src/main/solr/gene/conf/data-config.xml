@@ -100,7 +100,7 @@
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" 
 				stream="true" 
-				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=99999"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=99999&amp;fl=mp_id,mp_term,mp_definition,mp_term_synonym,ontology_subset,hp_id,hp_term,top_level_mp_id,top_level_mp_term,top_level_mp_term_synonym,intermediate_mp_id,intermediate_mp_term,intermediate_mp_term_synonym,child_mp_id,child_mp_term,child_mp_term_synonym,inferred_ma_id,inferred_ma_term,inferred_ma_term_synonym,inferred_selected_top_level_ma_id,inferred_selected_top_level_ma_term,inferred_selected_top_level_ma_term_synonym,inferred_child_ma_id,inferred_child_ma_term,inferred_child_ma_term_synonym"
 				processor="XPathEntityProcessor" 
 				forEach="/response/result/doc/" onError="continue"							
 				readTimeout="10000" connectionTimeout="10000"  >
@@ -149,7 +149,7 @@
 									
 				<entity dataSource="pipeline_core" name="pipelineCore" 
 					stream="true" 
-					url="q=*&amp;fq=pipeline_id:${phenotype_call_summary1.pipeline_id}&amp;fq=procedure_id:${phenotype_call_summary1.procedure_id}&amp;fq=parameter_id:${phenotype_call_summary1.parameter_id}&amp;wt=normal&amp;rows=9999999"
+					url="q=*&amp;fq=pipeline_id:${phenotype_call_summary1.pipeline_id}&amp;fq=procedure_id:${phenotype_call_summary1.procedure_id}&amp;fq=parameter_id:${phenotype_call_summary1.parameter_id}&amp;wt=normal&amp;rows=9999999&amp;fl=pipeline_name,procedure_name,parameter_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id,proc_param_name,proc_param_stable_id"
 					processor="XPathEntityProcessor" 
 					forEach="/response/result/doc/"							
 					readTimeout="10000" 
@@ -172,7 +172,7 @@
 			
 		  	<entity dataSource="images_core" name="imgCore" 
 					stream="true" 
-					url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;fl=annotatedHigherLevelMaTermName,annotatedHigherLevelMpTermName&amp;wt=normal&amp;rows=999999999"
+					url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;fl=annotatedHigherLevelMaTermName,annotatedHigherLevelMpTermName&amp;wt=normal&amp;rows=999999999&amp;fl=mp_id,mp_term,mp_term_synonym,intermediate_mp_id,intermediate_mp_term,intermediate_mp_term_synonym,annotatedHigherLevelMpTermName,top_level_mp_term_synonym,ma_id,ma_term,ma_term_synonym,selected_top_level_ma_id,selected_top_level_ma_term,selected_top_level_ma_term_synonym,annotatedHigherLevelMaTermName"
 					processor="XPathEntityProcessor" 
 					forEach="/response/result/doc/"							
 					readTimeout="10000" 
