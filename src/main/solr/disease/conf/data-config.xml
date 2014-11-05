@@ -47,7 +47,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
 			<!-- genes associated with this disease -->
-           	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=disease_id:&quot;${ddoc.disease_id}&quot;&amp;rows=9999999&amp;wt=normal"
+           	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=disease_id:&quot;${ddoc.disease_id}&quot;&amp;rows=9999999&amp;wt=normal&amp;fl=mgi_accession_id,marker_symbol,marker_name,marker_synonym,marker_type,human_gene_symbol,status,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status,latest_production_centre,latest_phenotyping_centre,latest_phenotype_status,legacy_phenotype_status,allele_name,mp_id,mp_term,mp_definition,mp_term_synonym,ontology_subset,hp_id,hp_term,top_level_mp_id,top_level_mp_term,top_level_mp_term_synonym,intermediate_mp_id,intermediate_mp_term,intermediate_mp_term_synonym,child_mp_id,child_mp_term,child_mp_term_synonym"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"                
 				readTimeout="60000" connectionTimeout="30000"  >
    				
