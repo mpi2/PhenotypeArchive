@@ -69,8 +69,6 @@ public class GenePageTableRow extends DataTableRow {
             if (phenotypeOp == 0) {
              	int procedureOp = this.procedure.getName().compareTo(o.procedure.getName());
                 if (procedureOp == 0) {
-                	System.out.println(this.toString());
-                	System.out.println("GenePageTableRow: MP: " + this.phenotypeTerm.getName() + ". P-VALUE: " + getPrValueAsString() + " parameter " + o.parameter.getId());
                     int parameterOp = this.parameter.getName().compareTo(o.parameter.getName());
                     if (parameterOp == 0) {
                         int phenotypingCenterOp = this.phenotypingCenter.compareTo(o.phenotypingCenter);
