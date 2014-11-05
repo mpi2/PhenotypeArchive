@@ -57,7 +57,7 @@
 	<!--this is the phenodigm DAO implementation we are looking for... -->
 	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
-	<!-- Weaves in transactional advice around @Transactional methods -->
+	<!-- Weaves in transactional advice around annotated Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">

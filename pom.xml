@@ -1183,14 +1183,6 @@
 						</includes>
 						<filtering>true</filtering>
 					</resource>
-                    <resource>
-                        <directory>${basedir}/WebContent/WEB-INF</directory>
-                        <filtering>true</filtering>
-                        <targetPath>src/main/resources</targetPath>
-                        <includes>
-                            <include>**/index-app-config.xml</include>
-                        </includes>
-                    </resource>
 				</resources>
 				<pluginManagement>
 					<plugins>
@@ -1303,19 +1295,11 @@
                 <resources>
                     <resource>
                         <directory>src/test/resources</directory>
-                        <targetPath>${basedir}/target/test-classes</targetPath>
-                        <includes>
-                            <include>**/test-config.xml</include>
-                        </includes>
                         <filtering>true</filtering>
                     </resource>
                     <resource>
-                        <directory>${basedir}/WebContent/WEB-INF</directory>
+                        <directory>src/main/resources</directory>
                         <filtering>true</filtering>
-                        <targetPath>src/main/resources</targetPath>
-                        <includes>
-                            <include>**/index-app-config.xml</include>
-                        </includes>
                     </resource>
                 </resources>
 				<plugins>
@@ -1387,9 +1371,8 @@
                         <filtering>true</filtering>
                     </resource>
                     <resource>
-                        <directory>${basedir}/WebContent/WEB-INF</directory>
+                        <directory>src/main/resources</directory>
                         <filtering>true</filtering>
-                        <targetPath>src/main/resources</targetPath>
                         <includes>
                             <include>**/index-app-config.xml</include>
                         </includes>
