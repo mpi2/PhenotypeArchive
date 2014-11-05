@@ -386,8 +386,6 @@ public class PhenomeChartProvider {
 				}
 				categoriesDim++;
 			}
-			System.out.println("TOTAL CATS=" + total);
-
 			// finally extract the data points and generate a point for every
 			// top level categories associated
 				for (PhenotypeCallSummary call : calls) {

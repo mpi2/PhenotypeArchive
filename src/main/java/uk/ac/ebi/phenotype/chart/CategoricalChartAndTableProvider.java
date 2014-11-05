@@ -306,8 +306,6 @@ public class CategoricalChartAndTableProvider {
 	ExperimentDTO experiment)
 	throws SQLException {
 
-		// System.out.println(chartData);
-
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
 		// to not 0 index as using loop count in jsp
 		JSONArray seriesArray = new JSONArray();
@@ -381,7 +379,6 @@ public class CategoricalChartAndTableProvider {
 					// i++;
 				}
 				dataset1.put("data", dataset);
-				// System.out.println("XAxisCat="+xAxisCategoriesArray.get(i));
 				seriesArray.put(dataset1);
 
 			}
@@ -419,7 +416,6 @@ public class CategoricalChartAndTableProvider {
 		chartData.setChart(javascript);
 		chartData.setChartIdentifier(chartId);
 
-		// System.out.println("\n\n" + javascript);
 		return javascript;
 	}
 

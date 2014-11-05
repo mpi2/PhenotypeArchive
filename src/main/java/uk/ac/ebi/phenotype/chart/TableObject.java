@@ -80,8 +80,7 @@ public class TableObject {
 					newRow=this.cellData.get(i);
 				}
 				String cell=column.get(i);
-					System.out.println("adding cell with new row=" + cell);
-					newRow.add( colIndex, cell);
+				newRow.add( colIndex, cell);
 				this.cellData.add(newRow);
 			}
 		}

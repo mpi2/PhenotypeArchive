@@ -52,7 +52,6 @@ public class GraphUtils {
 		List<String> metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
 		List<String> alleleAccessionStrings = keyList.get(ObservationDTO.ALLELE_ACCESSION_ID);
 		List<String> pipelineStableIdStrings = keyList.get(ObservationDTO.PIPELINE_STABLE_ID);
-		// System.out.println("metaDataGroupStrings"+metaDataGroupStrings);
 		// if(metaDataGroupStrings==null){
 		// metaDataGroupStrings=new ArrayList<String>();
 		// metaDataGroupStrings.add("");
@@ -142,7 +141,6 @@ public class GraphUtils {
 			return ChartType.UNIDIMENSIONAL_ABR_PLOT;
 			
 		}else if(parameter.getStableId().equals("IMPC_VIA_001_001")){
-			System.out.println("Pie chart type");
 			return ChartType.PIE;
 			
 		}else{

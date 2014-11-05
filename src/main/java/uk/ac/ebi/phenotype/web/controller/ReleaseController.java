@@ -193,7 +193,6 @@ public class ReleaseController {
 		
 		Map<String, List<AggregateCountXYBean>> topLevelMap = new HashMap<String, List<AggregateCountXYBean>>();
 		for (int i=0; i<topLevelsMPsArray.length; i++) {
-			System.out.println("top_level_"+topLevelsMPsArray[i]);
 			topLevelsNames.put(topLevelsMPsArray[i], metaInfo.get("top_level_"+topLevelsMPsArray[i]));
 			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsDAO.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
 		}
@@ -264,7 +263,6 @@ public class ReleaseController {
 		model.addAttribute("viabilityMap", viabilityMap);
 		model.addAttribute("viabilityChart", getViabilityChart(chartsProvider, viabilityMap));
 		
-		System.out.println(topLevelTrendsChart);
 		return null;
 	}
 	

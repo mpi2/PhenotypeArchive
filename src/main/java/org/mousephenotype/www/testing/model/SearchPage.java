@@ -958,7 +958,7 @@ public class SearchPage {
     public int submitSearch(String searchString) {
         WebElement weInput = driver.findElement(By.cssSelector("input#s"));
         weInput.clear();
-        weInput.sendKeys(searchString);
+        TestUtils.seleniumSendKeysHack(weInput, searchString);
         
         WebElement resultMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='mpi2-search']")));
         
