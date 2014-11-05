@@ -53,15 +53,20 @@
         <property name="username" value="${ontodbusername}" />
         <property name="password" value="${ontodbpassword}" />
     </bean>
-    
-	<!-- phenodigm external solr server via HTTP -->
-	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${phenodigm.solrserver}" />
+
+    <!-- phenodigm external solr server via HTTP -->
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+        <constructor-arg index="0" value="${phenodigm.solrserver}" />
         <property name="soTimeout" value="5000" />
-	</bean>
+    </bean>
 
+    <!--  Beans for writing to the solr servers -->
+    <bean id="alleleIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="IMPC_SOLRURL/allele"/>
+        <constructor-arg index="1" value="10000"/> <!--Queue size-->
+        <constructor-arg index="2" value="3"/> <!--Num threads-->
+    </bean>
 
-	<!--  Beans for writing to the solr servers -->
     <bean id="preqcIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="IMPC_SOLRURL/preqc"/>
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
@@ -82,22 +87,23 @@
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
+    <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
+        <constructor-arg value="IMPC_SOLRURL/experiment" />
+    </bean>
+
+
+    <!-- Weaves in transactional advice around annotated Transactional methods -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg value="IMPC_SOLRURL/experiment" />
     </bean>
 
 
-    <!-- Weaves in transactional advice around @Transactional methods -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
-
-
     <!-- Dependencies for observationService -->
     <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
         <constructor-arg ref="sessionFactory" />
-    </bean>
-
-    <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-        <constructor-arg value="IMPC_SOLRURL/experiment" />
     </bean>
 
     <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
@@ -106,41 +112,42 @@
 
 
     <!-- Spring annotated objects -->
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
-		<property name="dataSource" ref="komp2DataSource" />
-		<property name="packagesToScan" value="uk.ac.ebi.phenotype" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
-				<prop key="hibernate.show_sql">false</prop>
-				<prop key="hibernate.connection.useUnicode">true</prop>
-				<prop key="hibernate.connection.charSet">UTF8</prop>
-			</props>
-		</property>
-	</bean>
+    <bean id="sessionFactory"
+          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource" ref="komp2DataSource" />
+        <property name="packagesToScan" value="uk.ac.ebi.phenotype" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.connection.useUnicode">true</prop>
+                <prop key="hibernate.connection.charSet">UTF8</prop>
+            </props>
+        </property>
+    </bean>
 
 
 
-	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
-		<property name="targetMapClass">
-			<value>java.util.HashMap</value>
-		</property>
-		<property name="sourceMap">
-			<map key-type="java.lang.String" value-type="java.lang.String">
-				<entry key="version" value="${pom.version}" />
-				<entry key="baseUrl" value="${baseUrl}" />
-				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
-				<entry key="solrUrl" value="${solrUrl}" />
-				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
-				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
-				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
-				<entry key="googleAnalytics" value="${googleAnalytics}" />
-				<entry key="liveSite" value="${liveSite}" />
-				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
-			</map>
-		</property>
-	</bean>
+    <bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="targetMapClass">
+            <value>java.util.HashMap</value>
+        </property>
+        <property name="sourceMap">
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="version" value="${pom.version}" />
+                <entry key="baseUrl" value="${baseUrl}" />
+                <entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
+                <entry key="solrUrl" value="${solrUrl}" />
+                <entry key="internalSolrUrl" value="${internalSolrUrl}" />
+                <entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
+                <entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
+                <entry key="googleAnalytics" value="${googleAnalytics}" />
+                <entry key="liveSite" value="${liveSite}" />
+                <entry key="preqcXmlFilename" value="${preqcXmlfile}" />
+                <entry key="human2mouseFilename" value="${human2mouseFile}" />
+            </map>
+        </property>
+    </bean>
 
 
 </beans>

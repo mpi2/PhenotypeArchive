@@ -17,9 +17,9 @@
 
 	<!-- The configuration for your 'PhenotypeArchive' Dispatcher Servlet. This 
 		example uses component scanning to automatically pick up controllers. It 
-		allow us to use @Autowire, @Required and @Qualifier annotations. - Dependencies 
-		of controllers are wired using @Autowired support. - The URI scheme is controller 
-		using @RequestMapping annotations -->
+		allow us to use Autowire, Required and Qualifier annotations. - Dependencies
+		of controllers are wired using Autowired support. - The URI scheme is controller
+		using RequestMapping annotations -->
 
 	<mvc:resources mapping="/css/**" location="/resources/css/" />
 	<mvc:resources mapping="/js/**" location="/resources/js/" />

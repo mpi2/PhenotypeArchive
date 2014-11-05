@@ -356,6 +356,7 @@ public class PhenotypePageTest {
                 String definition = ptPage.getDefinition();
                 if (definition.isEmpty()) {
                     System.out.println("ERROR: Expected definition but none was found. URL: " + target);
+                    errorCount++;
                 }
                 
                 List<String> synonyms = ptPage.getSynonyms();
