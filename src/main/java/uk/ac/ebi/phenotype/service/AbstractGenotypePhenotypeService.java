@@ -90,10 +90,13 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<GenotypePhenotypeDTO> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName, String mpTermAcc, String mpTermName)
+	public List<GenotypePhenotypeDTO> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName)
 	throws SolrServerException {
 
-		List<String> fields = Arrays.asList(GenotypePhenotypeDTO.PHENOTYPING_CENTER, mpTermAcc, mpTermName, GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+		List<String> fields = Arrays.asList(GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.MP_TERM_ID,
+				GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+				GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME, 
+				GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
