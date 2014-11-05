@@ -475,9 +475,10 @@ public class PhenotypePage {
         if ( ! difference.isEmpty()) {
             System.out.println("ERROR: The following data was found on the page but not in the download:");
             Iterator it = difference.iterator();
+            int i = 0;
             while (it.hasNext()) {
                 String value = (String)it.next();
-                System.out.println(value);
+                System.out.println("[" + i++ + "]: " + value);
                 errorCount++;
             }
         }

@@ -290,7 +290,7 @@
 		    </div> <!-- section -->
 		   
 		    
-		    <div class="section">
+		    <!-- div class="section">
 						<h2 class="title" id="section-associations"> Fertility and Viability </h2>		
 		            <div class="inner">
 										
@@ -315,7 +315,7 @@
 											</table>   
 									</div>  	
 									
-									<!-- div class="half">
+									<div class="half">
 											<div id="viabilityChart">
 				            		<script type="text/javascript">${viabilityChart}</script> 
 											</div>  
@@ -334,11 +334,11 @@
 											</tbody>
 														
 											</table>   
-									</div-->  	
+									</div>  	
 									
 									<div class="clear"> </div>
 		         </div>		            
-		    </div> <!-- section -->
+		    </div--> <!-- section -->
 		    
 		
 		
