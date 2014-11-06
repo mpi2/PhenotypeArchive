@@ -36,28 +36,6 @@ public class ObservationServiceTest {
 
 
 	@Test
-	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() {
-
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
-		List<Map<String, String>> dataset = null;
-		String genomicFeatureAcc = "MGI:104874"; // Akt2
-		try {
-			dataset = os.getDistinctPipelineAlleleCenterListByGeneAccession(genomicFeatureAcc);
-			// for (Map<String, String> map: dataset) {
-			// for (String key: map.keySet()) {
-			// System.out.println(key + ":" + map.get(key));
-			// }
-			// System.out.println();
-			// }
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertTrue(dataset.size() > 0);
-	}
-
-
-	@Test
 	public void testGetDistinctProcedureListByPipelineAlleleCenter() {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1

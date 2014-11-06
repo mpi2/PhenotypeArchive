@@ -1320,7 +1320,9 @@
 						overwritten and thus the setting reset all the time -->
 					<!-- http://stackoverflow.com/questions/283489/is-there-a-way-to-hide-maven-2-target-folder-in-eclipse-3 -->
 					<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-clean-plugin</artifactId>
+                        <version>2.5</version>
 						<configuration>
 							<excludeDefaultDirectories>true</excludeDefaultDirectories>
 							<filesets>

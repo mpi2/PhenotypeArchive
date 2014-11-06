@@ -625,56 +625,6 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		return resultsDTO;
 	}
 
-	/**
-	 * Return a list of a triplets of pipeline stable id, phenotyping center and
-	 * allele accession
-	 * 
-	 * 
-	 * @param genomicFeatureAcc
-	 *            a gene accession
-	 * @return list of triplets
-	 * @throws SolrServerException
-	 */
-	public List<Map<String, String>> getDistinctPipelineAlleleCenterListByGeneAccession(String genomicFeatureAcc)
-	throws SolrServerException {
-
-		List<Map<String, String>> results = new LinkedList<Map<String, String>>();
-
-		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
-																																																																												// at
-																																																																												// least
-																																																																												// 2
-																																																																												// fields
-		ObservationDTO.PIPELINE_STABLE_ID + "," + ObservationDTO.PIPELINE_NAME + "," + ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.ALLELE_SYMBOL);
-
-		QueryResponse response = solr.query(query);
-
-		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
-
-		if (facetPivot != null && facetPivot.size() > 0) {
-			for (int i = 0; i < facetPivot.size(); i++) {
-
-				String name = facetPivot.getName(i); // in this case only one of
-														// them
-				LOG.debug("facetPivot name" + name);
-				List<PivotField> pivotResult = facetPivot.get(name);
-
-				// iterate on results
-				for (int j = 0; j < pivotResult.size(); j++) {
-
-					// create a HashMap to store a new triplet of data
-
-					PivotField pivotLevel = pivotResult.get(j);
-					List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, false);
-					results.addAll(lmap);
-				}
-
-			}
-		}
-
-		return results;
-	}
-
 
 	/**
 	 * Return a list of parameters measured for a particular pipeline, allele
