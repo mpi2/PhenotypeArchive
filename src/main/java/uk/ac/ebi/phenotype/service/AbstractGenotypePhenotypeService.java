@@ -103,7 +103,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 			.addFilterQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + phenotypeResourceName)
 			.setRows(MAX_NB_DOCS)
 			.setFields(StringUtils.join(fields, ","));
-
+		
 		QueryResponse response = solr.query(query);
 		return response.getBeans(GenotypePhenotypeDTO.class);
 		
