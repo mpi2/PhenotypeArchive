@@ -230,11 +230,11 @@ public class SearchPageTest {
         errorList.clear();
         
         String[] geneSymbols = {
-              "Klk1"
+              "Klk4"
             , "Del(7Gabrb3-Ube3a)1Yhj"
         };
 
-        System.out.println("TESTING autosuggest for specific gene symbols");
+        System.out.println("TESTING autosuggest for specific gene symbols. NOTE: Results don't seem to be ordered, so it's possible the gene is beyond the first 10 shown.");
         String message;
         
         for (String geneSymbol : geneSymbols) {
