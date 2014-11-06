@@ -54,7 +54,7 @@
     </logger>
 	
     <logger name="uk.ac.ebi.phenotype.web.util">
-        <level value="info" />
+        <level value="warn" />
     </logger>
 	
     <logger name="org.hibernate">

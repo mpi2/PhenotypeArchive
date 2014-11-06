@@ -116,13 +116,13 @@ public class SearchImageImageView {
                         + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");
             }
             
-            // Column 2: annotationIdLink.
-            dnldTermCollection = downloadRow[2];
+            // Column 2: annotationIdLink. SPECIAL CASE: REMAP PROTOCOL FOR BOTH FROM HTTPS TO HTTP SO COMPARISON DOESN'T FAIL BECAUSE OF THE DIFFERENCE.
+            dnldTermCollection = downloadRow[2].replace("https", "http");
             pageTermCollection = "";
             if (pageRow.maTerm != null)
-                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringLinks(), "|");
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringLinks(), "|").replace("https", "http");
             if (pageRow.mpTerm != null)
-                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toStringLinks(), "|");
+                pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.mpTerm.toStringLinks(), "|").replace("https", "http");
             if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {
                 status.addError("IMAGE MISMATCH for term " + pageRow.toString() + ": page value annotationIdLinks = '"
                         + pageTermCollection + "' don't match download values '" + dnldTermCollection + "'.");

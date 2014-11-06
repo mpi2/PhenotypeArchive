@@ -116,9 +116,9 @@ public class SearchImageAnnotationView {
                         + pageValue + "' doesn't match download value '" + downloadValue + "'.");
             }
             
-            // annotationIdLink.
-            pageValue = pageRow.getAnnotationIdLink();
-            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK];
+            // annotationIdLink. SPECIAL CASE: REMAP PROTOCOL FOR BOTH FROM HTTPS TO HTTP SO COMPARISON DOESN'T FAIL BECAUSE OF THE DIFFERENCE.
+            pageValue = pageRow.getAnnotationIdLink().replace("https", "http");
+            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK].replace("https", "http");
 //System.out.println("[" + i + "][3]: pageValue:     '" + pageValue + "'");
 //System.out.println("[" + i + "][3]: downloadValue: '" + downloadValue + "'\n");
             if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {

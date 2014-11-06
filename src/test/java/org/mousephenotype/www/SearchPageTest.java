@@ -748,15 +748,14 @@ public class SearchPageTest {
         SearchTermGroup[] searchTermGroupWildcard = searchTermGroupListWildcard.toArray(new SearchTermGroup[0]);
         
         for (SearchTermGroup searchTermGroup : searchTermGroupWildcard) {
+            // logging/debugging statements:
+//            Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
+//            Set<Map.Entry<String, Integer>> entrySet = solrCoreCountMap.entrySet();
+//            for (Map.Entry<String, Integer> entry : entrySet) {
+//                log.info("Core: " + entry.getKey() + ". Count: " + entry.getValue());
+//            }
 
             // Build the solarUrlCounts.
-            Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
-
-            Set<Map.Entry<String, Integer>> entrySet = solrCoreCountMap.entrySet();
-            for (Map.Entry<String, Integer> entry : entrySet) {
-                log.info("Core: " + entry.getKey() + ". Count: " + entry.getValue());
-            }
-
             String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
 
             PageStatus status = facetCountEngine(target, searchTermGroup);
