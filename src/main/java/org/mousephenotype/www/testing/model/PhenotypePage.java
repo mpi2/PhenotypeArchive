@@ -424,11 +424,21 @@ public class PhenotypePage {
         
         // Validate the phenotypes table page line count against the download stream line count.
         // Since the phenotypes table contains a single row for both sexes but the download file
-        // contains a row for every sex, use the phenotypes table's sex count rather than the row count.
+        // contains a row for every sex, as well as a row for every metadata split, use the phenotypes table's sex
+        // count rather than the row count.
         int sexIconCount = TestUtils.getSexIconCount(pageData, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
         int bufferedSexIconCount = (int)Math.round(Math.floor(sexIconCount * 1.5));
         
-        // If the phenotypes sex count is not equal to the download row count, then:
+        // If there is a metadata split, the Phenotypethe page will show only s
+        // For each phenotype, the Phenotype page shows only a single row. This is true if sex is male,
+        // female, or both. This is also true for metadata splits. Because of this, validating the
+        // Phenotype Page row count against the download file is different. Sample scenario:
+        // A given phenotype has both male and female, and there is a metadata split for the female (only).
+        // That means the phenotype page will show 1 row with 2 sex icons. However, the correct download
+        // page will show 3 rows: 1 row for male, 1 row for female, metadata split 1, and 1 row for female,
+        // metadata split 2.
+        // 
+        // To handle this situation, then, if the phenotypes sex count is not equal to the download row count, then:
         //     If the download line count is > the sex icon count but <= sex icon count + 50%, issue a warning
         //     else throw an error.
         int downloadDataLineCount = downloadData.getBody().length;
@@ -438,7 +448,8 @@ public class PhenotypePage {
                 if (downloadDataLineCount <= bufferedSexIconCount) {
                     status.addWarning("WARNING: download data line count (" + downloadDataLineCount + ") is GREATER THAN the page sex icon count (" + sexIconCount + ") but LESS THAN OR EQUAL TO the buffered sex icon count ( " + bufferedSexIconCount + ")");
                 } else {
-                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is GREATER THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
+                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is GREATER THAN the sex icon count (" +
+                            sexIconCount + ") and greater than the buffered sex icon count (" + bufferedSexIconCount + ")");
                 }
             } else {
                     status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
