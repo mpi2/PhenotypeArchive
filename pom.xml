@@ -1094,8 +1094,7 @@
 				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
-                <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
-                <liveSite>false</liveSite>
+				<liveSite>false</liveSite>
 			</properties>
 
 
@@ -1357,7 +1356,6 @@
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
                 <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
                	<buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_live</buildIndexesSolrUrl>
-                <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
@@ -1368,18 +1366,11 @@
                 <resources>
                     <resource>
                         <directory>src/test/resources</directory>
-                        <targetPath>${basedir}/target/test-classes</targetPath>
-                        <includes>
-                            <include>**/test-config.xml</include>
-                        </includes>
                         <filtering>true</filtering>
                     </resource>
                     <resource>
                         <directory>src/main/resources</directory>
                         <filtering>true</filtering>
-                        <includes>
-                            <include>**/index-app-config.xml</include>
-                        </includes>
                     </resource>
                 </resources>
 				<plugins>
