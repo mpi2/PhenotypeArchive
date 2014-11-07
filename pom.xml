@@ -1093,7 +1093,8 @@
 				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
-				<liveSite>false</liveSite>
+                <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
+                <liveSite>false</liveSite>
 			</properties>
 
 
