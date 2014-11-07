@@ -230,11 +230,11 @@ public class SearchPageTest {
         errorList.clear();
         
         String[] geneSymbols = {
-              "Klk1"
+              "Klk4"
             , "Del(7Gabrb3-Ube3a)1Yhj"
         };
 
-        System.out.println("TESTING autosuggest for specific gene symbols");
+        System.out.println("TESTING autosuggest for specific gene symbols. NOTE: Results don't seem to be ordered, so it's possible the gene is beyond the first 10 shown.");
         String message;
         
         for (String geneSymbol : geneSymbols) {
@@ -748,15 +748,14 @@ public class SearchPageTest {
         SearchTermGroup[] searchTermGroupWildcard = searchTermGroupListWildcard.toArray(new SearchTermGroup[0]);
         
         for (SearchTermGroup searchTermGroup : searchTermGroupWildcard) {
+            // logging/debugging statements:
+//            Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
+//            Set<Map.Entry<String, Integer>> entrySet = solrCoreCountMap.entrySet();
+//            for (Map.Entry<String, Integer> entry : entrySet) {
+//                log.info("Core: " + entry.getKey() + ". Count: " + entry.getValue());
+//            }
 
             // Build the solarUrlCounts.
-            Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
-
-            Set<Map.Entry<String, Integer>> entrySet = solrCoreCountMap.entrySet();
-            for (Map.Entry<String, Integer> entry : entrySet) {
-                log.info("Core: " + entry.getKey() + ". Count: " + entry.getValue());
-            }
-
             String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
 
             PageStatus status = facetCountEngine(target, searchTermGroup);

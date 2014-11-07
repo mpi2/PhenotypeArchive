@@ -208,6 +208,7 @@ public class GenePageTest {
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList(geneService.getAllGenes());
+        
         geneIdsTestEngine(testName, geneIds);
     }
 

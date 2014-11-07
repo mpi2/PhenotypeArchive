@@ -23,6 +23,7 @@ package org.mousephenotype.www.testing.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import static org.mousephenotype.www.testing.model.PhenotypeTableGene.NO_SUPPORTING_DATA;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -141,6 +142,7 @@ public class PhenotypeTablePhenotype {
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
             boolean isPreQcLink = false;
             sourceColIndex = 0;
+            boolean skipLink = false;
             for (WebElement cell : cells) {
 //System.out.println("tagName = " + cell.getTagName() +  ". text = " + cell.getText());
 //System.out.println("rowIndex = " + rowIndex++);
@@ -165,7 +167,20 @@ public class PhenotypeTablePhenotype {
                         value = sex.get(0).getAttribute("alt").toLowerCase();
                     }
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_GRAPH) {                    // Extract the graph url from the <a> anchor and decode it.
-                    value = cell.findElement(By.cssSelector("a")).getAttribute("href");
+                    // NOTE: Graph links are disabled if there is no supporting data.
+                    List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
+                    value = "";
+                    if ( ! graphLinks.isEmpty()) {
+                        value = graphLinks.get(0).getAttribute("href");
+                    } else {
+                        graphLinks = cell.findElements(By.cssSelector("i"));
+                        if ( ! graphLinks.isEmpty()) {
+                            value = graphLinks.get(0).getAttribute("oldtitle");
+                            if (value.contains(NO_SUPPORTING_DATA)) {
+                                skipLink = true;
+                            }
+                        }
+                    }
                     value = TestUtils.urlDecode(value);
                     isPreQcLink = TestUtils.isPreQcLink(value);
                 } else {
@@ -180,10 +195,12 @@ public class PhenotypeTablePhenotype {
             if (isPreQcLink) {
                 preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
             } else {
-                postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the preQc list.
-                if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
-                    data = new GridMap(postQcList, target);
-                    return data;
+                if ( ! skipLink) {
+                    postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the postQc list.
+                    if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
+                        data = new GridMap(postQcList, target);
+                        return data;
+                    }
                 }
             }
             preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
