@@ -57,8 +57,8 @@
 		<googleAnalytics></googleAnalytics>
 		<liveSite>false</liveSite>
 		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
-        <phenodigm.solrserver>http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
-        <imits.solrserver>http://ikmc.vm.bytemark.co.uk:8983/solr/allele2</imits.solrserver>
+    <phenodigm.solrserver>http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
+    <imits.solrserver>http://ikmc.vm.bytemark.co.uk:8983/solr/allele2</imits.solrserver>
 	</properties>
 
 	<dependencies>
@@ -1094,8 +1094,9 @@
 				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 				<impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
-                <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
-                <liveSite>false</liveSite>
+        <!-- phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver-->
+        <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
+        <liveSite>false</liveSite>
 			</properties>
 
 
@@ -1357,7 +1358,7 @@
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
                 <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
                	<buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_live</buildIndexesSolrUrl>
-                <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
+                <phenodigm.solrserver>http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
