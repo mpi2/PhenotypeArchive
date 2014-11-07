@@ -640,13 +640,17 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 
 		List<Map<String, String>> results = new LinkedList<Map<String, String>>();
 
-		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
-																																																																												// at
-																																																																												// least
-																																																																												// 2
-																																																																												// fields
-		ObservationDTO.PIPELINE_STABLE_ID + "," + ObservationDTO.PIPELINE_NAME + "," + ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.ALLELE_SYMBOL);
+		SolrQuery query = new SolrQuery().setQuery("*:*").
+		addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"").
+		addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").
+		setRows(0).
+		setFacet(true).
+		setFacetMinCount(1).
+		setFacetLimit(-1).
+		addFacetPivotField( ObservationDTO.PIPELINE_STABLE_ID + "," + ObservationDTO.PIPELINE_NAME + "," + 
+		ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.ALLELE_SYMBOL);
 
+		System.out.println("\n\n Look at this query: " + solr.getBaseURL() + "/select?" + query);
 		QueryResponse response = solr.query(query);
 
 		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();

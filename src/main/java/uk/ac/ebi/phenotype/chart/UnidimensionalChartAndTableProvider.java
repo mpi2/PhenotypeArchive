@@ -21,9 +21,11 @@ import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.imits.StatusConstants;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
@@ -38,6 +40,8 @@ public class UnidimensionalChartAndTableProvider {
 	private static final Logger logger = Logger.getLogger(UnidimensionalChartAndTableProvider.class);
 
 	private String axisFontSize = "15";
+	@Autowired
+	PhenotypePipelineDAO ppDAO;
 	
 	@Autowired
 	ImpressService impressService;
@@ -201,8 +205,12 @@ public class UnidimensionalChartAndTableProvider {
 		Float min = 1000000000f;
 		Float max = 0f;
 		
-		String procedureDescription = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
-
+		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+		String procedureDescription = "";
+		if (proc != null) {
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+		}
+		
 		// loop over the chartSeries data and create boxplots for each
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data
