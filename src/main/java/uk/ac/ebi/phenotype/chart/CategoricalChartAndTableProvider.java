@@ -26,6 +26,7 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -392,7 +393,14 @@ public class CategoricalChartAndTableProvider {
 		// String chartId = bm.getId() + sex.name()+organisation.replace(" ",
 		// "_")+"_"+metadataGroup;
 
-		String procedureDescription = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
+		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+		String procedureDescription = "";
+		if (proc != null) {
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+		}
+		
+		
+		//impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";

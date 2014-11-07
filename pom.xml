@@ -36,6 +36,7 @@
 		<servlet.api.version>2.3</servlet.api.version>
 
 		<selenium.version>2.41.0</selenium.version>
+		<selenium-firefox.version>2.44.0</selenium-firefox.version>
 		<seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 
 		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
@@ -518,7 +519,7 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-firefox-driver</artifactId>
-			<version>${selenium.version}</version>
+			<version>${selenium-firefox.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
