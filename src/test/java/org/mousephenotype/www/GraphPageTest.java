@@ -256,10 +256,80 @@ public class GraphPageTest {
         graphTestEngine(testName, graphUrls);
     }
     
+    @Test
+//@Ignore
+    public void testKnownGraphs() {
+        String testName = "testKnownGraphs";
+        String[] graphUrls = {
+            "http://beta.mousephenotype.org/data/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
+        };
+        PageStatus status;
+        Date start = new Date();
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+     
+        for (String graphUrl : graphUrls) {
+            System.out.println("testUidimensionalGraph(): testing graph URL: " + graphUrl);
+            status = graphTestEngine(graphUrl);
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            }
+        }
+            
+        if (errorList.isEmpty()) {
+            successList.add("[PASSED]");
+        }
+            
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, graphUrls.length, graphUrls.length);
+        System.out.println();
+    }
 
     // PRIVATE METHODS
     
+    
+    /**
+     * Given a test name and a graph URL, this method tests the graph, returning
+     * status in <code>PageStatus</code>.
+     * @param graphUrl the graph URL
+     */
+    private PageStatus graphTestEngine(String graphUrl) {
+        PageStatus status = new PageStatus();
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        
+        boolean loadPage = true;
+        String id = "unknown";
+        GraphPage graphPage = new GraphPage(driver, wait, graphUrl, id, phenotypePipelineDAO, baseUrl, loadPage);
+        String message;
+        
+        ObservationType graphType = graphPage.getGraphType();
+        
+        try {
+            switch (graphType) {
+                case categorical:
+                    GraphPageCategorical graphPageCategorical = graphPage.createGraphPageCategorical();
+                    System.out.println("Categorical graph target: " + graphPageCategorical.getTarget());
+                    status = graphPageCategorical.validate();
+                    break;
 
+                case unidimensional:
+                    GraphPageUnidimensional graphPageUnidimensional = graphPage.createGraphPageUnidimensional();
+                    System.out.println("Unidimensional graph target: " + graphPageUnidimensional.getTarget());
+                    status = graphPageUnidimensional.validate();
+                    break;
+
+                default:
+                    message = "EXCEPTION: Validation not implemented yet for graph type '" + graphType.toString();
+                    System.out.println(message);
+                    throw new Exception(message);
+            }
+        } catch (Exception e) {
+            status.addError("EXCEPTION: GraphPageTest.graphTestEngine(): " + e.getLocalizedMessage());
+        }
+
+        return status;
+    }
+    
     /**
      * Given a test name and a set of gene ids to process, this method loops
      * through the gene pages, testing each one with a graph for proper graph
