@@ -129,7 +129,7 @@
 						<div class="inner">					
 						<div id="phenotypesDiv">	
 							<div class="container span12">
-							<h3>Lines and Speimens</3>
+							<h3>Lines and Speimens</h3>
 							<table id="lines_specimen">
 						<thead>
 						<tr>
