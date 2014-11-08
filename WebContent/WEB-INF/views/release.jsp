@@ -141,7 +141,7 @@
 					</thead>
 					<tbody>
 						<c:forEach var="center" items="${phenotypingCenters}">
-						<:set va="phenotyped_lines" value="phenotypedlines_${center}" />
+						<c:set var="phenotyped_lines" value="phenotypedlines_${center}" />
 						<c:set var="control_specimens" value="control_specimens_${center}" />
 						<c:set var="mutant_specimens" value="mutant_specimens_${center}" />
 						<tr>
@@ -221,7 +221,7 @@
 					</div>
 					
 					<div class="section">
-					<h2>Distribution of Phenotype Annotations</h3>
+					<h2>Distribution of Phenotype Annotations</h2>
 					<div class="inner">
 						<div id="distribution">
 							<script type="text/javascript">
