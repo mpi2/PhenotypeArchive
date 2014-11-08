@@ -118,6 +118,8 @@
 							
 							<h3> Statistical Analysis</h3>
 							<p>The same statistical analysis package version used in our last data release is used for this release, Version: 1.2.0. We anticipate use PhenStat 2.0 in our next data release.</p> 
+			
+						
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -129,7 +131,7 @@
 						<div class="inner">					
 						<div id="phenotypesDiv">	
 							<div class="container span12">
-							<h3>Lines and Speimens</h3>
+							<h3>Lines and Specimens</h3>
 							<table id="lines_specimen">
 						<thead>
 						<tr>
@@ -141,7 +143,7 @@
 					</thead>
 					<tbody>
 						<c:forEach var="center" items="${phenotypingCenters}">
-						<c:set var="phenotyped_lines" value="phenotypedlines_${center}" />
+						<c:set var="phenotyped_lines" value="phenotyped_lines_${center}" />
 						<c:set var="control_specimens" value="control_specimens_${center}" />
 						<c:set var="mutant_specimens" value="mutant_specimens_${center}" />
 						<tr>
@@ -221,7 +223,7 @@
 					</div>
 					
 					<div class="section">
-					<h2>Distribution of Phenotype Annotations</h2>
+					<h2>Distribution of Phenotype Annotations</h3>
 					<div class="inner">
 						<div id="distribution">
 							<script type="text/javascript">
@@ -484,5 +486,4 @@
 </jsp:body>
 
 </t:genericpage>
-
 
