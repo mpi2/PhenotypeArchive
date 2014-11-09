@@ -384,10 +384,10 @@
          have some sort of hard autoCommit to limit the log size.
       -->
      
-		<!-- autoCommit>
+		<autoCommit>
 			<maxTime>300000</maxTime>
-		   	<openSearcher>true</openSearcher>
-		</autoCommit -->
+		   	<openSearcher>false</openSearcher>
+		</autoCommit>
 
     <!-- softAutoCommit is like autoCommit except it causes a
          'soft' commit which only ensures that changes are visible
@@ -1393,50 +1393,50 @@
        See http://wiki.apache.org/solr/SpellCheckComponent for details
        on the request parameters.
     -->
-  <requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
-    <lst name="defaults">
-      <str name="df">text</str>
-      <!-- Solr will use suggestions from both the 'default' spellchecker
-           and from the 'wordbreak' spellchecker and combine them.
-           collations (re-written queries) can include a combination of
-           corrections from both spellcheckers -->
-      <str name="spellcheck.dictionary">default</str>
-      <str name="spellcheck.dictionary">wordbreak</str>
-      <str name="spellcheck">on</str>
-      <str name="spellcheck.extendedResults">true</str>       
-      <str name="spellcheck.count">10</str>
-      <str name="spellcheck.alternativeTermCount">5</str>
-      <str name="spellcheck.maxResultsForSuggest">5</str>       
-      <str name="spellcheck.collate">true</str>
-      <str name="spellcheck.collateExtendedResults">true</str>  
-      <str name="spellcheck.maxCollationTries">10</str>
-      <str name="spellcheck.maxCollations">5</str>         
-    </lst>
-    <arr name="last-components">
-      <str>spellcheck</str>
-    </arr>
-  </requestHandler>
+  <!--<requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">-->
+    <!--<lst name="defaults">-->
+      <!--<str name="df">text</str>-->
+      <!--&lt;!&ndash; Solr will use suggestions from both the 'default' spellchecker-->
+           <!--and from the 'wordbreak' spellchecker and combine them.-->
+           <!--collations (re-written queries) can include a combination of-->
+           <!--corrections from both spellcheckers &ndash;&gt;-->
+      <!--<str name="spellcheck.dictionary">default</str>-->
+      <!--<str name="spellcheck.dictionary">wordbreak</str>-->
+      <!--<str name="spellcheck">on</str>-->
+      <!--<str name="spellcheck.extendedResults">true</str>       -->
+      <!--<str name="spellcheck.count">10</str>-->
+      <!--<str name="spellcheck.alternativeTermCount">5</str>-->
+      <!--<str name="spellcheck.maxResultsForSuggest">5</str>       -->
+      <!--<str name="spellcheck.collate">true</str>-->
+      <!--<str name="spellcheck.collateExtendedResults">true</str>  -->
+      <!--<str name="spellcheck.maxCollationTries">10</str>-->
+      <!--<str name="spellcheck.maxCollations">5</str>         -->
+    <!--</lst>-->
+    <!--<arr name="last-components">-->
+      <!--<str>spellcheck</str>-->
+    <!--</arr>-->
+  <!--</requestHandler>-->
 
-  <searchComponent name="suggest" class="solr.SuggestComponent">
-  	<lst name="suggester">
-      <str name="name">mySuggester</str>
-      <str name="lookupImpl">FuzzyLookupFactory</str>      <!-- org.apache.solr.spelling.suggest.fst -->
-      <str name="dictionaryImpl">DocumentDictionaryFactory</str>     <!-- org.apache.solr.spelling.suggest.HighFrequencyDictionaryFactory --> 
-      <str name="field">cat</str>
-      <str name="weightField">price</str>
-      <str name="suggestAnalyzerFieldType">string</str>
-    </lst>
-  </searchComponent>
+  <!--<searchComponent name="suggest" class="solr.SuggestComponent">-->
+  	<!--<lst name="suggester">-->
+      <!--<str name="name">mySuggester</str>-->
+      <!--<str name="lookupImpl">FuzzyLookupFactory</str>      &lt;!&ndash; org.apache.solr.spelling.suggest.fst &ndash;&gt;-->
+      <!--<str name="dictionaryImpl">DocumentDictionaryFactory</str>     &lt;!&ndash; org.apache.solr.spelling.suggest.HighFrequencyDictionaryFactory &ndash;&gt; -->
+      <!--<str name="field">cat</str>-->
+      <!--<str name="weightField">price</str>-->
+      <!--<str name="suggestAnalyzerFieldType">string</str>-->
+    <!--</lst>-->
+  <!--</searchComponent>-->
 
-  <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
-    <lst name="defaults">
-      <str name="suggest">true</str>
-      <str name="suggest.count">10</str>
-    </lst>
-    <arr name="components">
-      <str>suggest</str>
-    </arr>
-  </requestHandler>
+  <!--<requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">-->
+    <!--<lst name="defaults">-->
+      <!--<str name="suggest">true</str>-->
+      <!--<str name="suggest.count">10</str>-->
+    <!--</lst>-->
+    <!--<arr name="components">-->
+      <!--<str>suggest</str>-->
+    <!--</arr>-->
+  <!--</requestHandler>-->
   <!-- Term Vector Component
 
        http://wiki.apache.org/solr/TermVectorComponent
