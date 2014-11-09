@@ -15,20 +15,8 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -40,9 +28,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.service.GeneService;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 @Controller
@@ -60,8 +57,7 @@ public class QueryBrokerController {
 	private Map<String, String> config;
 	
 	private String internalSolrUrl;
-	private JSONObject jsonResponse = new JSONObject();
-	
+
 	// Use cache to manage queries for minimizing network traffic
 	final int MAX_ENTRIES = 600;
 	
@@ -75,19 +71,40 @@ public class QueryBrokerController {
 	    }
 	});
 
-	
+
+	/**
+	 * Examine or clear cached SOLR queries
+	 *
+	 * @param clearCache true to clear the cache, false to examine the cached keys
+	 */
+	@RequestMapping(value = "/querybroker", method = RequestMethod.GET)
+	public ResponseEntity<JSONObject> clearCache(
+		@RequestParam(value = "clearCache", required = false) Boolean clearCache) {
+
+		JSONObject jsonResponse = new JSONObject();
+
+		if (clearCache!=null && clearCache==true) {
+			jsonResponse.put("Details", cache.keySet().size() + " cleared from cache");
+			cache.clear();
+		} else {
+			jsonResponse.put("Details", cache.keySet().size() + " entries in cache");
+			jsonResponse.put("Cached Keys", cache.keySet());
+		}
+
+		return new ResponseEntity<JSONObject>(jsonResponse, createResponseHeaders(), HttpStatus.CREATED);
+	}
+
 	/**
 	 * <p>
 	 * Return multiple solr json responses from server to avoid multiple calls from client
 	 * Using cache to further reduce queries to the SOLR server
 	 * </p>
-	 * 
-	 * @param 
 	 *
-	 * @throws URISyntaxException 
-	 * @throws IOException 
+	 * @param
+	 *
+	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
-
 	@RequestMapping(value = "/querybroker", method = RequestMethod.POST)
 	public ResponseEntity<JSONObject> jsons(
 			@RequestParam(value = "q", required = true) String solrParams,
@@ -95,12 +112,12 @@ public class QueryBrokerController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
-		
+
 		internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
 		
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
-		
-		createJsonResponse(subfacet, jParams);
+
+		JSONObject jsonResponse = createJsonResponse(subfacet, jParams);
 		
 		return new ResponseEntity<JSONObject>(jsonResponse, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -111,8 +128,10 @@ public class QueryBrokerController {
 		return responseHeaders;
 	}
 	
-	public void createJsonResponse(String subfacet, JSONObject jParams) throws IOException, URISyntaxException {
-	
+	public JSONObject createJsonResponse(String subfacet, JSONObject jParams) throws IOException, URISyntaxException {
+
+		JSONObject jsonResponse = new JSONObject();
+
 		Iterator cores = jParams.keys();
 		
 		while(cores.hasNext()) {
@@ -131,7 +150,7 @@ public class QueryBrokerController {
 				//System.out.println("JSON: "+ json);
 				if ( subfacet == null ){
 					int numFound = json.getJSONObject("response").getInt("numFound");
-					this.jsonResponse.put(core, numFound);
+					jsonResponse.put(core, numFound);
 					
 					cache.put(key, numFound);
 					//System.out.println("####### Cache for main facet added");
@@ -140,17 +159,19 @@ public class QueryBrokerController {
 					JSONObject j = new JSONObject();
 					j.put("response", json.getJSONObject("response"));
 					j.put("facet_counts", json.getJSONObject("facet_counts"));
-					this.jsonResponse.put(core, j);
+					jsonResponse.put(core, j);
 					
 					cache.put(key, j);
 					//System.out.println("****** Cache for subfacet added");
 				}
 			}
 			else {
-				this.jsonResponse.put(core, o);
+				jsonResponse.put(core, o);
 				//System.out.println("------ Using cache");
 			}
-		}	
+		}
+
+		return jsonResponse;
 	}
 		
 }	
