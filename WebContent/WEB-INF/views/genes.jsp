@@ -45,7 +45,7 @@
             <!--  end of floating menu for genes page -->
 
             <c:if test="${phenotypeStarted}">
-                <script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
+                <script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js?v=${version}"></script>
                 <!--[if !IE]><!-->
                 <script>
                     dcc.heatmapUrlGenerator = function(genotype_id, type) {
@@ -107,13 +107,13 @@
 
             <c:if test="${phenotypeStarted}">
                 <!--[if !IE]><!-->
-                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
+                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css?v=${version}"/>
                 <!--<![endif]-->
                 <!--[if IE 8]>
-                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
+                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css?v=${version}">
                 <![endif]-->
                 <!--[if gte IE 9]>
-                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
+                <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css?v=${version}">
                 <![endif]-->
             </c:if>
 
