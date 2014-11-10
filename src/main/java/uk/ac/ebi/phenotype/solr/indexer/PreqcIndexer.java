@@ -340,7 +340,15 @@ public class PreqcIndexer {
 			} 
 			else {
 				o.setId(counter++);
-				o.setSex(sex);
+
+				try {
+					SexType.valueOf(sex.toLowerCase());
+				} catch (IllegalArgumentException se) {
+					logger.error("Got unexpected sex value '{}' from PreQC file. Not loading", se);
+					continue;
+				}
+
+				o.setSex(sex.toLowerCase());
 				destServer.addBean(o, 60000);
 			}
 			
