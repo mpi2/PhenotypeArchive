@@ -22,6 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import uk.ac.ebi.phenotype.data.imits.EncodedOrganisationConversionMap;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 
 import javax.annotation.Resource;
@@ -243,6 +244,12 @@ public class PreqcIndexer {
 				}
 			}
 
+			// Skip this one: phenotypeTerm is null
+			if (phenotypeTerm == null ){
+				logger.warn("Phenotype term is missing for record with id {}", id);
+				continue;
+			}
+
 			// Skip this one: pValue not significant OR phenotypeTerm is MA
 			if ( (pValue != null && pValue >= 0.0001 ) || phenotypeTerm.startsWith("MA:") ){//|| id != 726238) {
 				continue;
@@ -340,7 +347,15 @@ public class PreqcIndexer {
 			} 
 			else {
 				o.setId(counter++);
-				o.setSex(sex);
+
+				try {
+					SexType.valueOf(sex.toLowerCase());
+				} catch (IllegalArgumentException se) {
+					logger.error("Got unexpected sex value '{}' from PreQC file. Not loading", se);
+					continue;
+				}
+
+				o.setSex(sex.toLowerCase());
 				destServer.addBean(o, 60000);
 			}
 			
