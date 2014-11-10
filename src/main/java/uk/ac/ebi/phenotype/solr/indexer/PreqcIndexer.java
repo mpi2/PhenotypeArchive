@@ -23,6 +23,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import uk.ac.ebi.phenotype.data.imits.EncodedOrganisationConversionMap;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.pojo.SexType;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
