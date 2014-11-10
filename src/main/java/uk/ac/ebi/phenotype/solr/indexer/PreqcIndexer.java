@@ -244,6 +244,12 @@ public class PreqcIndexer {
 				}
 			}
 
+			// Skip this one: phenotypeTerm is null
+			if (phenotypeTerm == null ){
+				logger.warn("Phenotype term is missing for record with id {}", id);
+				continue;
+			}
+
 			// Skip this one: pValue not significant OR phenotypeTerm is MA
 			if ( (pValue != null && pValue >= 0.0001 ) || phenotypeTerm.startsWith("MA:") ){//|| id != 726238) {
 				continue;
