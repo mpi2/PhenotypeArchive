@@ -135,7 +135,7 @@ public class ImagesIndexer {
 					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/archived_files/download/"+omeroId);
 					imageDTO.setJpegUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
 					}else{
-						System.out.println("omero id is null for "+downloadFilePath);
+						//System.out.println("omero id is null for "+downloadFilePath);
 					}
 				}
 			}
