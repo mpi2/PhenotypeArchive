@@ -415,9 +415,8 @@ public class PhenotypePageTest {
             System.out.println("phenotype[" + i + "] URL: " + target);
             
             try {
-                driver.get(target);
-                mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
                 PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, phenotypePipelineDAO, baseUrl);
+                mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
                 PageStatus status = phenotypePage.validate();
                 if (status.hasErrors()) {
                     System.out.println(status.toStringErrorMessages());

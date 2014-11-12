@@ -15,41 +15,27 @@
  */
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
-import uk.ac.ebi.phenotype.dao.DatasourceDAO;
-import uk.ac.ebi.phenotype.dao.OrganisationDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.ProjectDAO;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.dao.*;
+import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
+import java.util.*;
+
 @Service
-public class StatisticalResultService {
+public class StatisticalResultService extends BasicService {
 
     @Autowired
     BiologicalModelDAO bmDAO;
@@ -73,6 +59,59 @@ public class StatisticalResultService {
     public StatisticalResultService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
+
+	/**
+	 * Return a list of a triplets of pipeline stable id, phenotyping center and
+	 * allele accession
+	 *
+	 *
+	 * @param genomicFeatureAcc
+	 *            a gene accession
+	 * @return list of triplets
+	 * @throws SolrServerException
+	 */
+	public List<Map<String, String>> getDistinctPipelineAlleleCenterListByGeneAccession(String genomicFeatureAcc)
+		throws SolrServerException {
+
+		List<Map<String, String>> results = new LinkedList();
+		List<String> facetFields = Arrays.asList(StatisticalResultDTO.PIPELINE_STABLE_ID, StatisticalResultDTO.PIPELINE_NAME, StatisticalResultDTO.PHENOTYPING_CENTER, StatisticalResultDTO.ALLELE_ACCESSION_ID, StatisticalResultDTO.ALLELE_SYMBOL);
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"")
+			.setRows(0)
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetPivotField(StringUtils.join(facetFields, ","));
+
+		QueryResponse response = solr.query(query);
+
+		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
+
+		if (facetPivot != null && facetPivot.size() > 0) {
+			for (int i = 0; i < facetPivot.size(); i++) {
+
+				String name = facetPivot.getName(i); // in this case only one of
+				// them
+				LOG.debug("facetPivot name" + name);
+				List<PivotField> pivotResult = facetPivot.get(name);
+
+				// iterate on results
+				for (int j = 0; j < pivotResult.size(); j++) {
+
+					// create a HashMap to store a new triplet of data
+
+					PivotField pivotLevel = pivotResult.get(j);
+					List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, false);
+					results.addAll(lmap);
+				}
+
+			}
+		}
+
+		return results;
+	}
 
     /**
      * Get the result for a set of 

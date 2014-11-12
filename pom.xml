@@ -36,6 +36,7 @@
 		<servlet.api.version>2.3</servlet.api.version>
 
 		<selenium.version>2.41.0</selenium.version>
+		<selenium-firefox.version>2.44.0</selenium-firefox.version>
 		<seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 
 		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
@@ -56,7 +57,7 @@
 		<googleAnalytics></googleAnalytics>
 		<liveSite>false</liveSite>
 		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
-		<phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
+        <phenodigm.solrserver>http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
         <imits.solrserver>http://ikmc.vm.bytemark.co.uk:8983/solr/allele2</imits.solrserver>
 	</properties>
 
@@ -518,7 +519,7 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-firefox-driver</artifactId>
-			<version>${selenium.version}</version>
+			<version>${selenium-firefox.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
@@ -1320,7 +1321,9 @@
 						overwritten and thus the setting reset all the time -->
 					<!-- http://stackoverflow.com/questions/283489/is-there-a-way-to-hide-maven-2-target-folder-in-eclipse-3 -->
 					<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-clean-plugin</artifactId>
+                        <version>2.5</version>
 						<configuration>
 							<excludeDefaultDirectories>true</excludeDefaultDirectories>
 							<filesets>
@@ -1353,7 +1356,8 @@
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
                 <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
                	<buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_live</buildIndexesSolrUrl>
-                <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
+                <!-- phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver-->
+                <phenodigm.solrserver>http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>

@@ -27,24 +27,10 @@ package uk.ac.ebi.phenotype.pojo;
  * @see PipelineEntry
  * @see Pipeline
  */
+import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "phenotype_procedure")
@@ -78,13 +64,13 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     @ManyToMany(mappedBy = "procedures")
     private Set<Pipeline> pipelines = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "phenotype_procedure_parameter",
             joinColumns = @JoinColumn(name = "procedure_id"),
             inverseJoinColumns = @JoinColumn(name = "parameter_id")
     )
-    private Set<Parameter> parameters;
+    private Set<Parameter> parameters= new HashSet<>();
     
     @Column(name = "stage")
     private String stage;
@@ -128,7 +114,7 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     }
 
     /**
-     * @param metaDataSet the metaDataSet to set
+     * @param metaData the metaDataSet to add
      */
     public void addMetaData(MetaData metaData) {
         if (metaDataSet == null) {
@@ -145,12 +131,7 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     }
 
     public void addParameter(Parameter parameter) {
-
-        if (parameters == null) {
-            parameters = new HashSet<Parameter>();
-        }
         parameters.add(parameter);
-
     }
 
     /**
@@ -210,7 +191,7 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
 	}
 
 	/**
-     * @param pipeline the pipeline to set
+     * @param pipelines the pipelines to set
      */
     public void setPipelines(Set<Pipeline> pipelines) {
         this.pipelines = pipelines;

@@ -268,7 +268,6 @@ public class ChartsController {
 			return "chart";
 		}
 		experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
-		System.out.println("experiment=" + experiment);
 
 		if (experiment != null) {
 

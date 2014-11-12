@@ -55,11 +55,16 @@ public class HttpProxy {
 
 		String content = "";
 
-		if(url.getProtocol().toLowerCase().equals("https")) {
-			content = getSecureContent(escapedUrl);
-		} else {
-			content = getNonSecureContent(escapedUrl);
-		}
+                try {
+                    if(url.getProtocol().toLowerCase().equals("https")) {
+                            content = getSecureContent(escapedUrl);
+                    } else {
+                            content = getNonSecureContent(escapedUrl);
+                    }
+                } catch (Exception e) {
+                    log.error("EXCEPTION for protocol " + url.getProtocol().toLowerCase() + ": " + e.getLocalizedMessage() + ". Solr URL: " + escapedUrl);
+                    throw e;
+                }
 
 		cache.put(url, content);
 

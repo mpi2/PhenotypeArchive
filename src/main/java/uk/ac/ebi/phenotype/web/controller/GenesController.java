@@ -53,10 +53,7 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.pojo.*;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.ImageService;
-import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.service.PreQcService;
+import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -103,8 +100,8 @@ public class GenesController {
 	ImageService imageService;
 	@Autowired
 	private GeneService geneService;
-	@Autowired
-	private ObservationService observationService;
+
+	@Autowired private StatisticalResultService statsResultsService;
 	@Autowired
 	private PreQcService preqcService;
 	
@@ -228,7 +225,7 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
+			List<Map<String, String>> dataMapList = statsResultsService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
@@ -707,7 +704,7 @@ public class GenesController {
 
 		List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
 
-                log.info("#### genesAllele...");
+   //             log.info("#### genesAllele...");
 
 		model.addAttribute("alleleProducts", constructs);
 		return "genesAllele";
@@ -719,20 +716,20 @@ public class GenesController {
 
 		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo2(acc);
         
-                log.info("#### genesAllele2...");
-                log.info("#### genesAllele2: constructs2: " + constructs2);
+    //            log.info("#### genesAllele2...");
+   //             log.info("#### genesAllele2: constructs2: " + constructs2);
                 
 		model.addAttribute("alleleProducts2", constructs2);
                 
                 String debug = request.getParameter("debug");
-                log.info("#### genesAllele2: debug: " + debug);        
+    //            log.info("#### genesAllele2: debug: " + debug);        
                 boolean d = debug != null && debug.equals("true");
-                log.info("#### genesAllele2: d: " + d);        
+    //            log.info("#### genesAllele2: d: " + d);        
                 if(d) {
                     model.addAttribute("debug", "true");
                 }
 
-                log.info("#### genesAllele2: model: " + model);
+      //          log.info("#### genesAllele2: model: " + model);
                 
 		return "genesAllele2";
 	}

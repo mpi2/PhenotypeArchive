@@ -152,7 +152,7 @@ public class PhenotypesController {
         	
         	int nbDocs = docs.size();
         	
-        	if ( nbDocs == 0 && preqcService.getGenesBy(phenotype_id, null).isEmpty()) {
+        	if ( nbDocs == 0 && (preqcService.getGenesBy(phenotype_id, null).isEmpty() || preqcService.getGenesBy(phenotype_id, null) == null)) {
         		// do something
         		model.addAttribute("hasData", false);
         	} else {

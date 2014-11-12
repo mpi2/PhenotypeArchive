@@ -430,7 +430,7 @@ public class GeneService {
 
 		try {
 					
-			log.debug("getStatusFromDoc - " + jsondoc);
+			System.out.println("getStatusFromDoc - " + jsondoc);
 			
 			/* ******** mice production status ******** */
 			String patternStr = "(tm.*)\\(.+\\).+"; // allele name pattern
@@ -446,9 +446,8 @@ public class GeneService {
 						.getFieldValue("mouse_status");
 
 				for (int i = 0; i < mouseStatus.size(); i++) {
-					String mouseStatusStr = mouseStatus.get(i).toString();
-
-					
+					System.out.println("GOT HERE ");
+					String mouseStatusStr = mouseStatus.get(i).toString();			
 					
 					if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 						String alleleName = alleleNames.get(i).toString();

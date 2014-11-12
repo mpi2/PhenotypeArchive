@@ -15,13 +15,13 @@
  */
 package uk.ac.ebi.phenotype.web.pojo;
 
+import org.apache.commons.lang.StringUtils;
 import uk.ac.ebi.phenotype.pojo.*;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 /**
  *
@@ -40,6 +40,12 @@ import java.util.Map;
 public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     private Map<String, String> config;
+
+	// The 3i set of procedures that should be labelled as such
+	// in the phenotype row
+	private final static Set<String> source3iProcedurePrefixes = new HashSet(Arrays.asList(
+		"MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
+	));
 
 
 	public Map<String, String> getConfig() {
@@ -93,7 +99,15 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.setPipeline(pcs.getPipeline());
 		// zygosity representation depends on source of information
         // we need to know what the data source is so we can generate appropriate link on the page
-        this.setDataSourceName(pcs.getDatasource().getName());
+
+	    // Procedure prefix is the first two strings of the parameter after splitting on underscore
+	    // i.e. IMPC_BWT_001_001 => IMPC_BWT
+	    String procedurePrefix = StringUtils.join(Arrays.asList(pcs.getParameter().getStableId().split("_")).subList(0, 1), "_");
+	    if (source3iProcedurePrefixes.contains(procedurePrefix)) {
+		    this.setDataSourceName("3i");
+	    } else {
+		    this.setDataSourceName(pcs.getDatasource().getName());
+	    }
 
         this.pValue = pcs.getpValue();
         // this should be the fix but EuroPhenome is buggy

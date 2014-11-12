@@ -57,7 +57,6 @@ public class ChartColors {
 		if(index>=maleRgb.size()) {
 			System.err.println("no color found returning default");
 			index=index % maleRgb.size();
-			System.out.println("color index="+index);
 			return defaultColor;
 		}
 		if(sexType.equals(SexType.male)) {

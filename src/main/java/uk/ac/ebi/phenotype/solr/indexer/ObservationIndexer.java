@@ -221,7 +221,7 @@ public class ObservationIndexer {
 
 					BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
 					if (b == null) {
-						logger.error("Cannot find biological model for experiment {}", r.getString("experiment_id"));
+						logger.error("Cannot find biological data for experiment {}", r.getString("experiment_id"));
 						continue;
 					}
 					o.setBiologicalModelId(b.biologicalModelId);

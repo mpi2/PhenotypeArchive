@@ -19,9 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ImpressService;
@@ -32,13 +34,20 @@ import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 public class ScatterChartAndTableProvider {
 	
 	private static final Logger logger = Logger.getLogger(ScatterChartAndTableProvider.class);
+	@Autowired 
+	PhenotypePipelineDAO ppDAO;
 	
 	@Autowired 
 	ImpressService impressService;
 	
 	public String createScatter(ExperimentDTO experiment, String experimentNumber, Parameter parameter, JSONArray series) {
 		
-		String procedureDescription = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
+		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+		String procedureDescription = "";
+		if (proc != null) {
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+		}
+		
 		
 		String chartString="	$(function () { "
 			  +"  chart71maleWTSI = new Highcharts.Chart({ "

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
+import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
@@ -67,10 +68,14 @@ public class AbrChartAndTableProvider {
     		Integer paramId = pipelineDAO.getParameterByStableId(parameterStableId).getId();
     		try {
     			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenterId, strain, metadataGroup, alleleAccession);
-			     if (experiment != null){
+			    
+    			if (experiment != null){
 			    	zygosities = experiment.getZygosities();
 					if (procedureUrl == null){
-						procedureUrl = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
+						Procedure proc = pipelineDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+						if (proc != null) {
+							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+						}
 					}
 					data.get("control").add(getMeans("control", experiment));
 					for (ZygosityType z : zygosities){

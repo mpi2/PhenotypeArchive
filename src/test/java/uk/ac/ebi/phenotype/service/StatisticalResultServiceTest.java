@@ -1,28 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +8,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -47,7 +23,31 @@ public class StatisticalResultServiceTest {
         
          @Autowired
 	private PhenotypePipelineDAO pDAO;
-		
+
+
+
+	@Test
+	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() {
+
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		List<Map<String, String>> dataset = null;
+		String genomicFeatureAcc = "MGI:104874"; // Akt2
+		try {
+			dataset = genotypePhenotypeService.getDistinctPipelineAlleleCenterListByGeneAccession(genomicFeatureAcc);
+			// for (Map<String, String> map: dataset) {
+			// for (String key: map.keySet()) {
+			// System.out.println(key + ":" + map.get(key));
+			// }
+			// System.out.println();
+			// }
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertTrue(dataset.size() > 0);
+	}
+
+
 //	@Test
 //	public void testGetTopLevelMPTerms() throws MalformedURLException {
 //		HashMap<String, String> summary;

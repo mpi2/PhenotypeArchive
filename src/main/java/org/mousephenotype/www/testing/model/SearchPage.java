@@ -454,6 +454,9 @@ public class SearchPage {
         if (hasImageTable())
             getImageTable().updateImageTableAfterChange();                      // Update the images table to keep it in sync.
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
+        
+        // Sometimes we lose the DOM unless we pause for a second. Don't know what to wait on for clickPageButtn().
+        TestUtils.sleep(1000);
     }
     
     public void clickToolbox(WindowState desiredWindowState) {
@@ -955,7 +958,7 @@ public class SearchPage {
     public int submitSearch(String searchString) {
         WebElement weInput = driver.findElement(By.cssSelector("input#s"));
         weInput.clear();
-        weInput.sendKeys(searchString);
+        TestUtils.seleniumSendKeysHack(weInput, searchString);
         
         WebElement resultMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='mpi2-search']")));
         

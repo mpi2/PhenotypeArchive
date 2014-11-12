@@ -90,10 +90,13 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<GenotypePhenotypeDTO> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName, String mpTermAcc, String mpTermName)
+	public List<GenotypePhenotypeDTO> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName)
 	throws SolrServerException {
 
-		List<String> fields = Arrays.asList(GenotypePhenotypeDTO.PHENOTYPING_CENTER, mpTermAcc, mpTermName, GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+		List<String> fields = Arrays.asList(GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.MP_TERM_ID,
+				GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+				GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME, 
+				GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
@@ -431,7 +434,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
 		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
 		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"" + "&fq=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + "&fq=" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccession + "\"" + "&fq=" + GenotypePhenotypeDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-		System.out.println("solr url for stats results=" + solrUrl);
+//		System.out.println("solr url for stats results=" + solrUrl);
 		List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
 		return statisticalResult;
 	}
@@ -456,7 +459,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		}
 		
 		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + geneClause.toString() + "\")" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-		System.out.println("\n\n\n SOLR URL = " + solrUrl);
+//		System.out.println("\n\n\n SOLR URL = " + solrUrl);
 		return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 	}
 	
@@ -477,10 +480,10 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	throws IOException, URISyntaxException {
 
 		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-		System.out.println("SOLR URL = " + solrUrl);
+//		System.out.println("SOLR URL = " + solrUrl);
 
 		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"" + "&fq=" + GenotypePhenotypeDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-		System.out.println("SOLR URL = " + solrUrl);
+//		System.out.println("SOLR URL = " + solrUrl);
 		return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 	}
 
@@ -499,7 +502,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		}
 		solrUrl += "&sort=p_value%20asc";// sort by pValue by default so we get
 											// most sig calls at top of tables
-		System.out.println("Solr url in getMPByGeneAccessionAndFilter " + solrUrl);
+	//	System.out.println("Solr url in getMPByGeneAccessionAndFilter " + solrUrl);
 		return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 	}
 
@@ -520,7 +523,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		}
 		solrUrl += "&sort=p_value%20asc";
 		// }
-		System.out.println("solr url for sorting pvalues=" + solrUrl);
+//		System.out.println("solr url for sorting pvalues=" + solrUrl);
 		return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 
 	}
