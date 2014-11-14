@@ -479,7 +479,9 @@ public class FileExportController {
     }
 
     private List<String> composeImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
-        String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
+       System.out.println("query: "+ query + " -- "+ solrParams);
+    	
+    	String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
         
         List<String> rowData = new ArrayList();
 
