@@ -132,15 +132,17 @@ public class ImagesController {
 
 		}
 		if (qIn != null && !qIn.equals(emptyString)) {
-			queryString += " AND search keyword: \"" + qIn + "\"";// URLDecoder.decode(request.getQueryString(),
+			qIn = URLDecoder.decode(qIn, "UTF-8");
+			queryString += " search keyword: \"" + qIn + "\"";// URLDecoder.decode(request.getQueryString(),
 																	// "UTF-8");
 		} else {
-			queryString += " AND search keyword: \"\"";
+			queryString += " search keyword: \"\"";
 		}
 		queryString = queryString.replace("annotatedHigherLevelMpTermName", "phenotype");
 		queryString = queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
 		queryString = queryString.replace("expName", "procedure");
 		queryString = queryString.replace("subtype", "gene_subtype");
+		
 		model.addAttribute("breadcrumbText", queryString);
 
 		return "imagesb";
