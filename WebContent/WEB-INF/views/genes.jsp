@@ -33,7 +33,7 @@
                             <li><a href="#section-disease">Potential Disease Models</a></li>
                             </c:if>
                             <c:if test="${!countIKMCAllelesError}">
-                            <li><a href="#order">Order Mouse and ES Cells</a></li>
+                            <li><a href="#order2">Order Mouse and ES Cells</a></li>
                             </c:if>
                     </ul>
 
