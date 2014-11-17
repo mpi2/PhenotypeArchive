@@ -186,7 +186,7 @@
 					<field column="TERM_ID" name="ma_id" />
 
 					<entity dataSource="ontods" name="ma_term_infos" 
-						query="select term_id, name from ma_term_infos where term_id = '%{maAnnotations.TERM_ID}'" 
+						query="select term_id, name from ma_term_infos where term_id = '${maAnnotations.TERM_ID}'" 
 						onError="continue">			
 						<!--  use annotationTermName from ontodb not from Sanger image annotation(risk of out of date) -->
 			           
