@@ -138,7 +138,7 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                                 <c:if test="${orderPossible}">
-                                            <p> <a class="btn" href="#order"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+                                            <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
                                         </c:if>
                                     </div>
 
