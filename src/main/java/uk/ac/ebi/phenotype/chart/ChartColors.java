@@ -1,16 +1,12 @@
 package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
-import org.apache.bcel.generic.RETURN;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.semanticweb.elk.reasoner.saturation.conclusions.ForwardLink.ThisBackwardLinkRule;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
