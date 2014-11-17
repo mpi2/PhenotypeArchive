@@ -104,7 +104,7 @@ public class ImageService {
 	public static SolrQuery allImageRecordSolrQuery()
 	throws SolrServerException {
 
-		return new SolrQuery().setQuery("observation_type:image_record").addFilterQuery("(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org* AND !download_file_path:*.pdf AND !download_file_path:*.dcm)").setRows(1000000000);
+		return new SolrQuery().setQuery("observation_type:image_record").addFilterQuery("(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org* AND !download_file_path:*.pdf)").setRows(1000000000);
 	}
 
 

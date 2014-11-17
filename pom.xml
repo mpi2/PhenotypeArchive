@@ -77,28 +77,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.bbop</groupId>
-			<artifactId>OWLTools-Core</artifactId>
-			<version>0.2.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sourceforge.owlapi</groupId>
-			<artifactId>owlapi-distribution</artifactId>
-			<version>3.4.5</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bbop</groupId>
-			<artifactId>OWLTools-Oort</artifactId>
-			<version>0.2.1-SNAPSHOT</version>
-		</dependency>
-
-
-		<dependency>
 			<groupId>se.jiderhamn</groupId>
 			<artifactId>classloader-leak-prevention</artifactId>
-			<version>1.7.0</version>
+			<version>1.10.0</version>
 			<exclusions>
 				<!-- Exclude el-api as it's provided by tomcat -->
 				<exclusion>
@@ -553,23 +534,6 @@
 	</dependencies>
 
 	<repositories>
-		<!-- OWL TOOLS -->
-		<repository>
-			<id>BerkeleyBOP</id>
-			<name>Berkeley BOP maven repository</name>
-			<url>http://code.berkeleybop.org/maven/repository/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>BerkeleyBOPSnapshot</id>
-			<url>http://code.berkeleybop.org/maven/snapshot-repository/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-
 		<!-- JBoss Repository used for Java EE 6 pieces -->
 		<repository>
 			<id>repository.jboss.org</id>
