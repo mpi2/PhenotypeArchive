@@ -23,32 +23,25 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.jstl.core.Config;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.helpers.OnlyOnceErrorHandler;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.coode.parsers.oppl.OPPLScript_OPPLParser.query_return;
-import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -58,7 +51,6 @@ import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.service.ImageService;
 
 @Controller
 public class ImagesController {
@@ -132,15 +124,17 @@ public class ImagesController {
 
 		}
 		if (qIn != null && !qIn.equals(emptyString)) {
-			queryString += " AND search keyword: \"" + qIn + "\"";// URLDecoder.decode(request.getQueryString(),
+			qIn = URLDecoder.decode(qIn, "UTF-8");
+			queryString += " search keyword: \"" + qIn + "\"";// URLDecoder.decode(request.getQueryString(),
 																	// "UTF-8");
 		} else {
-			queryString += " AND search keyword: \"\"";
+			queryString += " search keyword: \"\"";
 		}
 		queryString = queryString.replace("annotatedHigherLevelMpTermName", "phenotype");
 		queryString = queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
 		queryString = queryString.replace("expName", "procedure");
 		queryString = queryString.replace("subtype", "gene_subtype");
+		
 		model.addAttribute("breadcrumbText", queryString);
 
 		return "imagesb";

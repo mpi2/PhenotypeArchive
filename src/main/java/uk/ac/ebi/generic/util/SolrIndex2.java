@@ -223,6 +223,21 @@ public class SolrIndex2 {
 
         map2.put("type", type);
 
+
+
+        if(jsonObject2.has("other_links")) {
+            String genbank_file = getGeneProductInfoArrayEntry2("other_links", "genbank_file", jsonObject2);
+            if (genbank_file != null) {
+                map2.put("genbank_file", genbank_file);
+            }
+            String allele_image = getGeneProductInfoArrayEntry2("other_links", "allele_image", jsonObject2);
+            if (allele_image != null) {
+                map2.put("allele_image", allele_image);
+            }
+        }
+
+
+
         //                    <a class="hasTooltip" href="${baseUrl}/alleles/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
         //model.addAttribute("qc_data_mouse", "alleles/qc_data/" + constructs.get("mice").get("title"));
         //            <a class="hasTooltip" href="${baseUrl}/alleles/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
@@ -231,7 +246,7 @@ public class SolrIndex2 {
         if(jsonObject2.containsKey("allele_type") && jsonObject2.containsKey("name") && jsonObject2.getString("allele_type").length() > 0 && jsonObject2.getString("name").length() > 0) {
             map2.put("qc_data_url", "alleles/qc_data/" + jsonObject2.getString("allele_type") + "/mouse/" + jsonObject2.getString("name") + "/");
         }
-        
+
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
         //map2.put("contacts", getGeneProductInfoOrderContactInfo("contact", jsonObject2));
         map2.put("contacts", getGeneProductInfoContactInfo(jsonObject2));
@@ -358,7 +373,7 @@ public class SolrIndex2 {
         }
 
         map2.put("url_new", "alleles/" + map2.get("mgi_accession_id") + "/" + map2.get("allele_name") + "/");
-        
+
         return map2;
     }
 
@@ -411,6 +426,22 @@ public class SolrIndex2 {
 
         map2.put("type", type);
 
+
+
+        if(jsonObject2.has("other_links")) {
+            String genbank_file = getGeneProductInfoArrayEntry2("other_links", "genbank_file", jsonObject2);
+            if (genbank_file != null) {
+                map2.put("genbank_file", genbank_file);
+            }
+            String allele_image = getGeneProductInfoArrayEntry2("other_links", "allele_image", jsonObject2);
+            if (allele_image != null) {
+                map2.put("allele_image", allele_image);
+            }
+        }
+
+
+
+
         //                    <a class="hasTooltip" href="${baseUrl}/alleles/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
         //model.addAttribute("qc_data_mouse", "alleles/qc_data/" + constructs.get("mice").get("title"));
         //            <a class="hasTooltip" href="${baseUrl}/alleles/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
@@ -419,7 +450,7 @@ public class SolrIndex2 {
         if(jsonObject2.containsKey("allele_type") && jsonObject2.containsKey("name") && jsonObject2.getString("allele_type").length() > 0 && jsonObject2.getString("name").length() > 0) {
             map2.put("qc_data_url", "alleles/qc_data/" + jsonObject2.getString("allele_type") + "/es_cell/" + jsonObject2.getString("name") + "/");
         }
-        
+
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
 
         String parental_cell_line = getGeneProductInfoArrayEntry2("genetic_info", "parent_es_cell_line", jsonObject2);
@@ -540,7 +571,7 @@ public class SolrIndex2 {
         }
 
         map2.put("url_new", "alleles/" + map2.get("mgi_accession_id") + "/" + map2.get("allele_name") + "/");
-        
+
         return map2;
     }
 
@@ -585,6 +616,11 @@ public class SolrIndex2 {
         String allele_image = getGeneProductInfoArrayEntry2("other_links", "allele_image", jsonObject2);
         if (allele_image != null) {
             map2.put("allele_image", allele_image);
+        }
+
+        String genbank_file = getGeneProductInfoArrayEntry2("other_links", "genbank_file", jsonObject2);
+        if (genbank_file != null) {
+          map2.put("genbank_file", genbank_file);
         }
 
         map2.put("allele_has_issue", "false");
@@ -679,7 +715,7 @@ public class SolrIndex2 {
         }
 
         String design_id = jsonObject2.getString("design_id");
-        
+
         map2.put("url_new", "alleles/" + map2.get("mgi_accession_id") + "/" + cassette + "/" + design_id + "/");
 
         return map2;
@@ -1151,8 +1187,8 @@ public class SolrIndex2 {
             return null;
         }
     }
-    
-    //3. Only display Targeting Vectors if the targeting vector is different from all the targeting_vectors that created the ES Cells. 
+
+    //3. Only display Targeting Vectors if the targeting vector is different from all the targeting_vectors that created the ES Cells.
     //The targeting vector is only considered to be different if the cassette and allele_type is different
 
     class CassetteAlleleTypeManager {
@@ -1316,7 +1352,95 @@ public class SolrIndex2 {
 
         return mapper;
     }
-   
+
+    private String getSummaryGenbank(Map<String, Object> mapper, List<Map<String, String>> constructs) {
+        return getSummaryGenbankNew(mapper, constructs);
+        //return getSummaryGenbankOriginal(mapper, constructs);
+    }
+    
+    private String getSummaryGenbankNew(Map<String, Object> mapper, List<Map<String, String>> constructs) {
+        log.info("#### getSummaryGenbankNew: mapper: " + mapper);
+
+        String[] sa = new String[]{"mice", "es_cells", "targeting_vectors"};
+
+        for (String si : sa) {
+            if (mapper != null && mapper.containsKey(si)) {
+                log.info("#### getSummaryGenbankNew: " + si + ": " + mapper.get(si) );
+                List<Map<String, Object>> tt = (List<Map<String, Object>>)mapper.get(si);
+                if (tt != null) {
+                    for (Map<String, Object> item : tt) {
+                        if(item.containsKey("genbank_file")) {
+                            String s = (String)item.get("genbank_file");
+                            if (!s.isEmpty()) {
+                                return s;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return getSummaryGenbankOriginal(mapper, constructs);
+    }
+    
+    private String getSummaryGenbankOriginal(Map<String, Object> mapper, List<Map<String, String>> constructs) {
+        if (constructs != null) {
+            for (Map<String, String> item : constructs) {
+                if (item.containsKey("genbank_file")) {
+                    String genbank_file = item.get("genbank_file"); // TODO: fix this in the index
+                    genbank_file = genbank_file.replace("escell-clone_genbank_file", "escell-clone-genbank-file");
+                    genbank_file = genbank_file.replace("escell-clone_cre-genbank_file", "escell-clone-cre-genbank-file");
+                    return genbank_file;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getSummaryAlleleImage(Map<String, Object> mapper, List<Map<String, String>> constructs) {
+        return getSummaryAlleleImageNew(mapper, constructs);
+        //return getSummaryAlleleImageOriginal(mapper, constructs);
+    }
+
+    private String getSummaryAlleleImageNew(Map<String, Object> mapper, List<Map<String, String>> constructs) {
+        log.info("#### getSummaryAlleleImageNew: mapper: " + mapper);
+
+        String[] sa = new String[]{"mice", "es_cells", "targeting_vectors"};
+
+        for (String si : sa) {
+            if (mapper != null && mapper.containsKey(si)) {
+                log.info("#### getSummaryAlleleImageNew: " + si + ": " + mapper.get(si) );
+                List<Map<String, Object>> tt = (List<Map<String, Object>>)mapper.get(si);
+                if (tt != null) {
+                    for (Map<String, Object> item : tt) {
+                        if(item.containsKey("allele_image")) {
+                            String s = (String)item.get("allele_image");
+                            if (!s.isEmpty()) {
+                                return s + "?simple=true";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return getSummaryAlleleImageOriginal(mapper, constructs);
+        //return null;
+    }
+
+    private String getSummaryAlleleImageOriginal(Map<String, Object> mapper, List<Map<String, String>> constructs) {
+        if (constructs != null) {
+            for (Map<String, String> item : constructs) {
+                if (item.containsKey("allele_image")) {
+                    String s = item.get("allele_image");
+                    if (!s.isEmpty()) {
+                        return s + "?simple=true";
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private Map<String, Object> getSummary(
             String accession,
             String allele_name,
@@ -1342,17 +1466,19 @@ public class SolrIndex2 {
                 summary.put("symbol", item.get("marker_symbol") + "<sup>" + item.get("allele_name") + "</sup>");
                 summary.put("allele_name", item.get("allele_name"));
 
-                String genbank_file = item.get("genbank_file"); // TODO: fix this in the index
-                genbank_file = genbank_file.replace("escell-clone_genbank_file", "escell-clone-genbank-file");
-                genbank_file = genbank_file.replace("escell-clone_cre-genbank_file", "escell-clone-cre-genbank-file");
-                summary.put("genbank", genbank_file);
+//                String genbank_file = item.get("genbank_file"); // TODO: fix this in the index
+//                genbank_file = genbank_file.replace("escell-clone_genbank_file", "escell-clone-genbank-file");
+//                genbank_file = genbank_file.replace("escell-clone_cre-genbank_file", "escell-clone-cre-genbank-file");
+                //summary.put("genbank", genbank_file);
 
-                if (item.containsKey("allele_image")) {
-                    String s = item.get("allele_image");
-                    if (!s.isEmpty()) {
-                        summary.put("map_image", s + "?simple=true");
-                    }
-                }
+               // if (item.containsKey("allele_image")) {
+              //      String s = item.get("allele_image");
+              //      if (!s.isEmpty()) {
+               //         summary.put("map_image", s + "?simple=true");
+              //      }
+              //  }
+
+             //   summary.put("map_image", getSummaryAlleleImage(mapper, constructs2));
 
                 // TODO: is this right?
 
@@ -1415,9 +1541,13 @@ public class SolrIndex2 {
         }
 
         Map<String, Object> s = summaries.get(0);
-        
+
+        //summary.put("map_image", s + "?simple=true");
+        s.put("map_image", getSummaryAlleleImage(mapper, constructs2));
+        s.put("genbank", getSummaryGenbank(mapper, constructs2));
+
         s.put("button_gear", getSummaryDetails(mapper, s));
-        
+
         return s;
     }
 
@@ -1427,7 +1557,7 @@ public class SolrIndex2 {
         button.put("url", value);
         return button;
     }
-    
+
     private List<Map<String, Object>> getSummaryDetails(Map<String, Object> mapper, Map<String, Object> s) {
         List<Map<String, Object>> buttons = new ArrayList<>();
 
@@ -1443,17 +1573,17 @@ public class SolrIndex2 {
         if(s.containsKey("lrpcr_genotyping_primers")) {
             buttons.add(addButton("LRPCR Genotyping Primers", (String)s.get("lrpcr_genotyping_primers")));
         }
-        
+
         if(s.containsKey("browsers")) {
             List<HashMap<String, String>> l = (List<HashMap<String, String>>)s.get("browsers");
             if(l.size() > 0) {
-                buttons.add(addButton("Ensembl", (String)l.get(0).get("url")));        
+                buttons.add(addButton("Ensembl", (String)l.get(0).get("url")));
             }
         }
-        
+
         if(mapper.containsKey("loa_assays")) {
             Map<String, String> ll = (Map<String, String>)mapper.get("loa_assays");
-            
+
            // log.info("#### getSummaryDetails: ll: " + ll);
 
             if(ll != null && ll.containsKey("upstream")) {
@@ -1466,16 +1596,16 @@ public class SolrIndex2 {
                 buttons.add(addButton("LOA (critical)", (String)ll.get("critical")));
             }
         }
-        
+
 //        for(int i =0; i< 10; i++) {
 //            buttons.add(addButton("hello! hello! hello!", "whatever"));
 //        }
 
 //        log.info("#### getSummaryDetails: buttons: " + buttons);
-        
+
         return buttons;
-    }    
-    
+    }
+
     private List<Map<String, Object>> getSummaryDetails_1(Map<String, Object> mapper, Map<String, Object> s) {
         List<Map<String, Object>> buttons = new ArrayList<>();
 
@@ -1483,19 +1613,19 @@ public class SolrIndex2 {
         buttons.add(addButton("Mutagenesis Prediction", (String)s.get("mutagenesis_url")));
         buttons.add(addButton("Southern Tool", (String)s.get("southern_tool")));
         buttons.add(addButton("LRPCR Genotyping Primers", (String)s.get("lrpcr_genotyping_primers")));
-        
+
         List<HashMap<String, String>> l = (List<HashMap<String, String>>)s.get("browsers");
-        buttons.add(addButton("Ensembl", (String)l.get(0).get("url")));        
-                
+        buttons.add(addButton("Ensembl", (String)l.get(0).get("url")));
+
         Map<String, String> ll = (Map<String, String>)mapper.get("loa_assays");
 
         buttons.add(addButton("LOA (upstream)", (String)ll.get("upstream")));
         buttons.add(addButton("LOA (downstream)", (String)ll.get("downstream")));
         buttons.add(addButton("LOA (critical)", (String)ll.get("critical")));
-        
+
         return buttons;
-    }    
-    
+    }
+
     // Allele Type:{allele type} Design_id: {design_id} Cassette: {cassette}
 
     private void fixAlleleName(Map<String, Object> targeting_vector) {
@@ -1509,13 +1639,13 @@ public class SolrIndex2 {
     }
 
     private List<Map<String, Object>> getGeneProductInfoTVs(String accession, String allele_name, List<Map<String, Object>> es_cells) throws IOException, URISyntaxException {
-        //return 
+        //return
        // getGeneProductInfoTVsNew(accession, allele_name, es_cells);
         return getGeneProductInfoTVsOld(accession, allele_name, es_cells);
     }
-    
 
-    
+
+
     private List<Map<String, Object>> getGeneProductInfoTVsOld(String accession, String allele_name, List<Map<String, Object>> es_cells) throws IOException, URISyntaxException {
         List<String> associated_targeting_vectors = new ArrayList();
         List<Map<String, Object>> targeting_vectors = new ArrayList<>();
@@ -1605,7 +1735,7 @@ public class SolrIndex2 {
             JSONArray docs2 = jsonObject2.getJSONObject("response").getJSONArray("docs");
 
             log.info("#### getGeneProductInfoTVsOld: 3. docs.size(): " + docs2.size());
-            
+
             if (docs2.size() > 0) {
                 for (Object doc : docs2) {
                     JSONObject jsonObject31 = (JSONObject) doc;
@@ -1624,7 +1754,7 @@ public class SolrIndex2 {
 
         return targeting_vectors;
     }
-    
+
 
 // this will only return targeting vectors
 
@@ -1642,11 +1772,11 @@ public class SolrIndex2 {
                 + "&start=0&rows=100&hl=true&wt=json";
 
         log.info("#### getGeneProductInfo: url: " + url);
-        
+
         hash.put("url", url);
         hash.put("debug", debug ? "true" : "false");
         Map<String, Object> mapper = getGeneProductInfo(hash);
-        
+
         if(mapper == null || !mapper.containsKey("targeting_vectors") || ((List<Map<String, Object>>)mapper.get("targeting_vectors")).size() < 1) {
             JSONObject jsonObject1 = getResults(url);
 
@@ -1679,7 +1809,7 @@ public class SolrIndex2 {
             mapper.put("targeting_vectors", tv);
             mapper.put("title", marker_symbol);
         }
-        
+
         return mapper;
     }
 
@@ -1915,7 +2045,7 @@ public class SolrIndex2 {
             log.error("#### extractQcData: qc_group: " + qc_group);
             log.error("#### extractQcData: qc_type: " + qc_type);
             log.error("#### extractQcData: qc_result: " + qc_result);
-            
+
             if (!deep.containsKey(qc_group)) {
                 deep.put(qc_group, new HashMap<String, List<String>>());
                 deep.get(qc_group).put("fieldNames", new ArrayList());
@@ -2084,7 +2214,7 @@ public class SolrIndex2 {
         if (!notFoundMap.isEmpty()) {
             return notFoundMap;
         }
-        
+
         notFoundMap.put("TEXT", phraseMap.get("no-cells-prod"));
         notFoundMap.put("TEXT2", "");
 
