@@ -16,8 +16,6 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,10 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -43,13 +37,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
@@ -64,11 +51,9 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.PhenotypeCallSummaryBean;
  * @author Matt Pearce
  *
  */
-public class MPIndexer {
+public class MPIndexer extends AbstractIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
-	private static Connection komp2DbConnection;
-	private static Connection ontoDbConnection;
 
 	private static final String ALLELE_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";	  
 	private static final String IMAGES_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images";       
@@ -85,39 +70,42 @@ public class MPIndexer {
 	private final SolrServer phenodigmCore;
 	private final SolrServer mpCore;
 	
+	private Connection komp2DbConnection;
+	private Connection ontoDbConnection;
+
 	// Maps of supporting database content
-	Map<String, List<MPHPBean>> mphpBeans;
-	Map<String, List<Integer>> termNodeIds;
-	Map<Integer, List<MPTopLevelTermBean>> topLevelTerms;
+	private Map<String, List<MPHPBean>> mphpBeans;
+	private Map<String, List<Integer>> termNodeIds;
+	private Map<Integer, List<MPTopLevelTermBean>> topLevelTerms;
 	// Intermediate node IDs and terms can also be used for allChildren
-	Map<Integer, List<Integer>> intermediateNodeIds;
-	Map<Integer, List<Integer>> childNodeIds;
+	private Map<Integer, List<Integer>> intermediateNodeIds;
+	private Map<Integer, List<Integer>> childNodeIds;
 	// Intermediate terms can also be used for parents
-	Map<Integer, List<MPTermNodeBean>> intermediateTerms;
-	Map<Integer, List<Integer>> parentNodeIds;
+	private Map<Integer, List<MPTermNodeBean>> intermediateTerms;
+	private Map<Integer, List<Integer>> parentNodeIds;
 	// Use single synonym hash
-	Map<String, List<String>> mpTermSynonyms;
-	Map<String, List<String>> ontologySubsets;
-	Map<String, List<String>> goIds;
+	private Map<String, List<String>> mpTermSynonyms;
+	private Map<String, List<String>> ontologySubsets;
+	private Map<String, List<String>> goIds;
 
 	// MA Term mappings
-	Map<String, List<MPTermNodeBean>> maTermNodes;
-	Map<String, List<String>> maTopLevelNodes;
-	Map<String, List<MPTermNodeBean>> maChildLevelNodes;
-	Map<String, List<String>> maTermSynonyms;
+	private Map<String, List<MPTermNodeBean>> maTermNodes;
+	private Map<String, List<String>> maTopLevelNodes;
+	private Map<String, List<MPTermNodeBean>> maChildLevelNodes;
+	private Map<String, List<String>> maTermSynonyms;
 	
 	// Alleles
-	Map<String, AlleleDTO> alleles;
+	private Map<String, AlleleDTO> alleles;
 	
 	// Phenotype call summaries (1)
-	Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
-	Map<String, List<String>> impcBeans;
-	Map<String, List<String>> legacyBeans;
+	private Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
+	private Map<String, List<String>> impcBeans;
+	private Map<String, List<String>> legacyBeans;
 	
 	// Phenotype call summaries (2)
-	Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
-	Map<String, List<MPStrainBean>> strains;
-	Map<String, List<ParamProcedurePipelineBean>> pppBeans;
+	private Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
+	private Map<String, List<MPStrainBean>> strains;
+	private Map<String, List<ParamProcedurePipelineBean>> pppBeans;
 
 	public MPIndexer() {
 		this.alleleCore = new HttpSolrServer(ALLELE_URL);
@@ -125,6 +113,19 @@ public class MPIndexer {
 		this.preqcCore = new HttpSolrServer(PREQC_URL);
 		this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
 		this.mpCore = new HttpSolrServer(MP_URL);
+	}
+	
+	public void initialise(String[] args) throws IndexerException {
+		super.initialise(args);
+		try {
+			DataSource komp2DS = ((DataSource) applicationContext.getBean("komp2DataSource"));
+			this.komp2DbConnection = komp2DS.getConnection();
+			DataSource ontoDS = ((DataSource)applicationContext.getBean("ontodbDataSource"));
+			this.ontoDbConnection = ontoDS.getConnection();
+		} catch (SQLException sqle) {
+			logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
+			throw new IndexerException(sqle);
+		}
 	}
 	
 	public void run() throws SolrServerException, SQLException, IOException {
@@ -179,6 +180,10 @@ public class MPIndexer {
 		logger.info("Indexed {} beans", count);
 		
 		logger.info("MP Indexer complete!");
+	}
+	
+	protected Logger getLogger() {
+		return logger;
 	}
 	
 	private void initialiseSupportingBeans() throws SQLException, SolrServerException {
@@ -1159,50 +1164,10 @@ public class MPIndexer {
 	}
 	
 
-	public static void main(String[] args) throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
-		OptionParser parser = new OptionParser();
-
-		// parameter to indicate which spring context file to use
-		parser.accepts("context").withRequiredArg().ofType(String.class);
-
-		OptionSet options = parser.parse(args);
-		String context = (String) options.valuesOf("context").get(0);
-
-		logger.info("Using application context file {}", context);
-
-		// Wire up spring support for this application
-		MPIndexer main = new MPIndexer();
-
-		ApplicationContext applicationContext;
-		try {
-
-			// Try context as a file resource
-			applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-
-		} catch (RuntimeException e) {
-
-			logger.warn("An error occurred loading the file: {}", e.getMessage());
-
-			// Try context as a class path resource
-			applicationContext = new ClassPathXmlApplicationContext(context);
-
-			logger.warn("Using classpath app-config file: {}", context);
-
-		}
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-		// allow hibernate session to stay open the whole execution
-		PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-		DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-		transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-		transactionManager.getTransaction(transactionAttribute);
-
-		DataSource komp2DS = ((DataSource) applicationContext.getBean("komp2DataSource"));
-		komp2DbConnection = komp2DS.getConnection();
-		DataSource ontoDS = ((DataSource)applicationContext.getBean("ontodbDataSource"));
-		ontoDbConnection = ontoDS.getConnection();
-
-		main.run();
+	public static void main(String[] args) throws SQLException, IOException, SolrServerException, IndexerException {
+		MPIndexer indexer = new MPIndexer();
+		indexer.initialise(args);
+		indexer.run();
 
 		logger.info("Process finished.  Exiting.");
 	}
