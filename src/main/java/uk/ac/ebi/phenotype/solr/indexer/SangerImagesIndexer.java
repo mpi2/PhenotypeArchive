@@ -46,17 +46,10 @@ public class SangerImagesIndexer {
 	@Qualifier("sangerImagesIndexing")
 	SolrServer sangerImagesIndexing;
 
-	Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
-	Map<String, BiologicalDataBean> lineBiologicalData = new HashMap<>();
-
 	Map<Integer, DcfBean> dcfMap = new HashMap<>();
-	// Map<Integer, ImpressBean> procedureMap = new HashMap<>();
-	// Map<Integer, ImpressBean> parameterMap = new HashMap<>();
-
-	Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
-	Map<Integer, DatasourceBean> projectMap = new HashMap<>();
-
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
+	Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
+	Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
 
 
 	public SangerImagesIndexer() {
@@ -116,6 +109,7 @@ public class SangerImagesIndexer {
 		main.run();
 
 		logger.info("Process finished.  Exiting.");
+		System.exit(0);
 	}
 
 
@@ -124,6 +118,8 @@ public class SangerImagesIndexer {
 
 		logger.info("Populating dcf maps");
 		populateDcfMap();
+		populateMouseMv();
+		populateAlleleMpi();
 		//
 		// logger.info("Populating data source, project, and category translation maps");
 		// populateDatasourceDataMap();
@@ -177,7 +173,7 @@ public class SangerImagesIndexer {
 
 			ResultSet r = p.executeQuery();
 			while (r.next()) {
-//System.out.println(r.getInt("IMA_IMAGE_RECORD.ID"));
+				// System.out.println(r.getInt("IMA_IMAGE_RECORD.ID"));
 				SangerImagesDTO o = new SangerImagesDTO();
 				o.setId(r.getInt("IMA_IMAGE_RECORD.ID"));
 				o.setDataType(r.getString("dataType"));
@@ -186,12 +182,28 @@ public class SangerImagesIndexer {
 				o.setOriginalFileName(r.getString("ORIGINAL_FILE_NAME"));
 				o.setSmallThumbnailFilePath(r.getString("SMALL_THUMBNAIL_FILE_PATH"));
 				o.setInstitute(r.getString("institute"));
-				DcfBean dcfInfo=dcfMap.get(r.getInt("IMA_IMAGE_RECORD.ID"));
-				if(dcfInfo!=null){
+				DcfBean dcfInfo = dcfMap.get(r.getInt("IMA_IMAGE_RECORD.ID"));
+				if (dcfInfo != null) {
 					System.out.println(dcfInfo);
 					o.setDcfId(dcfInfo.dcfId);
 					o.setDcfExpId(dcfInfo.dcfExpId);
 				}
+				MouseBean mb = mouseMvMap.get(r.getInt("FOREIGN_KEY_ID"));
+				if (mb != null) {
+					System.out.println("adding mouse=" + mb);
+					o.setAgeInWeeks(mb.ageInWeeks);
+					o.setGenotypeString(mb.genotypeString);
+					AlleleBean alBean = alleleMpiMap.get(mb.genotypeString);
+					if (alBean != null) {
+						o.setAllele_accession(alBean.allele_accession);
+						o.setSangerSymbol(alBean.sangerSymbol);
+						o.setSymbol(alBean.symbol);
+						System.out.println("setting symbol in main method="+alBean.symbol);
+						o.setAccession(alBean.accession);
+						o.setGeneName(alBean.geneName);
+					}
+				}
+
 				// 60 seconds between commits
 				sangerImagesIndexing.addBean(o, 60000);
 
@@ -244,6 +256,109 @@ public class SangerImagesIndexer {
 		String dcfExpId;
 		@Field("sangerProcedureName")
 		String sangerProcedureName;
+		@Field("genotypeString")
+		String genotypeString;
+		private String geneName;
+
+
+		public String getGeneName() {
+
+			return geneName;
+		}
+
+
+		public String getAccession() {
+
+			return accession;
+		}
+
+
+		public String getSymbol() {
+
+			return symbol;
+		}
+		@Field("accession")
+		private String accession;
+		@Field("symbol")
+		private String symbol;
+
+
+		public String getGenotypeString() {
+
+			return genotypeString;
+		}
+
+
+		public void setGeneName(String geneName) {
+
+			this.geneName = geneName;
+
+		}
+
+
+		public void setAccession(String accession) {
+
+			this.accession = accession;
+
+		}
+
+
+		public void setSymbol(String symbol) {
+
+			this.symbol = symbol;
+
+		}
+
+
+		public void setGenotypeString(String genotypeString) {
+
+			this.genotypeString = genotypeString;
+		}
+
+
+		public String getAgeInWeeks() {
+
+			return ageInWeeks;
+		}
+
+
+		public void setAgeInWeeks(String ageInWeeks) {
+
+			this.ageInWeeks = ageInWeeks;
+		}
+
+		@Field("ageInWeeks")
+		String ageInWeeks;
+
+		@Field("sangerSymbol")
+		String sangerSymbol;
+
+
+		public String getSangerSymbol() {
+
+			return sangerSymbol;
+		}
+
+
+		public void setSangerSymbol(String sangerSymbol) {
+
+			this.sangerSymbol = sangerSymbol;
+		}
+
+
+		public String getAllele_accession() {
+
+			return allele_accession;
+		}
+
+
+		public void setAllele_accession(String allele_accession) {
+
+			this.allele_accession = allele_accession;
+		}
+
+		@Field("allele_accession")
+		String allele_accession;
 
 
 		public int getId() {
@@ -330,7 +445,7 @@ public class SangerImagesIndexer {
 		}
 
 
-		public int  getDcfId() {
+		public int getDcfId() {
 
 			return dcfId;
 		}
@@ -391,116 +506,6 @@ public class SangerImagesIndexer {
 
 
 	/**
-	 * Add all the relevant data required quickly looking up biological data
-	 * associated to a biological sample
-	 * 
-	 * @throws SQLException
-	 *             when a database exception occurs
-	 */
-	public void populateBiologicalDataMap()
-	throws SQLException {
-
-		String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, " + "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, " + "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, " + "bms.biological_model_id, " + "strain.acc as strain_acc, strain.name as strain_name, " + "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, " + "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bms.biological_model_id)  as allele_symbol, " + "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bms.biological_model_id) as acc, " + "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bms.biological_model_id)  as symbol " + "FROM biological_sample bs " + "INNER JOIN organisation org ON bs.organisation_id=org.id " + "INNER JOIN live_sample ls ON bs.id=ls.id " + "INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id " + "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id " + "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc";
-
-		try (PreparedStatement p = connection.prepareStatement(query)) {
-
-			ResultSet resultSet = p.executeQuery();
-
-			while (resultSet.next()) {
-				BiologicalDataBean b = new BiologicalDataBean();
-
-				b.alleleAccession = resultSet.getString("allele_accession");
-				b.alleleSymbol = resultSet.getString("allele_symbol");
-				b.biologicalModelId = resultSet.getInt("biological_model_id");
-				b.biologicalSampleId = resultSet.getInt("biological_sample_id");
-				b.colonyId = resultSet.getString("colony_id");
-				b.dateOfBirth = resultSet.getDate("date_of_birth");
-				b.externalSampleId = resultSet.getString("external_sample_id");
-				b.geneAcc = resultSet.getString("acc");
-				b.geneSymbol = resultSet.getString("symbol");
-				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
-				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
-				b.sampleGroup = resultSet.getString("sample_group");
-				b.sex = resultSet.getString("sex");
-				b.strainAcc = resultSet.getString("strain_acc");
-				b.strainName = resultSet.getString("strain_name");
-				b.zygosity = resultSet.getString("zygosity");
-
-				biologicalData.put(resultSet.getString("biological_sample_id"), b);
-			}
-		}
-	}
-
-
-	/**
-	 * Add all the relevant data required quickly looking up biological data
-	 * associated to a biological model (really an experiment)
-	 * 
-	 * @throws SQLException
-	 *             when a database exception occurs
-	 */
-	public void populateLineBiologicalDataMap()
-	throws SQLException {
-
-		String query = "SELECT e.id as experiment_id, e.colony_id, e.biological_model_id, " + "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, " + "strain.acc as strain_acc, strain.name as strain_name, " + "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=e.biological_model_id) as allele_accession, " + "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=e.biological_model_id)  as allele_symbol, " + "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=e.biological_model_id) as acc, " + "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=e.biological_model_id)  as symbol " + "FROM experiment e " + "INNER JOIN organisation org ON e.organisation_id=org.id " + "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=e.biological_model_id " + "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc";
-
-		try (PreparedStatement p = connection.prepareStatement(query)) {
-
-			ResultSet resultSet = p.executeQuery();
-
-			while (resultSet.next()) {
-
-				BiologicalDataBean b = new BiologicalDataBean();
-
-				b.alleleAccession = resultSet.getString("allele_accession");
-				b.alleleSymbol = resultSet.getString("allele_symbol");
-				b.biologicalModelId = resultSet.getInt("biological_model_id");
-				b.colonyId = resultSet.getString("colony_id");
-				b.geneAcc = resultSet.getString("acc");
-				b.geneSymbol = resultSet.getString("symbol");
-				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
-				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
-				b.strainAcc = resultSet.getString("strain_acc");
-				b.strainName = resultSet.getString("strain_name");
-
-				lineBiologicalData.put(resultSet.getString("experiment_id"), b);
-			}
-		}
-	}
-
-
-	/**
-	 * Add all the relevant data required for translating the category names in
-	 * the cases where the category names are numerals, but the actual name is
-	 * in the description field
-	 * 
-	 * @throws SQLException
-	 *             when a database exception occurs
-	 */
-	public void populateCategoryNamesDataMap()
-	throws SQLException {
-
-		String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp \n" + "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id\n" + "INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id \n" + "WHERE ppo.name NOT REGEXP '^[a-zA-Z]' AND ppo.description!=''";
-
-		try (PreparedStatement p = connection.prepareStatement(query)) {
-
-			ResultSet resultSet = p.executeQuery();
-
-			while (resultSet.next()) {
-
-				String stableId = resultSet.getString("stable_id");
-				if (!translateCategoryNames.containsKey(stableId)) {
-					translateCategoryNames.put(stableId, new HashMap<String, String>());
-				}
-
-				translateCategoryNames.get(stableId).put(resultSet.getString("name"), resultSet.getString("description"));
-
-			}
-		}
-	}
-
-
-	/**
 	 * Add all the relevant data to the Impress map
 	 * 
 	 * @throws SQLException
@@ -511,7 +516,7 @@ public class SangerImagesIndexer {
 
 		List<String> queries = new ArrayList<>();
 		queries.add("SELECT ir.id as id, DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id");// joins
-																																																					// on
+		// on
 		for (String query : queries) {
 
 			try (PreparedStatement p = connection.prepareStatement(query)) {
@@ -532,7 +537,7 @@ public class SangerImagesIndexer {
 					b.dcfExpId = resultSet.getString("EXPERIMENT_ID");
 					b.sangerProcedureName = resultSet.getString("NAME");
 					b.sangerProcedureId = resultSet.getString("PROCEDURE_ID");
-					System.out.println("adding dcf id="+b);
+					System.out.println("adding dcf id=" + b);
 					dcfMap.put(resultSet.getInt("id"), b);
 
 				}
@@ -542,39 +547,237 @@ public class SangerImagesIndexer {
 	}
 
 
-	public void populateDatasourceDataMap()
+	public void populateMouseMv()
 	throws SQLException {
 
-		List<String> queries = new ArrayList<>();
-		queries.add("SELECT id, short_name as name, 'DATASOURCE' as datasource_type FROM external_db");
-		queries.add("SELECT id, name, 'PROJECT' as datasource_type FROM project");
+		// select * from IMPC_MOUSE_ALLELE_MV where
+		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
 
-		for (String query : queries) {
+		String query = "select MOUSE_ID, AGE_IN_WEEKS, ALLELE from IMPC_MOUSE_ALLELE_MV";// where
+																							// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+																							// image
+																							// record.foreignkeyid
+																							// to
+																							// mouse_id
+																							// on
 
-			try (PreparedStatement p = connection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 
-				ResultSet resultSet = p.executeQuery();
+			ResultSet resultSet = p.executeQuery();
 
-				while (resultSet.next()) {
+			while (resultSet.next()) {
 
-					DatasourceBean b = new DatasourceBean();
+				MouseBean b = new MouseBean();
+				/*
+				 * <field column="AGE_IN_WEEKS" name="ageInWeeks" /> <field
+				 * column="ALLELE" name="genotypeString" />
+				 */
 
-					b.id = resultSet.getInt("id");
-					b.name = resultSet.getString("name");
+				b.mouseId = resultSet.getInt("MOUSE_ID");
+				b.ageInWeeks = resultSet.getString("AGE_IN_WEEKS");
+				b.genotypeString = resultSet.getString("ALLELE");
 
-					switch (resultSet.getString("datasource_type")) {
-						case "DATASOURCE":
-							datasourceMap.put(resultSet.getInt("id"), b);
-							break;
-						case "PROJECT":
-							projectMap.put(resultSet.getInt("id"), b);
-							break;
-					}
-				}
+				// System.out.println("adding mouse id="+b);
+				mouseMvMap.put(b.mouseId, b);
+
 			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 	}
 
+
+	public void populateAlleleMpi() {
+
+		// select * from IMPC_MOUSE_ALLELE_MV where
+		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
+
+		String query = "select * from `allele`";// where
+												// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+												// image record.foreignkeyid to
+												// mouse_id
+												// on
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+
+				AlleleBean b = new AlleleBean();
+
+				// <field column="symbol" name="sangerSymbol" />
+				// <field column="acc" name="allele_accession" />
+
+				b.sangerSymbol = resultSet.getString("symbol");
+				b.allele_accession = resultSet.getString("acc");
+				
+				b = populateGenomicFeature2(resultSet.getString("gf_acc"), resultSet.getString("gf_db_id"), b);
+				alleleMpiMap.put(b.sangerSymbol, b);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+
+	public AlleleBean populateGenomicFeature2(String gf_acc, String gf_db_id, AlleleBean b) {
+
+		// <entity dataSource="komp2ds" name="genomic_feature2"
+		// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+		// <field column="symbol" name="symbol" />
+		// <field column="acc" name="accession" />
+		// <field column="name" name="geneName" />
+		String query = "select * from `genomic_feature` where acc=? and db_id=?";// where
+		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+		// image record.foreignkeyid to
+		// mouse_id
+		// on
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+			p.setString(1, gf_acc);
+			p.setString(2, gf_db_id);
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+
+				b.symbol = resultSet.getString("symbol");
+				b.accession = resultSet.getString("acc");
+				b.geneName = resultSet.getString("name");
+				
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return b;
+	}
+
+	protected class AlleleBean {
+
+		public String geneName;
+		public String accession;
+		public String symbol;
+		// <field column="symbol" name="sangerSymbol" />
+		// <field column="acc" name="allele_accession" />
+		String sangerSymbol;
+		String allele_accession;
+
+	}
+
+
+	// <entity dataSource="komp2ds" name="mouse"
+	// query="select * from IMPC_MOUSE_ALLELE_MV where MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}">
+	// <field column="MOUSE_ID" name="mouseId" />
+	// <!-- <field column="COLONY_NAME" name="colonyName" />
+	// <field column="AGE_IN_WEEKS" name="ageInWeeks" /> -->
+	//
+	// <!-- </edata-config.xmlntity>
+	// <entity dataSource="komp2ds" name="mouse"
+	// query="select * from ima_mouse_image_vw where id=${ima_image_record.FOREIGN_KEY_ID}">
+	// <field column="ID" name="mouseId" /> -->
+	// <!-- <field column="COLONY_NAME" name="colonyName" />-->
+	// <field column="AGE_IN_WEEKS" name="ageInWeeks" />
+	// <field column="ALLELE" name="genotypeString" />
+	// <!-- <entity dataSource="komp2ds" name="mts_mouse_allele_mv"
+	// query="select * from `mts_mouse_allele_mv` where MOUSE_ID=${mouse.MOUSE_ID}">
+	// -->
+	// <!--
+	// <entity dataSource="komp2ds" name="MtsMouseAllele"
+	// query="select * from `MTS_MOUSE_ALLELE` where MOUSE_ID=${mts_mouse_allele_mv.MOUSE_ID}">
+	// <entity dataSource="komp2ds" name="mtsGenotypeDict"
+	// query="select * from `MTS_GENOTYPE_DICT` where ID=${MtsMouseAllele.GENOTYPE_DICT_ID}">
+	// <field column="NAME" name="alleleName" />
+	// </entity>
+	// </entity>
+	// -->
+	//
+	// <entity dataSource="komp2ds" name="alleleMpi"
+	// query="select * from `allele` where symbol='${mouse.ALLELE}'">
+	// <!-- Get gene associated information from our sanger tables (we also
+	// get it from our main mpi2 db at the moment as well- this sanger tables
+	// are
+	// temporary for demo purposes??? -->
+	// <field column="symbol" name="sangerSymbol" />
+	// <field column="acc" name="allele_accession" />
+	//
+	// <entity dataSource="komp2ds" name="genomic_feature2"
+	// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+	// <field column="symbol" name="symbol" />
+	// <field column="acc" name="accession" />
+	// <field column="name" name="geneName" />
+	//
+	// <entity dataSource="komp2ds" name="notnull"
+	// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+	// <entity dataSource="komp2ds" name="subtype2"
+	// query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
+	// <field column="name" name="subtype" />
+	// </entity>
+	// </entity>
+	//
+	// <entity dataSource="komp2ds" name="synonym"
+	// query="select * from synonym where acc='${genomic_feature2.acc}' ">
+	// <field column="symbol" name="geneSynonyms" />
+	// </entity>
+	//
+	// <!-- other gene core stuff -->
+	// <entity dataSource="allele_core" name="genedoc" stream="true"
+	// url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
+	// processor="XPathEntityProcessor" forEach="/response/result/doc/" >
+	//
+	// <field column="mgi_accession_id"
+	// xpath="/response/result/doc/str[@name='mgi_accession_id']" />
+	// <field column="marker_symbol"
+	// xpath="/response/result/doc/str[@name='marker_symbol']" />
+	// <field column="marker_name"
+	// xpath="/response/result/doc/str[@name='marker_name']" />
+	// <field column="marker_synonym"
+	// xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+	// <field column="marker_type"
+	// xpath="/response/result/doc/str[@name='marker_type']" />
+	// <field column="human_gene_symbol"
+	// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
+	//
+	// <!-- latest project status (ES cells/mice production status) -->
+	// <field column="status" xpath="/response/result/doc/str[@name='status']"
+	// />
+	//
+	// <!-- latest mice phenotyping status for faceting -->
+	// <field column="imits_phenotype_started"
+	// xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
+	// <field column="imits_phenotype_complete"
+	// xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+	// <field column="imits_phenotype_status"
+	// xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
+	//
+	// <!-- phenotyping status -->
+	// <field column="latest_phenotype_status"
+	// xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+	// <field column="legacy_phenotype_status"
+	// xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
+	//
+	// <!-- production/phenotyping centers -->
+	// <field column="latest_production_centre"
+	// xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+	// <field column="latest_phenotyping_centre"
+	// xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str"
+	// />
+	//
+	// <!-- alleles of a gene -->
+	// <field column="allele_name"
+	// xpath="/response/result/doc/arr[@name='allele_name']/str" />
+	//
+	// </entity>
+	//
+	// </entity>
+	// </entity>
+	// <!-- </entity> -->
+	// </entity>
 
 	public static Connection getConnection() {
 
@@ -585,71 +788,6 @@ public class SangerImagesIndexer {
 	public Map<String, Map<String, String>> getTranslateCategoryNames() {
 
 		return translateCategoryNames;
-	}
-
-
-	public Map<String, BiologicalDataBean> getLineBiologicalData() {
-
-		return lineBiologicalData;
-	}
-
-
-	public Map<String, BiologicalDataBean> getBiologicalData() {
-
-		return biologicalData;
-	}
-
-
-//	public Map<Integer, ImpressBean> getPipelineMap() {
-//
-//		return pipelineMap;
-//	}
-
-
-	public Map<Integer, DatasourceBean> getDatasourceMap() {
-
-		return datasourceMap;
-	}
-
-
-	public Map<Integer, DatasourceBean> getProjectMap() {
-
-		return projectMap;
-	}
-
-
-//	public Map<Integer, ImpressBean> getProcedureMap() {
-//
-//		return procedureMap;
-//	}
-//
-//
-//	public Map<Integer, ImpressBean> getParameterMap() {
-//
-//		return parameterMap;
-//	}
-
-	/**
-	 * Internal class to act as Map value DTO for biological data
-	 */
-	protected class BiologicalDataBean {
-
-		public String alleleAccession;
-		public String alleleSymbol;
-		public Integer biologicalModelId;
-		public Integer biologicalSampleId;
-		public String colonyId;
-		public Date dateOfBirth;
-		public String externalSampleId;
-		public String geneAcc;
-		public String geneSymbol;
-		public String phenotypingCenterName;
-		public Integer phenotypingCenterId;
-		public String sampleGroup;
-		public String sex;
-		public String strainAcc;
-		public String strainName;
-		public String zygosity;
 	}
 
 	/**
@@ -666,19 +804,34 @@ public class SangerImagesIndexer {
 		public String dcfExpId;
 		public String sangerProcedureName;
 		public String sangerProcedureId;
+
+
 		@Override
-		public String toString(){
-			return "dcf="+dcfId+" "+dcfExpId+" "+sangerProcedureName+" "+sangerProcedureId; 
+		public String toString() {
+
+			return "dcf=" + dcfId + " " + dcfExpId + " " + sangerProcedureName + " " + sangerProcedureId;
 		}
 
 	}
 
-	/**
-	 * Internal class to act as Map value DTO for datasource data
-	 */
-	protected class DatasourceBean {
+	protected class MouseBean {
 
-		public Integer id;
-		public String name;
+		/*
+		 * <field column="DCF_ID" name="dcfId" /> <field column="EXPERIMENT_ID"
+		 * name="dcfExpId" /> <field column="NAME" name="sangerProcedureName" />
+		 * <field column="PROCEDURE_ID" name="sangerProcedureId" />
+		 */
+		public Integer mouseId;
+		public String ageInWeeks;
+		public String genotypeString;
+
+
+		@Override
+		public String toString() {
+
+			return "mouseId=" + mouseId + " " + ageInWeeks + " " + genotypeString;
+		}
+
 	}
+
 }
