@@ -510,7 +510,7 @@ public class SangerImagesIndexer {
 	throws SQLException {
 
 		List<String> queries = new ArrayList<>();
-		queries.add("SELECT DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id");// joins
+		queries.add("SELECT ir.id as id, DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id");// joins
 																																																					// on
 		for (String query : queries) {
 
@@ -533,7 +533,7 @@ public class SangerImagesIndexer {
 					b.sangerProcedureName = resultSet.getString("NAME");
 					b.sangerProcedureId = resultSet.getString("PROCEDURE_ID");
 					System.out.println("adding dcf id="+b);
-					dcfMap.put(resultSet.getInt("DCF_ID"), b);
+					dcfMap.put(resultSet.getInt("id"), b);
 
 				}
 
