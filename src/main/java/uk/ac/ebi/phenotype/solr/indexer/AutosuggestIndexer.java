@@ -57,7 +57,7 @@ public class AutosuggestIndexer {
 			HttpSolrServer srcServer = new HttpSolrServer(solrUrl + "/" + core);
 			if ( core.equals("hp") ){
 				// phenodigm hp_mp mapping
-				srcServer = new HttpSolrServer("http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm");
+				srcServer = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
 			}
 
 			SolrQuery query = new SolrQuery();
