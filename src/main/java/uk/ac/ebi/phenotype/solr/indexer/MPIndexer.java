@@ -15,26 +15,8 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -50,15 +32,20 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
-
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
-import uk.ac.ebi.phenotype.solr.indexer.beans.MPHPBean;
-import uk.ac.ebi.phenotype.solr.indexer.beans.MPStrainBean;
-import uk.ac.ebi.phenotype.solr.indexer.beans.MPTermNodeBean;
-import uk.ac.ebi.phenotype.solr.indexer.beans.MPTopLevelTermBean;
-import uk.ac.ebi.phenotype.solr.indexer.beans.ParamProcedurePipelineBean;
-import uk.ac.ebi.phenotype.solr.indexer.beans.PhenotypeCallSummaryBean;
+import uk.ac.ebi.phenotype.solr.indexer.beans.*;
+
+import javax.sql.DataSource;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * @author Matt Pearce
@@ -73,7 +60,7 @@ public class MPIndexer {
 	private static final String ALLELE_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";	  
 	private static final String IMAGES_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images";       
 	private static final String PREQC_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc";       
-	private static final String PHENODIGM_URL="http://solr-master-sanger.sanger.ac.uk/solr451/phenodigm";
+	private static final String PHENODIGM_URL="http://solrcloudlive.sanger.ac.uk/solr/phenodigm";
 	/** Destination Solr core */
 	private static final String MP_URL="http://localhost:8983/solr/mp";
 	
