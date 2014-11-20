@@ -15,8 +15,24 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -31,39 +47,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
 /**
  * @author Matt
  *
  */
-public class AlleleIndexer {
+public class AlleleIndexer extends AbstractIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
-	private static Connection connection;
 
 	private static final int BATCH_SIZE = 2500;
 
@@ -104,6 +100,8 @@ public class AlleleIndexer {
 //	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
 //	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
 
+	private Connection connection;
+
 	private SolrServer sangerAlleleCore;
 	private SolrServer phenodigmCore;
 
@@ -141,6 +139,22 @@ public class AlleleIndexer {
 
 		}
 
+	}
+	
+	protected Logger getLogger() {
+		return logger;
+	}
+	
+	public void initialise(String[] args) throws IndexerException {
+		super.initialise(args);
+		try {
+			// Initialise the database connections
+			DataSource ds = ((DataSource) applicationContext.getBean("komp2DataSource"));
+			this.connection = ds.getConnection();
+		} catch (SQLException e) {
+			logger.error("Caught SQL Exception initialising database connections: {}", e.getMessage());
+			throw new IndexerException(e.getMessage());
+		}
 	}
 
 	public void run() throws IOException, SolrServerException {
@@ -514,48 +528,10 @@ public class AlleleIndexer {
 		}
 	}
 
-	public static void main(String[] args) throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
-		OptionParser parser = new OptionParser();
-
-		// parameter to indicate which spring context file to use
-		parser.accepts("context").withRequiredArg().ofType(String.class);
-
-		OptionSet options = parser.parse(args);
-		String context = (String) options.valuesOf("context").get(0);
-
-		logger.info("Using application context file {}", context);
-
-		// Wire up spring support for this application
-		AlleleIndexer main = new AlleleIndexer();
-
-		ApplicationContext applicationContext;
-		try {
-
-			// Try context as a file resource
-			applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-
-		} catch (RuntimeException e) {
-
-			logger.warn("An error occurred loading the file: {}", e.getMessage());
-
-			// Try context as a class path resource
-			applicationContext = new ClassPathXmlApplicationContext(context);
-
-			logger.warn("Using classpath app-config file: {}", context);
-
-		}
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-		// allow hibernate session to stay open the whole execution
-		PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-		DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-		transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-		transactionManager.getTransaction(transactionAttribute);
-
-		DataSource ds = ((DataSource) applicationContext.getBean("komp2DataSource"));
-		connection = ds.getConnection();
-
-		main.run();
+	public static void main(String[] args) throws SolrServerException, IndexerException, IOException {
+		AlleleIndexer indexer = new AlleleIndexer();
+		indexer.initialise(args);
+		indexer.run();
 
 		logger.info("Process finished.  Exiting.");
 	}
