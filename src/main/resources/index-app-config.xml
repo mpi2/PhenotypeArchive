@@ -151,6 +151,8 @@
 				<entry key="liveSite" value="${liveSite}" />
 				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
                 <entry key="human2mouseFilename" value="${human2mouseFile}" />
+                <entry key="phenodigm.solrserver" value="${phenodigm.solrserver}" />
+                <entry key="imits.solrserver" value="${imits.solrserver}" />
 			</map>
 		</property>
 	</bean>
