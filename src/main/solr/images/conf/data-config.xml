@@ -89,12 +89,12 @@
 							<field column="symbol" name="symbol" />
 							<field column="acc" name="accession" />
 							<field column="name" name="geneName" />
-
+<!-- We don't want the subtype facet really anymore so removed this
 							<entity dataSource="komp2ds" name="notnull" query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
 								<entity dataSource="komp2ds" name="subtype2" query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
 									<field column="name" name="subtype" />
 								</entity>
-							</entity>
+							</entity> -->
 
 							<entity dataSource="komp2ds" name="synonym" query="select * from synonym where acc='${genomic_feature2.acc}' ">
 								<field column="symbol" name="geneSynonyms" />

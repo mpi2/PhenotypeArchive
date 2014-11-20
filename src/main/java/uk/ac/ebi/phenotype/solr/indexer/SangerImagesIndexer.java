@@ -50,6 +50,7 @@ public class SangerImagesIndexer {
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 	Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
 	Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
+	Map<String, List<String>> synonyms = new HashMap<>();
 
 
 	public SangerImagesIndexer() {
@@ -120,6 +121,7 @@ public class SangerImagesIndexer {
 		populateDcfMap();
 		populateMouseMv();
 		populateAlleleMpi();
+		populateSynonyms();
 		//
 		// logger.info("Populating data source, project, and category translation maps");
 		// populateDatasourceDataMap();
@@ -198,9 +200,10 @@ public class SangerImagesIndexer {
 						o.setAllele_accession(alBean.allele_accession);
 						o.setSangerSymbol(alBean.sangerSymbol);
 						o.setSymbol(alBean.symbol);
-						System.out.println("setting symbol in main method="+alBean.symbol);
+						System.out.println("setting symbol in main method=" + alBean.symbol);
 						o.setAccession(alBean.accession);
 						o.setGeneName(alBean.geneName);
+						// o.setSubType(alBean.subType);
 					}
 				}
 
@@ -258,6 +261,7 @@ public class SangerImagesIndexer {
 		String sangerProcedureName;
 		@Field("genotypeString")
 		String genotypeString;
+		@Field("geneName")
 		private String geneName;
 
 
@@ -277,6 +281,7 @@ public class SangerImagesIndexer {
 
 			return symbol;
 		}
+
 		@Field("accession")
 		private String accession;
 		@Field("symbol")
@@ -552,7 +557,7 @@ public class SangerImagesIndexer {
 
 		// select * from IMPC_MOUSE_ALLELE_MV where
 		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
-
+		System.out.println("populating MouseMv");
 		String query = "select MOUSE_ID, AGE_IN_WEEKS, ALLELE from IMPC_MOUSE_ALLELE_MV";// where
 																							// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
 																							// image
@@ -593,7 +598,7 @@ public class SangerImagesIndexer {
 
 		// select * from IMPC_MOUSE_ALLELE_MV where
 		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
-
+		System.out.println("populating alleleMpi");
 		String query = "select * from `allele`";// where
 												// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
 												// image record.foreignkeyid to
@@ -613,7 +618,7 @@ public class SangerImagesIndexer {
 
 				b.sangerSymbol = resultSet.getString("symbol");
 				b.allele_accession = resultSet.getString("acc");
-				
+
 				b = populateGenomicFeature2(resultSet.getString("gf_acc"), resultSet.getString("gf_db_id"), b);
 				alleleMpiMap.put(b.sangerSymbol, b);
 			}
@@ -627,6 +632,7 @@ public class SangerImagesIndexer {
 
 	public AlleleBean populateGenomicFeature2(String gf_acc, String gf_db_id, AlleleBean b) {
 
+		System.out.println("populating genomicFeature2");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
 		// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
 		// <field column="symbol" name="symbol" />
@@ -648,7 +654,10 @@ public class SangerImagesIndexer {
 				b.symbol = resultSet.getString("symbol");
 				b.accession = resultSet.getString("acc");
 				b.geneName = resultSet.getString("name");
-				
+				// System.out.println("gene name="+b.geneName);
+				b.subtypeAccession = resultSet.getInt("subtype_acc");
+				b.subtypeDbId = resultSet.getInt("subtype_db_id");
+				// b=populateSubType(b);
 
 			}
 
@@ -658,8 +667,85 @@ public class SangerImagesIndexer {
 		return b;
 	}
 
+
+	protected void populateSynonyms() {
+
+		// select * from synonym
+		System.out.println("populating synonyms");
+		// <entity dataSource="komp2ds" name="genomic_feature2"
+		// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+		// <field column="symbol" name="symbol" />
+		// <field column="acc" name="accession" />
+		// <field column="name" name="geneName" />
+		String query = "select * from synonym";// where
+		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+		// image record.foreignkeyid to
+		// mouse_id
+		// on
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				String accession = resultSet.getString("acc");
+				String symb = resultSet.getString("symbol");
+				if (synonyms.containsKey(accession)) {
+					List<String> list = synonyms.get(accession);
+					list.add(symb);
+				} else {
+					List<String> synList = new ArrayList<>();
+					synList.add(symb);
+					synonyms.put(accession, synList);
+				}
+
+			}
+System.out.println("synonyms size="+synonyms.size());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	// protected AlleleBean populateSubType(AlleleBean b){
+	// // <entity dataSource="komp2ds" name="notnull"
+	// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+	// // <entity dataSource="komp2ds" name="subtype2"
+	// query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
+	// // <field column="name" name="subtype" />
+	// String query =
+	// "select  name,  concat(?, ?) as symbol_gene from `ontology_term` where acc=? and db_id=?";//
+	// where
+	// // MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+	// // image record.foreignkeyid to
+	// // mouse_id
+	// // on
+	//
+	// try (PreparedStatement p = connection.prepareStatement(query)) {
+	// p.setString(1, b.symbol);
+	// p.setString(2, b.accession);
+	// p.setInt(3,b.subtypeAccession);
+	// p.setInt(4,b.subtypeDbId);
+	// ResultSet resultSet = p.executeQuery();
+	//
+	// while (resultSet.next()) {
+	//
+	// b.subType = resultSet.getString("name");
+	// System.out.println("setting subtyp="+b.subType);
+	//
+	//
+	// }
+	//
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return b;
+	// }
+
 	protected class AlleleBean {
 
+		public int subtypeDbId;
+		public int subtypeAccession;
 		public String geneName;
 		public String accession;
 		public String symbol;
@@ -667,6 +753,7 @@ public class SangerImagesIndexer {
 		// <field column="acc" name="allele_accession" />
 		String sangerSymbol;
 		String allele_accession;
+		String subType;
 
 	}
 
