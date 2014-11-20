@@ -16,6 +16,8 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+
+import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.pojo.BiologicalSampleType;
 import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -51,6 +53,7 @@ public class SangerImagesIndexer {
 	Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
 	Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
 	Map<String, List<String>> synonyms = new HashMap<>();
+	Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
 
 
 	public SangerImagesIndexer() {
@@ -122,6 +125,7 @@ public class SangerImagesIndexer {
 		populateMouseMv();
 		populateAlleleMpi();
 		populateSynonyms();
+		populateGenomicFeature2();
 		//
 		// logger.info("Populating data source, project, and category translation maps");
 		// populateDatasourceDataMap();
@@ -198,11 +202,13 @@ public class SangerImagesIndexer {
 					AlleleBean alBean = alleleMpiMap.get(mb.genotypeString);
 					if (alBean != null) {
 						o.setAllele_accession(alBean.allele_accession);
-						o.setSangerSymbol(alBean.sangerSymbol);
-						o.setSymbol(alBean.symbol);
-						System.out.println("setting symbol in main method=" + alBean.symbol);
-						o.setAccession(alBean.accession);
-						o.setGeneName(alBean.geneName);
+						o.setSangerSymbol(alBean.sangerSymbol);						
+						if (featuresMap.containsKey(alBean.gf_acc)) {
+							GenomicFeatureBean feature = featuresMap.get(alBean.gf_acc);
+							o.setSymbol(feature.getSymbol());
+							System.out.println("setting symbol in main method via feature=" + feature.getSymbol());
+							o.setGeneName(feature.getName());
+						}
 						// o.setSubType(alBean.subType);
 					}
 				}
@@ -542,7 +548,7 @@ public class SangerImagesIndexer {
 					b.dcfExpId = resultSet.getString("EXPERIMENT_ID");
 					b.sangerProcedureName = resultSet.getString("NAME");
 					b.sangerProcedureId = resultSet.getString("PROCEDURE_ID");
-					System.out.println("adding dcf id=" + b);
+					//System.out.println("adding dcf id=" + b);
 					dcfMap.put(resultSet.getInt("id"), b);
 
 				}
@@ -615,11 +621,9 @@ public class SangerImagesIndexer {
 
 				// <field column="symbol" name="sangerSymbol" />
 				// <field column="acc" name="allele_accession" />
-
+				b.gf_acc=resultSet.getString("gf_acc");
 				b.sangerSymbol = resultSet.getString("symbol");
 				b.allele_accession = resultSet.getString("acc");
-
-				b = populateGenomicFeature2(resultSet.getString("gf_acc"), resultSet.getString("gf_db_id"), b);
 				alleleMpiMap.put(b.sangerSymbol, b);
 			}
 
@@ -630,7 +634,7 @@ public class SangerImagesIndexer {
 	}
 
 
-	public AlleleBean populateGenomicFeature2(String gf_acc, String gf_db_id, AlleleBean b) {
+	public void populateGenomicFeature2() {
 
 		System.out.println("populating genomicFeature2");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
@@ -638,33 +642,28 @@ public class SangerImagesIndexer {
 		// <field column="symbol" name="symbol" />
 		// <field column="acc" name="accession" />
 		// <field column="name" name="geneName" />
-		String query = "select * from `genomic_feature` where acc=? and db_id=?";// where
+		String query = "select * from `genomic_feature";// where
 		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
 		// image record.foreignkeyid to
 		// mouse_id
 		// on
 
 		try (PreparedStatement p = connection.prepareStatement(query)) {
-			p.setString(1, gf_acc);
-			p.setString(2, gf_db_id);
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
-
-				b.symbol = resultSet.getString("symbol");
-				b.accession = resultSet.getString("acc");
-				b.geneName = resultSet.getString("name");
+				GenomicFeatureBean gf = new GenomicFeatureBean();
+				gf.setSymbol(resultSet.getString("symbol"));
+				gf.setAccession(resultSet.getString("acc"));
+				gf.setName(resultSet.getString("name"));
+				featuresMap.put(resultSet.getString("acc"), gf);
 				// System.out.println("gene name="+b.geneName);
-				b.subtypeAccession = resultSet.getInt("subtype_acc");
-				b.subtypeDbId = resultSet.getInt("subtype_db_id");
-				// b=populateSubType(b);
 
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return b;
 	}
 
 
@@ -700,7 +699,7 @@ public class SangerImagesIndexer {
 				}
 
 			}
-System.out.println("synonyms size="+synonyms.size());
+			System.out.println("synonyms size=" + synonyms.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -743,14 +742,9 @@ System.out.println("synonyms size="+synonyms.size());
 	// }
 
 	protected class AlleleBean {
-
-		public int subtypeDbId;
-		public int subtypeAccession;
-		public String geneName;
-		public String accession;
-		public String symbol;
 		// <field column="symbol" name="sangerSymbol" />
 		// <field column="acc" name="allele_accession" />
+		String gf_acc;
 		String sangerSymbol;
 		String allele_accession;
 		String subType;
