@@ -54,6 +54,8 @@ public class SangerImagesIndexer {
 	Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
 	Map<String, List<String>> synonyms = new HashMap<>();
 	Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
+	private Map<Integer, ExperimentDict> expMap = new HashMap<>();
+	Map<String, String> sangerProcedureToImpcMapping=new HashMap<String, String>();
 
 
 	public SangerImagesIndexer() {
@@ -126,6 +128,13 @@ public class SangerImagesIndexer {
 		populateAlleleMpi();
 		populateSynonyms();
 		populateGenomicFeature2();
+		populateExperiments();
+		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
+		sangerProcedureToImpcMapping.put("Xray", "X-ray");
+		// 'Xray' : 'X-ray Imaging',
+		sangerProcedureToImpcMapping.put("Flow Cytometry", "FACS Analysis");
+		sangerProcedureToImpcMapping.put("Histology Slide", "Histopathology");
+		sangerProcedureToImpcMapping.put("Embryo Dysmorphology", "Combined SHIRPA and Dysmorphology");
 		//
 		// logger.info("Populating data source, project, and category translation maps");
 		// populateDatasourceDataMap();
@@ -190,28 +199,46 @@ public class SangerImagesIndexer {
 				o.setInstitute(r.getString("institute"));
 				DcfBean dcfInfo = dcfMap.get(r.getInt("IMA_IMAGE_RECORD.ID"));
 				if (dcfInfo != null) {
-					System.out.println(dcfInfo);
+					//System.out.println("dcfInfo="+dcfInfo);
 					o.setDcfId(dcfInfo.dcfId);
 					o.setDcfExpId(dcfInfo.dcfExpId);
+					o.setSangerProcedureName(dcfInfo.sangerProcedureName);
+					o.setSangerProcedureId(dcfInfo.sangerProcedureName);
 				}
 				MouseBean mb = mouseMvMap.get(r.getInt("FOREIGN_KEY_ID"));
 				if (mb != null) {
-					System.out.println("adding mouse=" + mb);
+					//System.out.println("adding mouse=" + mb);
 					o.setAgeInWeeks(mb.ageInWeeks);
 					o.setGenotypeString(mb.genotypeString);
 					AlleleBean alBean = alleleMpiMap.get(mb.genotypeString);
 					if (alBean != null) {
 						o.setAllele_accession(alBean.allele_accession);
-						o.setSangerSymbol(alBean.sangerSymbol);						
+						o.setSangerSymbol(alBean.sangerSymbol);
 						if (featuresMap.containsKey(alBean.gf_acc)) {
 							GenomicFeatureBean feature = featuresMap.get(alBean.gf_acc);
 							o.setSymbol(feature.getSymbol());
-							System.out.println("setting symbol in main method via feature=" + feature.getSymbol());
+							//System.out.println("setting symbol in main method via feature=" + feature.getSymbol());
 							o.setGeneName(feature.getName());
+							if(synonyms.containsKey(feature.getAccession())){
+								List<String> syns=synonyms.get(feature.getAccession());
+								o.setSynonyms(syns);
+//								for(String syn:syns){
+//									System.out.println("syn="+syn);
+//							
+//								}
+							}
 						}
 						// o.setSubType(alBean.subType);
 					}
 				}
+				if (expMap.containsKey(new Integer(r.getInt("ID")))) {
+					ExperimentDict expBean = expMap.get(r.getInt("ID"));
+					o.setExperimentName(expBean.name);
+					o.setSangerProcedureName(expBean.name);
+					o.setProcedureName(this.getImpcProcedureFromSanger(expBean.name));
+					// o.setExperimentName(name)
+				}
+				
 
 				// 60 seconds between commits
 				sangerImagesIndexing.addBean(o, 60000);
@@ -265,15 +292,46 @@ public class SangerImagesIndexer {
 		String dcfExpId;
 		@Field("sangerProcedureName")
 		String sangerProcedureName;
+		@Field("procedure_name")
+		String procedureName;
 		@Field("genotypeString")
 		String genotypeString;
 		@Field("geneName")
 		private String geneName;
+		@Field("expName")
+		private String experimentName;
+		@Field("expName_exp")
+		private String expName_exp;
+		@Field("procedure_name")
+		private String procedure_name;
+		@Field("geneSynonyms")
+		private List<String> synonyms;
 
 
 		public String getGeneName() {
 
 			return geneName;
+		}
+
+
+		public void setSynonyms(List<String> syns) {
+
+			this.synonyms=syns;
+			
+		}
+
+
+		public void setProcedureName(String procedureName2) {
+
+			this.procedureName=procedureName2;
+			
+		}
+
+
+		public void setExperimentName(String name) {
+
+			this.experimentName = name;
+
 		}
 
 
@@ -548,7 +606,7 @@ public class SangerImagesIndexer {
 					b.dcfExpId = resultSet.getString("EXPERIMENT_ID");
 					b.sangerProcedureName = resultSet.getString("NAME");
 					b.sangerProcedureId = resultSet.getString("PROCEDURE_ID");
-					//System.out.println("adding dcf id=" + b);
+					// System.out.println("adding dcf id=" + b);
 					dcfMap.put(resultSet.getInt("id"), b);
 
 				}
@@ -621,7 +679,7 @@ public class SangerImagesIndexer {
 
 				// <field column="symbol" name="sangerSymbol" />
 				// <field column="acc" name="allele_accession" />
-				b.gf_acc=resultSet.getString("gf_acc");
+				b.gf_acc = resultSet.getString("gf_acc");
 				b.sangerSymbol = resultSet.getString("symbol");
 				b.allele_accession = resultSet.getString("acc");
 				alleleMpiMap.put(b.sangerSymbol, b);
@@ -667,6 +725,52 @@ public class SangerImagesIndexer {
 	}
 
 
+	protected void populateExperiments() {
+
+		// select IMA_EXPERIMENT_DICT.NAME, IMA_EXPERIMENT_DICT.DESCRIPTION,
+		// concat(IMA_EXPERIMENT_DICT.NAME,'_exp') as expName_exp FROM
+		// IMA_EXPERIMENT_DICT, IMA_SUBCONTEXT, IMA_IMAGE_RECORD where
+		// IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and
+		// IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID;# AND
+		// IMA_IMAGE_RECORD.ID=${ima_image_record.ID}
+		System.out.println("populating genomicFeature2");
+		// <entity dataSource="komp2ds" name="genomic_feature2"
+		// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+		// <field column="symbol" name="symbol" />
+		// <field column="acc" name="accession" />
+		// <field column="name" name="geneName" />
+		String query = "select IMA_IMAGE_RECORD.ID, IMA_EXPERIMENT_DICT.NAME, IMA_EXPERIMENT_DICT.DESCRIPTION, concat(IMA_EXPERIMENT_DICT.NAME,'_exp') as expName_exp FROM IMA_EXPERIMENT_DICT, IMA_SUBCONTEXT, IMA_IMAGE_RECORD where IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID";// where
+		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+		// image record.foreignkeyid to
+		// mouse_id
+		// on
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				ExperimentDict exp = new ExperimentDict();
+				exp.name = resultSet.getString("NAME");
+				exp.description = resultSet.getString("DESCRIPTION");
+				expMap.put(resultSet.getInt("ID"), exp);
+				// System.out.println("gene name="+b.geneName);
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public class ExperimentDict {
+
+		
+		String name;
+		String description;
+
+	}
+
+
 	protected void populateSynonyms() {
 
 		// select * from synonym
@@ -705,6 +809,45 @@ public class SangerImagesIndexer {
 		}
 
 	}
+	
+	private void loadAnnotations(){
+		//select * from IMA_IMAGE_TAG
+		System.out.println("populating annotations");
+		// <entity dataSource="komp2ds" name="genomic_feature2"
+		// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+		// <field column="symbol" name="symbol" />
+		// <field column="acc" name="accession" />
+		// <field column="name" name="geneName" />
+		String query = "select * from IMA_IMAGE_TAG";// where
+		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+		// image record.foreignkeyid to
+		// mouse_id
+		// on
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+//			<field column="TAG_NAME" name="tagName" />
+//			<field column="TAG_VALUE" name="tagValue" />
+			while (resultSet.next()) {
+				int irId = resultSet.getInt("IMAGE_RECORD_ID");
+//				String symb = resultSet.getString("symbol");
+//				if (synonyms.containsKey(accession)) {
+//					List<String> list = synonyms.get(accession);
+//					list.add(symb);
+//				} else {
+//					List<String> synList = new ArrayList<>();
+//					synList.add(symb);
+//					synonyms.put(accession, synList);
+//				}
+
+			}
+			System.out.println("synonyms size=" + synonyms.size());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
 
 	// protected AlleleBean populateSubType(AlleleBean b){
 	// // <entity dataSource="komp2ds" name="notnull"
@@ -742,6 +885,7 @@ public class SangerImagesIndexer {
 	// }
 
 	protected class AlleleBean {
+
 		// <field column="symbol" name="sangerSymbol" />
 		// <field column="acc" name="allele_accession" />
 		String gf_acc;
@@ -914,5 +1058,15 @@ public class SangerImagesIndexer {
 		}
 
 	}
+	
+	private String getImpcProcedureFromSanger(String sangerProcedure){
+		if(sangerProcedureToImpcMapping.containsKey(sangerProcedure)){
+			return sangerProcedureToImpcMapping.get(sangerProcedure);
+		}else{
+			return sangerProcedure;
+		}
+		
+	}
+
 
 }
