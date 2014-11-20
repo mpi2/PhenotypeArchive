@@ -56,6 +56,7 @@ public class SangerImagesIndexer {
 	Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
 	private Map<Integer, ExperimentDict> expMap = new HashMap<>();
 	Map<String, String> sangerProcedureToImpcMapping=new HashMap<String, String>();
+	Map<Integer, List<Annotation>> annotations=new HashMap<>();
 
 
 	public SangerImagesIndexer() {
@@ -129,6 +130,7 @@ public class SangerImagesIndexer {
 		populateSynonyms();
 		populateGenomicFeature2();
 		populateExperiments();
+		loadAnnotations();
 		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
 		sangerProcedureToImpcMapping.put("Xray", "X-ray");
 		// 'Xray' : 'X-ray Imaging',
@@ -190,14 +192,15 @@ public class SangerImagesIndexer {
 			while (r.next()) {
 				// System.out.println(r.getInt("IMA_IMAGE_RECORD.ID"));
 				SangerImagesDTO o = new SangerImagesDTO();
-				o.setId(r.getInt("IMA_IMAGE_RECORD.ID"));
+				int imageRecordId=r.getInt("IMA_IMAGE_RECORD.ID");
+				o.setId(imageRecordId);
 				o.setDataType(r.getString("dataType"));
 				o.setFullResolutionFilePath(r.getString("FULL_RESOLUTION_FILE_PATH"));
 				o.setLargeThumbnailFilePath(r.getString("LARGE_THUMBNAIL_FILE_PATH"));
 				o.setOriginalFileName(r.getString("ORIGINAL_FILE_NAME"));
 				o.setSmallThumbnailFilePath(r.getString("SMALL_THUMBNAIL_FILE_PATH"));
 				o.setInstitute(r.getString("institute"));
-				DcfBean dcfInfo = dcfMap.get(r.getInt("IMA_IMAGE_RECORD.ID"));
+				DcfBean dcfInfo = dcfMap.get(imageRecordId);
 				if (dcfInfo != null) {
 					//System.out.println("dcfInfo="+dcfInfo);
 					o.setDcfId(dcfInfo.dcfId);
@@ -237,6 +240,18 @@ public class SangerImagesIndexer {
 					o.setSangerProcedureName(expBean.name);
 					o.setProcedureName(this.getImpcProcedureFromSanger(expBean.name));
 					// o.setExperimentName(name)
+				}
+				if(annotations.containsKey(imageRecordId)){
+					List<Annotation> annotationList=annotations.get(imageRecordId);
+					List<String> tagNames=new ArrayList<>();
+					List<String> tagValues=new ArrayList<>();
+					for(Annotation ann:annotationList){
+						tagNames.add(ann.tagName);
+						tagValues.add(ann.tagValue);
+					}
+					o.setTagNames(tagNames);
+					o.setTagValues(tagValues);
+					
 				}
 				
 
@@ -306,12 +321,36 @@ public class SangerImagesIndexer {
 		private String procedure_name;
 		@Field("geneSynonyms")
 		private List<String> synonyms;
+		@Field("tagValue")
+		private List<String> tagValues;
+		@Field("tagName")
+		private List<String> tagNames;
 
 
 		public String getGeneName() {
 
 			return geneName;
 		}
+
+
+		
+
+		public void setTagValues(List<String> tagValues) {
+
+			this.tagValues=tagValues;
+			
+		}
+
+
+
+
+		public void setTagNames(List<String> tagNames) {
+
+		this.tagNames=tagNames;
+			
+		}
+
+
 
 
 		public void setSynonyms(List<String> syns) {
@@ -831,21 +870,32 @@ public class SangerImagesIndexer {
 //			<field column="TAG_VALUE" name="tagValue" />
 			while (resultSet.next()) {
 				int irId = resultSet.getInt("IMAGE_RECORD_ID");
-//				String symb = resultSet.getString("symbol");
-//				if (synonyms.containsKey(accession)) {
-//					List<String> list = synonyms.get(accession);
-//					list.add(symb);
-//				} else {
-//					List<String> synList = new ArrayList<>();
-//					synList.add(symb);
-//					synonyms.put(accession, synList);
-//				}
+				
+				Annotation annotation=new Annotation();
+				annotation.tagName=resultSet.getString("TAG_NAME");
+				annotation.tagValue=resultSet.getString("TAG_VALUE");
+				if (annotations.containsKey(irId)) {
+					List<Annotation> list = annotations.get(irId);
+					
+					list.add(annotation);
+				} else {
+					List<Annotation> list = new ArrayList<>();
+					list.add(annotation);
+					annotations.put(irId, list);
+				}
 
 			}
 			System.out.println("synonyms size=" + synonyms.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+	}
+	
+	protected class Annotation{
+
+		public String tagValue;
+		public String tagName;
 		
 	}
 
