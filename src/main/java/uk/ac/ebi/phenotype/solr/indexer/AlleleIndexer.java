@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.solr.indexer;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -63,6 +64,7 @@ import java.util.*;
 public class AlleleIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
+	public static final int PHENODIGM_BATCH_SIZE = 50000;
 	private static Connection connection;
 
 	private static final int BATCH_SIZE = 2500;
@@ -99,11 +101,6 @@ public class AlleleIndexer {
 		MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
 	}
 
-	private static final String SANGER_ALLELE_URL = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2";
-	private static final String PHENODIGM_URL = "http://solrcloudlive.sanger.ac.uk/solr/phenodigm";
-//	private static final String HUMAN_MOUSE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol";
-//	private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
-
 	private SolrServer sangerAlleleCore;
 	private SolrServer phenodigmCore;
 
@@ -115,35 +112,14 @@ public class AlleleIndexer {
 	private Map<String, String> config;
 
 
-
-
 	public AlleleIndexer() {
-
-		// Use system proxy if set for external solr servers
-		if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
-
-			String PROXY_HOST = System.getProperty("externalProxyHost");
-			Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
-
-			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-			CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-			logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
-			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
-
-		} else {
-
-			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
-			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-
-		}
 
 	}
 
 	public void run() throws IOException, SolrServerException {
+
+		initializeSolrCores();
+
 		int start = 0;
 		long rows = 0;
 		long startTime = new Date().getTime();
@@ -183,13 +159,6 @@ public class AlleleIndexer {
 			// Look up the human mouse symbols
 			lookupHumanMouseSymbols(alleles);
 
-			// Do the first set of mappings
-			// MP: I think this only needs to be done once, after the ES cell status
-			// lookup.
-			// JM: Tried doing it once, but it left out all the latest_status fields.
-			// so I commented it back in
-			doSangerAlleleMapping(alleles);
-
 			// Look up the ES cell status
 			lookupEsCellStatus(alleles);
 
@@ -210,6 +179,35 @@ public class AlleleIndexer {
 
 		alleleCore.commit();
 		logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
+	}
+
+
+	private void initializeSolrCores() {
+
+		final String SANGER_ALLELE_URL = config.get("imits.solrserver");
+		final String PHENODIGM_URL = config.get("phenodigm.solrserver");
+
+		// Use system proxy if set for external solr servers
+		if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
+
+			String PROXY_HOST = System.getProperty("externalProxyHost");
+			Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
+
+			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
+			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+			CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+
+			logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+
+			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
+			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
+
+		} else {
+
+			this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
+			this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
+
+		}
 	}
 
 
@@ -277,18 +275,62 @@ public class AlleleIndexer {
 	}
 
 	private void populateDiseaseLookup() throws SolrServerException {
+
+		int docsRetrieved = 0;
+		int numDocs = getDiseaseDocCount();
+
+		// Fields in the solr core to bring back
+		String fields = StringUtils.join(Arrays.asList(DiseaseBean.DISEASE_ID,
+			DiseaseBean.MGI_ACCESSION_ID,
+			DiseaseBean.DISEASE_SOURCE,
+			DiseaseBean.DISEASE_TERM,
+			DiseaseBean.DISEASE_ALTS,
+			DiseaseBean.DISEASE_CLASSES,
+			DiseaseBean.HUMAN_CURATED,
+			DiseaseBean.MOUSE_CURATED,
+			DiseaseBean.MGI_PREDICTED,
+			DiseaseBean.IMPC_PREDICTED,
+			DiseaseBean.MGI_PREDICTED_KNOWN_GENE,
+			DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
+			DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
+			DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS,
+			DiseaseBean.DISEASE_HUMAN_PHENOTYPES), "");
+
+		// The solrcloud instance cannot give us all results back at once,
+		// we must batch up the calls and build it up piece at a time
+		while (docsRetrieved < numDocs+PHENODIGM_BATCH_SIZE) {
+
+			SolrQuery query = new SolrQuery("*:*");
+			query.addFilterQuery("type:disease_gene_summary");
+			query.setFields(fields);
+			query.setStart(docsRetrieved);
+			query.setRows(PHENODIGM_BATCH_SIZE);
+			query.setSort(DiseaseBean.DISEASE_ID, SolrQuery.ORDER.asc);
+
+			QueryResponse response = phenodigmCore.query(query);
+			List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
+			for (DiseaseBean disease : diseases) {
+				if (!diseaseLookup.containsKey(disease.getMgiAccessionId())) {
+					diseaseLookup.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
+				}
+				diseaseLookup.get(disease.getMgiAccessionId()).add(disease);
+			}
+
+			docsRetrieved += PHENODIGM_BATCH_SIZE;
+			logger.info("Processed {} documents from phenodigm.", docsRetrieved);
+
+		}
+	}
+
+
+	private int getDiseaseDocCount() throws SolrServerException {
+
 		SolrQuery query = new SolrQuery("*:*");
-		query.setRows(Integer.MAX_VALUE);
+		query.setRows(0);
 		query.addFilterQuery("type:disease_gene_summary");
 
 		QueryResponse response = phenodigmCore.query(query);
-		List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
-		for (DiseaseBean disease : diseases) {
-			if( ! diseaseLookup.containsKey(disease.getMgiAccessionId())) {
-				diseaseLookup.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
-			}
-			diseaseLookup.get(disease.getMgiAccessionId()).add(disease);
-		}
+		return (int)response.getResults().getNumFound();
 	}
 
 
@@ -529,14 +571,27 @@ public class AlleleIndexer {
 		AlleleIndexer main = new AlleleIndexer();
 
 		ApplicationContext applicationContext;
-		try {
 
-			// Try context as a file resource
-			applicationContext = new FileSystemXmlApplicationContext("file:" + context);
+		File f = new File(context);
+		if(f.exists() && !f.isDirectory()) {
 
-		} catch (RuntimeException e) {
+			try {
 
-			logger.warn("An error occurred loading the file: {}", e.getMessage());
+				// Try context as a file resource
+				applicationContext = new FileSystemXmlApplicationContext("file:" + context);
+
+			} catch (RuntimeException e) {
+
+				logger.warn("An error occurred loading the file: {}", e.getMessage());
+
+				// Try context as a class path resource
+				applicationContext = new ClassPathXmlApplicationContext(context);
+
+				logger.warn("Using classpath app-config file: {}", context);
+
+			}
+
+		} else {
 
 			// Try context as a class path resource
 			applicationContext = new ClassPathXmlApplicationContext(context);
@@ -544,6 +599,7 @@ public class AlleleIndexer {
 			logger.warn("Using classpath app-config file: {}", context);
 
 		}
+
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
 		// allow hibernate session to stay open the whole execution
