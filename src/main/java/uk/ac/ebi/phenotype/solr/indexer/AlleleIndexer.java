@@ -57,9 +57,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+
 /**
  * @author Matt
- *
  */
 public class AlleleIndexer {
 
@@ -83,13 +83,18 @@ public class AlleleIndexer {
 
 
 	private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
+
+
 	static {
 		ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
 		ES_CELL_STATUS_MAPPINGS.put("ES Cell Production in Progress", "Assigned for ES Cell Production");
 		ES_CELL_STATUS_MAPPINGS.put("ES Cell Targeting Confirmed", "ES Cells Produced");
 	}
 
+
 	private static final Map<String, String> MOUSE_STATUS_MAPPINGS = new HashMap<>();
+
+
 	static {
 		MOUSE_STATUS_MAPPINGS.put("Chimeras obtained", "Assigned for Mouse Production and Phenotyping");
 		MOUSE_STATUS_MAPPINGS.put("Micro-injection in progress", "Assigned for Mouse Production and Phenotyping");
@@ -101,6 +106,7 @@ public class AlleleIndexer {
 		MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
 	}
 
+
 	private SolrServer sangerAlleleCore;
 	private SolrServer phenodigmCore;
 
@@ -108,13 +114,14 @@ public class AlleleIndexer {
 	@Qualifier("alleleIndexing")
 	private SolrServer alleleCore;
 
-	@Resource(name="globalConfiguration")
+	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
 
 	public AlleleIndexer() {
 
 	}
+
 
 	public void run() throws IOException, SolrServerException {
 
@@ -232,6 +239,7 @@ public class AlleleIndexer {
 
 
 	private void populateStatusLookup() throws SolrServerException {
+
 		SolrQuery query = new SolrQuery("*:*");
 		query.setRows(Integer.MAX_VALUE);
 		query.addFilterQuery("type:allele");
@@ -239,12 +247,13 @@ public class AlleleIndexer {
 		QueryResponse response = sangerAlleleCore.query(query);
 		List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
 		for (SangerAlleleBean allele : sangerAlleles) {
-			if( ! statusLookup.containsKey(allele.getMgiAccessionId())) {
+			if (!statusLookup.containsKey(allele.getMgiAccessionId())) {
 				statusLookup.put(allele.getMgiAccessionId(), new ArrayList<SangerAlleleBean>());
 			}
 			statusLookup.get(allele.getMgiAccessionId()).add(allele);
 		}
 	}
+
 
 	private void populateHumanSymbolLookup() throws IOException {
 
@@ -260,11 +269,11 @@ public class AlleleIndexer {
 
 			String humanSymbol = pieces[0];
 			String mgiId = pieces[4].trim();
-			if ( ! mgiId.startsWith("MGI:")) {
+			if (!mgiId.startsWith("MGI:")) {
 				continue;
 			}
 
-			if ( ! humanSymbolLookup.containsKey(mgiId)) {
+			if (!humanSymbolLookup.containsKey(mgiId)) {
 				humanSymbolLookup.put(mgiId, new HashSet<String>());
 			}
 
@@ -273,6 +282,7 @@ public class AlleleIndexer {
 		}
 
 	}
+
 
 	private void populateDiseaseLookup() throws SolrServerException {
 
@@ -298,7 +308,7 @@ public class AlleleIndexer {
 
 		// The solrcloud instance cannot give us all results back at once,
 		// we must batch up the calls and build it up piece at a time
-		while (docsRetrieved < numDocs+PHENODIGM_BATCH_SIZE) {
+		while (docsRetrieved < numDocs + PHENODIGM_BATCH_SIZE) {
 
 			SolrQuery query = new SolrQuery("*:*");
 			query.addFilterQuery("type:disease_gene_summary");
@@ -317,7 +327,7 @@ public class AlleleIndexer {
 			}
 
 			docsRetrieved += PHENODIGM_BATCH_SIZE;
-			logger.info("Processed {} documents from phenodigm.", docsRetrieved);
+			logger.info("Processed {} documents from phenodigm. {} genes in the index", docsRetrieved, diseaseLookup.size());
 
 		}
 	}
@@ -330,11 +340,12 @@ public class AlleleIndexer {
 		query.addFilterQuery("type:disease_gene_summary");
 
 		QueryResponse response = phenodigmCore.query(query);
-		return (int)response.getResults().getNumFound();
+		return (int) response.getResults().getNumFound();
 	}
 
 
 	private Map<String, AlleleDTO> convertSangerGeneBeans(List<SangerGeneBean> beans) {
+
 		Map<String, AlleleDTO> map = new HashMap<>(beans.size());
 
 		for (SangerGeneBean bean : beans) {
@@ -354,7 +365,7 @@ public class AlleleIndexer {
 			dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
 			dto.setLatestProjectStatus(bean.getLatestProjectStatus());
 
-			if( legacyProjectLookup.containsKey(bean.getMgiAccessionId())) {
+			if (legacyProjectLookup.containsKey(bean.getMgiAccessionId())) {
 				dto.setLegacyPhenotypeStatus(1);
 			}
 
@@ -366,6 +377,7 @@ public class AlleleIndexer {
 
 		return map;
 	}
+
 
 	private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleles) {
 		// Build the lookup string
@@ -395,7 +407,6 @@ public class AlleleIndexer {
 	}
 
 
-
 	private void lookupHumanMouseSymbols(Map<String, AlleleDTO> alleles) {
 
 		for (String id : alleles.keySet()) {
@@ -410,7 +421,9 @@ public class AlleleIndexer {
 		logger.debug("Finished human marker symbol lookup");
 	}
 
+
 	private String buildIdQuery(Collection<String> ids) {
+
 		StringBuilder lookup = new StringBuilder();
 		int i = 0;
 		for (String id : ids) {
@@ -423,12 +436,13 @@ public class AlleleIndexer {
 		return lookup.toString();
 	}
 
+
 	private void lookupEsCellStatus(Map<String, AlleleDTO> alleles) {
 
 		for (String id : alleles.keySet()) {
 			AlleleDTO dto = alleles.get(id);
 
-			if (! statusLookup.containsKey(id)) {
+			if (!statusLookup.containsKey(id)) {
 				continue;
 			}
 
@@ -445,6 +459,7 @@ public class AlleleIndexer {
 		logger.debug("Finished ES cell status lookup");
 	}
 
+
 	private void lookupDiseaseData(Map<String, AlleleDTO> alleles) {
 
 		logger.debug("Starting disease data lookup");
@@ -452,7 +467,7 @@ public class AlleleIndexer {
 
 			AlleleDTO dto = alleles.get(id);
 
-			if (! diseaseLookup.containsKey(id)) {
+			if (!diseaseLookup.containsKey(id)) {
 				continue;
 			}
 
@@ -483,12 +498,16 @@ public class AlleleIndexer {
 		logger.debug("Finished disease data lookup");
 	}
 
+
 	private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
+
 		alleleCore.addBeans(alleles.values(), 60000);
 	}
 
+
 	/**
 	 * Equivalent to mapping(row) Javascript method in DIH script.
+	 *
 	 * @param alleles
 	 */
 	private void doSangerAlleleMapping(Map<String, AlleleDTO> alleles) {
@@ -498,10 +517,10 @@ public class AlleleIndexer {
 				allele.setImitsPhenotypeStatus(allele.getLatestPhenotypeStatus());
 			}
 
-			if (allele.getImitsEsCellStatus()!=null || allele.getGeneLatestEsCellStatus()!=null) {
+			if (allele.getImitsEsCellStatus() != null || allele.getGeneLatestEsCellStatus() != null) {
 				String esCellStatus = null;
 				boolean latest;
-				if (allele.getImitsEsCellStatus()!=null) {
+				if (allele.getImitsEsCellStatus() != null) {
 					esCellStatus = allele.getImitsEsCellStatus();
 					latest = false;
 				} else {
@@ -526,10 +545,10 @@ public class AlleleIndexer {
 				}
 			}
 
-			if (allele.getImitsMouseStatus()!=null || allele.getGeneLatestMouseStatus()!=null) {
+			if (allele.getImitsMouseStatus() != null || allele.getGeneLatestMouseStatus() != null) {
 				String mouseStatus = null;
 				boolean latest;
-				if (allele.getImitsMouseStatus()!=null) {
+				if (allele.getImitsMouseStatus() != null) {
 					mouseStatus = allele.getImitsMouseStatus();
 					latest = false;
 				} else {
@@ -556,7 +575,9 @@ public class AlleleIndexer {
 		}
 	}
 
+
 	public static void main(String[] args) throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
+
 		OptionParser parser = new OptionParser();
 
 		// parameter to indicate which spring context file to use
@@ -573,7 +594,7 @@ public class AlleleIndexer {
 		ApplicationContext applicationContext;
 
 		File f = new File(context);
-		if(f.exists() && !f.isDirectory()) {
+		if (f.exists() && !f.isDirectory()) {
 
 			try {
 
