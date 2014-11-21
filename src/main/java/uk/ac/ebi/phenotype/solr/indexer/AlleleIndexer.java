@@ -304,7 +304,7 @@ public class AlleleIndexer {
 			DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
 			DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
 			DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS,
-			DiseaseBean.DISEASE_HUMAN_PHENOTYPES), "");
+			DiseaseBean.DISEASE_HUMAN_PHENOTYPES), ",");
 
 		// The solrcloud instance cannot give us all results back at once,
 		// we must batch up the calls and build it up piece at a time
