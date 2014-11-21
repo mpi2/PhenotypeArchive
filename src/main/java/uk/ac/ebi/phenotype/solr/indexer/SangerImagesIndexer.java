@@ -43,6 +43,7 @@ public class SangerImagesIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
 	private static Connection connection;
+	private static Connection ontoConnection;
 
 	@Autowired
 	@Qualifier("sangerImagesIndexing")
@@ -55,8 +56,12 @@ public class SangerImagesIndexer {
 	Map<String, List<String>> synonyms = new HashMap<>();
 	Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
 	private Map<Integer, ExperimentDict> expMap = new HashMap<>();
-	Map<String, String> sangerProcedureToImpcMapping=new HashMap<String, String>();
-	Map<Integer, List<Annotation>> annotations=new HashMap<>();
+	Map<String, String> sangerProcedureToImpcMapping = new HashMap<String, String>();
+	Map<Integer, List<Tag>> tags = new HashMap<>();
+	private Map<Integer, List<Annotation>> annotationsMap=new HashMap<>();
+	private Map<String, String> maMap=new HashMap<>();
+	private Map<String, Integer> termToNodeMap=new HashMap<>();
+	private Map<Integer, List<String>> nodeIdToSynonyms=new HashMap<>();
 
 
 	public SangerImagesIndexer() {
@@ -112,6 +117,9 @@ public class SangerImagesIndexer {
 
 		DataSource ds = ((DataSource) applicationContext.getBean("komp2DataSource"));
 		connection = ds.getConnection();
+		
+		DataSource ontoDs = ((DataSource) applicationContext.getBean("ontodbDataSource"));
+		ontoConnection = ontoDs.getConnection();
 
 		main.run();
 
@@ -123,14 +131,17 @@ public class SangerImagesIndexer {
 	private void run()
 	throws JAXBException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, SolrServerException {
 
-		logger.info("Populating dcf maps");
+		logger.info("run method started");
+		populateMAs();
 		populateDcfMap();
 		populateMouseMv();
 		populateAlleleMpi();
 		populateSynonyms();
 		populateGenomicFeature2();
 		populateExperiments();
-		loadAnnotations();
+		populateTAGS();
+		populateAnnotations();
+		
 		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
 		sangerProcedureToImpcMapping.put("Xray", "X-ray");
 		// 'Xray' : 'X-ray Imaging',
@@ -182,7 +193,7 @@ public class SangerImagesIndexer {
 		// <field column="PROCEDURE_ID" name="sangerProcedureId" />
 		// </entity>
 
-		String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' limit 1000";
+		String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' and IMA_IMAGE_RECORD.ID=70220 limit 1000";
 
 		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
@@ -192,7 +203,7 @@ public class SangerImagesIndexer {
 			while (r.next()) {
 				// System.out.println(r.getInt("IMA_IMAGE_RECORD.ID"));
 				SangerImagesDTO o = new SangerImagesDTO();
-				int imageRecordId=r.getInt("IMA_IMAGE_RECORD.ID");
+				int imageRecordId = r.getInt("IMA_IMAGE_RECORD.ID");
 				o.setId(imageRecordId);
 				o.setDataType(r.getString("dataType"));
 				o.setFullResolutionFilePath(r.getString("FULL_RESOLUTION_FILE_PATH"));
@@ -202,7 +213,7 @@ public class SangerImagesIndexer {
 				o.setInstitute(r.getString("institute"));
 				DcfBean dcfInfo = dcfMap.get(imageRecordId);
 				if (dcfInfo != null) {
-					//System.out.println("dcfInfo="+dcfInfo);
+					// System.out.println("dcfInfo="+dcfInfo);
 					o.setDcfId(dcfInfo.dcfId);
 					o.setDcfExpId(dcfInfo.dcfExpId);
 					o.setSangerProcedureName(dcfInfo.sangerProcedureName);
@@ -210,7 +221,7 @@ public class SangerImagesIndexer {
 				}
 				MouseBean mb = mouseMvMap.get(r.getInt("FOREIGN_KEY_ID"));
 				if (mb != null) {
-					//System.out.println("adding mouse=" + mb);
+					// System.out.println("adding mouse=" + mb);
 					o.setAgeInWeeks(mb.ageInWeeks);
 					o.setGenotypeString(mb.genotypeString);
 					AlleleBean alBean = alleleMpiMap.get(mb.genotypeString);
@@ -220,15 +231,16 @@ public class SangerImagesIndexer {
 						if (featuresMap.containsKey(alBean.gf_acc)) {
 							GenomicFeatureBean feature = featuresMap.get(alBean.gf_acc);
 							o.setSymbol(feature.getSymbol());
-							//System.out.println("setting symbol in main method via feature=" + feature.getSymbol());
+							// System.out.println("setting symbol in main method via feature="
+							// + feature.getSymbol());
 							o.setGeneName(feature.getName());
-							if(synonyms.containsKey(feature.getAccession())){
-								List<String> syns=synonyms.get(feature.getAccession());
+							if (synonyms.containsKey(feature.getAccession())) {
+								List<String> syns = synonyms.get(feature.getAccession());
 								o.setSynonyms(syns);
-//								for(String syn:syns){
-//									System.out.println("syn="+syn);
-//							
-//								}
+								// for(String syn:syns){
+								// System.out.println("syn="+syn);
+								//
+								// }
 							}
 						}
 						// o.setSubType(alBean.subType);
@@ -241,17 +253,48 @@ public class SangerImagesIndexer {
 					o.setProcedureName(this.getImpcProcedureFromSanger(expBean.name));
 					// o.setExperimentName(name)
 				}
-				if(annotations.containsKey(imageRecordId)){
-					List<Annotation> annotationList=annotations.get(imageRecordId);
-					List<String> tagNames=new ArrayList<>();
-					List<String> tagValues=new ArrayList<>();
-					for(Annotation ann:annotationList){
-						tagNames.add(ann.tagName);
-						tagValues.add(ann.tagValue);
+				if (tags.containsKey(imageRecordId)) {
+					List<Tag> annotationList = tags.get(imageRecordId);
+					List<String> tagNames = new ArrayList<>();
+					List<String> tagValues = new ArrayList<>();
+					for (Tag tag : annotationList) {
+						tagNames.add(tag.tagName);
+						tagValues.add(tag.tagValue);
+						if (annotationsMap.containsKey(tag.tagId)) {
+							List<Annotation> annotations=annotationsMap.get(tag.tagId);
+							System.out.println("annotations size="+annotations.size());
+							List<String> annotationTermIds=new ArrayList<>();
+							List<String> annotationTermNames=new ArrayList<>();
+							List<String> ma_ids=new ArrayList<>();
+							List<String> ma_terms=new ArrayList<>();
+							
+							for(Annotation annotation: annotations){
+								annotationTermIds.add(annotation.annotationTermId);
+								annotationTermNames.add(maMap.get(annotation.annotationTermId));
+								if(annotation.ma_id!=null){
+								ma_ids.add(annotation.ma_id);
+								ma_terms.add(annotation.ma_term);
+								}
+								
+							}
+							o.setAnnotationTermId(annotationTermIds);
+							o.setAnnotationTermName(annotationTermNames);
+							System.out.println("ma_ids="+ma_ids);
+							System.out.println("ma_terms="+ma_terms);
+							o.setMaId(ma_ids);
+							o.setMaTerm(ma_terms);
+							o.setMaTermName(ma_terms);
+							
+							int nodeId=termToNodeMap.get(ma_ids);
+							System.out.println("nodeId="+nodeId);
+							//ma
+							
+						}
+						
 					}
 					o.setTagNames(tagNames);
 					o.setTagValues(tagValues);
-					
+
 				}
 				
 
@@ -274,6 +317,7 @@ public class SangerImagesIndexer {
 		}
 
 	}
+		
 
 	protected class SangerImagesDTO {
 
@@ -325,6 +369,30 @@ public class SangerImagesIndexer {
 		private List<String> tagValues;
 		@Field("tagName")
 		private List<String> tagNames;
+		@Field("annotationTermId")
+		private List<String> annotationTermIds;
+		@Field("annotationTermName")
+		private List<String> annotationTermNames;
+		@Field("maTermId")
+		private List<String> maIds;
+		@Field("ma_term")
+		private List<String> ma_terms;
+		@Field("maTermName")
+		private List<String> maTermName;
+
+
+		
+		public List<String> getMaTermName() {
+		
+			return maTermName;
+		}
+
+
+		
+		public void setMaTermName(List<String> maTermName) {
+		
+			this.maTermName = maTermName;
+		}
 
 
 		public String getGeneName() {
@@ -333,37 +401,59 @@ public class SangerImagesIndexer {
 		}
 
 
-		
+		public void setMaTerm(List<String> ma_terms) {
 
-		public void setTagValues(List<String> tagValues) {
-
-			this.tagValues=tagValues;
+			this.ma_terms=ma_terms;
 			
 		}
 
 
+		public void setMaId(List<String> ma_ids) {
+
+			this.maIds=ma_ids;
+			
+		}
+
+
+		public void setAnnotationTermName(List<String> annotationTermNames) {
+
+			this.annotationTermNames=annotationTermNames;
+			
+		}
+
+
+		public void setAnnotationTermId(List<String> annotationTermIds) {
+
+			this.annotationTermIds=annotationTermIds;
+			
+		}
+
+
+		public void setTagValues(List<String> tagValues) {
+
+			this.tagValues = tagValues;
+
+		}
 
 
 		public void setTagNames(List<String> tagNames) {
 
-		this.tagNames=tagNames;
-			
+			this.tagNames = tagNames;
+
 		}
-
-
 
 
 		public void setSynonyms(List<String> syns) {
 
-			this.synonyms=syns;
-			
+			this.synonyms = syns;
+
 		}
 
 
 		public void setProcedureName(String procedureName2) {
 
-			this.procedureName=procedureName2;
-			
+			this.procedureName = procedureName2;
+
 		}
 
 
@@ -613,6 +703,44 @@ public class SangerImagesIndexer {
 	}
 
 
+	public void populateMaSynonyms(){
+//		<entity dataSource="ontods" name="ma_term_2Syn" 
+//		onError="continue"  
+//		processor="CachedSqlEntityProcessor"
+//		query="select * from ma_synonyms"
+//		where="term_id=maAnnotations.TERM_ID">
+//								
+//		<field column="syn_name" name="ma_term_synonym" />
+//	
+//	</entity>
+		System.out.println("populating MA synonyms");
+		// use annotationTermName from ontodb not from Sanger image annotation(risk of out of date)
+		String query = "select * from ma_synonyms";
+
+		try (PreparedStatement p = ontoConnection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+
+
+				int nodeId=resultSet.getInt("node_id");
+				String synName=resultSet.getString("syn_name");
+				if(nodeIdToSynonyms.containsKey(nodeId)){
+					List<String> maSynonyms=nodeIdToSynonyms.get(nodeId);
+					maSynonyms.add(synName);
+				}
+				//nodeIdToSynonyms.put(nodeId,)
+				//termToNodeMap.put(termId, nodeId);
+				
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 	/**
 	 * Add all the relevant data to the Impress map
 	 * 
@@ -655,6 +783,54 @@ public class SangerImagesIndexer {
 	}
 
 
+	public void populateMAs(){
+//		<entity dataSource="ontods" name="ma_term_infos" 
+//		query="select term_id, name from ma_term_infos where term_id = '${maAnnotations.TERM_ID}'" 
+//		onError="continue">			
+//		<!--  use annotationTermName from ontodb not from Sanger image annotation(risk of out of date) -->
+//       
+//       	<field column="term_id" name="maAnnotationTermId" />
+//        <field column="name" name="annotationTermName" /> 
+//		<field column="name" name="maTermName" /> 
+		// select * from IMPC_MOUSE_ALLELE_MV where
+				// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
+				System.out.println("populating MAs");
+				// use annotationTermName from ontodb not from Sanger image annotation(risk of out of date)
+				//String query = "select term_id, name from ma_term_infos";// where
+																									// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
+																									// image
+																									// record.foreignkeyid
+																									// to
+																									// mouse_id
+																									// on
+				String query="select ma_term_infos.term_id, ma_term_infos.name, ma_node2term.node_id, ma_node2term.term_id from ma_term_infos, ma_node2term where ma_term_infos.term_id=ma_node2term.term_id";
+
+				try (PreparedStatement p = ontoConnection.prepareStatement(query)) {
+
+					ResultSet resultSet = p.executeQuery();
+
+					while (resultSet.next()) {
+
+						MouseBean b = new MouseBean();
+						/*
+						 * <field column="AGE_IN_WEEKS" name="ageInWeeks" /> <field
+						 * column="ALLELE" name="genotypeString" />
+						 */
+
+						String termId = resultSet.getString("term_id");
+						String termName = resultSet.getString("name");
+						int nodeId=resultSet.getInt("node_id");
+						termToNodeMap.put(termId, nodeId);
+						maMap.put(termId, termName);
+
+					}
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+
+	}
 	public void populateMouseMv()
 	throws SQLException {
 
@@ -772,7 +948,7 @@ public class SangerImagesIndexer {
 		// IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and
 		// IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID;# AND
 		// IMA_IMAGE_RECORD.ID=${ima_image_record.ID}
-		System.out.println("populating genomicFeature2");
+		System.out.println("populating experiments");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
 		// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
 		// <field column="symbol" name="symbol" />
@@ -803,7 +979,6 @@ public class SangerImagesIndexer {
 
 	public class ExperimentDict {
 
-		
 		String name;
 		String description;
 
@@ -848,10 +1023,12 @@ public class SangerImagesIndexer {
 		}
 
 	}
-	
-	private void loadAnnotations(){
-		//select * from IMA_IMAGE_TAG
-		System.out.println("populating annotations");
+
+
+	private void populateTAGS() {
+
+		// select * from IMA_IMAGE_TAG
+		System.out.println("populating TAGS");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
 		// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
 		// <field column="symbol" name="symbol" />
@@ -866,22 +1043,23 @@ public class SangerImagesIndexer {
 		try (PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
-//			<field column="TAG_NAME" name="tagName" />
-//			<field column="TAG_VALUE" name="tagValue" />
+			// <field column="TAG_NAME" name="tagName" />
+			// <field column="TAG_VALUE" name="tagValue" />
 			while (resultSet.next()) {
 				int irId = resultSet.getInt("IMAGE_RECORD_ID");
-				
-				Annotation annotation=new Annotation();
-				annotation.tagName=resultSet.getString("TAG_NAME");
-				annotation.tagValue=resultSet.getString("TAG_VALUE");
-				if (annotations.containsKey(irId)) {
-					List<Annotation> list = annotations.get(irId);
-					
-					list.add(annotation);
+
+				Tag tag = new Tag();
+				tag.tagId=resultSet.getInt("ID");
+				tag.tagName = resultSet.getString("TAG_NAME");
+				tag.tagValue = resultSet.getString("TAG_VALUE");
+				if (tags.containsKey(irId)) {
+					List<Tag> list = tags.get(irId);
+
+					list.add(tag);
 				} else {
-					List<Annotation> list = new ArrayList<>();
-					list.add(annotation);
-					annotations.put(irId, list);
+					List<Tag> list = new ArrayList<>();
+					list.add(tag);
+					tags.put(irId, list);
 				}
 
 			}
@@ -889,14 +1067,72 @@ public class SangerImagesIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-	}
-	
-	protected class Annotation{
 
+	}
+
+
+	protected void populateAnnotations() {
+
+		// <entity dataSource="komp2ds" name="maAnnotations"
+		// query="select * from ANN_ANNOTATION where FOREIGN_KEY_ID=${tag.ID} and TERM_ID like 'MA%'">
+		//
+		// <field column="TERM_ID" name="annotationTermId" />
+		// <field column="TERM_ID" name="maTermId" />
+		// <field column="TERM_NAME" name="ma_term" />
+		// <field column="TERM_ID" name="ma_id" />
+		System.out.println("populating Annotations");
+		String query = "select * from ANN_ANNOTATION where TERM_ID like 'MA%'";// where
+														// FOREIGN_KEY_ID=${tag.ID}
+														// and TERM_ID like
+														// 'MA%'";// where
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+				int id = resultSet.getInt("FOREIGN_KEY_ID");
+
+				Annotation ann = new Annotation();
+				String annotationTermId=resultSet.getString("TERM_ID");
+				String annotationTermName=resultSet.getString("TERM_NAME");
+				ann.annotationTermId=annotationTermId;
+				ann.ma_id = annotationTermId;
+				ann.ma_term=annotationTermName;
+				
+//				if(annotationTermId.contains("MA:")){
+//					ann.mpTermId = annotationTermId;
+//					ann.ma_term=annotationTermName;
+//				}
+				if (annotationsMap.containsKey(id)) {
+					List<Annotation> list = annotationsMap.get(id);
+
+					list.add(ann);
+				} else {
+					List<Annotation> list = new ArrayList<>();
+					list.add(ann);
+					annotationsMap.put(id, list);
+				}
+
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	protected class Annotation {
+
+		String annotationTermId;
+		String annotationTermName;
+		String ma_term;
+		String ma_id;
+	}
+
+	protected class Tag {
+		public int tagId;
 		public String tagValue;
 		public String tagName;
-		
+
 	}
 
 	// protected AlleleBean populateSubType(AlleleBean b){
@@ -1108,15 +1344,16 @@ public class SangerImagesIndexer {
 		}
 
 	}
-	
-	private String getImpcProcedureFromSanger(String sangerProcedure){
-		if(sangerProcedureToImpcMapping.containsKey(sangerProcedure)){
+
+
+	private String getImpcProcedureFromSanger(String sangerProcedure) {
+
+		if (sangerProcedureToImpcMapping.containsKey(sangerProcedure)) {
 			return sangerProcedureToImpcMapping.get(sangerProcedure);
-		}else{
+		} else {
 			return sangerProcedure;
 		}
-		
-	}
 
+	}
 
 }
