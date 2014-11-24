@@ -1,6 +1,6 @@
 /**
  * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
  * You may obtain a copy of the License at
@@ -16,91 +16,133 @@
 package uk.ac.ebi.phenotype.pojo;
 
 /**
- * 
+ *
  * A concrete representation of phenotype parameter option.
- * 
+ *
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  * @version $Revision: 2227 $
- *  @since February 2012
+ * @since February 2012
  */
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 
 @Entity
 @Table(name = "phenotype_parameter_option")
 public class ParameterOption {
-	
+
 	/**
 	 * MySQL auto increment
 	 * GenerationType.AUTO won't work
 	 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
-	
+
 	@Column(name = "name")
 	private String name;
-	
-        @Column(name = "description")	
+
+	@Column(name = "description")
 	private String description;
+
+	@Column(name = "normal")
+	private Boolean normalCategory;
+
+
 
 	/**
 	 * @return the id
 	 */
 	public Integer getId() {
+
 		return id;
 	}
+
+
 	/**
 	 * @param id the id to set
 	 */
 	public void setId(Integer id) {
+
 		this.id = id;
 	}
 
+
 	/**
-	 * 
+	 *
 	 */
 	public ParameterOption() {
+
 		super();
 	}
+
+
 	/**
 	 * @return the name
 	 */
 	public String getName() {
+
 		return name;
 	}
+
+
 	/**
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
+
 		this.name = name;
 	}
+
+
 	/**
 	 * @return the description
 	 */
 	public String getDescription() {
+
 		return description;
 	}
+
+
 	/**
 	 * @param description the description to set
 	 */
 	public void setDescription(String description) {
+
 		this.description = description;
 	}
+
+
+	/**
+	 * @return true if this category is an expected normal category
+	 */
+	public Boolean getNormalCategory() {
+
+		return normalCategory;
+	}
+
+
+	/**
+	 * @param normalCategory set if the category is normal
+	 */
+	public void setNormalCategory(Boolean normalCategory) {
+
+		this.normalCategory = normalCategory;
+	}
+
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "ParameterOption [id=" + id + ", name=" + name
-				+ ", description=" + description + "]";
+
+		return "ParameterOption [id=" + id
+			+ ", name=" + name
+			+ ", normalCategory=" + normalCategory
+			+ ", description=" + description + "]";
 	}
-	
-	
+
+
 }
