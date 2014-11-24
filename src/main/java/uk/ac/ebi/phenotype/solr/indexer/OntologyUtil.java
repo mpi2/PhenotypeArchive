@@ -155,38 +155,4 @@ public class OntologyUtil {
         
         return map;
     }
-    
-    /**
-     * Fetch a map of image terms indexed by ma id
-     * 
-     * @param imagesCore a valid solr connection
-     * @return a map, indexed by child ma id, of all parent terms with associations
-     * to child terms
-     */
-    public static  Map<String, List<ImageDTO>> populateImageBean(SolrServer imagesCore) throws SolrServerException {
-        Map<String, List<ImageDTO>> map = new HashMap();
-
-        int pos = 0;
-        long total = Integer.MAX_VALUE;
-        SolrQuery query = new SolrQuery("q=maTermId:*");
-        query.setRows(BATCH_SIZE);
-        while (pos < total) {
-            query.setStart(pos);
-            QueryResponse response = imagesCore.query(query);
-            total = response.getResults().getNumFound();
-            List<ImageDTO> imageList = response.getBeans(ImageDTO.class);
-            for (ImageDTO image : imageList) {
-                
-                
-
-                if ( ! map.containsKey(image.getMaTermId())) {
-                    map.put(image.getMaTermId(), new ArrayList<ImageDTO>());
-                }
-                map.get(image.getMaTermId()).add(image);
-            }
-            pos += BATCH_SIZE;
-        }
-
-        return map;
-    }
 }
