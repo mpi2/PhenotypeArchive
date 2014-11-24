@@ -12,11 +12,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
+import static uk.ac.ebi.phenotype.solr.indexer.SolrUtils.populateImageBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 /**
@@ -44,7 +43,7 @@ public class MAIndexer extends AbstractIndexer {
     private Map<String, List<MaTermInfo2SynBean>> maTermInfo2SynMap = new HashMap();    // key = term_id.
     private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();             // key = parent term_id.
     private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();            // key = child term_id.
-    private Map<String, List<OntologyTermBean>> maImagesMap = new HashMap();            // key = child term_id.
+    private Map<String, List<ImageDTO>> maImagesMap = new HashMap();                    // key = term_id.
     
     private static final int BATCH_SIZE = 50;
         
@@ -141,7 +140,7 @@ public class MAIndexer extends AbstractIndexer {
         maTermInfo2SynMap = populateMaTermInfo2SynBean();
         maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
         maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
-//        maImagesMap = OntologyUtil.populateImageBean(imagesCore);
+        maImagesMap = populateImageBean(imagesCore);
     }
 
     /**
