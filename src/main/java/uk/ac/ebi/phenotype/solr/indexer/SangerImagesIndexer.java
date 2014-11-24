@@ -1255,7 +1255,7 @@ System.out.println("nodeIdToMaSynonyms size="+nodeIdToMaSynonyms.size());
 	 String acc = resultSet.getString("acc");
 	 int db_id=resultSet.getInt("db_id");
 	 String key=acc+"_"+db_id;
-	 System.out.println("setting subtype id="+key);
+	 //System.out.println("setting subtype id="+key);
 	 subtypeMap.put(key, subtype);
 	 }
 	
@@ -1277,60 +1277,7 @@ System.out.println("nodeIdToMaSynonyms size="+nodeIdToMaSynonyms.size());
 	}
 
 
-	// <entity dataSource="komp2ds" name="mouse"
-	// query="select * from IMPC_MOUSE_ALLELE_MV where MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}">
-	// <field column="MOUSE_ID" name="mouseId" />
-	// <!-- <field column="COLONY_NAME" name="colonyName" />
-	// <field column="AGE_IN_WEEKS" name="ageInWeeks" /> -->
-	//
-	// <!-- </edata-config.xmlntity>
-	// <entity dataSource="komp2ds" name="mouse"
-	// query="select * from ima_mouse_image_vw where id=${ima_image_record.FOREIGN_KEY_ID}">
-	// <field column="ID" name="mouseId" /> -->
-	// <!-- <field column="COLONY_NAME" name="colonyName" />-->
-	// <field column="AGE_IN_WEEKS" name="ageInWeeks" />
-	// <field column="ALLELE" name="genotypeString" />
-	// <!-- <entity dataSource="komp2ds" name="mts_mouse_allele_mv"
-	// query="select * from `mts_mouse_allele_mv` where MOUSE_ID=${mouse.MOUSE_ID}">
-	// -->
-	// <!--
-	// <entity dataSource="komp2ds" name="MtsMouseAllele"
-	// query="select * from `MTS_MOUSE_ALLELE` where MOUSE_ID=${mts_mouse_allele_mv.MOUSE_ID}">
-	// <entity dataSource="komp2ds" name="mtsGenotypeDict"
-	// query="select * from `MTS_GENOTYPE_DICT` where ID=${MtsMouseAllele.GENOTYPE_DICT_ID}">
-	// <field column="NAME" name="alleleName" />
-	// </entity>
-	// </entity>
-	// -->
-	//
-	// <entity dataSource="komp2ds" name="alleleMpi"
-	// query="select * from `allele` where symbol='${mouse.ALLELE}'">
-	// <!-- Get gene associated information from our sanger tables (we also
-	// get it from our main mpi2 db at the moment as well- this sanger tables
-	// are
-	// temporary for demo purposes??? -->
-	// <field column="symbol" name="sangerSymbol" />
-	// <field column="acc" name="allele_accession" />
-	//
-	// <entity dataSource="komp2ds" name="genomic_feature2"
-	// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
-	// <field column="symbol" name="symbol" />
-	// <field column="acc" name="accession" />
-	// <field column="name" name="geneName" />
-	//
-	// <entity dataSource="komp2ds" name="notnull"
-	// query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
-	// <entity dataSource="komp2ds" name="subtype2"
-	// query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
-	// <field column="name" name="subtype" />
-	// </entity>
-	// </entity>
-	//
-	// <entity dataSource="komp2ds" name="synonym"
-	// query="select * from synonym where acc='${genomic_feature2.acc}' ">
-	// <field column="symbol" name="geneSynonyms" />
-	// </entity>
-	//
+	
 	// <!-- other gene core stuff -->
 	// <entity dataSource="allele_core" name="genedoc" stream="true"
 	// url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
