@@ -25,7 +25,7 @@ public class ImageDTO extends ObservationDTO {
 	@Field(JPEG_URL)
 	private String jpegUrl;
 	
-	@Field("ma_term_id")
+	@Field("maTermId")
 	private String maTermId;
 
 	@Field("symbol_gene")
@@ -34,17 +34,10 @@ public class ImageDTO extends ObservationDTO {
 	
 	
 	public String getSymbolGene() {
-	
-		return symbolGene;
-	}
-
-
-
-
-	
-	public void setSymbolGene(String symbolGene) {
-	
-		this.symbolGene = symbolGene;
+		if((this.getGeneSymbol()!=null)&&(this.getGeneAccession()!=null)){
+			this.symbolGene=this.getGeneSymbol()+"_"+this.getAlleleAccession();
+			}
+		return this.symbolGene;
 	}
 
 
