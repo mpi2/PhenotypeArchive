@@ -24,6 +24,44 @@ public class ImageDTO extends ObservationDTO {
 	
 	@Field(JPEG_URL)
 	private String jpegUrl;
+	
+	@Field("ma_term_id")
+	private String maTermId;
+
+	@Field("symbol_gene")
+	private String symbolGene;//for search and annotation view
+
+	
+	
+	public String getSymbolGene() {
+	
+		return symbolGene;
+	}
+
+
+
+
+	
+	public void setSymbolGene(String symbolGene) {
+	
+		this.symbolGene = symbolGene;
+	}
+
+
+
+
+	public String getMaTermId() {
+	
+		return maTermId;
+	}
+
+
+
+	
+	public void setMaTermId(String maTermId) {
+	
+		this.maTermId = maTermId;
+	}
 
 
 
@@ -82,6 +120,7 @@ public class ImageDTO extends ObservationDTO {
 		
 		return jpegUrl;
 	}
+	
 	
 
 	

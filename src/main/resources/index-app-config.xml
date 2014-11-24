@@ -79,6 +79,13 @@
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
+
+    <!-- used for concurrently loading the MA core -->
+    <bean id="maIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/ma"/>
+        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
     
      <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/images"/>
@@ -151,8 +158,6 @@
 				<entry key="liveSite" value="${liveSite}" />
 				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
                 <entry key="human2mouseFilename" value="${human2mouseFile}" />
-                <entry key="phenodigm.solrserver" value="${phenodigm.solrserver}" />
-                <entry key="imits.solrserver" value="${imits.solrserver}" />
 			</map>
 		</property>
 	</bean>

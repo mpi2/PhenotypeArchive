@@ -134,6 +134,9 @@ public class ImagesIndexer {
 						///webgateway/archived_files/download/
 					imageDTO.setDownloadUrl(impcMediaBaseUrl+"/archived_files/download/"+omeroId);
 					imageDTO.setJpegUrl(impcMediaBaseUrl+"/render_image/"+omeroId);
+					if((imageDTO.getGeneSymbol()!=null)&&(imageDTO.getGeneAccession()!=null)){
+					imageDTO.setSymbolGene(imageDTO.getGeneSymbol()+"_"+imageDTO.getAlleleAccession());
+					}
 					}else{
 						//System.out.println("omero id is null for "+downloadFilePath);
 					}
