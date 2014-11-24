@@ -24,6 +24,24 @@ public class ImageDTO extends ObservationDTO {
 	
 	@Field(JPEG_URL)
 	private String jpegUrl;
+	
+	@Field("ma_term_id")
+	private String maTermId;
+
+
+	
+	public String getMaTermId() {
+	
+		return maTermId;
+	}
+
+
+
+	
+	public void setMaTermId(String maTermId) {
+	
+		this.maTermId = maTermId;
+	}
 
 
 
@@ -82,6 +100,7 @@ public class ImageDTO extends ObservationDTO {
 		
 		return jpegUrl;
 	}
+	
 	
 
 	

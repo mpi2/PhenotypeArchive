@@ -32,6 +32,31 @@ public class GenomicFeatureBean {
 	String accession;
 	String symbol;
 	String name;
+	private String subtypeAccession;
+	
+	String subtypeDbId;
+	
+	
+	public String getSubtypeDbId() {
+	
+		return subtypeDbId;
+	}
+
+	
+	public void setSubtypeDbId(String subtypeDbId) {
+	
+		this.subtypeDbId = subtypeDbId;
+	}
+
+	public String getSubtypeAccession() {
+	
+		return subtypeAccession;
+	}
+	
+	public void setSubtypeAccession(String subtypeAccession) {
+	
+		this.subtypeAccession = subtypeAccession;
+	}
 	/**
 	 * @return the accession
 	 */
@@ -68,5 +93,6 @@ public class GenomicFeatureBean {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	
 }
