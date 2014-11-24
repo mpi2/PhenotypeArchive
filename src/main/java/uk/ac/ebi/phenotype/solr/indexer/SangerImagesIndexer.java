@@ -23,6 +23,7 @@ import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
@@ -43,7 +44,7 @@ public class SangerImagesIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
 	private static Connection connection;
-	private static Connection ontoConnection;
+	private static Connection ontoDbConnection;
 
 	@Autowired
 	@Qualifier("sangerImagesIndexing")
@@ -63,6 +64,10 @@ public class SangerImagesIndexer {
 	private Map<String, Integer> termToNodeMap = new HashMap<>();
 	private Map<Integer, List<String>> nodeIdToMaSynonyms = new HashMap<>();
 	private Map<String, String> subtypeMap=new HashMap<>();
+	
+	private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();             // key = parent term_id.
+	private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();            // key = child term_id.
+	  
 
 
 	public SangerImagesIndexer() {
@@ -120,7 +125,7 @@ public class SangerImagesIndexer {
 		connection = ds.getConnection();
 
 		DataSource ontoDs = ((DataSource) applicationContext.getBean("ontodbDataSource"));
-		ontoConnection = ontoDs.getConnection();
+		ontoDbConnection = ontoDs.getConnection();
 
 		main.run();
 
@@ -143,6 +148,8 @@ public class SangerImagesIndexer {
 		populateTAGS();
 		populateAnnotations();
 		populateSubType();
+		maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
+	    maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
 
 		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
 		sangerProcedureToImpcMapping.put("Xray", "X-ray");
@@ -807,7 +814,7 @@ public class SangerImagesIndexer {
 		// annotation(risk of out of date)
 		String query = "select * from ma_synonyms";
 
-		try (PreparedStatement p = ontoConnection.prepareStatement(query)) {
+		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
 
@@ -901,7 +908,7 @@ System.out.println("nodeIdToMaSynonyms size="+nodeIdToMaSynonyms.size());
 		// on
 		String query = "select ma_term_infos.term_id, ma_term_infos.name, ma_node2term.node_id, ma_node2term.term_id from ma_term_infos, ma_node2term where ma_term_infos.term_id=ma_node2term.term_id";
 
-		try (PreparedStatement p = ontoConnection.prepareStatement(query)) {
+		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
 
