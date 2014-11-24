@@ -942,7 +942,8 @@ CREATE TABLE phenotype_parameter_option (
 
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	name                      VARCHAR(200) NOT NULL,
-	description               VARCHAR(200),    
+	description               VARCHAR(200),
+	normal                    BOOLEAN,
 
 	PRIMARY KEY (id)
 	
