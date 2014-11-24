@@ -208,7 +208,7 @@ public class ImageService {
 		System.out.println("trying to get controls with " + daysEitherSide + " days either side");
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
-		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":" + center, ObservationDTO.METADATA_GROUP + ":" + metadataGroup, ObservationDTO.STRAIN_NAME + ":" + strain, ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter, ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
+		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center+"\"", ObservationDTO.METADATA_GROUP + ":" + metadataGroup, ObservationDTO.STRAIN_NAME + ":" + strain, ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter, ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
 		if (sex != null) {
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
