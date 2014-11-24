@@ -80,13 +80,13 @@ public class ChartsPageTest {
         String geneSymbol = "Mysm1";
         driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
         // <div class='topic'>Gene: Mysm1</div>
-        String tempUrl = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
-//        System.out.println("tempUrl=" + tempUrl);
-        driver.get(tempUrl);
+        String target = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
+        System.out.println("Target: " + target);
+        driver.get(target);
         String title = driver.findElement(By.className("title")).getText();
 //        System.out.println("title=" + title + "  geneSymbol=" + geneSymbol);
         if ( ! title.contains(geneSymbol)) {
-            errorList.add("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + tempUrl + "'");
+            errorList.add("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + target + "'");
         } else {
             successList.add("OK");
         }
