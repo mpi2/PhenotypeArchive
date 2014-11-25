@@ -65,16 +65,19 @@ public class SangerImagesIndexer {
 	private Map<Integer, List<String>> nodeIdToMaSynonyms = new HashMap<>();
 	private Map<String, String> subtypeMap = new HashMap<>();
 
-	private Map<String, List<OntologyTermBean>> maChildMap = new HashMap(); // key
-																			// =
-																			// parent
-																			// term_id.
-	private Map<String, List<OntologyTermBean>> maParentMap = new HashMap(); // key
-																				// =
-																				// child
-																				// term_id.
+//	private Map<String, List<OntologyTermBean>> maChildMap = new HashMap(); // key
+//																			// =
+//																			// parent
+//																			// term_id.
+//	private Map<String, List<OntologyTermBean>> maParentMap = new HashMap(); // key
+//																				// =
+//																				// child
+//																				// term_id.
 	
 	Map<String,Set<String>>mpSynMap=new HashMap<>();
+	
+	Map<String, List<String>> topLevelMaTerms=new HashMap<>();
+	private Map<String, List<String>> maTopLevelNodes;
 
 
 	public SangerImagesIndexer() {
@@ -156,10 +159,15 @@ public class SangerImagesIndexer {
 		populateAnnotations();
 		populateSubType();
 		populateMpSynonyms();
-		maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
-		maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
-		System.out.println("maChildMap size=" + maChildMap.size());
-		System.out.println("maParentMap size=" + maParentMap.size());
+		
+		
+		maTopLevelNodes = MPIndexer.getMaTopLevelNodes(ontoDbConnection);
+		System.out.println("maTopLevelNodes size="+maTopLevelNodes.size());
+		
+//		maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
+//		maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
+//		System.out.println("maChildMap size=" + maChildMap.size());
+//		System.out.println("maParentMap size=" + maParentMap.size());
 
 		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
 		sangerProcedureToImpcMapping.put("Xray", "X-ray");
@@ -300,12 +308,26 @@ public class SangerImagesIndexer {
 							List<String> mp_ids = new ArrayList<>();
 							List<String> mp_terms = new ArrayList<>();
 
+							ArrayList<String> maTopLevelTermIds=new ArrayList<>();
+							ArrayList<String> maTopLevelTerms=new ArrayList<>();
 							for (Annotation annotation : annotations) {
 								annotationTermIds.add(annotation.annotationTermId);
 								annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
 								if (annotation.ma_id != null) {
 									ma_ids.add(annotation.ma_id);
 									ma_terms.add(annotation.ma_term);
+									
+									//ArrayList<String> maTopLevelSynonyms=new ArrayList<>();
+									if (maTopLevelNodes.containsKey(annotation.ma_term)) {
+										for (String maTopLevelNodeTerm : maTopLevelNodes.get(annotation.ma_term)) {
+											maTopLevelTermIds.add(annotation.ma_term);
+											maTopLevelTerms.add(maTopLevelNodeTerm);
+//											 <field column="term_id" name="selected_top_level_ma_id" />
+//					                            <field column="name" name="selected_top_level_ma_term" />
+											
+										}
+										//maTopLevelSynonyms.addAll(lookupMaSynonyms(annotation.ma_term));
+									}
 								}
 								if(annotation.mp_id!=null){
 									mp_ids.add(annotation.mp_id);
@@ -318,6 +340,8 @@ public class SangerImagesIndexer {
 							}
 							o.setAnnotationTermId(annotationTermIds);
 							o.setAnnotationTermName(annotationTermNames);
+							o.setMaTopLevelTermIds(maTopLevelTermIds);
+							o.setMaTopLevelTerms(maTopLevelTerms);
 							// System.out.println("ma_ids=" + ma_ids);
 							// System.out.println("ma_terms=" + ma_terms);
 							o.setMaId(ma_ids);
@@ -330,18 +354,18 @@ public class SangerImagesIndexer {
 							o.setMpTermName(mp_terms);
 							for (String maId : ma_ids) {
 								// get the top level and child terms
-								if (maChildMap.containsKey(maId)) {
-									List<OntologyTermBean> childMas = maChildMap.get(maId);
-									for (OntologyTermBean childMa : childMas) {
-										//System.out.println("child="+childMa.getId());
-									}
-								}
-								if (maParentMap.containsKey(maId)) {
-									List<OntologyTermBean> parentMas = maParentMap.get(maId);
-									for (OntologyTermBean parentMa : parentMas) {
-										//System.out.println("parent="+parentMa.getId());
-									}
-								}
+//								if (maChildMap.containsKey(maId)) {
+//									List<OntologyTermBean> childMas = maChildMap.get(maId);
+//									for (OntologyTermBean childMa : childMas) {
+//										//System.out.println("child="+childMa.getId());
+//									}
+//								}
+//								if (maParentMap.containsKey(maId)) {
+//									List<OntologyTermBean> parentMas = maParentMap.get(maId);
+//									for (OntologyTermBean parentMa : parentMas) {
+//										//System.out.println("parent="+parentMa.getId());
+//									}
+//								}
 
 								if (termToNodeMap.containsKey(maId)) {
 									int nodeId = termToNodeMap.get(maId);
@@ -454,6 +478,55 @@ public class SangerImagesIndexer {
 		private List<String> mp_id;
 		@Field("mp_term_synonym")
 		private Set<String> mpSyns;
+		// <field column="term_id" name="selected_top_level_ma_id" />
+//         <field column="name" name="selected_top_level_ma_term" />
+		@Field("selected_top_level_ma_id")
+		private List<String> maTopLevelTermIds;
+		
+		public List<String> getMaTopLevelTermIds() {
+		
+			return maTopLevelTermIds;
+		}
+
+
+
+
+
+
+
+		
+		public void setMaTopLevelTermIds(List<String> maTopLevelTermIds) {
+		
+			this.maTopLevelTermIds = maTopLevelTermIds;
+		}
+
+
+
+
+
+
+
+		
+		public List<String> getMaTopLevelTerms() {
+		
+			return maTopLevelTerms;
+		}
+
+
+
+
+
+
+
+		
+		public void setMaTopLevelTerms(List<String> maTopLevelTerms) {
+		
+			this.maTopLevelTerms = maTopLevelTerms;
+		}
+
+		@Field("selected_top_level_ma_term")
+		private List<String> maTopLevelTerms;
+		
 		
 		public List<String> getMp_id() {
 		
@@ -462,6 +535,10 @@ public class SangerImagesIndexer {
 
 
 		
+		
+
+
+
 		public void setMpSynonyms(Set<String> mpSyns) {
 
 			this.mpSyns=mpSyns;
