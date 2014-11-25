@@ -27,7 +27,10 @@ import java.util.Map;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import static uk.ac.ebi.phenotype.solr.indexer.OntologyUtil.BATCH_SIZE;
 
@@ -37,20 +40,27 @@ import static uk.ac.ebi.phenotype.solr.indexer.OntologyUtil.BATCH_SIZE;
  */
 public class SolrUtils {
 
+    private static final Logger logger = LoggerFactory.getLogger(SolrUtils.class);
     
     /**
      * Fetch a map of image terms indexed by ma id
      * 
      * @param imagesCore a valid solr connection
      * @return a map, indexed by child ma id, of all parent terms with associations
+     * @throws SolrServerException
      * to child terms
      */
     public static  Map<String, List<ImageDTO>> populateImageBean(SolrServer imagesCore) throws SolrServerException {
+        if (logger.isDebugEnabled()) {
+            HttpSolrServer s = (HttpSolrServer)imagesCore;
+            logger.debug("USING CORE AT: " + s.getBaseURL());
+        }
+        
         Map<String, List<ImageDTO>> map = new HashMap();
 
         int pos = 0;
         long total = Integer.MAX_VALUE;
-        SolrQuery query = new SolrQuery("q=maTermId:*");
+        SolrQuery query = new SolrQuery("maTermId:*");
         query.setRows(BATCH_SIZE);
         while (pos < total) {
             query.setStart(pos);
