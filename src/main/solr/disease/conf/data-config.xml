@@ -11,7 +11,7 @@
 
     ]]></script>
 
-	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solrcloudlive.sanger.ac.uk/solr/phenodigm/select?" encoding="UTF-8" connectionTimeout="30000" readTimeout="60000"/>
+	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solrclouddev.sanger.ac.uk/solr/phenodigm/select?" encoding="UTF-8" connectionTimeout="30000" readTimeout="60000"/>
 	<dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/gene/select?" encoding="UTF-8"  connectionTimeout="30000" readTimeout="60000"/>
 	
 	<document name="docs">

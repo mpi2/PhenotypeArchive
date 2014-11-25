@@ -79,6 +79,7 @@ CREATE TABLE stats_unidimensional_results (
   genotype_parameter_estimate      DOUBLE,
   genotype_stderr_estimate         DOUBLE,
   genotype_effect_pvalue           DOUBLE,
+  genotype_percentage_change       VARCHAR(200),
   gender_parameter_estimate        DOUBLE,
   gender_stderr_estimate           DOUBLE,
   gender_effect_pvalue             DOUBLE,
