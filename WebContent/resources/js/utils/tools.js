@@ -389,7 +389,7 @@
                     }
 
                     if ( MPI2.searchAndFacetConfig.update.mainFacetDoneReset ){
-        				alert('mainFacetDoneReset');
+        				//alert('mainFacetDoneReset');
         				MPI2.searchAndFacetConfig.update.rebuilt = true;
         				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = false;
         				$.fn.rebuildFilters(oUrlParams);
