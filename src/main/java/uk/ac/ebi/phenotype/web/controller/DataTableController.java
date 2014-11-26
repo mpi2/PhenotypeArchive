@@ -55,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.service.GeneService;
@@ -159,7 +160,6 @@ public class DataTableController {
 		JSONObject errorJson = (JSONObject) JSONSerializer.toJSON(errorJSON);
 		return new ResponseEntity<String>(errorJson.toString(), createResponseHeaders(), HttpStatus.CREATED);
 	}
-
 	
 	private HttpHeaders createResponseHeaders(){
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -175,6 +175,9 @@ public class DataTableController {
 		} 
 		else if (mode.equals("pipelineGrid")) {
 			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, start);
+		} 
+		else if (mode.equals("impc_imagesGrid")) {
+			jsonStr = parseJsonforImpcImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName);
 		} 
 		else if (mode.equals("imagesGrid")) {
 			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName);
@@ -471,6 +474,207 @@ public class DataTableController {
         return j.toString();        
 	}
 	
+	public String parseJsonforImpcImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException{
+		
+		//String mediaBaseUrl = config.get("mediaBaseUrl");
+		String mediaBaseUrl = "/data/impcImages/images?";
+		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
+		
+		
+		if ( showImgView ){			
+			// image view: one image per row
+			JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+			int totalDocs = json.getJSONObject("response").getInt("numFound");
+	        
+			JSONObject j = new JSONObject();
+			j.put("aaData", new Object[0]);
+			
+			j.put("iTotalRecords", totalDocs);
+			j.put("iTotalDisplayRecords", totalDocs);
+			
+			//String imgBaseUrl = mediaBaseUrl + "/"; 
+			
+			for (int i=0; i<docs.size(); i++){
+				
+				List<String> rowData = new ArrayList<String>();
+				JSONObject doc = docs.getJSONObject(i);					
+				String annots = "";
+				
+				//System.out.println("JSON: " + doc.toString());
+				
+				String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+				String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+				String smallThumbNailPath = thumbnailPath + "/200";  //width in pixel
+				String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
+				String img = "<img src='" + smallThumbNailPath + "'/>";	
+				
+				String imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath+ "'>" + img + "</a>";				
+				
+				try {
+					//ArrayList<String> mp = new ArrayList<String>();
+					//ArrayList<String> ma = new ArrayList<String>();
+					ArrayList<String> procedures = new ArrayList<String>();					
+					
+					int counter = 0;
+					
+//					if (doc.has("annotationTermId")) {
+//						JSONArray termIds   = doc.getJSONArray("annotationTermId");
+//						JSONArray termNames = doc.getJSONArray("annotationTermName");
+//						for( Object s : termIds ){														
+//							if ( s.toString().contains("MA")){
+//								log.debug(i + " - MA: " + termNames.get(counter).toString());
+//								String name = termNames.get(counter).toString();
+//								String maid = termIds.get(counter).toString();	
+//								String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
+//								ma.add("<a href='" + url + "'>" + name + "</a>");
+//							}
+//							else if ( s.toString().contains("MP") ){
+//								log.debug(i+ " - MP: " + termNames.get(counter).toString());
+//								log.debug(i+ " - MP: " + termIds.get(counter).toString());								
+//								String mpid = termIds.get(counter).toString();							
+//								String name = termNames.get(counter).toString();							
+//								String url = request.getAttribute("baseUrl") + "/phenotypes/" + mpid;
+//								mp.add("<a href='" + url + "'>" + name + "</a>");
+//							}
+//							counter++;
+//						}
+//					}	
+					
+					if (doc.has("procedure_name")) {
+						String procedureName  = doc.getString("procedure_name");
+						procedures.add(procedureName);						
+					}					
+					
+//					if ( mp.size() == 1 ){
+//						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + StringUtils.join(mp, ", ") + "</span>";
+//					}
+//					else if ( mp.size() > 1 ){
+//						String list = "<ul class='imgMp'><li>" + StringUtils.join(mp, "</li><li>") + "</li></ul>";
+//						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + list + "</span>";
+//					}
+//					
+//					
+//					if ( ma.size() == 1 ){
+//						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
+//					}
+//					else if ( ma.size() > 1 ){
+//						String list = "<ul class='imgMa'><li>" + StringUtils.join(ma, "</li><li>") + "</li></ul>";
+//						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list + "</span>";
+//					}
+					
+					if ( procedures.size() == 1 ){
+						annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + StringUtils.join(procedures, ", ") + "</span>";
+					}
+					else if ( procedures.size() > 1 ){
+						String list = "<ul class='imgProcedure'><li>" + StringUtils.join(procedures, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + list + "</span>";
+					}
+					
+					// gene link
+					if (doc.has("gene_symbol")) {
+						String geneSymbol  = doc.getString("gene_symbol");
+						String geneAccessionId  = doc.getString("gene_accession_id");
+						String url = request.getAttribute("baseUrl") + "/genes/" + geneAccessionId;
+						String geneLink = "<a href='" + url +"'>" + geneSymbol + "</a>";
+						
+						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + geneLink + "</span>";						
+					}	
+					
+					
+//					ArrayList<String> gene = fetchImgGeneAnnotations(doc, request);
+//					if ( gene.size() == 1 ){						
+//						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + StringUtils.join(gene, ",") + "</span>";
+//					}
+//					else if ( gene.size() > 1 ){
+//						String list = "<ul class='imgGene'><li>" + StringUtils.join(gene, "</li><li>") + "</li></ul>";
+//						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + list + "</span>";
+//					}
+									
+					rowData.add(annots);
+					rowData.add(imgLink);
+				
+					j.getJSONArray("aaData").add(rowData);
+				}
+				catch (Exception e){
+					// some images have no annotations					
+					rowData.add("No information available");
+					rowData.add(imgLink);
+					j.getJSONArray("aaData").add(rowData);
+				}
+			} 	
+			
+			return j.toString();		
+		}
+		else {			
+			// annotation view: images group by annotationTerm per row
+			
+			String fqStr = fqOri;	
+			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
+			
+			
+			String composedFq = "";
+			if ( fqOri.contains("fq=*:*") ){
+				composedFq = "&fq=(biological_sample_group:experimental)";
+				
+			}
+			else {
+				composedFq = fqOri + " AND (biological_sample_group:experimental)";
+			}
+			
+			solrParams = "q=observation_type:image_record" +composedFq;				
+			
+			
+			//String imgUrl = request.getAttribute("baseUrl") + "/images/select?" + solrParams;
+			String imgUrl = mediaBaseUrl + solrParams;
+			//System.out.println("--IMPC_IMAGE PARAMs: "+ imgUrl);
+			
+			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+			
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(facetFields);
+			int numAnnots = annots.size();
+			//System.out.println("Number of annots: " + numAnnots);
+
+	        JSONObject j = new JSONObject();
+			j.put("aaData", new Object[0]);
+			
+			j.put("iTotalRecords", numAnnots);
+			j.put("iTotalDisplayRecords", numAnnots);
+			
+			int end = start+length;
+			
+			for (int i=start; i<end; i=i+1){
+				//if (annots.size()<=i) {break;}//stop when we hit the end
+				
+				List<String> rowData = new ArrayList<String>();
+				
+				AnnotNameValCount annot = annots.get(i);
+				
+				//System.out.println("CHK: " + annotNameVal.name);
+				String displayAnnotName = annot.name;
+				String annotVal = annot.val;
+				int imgCount = annot.imgCount;	
+				
+				String unit = imgCount > 1 ? "images" : "image";	
+				String valLink = "<a href='" + "#" + "'>" + annotVal + "</a>";
+				
+				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
+				imgUrl += " AND (" + annot.facet + ":\"" + annotVal + "\")";
+				String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
+							
+				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
+				//System.out.println("TEST: " + displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
+			
+				// image path
+				String imgPath = fetchImpcImagePathByAnnotName(query, composedFq);
+				rowData.add(imgPath);
+				
+				j.getJSONArray("aaData").add(rowData);
+
+			}	
+			
+			return j.toString();	
+		}
+	}
 	
 	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException{
 		
@@ -495,6 +699,7 @@ public class DataTableController {
 				JSONObject doc = docs.getJSONObject(i);					
 				String annots = "";
 				
+				System.out.println("JSON: " + doc.toString());
 				String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
 				String img = "<img src='" +  imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";				
 				String fullSizePath = largeThumbNailPath.replace("tn_large", "full");								
@@ -768,7 +973,41 @@ public class DataTableController {
 		return gene;
 	}
 
+	public String fetchImpcImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException{
+		
+		//String mediaBaseUrl = config.get("mediaBaseUrl");
+		
+		final int maxNum = 4; // max num of images to display in grid column
+				
+		String queryUrl = config.get("internalSolrUrl") 
+				+ "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query			
+				+ "&" + fqStr
+				+ "&rows=" + maxNum;
+		
+		List<String> imgPath = new ArrayList<String>();
 	
+		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
+		JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
+
+		int dataLen = docs.size() < 5 ? docs.size() : maxNum;
+		
+		for (int i = 0; i < dataLen; i++) {
+			JSONObject doc = docs.getJSONObject(i);
+			String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+			
+			String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+			
+			String smallThumbNailPath = thumbnailPath + "/200";
+			String largeThumbNailPath = thumbnailPath + "/800";
+			
+			String img = "<img src='" + smallThumbNailPath + "'/>";					
+			String link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+			
+			imgPath.add(link);
+		}
+
+		return StringUtils.join(imgPath, "");
+	}
 	public String fetchImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException{
 	
 		String mediaBaseUrl = config.get("mediaBaseUrl");
@@ -779,7 +1018,7 @@ public class DataTableController {
 				+ "/images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query			
 				+ "&" + fqStr
 				+ "&rows=" + maxNum;
-		System.out.println("URL: " +queryUrl );
+		//System.out.println("URL: " +queryUrl );
 		List<String> imgPath = new ArrayList<String>();
 	
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
