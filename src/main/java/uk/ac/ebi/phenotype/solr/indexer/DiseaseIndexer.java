@@ -124,32 +124,32 @@ public class DiseaseIndexer extends AbstractIndexer {
 			// Populate gene data
 			GeneData gene = geneLookup.get(phenDisease.getMgiAccessionId());
 
-			disease.setMgiAccessionId(gene.MGI_ACCESSION_ID);
-			disease.setMarkerSymbol(gene.MARKER_SYMBOL);
-			disease.setMarkerName(gene.MARKER_NAME);
-			disease.setMarkerSynonym(gene.MARKER_SYNONYM);
-			disease.setMarkerType(gene.MARKER_TYPE);
-			disease.setHumanGeneSymbol(gene.HUMAN_GENE_SYMBOL);
-			disease.setStatus(gene.STATUS);
-			disease.setLatestProductionCentre(gene.LATEST_PRODUCTION_CENTRE);
-			disease.setLatestPhenotypingCentre(gene.LATEST_PHENOTYPING_CENTRE);
-			disease.setLatestPhenotypeStatus(gene.LATEST_PHENOTYPE_STATUS);
-			disease.setLegacyPhenotypeStatus(gene.LEGACY_PHENOTYPE_STATUS);
-			disease.setAlleleName(gene.ALLELE_NAME);
-			disease.setMpId(gene.MP_ID);
-			disease.setMpTerm(gene.MP_TERM);
-			disease.setMpTermDefinition(gene.MP_DEFINITION);
-			disease.setMpTermSynonym(gene.MP_SYNONYM);
-			disease.setTopLevelMpId(gene.TOP_LEVEL_MP_ID);
-			disease.setTopLevelMpTerm(gene.TOP_LEVEL_MP_TERM);
-			disease.setTopLevelMpTermSynonym(gene.TOP_LEVEL_MP_TERM_SYNONYM);
-			disease.setIntermediateMpId(gene.INTERMEDIATE_MP_ID);
-			disease.setIntermediateMpTerm(gene.INTERMEDIATE_MP_TERM);
-			disease.setIntermediateMpTermSynonym(gene.INTERMEDIATE_MP_TERM_SYNONYM);
-			disease.setChildMpId(gene.CHILD_MP_ID);
-			disease.setChildMpTerm(gene.CHILD_MP_TERM);
-			disease.setChildMpTermSynonym(gene.CHILD_MP_TERM_SYNONYM);
-			disease.setOntologySubset(gene.ONTOLOGY_SUBSET);
+			if (gene.MGI_ACCESSION_ID != null) { disease.setMgiAccessionId(gene.MGI_ACCESSION_ID); }
+			if (gene.MARKER_SYMBOL != null) { disease.setMarkerSymbol(gene.MARKER_SYMBOL); }
+			if (gene.MARKER_NAME != null) { disease.setMarkerName(gene.MARKER_NAME); }
+			if (gene.MARKER_SYNONYM != null) { disease.setMarkerSynonym(gene.MARKER_SYNONYM); }
+			if (gene.MARKER_TYPE != null) { disease.setMarkerType(gene.MARKER_TYPE); }
+			if (gene.HUMAN_GENE_SYMBOL != null) { disease.setHumanGeneSymbol(gene.HUMAN_GENE_SYMBOL); }
+			if (gene.STATUS != null) { disease.setStatus(gene.STATUS); }
+			if (gene.LATEST_PRODUCTION_CENTRE != null) { disease.setLatestProductionCentre(gene.LATEST_PRODUCTION_CENTRE); }
+			if (gene.LATEST_PHENOTYPING_CENTRE != null) { disease.setLatestPhenotypingCentre(gene.LATEST_PHENOTYPING_CENTRE); }
+			if (gene.LATEST_PHENOTYPE_STATUS != null) { disease.setLatestPhenotypeStatus(gene.LATEST_PHENOTYPE_STATUS); }
+			if (gene.LEGACY_PHENOTYPE_STATUS != null) { disease.setLegacyPhenotypeStatus(gene.LEGACY_PHENOTYPE_STATUS); }
+			if (gene.ALLELE_NAME != null) { disease.setAlleleName(gene.ALLELE_NAME); }
+			if (gene.MP_ID != null) { disease.setMpId(gene.MP_ID); }
+			if (gene.MP_TERM != null) { disease.setMpTerm(gene.MP_TERM); }
+			if (gene.MP_DEFINITION != null) { disease.setMpTermDefinition(gene.MP_DEFINITION); }
+			if (gene.MP_SYNONYM != null) { disease.setMpTermSynonym(gene.MP_SYNONYM); }
+			if (gene.TOP_LEVEL_MP_ID != null) { disease.setTopLevelMpId(gene.TOP_LEVEL_MP_ID); }
+			if (gene.TOP_LEVEL_MP_TERM != null) { disease.setTopLevelMpTerm(gene.TOP_LEVEL_MP_TERM); }
+			if (gene.TOP_LEVEL_MP_TERM_SYNONYM != null) { disease.setTopLevelMpTermSynonym(gene.TOP_LEVEL_MP_TERM_SYNONYM); }
+			if (gene.INTERMEDIATE_MP_ID != null) { disease.setIntermediateMpId(gene.INTERMEDIATE_MP_ID); }
+			if (gene.INTERMEDIATE_MP_TERM != null) { disease.setIntermediateMpTerm(gene.INTERMEDIATE_MP_TERM); }
+			if (gene.INTERMEDIATE_MP_TERM_SYNONYM != null) { disease.setIntermediateMpTermSynonym(gene.INTERMEDIATE_MP_TERM_SYNONYM); }
+			if (gene.CHILD_MP_ID != null) { disease.setChildMpId(gene.CHILD_MP_ID); }
+			if (gene.CHILD_MP_TERM != null) { disease.setChildMpTerm(gene.CHILD_MP_TERM); }
+			if (gene.CHILD_MP_TERM_SYNONYM != null) { disease.setChildMpTermSynonym(gene.CHILD_MP_TERM_SYNONYM); }
+			if (gene.ONTOLOGY_SUBSET != null) { disease.setOntologySubset(gene.ONTOLOGY_SUBSET); }
 
 			diseaseCore.addBean(disease, 60000);
 
