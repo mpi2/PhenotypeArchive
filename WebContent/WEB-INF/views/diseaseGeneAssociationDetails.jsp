@@ -7,15 +7,22 @@
 <%@ taglib prefix="f" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<td>
+<td colspan="2">
     <h6 id="${diseaseGeneAssociationDetails.diseaseId}" >${diseaseGeneAssociationDetails.diseaseId} Disease Phenotype Terms</h6>
     <c:forEach var="hpTerm" items="${diseaseGeneAssociationDetails.diseasePhenotypes}">
         ${hpTerm.term}<br>
     </c:forEach>
 </td>
-<td></td>
+<!--<td>-->
+    <%--<c:forEach var="diseaseModelAssociation" items="${diseaseAssociations.diseaseModelAssociation}">--%>
+        <%--<c:set var="phenotypeMatches" value="${diseaseModelAssociation.phenotypeMatches}"></c:set>--%>
+        <%--<c:forEach var="phenotypeMatch" items="${phenotypeMatches}">--%>
+            ${phenotypeMatch}<br>
+        <%--</c:forEach>--%>
+    <%--</c:forEach>--%>
+<!--</td>-->
 <c:set var="diseaseAssociations" value="${diseaseGeneAssociationDetails.diseaseAssociations}"/>
-<td colspan="5">
+<td colspan="2">
     <c:choose>
         <c:when test="${empty diseaseAssociations}">
             <b>No mouse models associated with ${diseaseGeneAssociationDetails.diseaseId}.</b>
