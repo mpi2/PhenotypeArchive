@@ -25,14 +25,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import java.util.Map.Entry;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 /**
@@ -55,7 +54,7 @@ public class OntologyUtil {
     public static Map<String, List<OntologyTermBean>> populateChildTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String childTermQuery =
-            "SELECT\n" +
+            "SELECT DISTINCT\n" +
             "  ti.term_id  AS parent_ma_id\n" +
             ", ti2.term_id AS child_ma_id\n" +
             ", ti2.name    AS child_ma_term\n" +
@@ -64,7 +63,8 @@ public class OntologyUtil {
             "INNER JOIN ma_node2term       nt  ON ti.term_id       = nt.term_id\n" +
             "INNER JOIN ma_parent_children pc  ON nt.node_id       = pc.parent_node_id\n" +
             "INNER JOIN ma_node2term       nt2 ON pc.child_node_id = nt2.node_id\n" +
-            "INNER JOIN ma_term_infos      ti2 ON nt2.term_id      = ti2.term_id";
+            "INNER JOIN ma_term_infos      ti2 ON nt2.term_id      = ti2.term_id\n" +
+            "ORDER BY ti.term_id, ti2.term_id, ti2.name";
         String childTermSynonymsQuery =
             "SELECT\n" +
             "  term_id\n" +
@@ -77,6 +77,7 @@ public class OntologyUtil {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 OntologyTermBean bean = new OntologyTermBean();
+                String mapKey = resultSet.getString("parent_ma_id");
                 bean.setId(resultSet.getString("child_ma_id"));
                 bean.setTerm(resultSet.getString("child_ma_term"));
                 bean.setIdTerm(resultSet.getString("termId_termName"));
@@ -91,10 +92,10 @@ public class OntologyUtil {
                     p2.close();
                 }
                 
-                if ( ! map.containsKey(bean.getId())) {
-                    map.put(bean.getId(), new ArrayList<OntologyTermBean>());
+                if ( ! map.containsKey(mapKey)) {
+                    map.put(mapKey, new ArrayList<OntologyTermBean>());
                 }
-                map.get(bean.getId()).add(bean);
+                map.get(mapKey).add(bean);
             }
         }
         
@@ -112,14 +113,15 @@ public class OntologyUtil {
     public static Map<String, List<OntologyTermBean>> populateParentTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String parentTermQuery =
-            "SELECT\n" +
+            "SELECT DISTINCT\n" +
             "  n2node.term_id AS child_ma_id\n" +
             ", mt.term_id AS parent_ma_id\n" +
             ", mt.name AS parent_ma_term\n" +
             "FROM ma_term_infos mt\n" +
             "INNER JOIN ma_node2term n2term ON n2term.term_id = mt.term_id\n" +
             "INNER JOIN ma_node_top_level tln ON tln.top_level_node_id = n2term.node_id\n" +
-            "INNER JOIN ma_node2term n2node ON n2node.node_id = tln.node_id";
+            "INNER JOIN ma_node2term n2node ON n2node.node_id = tln.node_id\n" +
+            "ORDER BY n2node.term_id, mt.term_id, mt.name\n";
         String parentTermSynonymsQuery =
             "SELECT\n" +
             "  term_id\n" +
@@ -132,6 +134,7 @@ public class OntologyUtil {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 OntologyTermBean bean = new OntologyTermBean();
+                String mapKey = resultSet.getString("child_ma_id");
                 bean.setId(resultSet.getString("parent_ma_id"));
                 bean.setTerm(resultSet.getString("parent_ma_term"));
                 bean.setIdTerm("");
@@ -146,13 +149,98 @@ public class OntologyUtil {
                     p2.close();
                 }
                 
-                if ( ! map.containsKey(bean.getId())) {
-                    map.put(bean.getId(), new ArrayList<OntologyTermBean>());
+                if ( ! map.containsKey(mapKey)) {
+                    map.put(mapKey, new ArrayList<OntologyTermBean>());
                 }
-                map.get(bean.getId()).add(bean);
+                
+                map.get(mapKey).add(bean);
             }
         }
         
         return map;
     }
+    
+    public static void dumpTerms(Map<String, List<OntologyTermBean>> map, String what) {
+        List<OntologyTermRecord> termList = new ArrayList();
+        Iterator<Entry<String, List<OntologyTermBean>>> it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<String, List<OntologyTermBean>> entry = it.next();
+            OntologyTermRecord rec = new OntologyTermRecord(entry);
+            termList.add(rec);
+        }
+        
+        Collections.sort(termList, new OntologyTermRecordComparator());
+        
+        Comparator<OntologyTermBean> c = new OntologyTermBeanComparator();
+        System.out.println(what);
+        System.out.format("%10.10s\t%10.10s\t%s\t%s\n", "KEY", "TERM_ID", "TERM_NAME", "[SYNONYMS]");
+        for (OntologyTermRecord record : termList) {
+            int recordIndex = 0;
+            
+            for (OntologyTermBean bean : record.value) {
+                System.out.format("%10.10s\t%10.10s\t", recordIndex == 0 ? record.key : "", bean.getId());
+                System.out.print(bean.getTerm() + "\t");
+                List<String> synonyms = bean.getSynonyms();
+                int synonymCount = 0;
+                for (String synonym : synonyms) {
+                    if (synonymCount == 0) {
+                        System.out.print("[");
+                    } else {
+                        System.out.print(", ");
+                    }
+                    synonymCount++;
+                    System.out.print(synonym);
+                    if (synonymCount == synonyms.size()) {
+                        System.out.print("]");
+                    }
+                }
+                recordIndex++;
+            
+                System.out.println();
+            }
+            
+            System.out.println();
+        }
+    }
+    
+    public static class OntologyTermRecord /*implements Comparator<OntologyTermRecord>*/ {
+        public String key;
+        public List<OntologyTermBean> value;
+        
+        public OntologyTermRecord(Entry<String, List<OntologyTermBean>> entry) {
+            key = entry.getKey();
+            value = entry.getValue();
+        }
+    }
+    
+    public static class OntologyTermRecordComparator implements Comparator<OntologyTermRecord> {
+
+        @Override
+        public int compare(OntologyTermRecord thisTerm, OntologyTermRecord thatTerm) {
+            if (thisTerm.key.equalsIgnoreCase(thatTerm.key)) {
+                OntologyTermBeanComparator ontologyTermBeanComparator = new OntologyTermBeanComparator();
+                Collections.sort(thisTerm.value, ontologyTermBeanComparator);
+                Collections.sort(thatTerm.value, ontologyTermBeanComparator);
+                return 0;
+            } else {
+                return thisTerm.key.compareTo(thatTerm.key);
+            }
+        }
+    }
+    
+    public static class OntologyTermBeanComparator implements Comparator<OntologyTermBean> {
+        @Override
+        public int compare(OntologyTermBean thisBean, OntologyTermBean thatBean) {
+            if (thisBean.getId().equalsIgnoreCase(thatBean.getId())) {
+                if (thisBean.getTerm().equalsIgnoreCase(thatBean.getTerm())) {
+                    return 0;
+                } else {
+                    return thisBean.getTerm().compareTo(thatBean.getTerm());
+                }
+            } else {
+                return thisBean.getId().compareTo(thatBean.getId());
+            }
+        }
+    }
+    
 }

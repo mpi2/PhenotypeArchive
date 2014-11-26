@@ -23,6 +23,7 @@ public class MaDTO {
 
     public static final String TOP_LEVEL_MA_ID = "top_level_ma_id";
     public static final String TOP_LEVEL_MA_TERM = "top_level_ma_term";
+//    public static final String TOP_LEVEL_MA_TERM_SYNONYM = "top_level_ma_term_synonym";
 
     public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
     public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
@@ -191,6 +192,9 @@ public class MaDTO {
 
     @Field(TOP_LEVEL_MA_TERM)
     private List<String> topLevelMaTerm;
+
+//    @Field(TOP_LEVEL_MA_TERM_SYNONYM)
+//    private List<String> topLevelMaTermSynonym;
 
     @Field(SELECTED_TOP_LEVEL_MA_ID)
     private List<String> selectedTopLevelMaId;
@@ -590,6 +594,14 @@ public class MaDTO {
     public void setTopLevelMaTerm(List<String> topLevelMaTerm) {
         this.topLevelMaTerm = topLevelMaTerm;
     }
+
+//    public List<String> getTopLevelMaTermSynonym() {
+//        return topLevelMaTermSynonym;
+//    }
+//
+//    public void setTopLevelMaTermSynonym(List<String> topLevelMaTermSynonym) {
+//        this.topLevelMaTermSynonym = topLevelMaTermSynonym;
+//    }
 
     public List<String> getSelectedTopLevelMaId() {
         return selectedTopLevelMaId;
@@ -1381,6 +1393,7 @@ public class MaDTO {
         hash = 97 * hash + Objects.hashCode(this.childMaIdTerm);
         hash = 97 * hash + Objects.hashCode(this.topLevelMaId);
         hash = 97 * hash + Objects.hashCode(this.topLevelMaTerm);
+//        hash = 97 * hash + Objects.hashCode(this.topLevelMaTermSynonym);
         hash = 97 * hash + Objects.hashCode(this.selectedTopLevelMaId);
         hash = 97 * hash + Objects.hashCode(this.selectedTopLevelMaTerm);
         hash = 97 * hash + Objects.hashCode(this.selectedTopLevelMaTermSynonym);
@@ -1523,6 +1536,9 @@ public class MaDTO {
         if ( ! Objects.equals(this.topLevelMaTerm, other.topLevelMaTerm)) {
             return false;
         }
+//        if ( ! Objects.equals(this.topLevelMaTermSynonym, other.topLevelMaTermSynonym)) {
+//            return false;
+//        }
         if ( ! Objects.equals(this.selectedTopLevelMaId, other.selectedTopLevelMaId)) {
             return false;
         }

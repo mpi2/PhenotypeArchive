@@ -187,7 +187,7 @@ public class MPIndexer {
 
 		// MA Term mappings
 		maTermNodes = getMATermNodes();
-		maTopLevelNodes = getMaTopLevelNodes();
+		maTopLevelNodes = getMaTopLevelNodes(ontoDbConnection);
 		maChildLevelNodes = getMAChildLevelNodes();
 		maTermSynonyms = getMATermSynonyms();
 		
@@ -421,7 +421,7 @@ public class MPIndexer {
 		return beans;
 	}
 	
-	private Map<String, List<String>> getMaTopLevelNodes() throws SQLException {
+	public static Map<String, List<String>> getMaTopLevelNodes(Connection ontoDbConnection) throws SQLException {
 		Map<String, List<String>> beans = new HashMap<>();
 		
 		String q = "select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
