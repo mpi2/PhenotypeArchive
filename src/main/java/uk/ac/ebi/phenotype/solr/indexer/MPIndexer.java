@@ -192,7 +192,7 @@ public class MPIndexer {
 		maTermSynonyms = getMATermSynonyms();
 		
 		// Alleles
-		alleles = getAlleles();
+		alleles = SolrUtils.getAlleles(alleleCore);
 		
 		// Phenotype call summaries (1)
 		phenotypes1 = getPhenotypeCallSummary1();
@@ -531,27 +531,7 @@ public class MPIndexer {
 	}
 	
 	
-	private Map<String, AlleleDTO> getAlleles() throws SolrServerException {
-		Map<String, AlleleDTO> alleles = new HashMap<>();
-		
-		int pos = 0;
-		long total = Integer.MAX_VALUE;
-		SolrQuery query = new SolrQuery("*:*");
-		query.setRows(BATCH_SIZE);
-		while (pos < total) {
-			query.setStart(pos);
-			QueryResponse response = alleleCore.query(query);
-			total = response.getResults().getNumFound();
-			List<AlleleDTO> alleleList = response.getBeans(AlleleDTO.class);
-			for (AlleleDTO allele : alleleList) {
-				alleles.put(allele.getMgiAccessionId(), allele);
-			}
-			pos += BATCH_SIZE;
-		}
-		logger.debug("Loaded {} alleles", alleles.size());
-		
-		return alleles;
-	}
+	
 	
 	
 	private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1() throws SQLException {

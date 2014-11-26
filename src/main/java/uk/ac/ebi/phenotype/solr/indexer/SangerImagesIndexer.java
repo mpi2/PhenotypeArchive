@@ -5,6 +5,7 @@ import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.beans.Field;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,9 @@ import uk.ac.ebi.phenotype.pojo.BiologicalSampleType;
 import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.MPTopLevelTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
@@ -46,6 +49,10 @@ public class SangerImagesIndexer {
 	private static final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
 	private static Connection connection;
 	private static Connection ontoDbConnection;
+
+	@Autowired
+	@Qualifier("alleleIndexing")
+	SolrServer alleleIndexing;
 
 	@Autowired
 	@Qualifier("sangerImagesIndexing")
@@ -82,10 +89,11 @@ public class SangerImagesIndexer {
 	private Map<Integer, TopLevelBean> maNodeToTopLevel = new HashMap<>();
 	private Map<String, TopLevelBean> mpNode2termTopLevel = new HashMap<>();
 	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
+	private Map<String, AlleleDTO> alleles;
 
 
 	public SangerImagesIndexer() {
-
+		
 	}
 
 
@@ -140,6 +148,7 @@ public class SangerImagesIndexer {
 
 		DataSource ontoDs = ((DataSource) applicationContext.getBean("ontodbDataSource"));
 		ontoDbConnection = ontoDs.getConnection();
+		
 
 		main.run();
 
@@ -168,6 +177,7 @@ public class SangerImagesIndexer {
 		populateMaSynonyms();
 		populateMpNode2TopLevelTerms();
 		populateMpTermInfo();
+		populateAlleles();
 
 		// for(bean: maTopLevelNodes){
 		//
@@ -207,6 +217,7 @@ public class SangerImagesIndexer {
 		int count = 0;
 
 		sangerImagesIndexing.deleteByQuery("*:*");
+	
 
 		// <entity dataSource="komp2ds" name="ima_image_record"
 		//
@@ -241,7 +252,7 @@ public class SangerImagesIndexer {
 				// System.out.println(r.getInt("IMA_IMAGE_RECORD.ID"));
 				SangerImageDTO o = new SangerImageDTO();
 				int imageRecordId = r.getInt("IMA_IMAGE_RECORD.ID");
-				o.setId(imageRecordId);
+				o.setId(String.valueOf(imageRecordId));
 				o.setDataType(r.getString("dataType"));
 				o.setFullResolutionFilePath(r.getString("FULL_RESOLUTION_FILE_PATH"));
 				o.setLargeThumbnailFilePath(r.getString("LARGE_THUMBNAIL_FILE_PATH"));
@@ -271,7 +282,9 @@ public class SangerImagesIndexer {
 							// <entity dataSource="komp2ds" name="subtype2"
 							// query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
 							String symbolGene = feature.getSymbol() + "_" + feature.getAccession();
-							o.setSymbolGene(symbolGene);
+							List symbolGeneList=new ArrayList();
+							symbolGeneList.add(symbolGene);
+							o.setSymbolGene(symbolGeneList);
 							String subtypeKey = feature.getSubtypeAccession() + "_" + feature.getSubtypeDbId();
 							// System.out.println("checking for subyte with key="
 							// + subtypeKey);
@@ -284,6 +297,7 @@ public class SangerImagesIndexer {
 							if (synonyms.containsKey(feature.getAccession())) {
 								List<String> syns = synonyms.get(feature.getAccession());
 								o.setSynonyms(syns);
+								this.populateImageDtoStatuses(o, feature.getAccession());
 								// for(String syn:syns){
 								// System.out.println("syn="+syn);
 								//
@@ -297,7 +311,9 @@ public class SangerImagesIndexer {
 					ExperimentDict expBean = expMap.get(r.getInt("ID"));
 					o.setExperimentName(expBean.name);
 					o.setSangerProcedureName(expBean.name);
-					o.setProcedureName(this.getImpcProcedureFromSanger(expBean.name));
+					List<String> procedureList=new ArrayList<String>();
+					procedureList.add(this.getImpcProcedureFromSanger(expBean.name));
+					o.setProcedureName(procedureList);
 					// o.setExperimentName(name)
 				}
 				if (tags.containsKey(imageRecordId)) {
@@ -460,602 +476,7 @@ public class SangerImagesIndexer {
 
 	}
 
-	protected class SangerImageDTO {
-
-		// <field column="dataType" name="dataType"/>
-		// <field column="FULL_RESOLUTION_FILE_PATH"
-		// name="fullResolutionFilePath" />
-		// <field column="LARGE_THUMBNAIL_FILE_PATH"
-		// name="largeThumbnailFilePath" />
-		// <field column="ORIGINAL_FILE_NAME" name="originalFileName" />
-		// <field column="SMALL_THUMBNAIL_FILE_PATH"
-		// name="smallThumbnailFilePath" />
-		// <field column="institute" name="institute" />
-		@Field("id")
-		int id;
-		@Field("dataType")
-		String dataType;
-		@Field("fullResolutionFilePath")
-		String fullResolutionFilePath;
-		@Field("largeThumbnailFilePath")
-		String largeThumbnailFilePath;
-		@Field("originalFileName")
-		String originalFileName;
-		@Field("smallThumbnailFilePath")
-		String smallThumbnailFilePath;
-		@Field("institute")
-		String institute;
-		// need method to get imaDcfImageView data for here
-		@Field("dcfId")
-		int dcfId;
-		@Field("dcfExpId")
-		String dcfExpId;
-		@Field("sangerProcedureName")
-		String sangerProcedureName;
-		@Field("procedure_name")
-		String procedureName;
-		@Field("genotypeString")
-		String genotypeString;
-		@Field("geneName")
-		private String geneName;
-		@Field("expName")
-		private String experimentName;
-		@Field("expName_exp")
-		private String expName_exp;
-		@Field("procedure_name")
-		private String procedure_name;
-		@Field("geneSynonyms")
-		private List<String> synonyms;
-		@Field("tagValue")
-		private List<String> tagValues;
-		@Field("tagName")
-		private List<String> tagNames;
-		@Field("annotationTermId")
-		private List<String> annotationTermIds;
-		@Field("annotationTermName")
-		private List<String> annotationTermNames;
-		@Field("maTermId")
-		private List<String> maIds;
-		@Field("ma_term")
-		private List<String> ma_terms;
-		@Field("maTermName")
-		private List<String> maTermName;
-		@Field("ma_term_synonym")
-		private List<String> maTermSynonym;
-		@Field("subtype")
-		private String subtype;
-		@Field("symbol_gene")
-		private String symbolGene;
-
-		@Field("mp_id")
-		private List<String> mp_id;
-		@Field("mp_term_synonym")
-		private Set<String> mpSyns;
-		// <field column="term_id" name="selected_top_level_ma_id" />
-		// <field column="name" name="selected_top_level_ma_term" />
-		@Field("selected_top_level_ma_id")
-		private List<String> maTopLevelTermIds;
-		@Field("selected_top_level_ma_term_synonym")
-		private ArrayList<String> selectedTopLevelMaTermSynonym;
-//		<field column="name" name="annotatedHigherLevelMpTermName" />
-//		<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
-		@Field("annotatedHigherLevelMpTermName")
-		private List<String> annotatedHigherLevelMpTermName;
-
-		@Field("annotatedHigherLevelMpTermId")
-		private List<String> annotatedHigherLevelMpTermId;
-		
-		@Field("top_level_mp_term_synonym")
-		private Set<String> topLevelMpTermSynonym; 
-
-		
-		
-		public Set<String> getTopLevelMpTermSynonym() {
-		
-			return topLevelMpTermSynonym;
-		}
-
-
-
-		
-		public void setTopLevelMpTermSynonym(Set<String> topLevelMpTermSynonym) {
-		
-			this.topLevelMpTermSynonym = topLevelMpTermSynonym;
-		}
-
-
-
-		public List<String> getAnnotatedHigherLevelMpTermName() {
-		
-			return annotatedHigherLevelMpTermName;
-		}
-
-
-		
-		public void setAnnotatedHigherLevelMpTermName(List<String> annotatedHigherLevelMpTermName) {
-		
-			this.annotatedHigherLevelMpTermName = annotatedHigherLevelMpTermName;
-		}
-
-
-		
-		public List<String> getAnnotatedHigherLevelMpTermId() {
-		
-			return annotatedHigherLevelMpTermId;
-		}
-
-
-		
-		public void setAnnotatedHigherLevelMpTermId(List<String> annotatedHigherLevelMpTermId) {
-		
-			this.annotatedHigherLevelMpTermId = annotatedHigherLevelMpTermId;
-		}
-
-
-		public List<String> getMaTopLevelTermIds() {
-
-			return maTopLevelTermIds;
-		}
-
-
-		public ArrayList<String> getSelectedTopLevelMaTermSynonym() {
-
-			return selectedTopLevelMaTermSynonym;
-		}
-
-
-		public void setSelectedTopLevelMaTermSynonym(ArrayList<String> selectedTopLevelMaTermSynonym) {
-
-			this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
-		}
-
-
-		public void setMaTopLevelTermIds(List<String> maTopLevelTermIds) {
-
-			this.maTopLevelTermIds = maTopLevelTermIds;
-		}
-
-
-		public List<String> getMaTopLevelTerms() {
-
-			return maTopLevelTerms;
-		}
-
-
-		public void setMaTopLevelTerms(List<String> maTopLevelTerms) {
-
-			this.maTopLevelTerms = maTopLevelTerms;
-		}
-
-		@Field("selected_top_level_ma_term")
-		private List<String> maTopLevelTerms;
-
-
-		public List<String> getMp_id() {
-
-			return mp_id;
-		}
-
-
-		public void setMpSynonyms(Set<String> mpSyns) {
-
-			this.mpSyns = mpSyns;
-
-		}
-
-
-		public void setMp_id(List<String> mp_id) {
-
-			this.mp_id = mp_id;
-		}
-
-
-		public List<String> getMpTermId() {
-
-			return mpTermId;
-		}
-
-
-		public void setMpTermId(List<String> mpTermId) {
-
-			this.mpTermId = mpTermId;
-		}
-
-
-		public List<String> getMpTerm() {
-
-			return mpTerm;
-		}
-
-		@Field("mpTermId")
-		private List<String> mpTermId;
-		@Field("mp_term")
-		private List<String> mpTerm;
-		@Field("mpTermName")
-		private List<String> mpTermName;
-
-
-		public List<String> getMpTermName() {
-
-			return mpTermName;
-		}
-
-
-		public void setMpTermName(List<String> mpTermName) {
-
-			this.mpTermName = mpTermName;
-		}
-
-
-		public String getSymbolGene() {
-
-			return symbolGene;
-		}
-
-
-		public void setMpTerm(List<String> mpTerm) {
-
-			this.mpTerm = mpTerm;
-
-		}
-
-
-		public void setMpId(List<String> mpTermId) {
-
-			this.mpTermId = mpTermId;
-
-		}
-
-
-		public String getSubtype() {
-
-			return subtype;
-		}
-
-
-		public void setSymbolGene(String symbolGene) {
-
-			this.symbolGene = symbolGene;
-
-		}
-
-
-		public void setSubtype(String subtype) {
-
-			this.subtype = subtype;
-		}
-
-
-		public List<String> getMaTermSynonym() {
-
-			return maTermSynonym;
-		}
-
-
-		public void setMaTermSynonym(List<String> maTermSynonym) {
-
-			this.maTermSynonym = maTermSynonym;
-		}
-
-
-		public List<String> getMaTermName() {
-
-			return maTermName;
-		}
-
-
-		public void setMaTermName(List<String> maTermName) {
-
-			this.maTermName = maTermName;
-		}
-
-
-		public String getGeneName() {
-
-			return geneName;
-		}
-
-
-		public void setMaTerm(List<String> ma_terms) {
-
-			this.ma_terms = ma_terms;
-
-		}
-
-
-		public void setMaId(List<String> ma_ids) {
-
-			this.maIds = ma_ids;
-
-		}
-
-
-		public void setAnnotationTermName(List<String> annotationTermNames) {
-
-			this.annotationTermNames = annotationTermNames;
-
-		}
-
-
-		public void setAnnotationTermId(List<String> annotationTermIds) {
-
-			this.annotationTermIds = annotationTermIds;
-
-		}
-
-
-		public void setTagValues(List<String> tagValues) {
-
-			this.tagValues = tagValues;
-
-		}
-
-
-		public void setTagNames(List<String> tagNames) {
-
-			this.tagNames = tagNames;
-
-		}
-
-
-		public void setSynonyms(List<String> syns) {
-
-			this.synonyms = syns;
-
-		}
-
-
-		public void setProcedureName(String procedureName2) {
-
-			this.procedureName = procedureName2;
-
-		}
-
-
-		public void setExperimentName(String name) {
-
-			this.experimentName = name;
-
-		}
-
-
-		public String getAccession() {
-
-			return accession;
-		}
-
-
-		public String getSymbol() {
-
-			return symbol;
-		}
-
-		@Field("accession")
-		private String accession;
-		@Field("symbol")
-		private String symbol;
-
-
-		public String getGenotypeString() {
-
-			return genotypeString;
-		}
-
-
-		public void setGeneName(String geneName) {
-
-			this.geneName = geneName;
-
-		}
-
-
-		public void setAccession(String accession) {
-
-			this.accession = accession;
-
-		}
-
-
-		public void setSymbol(String symbol) {
-
-			this.symbol = symbol;
-
-		}
-
-
-		public void setGenotypeString(String genotypeString) {
-
-			this.genotypeString = genotypeString;
-		}
-
-
-		public String getAgeInWeeks() {
-
-			return ageInWeeks;
-		}
-
-
-		public void setAgeInWeeks(String ageInWeeks) {
-
-			this.ageInWeeks = ageInWeeks;
-		}
-
-		@Field("ageInWeeks")
-		String ageInWeeks;
-
-		@Field("sangerSymbol")
-		String sangerSymbol;
-
-
-		public String getSangerSymbol() {
-
-			return sangerSymbol;
-		}
-
-
-		public void setSangerSymbol(String sangerSymbol) {
-
-			this.sangerSymbol = sangerSymbol;
-		}
-
-
-		public String getAllele_accession() {
-
-			return allele_accession;
-		}
-
-
-		public void setAllele_accession(String allele_accession) {
-
-			this.allele_accession = allele_accession;
-		}
-
-		@Field("allele_accession")
-		String allele_accession;
-
-
-		public int getId() {
-
-			return id;
-		}
-
-
-		public void setId(int id) {
-
-			this.id = id;
-		}
-
-
-		public String getDataType() {
-
-			return dataType;
-		}
-
-
-		public void setDataType(String dataType) {
-
-			this.dataType = dataType;
-		}
-
-
-		public String getFullResolutionFilePath() {
-
-			return fullResolutionFilePath;
-		}
-
-
-		public void setFullResolutionFilePath(String fullResolutionFilePath) {
-
-			this.fullResolutionFilePath = fullResolutionFilePath;
-		}
-
-
-		public String getLargeThumbnailFilePath() {
-
-			return largeThumbnailFilePath;
-		}
-
-
-		public void setLargeThumbnailFilePath(String largeThumbnailFilePath) {
-
-			this.largeThumbnailFilePath = largeThumbnailFilePath;
-		}
-
-
-		public String getOriginalFileName() {
-
-			return originalFileName;
-		}
-
-
-		public void setOriginalFileName(String originalFileName) {
-
-			this.originalFileName = originalFileName;
-		}
-
-
-		public String getSmallThumbnailFilePath() {
-
-			return smallThumbnailFilePath;
-		}
-
-
-		public void setSmallThumbnailFilePath(String smallThumbnailFilePath) {
-
-			this.smallThumbnailFilePath = smallThumbnailFilePath;
-		}
-
-
-		public String getInstitute() {
-
-			return institute;
-		}
-
-
-		public void setInstitute(String institute) {
-
-			this.institute = institute;
-		}
-
-
-		public int getDcfId() {
-
-			return dcfId;
-		}
-
-
-		public void setDcfId(int dcfId) {
-
-			this.dcfId = dcfId;
-		}
-
-
-		public String getDcfExpId() {
-
-			return dcfExpId;
-		}
-
-
-		public void setDcfExpId(String dcfExpId) {
-
-			this.dcfExpId = dcfExpId;
-		}
-
-
-		public String getSangerProcedureName() {
-
-			return sangerProcedureName;
-		}
-
-
-		public void setSangerProcedureName(String sangerProcedureName) {
-
-			this.sangerProcedureName = sangerProcedureName;
-		}
-
-
-		public String getSangerProcedureId() {
-
-			return sangerProcedureId;
-		}
-
-
-		public void setSangerProcedureId(String sangerProcedureId) {
-
-			this.sangerProcedureId = sangerProcedureId;
-		}
-
-		String sangerProcedureId;
-
-		//
-		// <entity dataSource="komp2ds" name="imaDcfImageView"
-		// query="SELECT DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id and ir.id=${ima_image_record.ID}">
-		// <field column="DCF_ID" name="dcfId" />
-		// <field column="EXPERIMENT_ID" name="dcfExpId" />
-		// <field column="NAME" name="sangerProcedureName" />
-		// <field column="PROCEDURE_ID" name="sangerProcedureId" />
-		// </entity>
-	}
+	
 
 
 	public void populateMaSynonyms() {
@@ -1535,61 +956,6 @@ public class SangerImagesIndexer {
 
 	}
 
-
-	// <!-- other gene core stuff -->
-	// <entity dataSource="allele_core" name="genedoc" stream="true"
-	// url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
-	// processor="XPathEntityProcessor" forEach="/response/result/doc/" >
-	//
-	// <field column="mgi_accession_id"
-	// xpath="/response/result/doc/str[@name='mgi_accession_id']" />
-	// <field column="marker_symbol"
-	// xpath="/response/result/doc/str[@name='marker_symbol']" />
-	// <field column="marker_name"
-	// xpath="/response/result/doc/str[@name='marker_name']" />
-	// <field column="marker_synonym"
-	// xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-	// <field column="marker_type"
-	// xpath="/response/result/doc/str[@name='marker_type']" />
-	// <field column="human_gene_symbol"
-	// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
-	//
-	// <!-- latest project status (ES cells/mice production status) -->
-	// <field column="status" xpath="/response/result/doc/str[@name='status']"
-	// />
-	//
-	// <!-- latest mice phenotyping status for faceting -->
-	// <field column="imits_phenotype_started"
-	// xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
-	// <field column="imits_phenotype_complete"
-	// xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
-	// <field column="imits_phenotype_status"
-	// xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
-	//
-	// <!-- phenotyping status -->
-	// <field column="latest_phenotype_status"
-	// xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
-	// <field column="legacy_phenotype_status"
-	// xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
-	//
-	// <!-- production/phenotyping centers -->
-	// <field column="latest_production_centre"
-	// xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
-	// <field column="latest_phenotyping_centre"
-	// xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str"
-	// />
-	//
-	// <!-- alleles of a gene -->
-	// <field column="allele_name"
-	// xpath="/response/result/doc/arr[@name='allele_name']/str" />
-	//
-	// </entity>
-	//
-	// </entity>
-	// </entity>
-	// <!-- </entity> -->
-	// </entity>
-
 	public static Connection getConnection() {
 
 		return connection;
@@ -1730,7 +1096,7 @@ public class SangerImagesIndexer {
 				String termName = resultSet.getString("name");
 				if (!maNodeToTopLevel.containsKey(nodeId)) {
 					maNodeToTopLevel.put(nodeId, new TopLevelBean(nodeId, termId, termName));
-					System.out.println("adding to maNodeToTopLevel" + nodeId + " " + termId);
+					//System.out.println("adding to maNodeToTopLevel" + nodeId + " " + termId);
 				}
 			}
 
@@ -1782,7 +1148,7 @@ public class SangerImagesIndexer {
 				int topLevelNodeId = resultSet.getInt("top_level_node_id");
 				if (!mpNode2termTopLevel.containsKey(termId)) {
 					mpNode2termTopLevel.put(termId, new TopLevelBean(nodeId, termId, null, topLevelNodeId));
-					System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
+					//System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
 				}
 			}
 
@@ -1812,7 +1178,7 @@ public class SangerImagesIndexer {
 
 				if (!nodeIdToMpTermInfo.containsKey(nodeId)) {
 					nodeIdToMpTermInfo.put(nodeId, new TopLevelBean(nodeId, termId, termName));
-					System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
+					//System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
 				}
 			}
 
@@ -1822,39 +1188,76 @@ public class SangerImagesIndexer {
 	}
 	
 	//need allele core mappings for status etc
-	public void getAlleleCoreStatuses(){
+	public void populateAlleles() throws SolrServerException{
+		alleles=SolrUtils.getAlleles(alleleIndexing);
+	}
 		
+	private void populateImageDtoStatuses(SangerImageDTO img, String geneAccession){
+		System.out.println("alleles size="+alleles.size());
+		AlleleDTO allele=alleles.get(geneAccession);
+		System.out.println("allele mgi_accession="+allele.getMgiAccessionId());
+		// <!-- other gene core stuff -->
+		// <entity dataSource="allele_core" name="genedoc" stream="true"
+		// url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
+		// processor="XPathEntityProcessor" forEach="/response/result/doc/" >
+		//
+		// <field column="mgi_accession_id"
+		// xpath="/response/result/doc/str[@name='mgi_accession_id']" />
+		List<String> accessionList = new ArrayList<>();
+		accessionList.add(allele.getMgiAccessionId());
+		img.setMgiAccessionId(accessionList);
+		List<String> mSymbols = Arrays.asList(allele.getMarkerSymbol());
+		img.setMarkerSymbol(mSymbols);
 		
-//		<entity dataSource="allele_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
-//		processor="XPathEntityProcessor" forEach="/response/result/doc/" >	
-//
-//		<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />    
-//		<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
-//        <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
-//        <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-//        <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
-//        <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
-//                 
-//        <!-- latest project status (ES cells/mice production status) -->         
-//        <field column="status" xpath="/response/result/doc/str[@name='status']" />
-//        
-//        <!-- latest mice phenotyping status for faceting -->
-//        <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
-//        <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
-//      	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
-//      
-//      	<!-- phenotyping status -->
-//		<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
-//      	<field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
-//      
-//      	<!-- production/phenotyping centers -->
-//		<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
-//		<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />												
-//										
-//		<!-- alleles of a gene -->
-//		<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />								
-//
-//	</entity>
+		// <field column="marker_symbol"
+		// xpath="/response/result/doc/str[@name='marker_symbol']" />
+		// <field column="marker_name"
+		List<String> mNames = Arrays.asList(allele.getMarkerName());
+		img.setMarkerName(mNames);
+		// xpath="/response/result/doc/str[@name='marker_name']" />
+		// <field column="marker_synonym"
+		img.setMarkerName(allele.getMarkerSynonym());
+		// xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+		// <field column="marker_type"
+		List<String> markerTypes = Arrays.asList(allele.getMarkerType());
+		img.setMarkerType(markerTypes);
+		// xpath="/response/result/doc/str[@name='marker_type']" />
+		img.setHumanGeneSymbol(allele.getHumanGeneSymbol());
+		// <field column="human_gene_symbol"
+		// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
+		//
+		
+		allele.getLatestProductionStatus();
+		// <!-- latest project status (ES cells/mice production status) -->
+		// <field column="status" xpath="/response/result/doc/str[@name='status']"
+		// />
+		//
+		// <!-- latest mice phenotyping status for faceting -->
+		// <field column="imits_phenotype_started"
+		// xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
+		// <field column="imits_phenotype_complete"
+		// xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+		// <field column="imits_phenotype_status"
+		// xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
+		//
+		// <!-- phenotyping status -->
+		// <field column="latest_phenotype_status"
+		// xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+		// <field column="legacy_phenotype_status"
+		// xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
+		//
+		// <!-- production/phenotyping centers -->
+		// <field column="latest_production_centre"
+		// xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+		// <field column="latest_phenotyping_centre"
+		// xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str"
+		// />
+		//
+		// <!-- alleles of a gene -->
+		// <field column="allele_name"
+		// xpath="/response/result/doc/arr[@name='allele_name']/str" />
+		//
+		// </entity>
 
 	}
 	

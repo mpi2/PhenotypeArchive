@@ -33,6 +33,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import static uk.ac.ebi.phenotype.solr.indexer.OntologyUtil.BATCH_SIZE;
 
@@ -160,4 +162,26 @@ public class SolrUtils {
         
         System.out.println();
     }
+
+    public static  Map<String, AlleleDTO> getAlleles(SolrServer alleleCore) throws SolrServerException {
+		Map<String, AlleleDTO> alleles = new HashMap<>();
+		
+		int pos = 0;
+		long total = Integer.MAX_VALUE;
+		SolrQuery query = new SolrQuery("*:*");
+		query.setRows(BATCH_SIZE);
+		while (pos < total) {
+			query.setStart(pos);
+			QueryResponse response = alleleCore.query(query);
+			total = response.getResults().getNumFound();
+			List<AlleleDTO> alleleList = response.getBeans(AlleleDTO.class);
+			for (AlleleDTO allele : alleleList) {
+				alleles.put(allele.getMgiAccessionId(), allele);
+			}
+			pos += BATCH_SIZE;
+		}
+		logger.debug("Loaded {} alleles", alleles.size());
+		
+		return alleles;
+	}
 }
