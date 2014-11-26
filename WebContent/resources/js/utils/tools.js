@@ -2242,7 +2242,7 @@
         if (sFacet == 'imagesFacet' || sFacet == 'impc_imagesFacet') {
 
             var imgUrl = sFacet == 'imagesFacet' ? baseUrl + "/imagesb?" + oInfos.params 
-            		: baseUrl + '/data/impcImages/images?' + oInfos.params;
+            		: baseUrl + '/impcImages/images?' + oInfos.params;
 
             if (MPI2.searchAndFacetConfig.facetParams.imagesFacet.showImgView) {
                 // record img count, as in annotation view, the count is number of annotations and not images

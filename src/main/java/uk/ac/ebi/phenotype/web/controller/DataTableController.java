@@ -477,7 +477,7 @@ public class DataTableController {
 	public String parseJsonforImpcImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException{
 		
 		//String mediaBaseUrl = config.get("mediaBaseUrl");
-		String mediaBaseUrl = "/impcImages/images?";
+		String mediaBaseUrl = "/data/impcImages/images?";
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 		
 		
