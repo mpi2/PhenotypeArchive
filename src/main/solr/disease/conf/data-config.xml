@@ -22,7 +22,7 @@
         <!--<entity dataSource="phenodigmdb" name="doc" transformer="RegexTransformer" query="select distinct @s:=@s+1 id, 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_cu
 rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus, dmga.mgi_gene_id from disease_summary ds, disease_mouse_genotype_associations dmga, (SELECT @s:= 0) AS s where ds.disease_id=dmga.disease_id"> -->
       	
-  		<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=*:*&amp;fq=type:disease&amp;rows=9999999&amp;fl=disease_id,type,dataType,disease_source,disease_term,disease_alts,disease_classes,human_curated,mouse_curated,mgi_predicted_known_gene,imc_predicted_known_gene,mgi_predicted,impc_predicted,mgi_novel_predicted_in_locus,impc_novel_predicted_in_locus"
+  		<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=*:*&amp;indent=true&amp;fq=type:disease&amp;rows=9999999&amp;fl=disease_id,type,dataType,disease_source,disease_term,disease_alts,disease_classes,human_curated,mouse_curated,mgi_predicted_known_gene,imc_predicted_known_gene,mgi_predicted,impc_predicted,mgi_novel_predicted_in_locus,impc_novel_predicted_in_locus"
     		processor="XPathEntityProcessor" forEach="/response/result/doc/"                
     		readTimeout="60000" connectionTimeout="30000" transformer="script:set_dataType" >
 
