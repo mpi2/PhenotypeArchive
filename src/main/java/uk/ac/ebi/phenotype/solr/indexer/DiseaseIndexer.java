@@ -20,7 +20,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.dto.DiseaseDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
@@ -49,7 +48,8 @@ public class DiseaseIndexer extends AbstractIndexer {
 	private SolrServer phenodigmCore;
 
 	@Autowired
-	private GeneService geneService;
+	@Qualifier("geneIndexing")
+	private SolrServer geneCore;
 
 	@Autowired
 	@Qualifier("diseaseIndexing")
@@ -191,7 +191,10 @@ public class DiseaseIndexer extends AbstractIndexer {
 
 	private void populateGenesLookup() throws SolrServerException {
 
-		List<GeneDTO> genes = geneService.getAllGeneDTOs();
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("*:*");
+		solrQuery.setRows(Integer.MAX_VALUE);
+		List<GeneDTO> genes = geneCore.query(solrQuery).getBeans(GeneDTO.class);
 
 		for (GeneDTO gene : genes) {
 			for (String d : gene.getDiseaseId()) {
