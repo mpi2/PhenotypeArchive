@@ -138,19 +138,21 @@
         //console.log('update facet q check: '+q)
         var fieldConf = MPI2.searchAndFacetConfig.facetParams;
         var facetFields = {
-            'gene'    : fieldConf.geneFacet.subFacetFqFields,
-            'mp'      : fieldConf.mpFacet.subFacetFqFields,
-            'disease' : fieldConf.diseaseFacet.subFacetFqFields,
-            'ma'      : fieldConf.maFacet.subFacetFqFields,
-            'pipeline': fieldConf.pipelineFacet.subFacetFqFields,
-            'images'  : fieldConf.imagesFacet.subFacetFqFields
+            'gene'         : fieldConf.geneFacet.subFacetFqFields,
+            'mp'           : fieldConf.mpFacet.subFacetFqFields,
+            'disease'      : fieldConf.diseaseFacet.subFacetFqFields,
+            'ma'           : fieldConf.maFacet.subFacetFqFields,
+            'pipeline'     : fieldConf.pipelineFacet.subFacetFqFields,
+            'impc_images'  : fieldConf.impc_imagesFacet.subFacetFqFields,
+            'images'       : fieldConf.imagesFacet.subFacetFqFields
         };
 
         var facetUrls = {};
         for (var facet in facetFields) {
 
             var solrbaseUrl = solrUrl + '/' + facet + '/select?';
-            var fqStr = $.fn.getCurrentFq(facet).replace(/img_/g, '');
+            var fqStr = $.fn.getCurrentFq(facet).replace(/img_|impcImg_/g, '');
+            
             facetUrls[facet] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
         }
 
@@ -199,9 +201,13 @@
         else if (oCounts.pipeline != 0) {
             return 'pipeline';
         }
+        else if (oCounts.impc_images != 0) {
+            return 'impc_images';
+        }   
         else if (oCounts.images != 0) {
             return 'images';
-        }
+        }       
+        
         else {
             return false; // nothing found
         }
@@ -298,17 +304,17 @@
         var facet = thisWidget.element.attr('id');
         var caller = thisWidget.element;
         delete MPI2.searchAndFacetConfig.commonSolrParams.rows;
-
+      
         caller.click(function() {
 
             if (caller.find('span.fcount').text() != 0) { // initial state (lives until widget is refreshed)
                 MPI2.searchAndFacetConfig.update.widgetOpen = true; // reset
 
                 //console.log(facet + ' widget open - ' + MPI2.searchAndFacetConfig.update.widgetOpen );
-                if (facet == 'images') {
+                if (facet == 'images' || facet == 'impc_images' ) {
                     // this catches the reload event where images core is to be opened by default
                     // an AJAX hack to update image count of annotationView
-                    $('span#resultCount a').text($('div.flist li#images > span.fcount').text() + ' images');
+                    $('span#resultCount a').text($('div.flist li#' + facet + ' > span.fcount').text() + ' images');
                 }
 
                 // close all other non-selected facets
@@ -320,6 +326,7 @@
                  */
 
                 var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
+                //console.log(oUrlParams);
                 if (/search\/?$/.exec(location.href)) {
                     // no url params at all		
 
@@ -359,17 +366,16 @@
 
                     // there should be &facet=xxx in the url
                     var mode = '&facet=';
-                    //alert(mode);
 
                     oUrlParams.fq = $.fn.getCurrentFq(facet);
-
+                   
                     if (typeof oUrlParams.q == 'undefined') {
                         // no search kw
-                        //console.log('set hash: no q')
+                    	//alert('set hash: no q')
                         if ($('li.ftag').size() == 0) {
                             var oUrlParams = thisWidget.options.data.hashParams;
                         }
-
+                       
                         window.location.hash = 'fq=' + oUrlParams.fq + mode + facet;
                     }
                     else {
@@ -383,7 +389,7 @@
                     }
 
                     if ( MPI2.searchAndFacetConfig.update.mainFacetDoneReset ){
-        				//console.log('mainFacetDoneReset');
+        				//alert('mainFacetDoneReset');
         				MPI2.searchAndFacetConfig.update.rebuilt = true;
         				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = false;
         				$.fn.rebuildFilters(oUrlParams);
@@ -438,8 +444,8 @@
         }
 
        
-        oUrlParams.fq = oUrlParams.fq.replace(/img_/g, ''); // so that this matches the copyField of images
-
+        oUrlParams.fq = oUrlParams.fq.replace(/img_|impcImg_/g, ''); // so that this matches the copyField of images
+        
         $.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
 
     };
@@ -867,7 +873,58 @@
                         //$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
                     }
                     break;
-
+                    
+                case 'impc_images':
+                	{
+	            		// refresh images facet
+	                    var oFacets = json.facet_counts.facet_fields;
+	                    var selectorBase = "div.flist li#impc_images";
+	                    _facetRefresh(json, selectorBase);
+	
+	                    // close/grayout all subfacets by default
+	                    //$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')    
+	
+	                    // restore original cursor behavior
+	                    $.fn.cursorUpdate(facet, 'pointer');
+	
+	                    //var foundMatch = {'Phenotype': 0, 'Anatomy': 0, 'Procedure': 0, 'Gene': 0};
+	                    var foundMatch = {'Procedure': 0};
+	                    
+	                    var oSubFacets = {
+	                        /*'annotatedHigherLevelMpTermName':'Phenotype',
+	                         'annotated_or_inferred_higherLevelMaTermName':'Anatomy',
+	                         'expName':'Procedure',
+	                         'subtype':'Gene'*/
+	                        //'top_level_mp_term': 'Phenotype',
+	                        'procedure_name': 'Procedure'};
+	                        //'selected_top_level_ma_term': 'Anatomy',
+	                        //'marker_type': 'Gene'};
+	
+	                    for (var facetStr in oSubFacets) {
+	                        for (var j = 0; j < oFacets[facetStr].length; j = j + 2) {
+	
+	                            var facetName = oFacets[facetStr][j];
+	                            var facetCount = oFacets[facetStr][j + 1];
+	                            foundMatch[oSubFacets[facetStr]]++;
+	                            var isGrayout = facetCount == 0 ? 'grayout' : '';
+	
+	                            // look for exact matching as there are mp and ma which are similar in some cases 
+	                            $(selectorBase + ' li.' + facetStr).each(function() {
+	
+	                                var aData = $(this).find('input').attr('rel').split('|');
+	                                if (aData[2] == facetName) {
+	                                    $(this).find('span.fcount').text(facetCount);
+	                                    $(this).removeClass('grayout').addClass(isGrayout);
+	                                }
+	                            });
+	                        }
+	                    }
+	
+	                    $.fn.cursorUpdate(facet, 'not-allowed');
+	                    //$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+	                }
+                	break;
+                
                 default:
                     {
                     }
@@ -947,15 +1004,22 @@
     };
 
     $.fn.composeSummaryFilters = function(oChkbox, q) {
-        //alert(MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount);
+        
+        console.log(oChkbox.attr('rel').split("|"));
+        // temp test
+        var aList = oChkbox.attr('rel').split("|");
+        if (aList[0] == 'impc_images'){
+        	MPI2.searchAndFacetConfig.update.resetSummaryFacet = false;
+        }
+        
         if (MPI2.searchAndFacetConfig.update.resetSummaryFacet) {
-            //console.log("reset facet summary: true");
+            console.log("reset facet summary: true");
             MPI2.searchAndFacetConfig.update.filterAdded = false;
             MPI2.searchAndFacetConfig.update.filterObj = [];
         }
         if (MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount > 0 ||
                 MPI2.searchAndFacetConfig.update.filterAdded) {
-            //console.log("rebuild count: "+ MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount)
+            console.log("rebuild count: "+ MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount)
             var smfilter = new SummaryFilter(oChkbox, q);
             MPI2.searchAndFacetConfig.update.filterObj.push(smfilter);
 
@@ -1268,7 +1332,7 @@
                 var aVals = value.split('___');
                 value = aVals[0];
             }
-            else if (facet == 'images') {
+            else if (facet == 'images' || facet == 'impc_images') {
                 value = value.replace(/ phenotype$/, '');
             }
 
@@ -1359,6 +1423,10 @@
         else if (core == 'pipeline') {
             $('div#pipelineFacet div.facetCatList').show();
             $('div#pipelineFacet div.facetCat').addClass('facetCatUp');
+        }
+        else if (core == 'impc_images') {
+            $('div#impc_imagesFacet div.facetCatList').show();
+            $('div#impc_imagesFacet div.facetCat').addClass('facetCatUp');
         }
         else if (core == 'images') {
             $('div#imagesFacet div.facetCatList').show();
@@ -1466,7 +1534,8 @@
     };
 
     $.fn.processCurrentFqFromUrl = function(facet) {
-        return $.fn.getCurrentFq(facet).replace(/img_/g, '');
+        //return $.fn.getCurrentFq(facet).replace(/img_/g, '')
+    	return $.fn.getCurrentFq(facet).replace(/img_|impcImg_/g, '');
     };
 
     $.fn.getCurrentFq = function(facet) {
@@ -1648,7 +1717,7 @@
                 oVal.tableCols, oVal.gridName);
 
         var imgViewSwitcher = '';
-        if (facetDivId == 'imagesFacet') {
+        if (facetDivId == 'imagesFacet' || facetDivId == 'impc_imagesFacet') {
             imgViewSwitcher = _load_imgViewSwitcher(dTable, oVal);
             $("div#resultMsg").prepend(imgViewSwitcher);
         }
@@ -1793,15 +1862,25 @@
         else if (facet == 'images') {
             if (q.match(wildCardStr) && q != '*:*') {
                 oParams.bq = 'annotationTermName: ' + q.replace(/\*/g, '') + '^500'
-                        + ' expName: ' + q.replace(/\*/g, '') + '^500';
-                +' symbol: ' + q.replace(/\*/g, '') + '^500';
+                        + ' expName: ' + q.replace(/\*/g, '') + '^500'
+                        + ' symbol: ' + q.replace(/\*/g, '') + '^500';
             }
             else {
                 // does not seem to take effect if complexphrase is in use
                 oParams.pf = 'annotationTermName^500 expName^500 symbol^500';
             }
         }
-
+        else if (facet == 'impc_images') {
+            if (q.match(wildCardStr) && q != '*:*') {
+                oParams.bq = 
+                         'procedure_name: ' + q.replace(/\*/g, '') + '^500'
+                        + ' gene_symbol: ' + q.replace(/\*/g, '') + '^500';
+            }
+            else {
+                // does not seem to take effect if complexphrase is in use
+                oParams.pf = 'procedure_name^500 gene_symbol^500';
+            }
+        }
         if (typeof oParams.bq != 'undefined') {
             //oParams.bq = oParams.bq.replace(/~/g, '\\~');
         }
@@ -1866,7 +1945,7 @@
             oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
         }
 
-        if (facetDivId == 'imagesFacet') {
+        if (facetDivId == 'imagesFacet' || facetDivId == 'impc_imagesFacet') {
             //oInfos.showImgView = true;	// don't want to show imgView as default
             oUrlParams.showImgView = false;
         }
@@ -1881,6 +1960,8 @@
             oUrlParams.facetName = oUrlParams.facetName;
         }
 
+        oUrlParams.params += '&fl='+MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fl;
+        
         $.fn.updateBreadCrumb(coreName);
         $.fn.openFacet(coreName);
 
@@ -1922,7 +2003,7 @@
     };
 
     $.fn.setDefaultImgSwitcherConf = function() {
-        var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;
+        var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet; // use for both Sanger and IMPC images
         oConf.imgViewSwitcherDisplay = 'Show Image View';
         oConf.viewLabel = 'Annotation View: groups images by annotation';
         oConf.viewMode = 'annotView';
@@ -1958,7 +2039,7 @@
                 if (oDtable.fnGetData().length > 0) {
 
                     // bring in some control logic for image view switcher when dataTable is loaded
-                    if (oInfos.widgetName == 'imagesFacet') {
+                    if (oInfos.widgetName == 'imagesFacet' || oInfos.widgetName == 'impc_imagesFacet' ) {
                         $('span#imgViewSwitcher').click(function() {
 
                             var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;
@@ -2068,6 +2149,9 @@
                     if (oInfos.facetName == 'images') {
                         setImageFacetSumCount(oInfos);
                     }
+                    else if (oInfos.facetName == 'impc_images'){
+                    	 setImpcImageFacetSumCount(oInfos);
+                    }
 
                     configs.filterObj = [];
                     configs.widgetOpen = false;
@@ -2128,6 +2212,24 @@
             }
         });
     }
+    
+    function setImpcImageFacetSumCount(oInfos) {
+        var q = oInfos.q;
+        var fqStr = oInfos.fq;
+        var paramStr = 'q=' + $.fn.process_q(q);
+        paramStr += '&fq=' + fqStr;
+        var thisSolrUrl = solrUrl + '/impc_images/select';
+
+        $.ajax({
+            'url': thisSolrUrl,
+            'data': paramStr,
+            'dataType': 'jsonp',
+            'jsonp': 'json.wrf',
+            'success': function(json) {
+                $('span#resultCount a').text(json.response.numFound + ' images');
+            }
+        });
+    }
 
     function displayDataTypeResultCount(oInfos, count) {
 
@@ -2137,9 +2239,10 @@
         dataType = count > 1 ? dataType : dataType.replace(/s$/, '');
         var txt = count + ' ' + dataType;
 
-        if (sFacet == 'imagesFacet') {
+        if (sFacet == 'imagesFacet' || sFacet == 'impc_imagesFacet') {
 
-            var imgUrl = baseUrl + "/imagesb?" + oInfos.params;
+            var imgUrl = sFacet == 'imagesFacet' ? baseUrl + "/imagesb?" + oInfos.params 
+            		: baseUrl + '/impcImages/images?' + oInfos.params;
 
             if (MPI2.searchAndFacetConfig.facetParams.imagesFacet.showImgView) {
                 // record img count, as in annotation view, the count is number of annotations and not images
@@ -2149,7 +2252,7 @@
             }
             else {
 
-                MPI2.searchAndFacetConfig.lastImgCount = $('div.flist li#images > span.fcount').text();
+                MPI2.searchAndFacetConfig.lastImgCount = $('div.flist li#'+dataType+' > span.fcount').text();
 
                 $('span#annotCount').text(count + ' annotations / ');
                 txt = MPI2.searchAndFacetConfig.lastImgCount + ' ' + dataType;

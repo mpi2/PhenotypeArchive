@@ -45,6 +45,9 @@
 			else if ( oUrlParams.fq.indexOf('img_') != -1 ){
 				params.fq = $.fn.getCurrentFq(core).replace(/img_/g,'');
 			}
+			else if ( oUrlParams.fq.indexOf('impcImg_') != -1 ){
+				params.fq = $.fn.getCurrentFq(core).replace(/impcImg_/g,'');
+			}
 			else {
 				params.fq = oUrlParams.fq;
 			}

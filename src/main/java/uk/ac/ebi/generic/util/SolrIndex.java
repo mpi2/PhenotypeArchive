@@ -186,6 +186,13 @@ public class SolrIndex {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 //			System.out.println("PROTOCOL PARAMS: " + url);
+		} else if (mode.equals("impc_imagesGrid")) {
+			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
+					+ iDisplayLength;
+			if (!showImgView) {
+				url += "&facet=on&facet.field=gene_symbol&facet.field=procedure_name&facet.mincount=1&facet.limit=-1";
+			}
+//			System.out.println("IMPC_IMG PARAMS: " + url); 
 		} else if (mode.equals("imagesGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
@@ -363,7 +370,49 @@ public class SolrIndex {
 
 		return fields;
 	}
-
+	
+	public class AnnotNameValCount {
+		public String name;
+		public String facet;
+		public String val;
+		public int imgCount;
+	}
+	
+	public List<AnnotNameValCount> mergeImpcFacets(JSONObject facetFields) {
+		
+		//JSONArray fields = new JSONArray();
+		List<AnnotNameValCount> annots = new ArrayList<>();
+		
+		Map<String, String> hm = new HashMap<String, String>();
+		hm.put("gene_symbol", "Gene");
+		hm.put("procedure_name", "Procedure");
+		
+		// Initialize a list on creation using an inner anonymous class
+		List<String> facetNames = new ArrayList<String>() {
+			private static final long serialVersionUID = 1L;
+			{
+				add("gene_symbol");
+				add("procedure_name");
+				//add("mpTermName");
+				//add("maTermName");
+			}
+		};
+		for (String facet : facetNames) {
+			
+			JSONArray arr = facetFields.getJSONArray(facet);
+			for (int i = 0; i < arr.size(); i = i + 2) {
+				
+				AnnotNameValCount annotNameValCount = new AnnotNameValCount();
+				annotNameValCount.name     = hm.get(facet);
+				annotNameValCount.facet    = facet;
+				annotNameValCount.val      = arr.get(i).toString();
+				annotNameValCount.imgCount = Integer.parseInt(arr.get(i+1).toString());
+				annots.add(annotNameValCount);
+			}
+		}
+		
+		return annots;
+	}
 	/**
 	 * Get the IMPC status for a gene identified by accession id.
 	 * 

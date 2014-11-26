@@ -44,6 +44,7 @@
 							<li class="has-sub disease"><span class='fcap'>Disease</span></li>
 							<li class="has-sub ma"><span class='fcap'>Anatomy</span></li>
 							<li class="has-sub pipeline"><span class='fcap'>Pipeline</span></li>
+							<li class="has-sub impc_images"><span class='fcap'>IMPC Images</span></li>	
 							<li class="has-sub images"><span class='fcap'>Images</span></li>					
 						</ul>
 					
@@ -79,6 +80,11 @@
 							</li>
 							<li class="fmcat" id="pipeline">
 								<span class="flabel">Procedures</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="impc_images">
+								<span class="flabel">IMPC Images</span>
 								<span class="fcount"></span>
 								<ul></ul>
 							</li>
@@ -128,6 +134,7 @@
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js?v=${version}'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/impc_imagesFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js?v=${version}'></script> 
 	    </compress:html>        
@@ -406,7 +413,7 @@
 	       			minLength: 3,
 	       			select: function( event, ui ) {
 	       				// select by mouse / KB
-	       				console.log(this.value + ' vs ' + ui.item.label);
+	       				//console.log(this.value + ' vs ' + ui.item.label);
 	       				var oriText = $(ui.item.label).text();
 	       				var facet = $(ui.item.label).attr('class') == 'hp' ? 'mp' : $(ui.item.label).attr('class');
 	       				
@@ -489,7 +496,6 @@
    				
    				//console.log('hash change URL: '+ '/search' + hashStr);
    				var oUrlParams = _process_hash();
-   				
    				//console.log(oUrlParams)
    				
    				/* deals with 3 events here:
@@ -537,6 +543,8 @@
     			}
    				
    				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
+   					//console.log('widget open');	
+   				
    					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
    					
    					if ( MPI2.searchAndFacetConfig.update.rebuilt  ){
@@ -641,7 +649,7 @@
 	   				
 					if ( typeof oUrlParams.fq != 'undefined' ){
 						oUrlParams.oriFq = oUrlParams.fq;
-						oUrlParams.fq = oUrlParams.fq.replace(/img_/g,'');
+						oUrlParams.fq = oUrlParams.fq.replace(/img_|impcImg_/g,'');
 					}
 	   				
 	   				oUrlParams.widgetName = oUrlParams.coreName? oUrlParams.coreName : oUrlParams.facetName;	                
