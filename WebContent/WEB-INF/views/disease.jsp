@@ -155,11 +155,11 @@
                 <p class="with-label">
                     <span class="label">Associated Human Genes</span>
                     <c:choose>
-                        <c:when test="${empty knownGeneAssociationSummaries}">
+                        <c:when test="${empty orthologousGeneAssociations}">
                             -
                         </c:when>
                         <c:otherwise>
-                            <c:forEach var="association" items="${knownGeneAssociationSummaries}" varStatus="loop">
+                            <c:forEach var="association" items="${orthologousGeneAssociations}" varStatus="loop">
                                 <c:set var="humanGeneIdentifier" value="${association.hgncGeneIdentifier}"></c:set>
                                     <!--Human Gene Symbol-->    
                                     <a href="${humanGeneIdentifier.externalUri}">${humanGeneIdentifier.geneSymbol}</a>
@@ -172,11 +172,11 @@
                 <p class="with-label">
                     <span class="label">Mouse Orthologs</span>
                     <c:choose>
-                        <c:when test="${empty knownGeneAssociationSummaries}">
+                        <c:when test="${empty orthologousGeneAssociations}">
                             -
                         </c:when>
                         <c:otherwise>
-                            <c:forEach var="association" items="${knownGeneAssociationSummaries}" varStatus="loop">
+                            <c:forEach var="association" items="${orthologousGeneAssociations}" varStatus="loop">
                                 <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
                                     <!--Mouse Gene Symbol-->
                                     <a href="${baseUrl}/genes/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a>
@@ -197,7 +197,7 @@
             <h2 class="title" id="orthologous_mouse_models">Mouse Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
             <div class="inner">                
                 <c:choose>
-                    <c:when test="${empty knownGeneAssociationSummaries}">
+                    <c:when test="${empty orthologousGeneAssociations}">
                         No mouse models associated with ${disease.diseaseId} by orthology to a human gene.
                     </c:when>
                     <c:otherwise>
@@ -216,7 +216,7 @@
                                 </tr>
                     </thead>
                             <tbody>
-                                <c:forEach var="association" items="${knownGeneAssociationSummaries}">
+                                <c:forEach var="association" items="${orthologousGeneAssociations}">
                                     <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
                                     <c:set var="humanGeneIdentifier" value="${association.hgncGeneIdentifier}"></c:set>
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
@@ -271,7 +271,7 @@
             <h2 class="title" id="potential_mouse_models">Potential Mouse Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
             <div class="inner">                
                 <c:choose>
-                    <c:when test="${empty phenotypeAssociations}">
+                    <c:when test="${empty phenotypicGeneAssociations}">
                         No potential mouse models associated with ${disease.diseaseId} by phenotypic similarity.
                     </c:when>
                     <c:otherwise>
@@ -290,7 +290,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach var="association" items="${phenotypeAssociations}">
+                                <c:forEach var="association" items="${phenotypicGeneAssociations}">
                                     <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
                                     <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "disease" geneid="${mouseGeneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">

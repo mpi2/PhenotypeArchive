@@ -69,21 +69,21 @@ public class DiseaseController {
         logger.info(String.format("%s - recieved %s gene-disease associations", diseaseId, geneAssociationSummarys.size()));
 
         //add associated genes for use in the top panel
-        List<GeneAssociationSummary> knownGeneAssociationSummaries = new ArrayList<>();
+        List<GeneAssociationSummary> orthologousGeneAssociations = new ArrayList<>();
         //add associated genes for use in the bottom panel
-        List<GeneAssociationSummary> phenotypeAssociations = new ArrayList<>();
+        List<GeneAssociationSummary> phenotypicGeneAssociations = new ArrayList<>();
         //add the known association summaries to a dedicated list for the top panel
         for (GeneAssociationSummary geneAssociationSummary : geneAssociationSummarys) {
             AssociationSummary associationSummary = geneAssociationSummary.getAssociationSummary();
             if (associationSummary.isAssociatedInHuman()) {
-                knownGeneAssociationSummaries.add(geneAssociationSummary);
+                orthologousGeneAssociations.add(geneAssociationSummary);
             } else {
-                phenotypeAssociations.add(geneAssociationSummary);
+                phenotypicGeneAssociations.add(geneAssociationSummary);
             }
         }
-        model.addAttribute("knownGeneAssociationSummaries", knownGeneAssociationSummaries);
+        model.addAttribute("orthologousGeneAssociations", orthologousGeneAssociations);
 
-        model.addAttribute("phenotypeAssociations", phenotypeAssociations);
+        model.addAttribute("phenotypicGeneAssociations", phenotypicGeneAssociations);
         logger.info("Returning disease page for " + diseaseId);
         return "disease";
     }
