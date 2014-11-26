@@ -72,6 +72,7 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 
 @Controller
 public class GenesController {
@@ -747,56 +748,54 @@ public class GenesController {
 	 */
 	private void processDisease(String acc, Model model) {
 
-		String mgiId = acc;
-		log.info("Adding disease info to gene page {}", mgiId);
-		model.addAttribute("mgiId", mgiId);
-		GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
+            String mgiId = acc;
+            log.info("Adding disease info to gene page {}", mgiId);
+            model.addAttribute("mgiId", mgiId);
+            GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
 
-		Gene gene = null;
-		try {
-			gene = phenoDigmDao.getGene(geneIdentifier);
-		} catch (RuntimeException e) {
-			log.error("Error retrieving disease data for {}", geneIdentifier);
-		}
+            Gene gene = null;
+            try {
+                gene = phenoDigmDao.getGene(geneIdentifier);
+            } catch (RuntimeException e) {
+                log.error("Error retrieving disease data for {}", geneIdentifier);
+            }
 
-		log.info("Found Gene: " + gene);
-		if (gene != null) {
-			model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
-			model.addAttribute("humanOrtholog", gene.getHumanGeneId());
-			log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
-		} else {
-			model.addAttribute("geneIdentifier", geneIdentifier);
-			log.info("No human ortholog found for gene: {}", geneIdentifier);
-		}
+            log.info("Found Gene: " + gene);
+            if (gene != null) {
+                model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
+                model.addAttribute("humanOrtholog", gene.getHumanGeneId());
+                log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
+            } else {
+                model.addAttribute("geneIdentifier", geneIdentifier);
+                log.info("No human ortholog found for gene: {}", geneIdentifier);
+            }
 
-		List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
-		try {
-			log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
-			diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-			log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
-		} catch (RuntimeException e) {
-			log.error(ExceptionUtils.getFullStackTrace(e));
-			log.error("Error retrieving disease data for {}", geneIdentifier);
+            List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
+            try {
+                log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+                diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+                log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+            } catch (RuntimeException e) {
+                log.error(ExceptionUtils.getFullStackTrace(e));
+                log.error("Error retrieving disease data for {}", geneIdentifier);
+            }
 
-		}
+            List<DiseaseAssociationSummary> orthologousDiseaseAssociations = new ArrayList<>();
+            List<DiseaseAssociationSummary> phenotypicDiseaseAssociations = new ArrayList<>();
+            
+            //add the known association summaries to a dedicated list for the top panel
+            for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
+                AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
+                if (associationSummary.isAssociatedInHuman()) {
+                    orthologousDiseaseAssociations.add(diseaseAssociationSummary);
+                } else {
+                    phenotypicDiseaseAssociations.add(diseaseAssociationSummary);
+                }
+            }
+            model.addAttribute("orthologousDiseaseAssociations", orthologousDiseaseAssociations);
+            model.addAttribute("phenotypicDiseaseAssociations", phenotypicDiseaseAssociations);
 
-		// List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries =
-		// new ArrayList<>();
-		// //add the known association summaries to a dedicated list for the top
-		// panel
-		// for (DiseaseAssociationSummary diseaseAssociationSummary :
-		// diseaseAssociationSummarys) {
-		// AssociationSummary associationSummary =
-		// diseaseAssociationSummary.getAssociationSummary();
-		// if (associationSummary.isAssociatedInHuman()) {
-		// knownDiseaseAssociationSummaries.add(diseaseAssociationSummary);
-		// }
-		// }
-		// model.addAttribute("knownDiseaseAssociationSummaries",
-		// knownDiseaseAssociationSummaries);
-		model.addAttribute("diseaseAssociations", diseaseAssociationSummarys);
-
-		log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
+            log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
 	}
 
 }
