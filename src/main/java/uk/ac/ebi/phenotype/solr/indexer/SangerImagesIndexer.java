@@ -62,22 +62,26 @@ public class SangerImagesIndexer {
 	Map<Integer, List<Tag>> tags = new HashMap<>();
 	private Map<Integer, List<Annotation>> annotationsMap = new HashMap<>();
 	private Map<String, String> uptoDateMaMap = new HashMap<>();
-	private Map<String, Integer> termToNodeMap = new HashMap<>();
-	private Map<Integer, List<String>> nodeIdToMaSynonyms = new HashMap<>();
+	private Map<String, Integer> maTermToNodeMap = new HashMap<>();
+	private Map<String, List<String>> termIdToMaSynonyms = new HashMap<>();
 	private Map<String, String> subtypeMap = new HashMap<>();
 
-//	private Map<String, List<OntologyTermBean>> maChildMap = new HashMap(); // key
-//																			// =
-//																			// parent
-//																			// term_id.
-//	private Map<String, List<OntologyTermBean>> maParentMap = new HashMap(); // key
-//																				// =
-//																				// child
-//																				// term_id.
-	
-	Map<String,Set<String>>mpSynMap=new HashMap<>();
-	private Map<String, Set<Integer>> maNode2TermMap=new HashMap<>();;
-	private Map<Integer, TopLevelBean> maNodeToTopLevel=new HashMap<>();;
+	// private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();
+	// // key
+	// // =
+	// // parent
+	// // term_id.
+	// private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();
+	// // key
+	// // =
+	// // child
+	// // term_id.
+
+	Map<String, Set<String>> mpSynMap = new HashMap<>();
+	private Map<String, Set<Integer>> maNode2TermMap = new HashMap<>();
+	private Map<Integer, TopLevelBean> maNodeToTopLevel = new HashMap<>();
+	private Map<String, TopLevelBean> mpNode2termTopLevel = new HashMap<>();
+	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
 
 
 	public SangerImagesIndexer() {
@@ -161,16 +165,18 @@ public class SangerImagesIndexer {
 		populateMpSynonyms();
 		populateMaNodeToTerms();
 		populateMaNodeToTopLevel();
-		
-//		for(bean: maTopLevelNodes){
-//			
-//		}
-		
-		
-//		maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
-//		maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
-//		System.out.println("maChildMap size=" + maChildMap.size());
-//		System.out.println("maParentMap size=" + maParentMap.size());
+		populateMaSynonyms();
+		populateMpNode2TopLevelTerms();
+		populateMpTermInfo();
+
+		// for(bean: maTopLevelNodes){
+		//
+		// }
+
+		// maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
+		// maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
+		// System.out.println("maChildMap size=" + maChildMap.size());
+		// System.out.println("maParentMap size=" + maParentMap.size());
 
 		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
 		sangerProcedureToImpcMapping.put("Xray", "X-ray");
@@ -233,7 +239,7 @@ public class SangerImagesIndexer {
 			ResultSet r = p.executeQuery();
 			while (r.next()) {
 				// System.out.println(r.getInt("IMA_IMAGE_RECORD.ID"));
-				SangerImagesDTO o = new SangerImagesDTO();
+				SangerImageDTO o = new SangerImageDTO();
 				int imageRecordId = r.getInt("IMA_IMAGE_RECORD.ID");
 				o.setId(imageRecordId);
 				o.setDataType(r.getString("dataType"));
@@ -267,7 +273,8 @@ public class SangerImagesIndexer {
 							String symbolGene = feature.getSymbol() + "_" + feature.getAccession();
 							o.setSymbolGene(symbolGene);
 							String subtypeKey = feature.getSubtypeAccession() + "_" + feature.getSubtypeDbId();
-							//System.out.println("checking for subyte with key=" + subtypeKey);
+							// System.out.println("checking for subyte with key="
+							// + subtypeKey);
 							if (subtypeMap.containsKey(subtypeKey)) {
 								o.setSubtype(subtypeMap.get(subtypeKey));
 							}
@@ -311,74 +318,107 @@ public class SangerImagesIndexer {
 							List<String> mp_ids = new ArrayList<>();
 							List<String> mp_terms = new ArrayList<>();
 
-							ArrayList<String> maTopLevelTermIds=new ArrayList<>();
-							ArrayList<String> maTopLevelTerms=new ArrayList<>();
+							ArrayList<String> maTopLevelTermIds = new ArrayList<>();
+							ArrayList<String> maTopLevelTerms = new ArrayList<>();
+							ArrayList<String> ma_term_synonyms = new ArrayList<>();
+							ArrayList<String> selected_top_level_ma_term_synonym = new ArrayList<>();
+							ArrayList<String> annotatedHigherLevelMpTermId= new ArrayList<>();
+							ArrayList<String> annotatedHigherLevelMpTermName= new ArrayList<>();
 							for (Annotation annotation : annotations) {
 								annotationTermIds.add(annotation.annotationTermId);
 								annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
 								if (annotation.ma_id != null) {
 									ma_ids.add(annotation.ma_id);
 									ma_terms.add(annotation.ma_term);
-									
-									//ArrayList<String> maTopLevelSynonyms=new ArrayList<>();
+
+									// ArrayList<String> maTopLevelSynonyms=new
+									// ArrayList<>();
 									if (maNode2TermMap.containsKey(annotation.ma_id)) {
 										for (Integer nodeId : maNode2TermMap.get(annotation.ma_id)) {
-											
-											if(maNodeToTopLevel.containsKey(nodeId)){
-												TopLevelBean maTopLevelBean=maNodeToTopLevel.get(nodeId);
+
+											if (maNodeToTopLevel.containsKey(nodeId)) {
+												TopLevelBean maTopLevelBean = maNodeToTopLevel.get(nodeId);
 												maTopLevelTermIds.add(maTopLevelBean.termId);
 												maTopLevelTerms.add(maTopLevelBean.termName);
-											}											
-//											 <field column="term_id" name="selected_top_level_ma_id" />
-//					                            <field column="name" name="selected_top_level_ma_term" />
-											
+												if (termIdToMaSynonyms.containsKey(nodeId)) {
+													// ma_term_synonym
+													ma_term_synonyms.addAll(termIdToMaSynonyms.get(nodeId));
+												}
+											}
+											// <field column="term_id"
+											// name="selected_top_level_ma_id"
+											// />
+											// <field column="name"
+											// name="selected_top_level_ma_term"
+											// />
+
 										}
-										//maTopLevelSynonyms.addAll(lookupMaSynonyms(annotation.ma_term));
+										// maTopLevelSynonyms.addAll(lookupMaSynonyms(annotation.ma_term));
 									}
 								}
-								if(annotation.mp_id!=null){
+								if (annotation.mp_id != null) {
 									mp_ids.add(annotation.mp_id);
 									mp_terms.add(annotation.mp_term);
-									if(mpSynMap.containsKey(annotation.mp_id)){
+									// need to get top level stuff here
+									if (mpNode2termTopLevel.containsKey(annotation.mp_id)) {
+										TopLevelBean topLevelBean = mpNode2termTopLevel.get(annotation.mp_id);
+										System.out.println("TopLevel=" + topLevelBean.termId);
+										if (nodeIdToMpTermInfo.containsKey(topLevelBean.topLevelNodeId)) {
+											TopLevelBean realTopLevel = nodeIdToMpTermInfo.get(topLevelBean.topLevelNodeId);
+											System.out.println("realTopLevel=" + realTopLevel.termId+" name="+realTopLevel.termName);
+											//<field column="name" name="annotatedHigherLevelMpTermName" />
+											//<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
+											annotatedHigherLevelMpTermId.add(realTopLevel.termId);
+											annotatedHigherLevelMpTermName.add(realTopLevel.termName);
+										}
+									} else {
+										System.err.println("no top level for " + annotation.mp_id);
+									}
+									if (mpSynMap.containsKey(annotation.mp_id)) {
 										o.setMpSynonyms(mpSynMap.get(annotation.mp_id));
 									}
 								}
 
 							}
+							o.setAnnotatedHigherLevelMpTermId(annotatedHigherLevelMpTermId);
+							o.setAnnotatedHigherLevelMpTermName(annotatedHigherLevelMpTermName);
 							o.setAnnotationTermId(annotationTermIds);
 							o.setAnnotationTermName(annotationTermNames);
 							o.setMaTopLevelTermIds(maTopLevelTermIds);
 							o.setMaTopLevelTerms(maTopLevelTerms);
+							o.setSelectedTopLevelMaTermSynonym(selected_top_level_ma_term_synonym);
 							// System.out.println("ma_ids=" + ma_ids);
 							// System.out.println("ma_terms=" + ma_terms);
 							o.setMaId(ma_ids);
 							o.setMaTerm(ma_terms);
 							o.setMaTermName(ma_terms);
-							
+
 							o.setMpId(mp_ids);
 							o.setMpTerm(mp_terms);
 							o.setMp_id(mp_ids);
 							o.setMpTermName(mp_terms);
 							for (String maId : ma_ids) {
 								// get the top level and child terms
-//								if (maChildMap.containsKey(maId)) {
-//									List<OntologyTermBean> childMas = maChildMap.get(maId);
-//									for (OntologyTermBean childMa : childMas) {
-//										//System.out.println("child="+childMa.getId());
-//									}
-//								}
-//								if (maParentMap.containsKey(maId)) {
-//									List<OntologyTermBean> parentMas = maParentMap.get(maId);
-//									for (OntologyTermBean parentMa : parentMas) {
-//										//System.out.println("parent="+parentMa.getId());
-//									}
-//								}
+								// if (maChildMap.containsKey(maId)) {
+								// List<OntologyTermBean> childMas =
+								// maChildMap.get(maId);
+								// for (OntologyTermBean childMa : childMas) {
+								// //System.out.println("child="+childMa.getId());
+								// }
+								// }
+								// if (maParentMap.containsKey(maId)) {
+								// List<OntologyTermBean> parentMas =
+								// maParentMap.get(maId);
+								// for (OntologyTermBean parentMa : parentMas) {
+								// //System.out.println("parent="+parentMa.getId());
+								// }
+								// }
 
-								if (termToNodeMap.containsKey(maId)) {
-									int nodeId = termToNodeMap.get(maId);
+								if (maTermToNodeMap.containsKey(maId)) {
+									int nodeId = maTermToNodeMap.get(maId);
 									// System.out.println("nodeId=" + nodeId);
-									if (nodeIdToMaSynonyms.containsKey(nodeId)) {
-										List<String> maSyns = nodeIdToMaSynonyms.get(nodeId);
+									if (termIdToMaSynonyms.containsKey(nodeId)) {
+										List<String> maSyns = termIdToMaSynonyms.get(nodeId);
 										// System.out.println("setting ma synonyms="+maSyns);
 										o.setMaTermSynonym(maSyns);
 									}
@@ -414,7 +454,7 @@ public class SangerImagesIndexer {
 
 	}
 
-	protected class SangerImagesDTO {
+	protected class SangerImageDTO {
 
 		// <field column="dataType" name="dataType"/>
 		// <field column="FULL_RESOLUTION_FILE_PATH"
@@ -480,103 +520,125 @@ public class SangerImagesIndexer {
 		private String subtype;
 		@Field("symbol_gene")
 		private String symbolGene;
-		
+
 		@Field("mp_id")
 		private List<String> mp_id;
 		@Field("mp_term_synonym")
 		private Set<String> mpSyns;
 		// <field column="term_id" name="selected_top_level_ma_id" />
-//         <field column="name" name="selected_top_level_ma_term" />
+		// <field column="name" name="selected_top_level_ma_term" />
 		@Field("selected_top_level_ma_id")
 		private List<String> maTopLevelTermIds;
+		@Field("selected_top_level_ma_term_synonym")
+		private ArrayList<String> selectedTopLevelMaTermSynonym;
+//		<field column="name" name="annotatedHigherLevelMpTermName" />
+//		<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
+		@Field("annotatedHigherLevelMpTermName")
+		private List<String> annotatedHigherLevelMpTermName;
+
+		@Field("annotatedHigherLevelMpTermId")
+		private List<String> annotatedHigherLevelMpTermId;
+
 		
+		public List<String> getAnnotatedHigherLevelMpTermName() {
+		
+			return annotatedHigherLevelMpTermName;
+		}
+
+
+		
+		public void setAnnotatedHigherLevelMpTermName(List<String> annotatedHigherLevelMpTermName) {
+		
+			this.annotatedHigherLevelMpTermName = annotatedHigherLevelMpTermName;
+		}
+
+
+		
+		public List<String> getAnnotatedHigherLevelMpTermId() {
+		
+			return annotatedHigherLevelMpTermId;
+		}
+
+
+		
+		public void setAnnotatedHigherLevelMpTermId(List<String> annotatedHigherLevelMpTermId) {
+		
+			this.annotatedHigherLevelMpTermId = annotatedHigherLevelMpTermId;
+		}
+
+
 		public List<String> getMaTopLevelTermIds() {
-		
+
 			return maTopLevelTermIds;
 		}
 
 
+		public ArrayList<String> getSelectedTopLevelMaTermSynonym() {
+
+			return selectedTopLevelMaTermSynonym;
+		}
 
 
+		public void setSelectedTopLevelMaTermSynonym(ArrayList<String> selectedTopLevelMaTermSynonym) {
+
+			this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
+		}
 
 
-
-		
 		public void setMaTopLevelTermIds(List<String> maTopLevelTermIds) {
-		
+
 			this.maTopLevelTermIds = maTopLevelTermIds;
 		}
 
 
-
-
-
-
-
-		
 		public List<String> getMaTopLevelTerms() {
-		
+
 			return maTopLevelTerms;
 		}
 
 
-
-
-
-
-
-		
 		public void setMaTopLevelTerms(List<String> maTopLevelTerms) {
-		
+
 			this.maTopLevelTerms = maTopLevelTerms;
 		}
 
 		@Field("selected_top_level_ma_term")
 		private List<String> maTopLevelTerms;
-		
-		
+
+
 		public List<String> getMp_id() {
-		
+
 			return mp_id;
 		}
 
 
-		
-		
-
-
-
 		public void setMpSynonyms(Set<String> mpSyns) {
 
-			this.mpSyns=mpSyns;
-			
+			this.mpSyns = mpSyns;
+
 		}
 
 
-
 		public void setMp_id(List<String> mp_id) {
-		
+
 			this.mp_id = mp_id;
 		}
 
 
-		
 		public List<String> getMpTermId() {
-		
+
 			return mpTermId;
 		}
 
 
-		
 		public void setMpTermId(List<String> mpTermId) {
-		
+
 			this.mpTermId = mpTermId;
 		}
 
 
-		
 		public List<String> getMpTerm() {
-		
+
 			return mpTerm;
 		}
 
@@ -588,20 +650,16 @@ public class SangerImagesIndexer {
 		private List<String> mpTermName;
 
 
-		
 		public List<String> getMpTermName() {
-		
+
 			return mpTermName;
 		}
 
 
-
-		
 		public void setMpTermName(List<String> mpTermName) {
-		
+
 			this.mpTermName = mpTermName;
 		}
-
 
 
 		public String getSymbolGene() {
@@ -612,15 +670,15 @@ public class SangerImagesIndexer {
 
 		public void setMpTerm(List<String> mpTerm) {
 
-			this.mpTerm=mpTerm;
-			
+			this.mpTerm = mpTerm;
+
 		}
 
 
 		public void setMpId(List<String> mpTermId) {
 
-			this.mpTermId=mpTermId;
-			
+			this.mpTermId = mpTermId;
+
 		}
 
 
@@ -997,20 +1055,20 @@ public class SangerImagesIndexer {
 
 			while (resultSet.next()) {
 
-				int nodeId = resultSet.getInt("node_id");
+				String termId = resultSet.getString("term_id");
 				String synName = resultSet.getString("syn_name");
-				if (nodeIdToMaSynonyms.containsKey(nodeId)) {
-					List<String> maSynonyms = nodeIdToMaSynonyms.get(nodeId);
+				if (termIdToMaSynonyms.containsKey(termId)) {
+					List<String> maSynonyms = termIdToMaSynonyms.get(termId);
 					maSynonyms.add(synName);
 				} else {
 					List<String> maSynonyms = new ArrayList<>();
 					maSynonyms.add(synName);
-					nodeIdToMaSynonyms.put(nodeId, maSynonyms);
+					termIdToMaSynonyms.put(termId, maSynonyms);
 				}
 				// termToNodeMap.put(termId, nodeId);
 
 			}
-			System.out.println("nodeIdToMaSynonyms size=" + nodeIdToMaSynonyms.size());
+			System.out.println("termIdToMaSynonyms size=" + termIdToMaSynonyms.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1062,27 +1120,7 @@ public class SangerImagesIndexer {
 
 	public void populateMAs() {
 
-		// <entity dataSource="ontods" name="ma_term_infos"
-		// query="select term_id, name from ma_term_infos where term_id = '${maAnnotations.TERM_ID}'"
-		// onError="continue">
-		// <!-- use annotationTermName from ontodb not from Sanger image
-		// annotation(risk of out of date) -->
-		//
-		// <field column="term_id" name="maAnnotationTermId" />
-		// <field column="name" name="annotationTermName" />
-		// <field column="name" name="maTermName" />
-		// select * from IMPC_MOUSE_ALLELE_MV where
-		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
 		System.out.println("populating MAs");
-		// use annotationTermName from ontodb not from Sanger image
-		// annotation(risk of out of date)
-		// String query = "select term_id, name from ma_term_infos";// where
-		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
-		// image
-		// record.foreignkeyid
-		// to
-		// mouse_id
-		// on
 		String query = "select ma_term_infos.term_id, ma_term_infos.name, ma_node2term.node_id, ma_node2term.term_id from ma_term_infos, ma_node2term where ma_term_infos.term_id=ma_node2term.term_id";
 
 		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
@@ -1095,7 +1133,7 @@ public class SangerImagesIndexer {
 				int nodeId = resultSet.getInt("node_id");
 				// System.out.println("adding term to node=" + termId + " " +
 				// nodeId);
-				termToNodeMap.put(termId, nodeId);
+				maTermToNodeMap.put(termId, nodeId);
 				uptoDateMaMap.put(termId, termName);
 			}
 
@@ -1358,7 +1396,8 @@ public class SangerImagesIndexer {
 		// <field column="TERM_NAME" name="ma_term" />
 		// <field column="TERM_ID" name="ma_id" />
 		System.out.println("populating Annotations");
-		String query = "select * from ANN_ANNOTATION";// where TERM_ID like 'MA%'";// where
+		String query = "select * from ANN_ANNOTATION";// where TERM_ID like
+														// 'MA%'";// where
 		// FOREIGN_KEY_ID=${tag.ID}
 		// and TERM_ID like
 		// 'MA%'";// where
@@ -1372,13 +1411,13 @@ public class SangerImagesIndexer {
 				String annotationTermId = resultSet.getString("TERM_ID");
 				String annotationTermName = resultSet.getString("TERM_NAME");
 				ann.annotationTermId = annotationTermId;
-				if(annotationTermId.startsWith("MA:")){
-				ann.ma_id = annotationTermId;
-				ann.ma_term = annotationTermName;
+				if (annotationTermId.startsWith("MA:")) {
+					ann.ma_id = annotationTermId;
+					ann.ma_term = annotationTermName;
 				}
-				if(annotationTermId.startsWith("MP:")){
-					ann.mp_id=annotationTermId;
-					ann.mp_term=annotationTermName;
+				if (annotationTermId.startsWith("MP:")) {
+					ann.mp_id = annotationTermId;
+					ann.mp_term = annotationTermName;
 				}
 
 				// if(annotationTermId.contains("MA:")){
@@ -1591,23 +1630,25 @@ public class SangerImagesIndexer {
 		}
 
 	}
-	
-	public void populateMpSynonyms(){
+
+
+	public void populateMpSynonyms() {
+
 		System.out.println("pupulating MP synonyms");
-		//<field column="syn_name" name="mp_term_synonym" />
+		// <field column="syn_name" name="mp_term_synonym" />
 		String query = "select * from mp_synonyms";
-		
+
 		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
-					
+
 			while (resultSet.next()) {
 				String termId = resultSet.getString("term_id");
 				String mp_term_synonym = resultSet.getString("syn_name");
-				if(mpSynMap.containsKey(termId)){
-					Set<String> syns=mpSynMap.get(termId);
+				if (mpSynMap.containsKey(termId)) {
+					Set<String> syns = mpSynMap.get(termId);
 					syns.add(mp_term_synonym);
-				}else{
-					Set<String> syns=new HashSet<>();
+				} else {
+					Set<String> syns = new HashSet<>();
 					syns.add(mp_term_synonym);
 					mpSynMap.put(termId, syns);
 				}
@@ -1618,24 +1659,25 @@ public class SangerImagesIndexer {
 		}
 
 	}
-	
-	public void populateMaNodeToTerms(){
-		
+
+
+	public void populateMaNodeToTerms() {
+
 		System.out.println("pupulating ma_node2term");
-		//<field column="syn_name" name="mp_term_synonym" />
+		// <field column="syn_name" name="mp_term_synonym" />
 		String query = "select * from ma_node2term";
-		
+
 		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
-					
+
 			while (resultSet.next()) {
 				Integer nodeId = resultSet.getInt("node_id");
 				String termId = resultSet.getString("term_id");
-				if(maNode2TermMap.containsKey(termId)){
-					Set<Integer> nodeIds=maNode2TermMap.get(termId);
+				if (maNode2TermMap.containsKey(termId)) {
+					Set<Integer> nodeIds = maNode2TermMap.get(termId);
 					nodeIds.add(nodeId);
-				}else{
-					Set<Integer> nodeIds=new HashSet<>();
+				} else {
+					Set<Integer> nodeIds = new HashSet<>();
 					nodeIds.add(nodeId);
 					maNode2TermMap.put(termId, nodeIds);
 				}
@@ -1644,43 +1686,113 @@ public class SangerImagesIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-public void populateMaNodeToTopLevel(){
-		
+
+
+	public void populateMaNodeToTopLevel() {
+
 		System.out.println("pupulating ma_node2term");
-		//<field column="syn_name" name="mp_term_synonym" />
+		// <field column="syn_name" name="mp_term_synonym" />
 		String query = "select distinct m.node_id, ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
-		
+
 		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
-					
+
 			while (resultSet.next()) {
 				int nodeId = resultSet.getInt("node_id");
 				String termId = resultSet.getString("term_id");
 				String termName = resultSet.getString("name");
-				if(!maNodeToTopLevel.containsKey(nodeId)){
+				if (!maNodeToTopLevel.containsKey(nodeId)) {
 					maNodeToTopLevel.put(nodeId, new TopLevelBean(nodeId, termId, termName));
-					System.out.println("adding to maNodeToTopLevel"+nodeId+" "+termId);
+					System.out.println("adding to maNodeToTopLevel" + nodeId + " " + termId);
 				}
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
-private class TopLevelBean{
-	Integer nodeId;
-	String termId;
-	String termName;
-	public TopLevelBean(int nodeId, String termId, String termName){
-		this.nodeId=nodeId;
-		this.termId=termId;
-		this.termName=termName;
-	}
-}
+	private class TopLevelBean {
 
+		Integer nodeId;
+		Integer topLevelNodeId;
+		String termId;
+		String termName;
+
+
+		public TopLevelBean(int nodeId, String termId, String termName) {
+
+			this.nodeId = nodeId;
+			this.termId = termId;
+			this.termName = termName;
+		}
+
+
+		public TopLevelBean(int nodeId, String termId, String termName, int topLevelNodeId) {
+
+			this(topLevelNodeId, termId, termName);
+			this.topLevelNodeId = topLevelNodeId;
+		}
+	}
+
+
+	private void populateMpNode2TopLevelTerms() {
+
+		// SELECT * FROM `mp_node2term` mp, mp_node_top_level tl WHERE
+		// mp.node_id=tl.node_id
+		System.out.println("pupulating mpNode2termTopLevel");
+		// <field column="syn_name" name="mp_term_synonym" />
+		String query = "SELECT * FROM `mp_node2term` mp, mp_node_top_level tl WHERE mp.node_id=tl.node_id";
+
+		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				int nodeId = resultSet.getInt("node_id");
+				String termId = resultSet.getString("term_id");
+				// String termName = resultSet.getString("name");
+				int topLevelNodeId = resultSet.getInt("top_level_node_id");
+				if (!mpNode2termTopLevel.containsKey(termId)) {
+					mpNode2termTopLevel.put(termId, new TopLevelBean(nodeId, termId, null, topLevelNodeId));
+					System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+
+	private void populateMpTermInfo() {
+
+		// SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM
+		// `mp_node2term` mp , `mp_term_infos` inf WHERE inf.term_id=mp.term_id
+
+		System.out.println("populating mpTermInfo");
+		// <field column="syn_name" name="mp_term_synonym" />
+		String query = "SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM `mp_node2term` mp , `mp_term_infos` inf WHERE  inf.term_id=mp.term_id";
+
+		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				int nodeId = resultSet.getInt("node_id");
+				String termId = resultSet.getString("term_id");
+				String termName = resultSet.getString("name");
+
+				if (!nodeIdToMpTermInfo.containsKey(nodeId)) {
+					nodeIdToMpTermInfo.put(nodeId, new TopLevelBean(nodeId, termId, termName));
+					System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
