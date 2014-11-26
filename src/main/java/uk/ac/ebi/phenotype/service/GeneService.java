@@ -15,25 +15,10 @@
  */
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -41,12 +26,14 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Service;
-import org.noggit.JSONUtil;
-
 import uk.ac.ebi.phenotype.data.imits.StatusConstants;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class GeneService {
@@ -143,7 +130,7 @@ public class GeneService {
 	}
 
 	/**
-	 * Return all genes from the gene core.
+	 * Return all gene MGI IDs from the gene core.
 	 * 
 	 * @return all genes from the gene core.
 	 * @throws SolrServerException
@@ -163,6 +150,21 @@ public class GeneService {
 		}
 		return allGenes;
 	}
+
+	/**
+	 * Return all genes from the gene core.
+	 *
+	 * @return all genes from the gene core.
+	 * @throws SolrServerException
+	 */
+	public List<GeneDTO> getAllGeneDTOs() throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("*:*");
+		solrQuery.setRows(Integer.MAX_VALUE);
+		return solr.query(solrQuery).getBeans(GeneDTO.class);
+	}
+
 
 	/**
 	 * Return all genes from the gene core whose MGI_ACCESSION_ID does not start

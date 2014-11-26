@@ -26,6 +26,7 @@ public class DiseaseBean {
 
 	public static final String MGI_ACCESSION_ID = "marker_accession";
 	public static final String DISEASE_ID = "disease_id";
+	public static final String TYPE = "type";
 	public static final String DISEASE_SOURCE = "disease_source";
 	public static final String DISEASE_TERM = "disease_term";
 	public static final String DISEASE_ALTS = "disease_alts";
@@ -45,6 +46,9 @@ public class DiseaseBean {
 
 	@Field(DISEASE_ID)
 	private String diseaseId;
+
+	@Field(TYPE)
+	private String type;
 
 	@Field(DISEASE_SOURCE)
 	private String diseaseSource;
@@ -94,6 +98,18 @@ public class DiseaseBean {
 	public void setMgiAccessionId(String mgiAccessionId) {
 
 		this.mgiAccessionId = mgiAccessionId;
+	}
+
+
+	public String getType() {
+
+		return type;
+	}
+
+
+	public void setType(String type) {
+
+		this.type = type;
 	}
 
 
