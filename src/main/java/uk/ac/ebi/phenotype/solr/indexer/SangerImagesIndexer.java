@@ -23,6 +23,7 @@ import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.MPTopLevelTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 import javax.sql.DataSource;
@@ -75,9 +76,8 @@ public class SangerImagesIndexer {
 //																				// term_id.
 	
 	Map<String,Set<String>>mpSynMap=new HashMap<>();
-	
-	Map<String, List<String>> topLevelMaTerms=new HashMap<>();
-	private Map<String, List<String>> maTopLevelNodes;
+	private Map<String, Set<Integer>> maNode2TermMap=new HashMap<>();;
+	private Map<Integer, TopLevelBean> maNodeToTopLevel=new HashMap<>();;
 
 
 	public SangerImagesIndexer() {
@@ -159,10 +159,13 @@ public class SangerImagesIndexer {
 		populateAnnotations();
 		populateSubType();
 		populateMpSynonyms();
+		populateMaNodeToTerms();
+		populateMaNodeToTopLevel();
 		
+//		for(bean: maTopLevelNodes){
+//			
+//		}
 		
-		maTopLevelNodes = MPIndexer.getMaTopLevelNodes(ontoDbConnection);
-		System.out.println("maTopLevelNodes size="+maTopLevelNodes.size());
 		
 //		maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
 //		maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
@@ -318,10 +321,14 @@ public class SangerImagesIndexer {
 									ma_terms.add(annotation.ma_term);
 									
 									//ArrayList<String> maTopLevelSynonyms=new ArrayList<>();
-									if (maTopLevelNodes.containsKey(annotation.ma_term)) {
-										for (String maTopLevelNodeTerm : maTopLevelNodes.get(annotation.ma_term)) {
-											maTopLevelTermIds.add(annotation.ma_term);
-											maTopLevelTerms.add(maTopLevelNodeTerm);
+									if (maNode2TermMap.containsKey(annotation.ma_id)) {
+										for (Integer nodeId : maNode2TermMap.get(annotation.ma_id)) {
+											
+											if(maNodeToTopLevel.containsKey(nodeId)){
+												TopLevelBean maTopLevelBean=maNodeToTopLevel.get(nodeId);
+												maTopLevelTermIds.add(maTopLevelBean.termId);
+												maTopLevelTerms.add(maTopLevelBean.termName);
+											}											
 //											 <field column="term_id" name="selected_top_level_ma_id" />
 //					                            <field column="name" name="selected_top_level_ma_term" />
 											
@@ -1611,5 +1618,69 @@ public class SangerImagesIndexer {
 		}
 
 	}
+	
+	public void populateMaNodeToTerms(){
+		
+		System.out.println("pupulating ma_node2term");
+		//<field column="syn_name" name="mp_term_synonym" />
+		String query = "select * from ma_node2term";
+		
+		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+					
+			while (resultSet.next()) {
+				Integer nodeId = resultSet.getInt("node_id");
+				String termId = resultSet.getString("term_id");
+				if(maNode2TermMap.containsKey(termId)){
+					Set<Integer> nodeIds=maNode2TermMap.get(termId);
+					nodeIds.add(nodeId);
+				}else{
+					Set<Integer> nodeIds=new HashSet<>();
+					nodeIds.add(nodeId);
+					maNode2TermMap.put(termId, nodeIds);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+public void populateMaNodeToTopLevel(){
+		
+		System.out.println("pupulating ma_node2term");
+		//<field column="syn_name" name="mp_term_synonym" />
+		String query = "select distinct m.node_id, ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
+		
+		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+					
+			while (resultSet.next()) {
+				int nodeId = resultSet.getInt("node_id");
+				String termId = resultSet.getString("term_id");
+				String termName = resultSet.getString("name");
+				if(!maNodeToTopLevel.containsKey(nodeId)){
+					maNodeToTopLevel.put(nodeId, new TopLevelBean(nodeId, termId, termName));
+					System.out.println("adding to maNodeToTopLevel"+nodeId+" "+termId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+private class TopLevelBean{
+	Integer nodeId;
+	String termId;
+	String termName;
+	public TopLevelBean(int nodeId, String termId, String termName){
+		this.nodeId=nodeId;
+		this.termId=termId;
+		this.termName=termName;
+	}
+}
 
 }
