@@ -22,7 +22,7 @@
         <!--<entity dataSource="phenodigmdb" name="doc" transformer="RegexTransformer" query="select distinct @s:=@s+1 id, 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_cu
 rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus, dmga.mgi_gene_id from disease_summary ds, disease_mouse_genotype_associations dmga, (SELECT @s:= 0) AS s where ds.disease_id=dmga.disease_id"> -->
       	
-  		<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=*:*&amp;fq=type:disease&amp;rows=9999999"
+  		<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=*:*&amp;fq=type:disease&amp;rows=9999999&amp;fl=disease_id,type,dataType,disease_source,disease_term,disease_alts,disease_classes,human_curated,mouse_curated,mgi_predicted_known_gene,imc_predicted_known_gene,mgi_predicted,impc_predicted,mgi_novel_predicted_in_locus,impc_novel_predicted_in_locus"
     		processor="XPathEntityProcessor" forEach="/response/result/doc/"                
     		readTimeout="60000" connectionTimeout="30000" transformer="script:set_dataType" >
 
@@ -44,7 +44,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
          	<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
 			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_novel_predicted_in_locus']" /> 
          
-			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
+			<!--<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			-->
 			
 			<!-- genes associated with this disease -->
            	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=disease_id:&quot;${ddoc.disease_id}&quot;&amp;rows=9999999&amp;wt=normal&amp;fl=mgi_accession_id,marker_symbol,marker_name,marker_synonym,marker_type,human_gene_symbol,status,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status,latest_production_centre,latest_phenotyping_centre,latest_phenotype_status,legacy_phenotype_status,allele_name,mp_id,mp_term,mp_definition,mp_term_synonym,ontology_subset,hp_id,hp_term,top_level_mp_id,top_level_mp_term,top_level_mp_term_synonym,intermediate_mp_id,intermediate_mp_term,intermediate_mp_term_synonym,child_mp_id,child_mp_term,child_mp_term_synonym"
