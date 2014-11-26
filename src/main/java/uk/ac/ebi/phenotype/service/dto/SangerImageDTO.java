@@ -20,8 +20,11 @@
 
 package uk.ac.ebi.phenotype.service.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 /**
@@ -404,6 +407,573 @@ public class SangerImageDTO {
         }
         return true;
     }
+    
+
+
+	// <field column="dataType" name="dataType"/>
+	// <field column="FULL_RESOLUTION_FILE_PATH"
+	// name="fullResolutionFilePath" />
+	// <field column="LARGE_THUMBNAIL_FILE_PATH"
+	// name="largeThumbnailFilePath" />
+	// <field column="ORIGINAL_FILE_NAME" name="originalFileName" />
+	// <field column="SMALL_THUMBNAIL_FILE_PATH"
+	// name="smallThumbnailFilePath" />
+	// <field column="institute" name="institute" />
+	
+	@Field("dataType")
+	String dataType;
+	@Field("fullResolutionFilePath")
+	String fullResolutionFilePath;
+	@Field("largeThumbnailFilePath")
+	String largeThumbnailFilePath;
+	@Field("originalFileName")
+	String originalFileName;
+	@Field("smallThumbnailFilePath")
+	String smallThumbnailFilePath;
+	@Field("institute")
+	String institute;
+	// need method to get imaDcfImageView data for here
+	@Field("dcfId")
+	int dcfId;
+	@Field("dcfExpId")
+	String dcfExpId;
+	@Field("sangerProcedureName")
+	String sangerProcedureName;
+	@Field("genotypeString")
+	String genotypeString;
+	@Field("geneName")
+	private String geneName;
+	@Field("expName")
+	private String experimentName;
+	@Field("expName_exp")
+	private String expName_exp;
+	@Field("procedure_name")
+	private String procedure_name;
+	@Field("geneSynonyms")
+	private List<String> synonyms;
+	@Field("tagValue")
+	private List<String> tagValues;
+	@Field("tagName")
+	private List<String> tagNames;
+	@Field("annotationTermId")
+	private List<String> annotationTermIds;
+	@Field("annotationTermName")
+	private List<String> annotationTermNames;
+	@Field("maTermId")
+	private List<String> maIds;
+	@Field("ma_term")
+	private List<String> ma_terms;
+	@Field("maTermName")
+	private List<String> maTermName;
+	@Field("ma_term_synonym")
+	private List<String> maTermSynonym;
+	@Field("subtype")
+	private String subtype;
+	
+
+	@Field("mp_id")
+	private List<String> mp_id;
+	@Field("mp_term_synonym")
+	private Set<String> mpSyns;
+	// <field column="term_id" name="selected_top_level_ma_id" />
+	// <field column="name" name="selected_top_level_ma_term" />
+	@Field("selected_top_level_ma_id")
+	private List<String> maTopLevelTermIds;
+	@Field("selected_top_level_ma_term_synonym")
+	private ArrayList<String> selectedTopLevelMaTermSynonym;
+//	<field column="name" name="annotatedHigherLevelMpTermName" />
+//	<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
+	@Field("annotatedHigherLevelMpTermName")
+	private List<String> annotatedHigherLevelMpTermName;
+
+	@Field("annotatedHigherLevelMpTermId")
+	private List<String> annotatedHigherLevelMpTermId;
+	
+	@Field("top_level_mp_term_synonym")
+	private Set<String> topLevelMpTermSynonym; 
+
+	
+	
+	public Set<String> getTopLevelMpTermSynonym() {
+	
+		return topLevelMpTermSynonym;
+	}
+
+
+
+	
+	public void setTopLevelMpTermSynonym(Set<String> topLevelMpTermSynonym) {
+	
+		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
+	}
+
+
+
+	public List<String> getAnnotatedHigherLevelMpTermName() {
+	
+		return annotatedHigherLevelMpTermName;
+	}
+
+
+	
+	public void setAnnotatedHigherLevelMpTermName(List<String> annotatedHigherLevelMpTermName) {
+	
+		this.annotatedHigherLevelMpTermName = annotatedHigherLevelMpTermName;
+	}
+
+
+	
+	public List<String> getAnnotatedHigherLevelMpTermId() {
+	
+		return annotatedHigherLevelMpTermId;
+	}
+
+
+	
+	public void setAnnotatedHigherLevelMpTermId(List<String> annotatedHigherLevelMpTermId) {
+	
+		this.annotatedHigherLevelMpTermId = annotatedHigherLevelMpTermId;
+	}
+
+
+	public List<String> getMaTopLevelTermIds() {
+
+		return maTopLevelTermIds;
+	}
+
+
+	public ArrayList<String> getSelectedTopLevelMaTermSynonym() {
+
+		return selectedTopLevelMaTermSynonym;
+	}
+
+
+	public void setSelectedTopLevelMaTermSynonym(ArrayList<String> selectedTopLevelMaTermSynonym) {
+
+		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
+	}
+
+
+	public void setMaTopLevelTermIds(List<String> maTopLevelTermIds) {
+
+		this.maTopLevelTermIds = maTopLevelTermIds;
+	}
+
+
+	public List<String> getMaTopLevelTerms() {
+
+		return maTopLevelTerms;
+	}
+
+
+	public void setMaTopLevelTerms(List<String> maTopLevelTerms) {
+
+		this.maTopLevelTerms = maTopLevelTerms;
+	}
+
+	@Field("selected_top_level_ma_term")
+	private List<String> maTopLevelTerms;
+
+
+	public List<String> getMp_id() {
+
+		return mp_id;
+	}
+
+
+	public void setMpSynonyms(Set<String> mpSyns) {
+
+		this.mpSyns = mpSyns;
+
+	}
+
+
+	public void setMp_id(List<String> mp_id) {
+
+		this.mp_id = mp_id;
+	}
+
+
+	public List<String> getMpTermId() {
+
+		return mpTermId;
+	}
+
+
+	public void setMpTermId(List<String> mpTermId) {
+
+		this.mpTermId = mpTermId;
+	}
+
+
+	public List<String> getMpTerm() {
+
+		return mpTerm;
+	}
+
+	@Field("mpTermId")
+	private List<String> mpTermId;
+	@Field("mp_term")
+	private List<String> mpTerm;
+	@Field("mpTermName")
+	private List<String> mpTermName;
+
+
+	public List<String> getMpTermName() {
+
+		return mpTermName;
+	}
+
+
+	public void setMpTermName(List<String> mpTermName) {
+
+		this.mpTermName = mpTermName;
+	}
+
+
+	
+
+
+	public void setMpTerm(List<String> mpTerm) {
+
+		this.mpTerm = mpTerm;
+
+	}
+
+
+	public void setMpId(List<String> mpTermId) {
+
+		this.mpTermId = mpTermId;
+
+	}
+
+
+	public String getSubtype() {
+
+		return subtype;
+	}
+
+
+
+	public void setSubtype(String subtype) {
+
+		this.subtype = subtype;
+	}
+
+
+	public List<String> getMaTermSynonym() {
+
+		return maTermSynonym;
+	}
+
+
+	public void setMaTermSynonym(List<String> maTermSynonym) {
+
+		this.maTermSynonym = maTermSynonym;
+	}
+
+
+	public List<String> getMaTermName() {
+
+		return maTermName;
+	}
+
+
+	public void setMaTermName(List<String> maTermName) {
+
+		this.maTermName = maTermName;
+	}
+
+
+	public String getGeneName() {
+
+		return geneName;
+	}
+
+
+	public void setMaTerm(List<String> ma_terms) {
+
+		this.ma_terms = ma_terms;
+
+	}
+
+
+	public void setMaId(List<String> ma_ids) {
+
+		this.maIds = ma_ids;
+
+	}
+
+
+	public void setAnnotationTermName(List<String> annotationTermNames) {
+
+		this.annotationTermNames = annotationTermNames;
+
+	}
+
+
+	public void setAnnotationTermId(List<String> annotationTermIds) {
+
+		this.annotationTermIds = annotationTermIds;
+
+	}
+
+
+	public void setTagValues(List<String> tagValues) {
+
+		this.tagValues = tagValues;
+
+	}
+
+
+	public void setTagNames(List<String> tagNames) {
+
+		this.tagNames = tagNames;
+
+	}
+
+
+	public void setSynonyms(List<String> syns) {
+
+		this.synonyms = syns;
+
+	}
+
+
+
+	public void setExperimentName(String name) {
+
+		this.experimentName = name;
+
+	}
+
+
+	public String getAccession() {
+
+		return accession;
+	}
+
+
+	public String getSymbol() {
+
+		return symbol;
+	}
+
+	@Field("accession")
+	private String accession;
+	@Field("symbol")
+	private String symbol;
+
+
+	public String getGenotypeString() {
+
+		return genotypeString;
+	}
+
+
+	public void setGeneName(String geneName) {
+
+		this.geneName = geneName;
+
+	}
+
+
+	public void setAccession(String accession) {
+
+		this.accession = accession;
+
+	}
+
+
+	public void setSymbol(String symbol) {
+
+		this.symbol = symbol;
+
+	}
+
+
+	public void setGenotypeString(String genotypeString) {
+
+		this.genotypeString = genotypeString;
+	}
+
+
+	public String getAgeInWeeks() {
+
+		return ageInWeeks;
+	}
+
+
+	public void setAgeInWeeks(String ageInWeeks) {
+
+		this.ageInWeeks = ageInWeeks;
+	}
+
+	@Field("ageInWeeks")
+	String ageInWeeks;
+
+	@Field("sangerSymbol")
+	String sangerSymbol;
+
+
+	public String getSangerSymbol() {
+
+		return sangerSymbol;
+	}
+
+
+	public void setSangerSymbol(String sangerSymbol) {
+
+		this.sangerSymbol = sangerSymbol;
+	}
+
+
+	public String getAllele_accession() {
+
+		return allele_accession;
+	}
+
+
+	public void setAllele_accession(String allele_accession) {
+
+		this.allele_accession = allele_accession;
+	}
+
+	@Field("allele_accession")
+	String allele_accession;
+
+
+
+	public String getDataType() {
+
+		return dataType;
+	}
+
+
+	public void setDataType(String dataType) {
+
+		this.dataType = dataType;
+	}
+
+
+	public String getFullResolutionFilePath() {
+
+		return fullResolutionFilePath;
+	}
+
+
+	public void setFullResolutionFilePath(String fullResolutionFilePath) {
+
+		this.fullResolutionFilePath = fullResolutionFilePath;
+	}
+
+
+	public String getLargeThumbnailFilePath() {
+
+		return largeThumbnailFilePath;
+	}
+
+
+	public void setLargeThumbnailFilePath(String largeThumbnailFilePath) {
+
+		this.largeThumbnailFilePath = largeThumbnailFilePath;
+	}
+
+
+	public String getOriginalFileName() {
+
+		return originalFileName;
+	}
+
+
+	public void setOriginalFileName(String originalFileName) {
+
+		this.originalFileName = originalFileName;
+	}
+
+
+	public String getSmallThumbnailFilePath() {
+
+		return smallThumbnailFilePath;
+	}
+
+
+	public void setSmallThumbnailFilePath(String smallThumbnailFilePath) {
+
+		this.smallThumbnailFilePath = smallThumbnailFilePath;
+	}
+
+
+	public String getInstitute() {
+
+		return institute;
+	}
+
+
+	public void setInstitute(String institute) {
+
+		this.institute = institute;
+	}
+
+
+	public int getDcfId() {
+
+		return dcfId;
+	}
+
+
+	public void setDcfId(int dcfId) {
+
+		this.dcfId = dcfId;
+	}
+
+
+	public String getDcfExpId() {
+
+		return dcfExpId;
+	}
+
+
+	public void setDcfExpId(String dcfExpId) {
+
+		this.dcfExpId = dcfExpId;
+	}
+
+
+	public String getSangerProcedureName() {
+
+		return sangerProcedureName;
+	}
+
+
+	public void setSangerProcedureName(String sangerProcedureName) {
+
+		this.sangerProcedureName = sangerProcedureName;
+	}
+
+
+	public String getSangerProcedureId() {
+
+		return sangerProcedureId;
+	}
+
+
+	public void setSangerProcedureId(String sangerProcedureId) {
+
+		this.sangerProcedureId = sangerProcedureId;
+	}
+
+	String sangerProcedureId;
+
+	//
+	// <entity dataSource="komp2ds" name="imaDcfImageView"
+	// query="SELECT DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id and ir.id=${ima_image_record.ID}">
+	// <field column="DCF_ID" name="dcfId" />
+	// <field column="EXPERIMENT_ID" name="dcfExpId" />
+	// <field column="NAME" name="sangerProcedureName" />
+	// <field column="PROCEDURE_ID" name="sangerProcedureId" />
+	// </entity>
+
 
     
     

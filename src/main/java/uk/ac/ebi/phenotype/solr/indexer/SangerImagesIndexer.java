@@ -1822,7 +1822,41 @@ public class SangerImagesIndexer {
 	}
 	
 	//need allele core mappings for status etc
-	
+	public void getAlleleCoreStatuses(){
+		
+		
+//		<entity dataSource="allele_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
+//		processor="XPathEntityProcessor" forEach="/response/result/doc/" >	
+//
+//		<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />    
+//		<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
+//        <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
+//        <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+//        <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
+//        <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
+//                 
+//        <!-- latest project status (ES cells/mice production status) -->         
+//        <field column="status" xpath="/response/result/doc/str[@name='status']" />
+//        
+//        <!-- latest mice phenotyping status for faceting -->
+//        <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
+//        <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+//      	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
+//      
+//      	<!-- phenotyping status -->
+//		<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+//      	<field column="legacy_phenotype_status" xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
+//      
+//      	<!-- production/phenotyping centers -->
+//		<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+//		<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />												
+//										
+//		<!-- alleles of a gene -->
+//		<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />								
+//
+//	</entity>
+
+	}
 	
 	
 	//need hp mapping from phenodign core
