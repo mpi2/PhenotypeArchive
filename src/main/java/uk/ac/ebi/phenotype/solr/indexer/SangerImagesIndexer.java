@@ -324,6 +324,7 @@ public class SangerImagesIndexer {
 							ArrayList<String> selected_top_level_ma_term_synonym = new ArrayList<>();
 							ArrayList<String> annotatedHigherLevelMpTermId= new ArrayList<>();
 							ArrayList<String> annotatedHigherLevelMpTermName= new ArrayList<>();
+							Set<String> topLevelMpTermSynonym=new HashSet<>();
 							for (Annotation annotation : annotations) {
 								annotationTermIds.add(annotation.annotationTermId);
 								annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
@@ -362,14 +363,18 @@ public class SangerImagesIndexer {
 									// need to get top level stuff here
 									if (mpNode2termTopLevel.containsKey(annotation.mp_id)) {
 										TopLevelBean topLevelBean = mpNode2termTopLevel.get(annotation.mp_id);
-										System.out.println("TopLevel=" + topLevelBean.termId);
+										//System.out.println("TopLevel=" + topLevelBean.termId);
 										if (nodeIdToMpTermInfo.containsKey(topLevelBean.topLevelNodeId)) {
 											TopLevelBean realTopLevel = nodeIdToMpTermInfo.get(topLevelBean.topLevelNodeId);
-											System.out.println("realTopLevel=" + realTopLevel.termId+" name="+realTopLevel.termName);
+											//System.out.println("realTopLevel=" + realTopLevel.termId+" name="+realTopLevel.termName);
 											//<field column="name" name="annotatedHigherLevelMpTermName" />
 											//<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
 											annotatedHigherLevelMpTermId.add(realTopLevel.termId);
 											annotatedHigherLevelMpTermName.add(realTopLevel.termName);
+											if(mpSynMap.containsKey(realTopLevel.termId)){
+												Set<String> topLevelSynonyms = mpSynMap.get(realTopLevel.termId);
+												topLevelMpTermSynonym.addAll(topLevelSynonyms);
+											}
 										}
 									} else {
 										System.err.println("no top level for " + annotation.mp_id);
@@ -380,6 +385,7 @@ public class SangerImagesIndexer {
 								}
 
 							}
+							o.setTopLevelMpTermSynonym(topLevelMpTermSynonym);
 							o.setAnnotatedHigherLevelMpTermId(annotatedHigherLevelMpTermId);
 							o.setAnnotatedHigherLevelMpTermName(annotatedHigherLevelMpTermName);
 							o.setAnnotationTermId(annotationTermIds);
@@ -538,8 +544,27 @@ public class SangerImagesIndexer {
 
 		@Field("annotatedHigherLevelMpTermId")
 		private List<String> annotatedHigherLevelMpTermId;
+		
+		@Field("top_level_mp_term_synonym")
+		private Set<String> topLevelMpTermSynonym; 
 
 		
+		
+		public Set<String> getTopLevelMpTermSynonym() {
+		
+			return topLevelMpTermSynonym;
+		}
+
+
+
+		
+		public void setTopLevelMpTermSynonym(Set<String> topLevelMpTermSynonym) {
+		
+			this.topLevelMpTermSynonym = topLevelMpTermSynonym;
+		}
+
+
+
 		public List<String> getAnnotatedHigherLevelMpTermName() {
 		
 			return annotatedHigherLevelMpTermName;
@@ -1795,4 +1820,10 @@ public class SangerImagesIndexer {
 			e.printStackTrace();
 		}
 	}
+	
+	//need allele core mappings for status etc
+	
+	
+	
+	//need hp mapping from phenodign core
 }
