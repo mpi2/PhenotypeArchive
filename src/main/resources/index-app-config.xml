@@ -86,8 +86,16 @@
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
-    
-     <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+
+    <!-- used for concurrently loading the disease core -->
+    <bean id="diseaseIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/disease"/>
+        <constructor-arg index="1" value="1000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+
+
+    <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/images"/>
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
@@ -111,6 +119,10 @@
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg value="${buildIndexesSolrUrl}/experiment" />
+    </bean>
+
+    <bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
+        <constructor-arg value="${buildIndexesSolrUrl}/gene" />
     </bean>
 
 
