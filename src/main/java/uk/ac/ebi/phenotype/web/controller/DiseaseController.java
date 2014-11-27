@@ -40,7 +40,7 @@ public class DiseaseController {
     public void setRawScoreCutoff(double rawScoreCutoff) {
         this.rawScoreCutoff = rawScoreCutoff;
     }
-    
+
     @RequestMapping(value = "/disease")
     public String allDiseases(Model model) {
         logger.info("Making page for all diseases");
@@ -58,7 +58,7 @@ public class DiseaseController {
     public String disease(@PathVariable("diseaseId") String diseaseId, Model model) {
 
         logger.info("Making disease page for " + diseaseId);
-        
+
         DiseaseIdentifier diseaseIdentifier = new DiseaseIdentifier(diseaseId);
         Disease disease = phenoDigmDao.getDisease(diseaseIdentifier);
         logger.info(String.format("Found disease: %s %s", disease.getDiseaseId(), disease.getTerm()));
@@ -69,17 +69,21 @@ public class DiseaseController {
         logger.info(String.format("%s - recieved %s gene-disease associations", diseaseId, geneAssociationSummarys.size()));
 
         //add associated genes for use in the top panel
-        List<GeneAssociationSummary> knownGeneAssociationSummaries = new ArrayList<>();
+        List<GeneAssociationSummary> orthologousGeneAssociations = new ArrayList<>();
+        //add associated genes for use in the bottom panel
+        List<GeneAssociationSummary> phenotypicGeneAssociations = new ArrayList<>();
         //add the known association summaries to a dedicated list for the top panel
         for (GeneAssociationSummary geneAssociationSummary : geneAssociationSummarys) {
             AssociationSummary associationSummary = geneAssociationSummary.getAssociationSummary();
             if (associationSummary.isAssociatedInHuman()) {
-               knownGeneAssociationSummaries.add(geneAssociationSummary);
+                orthologousGeneAssociations.add(geneAssociationSummary);
+            } else {
+                phenotypicGeneAssociations.add(geneAssociationSummary);
             }
         }
-        model.addAttribute("knownGeneAssociationSummaries", knownGeneAssociationSummaries);
-     
-        model.addAttribute("phenotypeAssociations", geneAssociationSummarys);
+        model.addAttribute("orthologousGeneAssociations", orthologousGeneAssociations);
+
+        model.addAttribute("phenotypicGeneAssociations", phenotypicGeneAssociations);
         logger.info("Returning disease page for " + diseaseId);
         return "disease";
     }

@@ -86,8 +86,23 @@
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
-    
-     <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+
+    <!-- used for concurrently loading the disease core -->
+    <bean id="diseaseIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/disease"/>
+        <constructor-arg index="1" value="1000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+
+    <!-- used for concurrently loading the gene core -->
+    <bean id="geneIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/gene"/>
+        <constructor-arg index="1" value="1000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+
+
+    <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/images"/>
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
@@ -112,7 +127,6 @@
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg value="${buildIndexesSolrUrl}/experiment" />
     </bean>
-
 
     <!-- Dependencies for observationService -->
     <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
@@ -158,6 +172,7 @@
 				<entry key="liveSite" value="${liveSite}" />
 				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
                 <entry key="human2mouseFilename" value="${human2mouseFile}" />
+                <entry key="phenodigm.solrserver" value="${phenodigm.solrserver}" />
 			</map>
 		</property>
 	</bean>

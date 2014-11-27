@@ -1,8 +1,8 @@
 package uk.ac.ebi.phenotype.service.dto;
 
-import java.util.List;
-
 import org.apache.solr.client.solrj.beans.Field;
+
+import java.util.List;
 
 public class GeneDTO {
 
@@ -39,9 +39,20 @@ public class GeneDTO {
 	public static final String MP_TERM = "mp_term";
 	public static final String MP_DEFINITION = "mp_definition";
 	public static final String MP_SYNONYM = "mp_synonym";
+
+	public static final String CHILD_MP_ID = "child_mp_id";
+	public static final String CHILD_MP_TERM = "child_mp_term";
+	public static final String CHILD_MP_TERM_SYNONYM = "child_mp_synonym";
+
 	public static final String TOP_LEVEL_MP_ID = "top_level_mp_id";
 	public static final String TOP_LEVEL_MP_TERM = "top_level_mp_term";
 	public static final String TOP_LEVEL_MP_DEFINITION = "top_level_mp_definition";
+	public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_synonym";
+
+	public static final String INTERMEDIATE_MP_ID = "intermediate_mp_id";
+	public static final String INTERMEDIATE_MP_TERM = "intermediate_mp_term";
+	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_synonym";
+
 	public static final String ONTOLOGY_SUBSET = "ontology_subset";
 	public static final String INFERRED_MA_ID = "inferred_ma_id";
 	public static final String INFERRED_MA_TERM = "inferred_ma_term";
@@ -183,14 +194,36 @@ public class GeneDTO {
 	@Field(MP_SYNONYM)
 	List<String> mpSynonym;
 
+	@Field(CHILD_MP_ID)
+	List<String> childMpId;
+
+	@Field(CHILD_MP_TERM)
+	List<String> childMpTerm;
+
+	@Field(CHILD_MP_TERM_SYNONYM)
+	List<String> childMpTermSynonym;
+
 	@Field(TOP_LEVEL_MP_ID)
 	List<String> topLevelMpId;
 
 	@Field(TOP_LEVEL_MP_TERM)
 	List<String> topLevelMpTerm;
 
+	@Field(TOP_LEVEL_MP_TERM_SYNONYM)
+	List<String> topLevelMpSynonym;
+
 	@Field(TOP_LEVEL_MP_DEFINITION)
 	List<String> topLevelMpDefinition;
+
+	@Field(INTERMEDIATE_MP_ID)
+	List<String> intermediateMpId;
+
+	@Field(INTERMEDIATE_MP_TERM)
+	List<String> intermediateMpTerm;
+
+	@Field(INTERMEDIATE_MP_TERM_SYNONYM)
+	List<String> intermediateMpSynonym;
+
 
 	// <!-- ontology subset of mp terms -->
 
@@ -298,6 +331,66 @@ public class GeneDTO {
 
 	@Field(SELECTED_TOP_LEVEL_MA_TERM)
 	List<String> selectedTopLevelMaTerm;
+
+
+	public List<String> getTopLevelMpSynonym() {
+
+		return topLevelMpSynonym;
+	}
+
+
+	public void setTopLevelMpSynonym(List<String> topLevelMpSynonym) {
+
+		this.topLevelMpSynonym = topLevelMpSynonym;
+	}
+
+
+	public List<String> getChildMpTermSynonym() {
+
+		return childMpTermSynonym;
+	}
+
+
+	public void setChildMpTermSynonym(List<String> childMpTermSynonym) {
+
+		this.childMpTermSynonym = childMpTermSynonym;
+	}
+
+
+	public List<String> getIntermediateMpId() {
+
+		return intermediateMpId;
+	}
+
+
+	public void setIntermediateMpId(List<String> intermediateMpId) {
+
+		this.intermediateMpId = intermediateMpId;
+	}
+
+
+	public List<String> getIntermediateMpTerm() {
+
+		return intermediateMpTerm;
+	}
+
+
+	public void setIntermediateMpTerm(List<String> intermediateMpTerm) {
+
+		this.intermediateMpTerm = intermediateMpTerm;
+	}
+
+
+	public List<String> getIntermediateMpSynonym() {
+
+		return intermediateMpSynonym;
+	}
+
+
+	public void setIntermediateMpSynonym(List<String> intermediateMpSynonym) {
+
+		this.intermediateMpSynonym = intermediateMpSynonym;
+	}
 
 
 	public String getDataType() {
@@ -1101,6 +1194,42 @@ public class GeneDTO {
 	public void setSelectedTopLevelMaTerm(List<String> selectedTopLevelMaTerm) {
 
 		this.selectedTopLevelMaTerm = selectedTopLevelMaTerm;
+	}
+
+
+	public Integer getLegacy_phenotype_status() {
+
+		return legacy_phenotype_status;
+	}
+
+
+	public void setLegacy_phenotype_status(Integer legacy_phenotype_status) {
+
+		this.legacy_phenotype_status = legacy_phenotype_status;
+	}
+
+
+	public List<String> getChildMpTerm() {
+
+		return childMpTerm;
+	}
+
+
+	public void setChildMpTerm(List<String> childMpTerm) {
+
+		this.childMpTerm = childMpTerm;
+	}
+
+
+	public List<String> getChildMpId() {
+
+		return childMpId;
+	}
+
+
+	public void setChildMpId(List<String> childMpId) {
+
+		this.childMpId = childMpId;
 	}
 
 
