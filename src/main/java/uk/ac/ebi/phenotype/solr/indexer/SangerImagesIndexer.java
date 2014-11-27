@@ -77,7 +77,7 @@ public class SangerImagesIndexer {
 	private Map<String, List<String>> termIdToMaSynonyms = new HashMap<>();
 	private Map<String, String> subtypeMap = new HashMap<>();
 
-	private Map<String, Set<String>> mpSynMap = new HashMap<>();
+	private Map<String, List<String>> mpSynMap = new HashMap<>();
 	private Map<String, Set<Integer>> maNode2TermMap = new HashMap<>();
 	private Map<Integer, TopLevelBean> maNodeToTopLevel = new HashMap<>();
 	private Map<String, TopLevelBean> mpNode2termTopLevel = new HashMap<>();
@@ -391,7 +391,7 @@ public class SangerImagesIndexer {
 											annotatedHigherLevelMpTermId.add(realTopLevel.termId);
 											annotatedHigherLevelMpTermName.add(realTopLevel.termName);
 											if(mpSynMap.containsKey(realTopLevel.termId)){
-												Set<String> topLevelSynonyms = mpSynMap.get(realTopLevel.termId);
+												List<String> topLevelSynonyms = mpSynMap.get(realTopLevel.termId);
 												topLevelMpTermSynonym.addAll(topLevelSynonyms);
 											}
 										}
@@ -1039,10 +1039,10 @@ public class SangerImagesIndexer {
 				String termId = resultSet.getString("term_id");
 				String mp_term_synonym = resultSet.getString("syn_name");
 				if (mpSynMap.containsKey(termId)) {
-					Set<String> syns = mpSynMap.get(termId);
+					List<String> syns = mpSynMap.get(termId);
 					syns.add(mp_term_synonym);
 				} else {
-					Set<String> syns = new HashSet<>();
+					List<String> syns = new ArrayList<>();
 					syns.add(mp_term_synonym);
 					mpSynMap.put(termId, syns);
 				}

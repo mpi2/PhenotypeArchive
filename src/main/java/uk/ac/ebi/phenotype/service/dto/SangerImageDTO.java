@@ -502,7 +502,7 @@ public class SangerImageDTO {
 	@Field("mp_id")
 	private List<String> mp_id;
 	@Field("mp_term_synonym")
-	private Set<String> mpSyns;
+	private List<String> mpSyns;
 	// <field column="term_id" name="selected_top_level_ma_id" />
 	// <field column="name" name="selected_top_level_ma_term" />
 	@Field("selected_top_level_ma_id")
@@ -609,7 +609,7 @@ public class SangerImageDTO {
 	}
 
 
-	public void setMpSynonyms(Set<String> mpSyns) {
+	public void setMpSynonyms(List<String> mpSyns) {
 
 		this.mpSyns = mpSyns;
 
