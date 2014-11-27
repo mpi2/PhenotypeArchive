@@ -234,7 +234,7 @@ public class SangerImagesIndexer {
 		// <field column="PROCEDURE_ID" name="sangerProcedureId" />
 		// </entity>
 
-		String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy'  limit 1000";// and
+		String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ";// and
 																																																																																																																																																																										// IMA_IMAGE_RECORD.ID=70220
 
 		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
@@ -1195,18 +1195,13 @@ public class SangerImagesIndexer {
 	}
 		
 	private void populateImageDtoStatuses(SangerImageDTO img, String geneAccession){
+		if(alleles.containsKey(geneAccession)){
 		AlleleDTO allele=alleles.get(geneAccession);
-		//System.out.println("allele mgi_accession="+allele.getMgiAccessionId());
-		// <!-- other gene core stuff -->
-		// <entity dataSource="allele_core" name="genedoc" stream="true"
-		// url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
-		// processor="XPathEntityProcessor" forEach="/response/result/doc/" >
-		//
-		// <field column="mgi_accession_id"
-		// xpath="/response/result/doc/str[@name='mgi_accession_id']" />
+		if(allele.getMgiAccessionId()!=null){
 		List<String> accessionList = new ArrayList<>();
 		accessionList.add(allele.getMgiAccessionId());
 		img.setMgiAccessionId(accessionList);
+		}
 		List<String> mSymbols = Arrays.asList(allele.getMarkerSymbol());
 		img.setMarkerSymbol(mSymbols);
 		
@@ -1266,6 +1261,7 @@ public class SangerImagesIndexer {
 		// xpath="/response/result/doc/arr[@name='allele_name']/str" />
 		//
 		// </entity>
+		}
 
 	}
 	
@@ -1279,5 +1275,26 @@ public class SangerImagesIndexer {
 	
 //	private void populateMpToNode(){
 //		//select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
+//		System.out.println("populating mpTermInfo");
+//		// <field column="syn_name" name="mp_term_synonym" />
+//		String query = "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
+//
+//		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+//			ResultSet resultSet = p.executeQuery();
+//
+//			while (resultSet.next()) {
+//				int nodeId = resultSet.getInt("node_id");
+//				String termId = resultSet.getString("term_id");
+//				String termName = resultSet.getString("name");
+//
+//				if (!nodeIdToMpTermInfo.containsKey(nodeId)) {
+//					nodeIdToMpTermInfo.put(nodeId, new TopLevelBean(nodeId, termId, termName));
+//					//System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
+//				}
+//			}
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 //	}
 }
