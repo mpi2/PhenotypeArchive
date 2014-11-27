@@ -99,6 +99,7 @@ public class SangerImagesIndexer {
 	public static void main(String[] args)
 	throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
 
+		long startTime=System.currentTimeMillis();
 		OptionParser parser = new OptionParser();
 
 		// parameter to indicate which spring context file to use
@@ -146,6 +147,8 @@ public class SangerImagesIndexer {
 		main.run();
 
 		logger.info("Process finished.  Exiting.");
+		long endTime=System.currentTimeMillis();
+		System.out.println("time was "+(endTime-startTime)/1000);
 		System.exit(0);
 	}
 
@@ -276,7 +279,7 @@ public class SangerImagesIndexer {
 							// <entity dataSource="komp2ds" name="subtype2"
 							// query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
 							String symbolGene = feature.getSymbol() + "_" + feature.getAccession();
-							List symbolGeneList=new ArrayList();
+							List<String> symbolGeneList=new ArrayList<>();
 							symbolGeneList.add(symbolGene);
 							o.setSymbolGene(symbolGeneList);
 							String subtypeKey = feature.getSubtypeAccession() + "_" + feature.getSubtypeDbId();

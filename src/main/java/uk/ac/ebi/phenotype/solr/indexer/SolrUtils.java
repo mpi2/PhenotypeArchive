@@ -241,7 +241,7 @@ public class SolrUtils {
 			}
 			pos += BATCH_SIZE;
 		}
-
+		System.out.println("mpToHp map size="+mpToHp.size());
 		return mpToHp;
 	}
 }
