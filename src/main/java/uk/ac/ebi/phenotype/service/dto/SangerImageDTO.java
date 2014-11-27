@@ -773,7 +773,7 @@ public class SangerImageDTO {
 	}
 
 
-	public String getSymbol() {
+	public List<String> getSymbol() {
 
 		return symbol;
 	}
@@ -781,7 +781,7 @@ public class SangerImageDTO {
 	@Field("accession")
 	private String accession;
 	@Field("symbol")
-	private String symbol;
+	private List<String> symbol;
 
 
 	public String getGenotypeString() {
@@ -804,7 +804,7 @@ public class SangerImageDTO {
 	}
 
 
-	public void setSymbol(String symbol) {
+	public void setSymbol(List<String> symbol) {
 
 		this.symbol = symbol;
 

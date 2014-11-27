@@ -272,7 +272,7 @@ public class SangerImagesIndexer {
 						o.setSangerSymbol(alBean.sangerSymbol);
 						if (featuresMap.containsKey(alBean.gf_acc)) {
 							GenomicFeatureBean feature = featuresMap.get(alBean.gf_acc);
-							o.setSymbol(feature.getSymbol());
+							o.setSymbol(Arrays.asList(feature.getSymbol()));
 							// <entity dataSource="komp2ds" name="subtype2"
 							// query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
 							String symbolGene = feature.getSymbol() + "_" + feature.getAccession();
