@@ -49,7 +49,11 @@ public class SangerImagesIndexer {
 	private static final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
 	private static Connection connection;
 	private static Connection ontoDbConnection;
-
+	@Autowired
+	@Qualifier("solrServer")
+	SolrServer phenodigmServer;
+	
+	
 	@Autowired
 	@Qualifier("alleleIndexing")
 	SolrServer alleleIndexing;
@@ -58,38 +62,28 @@ public class SangerImagesIndexer {
 	@Qualifier("sangerImagesIndexing")
 	SolrServer sangerImagesIndexing;
 
-	Map<Integer, DcfBean> dcfMap = new HashMap<>();
-	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
-	Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
-	Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
-	Map<String, List<String>> synonyms = new HashMap<>();
-	Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
+	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
+	private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
+	private Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
+	private Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
+	private Map<String, List<String>> synonyms = new HashMap<>();
+	private Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
 	private Map<Integer, ExperimentDict> expMap = new HashMap<>();
-	Map<String, String> sangerProcedureToImpcMapping = new HashMap<String, String>();
-	Map<Integer, List<Tag>> tags = new HashMap<>();
+	private Map<String, String> sangerProcedureToImpcMapping = new HashMap<String, String>();
+	private Map<Integer, List<Tag>> tags = new HashMap<>();
 	private Map<Integer, List<Annotation>> annotationsMap = new HashMap<>();
 	private Map<String, String> uptoDateMaMap = new HashMap<>();
 	private Map<String, Integer> maTermToNodeMap = new HashMap<>();
 	private Map<String, List<String>> termIdToMaSynonyms = new HashMap<>();
 	private Map<String, String> subtypeMap = new HashMap<>();
 
-	// private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();
-	// // key
-	// // =
-	// // parent
-	// // term_id.
-	// private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();
-	// // key
-	// // =
-	// // child
-	// // term_id.
-
-	Map<String, Set<String>> mpSynMap = new HashMap<>();
+	private Map<String, Set<String>> mpSynMap = new HashMap<>();
 	private Map<String, Set<Integer>> maNode2TermMap = new HashMap<>();
 	private Map<Integer, TopLevelBean> maNodeToTopLevel = new HashMap<>();
 	private Map<String, TopLevelBean> mpNode2termTopLevel = new HashMap<>();
 	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
 	private Map<String, AlleleDTO> alleles;
+	Map<String, Map<String, String>> mpToHpMap;
 
 
 	public SangerImagesIndexer() {
@@ -178,6 +172,7 @@ public class SangerImagesIndexer {
 		populateMpNode2TopLevelTerms();
 		populateMpTermInfo();
 		populateAlleles();
+		populateMpToHpTermsMap();
 
 		// for(bean: maTopLevelNodes){
 		//
@@ -294,10 +289,11 @@ public class SangerImagesIndexer {
 							// System.out.println("setting symbol in main method via feature="
 							// + feature.getSymbol());
 							o.setGeneName(feature.getName());
+							this.populateImageDtoStatuses(o, feature.getAccession());
+							
 							if (synonyms.containsKey(feature.getAccession())) {
 								List<String> syns = synonyms.get(feature.getAccession());
 								o.setSynonyms(syns);
-								this.populateImageDtoStatuses(o, feature.getAccession());
 								// for(String syn:syns){
 								// System.out.println("syn="+syn);
 								//
@@ -376,6 +372,13 @@ public class SangerImagesIndexer {
 								if (annotation.mp_id != null) {
 									mp_ids.add(annotation.mp_id);
 									mp_terms.add(annotation.mp_term);
+									if(mpToHpMap.containsKey(annotation.mp_id)){
+										Map<String,String> hpMap=mpToHpMap.get(annotation.mp_id);
+										String hpId=hpMap.get("hp_id");
+										String hpTerm=hpMap.get("hp_term");
+										o.setHpId(hpId);
+										o.setHpTerm(hpTerm);
+									}
 									// need to get top level stuff here
 									if (mpNode2termTopLevel.containsKey(annotation.mp_id)) {
 										TopLevelBean topLevelBean = mpNode2termTopLevel.get(annotation.mp_id);
@@ -550,7 +553,7 @@ public class SangerImagesIndexer {
 					 * column="PROCEDURE_ID" name="sangerProcedureId" />
 					 */
 
-					b.dcfId = resultSet.getInt("DCF_ID");
+					b.dcfId = resultSet.getString("DCF_ID");
 					b.dcfExpId = resultSet.getString("EXPERIMENT_ID");
 					b.sangerProcedureName = resultSet.getString("NAME");
 					b.sangerProcedureId = resultSet.getString("PROCEDURE_ID");
@@ -977,7 +980,7 @@ public class SangerImagesIndexer {
 		 * name="dcfExpId" /> <field column="NAME" name="sangerProcedureName" />
 		 * <field column="PROCEDURE_ID" name="sangerProcedureId" />
 		 */
-		public Integer dcfId;
+		public String dcfId;
 		public String dcfExpId;
 		public String sangerProcedureName;
 		public String sangerProcedureId;
@@ -1193,9 +1196,8 @@ public class SangerImagesIndexer {
 	}
 		
 	private void populateImageDtoStatuses(SangerImageDTO img, String geneAccession){
-		System.out.println("alleles size="+alleles.size());
 		AlleleDTO allele=alleles.get(geneAccession);
-		System.out.println("allele mgi_accession="+allele.getMgiAccessionId());
+		//System.out.println("allele mgi_accession="+allele.getMgiAccessionId());
 		// <!-- other gene core stuff -->
 		// <entity dataSource="allele_core" name="genedoc" stream="true"
 		// url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
@@ -1226,34 +1228,41 @@ public class SangerImagesIndexer {
 		// <field column="human_gene_symbol"
 		// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
 		//
-		
-		allele.getLatestProductionStatus();
+		List<String> statuses = Arrays.asList(allele.getLatestProductionStatus());
+		img.setStatus(statuses);
 		// <!-- latest project status (ES cells/mice production status) -->
 		// <field column="status" xpath="/response/result/doc/str[@name='status']"
 		// />
 		//
+		img.setImitsPhenotypeStarted( Arrays.asList(allele.getImitsPhenotypeStarted()));
 		// <!-- latest mice phenotyping status for faceting -->
 		// <field column="imits_phenotype_started"
 		// xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
 		// <field column="imits_phenotype_complete"
+		img.setImitsPhenotypeComplete(Arrays.asList(allele.getImitsPhenotypeComplete()));
 		// xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
 		// <field column="imits_phenotype_status"
+		 img.setImitsPhenotypeStatus(Arrays.asList(allele.getImitsPhenotypeStatus()));
 		// xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
 		//
 		// <!-- phenotyping status -->
 		// <field column="latest_phenotype_status"
 		// xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+		 img.setLegacyPhenotypeStatus(allele.getLegacyPhenotypeStatus());
 		// <field column="legacy_phenotype_status"
 		// xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
 		//
 		// <!-- production/phenotyping centers -->
+		 img.setLatestProductionCentre(allele.getLatestProductionCentre());
 		// <field column="latest_production_centre"
 		// xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 		// <field column="latest_phenotyping_centre"
+		 img.setLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
 		// xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str"
 		// />
 		//
 		// <!-- alleles of a gene -->
+		 img.setAlleleName(allele.getAlleleName());
 		// <field column="allele_name"
 		// xpath="/response/result/doc/arr[@name='allele_name']/str" />
 		//
@@ -1263,4 +1272,12 @@ public class SangerImagesIndexer {
 	
 	
 	//need hp mapping from phenodign core
+	
+	private void populateMpToHpTermsMap() throws SolrServerException{
+		mpToHpMap=SolrUtils.populateMpToHpTermsMap(phenodigmServer);
+	}
+	
+	private void populateMpToNode(){
+		//select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
+	}
 }

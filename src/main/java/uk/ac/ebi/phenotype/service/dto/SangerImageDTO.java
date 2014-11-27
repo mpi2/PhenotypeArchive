@@ -133,6 +133,38 @@ public class SangerImageDTO {
     
     @Field(ALLELE_NAME)
     private List<String> alleleName;
+    
+    @Field("hp_id")
+    private String hpId;
+    
+    
+	public String getHpId() {
+	
+		return hpId;
+	}
+
+	
+	public void setHpId(String hpId) {
+	
+		this.hpId = hpId;
+	}
+
+	
+	public String getHpTerm() {
+	
+		return hpTerm;
+	}
+
+	
+	public void setHpTerm(String hpTerm) {
+	
+		this.hpTerm = hpTerm;
+	}
+
+
+
+	@Field("hp_term")
+    private String hpTerm;
 
     
     // SETTERS AND GETTERS
@@ -434,7 +466,7 @@ public class SangerImageDTO {
 	String institute;
 	// need method to get imaDcfImageView data for here
 	@Field("dcfId")
-	int dcfId;
+	String dcfId;
 	@Field("dcfExpId")
 	String dcfExpId;
 	@Field("sangerProcedureName")
@@ -916,13 +948,13 @@ public class SangerImageDTO {
 	}
 
 
-	public int getDcfId() {
+	public String getDcfId() {
 
 		return dcfId;
 	}
 
 
-	public void setDcfId(int dcfId) {
+	public void setDcfId(String dcfId) {
 
 		this.dcfId = dcfId;
 	}
