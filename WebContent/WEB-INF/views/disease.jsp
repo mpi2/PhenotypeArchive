@@ -194,7 +194,14 @@
             </div>
         </div>
         <div class="section">
-            <h2 class="title" id="orthologous_mouse_models">Mouse Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
+            <h2 class="title" id="orthologous_mouse_models">Mouse Models <small class="sub">associated by gene orthology</small>
+                <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                <span class='documentation'>
+                    <a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'>
+                        <i class="fa fa-question-circle pull-right"></i>
+                    </a>
+                </span>
+            </h2>
             <div class="inner">                
                 <c:choose>
                     <c:when test="${empty orthologousGeneAssociations}">
@@ -268,7 +275,14 @@
         </div>
 
         <div class="section">
-            <h2 class="title" id="potential_mouse_models">Potential Mouse Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
+            <h2 class="title" id="potential_mouse_models">Potential Mouse Models <small class="sub">predicted by phenotypic similarity</small>
+                <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                <span class='documentation'>
+                    <a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'>
+                        <i class="fa fa-question-circle pull-right"></i>
+                    </a>
+                </span>
+            </h2>
             <div class="inner">                
                 <c:choose>
                     <c:when test="${empty phenotypicGeneAssociations}">

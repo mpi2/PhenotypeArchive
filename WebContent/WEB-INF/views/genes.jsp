@@ -465,7 +465,7 @@
                 <!--Disease Panel-->
                             <c:if test="${not empty orthologousDiseaseAssociations}">                 
                                 <div class="section">
-                                    <h2 class="title" id="section-disease-models">Disease Models 
+                                    <h2 class="title" id="section-disease-models">Disease Models <small class="sub">associated by gene orthology</small>
                                         <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                         <span class="documentation">
                                             <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
@@ -485,7 +485,7 @@
                                                     <th><span class="main">IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
                                                     <th></th>
                                                 </tr>
-                                            </thead>                        
+                                            </thead>
                                             <tbody>
                                                 <c:forEach var="association" items="${orthologousDiseaseAssociations}" varStatus="loop">
                                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
@@ -531,7 +531,7 @@
                 
                         <c:if test="${not empty phenotypicDiseaseAssociations}">                 
                                 <div class="section">
-                                    <h2 class="title" id="section-potential-disease-models">Potential Disease Models 
+                                    <h2 class="title" id="section-potential-disease-models">Potential Disease Models <small class="sub">predicted by phenotypic similarity</small>
                                         <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                         <span class="documentation">
                                             <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
