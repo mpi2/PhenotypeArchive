@@ -21,7 +21,8 @@
 
                 <ul>
                     <li><a href="#top">Disease</a></li>
-                    <li><a href="#potential_mouse_models">Potential MouseModels</a></li>
+                    <li><a href="#orthologous_mouse_models">Mouse Models</a></li>
+                    <li><a href="#potential_mouse_models">Potential Mouse Models</a></li>
 
                 </ul>
 
