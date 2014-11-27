@@ -288,7 +288,7 @@ public class SangerImagesIndexer {
 							}
 							// System.out.println("setting symbol in main method via feature="
 							// + feature.getSymbol());
-							o.setGeneName(feature.getName());
+							o.setGeneName(Arrays.asList(feature.getName()));
 							this.populateImageDtoStatuses(o, feature.getAccession());
 							
 							if (synonyms.containsKey(feature.getAccession())) {
@@ -465,7 +465,7 @@ public class SangerImagesIndexer {
 				count++;
 
 				if (count % 100000 == 0) {
-					logger.info(" added " + count + " beans");
+					System.out.println(" added " + count + " beans");
 				}
 
 			}
@@ -1274,10 +1274,11 @@ public class SangerImagesIndexer {
 	//need hp mapping from phenodign core
 	
 	private void populateMpToHpTermsMap() throws SolrServerException{
+		System.out.println("populating Mp To Hp Term map");
 		mpToHpMap=SolrUtils.populateMpToHpTermsMap(phenodigmServer);
 	}
 	
-	private void populateMpToNode(){
-		//select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
-	}
+//	private void populateMpToNode(){
+//		//select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
+//	}
 }
