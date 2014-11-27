@@ -305,7 +305,7 @@ public class SangerImagesIndexer {
 				}
 				if (expMap.containsKey(new Integer(r.getInt("ID")))) {
 					ExperimentDict expBean = expMap.get(r.getInt("ID"));
-					o.setExperimentName(expBean.name);
+					o.setExpName(Arrays.asList(expBean.name));
 					o.setSangerProcedureName(expBean.name);
 					List<String> procedureList=new ArrayList<String>();
 					procedureList.add(this.getImpcProcedureFromSanger(expBean.name));

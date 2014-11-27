@@ -475,10 +475,6 @@ public class SangerImageDTO {
 	String genotypeString;
 	@Field("geneName")
 	private List<String> geneName;
-	@Field("expName")
-	private String experimentName;
-	@Field("expName_exp")
-	private String expName_exp;
 	@Field("procedure_name")
 	private String procedure_name;
 	@Field("geneSynonyms")
@@ -771,20 +767,6 @@ public class SangerImageDTO {
 
 	}
 
-
-
-	public void setExperimentName(String name) {
-
-		this.experimentName = name;
-
-	}
-
-
-	
-	public String getExperimentName() {
-	
-		return experimentName;
-	}
 
 
 	public String getAccession() {
