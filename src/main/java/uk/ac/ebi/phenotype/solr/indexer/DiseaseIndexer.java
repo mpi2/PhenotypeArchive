@@ -122,7 +122,7 @@ public class DiseaseIndexer extends AbstractIndexer {
 			disease.setImpcNovelPredictedInLocus(phenDisease.isImpcNovelPredictedInLocus());
 
 			// Populate gene data
-			GeneData gene = geneLookup.get(phenDisease.getMgiAccessionId());
+			GeneData gene = geneLookup.get(phenDisease.getDiseaseId());
 
 			if (gene != null ) {
 				if (gene.MGI_ACCESSION_ID != null) {
