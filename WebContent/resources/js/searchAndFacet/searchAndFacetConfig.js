@@ -77,7 +77,7 @@ if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
 
-config.megaCores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images'];
+config.megaCores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images', 'impc_images'];
 
 config.geneStatuses = ['Phenotype Data Available',
                'Mice Produced',
@@ -157,7 +157,13 @@ config.qfield2facet = {
 	'img_marker_type'                : 'images',
 	'img_top_level_mp_term'          : 'images',
 	'img_selected_top_level_ma_term' : 'images',
-	'img_procedure_name'             : 'images'
+	'img_procedure_name'             : 'images',
+	
+	//'impcImg_marker_type'                : 'images',
+	//'impcImg_top_level_mp_term'          : 'images',
+	//'impcImg_selected_top_level_ma_term' : 'images',
+	'impcImg_procedure_name'             : 'impc_images'
+		
 }
 config.facetFilterLabel = {
 	'phenotyping_center'         	 : 'phenotyping_center',
@@ -201,7 +207,8 @@ config.coreQf = {
 	disease  : "disease_id disease_term disease_alts",
 	ma 	     : "ma_id ma_term child_ma_term selected_top_level_ma_term",
 	pipeline : "auto_suggest",
-	images   : "auto_suggest"
+	images   : "auto_suggest",
+	impc_images   : "auto_suggest",
 }
 
 config.commonSolrParams = commonSolrParams;
@@ -370,9 +377,43 @@ config.facetParams = {
 		 showImgView: false,		 
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'Images',
-		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
+		 filterParams: {'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath'
 			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
-			 'fq' : '*:*'
+			 //'fq' : '*:*'
+		 },	
+	 	 srchParams: $.extend({},
+				commonSolrParams				
+				)
+	 },
+	 impc_imagesFacet: {		
+		 type: 'impc_images',
+		 name: 'impc_Images',
+		 subFacetFqFields: ['procedure_name'],
+		 solrCoreName: 'impc_images',
+		 tableCols: 2, 
+		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
+		 //fq: 'annotationTermId:M* OR expName:* OR symbol:*',	
+		 //fq: 'top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*',
+		 fq: '*:*',
+		 qf: 'auto_suggest', 
+		 defType: 'edismax',
+		 wt: 'json',
+		 gridFields: 'procedure_name, gene_symbol, gene_accession_id, jpeg_url',
+		 gridName: 'impc_imagesGrid',
+		 topLevelName: '',
+		 /*imgViewSwitcherDisplay: 'Show Annotation View',
+		 viewLabel: 'Image View: lists annotations to an image',
+		 viewMode: 'imageView',
+		 showImgView: true,	*/
+		 imgViewSwitcherDisplay: 'Show Image View',
+		 viewLabel: 'Annotation View: groups images by annotation',
+		 viewMode: 'annotView',
+		 showImgView: false,		 
+		 forceReloadImageDataTable: false,		 
+		 breadCrumbLabel: 'IMPC_images',
+		 filterParams: {'fl' : 'procedure_name,gene_symbol,gene_accession_id,jpeg_url'
+			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
+			 //'fq' : '*:*'
 		 },	
 	 	 srchParams: $.extend({},
 				commonSolrParams				

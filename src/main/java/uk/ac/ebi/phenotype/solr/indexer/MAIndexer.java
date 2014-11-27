@@ -13,8 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
+import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import static uk.ac.ebi.phenotype.solr.indexer.SolrUtils.populateImageBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
@@ -27,7 +27,8 @@ public class MAIndexer extends AbstractIndexer {
     private Connection komp2DbConnection;
     private Connection ontoDbConnection;
     
-    private static final String IMAGES_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images";
+//    private static final String IMAGES_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images";
+    private static final String IMAGES_URL="http://ves-ebi-d1.ebi.ac.uk:8090/mi/impc/solr/images";
     private static final String MA_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/ma";
     
     private final SolrServer imagesCore;
@@ -37,7 +38,7 @@ public class MAIndexer extends AbstractIndexer {
     private Map<String, List<String>> maTermSynonymMap = new HashMap();         // key = term_id.
     private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();             // key = parent term_id.
     private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();            // key = child term_id.
-    private Map<String, List<ImageDTO>> maImagesMap = new HashMap();                    // key = term_id.
+    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();                    // key = term_id.
     
     private static final int BATCH_SIZE = 50;
         
@@ -162,16 +163,24 @@ public class MAIndexer extends AbstractIndexer {
     
     // PRIVATE METHODS
     
-
+    private final Integer MAX_ITERATIONS = 5;
+    
     private void initialiseSupportingBeans() throws SQLException, SolrServerException {
         // Grab all the supporting database content
         ontologySubsetMap = populateMaTermSubsetsBean();
         maTermSynonymMap = populateMaTermSynonym();
         maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
-        OntologyUtil.dumpTerms(maChildMap, "Child map:");
+        if (logger.isDebugEnabled()) {
+            OntologyUtil.dumpTerms(maChildMap, "Child map:");
+        }
         maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
-        OntologyUtil.dumpTerms(maParentMap, "Parent map:");
+        if (logger.isDebugEnabled()) {
+            OntologyUtil.dumpTerms(maParentMap, "Parent map:");
+        }
         maImagesMap = populateImageBean(imagesCore);
+        if (logger.isDebugEnabled()) {
+            SolrUtils.dumpTerms(maImagesMap, "Images map:", MAX_ITERATIONS);
+        }
     }
 
     /**
