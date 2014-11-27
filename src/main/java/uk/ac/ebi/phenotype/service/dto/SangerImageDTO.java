@@ -23,7 +23,7 @@ package uk.ac.ebi.phenotype.service.dto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -516,11 +516,11 @@ public class SangerImageDTO {
 	private List<String> annotatedHigherLevelMpTermId;
 	
 	@Field("top_level_mp_term_synonym")
-	private Set<String> topLevelMpTermSynonym; 
+	private List<String> topLevelMpTermSynonym; 
 
 	
 	
-	public Set<String> getTopLevelMpTermSynonym() {
+	public List<String> getTopLevelMpTermSynonym() {
 	
 		return topLevelMpTermSynonym;
 	}
@@ -528,7 +528,7 @@ public class SangerImageDTO {
 
 
 	
-	public void setTopLevelMpTermSynonym(Set<String> topLevelMpTermSynonym) {
+	public void setTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
 	
 		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
 	}

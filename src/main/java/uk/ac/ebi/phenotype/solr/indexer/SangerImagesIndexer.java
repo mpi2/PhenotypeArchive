@@ -335,7 +335,7 @@ public class SangerImagesIndexer {
 							ArrayList<String> selected_top_level_ma_term_synonym = new ArrayList<>();
 							ArrayList<String> annotatedHigherLevelMpTermId= new ArrayList<>();
 							ArrayList<String> annotatedHigherLevelMpTermName= new ArrayList<>();
-							Set<String> topLevelMpTermSynonym=new HashSet<>();
+							List<String> topLevelMpTermSynonym=new ArrayList<>();
 							for (Annotation annotation : annotations) {
 								annotationTermIds.add(annotation.annotationTermId);
 								annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
