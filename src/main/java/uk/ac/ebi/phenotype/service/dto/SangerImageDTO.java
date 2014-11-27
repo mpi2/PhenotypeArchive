@@ -475,8 +475,6 @@ public class SangerImageDTO {
 	String genotypeString;
 	@Field("geneName")
 	private List<String> geneName;
-	@Field("procedure_name")
-	private String procedure_name;
 	@Field("geneSynonyms")
 	private List<String> synonyms;
 	@Field("tagValue")
