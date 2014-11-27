@@ -5,14 +5,16 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import static uk.ac.ebi.phenotype.solr.indexer.SolrUtils.populateImageBean;
@@ -24,37 +26,43 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 public class MAIndexer extends AbstractIndexer {
 
     private static final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
-    private Connection komp2DbConnection;
     private Connection ontoDbConnection;
+
+    @Autowired
+    @Qualifier("ontodbDataSource")
+    DataSource ontodbDataSource;
     
-//    private static final String IMAGES_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images";
-    private static final String IMAGES_URL="http://ves-ebi-d1.ebi.ac.uk:8090/mi/impc/solr/images";
-    private static final String MA_URL="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/ma";
-    
-    private final SolrServer imagesCore;
-    private final SolrServer maCore;
+    @Autowired
+    @Qualifier("sangerImagesIndexing")
+    SolrServer imagesCore;
+
+    @Autowired
+    @Qualifier("maIndexing")
+    SolrServer maCore;
     
     private Map<String, List<String>> ontologySubsetMap = new HashMap();        // key = term_id.
     private Map<String, List<String>> maTermSynonymMap = new HashMap();         // key = term_id.
-    private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();             // key = parent term_id.
-    private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();            // key = child term_id.
-    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();                    // key = term_id.
+    private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();     // key = parent term_id.
+    private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();    // key = child term_id.
+    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
     
     private static final int BATCH_SIZE = 50;
         
     
     public MAIndexer() {
-        this.imagesCore = new HttpSolrServer(IMAGES_URL);
-        this.maCore = new HttpSolrServer(MA_URL);
+        try {
+           ontoDbConnection = ontodbDataSource.getConnection();
+        } catch (Exception e) {
+            logger.error("Unable to get ontodbDataSource: " + e.getLocalizedMessage());
+        }
     }
     
     @Override
     public void initialise(String[] args) throws IndexerException {
         args = new String[] { "--context=index-app-config.xml" };
         super.initialise(args);
+        applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
         try {
-            DataSource komp2DS = ((DataSource) applicationContext.getBean("komp2DataSource"));
-            this.komp2DbConnection = komp2DS.getConnection();
             DataSource ontoDS = ((DataSource) applicationContext.getBean("ontodbDataSource"));
             this.ontoDbConnection = ontoDS.getConnection();
         } catch (SQLException sqle) {
@@ -163,7 +171,8 @@ public class MAIndexer extends AbstractIndexer {
     
     // PRIVATE METHODS
     
-    private final Integer MAX_ITERATIONS = 5;
+    
+    private final Integer MAX_ITERATIONS = 5;                                   // Set to non-null value > 0 to limit max_iterations.
     
     private void initialiseSupportingBeans() throws SQLException, SolrServerException {
         // Grab all the supporting database content
@@ -245,10 +254,10 @@ public class MAIndexer extends AbstractIndexer {
     }
     
     public static void main(String[] args) throws SQLException, IOException, SolrServerException, IndexerException {
-            MAIndexer indexer = new MAIndexer();
-            indexer.initialise(args);
-            indexer.run();
+        MAIndexer indexer = new MAIndexer();
+        indexer.initialise(args);
+        indexer.run();
 
-            logger.info("Process finished.  Exiting.");
+        logger.info("Process finished.  Exiting.");
     }
 }

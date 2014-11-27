@@ -266,7 +266,7 @@ public class TestUtils {
     
     /**
      * Given a source array of 'array of String' and a starting index in that
-     * array, copies <code>coune</code> 'array of String' elements into a new
+     * array, copies <code>count</code> 'array of String' elements into a new
      * array returned to the caller.
      * @param src the source array
      * @param startIndex the source array starting index
