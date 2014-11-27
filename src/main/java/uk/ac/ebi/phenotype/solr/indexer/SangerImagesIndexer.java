@@ -284,7 +284,7 @@ public class SangerImagesIndexer {
 							// System.out.println("checking for subyte with key="
 							// + subtypeKey);
 							if (subtypeMap.containsKey(subtypeKey)) {
-								o.setSubtype(subtypeMap.get(subtypeKey));
+								o.setSubtype(Arrays.asList(subtypeMap.get(subtypeKey)));
 							}
 							// System.out.println("setting symbol in main method via feature="
 							// + feature.getSymbol());

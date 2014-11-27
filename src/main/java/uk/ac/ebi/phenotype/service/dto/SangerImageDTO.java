@@ -496,7 +496,7 @@ public class SangerImageDTO {
 	@Field("ma_term_synonym")
 	private List<String> maTermSynonym;
 	@Field("subtype")
-	private String subtype;
+	private List<String> subtype;
 	
 
 	@Field("mp_id")
@@ -676,14 +676,14 @@ public class SangerImageDTO {
 	}
 
 
-	public String getSubtype() {
+	public List<String> getSubtype() {
 
 		return subtype;
 	}
 
 
 
-	public void setSubtype(String subtype) {
+	public void setSubtype(List<String> subtype) {
 
 		this.subtype = subtype;
 	}
