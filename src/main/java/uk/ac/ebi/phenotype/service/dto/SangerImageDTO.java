@@ -832,16 +832,16 @@ public class SangerImageDTO {
 	String ageInWeeks;
 
 	@Field("sangerSymbol")
-	String sangerSymbol;
+	List<String> sangerSymbol;
 
 
-	public String getSangerSymbol() {
+	public List<String> getSangerSymbol() {
 
 		return sangerSymbol;
 	}
 
 
-	public void setSangerSymbol(String sangerSymbol) {
+	public void setSangerSymbol(List<String> sangerSymbol) {
 
 		this.sangerSymbol = sangerSymbol;
 	}

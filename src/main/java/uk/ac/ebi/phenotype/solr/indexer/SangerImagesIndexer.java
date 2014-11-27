@@ -269,7 +269,7 @@ public class SangerImagesIndexer {
 					AlleleBean alBean = alleleMpiMap.get(mb.genotypeString);
 					if (alBean != null) {
 						o.setAllele_accession(alBean.allele_accession);
-						o.setSangerSymbol(alBean.sangerSymbol);
+						o.setSangerSymbol(Arrays.asList(alBean.sangerSymbol));
 						if (featuresMap.containsKey(alBean.gf_acc)) {
 							GenomicFeatureBean feature = featuresMap.get(alBean.gf_acc);
 							o.setSymbol(Arrays.asList(feature.getSymbol()));
