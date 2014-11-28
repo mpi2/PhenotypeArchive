@@ -2255,6 +2255,9 @@
                 MPI2.searchAndFacetConfig.lastImgCount = $('div.flist li#'+dataType+' > span.fcount').text();
 
                 $('span#annotCount').text(count + ' annotations / ');
+                if ( dataType.indexOf('impc_image') != -1 ){
+                	dataType = dataType.replace('impc_','');
+                }
                 txt = MPI2.searchAndFacetConfig.lastImgCount + ' ' + dataType;
                 $('span#resultCount a').attr({'href': imgUrl}).text(txt);
             }
