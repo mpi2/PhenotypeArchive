@@ -275,6 +275,8 @@
 		<field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <!-- end of experiment data fields -->	
 	
+		<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+		<field name="latest_phenotyping_centre" type="string" indexed="true" stored="true" multiValued="false"/>
  </fields>
 
     <uniqueKey>id</uniqueKey>
@@ -290,6 +292,9 @@
         or to add multiple fields to the same field for easier/faster searching.  -->
   
   <!-- <copyField source="name" dest="text"/>-->
-    
-
+  
+  <copyField source="gene_accession_id" dest="auto_suggest" />
+  <copyField source="gene_symbol" dest="auto_suggest" />
+  <copyField source="procedure_name" dest="auto_suggest" />
+  <copyField source="phenotyping_center" dest="latest_phenotyping_centre" />
 </schema>
