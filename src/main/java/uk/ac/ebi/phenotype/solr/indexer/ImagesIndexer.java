@@ -2,6 +2,8 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -12,8 +14,11 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -34,7 +39,8 @@ public class ImagesIndexer {
 	private static final Logger logger = LoggerFactory.getLogger(ImagesIndexer.class);
 
 	@Autowired
-	private ObservationService observationService;
+	@Qualifier("observationIndexing")
+	private SolrServer observationService;
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
@@ -108,7 +114,7 @@ public class ImagesIndexer {
 			" WHERE " + ImageDTO.DOWNLOAD_FILE_PATH+" = ?";
 
 		// TODO: Need to batch these up to do a set of images at a time (currently works, but the number of images will grow beyond what can be handled in a single query)
-		List<uk.ac.ebi.phenotype.service.dto.ImageDTO> imageObservations = observationService.getAllImageDTOs();
+		List<uk.ac.ebi.phenotype.service.dto.ImageDTO> imageObservations = this.getAllImageDTOs();
 
 		//System.out.println("image observations size=" + imageObservations.size());
 
@@ -153,5 +159,13 @@ public class ImagesIndexer {
 		server.commit();
 
 	}
+	
+	public List<ImageDTO> getAllImageDTOs()
+	throws SolrServerException {
 
+		SolrQuery query = ImageService.allImageRecordSolrQuery();
+		return observationService.query(query).getBeans(ImageDTO.class);
+
+	}
+	
 }

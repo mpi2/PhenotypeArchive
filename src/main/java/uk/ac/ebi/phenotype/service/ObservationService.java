@@ -1487,13 +1487,6 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 
 	}
 	
-	public List<ImageDTO> getAllImageDTOs()
-	throws SolrServerException {
-
-		SolrQuery query = ImageService.allImageRecordSolrQuery();
-		return solr.query(query).getBeans(ImageDTO.class);
-
-	}
 
 	public HttpSolrServer getSolrServer() {
 		return solr;

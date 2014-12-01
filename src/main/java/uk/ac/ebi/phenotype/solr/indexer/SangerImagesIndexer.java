@@ -83,6 +83,8 @@ public class SangerImagesIndexer {
 	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
 	private Map<String, List<AlleleDTO>> alleles;
 	Map<String, Map<String, String>> mpToHpMap;
+	
+	HashMap<Integer, String> nodeToMp = new HashMap<Integer, String>();//used for multiple MP parents for mp to hp mappings
 
 
 	public SangerImagesIndexer() {
@@ -1327,32 +1329,30 @@ public class SangerImagesIndexer {
 		mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmServer);
 	}
 
-	// private void populateMpToNode(){
-	// //select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt
-	// where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
-	// System.out.println("populating mpTermInfo");
-	// // <field column="syn_name" name="mp_term_synonym" />
-	// String query =
-	// "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
-	//
-	// try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
-	// ResultSet resultSet = p.executeQuery();
-	//
-	// while (resultSet.next()) {
-	// int nodeId = resultSet.getInt("node_id");
-	// String termId = resultSet.getString("term_id");
-	// String termName = resultSet.getString("name");
-	//
-	// if (!nodeIdToMpTermInfo.containsKey(nodeId)) {
-	// nodeIdToMpTermInfo.put(nodeId, new TopLevelBean(nodeId, termId,
-	// termName));
-	// //System.out.println("adding to mpNode2termTopLevel" + nodeId + " " +
-	// termId);
-	// }
-	// }
-	//
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
+	 private void populateMpToNode(){
+	 //select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt
+	 //where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
+	 System.out.println("populating mpTermToNode");
+	 // <field column="syn_name" name="mp_term_synonym" />
+	 String query =
+	 "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
+	
+	 try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+	 ResultSet resultSet = p.executeQuery();
+	
+	 while (resultSet.next()) {
+	 int nodeId = resultSet.getInt("node_id");
+	 String termId = resultSet.getString("term_id");
+	
+	 if (!nodeToMp.containsKey(nodeId)) {
+		 nodeToMp.put(nodeId, nodeToMp.get(termId));
+	 //System.out.println("adding to mpNode2termTopLevel" + nodeId + " " +
+	 //termId);
+	 }
+	 }
+	
+	 } catch (Exception e) {
+	 e.printStackTrace();
+	 }
+	 }
 }

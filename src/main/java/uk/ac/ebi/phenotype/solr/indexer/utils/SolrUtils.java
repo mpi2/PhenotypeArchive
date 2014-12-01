@@ -260,6 +260,8 @@ public class SolrUtils {
         int pos = 0;
         long total = Integer.MAX_VALUE;
         SolrQuery query = new SolrQuery("mp_id:*");
+        query.addFilterQuery("type:mp_hp");//&amp;fl=hp_id,hp_term);
+        query.add("fl=hp_id,hp_term");
         query.setRows(BATCH_SIZE);
         while (pos < total) {
             query.setStart(pos);
