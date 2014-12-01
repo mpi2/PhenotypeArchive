@@ -202,7 +202,7 @@ public class MAIndexer extends AbstractIndexer {
         }
     }
 
-    public static void main(String[] args) throws SQLException, IOException, SolrServerException, IndexerException {
+    public static void main(String[] args) throws IndexerException {
         MAIndexer indexer = new MAIndexer();
         indexer.initialise(args);
         indexer.run();
