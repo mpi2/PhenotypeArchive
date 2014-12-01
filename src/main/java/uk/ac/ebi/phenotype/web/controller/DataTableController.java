@@ -610,24 +610,20 @@ public class DataTableController {
 			// annotation view: images group by annotationTerm per row
 			
 			String fqStr = fqOri;	
-			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
+			System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
 			String defaultQStr = "q=observation_type:image_record";
 			String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			
 			if ( !fqOri.contains("fq=*:*") ){
 				fqStr = fqStr.replace("&fq=","");
 				defaultQStr = defaultQStr + " AND " + fqStr; 
+				defaultFqStr = defaultFqStr + " AND " + fqStr;
 			}
 						
-			//String imgUrl = request.getAttribute("baseUrl") + "/images/select?" + solrParams;
-			
-			//System.out.println("--IMPC_IMAGE PARAMs: "+ imgUrl);
-			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			
 			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(facetFields);
 			int numAnnots = annots.size();
-			//System.out.println("Number of annots: " + numAnnots);
 
 	        JSONObject j = new JSONObject();
 			j.put("aaData", new Object[0]);
@@ -638,30 +634,27 @@ public class DataTableController {
 			int end = start+length;
 			
 			for (int i=start; i<end; i=i+1){
-				//if (annots.size()<=i) {break;}//stop when we hit the end
 				
 				List<String> rowData = new ArrayList<String>();
 				
 				AnnotNameValCount annot = annots.get(i);
 				
-				//System.out.println("CHK: " + annotNameVal.name);
 				String displayAnnotName = annot.name;
 				String annotVal = annot.val;
 				int imgCount = annot.imgCount;	
 				
 				String unit = imgCount > 1 ? "images" : "image";	
 				String valLink = "<a href='" + "#" + "'>" + annotVal + "</a>";
+				query = annot.facet + ":\"" + annotVal + "\"";
 				
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-				//String thisImgUrl = imgUrl + " AND (" + annot.facet + ":\"" + annotVal + "\")";
-				String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + annot.facet + ":\"" + annotVal + "\")&" + defaultFqStr;
+				String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
 				String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 							
 				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
-				//System.out.println("TEST: " + displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
-			
+				
 				// image path
-				String imgPath = fetchImpcImagePathByAnnotName(query, fqStr);
+				String imgPath = fetchImpcImagePathByAnnotName(query, defaultFqStr);
 				rowData.add(imgPath);
 				
 				j.getJSONArray("aaData").add(rowData);
@@ -980,7 +973,8 @@ public class DataTableController {
 				+ "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query			
 				+ "&" + fqStr
 				+ "&rows=" + maxNum;
-		
+	
+		System.out.println("QUERYURL: "+queryUrl );
 		List<String> imgPath = new ArrayList<String>();
 	
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
