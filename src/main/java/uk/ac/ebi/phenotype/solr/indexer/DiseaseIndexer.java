@@ -71,7 +71,6 @@ public class DiseaseIndexer extends AbstractIndexer {
 
 			// Fields from the phenodigm core to bring back
 			String fields = StringUtils.join(Arrays.asList(DiseaseBean.DISEASE_ID,
-				DiseaseBean.DISEASE_ID,
 				DiseaseBean.TYPE,
 				DiseaseBean.DISEASE_SOURCE,
 				DiseaseBean.DISEASE_TERM,
@@ -79,6 +78,8 @@ public class DiseaseIndexer extends AbstractIndexer {
 				DiseaseBean.DISEASE_CLASSES,
 				DiseaseBean.HUMAN_CURATED,
 				DiseaseBean.MOUSE_CURATED,
+				DiseaseBean.MGI_PREDICTED,
+				DiseaseBean.IMPC_PREDICTED,
 				DiseaseBean.MGI_PREDICTED_KNOWN_GENE,
 				DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
 				DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
