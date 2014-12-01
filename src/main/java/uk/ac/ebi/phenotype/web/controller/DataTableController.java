@@ -477,7 +477,8 @@ public class DataTableController {
 	public String parseJsonforImpcImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException{
 		
 		//String mediaBaseUrl = config.get("mediaBaseUrl");
-		String mediaBaseUrl = "/data/impcImages/images?";
+		String mediaBaseUrl = config.get("baseUrl") + "/impcImages/images?";
+		
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 		
 		
@@ -610,22 +611,16 @@ public class DataTableController {
 			
 			String fqStr = fqOri;	
 			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
+			String defaultQStr = "q=observation_type:image_record";
+			String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			
-			
-			String composedFq = "";
-			if ( fqOri.contains("fq=*:*") ){
-				composedFq = "&fq=(biological_sample_group:experimental)";
-				
+			if ( !fqOri.contains("fq=*:*") ){
+				fqStr = fqStr.replace("&fq=","");
+				defaultQStr = defaultQStr + " AND " + fqStr; 
 			}
-			else {
-				composedFq = fqOri + " AND (biological_sample_group:experimental)";
-			}
-			
-			solrParams = "q=observation_type:image_record" +composedFq;				
-			
-			
+						
 			//String imgUrl = request.getAttribute("baseUrl") + "/images/select?" + solrParams;
-			String imgUrl = mediaBaseUrl + solrParams;
+			
 			//System.out.println("--IMPC_IMAGE PARAMs: "+ imgUrl);
 			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
@@ -658,14 +653,15 @@ public class DataTableController {
 				String valLink = "<a href='" + "#" + "'>" + annotVal + "</a>";
 				
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-				String thisImgUrl = imgUrl + " AND (" + annot.facet + ":\"" + annotVal + "\")";
+				//String thisImgUrl = imgUrl + " AND (" + annot.facet + ":\"" + annotVal + "\")";
+				String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + annot.facet + ":\"" + annotVal + "\")&" + defaultFqStr;
 				String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 							
 				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
 				//System.out.println("TEST: " + displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
 			
 				// image path
-				String imgPath = fetchImpcImagePathByAnnotName(query, composedFq);
+				String imgPath = fetchImpcImagePathByAnnotName(query, fqStr);
 				rowData.add(imgPath);
 				
 				j.getJSONArray("aaData").add(rowData);
