@@ -38,6 +38,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 /**
  * Populate the experiment core
@@ -81,7 +82,7 @@ public class SangerImagesIndexer {
 	private Map<Integer, TopLevelBean> maNodeToTopLevel = new HashMap<>();
 	private Map<String, TopLevelBean> mpNode2termTopLevel = new HashMap<>();
 	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
-	private Map<String, AlleleDTO> alleles;
+	private Map<String, List<AlleleDTO>> alleles;
 	Map<String, Map<String, String>> mpToHpMap;
 
 
@@ -1193,8 +1194,8 @@ public class SangerImagesIndexer {
 	}
 	
 	//need allele core mappings for status etc
-	public void populateAlleles() throws SolrServerException{
-		alleles=SolrUtils.getAlleles(alleleIndexing);
+	public void populateAlleles() throws IndexerException{
+		alleles=IndexerMap.getAlleles(alleleIndexing);
 	}
 		
 	private void populateImageDtoStatuses(SangerImageDTO img, String geneAccession){
@@ -1271,9 +1272,9 @@ public class SangerImagesIndexer {
 	
 	//need hp mapping from phenodign core
 	
-	private void populateMpToHpTermsMap() throws SolrServerException{
+	private void populateMpToHpTermsMap() throws IndexerException{
 		System.out.println("populating Mp To Hp Term map");
-		mpToHpMap=SolrUtils.populateMpToHpTermsMap(phenodigmServer);
+		mpToHpMap=IndexerMap.getMpToHpTerms(phenodigmServer);
 	}
 	
 //	private void populateMpToNode(){

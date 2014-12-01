@@ -15,10 +15,6 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
-import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -45,7 +41,7 @@ public abstract class AbstractIndexer {
 	
 	protected abstract Logger getLogger();
 	
-	public abstract void run() throws IOException, SolrServerException, SQLException;
+	public abstract void run() throws IndexerException;
 	
 	public void initialise(String[] args) throws IndexerException {
 		OptionSet options = parseCommandLine(args);

@@ -1,10 +1,10 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
-import static uk.ac.ebi.phenotype.solr.indexer.SolrUtils.populateImageBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 /**
@@ -72,89 +71,94 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws SolrServerException, SQLException, IOException {
-        logger.info("Starting MP Indexer...");
-        initialiseSupportingBeans();
+    public void run() throws IndexerException {
+        try {
+            logger.info("Starting MP Indexer...");
+            initialiseSupportingBeans();
 
-        List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
-        int count = 0;
+            List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
+            int count = 0;
 
-        logger.info("Starting indexing loop");
+            logger.info("Starting indexing loop");
 
-        // Loop through the mp_term_infos
-        String query =
-                "SELECT\n" +
-                "  'ma' AS dataType\n" +
-                ", term_id\n" +
-                ", name\n" +
-                "FROM ma_term_infos\n" +
-                "WHERE term_id != 'MA:0000001'\n" +
-                "ORDER BY term_id, name";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            String termId = rs.getString("term_id");
+            // Loop through the mp_term_infos
+            String query =
+                    "SELECT\n" +
+                    "  'ma' AS dataType\n" +
+                    ", term_id\n" +
+                    ", name\n" +
+                    "FROM ma_term_infos\n" +
+                    "WHERE term_id != 'MA:0000001'\n" +
+                    "ORDER BY term_id, name";
+            PreparedStatement ps = ontoDbConnection.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String termId = rs.getString("term_id");
 
-            MaDTO ma = new MaDTO();
-            ma.setDataType(rs.getString("dataType"));
-            ma.setMaId(termId);
-            ma.setMaTerm(rs.getString("name"));
-            ma.setOntologySubset(ontologySubsetMap.get(termId));
-            ma.setMaTermSynonym(maTermSynonymMap.get(termId));
-            
-            // Children
-            List<OntologyTermBean> maChildTerms = maChildMap.get(termId);
-//   System.out.println("maChildTerms = " + maChildTerms + ". termId = " + termId);
-            
-            if (maChildTerms != null) {
-                List<String> childMaIdList = new ArrayList();
-                List<String> childMaTermList = new ArrayList();
-                List<String> childTermId_termNameList = new ArrayList();
-                for (OntologyTermBean childBean : maChildTerms) {
-                    childMaIdList.add(childBean.getId());
-                    childMaTermList.add(childBean.getTerm());
-                    childTermId_termNameList.add(childBean.getIdTerm());
-                    ma.setChildMaId(childMaIdList);
-                    ma.setChildMaTerm(childMaTermList);
-                    ma.setChildMaIdTerm(childTermId_termNameList);
-                    ma.setChildMaTermSynonym(childBean.getSynonyms());
+                MaDTO ma = new MaDTO();
+                ma.setDataType(rs.getString("dataType"));
+                ma.setMaId(termId);
+                ma.setMaTerm(rs.getString("name"));
+                ma.setOntologySubset(ontologySubsetMap.get(termId));
+                ma.setMaTermSynonym(maTermSynonymMap.get(termId));
+
+                // Children
+                List<OntologyTermBean> maChildTerms = maChildMap.get(termId);
+    //   System.out.println("maChildTerms = " + maChildTerms + ". termId = " + termId);
+
+                if (maChildTerms != null) {
+                    List<String> childMaIdList = new ArrayList();
+                    List<String> childMaTermList = new ArrayList();
+                    List<String> childTermId_termNameList = new ArrayList();
+                    for (OntologyTermBean childBean : maChildTerms) {
+                        childMaIdList.add(childBean.getId());
+                        childMaTermList.add(childBean.getTerm());
+                        childTermId_termNameList.add(childBean.getIdTerm());
+                        ma.setChildMaId(childMaIdList);
+                        ma.setChildMaTerm(childMaTermList);
+                        ma.setChildMaIdTerm(childTermId_termNameList);
+                        ma.setChildMaTermSynonym(childBean.getSynonyms());
+                    }
+                }
+
+                // Parents
+                List<OntologyTermBean> maParentTerms = maParentMap.get(termId);
+                if (maParentTerms != null) {
+                    List<String> parentMaIdList = new ArrayList();
+                    List<String> parentMaTermList = new ArrayList();
+                    for (OntologyTermBean parentBean : maParentTerms) {
+                        parentMaIdList.add(parentBean.getId());
+                        parentMaTermList.add(parentBean.getTerm());
+                        ma.setTopLevelMaId(parentMaIdList);
+                        ma.setTopLevelMaTerm(parentMaTermList);
+    //                    ma.setTopLevelMaTermSynonym(parentBean.getSynonyms());
+                    }
+                }
+
+    //            logger.debug("{}: Built MP DTO {}", count, termId);
+                count ++;
+                maBatch.add(ma);
+                if (maBatch.size() == BATCH_SIZE) {
+                    // Update the batch, clear the list
+                    maCore.addBeans(maBatch, 60000);
+                    maBatch.clear();
+    //                logger.info("Indexed {} beans", count);
                 }
             }
-            
-            // Parents
-            List<OntologyTermBean> maParentTerms = maParentMap.get(termId);
-            if (maParentTerms != null) {
-                List<String> parentMaIdList = new ArrayList();
-                List<String> parentMaTermList = new ArrayList();
-                for (OntologyTermBean parentBean : maParentTerms) {
-                    parentMaIdList.add(parentBean.getId());
-                    parentMaTermList.add(parentBean.getTerm());
-                    ma.setTopLevelMaId(parentMaIdList);
-                    ma.setTopLevelMaTerm(parentMaTermList);
-//                    ma.setTopLevelMaTermSynonym(parentBean.getSynonyms());
-                }
-            }
-            
-//            logger.debug("{}: Built MP DTO {}", count, termId);
-            count ++;
-            maBatch.add(ma);
-            if (maBatch.size() == BATCH_SIZE) {
-                // Update the batch, clear the list
+
+            // Make sure the last batch is indexed
+            if (maBatch.size() > 0) {
                 maCore.addBeans(maBatch, 60000);
-                maBatch.clear();
-//                logger.info("Indexed {} beans", count);
+                count += maBatch.size();
             }
-        }
-
-        // Make sure the last batch is indexed
-        if (maBatch.size() > 0) {
-            maCore.addBeans(maBatch, 60000);
-            count += maBatch.size();
+            
+            // Send a final commit
+            maCore.commit();
+            logger.info("Indexed {} beans in total", count);
+        } catch (SQLException | SolrServerException| IOException e) {
+            throw new IndexerException(e);
         }
         
-        // Send a final commit
-        maCore.commit();
-        logger.info("Indexed {} beans in total", count);
 
         logger.info("MP Indexer complete!");
     }
@@ -174,85 +178,26 @@ public class MAIndexer extends AbstractIndexer {
     
     private final Integer MAX_ITERATIONS = 5;                                   // Set to non-null value > 0 to limit max_iterations.
     
-    private void initialiseSupportingBeans() throws SQLException, SolrServerException {
+    private void initialiseSupportingBeans() throws IndexerException, SQLException {
         // Grab all the supporting database content
-        ontologySubsetMap = populateMaTermSubsetsBean();
-        maTermSynonymMap = populateMaTermSynonym();
-        maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
+        ontologySubsetMap = IndexerMap.getMaTermSubsets(ontoDbConnection);
+        maTermSynonymMap = IndexerMap.getMaTermSynonyms(ontoDbConnection);
+        
+        maChildMap = IndexerMap.getMaTermChildTerms(ontoDbConnection);
         if (logger.isDebugEnabled()) {
-            OntologyUtil.dumpTerms(maChildMap, "Child map:");
+            IndexerMap.dumpOntologyMaTermMap(maChildMap, "Child map:");
         }
-        maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
+        maParentMap = IndexerMap.getMaTermParentTerms(ontoDbConnection);
         if (logger.isDebugEnabled()) {
-            OntologyUtil.dumpTerms(maParentMap, "Parent map:");
+            IndexerMap.dumpOntologyMaTermMap(maParentMap, "Parent map:");
         }
-        maImagesMap = populateImageBean(imagesCore);
+        
+        maImagesMap = IndexerMap.getSangerImages(imagesCore);
         if (logger.isDebugEnabled()) {
-            SolrUtils.dumpTerms(maImagesMap, "Images map:", MAX_ITERATIONS);
+            IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
         }
     }
 
-    /**
-     * Add all the relevant data.
-     *
-     * @throws SQLException when a database exception occurs
-     * @return the populated map.
-     */
-    private Map<String, List<String>> populateMaTermSubsetsBean() throws SQLException {
-        Map<String, List<String>> map = new HashMap();
-        String query = 
-                  "SELECT\n"
-                + "  term_id\n"
-                + ", subset\n"
-                + "FROM ma_term_subsets mts\n";
-        
-        try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
-            ResultSet resultSet = p.executeQuery();
-
-            while (resultSet.next()) {
-                String termId = resultSet.getString("term_id");
-                String subset = resultSet.getString("subset");
-                if ( ! map.containsKey(termId)) {
-                    map.put(termId, new ArrayList<String>());
-                }
-                
-                map.get(termId).add(subset);   
-            }
-        }  
-        
-        return map;
-    }
-
-    /**
-     * Add all the relevant data.
-     *
-     * @throws SQLException when a database exception occurs
-     * @return the populated map.
-     */
-    private Map<String, List<String>> populateMaTermSynonym() throws SQLException {
-        Map<String, List<String>> map = new HashMap();
-        String query = "SELECT\n"
-                + "  term_id\n"
-                + ", syn_name\n"
-                + "FROM ma_synonyms\n";
-        
-        try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
-            ResultSet resultSet = p.executeQuery();
-
-            while (resultSet.next()) {
-                String termId = resultSet.getString("term_id");
-                String synName = resultSet.getString("syn_name");
-                if ( ! map.containsKey(termId)) {
-                    map.put(termId, new ArrayList<String>());
-                }
-                
-                map.get(termId).add(synName);   
-            }
-        }
-        
-        return map;
-    }
-    
     public static void main(String[] args) throws SQLException, IOException, SolrServerException, IndexerException {
         MAIndexer indexer = new MAIndexer();
         indexer.initialise(args);
