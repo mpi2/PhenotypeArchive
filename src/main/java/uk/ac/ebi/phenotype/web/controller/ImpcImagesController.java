@@ -148,6 +148,7 @@ public class ImpcImagesController {
 	throws IOException, URISyntaxException, SolrServerException {
 
 		String queryString = request.getQueryString();
+		System.out.println("QUERY: "+queryString );
 		String startString = "0";
 		String rowsString = "25";// the number of images passed back for each
 									// solr request
@@ -164,10 +165,11 @@ public class ImpcImagesController {
 		// newParamsMap.remove("rows");
 		// newParamsMap.remove("start");
 		String newQueryString = "";
+		String qStr = null;
 		Enumeration keys = request.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
-			// System.out.println("key=" + key);
+			 System.out.println("key=" + key);
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
@@ -188,6 +190,9 @@ public class ImpcImagesController {
 					System.out.println("VALUE ARRAY" + valueArray[i]);
 				}
 			}
+			if ( key.equals("q") ){
+				qStr = value;
+			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
 		System.out.println("newQueryString=" + newQueryString);
@@ -198,7 +203,8 @@ public class ImpcImagesController {
 			Long totalNumberFound = imageResponse.getResults().getNumFound();
 			// System.out.println("image count=" + numberFound);
 			model.addAttribute("imageCount", totalNumberFound);
-			model.addAttribute("q", newQueryString);
+			//model.addAttribute("q", newQueryString);
+			model.addAttribute("q", qStr);
 			// model.addAttribute("filterQueries", filterQueries);
 			// model.addAttribute("filterField", filterField);
 			// model.addAttribute("qf", qf);//e.g. auto_suggest

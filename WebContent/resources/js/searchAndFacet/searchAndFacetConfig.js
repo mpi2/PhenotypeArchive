@@ -345,7 +345,7 @@ config.facetParams = {
 		 breadCrumbLabel: 'Diseases',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
 		 //filterParams: {'fq': 'type:disease'},
-		 filterParams: {'fq': '*:*'},
+		 filterParams: {'fq': '*:*', 'fl': 'disease_id,disease_term,disease_source,disease_classes,human_curated,mouse_curated,impc_predicted_known_gene,mgi_predicted_known_gene,impc_predicted,impc_novel_predicted_in_locus,mgi_predicted,mgi_novel_predicted_in_locus,marker_symbol,mgi_accession_id'},
 		 srchParams: $.extend({},
 					commonSolrParams
 					)		
