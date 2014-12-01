@@ -169,7 +169,7 @@ public class ImpcImagesController {
 		Enumeration keys = request.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
-			 System.out.println("key=" + key);
+			//System.out.println("key=" + key);
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
@@ -195,7 +195,7 @@ public class ImpcImagesController {
 			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
-		System.out.println("newQueryString=" + newQueryString);
+		//System.out.println("newQueryString=" + newQueryString);
 		QueryResponse imageResponse = imageService.getResponseForSolrQuery(newQueryString);
 
 		if (imageResponse.getResults() != null) {
