@@ -77,6 +77,8 @@ public class DiseaseIndexer extends AbstractIndexer {
 				DiseaseBean.DISEASE_TERM,
 				DiseaseBean.DISEASE_ALTS,
 				DiseaseBean.DISEASE_CLASSES,
+				DiseaseBean.HUMAN_CURATED,
+				DiseaseBean.MOUSE_CURATED,
 				DiseaseBean.MGI_PREDICTED_KNOWN_GENE,
 				DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
 				DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
