@@ -178,23 +178,27 @@ public class MAIndexer extends AbstractIndexer {
     
     private final Integer MAX_ITERATIONS = 5;                                   // Set to non-null value > 0 to limit max_iterations.
     
-    private void initialiseSupportingBeans() throws IndexerException, SQLException {
-        // Grab all the supporting database content
-        ontologySubsetMap = IndexerMap.getMaTermSubsets(ontoDbConnection);
-        maTermSynonymMap = IndexerMap.getMaTermSynonyms(ontoDbConnection);
-        
-        maChildMap = IndexerMap.getMaTermChildTerms(ontoDbConnection);
-        if (logger.isDebugEnabled()) {
-            IndexerMap.dumpOntologyMaTermMap(maChildMap, "Child map:");
-        }
-        maParentMap = IndexerMap.getMaTermParentTerms(ontoDbConnection);
-        if (logger.isDebugEnabled()) {
-            IndexerMap.dumpOntologyMaTermMap(maParentMap, "Parent map:");
-        }
-        
-        maImagesMap = IndexerMap.getSangerImages(imagesCore);
-        if (logger.isDebugEnabled()) {
-            IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
+    private void initialiseSupportingBeans() throws IndexerException {
+        try {
+            // Grab all the supporting database content
+            ontologySubsetMap = IndexerMap.getMaTermSubsets(ontoDbConnection);
+            maTermSynonymMap = IndexerMap.getMaTermSynonyms(ontoDbConnection);
+
+            maChildMap = IndexerMap.getMaTermChildTerms(ontoDbConnection);
+            if (logger.isDebugEnabled()) {
+                IndexerMap.dumpOntologyMaTermMap(maChildMap, "Child map:");
+            }
+            maParentMap = IndexerMap.getMaTermParentTerms(ontoDbConnection);
+            if (logger.isDebugEnabled()) {
+                IndexerMap.dumpOntologyMaTermMap(maParentMap, "Parent map:");
+            }
+
+            maImagesMap = IndexerMap.getSangerImages(imagesCore);
+            if (logger.isDebugEnabled()) {
+                IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
+            }
+        } catch (SQLException e) {
+            throw new IndexerException(e);
         }
     }
 
