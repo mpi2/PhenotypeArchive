@@ -96,11 +96,6 @@
     <tx:annotation-driven transaction-manager="transactionManager" />
 
 
-    <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
-        <constructor-arg value="IMPC_SOLRURL/experiment" />
-    </bean>
-
-
     <!-- Dependencies for observationService -->
     <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
         <constructor-arg ref="sessionFactory" />
