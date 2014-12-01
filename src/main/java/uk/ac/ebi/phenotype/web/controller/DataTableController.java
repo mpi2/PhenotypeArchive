@@ -892,6 +892,7 @@ public class DataTableController {
 
 			// disease link			
 			JSONObject doc = docs.getJSONObject(i);
+			System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
 			String diseaseId = doc.getString("disease_id");
 			String diseaseTerm = doc.getString("disease_term");
 			String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";			
