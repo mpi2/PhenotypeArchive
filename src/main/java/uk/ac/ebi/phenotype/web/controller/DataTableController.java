@@ -658,8 +658,8 @@ public class DataTableController {
 				String valLink = "<a href='" + "#" + "'>" + annotVal + "</a>";
 				
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-				imgUrl += " AND (" + annot.facet + ":\"" + annotVal + "\")";
-				String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
+				String thisImgUrl = imgUrl + " AND (" + annot.facet + ":\"" + annotVal + "\")";
+				String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 							
 				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
 				//System.out.println("TEST: " + displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");

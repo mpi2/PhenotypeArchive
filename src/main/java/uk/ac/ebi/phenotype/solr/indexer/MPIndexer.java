@@ -15,6 +15,7 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -192,7 +193,7 @@ public class MPIndexer {
 		maTermSynonyms = getMATermSynonyms();
 		
 		// Alleles
-		alleles = SolrUtils.getAlleles(alleleCore);
+		alleles = SolrUtils.populateAllelesMap(alleleCore);
 		
 		// Phenotype call summaries (1)
 		phenotypes1 = getPhenotypeCallSummary1();

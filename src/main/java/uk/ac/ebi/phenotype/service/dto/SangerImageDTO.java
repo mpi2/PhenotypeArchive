@@ -23,7 +23,7 @@ package uk.ac.ebi.phenotype.service.dto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -133,6 +133,38 @@ public class SangerImageDTO {
     
     @Field(ALLELE_NAME)
     private List<String> alleleName;
+    
+    @Field("hp_id")
+    private String hpId;
+    
+    
+	public String getHpId() {
+	
+		return hpId;
+	}
+
+	
+	public void setHpId(String hpId) {
+	
+		this.hpId = hpId;
+	}
+
+	
+	public String getHpTerm() {
+	
+		return hpTerm;
+	}
+
+	
+	public void setHpTerm(String hpTerm) {
+	
+		this.hpTerm = hpTerm;
+	}
+
+
+
+	@Field("hp_term")
+    private String hpTerm;
 
     
     // SETTERS AND GETTERS
@@ -434,7 +466,7 @@ public class SangerImageDTO {
 	String institute;
 	// need method to get imaDcfImageView data for here
 	@Field("dcfId")
-	int dcfId;
+	String dcfId;
 	@Field("dcfExpId")
 	String dcfExpId;
 	@Field("sangerProcedureName")
@@ -442,13 +474,7 @@ public class SangerImageDTO {
 	@Field("genotypeString")
 	String genotypeString;
 	@Field("geneName")
-	private String geneName;
-	@Field("expName")
-	private String experimentName;
-	@Field("expName_exp")
-	private String expName_exp;
-	@Field("procedure_name")
-	private String procedure_name;
+	private List<String> geneName;
 	@Field("geneSynonyms")
 	private List<String> synonyms;
 	@Field("tagValue")
@@ -468,13 +494,13 @@ public class SangerImageDTO {
 	@Field("ma_term_synonym")
 	private List<String> maTermSynonym;
 	@Field("subtype")
-	private String subtype;
+	private List<String> subtype;
 	
 
 	@Field("mp_id")
 	private List<String> mp_id;
 	@Field("mp_term_synonym")
-	private Set<String> mpSyns;
+	private List<String> mpSyns;
 	// <field column="term_id" name="selected_top_level_ma_id" />
 	// <field column="name" name="selected_top_level_ma_term" />
 	@Field("selected_top_level_ma_id")
@@ -490,11 +516,11 @@ public class SangerImageDTO {
 	private List<String> annotatedHigherLevelMpTermId;
 	
 	@Field("top_level_mp_term_synonym")
-	private Set<String> topLevelMpTermSynonym; 
+	private List<String> topLevelMpTermSynonym; 
 
 	
 	
-	public Set<String> getTopLevelMpTermSynonym() {
+	public List<String> getTopLevelMpTermSynonym() {
 	
 		return topLevelMpTermSynonym;
 	}
@@ -502,7 +528,7 @@ public class SangerImageDTO {
 
 
 	
-	public void setTopLevelMpTermSynonym(Set<String> topLevelMpTermSynonym) {
+	public void setTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
 	
 		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
 	}
@@ -581,7 +607,7 @@ public class SangerImageDTO {
 	}
 
 
-	public void setMpSynonyms(Set<String> mpSyns) {
+	public void setMpSynonyms(List<String> mpSyns) {
 
 		this.mpSyns = mpSyns;
 
@@ -648,14 +674,14 @@ public class SangerImageDTO {
 	}
 
 
-	public String getSubtype() {
+	public List<String> getSubtype() {
 
 		return subtype;
 	}
 
 
 
-	public void setSubtype(String subtype) {
+	public void setSubtype(List<String> subtype) {
 
 		this.subtype = subtype;
 	}
@@ -685,7 +711,7 @@ public class SangerImageDTO {
 	}
 
 
-	public String getGeneName() {
+	public List<String> getGeneName() {
 
 		return geneName;
 	}
@@ -741,20 +767,13 @@ public class SangerImageDTO {
 
 
 
-	public void setExperimentName(String name) {
-
-		this.experimentName = name;
-
-	}
-
-
 	public String getAccession() {
 
 		return accession;
 	}
 
 
-	public String getSymbol() {
+	public List<String> getSymbol() {
 
 		return symbol;
 	}
@@ -762,7 +781,7 @@ public class SangerImageDTO {
 	@Field("accession")
 	private String accession;
 	@Field("symbol")
-	private String symbol;
+	private List<String> symbol;
 
 
 	public String getGenotypeString() {
@@ -771,7 +790,7 @@ public class SangerImageDTO {
 	}
 
 
-	public void setGeneName(String geneName) {
+	public void setGeneName(List<String> geneName) {
 
 		this.geneName = geneName;
 
@@ -785,7 +804,7 @@ public class SangerImageDTO {
 	}
 
 
-	public void setSymbol(String symbol) {
+	public void setSymbol(List<String> symbol) {
 
 		this.symbol = symbol;
 
@@ -813,16 +832,16 @@ public class SangerImageDTO {
 	String ageInWeeks;
 
 	@Field("sangerSymbol")
-	String sangerSymbol;
+	List<String> sangerSymbol;
 
 
-	public String getSangerSymbol() {
+	public List<String> getSangerSymbol() {
 
 		return sangerSymbol;
 	}
 
 
-	public void setSangerSymbol(String sangerSymbol) {
+	public void setSangerSymbol(List<String> sangerSymbol) {
 
 		this.sangerSymbol = sangerSymbol;
 	}
@@ -916,13 +935,13 @@ public class SangerImageDTO {
 	}
 
 
-	public int getDcfId() {
+	public String getDcfId() {
 
 		return dcfId;
 	}
 
 
-	public void setDcfId(int dcfId) {
+	public void setDcfId(String dcfId) {
 
 		this.dcfId = dcfId;
 	}
