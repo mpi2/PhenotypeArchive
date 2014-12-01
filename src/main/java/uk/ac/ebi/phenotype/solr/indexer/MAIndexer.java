@@ -58,7 +58,6 @@ public class MAIndexer extends AbstractIndexer {
     
     @Override
     public void initialise(String[] args) throws IndexerException {
-        args = new String[] { "--context=index-app-config.xml" };
         super.initialise(args);
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
         try {
