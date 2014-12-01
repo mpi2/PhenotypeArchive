@@ -163,7 +163,7 @@
             async: false,
             type: 'post',
             success: function(subFacetJsons) {
-                //console.log(subFacetJsons);
+                console.log(subFacetJsons);
 
                 var cores = MPI2.searchAndFacetConfig.megaCores;
 
@@ -1005,7 +1005,7 @@
 
     $.fn.composeSummaryFilters = function(oChkbox, q) {
         
-        console.log(oChkbox.attr('rel').split("|"));
+        //console.log(oChkbox.attr('rel').split("|"));
         // temp test
         var aList = oChkbox.attr('rel').split("|");
         if (aList[0] == 'impc_images'){
@@ -1013,13 +1013,13 @@
         }
         
         if (MPI2.searchAndFacetConfig.update.resetSummaryFacet) {
-            console.log("reset facet summary: true");
+            //console.log("reset facet summary: true");
             MPI2.searchAndFacetConfig.update.filterAdded = false;
             MPI2.searchAndFacetConfig.update.filterObj = [];
         }
         if (MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount > 0 ||
                 MPI2.searchAndFacetConfig.update.filterAdded) {
-            console.log("rebuild count: "+ MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount)
+            //console.log("rebuild count: "+ MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount)
             var smfilter = new SummaryFilter(oChkbox, q);
             MPI2.searchAndFacetConfig.update.filterObj.push(smfilter);
 
@@ -1969,7 +1969,7 @@
         if ( oParams.fq.indexOf('latest_phenotype_status:') == -1 && oParams.fq.indexOf('legacy_phenotype_status:') != -1 ){
         	oUrlParams.legacyOnly = true;
         }
-        
+      
         $.fn.invokeDataTable(oUrlParams);
 
     };
