@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
@@ -49,7 +50,7 @@ public class IndexerMap {
     private static Map<String, List<String>> maTermSynonymsMap = null;
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
-    private static Map<String, List<String>> mpToHpTermsMap = null;
+    private static Map<String, Map<String, String>> mpToHpTermsMap = null;
     
     
     // PRIVATE METHODS
@@ -143,7 +144,11 @@ public class IndexerMap {
      */
     public static Map<String, Map<String, String>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
         if (mpToHpTermsMap == null) {
-            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
+            try {
+                mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
+            } catch (SolrServerException e) {
+                throw new IndexerException(e);
+            }
         }
         
         return mpToHpTermsMap;

@@ -65,10 +65,10 @@
                 <!-- latest project status (ES cells/mice production status) -->
                 <field column="status" xpath="/response/result/doc/str[@name='status']"/>
 
-                <!-- latest mice phenotyping status for faceting -->
-                <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']"/>
-                <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']"/>
-                <field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']"/>
+                <!--&lt;!&ndash; latest mice phenotyping status for faceting &ndash;&gt;-->
+                <!--<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']"/>-->
+                <!--<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']"/>-->
+                <!--<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']"/>-->
 
                 <!-- production/phenotyping centers -->
                 <field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str"/>
