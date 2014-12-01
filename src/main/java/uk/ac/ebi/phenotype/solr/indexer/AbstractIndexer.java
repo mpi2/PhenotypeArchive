@@ -15,12 +15,9 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
-import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -45,14 +42,18 @@ public abstract class AbstractIndexer {
 	
 	protected abstract Logger getLogger();
 	
-	public abstract void run() throws IOException, SolrServerException, SQLException;
+	public abstract void run() throws IndexerException;
 	
 	public void initialise(String[] args) throws IndexerException {
 		OptionSet options = parseCommandLine(args);
 		applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
 		initialiseHibernateSession(applicationContext);
 	}
-	
+
+	protected void injectDependencies() {
+		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+	}
+
 	protected OptionSet parseCommandLine(String[] args) {
 		OptionParser parser = new OptionParser();
 

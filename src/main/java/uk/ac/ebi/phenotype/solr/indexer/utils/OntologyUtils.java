@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package uk.ac.ebi.phenotype.solr.indexer;
+package uk.ac.ebi.phenotype.solr.indexer.utils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +38,7 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
  *
  * @author mrelac
  */
-public class OntologyUtil {
+public class OntologyUtils {
     
     public static final int MAX_ROWS = 1000000;
     public static final int BATCH_SIZE = 50;
@@ -51,7 +51,7 @@ public class OntologyUtil {
      * to parent terms
      * @throws SQLException 
      */
-    public static Map<String, List<OntologyTermBean>> populateChildTerms(Connection ontoDbConnection) throws SQLException {
+    protected static Map<String, List<OntologyTermBean>> populateMaTermChildTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String childTermQuery =
             "SELECT DISTINCT\n" +
@@ -106,11 +106,11 @@ public class OntologyUtil {
      * Fetch a map of parent terms indexed by child ma id
      * 
      * @param ontoDbConnection a valid database connection
-     * @return a map, indexed by child ma id, of all parent terms with associations
+     * @return a map, indexed by child ma id, of all ma terms with associations
      * to child terms
      * @throws SQLException 
      */
-    public static Map<String, List<OntologyTermBean>> populateParentTerms(Connection ontoDbConnection) throws SQLException {
+    protected static Map<String, List<OntologyTermBean>> populateMaTermParentTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String parentTermQuery =
             "SELECT DISTINCT\n" +
@@ -160,7 +160,13 @@ public class OntologyUtil {
         return map;
     }
     
-    public static void dumpTerms(Map<String, List<OntologyTermBean>> map, String what) {
+    /**
+     * Dumps out the <code>OntologyTermBean</code> map, prepending the <code>
+     * what</code> string for map identification.
+     * @param map the map to dump
+     * @param what a string identifying the map, prepended to the output.
+     */
+    protected static void dumpOntologyMaTermMap(Map<String, List<OntologyTermBean>> map, String what) {
         List<OntologyTermRecord> termList = new ArrayList();
         Iterator<Entry<String, List<OntologyTermBean>>> it = map.entrySet().iterator();
         while (it.hasNext()) {

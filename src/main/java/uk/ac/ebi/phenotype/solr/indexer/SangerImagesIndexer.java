@@ -38,6 +38,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 /**
  * Populate the experiment core
@@ -51,8 +52,7 @@ public class SangerImagesIndexer {
 	@Autowired
 	@Qualifier("solrServer")
 	SolrServer phenodigmServer;
-	
-	
+
 	@Autowired
 	@Qualifier("alleleIndexing")
 	SolrServer alleleIndexing;
@@ -81,12 +81,12 @@ public class SangerImagesIndexer {
 	private Map<Integer, TopLevelBean> maNodeToTopLevel = new HashMap<>();
 	private Map<String, TopLevelBean> mpNode2termTopLevel = new HashMap<>();
 	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
-	private Map<String, AlleleDTO> alleles;
+	private Map<String, List<AlleleDTO>> alleles;
 	Map<String, Map<String, String>> mpToHpMap;
 
 
 	public SangerImagesIndexer() {
-		
+
 	}
 
 
@@ -99,7 +99,7 @@ public class SangerImagesIndexer {
 	public static void main(String[] args)
 	throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
 
-		long startTime=System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		OptionParser parser = new OptionParser();
 
 		// parameter to indicate which spring context file to use
@@ -142,24 +142,34 @@ public class SangerImagesIndexer {
 
 		DataSource ontoDs = ((DataSource) applicationContext.getBean("ontodbDataSource"));
 		ontoDbConnection = ontoDs.getConnection();
-		
 
-		main.run();
+		try {
+			main.run();
+		} catch (IndexerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		logger.info("Process finished.  Exiting.");
-		long endTime=System.currentTimeMillis();
-		System.out.println("time was "+(endTime-startTime)/1000);
+		long endTime = System.currentTimeMillis();
+		System.out.println("time was " + (endTime - startTime) / 1000);
 		System.exit(0);
 	}
 
 
 	private void run()
-	throws JAXBException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, SolrServerException {
+	throws  IndexerException {
 
 		logger.info("run method started");
 		populateMAs();
-		populateDcfMap();
-		populateMouseMv();
+		try {
+			populateDcfMap();
+			populateMouseMv();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IndexerException(e);
+		}
 		populateAlleleMpi();
 		populateSynonyms();
 		populateGenomicFeature2();
@@ -202,7 +212,21 @@ public class SangerImagesIndexer {
 		//
 		// logger.info("Populating experiment solr core");
 		Long start = System.currentTimeMillis();
-		populateSangerImagesCore();
+		try {
+			populateSangerImagesCore();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IndexerException(e);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IndexerException(e);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IndexerException(e);
+		}
 		logger.info("Populating experiment solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
 
 	}
@@ -214,7 +238,6 @@ public class SangerImagesIndexer {
 		int count = 0;
 
 		sangerImagesIndexing.deleteByQuery("*:*");
-	
 
 		// <entity dataSource="komp2ds" name="ima_image_record"
 		//
@@ -238,7 +261,7 @@ public class SangerImagesIndexer {
 		// </entity>
 
 		String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ";// and
-																																																																																																																																																																										// IMA_IMAGE_RECORD.ID=70220
+																																																																																																																																																																								// IMA_IMAGE_RECORD.ID=70220
 
 		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
@@ -279,7 +302,7 @@ public class SangerImagesIndexer {
 							// <entity dataSource="komp2ds" name="subtype2"
 							// query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
 							String symbolGene = feature.getSymbol() + "_" + feature.getAccession();
-							List<String> symbolGeneList=new ArrayList<>();
+							List<String> symbolGeneList = new ArrayList<>();
 							symbolGeneList.add(symbolGene);
 							o.setSymbolGene(symbolGeneList);
 							String subtypeKey = feature.getSubtypeAccession() + "_" + feature.getSubtypeDbId();
@@ -292,7 +315,7 @@ public class SangerImagesIndexer {
 							// + feature.getSymbol());
 							o.setGeneName(Arrays.asList(feature.getName()));
 							this.populateImageDtoStatuses(o, feature.getAccession());
-							
+
 							if (synonyms.containsKey(feature.getAccession())) {
 								List<String> syns = synonyms.get(feature.getAccession());
 								o.setSynonyms(syns);
@@ -309,7 +332,7 @@ public class SangerImagesIndexer {
 					ExperimentDict expBean = expMap.get(r.getInt("ID"));
 					o.setExpName(Arrays.asList(expBean.name));
 					o.setSangerProcedureName(expBean.name);
-					List<String> procedureList=new ArrayList<String>();
+					List<String> procedureList = new ArrayList<String>();
 					procedureList.add(this.getImpcProcedureFromSanger(expBean.name));
 					o.setProcedureName(procedureList);
 					// o.setExperimentName(name)
@@ -336,9 +359,9 @@ public class SangerImagesIndexer {
 							ArrayList<String> maTopLevelTerms = new ArrayList<>();
 							ArrayList<String> ma_term_synonyms = new ArrayList<>();
 							ArrayList<String> selected_top_level_ma_term_synonym = new ArrayList<>();
-							ArrayList<String> annotatedHigherLevelMpTermId= new ArrayList<>();
-							ArrayList<String> annotatedHigherLevelMpTermName= new ArrayList<>();
-							List<String> topLevelMpTermSynonym=new ArrayList<>();
+							ArrayList<String> annotatedHigherLevelMpTermId = new ArrayList<>();
+							ArrayList<String> annotatedHigherLevelMpTermName = new ArrayList<>();
+							List<String> topLevelMpTermSynonym = new ArrayList<>();
 							for (Annotation annotation : annotations) {
 								annotationTermIds.add(annotation.annotationTermId);
 								annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
@@ -374,25 +397,32 @@ public class SangerImagesIndexer {
 								if (annotation.mp_id != null) {
 									mp_ids.add(annotation.mp_id);
 									mp_terms.add(annotation.mp_term);
-									if(mpToHpMap.containsKey(annotation.mp_id)){
-										Map<String,String> hpMap=mpToHpMap.get(annotation.mp_id);
-										String hpId=hpMap.get("hp_id");
-										String hpTerm=hpMap.get("hp_term");
+									if (mpToHpMap.containsKey(annotation.mp_id)) {
+										Map<String, String> hpMap = mpToHpMap.get(annotation.mp_id);
+										String hpId = hpMap.get("hp_id");
+										String hpTerm = hpMap.get("hp_term");
 										o.setHpId(hpId);
 										o.setHpTerm(hpTerm);
 									}
 									// need to get top level stuff here
 									if (mpNode2termTopLevel.containsKey(annotation.mp_id)) {
 										TopLevelBean topLevelBean = mpNode2termTopLevel.get(annotation.mp_id);
-										//System.out.println("TopLevel=" + topLevelBean.termId);
+										// System.out.println("TopLevel=" +
+										// topLevelBean.termId);
 										if (nodeIdToMpTermInfo.containsKey(topLevelBean.topLevelNodeId)) {
 											TopLevelBean realTopLevel = nodeIdToMpTermInfo.get(topLevelBean.topLevelNodeId);
-											//System.out.println("realTopLevel=" + realTopLevel.termId+" name="+realTopLevel.termName);
-											//<field column="name" name="annotatedHigherLevelMpTermName" />
-											//<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
+											// System.out.println("realTopLevel="
+											// +
+											// realTopLevel.termId+" name="+realTopLevel.termName);
+											// <field column="name"
+											// name="annotatedHigherLevelMpTermName"
+											// />
+											// <field column="mpTerm"
+											// name="annotatedHigherLevelMpTermId"
+											// />
 											annotatedHigherLevelMpTermId.add(realTopLevel.termId);
 											annotatedHigherLevelMpTermName.add(realTopLevel.termName);
-											if(mpSynMap.containsKey(realTopLevel.termId)){
+											if (mpSynMap.containsKey(realTopLevel.termId)) {
 												List<String> topLevelSynonyms = mpSynMap.get(realTopLevel.termId);
 												topLevelMpTermSynonym.addAll(topLevelSynonyms);
 											}
@@ -480,8 +510,6 @@ public class SangerImagesIndexer {
 		}
 
 	}
-
-	
 
 
 	public void populateMaSynonyms() {
@@ -961,6 +989,7 @@ public class SangerImagesIndexer {
 
 	}
 
+
 	public static Connection getConnection() {
 
 		return connection;
@@ -1101,7 +1130,8 @@ public class SangerImagesIndexer {
 				String termName = resultSet.getString("name");
 				if (!maNodeToTopLevel.containsKey(nodeId)) {
 					maNodeToTopLevel.put(nodeId, new TopLevelBean(nodeId, termId, termName));
-					//System.out.println("adding to maNodeToTopLevel" + nodeId + " " + termId);
+					// System.out.println("adding to maNodeToTopLevel" + nodeId
+					// + " " + termId);
 				}
 			}
 
@@ -1153,7 +1183,8 @@ public class SangerImagesIndexer {
 				int topLevelNodeId = resultSet.getInt("top_level_node_id");
 				if (!mpNode2termTopLevel.containsKey(termId)) {
 					mpNode2termTopLevel.put(termId, new TopLevelBean(nodeId, termId, null, topLevelNodeId));
-					//System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
+					// System.out.println("adding to mpNode2termTopLevel" +
+					// nodeId + " " + termId);
 				}
 			}
 
@@ -1183,7 +1214,8 @@ public class SangerImagesIndexer {
 
 				if (!nodeIdToMpTermInfo.containsKey(nodeId)) {
 					nodeIdToMpTermInfo.put(nodeId, new TopLevelBean(nodeId, termId, termName));
-					//System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
+					// System.out.println("adding to mpNode2termTopLevel" +
+					// nodeId + " " + termId);
 				}
 			}
 
@@ -1191,113 +1223,136 @@ public class SangerImagesIndexer {
 			e.printStackTrace();
 		}
 	}
-	
-	//need allele core mappings for status etc
-	public void populateAlleles() throws SolrServerException{
-		alleles=SolrUtils.getAlleles(alleleIndexing);
+
+
+	// need allele core mappings for status etc
+	public void populateAlleles()
+	throws IndexerException {
+
+		alleles = IndexerMap.getAlleles(alleleIndexing);
 	}
-		
-	private void populateImageDtoStatuses(SangerImageDTO img, String geneAccession){
-		if(alleles.containsKey(geneAccession)){
-		AlleleDTO allele=alleles.get(geneAccession);
-		if(allele.getMgiAccessionId()!=null){
-		List<String> accessionList = new ArrayList<>();
-		accessionList.add(allele.getMgiAccessionId());
-		img.setMgiAccessionId(accessionList);
-		}
-		List<String> mSymbols = Arrays.asList(allele.getMarkerSymbol());
-		img.setMarkerSymbol(mSymbols);
-		
-		// <field column="marker_symbol"
-		// xpath="/response/result/doc/str[@name='marker_symbol']" />
-		// <field column="marker_name"
-		List<String> mNames = Arrays.asList(allele.getMarkerName());
-		img.setMarkerName(mNames);
-		// xpath="/response/result/doc/str[@name='marker_name']" />
-		// <field column="marker_synonym"
-		img.setMarkerName(allele.getMarkerSynonym());
-		// xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-		// <field column="marker_type"
-		List<String> markerTypes = Arrays.asList(allele.getMarkerType());
-		img.setMarkerType(markerTypes);
-		// xpath="/response/result/doc/str[@name='marker_type']" />
-		img.setHumanGeneSymbol(allele.getHumanGeneSymbol());
-		// <field column="human_gene_symbol"
-		// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
-		//
-		List<String> statuses = Arrays.asList(allele.getLatestProductionStatus());
-		img.setStatus(statuses);
-		// <!-- latest project status (ES cells/mice production status) -->
-		// <field column="status" xpath="/response/result/doc/str[@name='status']"
-		// />
-		//
-		img.setImitsPhenotypeStarted( Arrays.asList(allele.getImitsPhenotypeStarted()));
-		// <!-- latest mice phenotyping status for faceting -->
-		// <field column="imits_phenotype_started"
-		// xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
-		// <field column="imits_phenotype_complete"
-		img.setImitsPhenotypeComplete(Arrays.asList(allele.getImitsPhenotypeComplete()));
-		// xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
-		// <field column="imits_phenotype_status"
-		 img.setImitsPhenotypeStatus(Arrays.asList(allele.getImitsPhenotypeStatus()));
-		// xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
-		//
-		// <!-- phenotyping status -->
-		// <field column="latest_phenotype_status"
-		// xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
-		 img.setLegacyPhenotypeStatus(allele.getLegacyPhenotypeStatus());
-		// <field column="legacy_phenotype_status"
-		// xpath="/response/result/doc/int[@name='legacy_phenotype_status']" />
-		//
-		// <!-- production/phenotyping centers -->
-		 img.setLatestProductionCentre(allele.getLatestProductionCentre());
-		// <field column="latest_production_centre"
-		// xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
-		// <field column="latest_phenotyping_centre"
-		 img.setLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
-		// xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str"
-		// />
-		//
-		// <!-- alleles of a gene -->
-		 img.setAlleleName(allele.getAlleleName());
-		// <field column="allele_name"
-		// xpath="/response/result/doc/arr[@name='allele_name']/str" />
-		//
-		// </entity>
+
+
+	private void populateImageDtoStatuses(SangerImageDTO img, String geneAccession) {
+
+		if (alleles.containsKey(geneAccession)) {
+			List<AlleleDTO> localAlleles = alleles.get(geneAccession);
+			for (AlleleDTO allele : localAlleles) {
+				if (allele.getMgiAccessionId() != null) {
+					List<String> accessionList = new ArrayList<>();
+					accessionList.add(allele.getMgiAccessionId());
+					img.setMgiAccessionId(accessionList);
+				}
+				List<String> mSymbols = Arrays.asList(allele.getMarkerSymbol());
+				img.setMarkerSymbol(mSymbols);
+
+				// <field column="marker_symbol"
+				// xpath="/response/result/doc/str[@name='marker_symbol']" />
+				// <field column="marker_name"
+				List<String> mNames = Arrays.asList(allele.getMarkerName());
+				img.setMarkerName(mNames);
+				// xpath="/response/result/doc/str[@name='marker_name']" />
+				// <field column="marker_synonym"
+				img.setMarkerName(allele.getMarkerSynonym());
+				// xpath="/response/result/doc/arr[@name='marker_synonym']/str"
+				// />
+				// <field column="marker_type"
+				List<String> markerTypes = Arrays.asList(allele.getMarkerType());
+				img.setMarkerType(markerTypes);
+				// xpath="/response/result/doc/str[@name='marker_type']" />
+				img.setHumanGeneSymbol(allele.getHumanGeneSymbol());
+				// <field column="human_gene_symbol"
+				// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str"
+				// />
+				//
+				List<String> statuses = Arrays.asList(allele.getLatestProductionStatus());
+				img.setStatus(statuses);
+				// <!-- latest project status (ES cells/mice production status)
+				// -->
+				// <field column="status"
+				// xpath="/response/result/doc/str[@name='status']"
+				// />
+				//
+				img.setImitsPhenotypeStarted(Arrays.asList(allele.getImitsPhenotypeStarted()));
+				// <!-- latest mice phenotyping status for faceting -->
+				// <field column="imits_phenotype_started"
+				// xpath="/response/result/doc/str[@name='imits_phenotype_started']"
+				// />
+				// <field column="imits_phenotype_complete"
+				img.setImitsPhenotypeComplete(Arrays.asList(allele.getImitsPhenotypeComplete()));
+				// xpath="/response/result/doc/str[@name='imits_phenotype_complete']"
+				// />
+				// <field column="imits_phenotype_status"
+				img.setImitsPhenotypeStatus(Arrays.asList(allele.getImitsPhenotypeStatus()));
+				// xpath="/response/result/doc/str[@name='imits_phenotype_status']"
+				// />
+				//
+				// <!-- phenotyping status -->
+				// <field column="latest_phenotype_status"
+				// xpath="/response/result/doc/str[@name='latest_phenotype_status']"
+				// />
+				img.setLegacyPhenotypeStatus(allele.getLegacyPhenotypeStatus());
+				// <field column="legacy_phenotype_status"
+				// xpath="/response/result/doc/int[@name='legacy_phenotype_status']"
+				// />
+				//
+				// <!-- production/phenotyping centers -->
+				img.setLatestProductionCentre(allele.getLatestProductionCentre());
+				// <field column="latest_production_centre"
+				// xpath="/response/result/doc/arr[@name='latest_production_centre']/str"
+				// />
+				// <field column="latest_phenotyping_centre"
+				img.setLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
+				// xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str"
+				// />
+				//
+				// <!-- alleles of a gene -->
+				img.setAlleleName(allele.getAlleleName());
+				// <field column="allele_name"
+				// xpath="/response/result/doc/arr[@name='allele_name']/str" />
+				//
+				// </entity>
+			}
 		}
 
 	}
-	
-	
-	//need hp mapping from phenodign core
-	
-	private void populateMpToHpTermsMap() throws SolrServerException{
+
+
+	// need hp mapping from phenodign core
+
+	private void populateMpToHpTermsMap()
+	throws IndexerException {
+
 		System.out.println("populating Mp To Hp Term map");
-		mpToHpMap=SolrUtils.populateMpToHpTermsMap(phenodigmServer);
+		mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmServer);
 	}
-	
-//	private void populateMpToNode(){
-//		//select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
-//		System.out.println("populating mpTermInfo");
-//		// <field column="syn_name" name="mp_term_synonym" />
-//		String query = "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
-//
-//		try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
-//			ResultSet resultSet = p.executeQuery();
-//
-//			while (resultSet.next()) {
-//				int nodeId = resultSet.getInt("node_id");
-//				String termId = resultSet.getString("term_id");
-//				String termName = resultSet.getString("name");
-//
-//				if (!nodeIdToMpTermInfo.containsKey(nodeId)) {
-//					nodeIdToMpTermInfo.put(nodeId, new TopLevelBean(nodeId, termId, termName));
-//					//System.out.println("adding to mpNode2termTopLevel" + nodeId + " " + termId);
-//				}
-//			}
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+
+	// private void populateMpToNode(){
+	// //select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt
+	// where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
+	// System.out.println("populating mpTermInfo");
+	// // <field column="syn_name" name="mp_term_synonym" />
+	// String query =
+	// "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
+	//
+	// try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+	// ResultSet resultSet = p.executeQuery();
+	//
+	// while (resultSet.next()) {
+	// int nodeId = resultSet.getInt("node_id");
+	// String termId = resultSet.getString("term_id");
+	// String termName = resultSet.getString("name");
+	//
+	// if (!nodeIdToMpTermInfo.containsKey(nodeId)) {
+	// nodeIdToMpTermInfo.put(nodeId, new TopLevelBean(nodeId, termId,
+	// termName));
+	// //System.out.println("adding to mpNode2termTopLevel" + nodeId + " " +
+	// termId);
+	// }
+	// }
+	//
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
 }

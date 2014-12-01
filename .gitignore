@@ -46,3 +46,4 @@ datasourcesConfig.properties
 # Auto-generated Solr files
 /src/main/solr/*/core.properties
 /src/main/solr/*/data
+/nbactions-dev-web-tests.xml
