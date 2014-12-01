@@ -1,7 +1,5 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -15,21 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import uk.ac.ebi.phenotype.service.dto.DiseaseDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 
 import javax.annotation.Resource;
-import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.*;
 
 
@@ -63,101 +52,113 @@ public class DiseaseIndexer extends AbstractIndexer {
 	}
 
 
-	public void run() throws IOException, SolrServerException {
-
-		initializeSolrCores();
-
-		logger.info("Populating lookups");
-
-		populateGenesLookup();
-		logger.info("Populated genes lookup, {} records", geneLookup.size());
+	public void run() throws IndexerException {
 
 		long startTime = new Date().getTime();
 
-		diseaseCore.deleteByQuery("*:*");
-		diseaseCore.commit();
+		try {
 
-		// Fields from the phenodigm core to bring back
-		String fields = StringUtils.join(Arrays.asList(DiseaseBean.DISEASE_ID,
-			DiseaseBean.DISEASE_ID,
-			DiseaseBean.TYPE,
-			DiseaseBean.DISEASE_SOURCE,
-			DiseaseBean.DISEASE_TERM,
-			DiseaseBean.DISEASE_ALTS,
-			DiseaseBean.DISEASE_CLASSES,
-			DiseaseBean.MGI_PREDICTED_KNOWN_GENE,
-			DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
-			DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
-			DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS), ",");
+			initializeSolrCores();
 
-		SolrQuery query = new SolrQuery("*:*");
-		query.addFilterQuery("type:disease");
-		query.setFields(fields);
-		query.setRows(MAX_DISEASES);
-		List<DiseaseBean> diseases = phenodigmCore.query(query).getBeans(DiseaseBean.class);
+			logger.info("Populating lookups");
+			populateGenesLookup();
+			logger.info("Populated genes lookup, {} records", geneLookup.size());
 
-		int count = 0;
-		for (DiseaseBean phenDisease : diseases) {
 
-			DiseaseDTO disease = new DiseaseDTO();
+			logger.info("Removing existing documents from index");
+			diseaseCore.deleteByQuery("*:*");
+			diseaseCore.commit();
 
-			// Populate Phenodigm data
-			disease.setDataType(phenDisease.getType());
-			disease.setType(phenDisease.getType());
-			disease.setDiseaseId(phenDisease.getDiseaseId());
-			disease.setDiseaseSource(phenDisease.getDiseaseSource());
-			disease.setDiseaseTerm(phenDisease.getDiseaseTerm());
-			disease.setDiseaseAlts(phenDisease.getDiseaseAlts());
-			disease.setDiseaseClasses(phenDisease.getDiseaseClasses());
-			disease.setHumanCurated(phenDisease.isHumanCurated());
-			disease.setMouseCurated(phenDisease.isMouseCurated());
-			disease.setMgiPredicted(phenDisease.isMgiPredicted());
-			disease.setImpcPredicted(phenDisease.isImpcPredicted());
-			disease.setMgiPredictedKnownGene(phenDisease.isMgiPredictedKnownGene());
-			disease.setImpcPredictedKnownGene(phenDisease.isImpcPredictedKnownGene());
-			disease.setMgiNovelPredictedInLocus(phenDisease.isMgiNovelPredictedInLocus());
-			disease.setImpcNovelPredictedInLocus(phenDisease.isImpcNovelPredictedInLocus());
+			// Fields from the phenodigm core to bring back
+			String fields = StringUtils.join(Arrays.asList(DiseaseBean.DISEASE_ID,
+				DiseaseBean.DISEASE_ID,
+				DiseaseBean.TYPE,
+				DiseaseBean.DISEASE_SOURCE,
+				DiseaseBean.DISEASE_TERM,
+				DiseaseBean.DISEASE_ALTS,
+				DiseaseBean.DISEASE_CLASSES,
+				DiseaseBean.MGI_PREDICTED_KNOWN_GENE,
+				DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
+				DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
+				DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS), ",");
 
-			// Populate gene data
-			GeneData gene = geneLookup.get(phenDisease.getDiseaseId());
+			logger.info("Querying externam PhenoDigm index");
+			SolrQuery query = new SolrQuery("*:*");
+			query.addFilterQuery("type:disease");
+			query.setFields(fields);
+			query.setRows(MAX_DISEASES);
+			List<DiseaseBean> diseases = phenodigmCore.query(query).getBeans(DiseaseBean.class);
 
-			if (gene != null) {
-				disease.setMgiAccessionId(gene.MGI_ACCESSION_ID);
-				disease.setMarkerSymbol(gene.MARKER_SYMBOL);
-				disease.setMarkerName(gene.MARKER_NAME);
-				disease.setMarkerSynonym(gene.MARKER_SYNONYM);
-				disease.setMarkerType(gene.MARKER_TYPE);
-				disease.setHumanGeneSymbol(gene.HUMAN_GENE_SYMBOL);
-				disease.setStatus(gene.STATUS);
-				disease.setLatestProductionCentre(gene.LATEST_PRODUCTION_CENTRE);
-				disease.setLatestPhenotypingCentre(gene.LATEST_PHENOTYPING_CENTRE);
-				disease.setLatestPhenotypeStatus(gene.LATEST_PHENOTYPE_STATUS);
-				disease.setLegacyPhenotypeStatus(gene.LEGACY_PHENOTYPE_STATUS);
-				disease.setAlleleName(gene.ALLELE_NAME);
-				disease.setMpId(gene.MP_ID);
-				disease.setMpTerm(gene.MP_TERM);
-				disease.setMpTermDefinition(gene.MP_DEFINITION);
-				disease.setMpTermSynonym(gene.MP_SYNONYM);
-				disease.setTopLevelMpId(gene.TOP_LEVEL_MP_ID);
-				disease.setTopLevelMpTerm(gene.TOP_LEVEL_MP_TERM);
-				disease.setTopLevelMpTermSynonym(gene.TOP_LEVEL_MP_TERM_SYNONYM);
-				disease.setIntermediateMpId(gene.INTERMEDIATE_MP_ID);
-				disease.setIntermediateMpTerm(gene.INTERMEDIATE_MP_TERM);
-				disease.setIntermediateMpTermSynonym(gene.INTERMEDIATE_MP_TERM_SYNONYM);
-				disease.setChildMpId(gene.CHILD_MP_ID);
-				disease.setChildMpTerm(gene.CHILD_MP_TERM);
-				disease.setChildMpTermSynonym(gene.CHILD_MP_TERM_SYNONYM);
-				disease.setOntologySubset(gene.ONTOLOGY_SUBSET);
+			int count = 0;
+			for (DiseaseBean phenDisease : diseases) {
 
+				DiseaseDTO disease = new DiseaseDTO();
+
+				// Populate Phenodigm data
+				disease.setDataType(phenDisease.getType());
+				disease.setType(phenDisease.getType());
+				disease.setDiseaseId(phenDisease.getDiseaseId());
+				disease.setDiseaseSource(phenDisease.getDiseaseSource());
+				disease.setDiseaseTerm(phenDisease.getDiseaseTerm());
+				disease.setDiseaseAlts(phenDisease.getDiseaseAlts());
+				disease.setDiseaseClasses(phenDisease.getDiseaseClasses());
+				disease.setHumanCurated(phenDisease.isHumanCurated());
+				disease.setMouseCurated(phenDisease.isMouseCurated());
+				disease.setMgiPredicted(phenDisease.isMgiPredicted());
+				disease.setImpcPredicted(phenDisease.isImpcPredicted());
+				disease.setMgiPredictedKnownGene(phenDisease.isMgiPredictedKnownGene());
+				disease.setImpcPredictedKnownGene(phenDisease.isImpcPredictedKnownGene());
+				disease.setMgiNovelPredictedInLocus(phenDisease.isMgiNovelPredictedInLocus());
+				disease.setImpcNovelPredictedInLocus(phenDisease.isImpcNovelPredictedInLocus());
+
+				// Populate gene data
+				GeneData gene = geneLookup.get(phenDisease.getDiseaseId());
+
+				if (gene != null) {
+					disease.setMgiAccessionId(gene.MGI_ACCESSION_ID);
+					disease.setMarkerSymbol(gene.MARKER_SYMBOL);
+					disease.setMarkerName(gene.MARKER_NAME);
+					disease.setMarkerSynonym(gene.MARKER_SYNONYM);
+					disease.setMarkerType(gene.MARKER_TYPE);
+					disease.setHumanGeneSymbol(gene.HUMAN_GENE_SYMBOL);
+					disease.setStatus(gene.STATUS);
+					disease.setLatestProductionCentre(gene.LATEST_PRODUCTION_CENTRE);
+					disease.setLatestPhenotypingCentre(gene.LATEST_PHENOTYPING_CENTRE);
+					disease.setLatestPhenotypeStatus(gene.LATEST_PHENOTYPE_STATUS);
+					disease.setLegacyPhenotypeStatus(gene.LEGACY_PHENOTYPE_STATUS);
+					disease.setAlleleName(gene.ALLELE_NAME);
+					disease.setMpId(gene.MP_ID);
+					disease.setMpTerm(gene.MP_TERM);
+					disease.setMpTermDefinition(gene.MP_DEFINITION);
+					disease.setMpTermSynonym(gene.MP_SYNONYM);
+					disease.setTopLevelMpId(gene.TOP_LEVEL_MP_ID);
+					disease.setTopLevelMpTerm(gene.TOP_LEVEL_MP_TERM);
+					disease.setTopLevelMpTermSynonym(gene.TOP_LEVEL_MP_TERM_SYNONYM);
+					disease.setIntermediateMpId(gene.INTERMEDIATE_MP_ID);
+					disease.setIntermediateMpTerm(gene.INTERMEDIATE_MP_TERM);
+					disease.setIntermediateMpTermSynonym(gene.INTERMEDIATE_MP_TERM_SYNONYM);
+					disease.setChildMpId(gene.CHILD_MP_ID);
+					disease.setChildMpTerm(gene.CHILD_MP_TERM);
+					disease.setChildMpTermSynonym(gene.CHILD_MP_TERM_SYNONYM);
+					disease.setOntologySubset(gene.ONTOLOGY_SUBSET);
+
+				}
+				diseaseCore.addBean(disease, 60000);
+
+				count++;
 			}
-			diseaseCore.addBean(disease, 60000);
 
-			count++;
+			logger.info("Indexed {} records", count);
+
+			diseaseCore.commit();
+
+		} catch (SolrServerException| IOException e) {
+
+			// Catch and rethrow exception
+			throw new IndexerException(e);
+
 		}
 
-		logger.info("Indexed {} records", count);
-
-		diseaseCore.commit();
 		logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
 	}
 
@@ -302,39 +303,42 @@ public class DiseaseIndexer extends AbstractIndexer {
 	}
 
 
-	public static void main(String[] args) throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
+	public static void main(String[] args) throws IndexerException {
 
-		OptionParser parser = new OptionParser();
-
-		// parameter to indicate which spring context file to use
-		parser.accepts("context").withRequiredArg().ofType(String.class);
-
-		OptionSet options = parser.parse(args);
-		String context = (String) options.valuesOf("context").get(0);
-
-		ApplicationContext applicationContext;
-		logger.info("Using application context file {}", context);
-
-		File f = new File(context);
-		if (f.exists() && !f.isDirectory()) {
-			try {
-				applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-			} catch (RuntimeException e) {
-				logger.info("An error occurred loading the file: {}", e.getMessage());
-				applicationContext = new ClassPathXmlApplicationContext(context);
-				logger.info("Using classpath app-config file: {}", context);
-			}
-		} else {
-			applicationContext = new ClassPathXmlApplicationContext(context);
-			logger.info("Using classpath app-config file: {}", context);
-		}
-
-		// Do the spring dependency injection on the main class and execute the run() method
 		DiseaseIndexer main = new DiseaseIndexer();
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+		main.initialise(args);
+		main.injectDependencies();
 		main.run();
 
 		logger.info("Process finished.  Exiting.");
+
+//		OptionParser parser = new OptionParser();
+//
+//		// parameter to indicate which spring context file to use
+//		parser.accepts("context").withRequiredArg().ofType(String.class);
+//
+//		OptionSet options = parser.parse(args);
+//		String context = (String) options.valuesOf("context").get(0);
+//
+//		ApplicationContext applicationContext;
+//		logger.info("Using application context file {}", context);
+//
+//		File f = new File(context);
+//		if (f.exists() && !f.isDirectory()) {
+//			try {
+//				applicationContext = new FileSystemXmlApplicationContext("file:" + context);
+//			} catch (RuntimeException e) {
+//				logger.info("An error occurred loading the file: {}", e.getMessage());
+//				applicationContext = new ClassPathXmlApplicationContext(context);
+//				logger.info("Using classpath app-config file: {}", context);
+//			}
+//		} else {
+//			applicationContext = new ClassPathXmlApplicationContext(context);
+//			logger.info("Using classpath app-config file: {}", context);
+//		}
+//
+//		// Do the spring dependency injection on the main class and execute the run() method
+//		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 	}
 
 
