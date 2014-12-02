@@ -142,7 +142,8 @@ public class GeneIndexer extends AbstractIndexer {
             	gene.setMgiPredicted(allele.getMgiPredicted());
             	gene.setImpcPredicted(allele.getImpcPredicted());
             	gene.setMgiPredicted(allele.getMgiPredicted());
-            	
+            	gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
+            	gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
             	
             	geneCore.addBean(gene, 60000);
             	count++;

@@ -86,8 +86,46 @@ public class GeneDTO {
 	public static final String TEXT = "text";
 	public static final String AUTO_SUGGEST = "auto_suggest";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
+	public static final String MGI_PREDICTED_KNOWN_GENE="mgi_predicted_known_gene";
+	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS="impc_novel_predicted_in_locus";
 	
 	// <!-- gene level fields -->
+	@Field(IMPC_NOVEL_PREDICTED_IN_LOCUS)
+	private List<Boolean>impcNovelPredictedInLocus;
+	
+	
+	public List<Boolean> getImpcNovelPredictedInLocus() {
+	
+		return impcNovelPredictedInLocus;
+	}
+
+
+
+	
+	public void setImpcNovelPredictedInLocus(List<Boolean> impcNovelPredictedInLocus) {
+	
+		this.impcNovelPredictedInLocus = impcNovelPredictedInLocus;
+	}
+
+
+	@Field(MGI_PREDICTED_KNOWN_GENE)
+	private List<Boolean>mgiPredictedKnownGene;
+	
+	
+
+	
+	public List<Boolean> getMgiPredictedKnownGene() {
+	
+		return mgiPredictedKnownGene;
+	}
+
+
+	
+	public void setMgiPredictedKnonwGene(List<Boolean> mgiPredictedKnonwGene) {
+	
+		this.mgiPredictedKnownGene = mgiPredictedKnonwGene;
+	}
+
 
 	@Field(DATA_TYPE)
 	String dataType;
