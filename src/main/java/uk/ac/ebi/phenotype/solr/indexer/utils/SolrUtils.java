@@ -152,7 +152,7 @@ public class SolrUtils {
                 int endIndex = url.indexOf(" returned non ok");
                 url = url.substring(0, endIndex);
             }
-            logger.debug("USING CORE AT: '" + url + "'");
+            logger.debug("USING images CORE AT: '" + url + "'");
         }
 
         Map<String, List<SangerImageDTO>> map = new HashMap();
