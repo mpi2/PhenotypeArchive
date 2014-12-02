@@ -462,7 +462,7 @@
                                 </div>
                             </c:if>
 
-                <!--Disease Panels-->
+                <!--Disease Sections-->
                             <c:if test="${not empty orthologousDiseaseAssociations}">                 
                                 <div class="section" id="orthologous-diseases">
                                     <jsp:include page="genes_orthologous_diseases_frag.jsp"></jsp:include>
@@ -474,7 +474,9 @@
                                     <jsp:include page="genes_predicted_diseases_frag.jsp"></jsp:include>
                                 </div>
                             </c:if>
-               
+                            <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js"></script>
+                
+                <!--Order Mice-->
                             <div class="section" id="order">
                                 <h2 class="title documentation">Order Mouse and ES Cells (allele core)
                                     <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
@@ -497,49 +499,6 @@
                 </div>
             </div>
 
-        
-        <script type="text/javascript">
-            /* Formatting function for row details*/
-            function makeChildRow(clicked) {
-                var targetRowId = $(clicked).attr("targetRowId");
-                var geneId = $(clicked).attr("geneid");
-                var diseaseId = $(clicked).attr("diseaseid");
-                var requestPageType = $(clicked).attr("requestpagetype");
-
-                console.log('Row ' + targetRowId + ' clicked');
-                var formatted = '<table cellpadding="4" cellspacing="0" border="0">' +
-                        '<tr id="' + targetRowId + '" geneid="' + geneId + '" diseaseid="' + diseaseId + '" requestpagetype="' + requestPageType + '">' +
-                        '<td id="loadingPlaceholder" colspan="4"><i class="fa fa-spinner fa-spin"></i></td>' +
-                        '</tr>' +
-                        '</table>';
-                console.log(formatted);
-                return formatted;
-            }
-        </script>
-
-        <script type="text/javascript">
-            function insertDiseaseAssociations(clicked) {
-
-                var targetRowId = $(clicked).attr("targetRowId");
-                var targetRow = $('#' + targetRowId);
-                var geneId = $(clicked).attr("geneid");
-                var diseaseId = $(clicked).attr("diseaseid");
-                var requestPageType = $(clicked).attr("requestpagetype");
-                console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
-
-                var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
-                $.get(uri, {
-                    geneId: geneId,
-                    diseaseId: diseaseId,
-                    requestPageType: requestPageType
-                }, function (response) {
-//                    console.log(response);
-                    //add the response html to the target row
-                    $(targetRow).remove('#loadingPlaceholder').html(response);
-                });
-            };
-        </script>
-        
         </jsp:body>
 
     </t:genericpage>

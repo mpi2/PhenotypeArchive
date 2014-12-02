@@ -39,63 +39,6 @@
 
     <jsp:attribute name="header">
 
-        <script type="text/javascript">
-            function getDiseaseAssociations(clicked) {
-
-                var targetRowId = $(clicked).attr("targetRowId");
-                var targetRow = $('#' + targetRowId);
-                var geneId = $(clicked).attr("geneid");
-                var diseaseId = $(clicked).attr("diseaseid");
-                var requestPageType = $(clicked).attr("requestpagetype");
-                console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
-
-                var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
-                $.get(uri, {
-                    geneId: geneId,
-                    diseaseId: diseaseId,
-                    requestPageType: requestPageType
-                }, function (response) {
-                    console.log(response);
-                    //add the response html to the target row
-                    $(targetRow).html(response);
-                    //change the clicked row icon to an minus sign
-                    $(clicked).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
-                });
-            }
-            ;
-
-            /*
-             * Toggles the row icon between a "fa-minus-square" and a "fa-plus-square".
-             */
-            function toggleRowIcon(row) {
-                var rowOpen = $(row).find("td#toggleButton i").hasClass("fa-minus-square");
-                if (rowOpen) {
-                    $(row).find("td#toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");
-                }
-                else {
-                    $(row).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
-                }
-            }
-            ;
-        </script>
-
-<!--        <script type="text/javascript">
-            $(document).ready(function () {
-                $("#orthologous_phenotypes tr:odd").addClass("odd");
-                $("#orthologous_phenotypes tr:not(.odd)").hide();
-                $("#orthologous_phenotypes tr:first-child").show();
-
-                $("#orthologous_phenotypes tr.odd").click(function () {
-                    $(this).next("tr").toggle();
-                    if ($(this).next("tr").find("td").length === 0) {
-//                        $(this).next().html("<td></td>").prepend("<i></i>").addClass("fa fa-spinner fa-spin");
-                        getDiseaseAssociations($(this));
-                    }
-                    toggleRowIcon($(this));
-                });
-            });
-        </script>-->
-
     </jsp:attribute>
 
     <jsp:body>
@@ -189,52 +132,9 @@
             <jsp:include page="disease_predicted_mouse_models_frag.jsp"></jsp:include>            
         </div>
 
-        <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-        <script src="http://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
-
-        <script type="text/javascript">
-            /* Formatting function for row details*/
-            function makeChildRow(clicked) {
-
-                var targetRowId = $(clicked).attr("targetRowId");
-                var geneId = $(clicked).attr("geneid");
-                var diseaseId = $(clicked).attr("diseaseid");
-                var requestPageType = $(clicked).attr("requestpagetype");
-
-//                console.log('Row ' + targetRowId + ' clicked');
-                var formatted = '<table cellpadding="4" cellspacing="0" border="0">' +
-                        '<tr id="' + targetRowId + '" geneid="' + geneId + '" diseaseid="' + diseaseId + '" requestpagetype="' + requestPageType + '">' +
-                        '<td id="loadingPlaceholder" colspan="4"><i class="fa fa-spinner fa-spin"></i></td>' +
-                        '</tr>' +
-                        '</table>';
-//                console.log(formatted);
-                return formatted;
-            }
-        </script>
-
-        <script type="text/javascript">
-            function insertDiseaseAssociations(clicked) {
-
-                var targetRowId = $(clicked).attr("targetRowId");
-                var targetRow = $('#' + targetRowId);
-                var geneId = $(clicked).attr("geneid");
-                var diseaseId = $(clicked).attr("diseaseid");
-                var requestPageType = $(clicked).attr("requestpagetype");
-//                console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
-
-                var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
-                $.get(uri, {
-                    geneId: geneId,
-                    diseaseId: diseaseId,
-                    requestPageType: requestPageType
-                }, function (response) {
-//                    console.log(response);
-                    //add the response html to the target row
-                    $(targetRow).remove('#loadingPlaceholder').html(response);
-                });
-            }
-            ;
-        </script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="http://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js"></script>
 
     </jsp:body>
 
