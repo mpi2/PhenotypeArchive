@@ -286,3 +286,8 @@ span.showMore {
 span.viability, span.fertility {
 	font-weight: bold;
 }
+
+/* deals with facet count being concatenated when window is resized */
+li.fcat span.fcount {
+	padding-right: 5px;	
+}

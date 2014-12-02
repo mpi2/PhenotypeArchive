@@ -161,11 +161,7 @@ public class IndexerMap {
      */
     public static Map<String, Map<String, String>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
         if (mpToHpTermsMap == null) {
-            try {
-                mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-            } catch (SolrServerException e) {
-                throw new IndexerException(e);
-            }
+            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
         }
         
         return mpToHpTermsMap;

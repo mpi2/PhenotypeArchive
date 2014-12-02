@@ -610,7 +610,7 @@ public class DataTableController {
 			// annotation view: images group by annotationTerm per row
 			
 			String fqStr = fqOri;	
-			System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
+			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
 			String defaultQStr = "q=observation_type:image_record";
 			String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			

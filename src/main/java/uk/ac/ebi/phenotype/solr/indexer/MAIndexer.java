@@ -49,11 +49,7 @@ public class MAIndexer extends AbstractIndexer {
         
     
     public MAIndexer() {
-        try {
-           ontoDbConnection = ontodbDataSource.getConnection();
-        } catch (Exception e) {
-            logger.error("Unable to get ontodbDataSource: " + e.getLocalizedMessage());
-        }
+        
     }
     
     @Override
@@ -175,7 +171,7 @@ public class MAIndexer extends AbstractIndexer {
     // PRIVATE METHODS
     
     
-    private final Integer MAX_ITERATIONS = 5;                                   // Set to non-null value > 0 to limit max_iterations.
+    private final Integer MAX_ITERATIONS = null;                                // Set to non-null value > 0 to limit max_iterations.
     
     private void initialiseSupportingBeans() throws IndexerException {
         try {
