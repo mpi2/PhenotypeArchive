@@ -100,7 +100,6 @@ public class MAIndexer extends AbstractIndexer {
                 // Children
                 List<OntologyTermBean> maChildTerms = maChildMap.get(termId);
     //   System.out.println("maChildTerms = " + maChildTerms + ". termId = " + termId);
-
                 if (maChildTerms != null) {
                     List<String> childMaIdList = new ArrayList();
                     List<String> childMaTermList = new ArrayList();
@@ -137,7 +136,39 @@ public class MAIndexer extends AbstractIndexer {
     //                    ma.setTopLevelMaTermSynonym(parentBean.getSynonyms());
                     }
                 }
-
+                
+                // Image association fields
+                List<SangerImageDTO> sangerImages = maImagesMap.get(termId);
+                if (sangerImages != null) {
+                    for (SangerImageDTO sangerImage : sangerImages) {
+                        ma.setProcedureName(sangerImage.getProcedureName());
+                        ma.setExpName(sangerImage.getExpName());
+                        ma.setExpNameExp(sangerImage.getExpNameExp());
+                        ma.setSymbolGene(sangerImage.getSymbolGene());
+                        
+                        ma.setMgiAccessionId(sangerImage.getMgiAccessionId());
+                        ma.setMarkerSymbol(sangerImage.getMarkerSymbol());
+                        ma.setMarkerName(sangerImage.getMarkerName());
+                        ma.setMarkerSynonym(sangerImage.getMarkerSynonym());
+                        ma.setMarkerType(sangerImage.getMarkerType());
+                        ma.setHumanGeneSymbol(sangerImage.getHumanGeneSymbol());
+                        
+                        ma.setStatus(sangerImage.getStatus());
+                        
+                        ma.setImitsPhenotypeStarted(sangerImage.getImitsPhenotypeStarted());
+                        ma.setImitsPhenotypeComplete(sangerImage.getImitsPhenotypeComplete());
+                        ma.setImitsPhenotypeStatus(sangerImage.getImitsPhenotypeStatus());
+                        
+                        ma.setLatestPhenotypeStatus(sangerImage.getLatestPhenotypeStatus());
+                        ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
+                        
+                        ma.setLatestProductionCentre(sangerImage.getLatestProductionCentre());
+                        ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
+                        
+                        ma.setAlleleName(sangerImage.getAlleleName());
+                    }
+                }
+                
     //            logger.debug("{}: Built MP DTO {}", count, termId);
                 count ++;
                 maBatch.add(ma);
