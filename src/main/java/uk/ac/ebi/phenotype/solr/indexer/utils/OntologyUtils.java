@@ -83,7 +83,7 @@ public class OntologyUtils {
                 bean.setIdTerm(resultSet.getString("termId_termName"));
                 bean.setSynonyms(new ArrayList<String>());
                 try (PreparedStatement p2 = ontoDbConnection.prepareStatement(childTermSynonymsQuery)) {
-                    p2.setString(1, mapKey);
+                    p2.setString(1, bean.getId());
                     ResultSet resultSet2 = p2.executeQuery();
                     while (resultSet2.next()) {
                         String synonym = resultSet2.getString("syn_name");

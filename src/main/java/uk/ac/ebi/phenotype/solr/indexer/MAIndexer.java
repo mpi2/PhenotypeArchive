@@ -112,7 +112,15 @@ public class MAIndexer extends AbstractIndexer {
                         ma.setChildMaId(childMaIdList);
                         ma.setChildMaTerm(childMaTermList);
                         ma.setChildMaIdTerm(childTermId_termNameList);
-                        ma.setChildMaTermSynonym(childBean.getSynonyms());
+                        List<String> newSynonyms = childBean.getSynonyms();
+                        List<String> oldSynonyms = ma.getChildMaTermSynonym();
+                        if (newSynonyms != null) {
+                            if (oldSynonyms == null) {
+                                ma.setChildMaTermSynonym(new ArrayList<String>());
+                                oldSynonyms = ma.getChildMaTermSynonym();
+                            }
+                            oldSynonyms.addAll(newSynonyms);
+                        }
                     }
                 }
 
@@ -171,7 +179,7 @@ public class MAIndexer extends AbstractIndexer {
     // PRIVATE METHODS
     
     
-    private final Integer MAX_ITERATIONS = null;                                // Set to non-null value > 0 to limit max_iterations.
+    private final Integer MAX_ITERATIONS = 5;                                // Set to non-null value > 0 to limit max_iterations.
     
     private void initialiseSupportingBeans() throws IndexerException {
         try {
