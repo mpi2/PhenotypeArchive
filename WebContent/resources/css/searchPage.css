@@ -288,6 +288,10 @@ span.viability, span.fertility {
 }
 
 /* deals with facet count being concatenated when window is resized */
-li.fcat span.fcount {
-	padding-right: 5px;	
+li.fcat > span.flabel {
+    padding-right: 40px;
+    word-wrap:break-word !important;
+}
+div#facet {
+	width: 280px !important;
 }
