@@ -166,8 +166,8 @@ public class SolrUtils {
             QueryResponse response = null;
             try {
                 response = imagesCore.query(query);
-            } catch (SolrServerException sse) {
-                throw new IndexerException(sse);
+            } catch (Exception e) {
+                throw new IndexerException("Unable to query images core", e);
             }
             total = response.getResults().getNumFound();
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
@@ -218,8 +218,8 @@ public class SolrUtils {
             QueryResponse response = null;
             try {
                 response = alleleCore.query(query);
-            } catch (SolrServerException sse) {
-                throw new IndexerException(sse);
+            } catch (Exception e) {
+                throw new IndexerException("Unable to query allele core in SolrUtils.populateAllelesMap()", e);
             }
             total = response.getResults().getNumFound();
             List<AlleleDTO> alleleList = response.getBeans(AlleleDTO.class);
@@ -243,10 +243,9 @@ public class SolrUtils {
      * @param phenodigm_core a valid solr connection
      * @return a map, indexed by mp id, of all hp terms
      * 
-     * @throws SolrServerException
+     * @throws IndexerException
      */
-    protected static Map<String, Map<String, String>> populateMpToHpTermsMap(SolrServer phenodigm_core)
-            throws SolrServerException {
+    protected static Map<String, Map<String, String>> populateMpToHpTermsMap(SolrServer phenodigm_core) throws IndexerException {
 
 		// url="q=mp_id:&quot;${nodeIds.term_id}&quot;&amp;rows=999&amp;fq=type:mp_hp&amp;fl=hp_id,hp_term"
         // processor="XPathEntityProcessor" >
@@ -265,7 +264,12 @@ public class SolrUtils {
         query.setRows(BATCH_SIZE);
         while (pos < total) {
             query.setStart(pos);
-            QueryResponse response = phenodigm_core.query(query);
+            QueryResponse response = null;
+            try {
+                response = phenodigm_core.query(query);
+            } catch (Exception e) {
+                throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
+            }
             total = response.getResults().getNumFound();
             SolrDocumentList solrDocs = response.getResults();
             for (SolrDocument doc : solrDocs) {
