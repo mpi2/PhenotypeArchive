@@ -1231,7 +1231,7 @@ public class SangerImagesIndexer {
 	public void populateAlleles()
 	throws IndexerException {
 
-		alleles = IndexerMap.getAlleles(alleleIndexing);
+		alleles = IndexerMap.getGeneToAlleles(alleleIndexing);
 	}
 
 

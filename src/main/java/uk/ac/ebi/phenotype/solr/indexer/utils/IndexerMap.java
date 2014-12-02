@@ -51,6 +51,7 @@ public class IndexerMap {
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
     private static Map<String, Map<String, String>> mpToHpTermsMap = null;
+	private static List<AlleleDTO> alleles=null;
     
     
     // PRIVATE METHODS
@@ -119,19 +120,35 @@ public class IndexerMap {
     
     
     /**
-     * Fetch a map of image terms indexed by ma id
+     * Fetch a map of AlleleDTOs terms indexed by mgi_accession_id
      *
      * @param alleleCore a valid solr connection
      * @return a map, indexed by MGI Accession id, of all alleles
      * 
      * @throws IndexerException
      */
-    public static Map<String, List<AlleleDTO>> getAlleles(SolrServer alleleCore) throws IndexerException {
+    public static Map<String, List<AlleleDTO>> getGeneToAlleles(SolrServer alleleCore) throws IndexerException {
         if (allelesMap == null) {
             allelesMap = SolrUtils.populateAllelesMap(alleleCore);
         }
         
         return allelesMap;
+    }
+    
+    /**
+     * Fetch a map of AlleleDTOs terms indexed by mgi_accession_id
+     *
+     * @param alleleCore a valid solr connection
+     * @return a map, indexed by MGI Accession id, of all alleles
+     * 
+     * @throws IndexerException
+     */
+    public static List<AlleleDTO> getAlleles(SolrServer alleleCore) throws IndexerException {
+        if (alleles== null) {
+            alleles = SolrUtils.getAllAlleles(alleleCore);
+        }
+        
+        return alleles;
     }
     
     /**

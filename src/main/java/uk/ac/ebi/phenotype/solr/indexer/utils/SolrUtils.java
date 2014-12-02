@@ -236,6 +236,40 @@ public class SolrUtils {
 
         return alleles;
     }
+    
+    /**
+     * Fetch all alleles
+     *
+     * @param alleleCore a valid solr connection
+     * @return a list of all alleles
+     * 
+     * @throws IndexerException
+     */
+    protected static List<AlleleDTO> getAllAlleles(SolrServer alleleCore) throws IndexerException {
+    	List<AlleleDTO> alleleList=new ArrayList<>();
+
+        int pos = 0;
+        long total = Integer.MAX_VALUE;
+        SolrQuery query = new SolrQuery("*:*");
+        query.setRows(BATCH_SIZE);
+        while (pos < 100){//total) {
+            query.setStart(pos);
+            QueryResponse response = null;
+            try {
+                response = alleleCore.query(query);
+            } catch (SolrServerException sse) {
+                throw new IndexerException(sse);
+            }
+            total = response.getResults().getNumFound();
+            alleleList = response.getBeans(AlleleDTO.class);
+            
+            pos += BATCH_SIZE;
+        }
+        logger.debug("Loaded {} alleles", alleleList.size());
+
+        return alleleList;
+    }
+
 
     /**
      * Fetch a map of image terms indexed by ma id

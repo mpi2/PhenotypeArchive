@@ -71,6 +71,43 @@ public class AlleleDTO {
 	public static final String MGI_NOVEL_PREDICTED_IN_LOCUS = "mgi_novel_predicted_in_locus";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS = "impc_novel_predicted_in_locus";
 	public static final String DISEASE_HUMAN_PHENOTYPES = "disease_human_phenotypes";
+	public static final String STATUS="status";
+	public static final String TYPE="type";
+
+	
+	@Field(STATUS)
+	private String status;
+	@Field(TYPE)
+	private List<String> type;
+	
+	
+	
+	public List<String> getType() {
+	
+		return type;
+	}
+
+
+
+	
+	public void setType(List<String> type) {
+	
+		this.type = type;
+	}
+
+
+
+	public String getStatus() {
+	
+		return status;
+	}
+
+
+	
+	public void setStatus(String status) {
+	
+		this.status = status;
+	}
 
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;

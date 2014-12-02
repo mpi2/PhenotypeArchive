@@ -202,7 +202,7 @@ public class MPIndexer extends AbstractIndexer {
             maTermSynonyms = getMATermSynonyms();
 
             // Alleles
-            alleles = IndexerMap.getAlleles(alleleCore);
+            alleles = IndexerMap.getGeneToAlleles(alleleCore);
 
             // Phenotype call summaries (1)
             phenotypes1 = getPhenotypeCallSummary1();
