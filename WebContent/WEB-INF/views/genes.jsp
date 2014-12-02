@@ -474,7 +474,6 @@
                                     <jsp:include page="genes_predicted_diseases_frag.jsp"></jsp:include>
                                 </div>
                             </c:if>
-                            <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js"></script>
                 
                 <!--Order Mice-->
                             <div class="section" id="order">
@@ -498,6 +497,8 @@
                     </div>
                 </div>
             </div>
+
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js"></script>
 
         </jsp:body>
 

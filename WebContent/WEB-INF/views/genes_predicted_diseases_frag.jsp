@@ -56,8 +56,8 @@
     </table>
 </div>
   
-    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="http://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="http://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
