@@ -293,14 +293,9 @@ li.fcat > span.flabel {
     display: inline-block;
     word-wrap:break-word !important;
 }
-
 li.fcat > input {
 	vertical-align: top;
 }	
-div#facet {
-	/*width: 280px !important;*/
-}
-
 li.fcat:hover {
 	background-color: #F2F2F2;
 }
