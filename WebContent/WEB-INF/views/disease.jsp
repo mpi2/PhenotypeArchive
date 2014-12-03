@@ -132,7 +132,7 @@
             <jsp:include page="disease_predicted_mouse_models_frag.jsp"></jsp:include>            
         </div>
 
-        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
 
     </jsp:body>
 
