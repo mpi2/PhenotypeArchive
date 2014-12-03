@@ -36,6 +36,8 @@ import org.apache.solr.client.solrj.beans.Field;
  */
 public class SangerImageDTO {
     public static final String MA_TERM_ID = "maTermId";
+    public static final String SELECTED_TOP_LEVEL_MA_TERM="selected_top_level_ma_term";
+    public static final String SELECTED_TOP_LEVEL_MA_TERM_ID="selected_top_level_ma_term_id";
     
     public static final String ID = "id";       // image ID (unique key)
     
@@ -81,9 +83,65 @@ public class SangerImageDTO {
     @Field(INTERMEDIATE_MP_TERM_SYN)
     private List<String> intermediateMpTermSyn;
     
+    @Field(SELECTED_TOP_LEVEL_MA_TERM_ID)
+    private List<String> selectedTopLevelMaTermId;
+    
+    
+	
+
+
+
+	
+	public List<String> getSelectedTopLevelMaTermId() {
+	
+		return selectedTopLevelMaTermId;
+	}
+
+
+
+
+
+
+	
+	public void setSelectedTopLevelMaTermId(List<String> selectedTopLevelMaTermId) {
+	
+		this.selectedTopLevelMaTermId = selectedTopLevelMaTermId;
+	}
+
+
+
+	@Field(SELECTED_TOP_LEVEL_MA_TERM)
+    private List<String> selectedTopLevelMaTerm;
     
 	
 	
+	
+	
+
+
+
+
+
+	
+	public List<String> getSelectedTopLevelMaTerm() {
+	
+		return selectedTopLevelMaTerm;
+	}
+
+
+
+
+
+	
+	public void setSelectedTopLevelMaTerm(List<String> selectedTopLevelMaTerm) {
+	
+		this.selectedTopLevelMaTerm = selectedTopLevelMaTerm;
+	}
+
+
+
+
+
 	public List<String> getIntermediateMpTermSyn() {
 	
 		return intermediateMpTermSyn;
@@ -564,7 +622,10 @@ public class SangerImageDTO {
 	// <field column="name" name="selected_top_level_ma_term" />
 	@Field("selected_top_level_ma_id")
 	private List<String> maTopLevelTermIds;
-	@Field("selected_top_level_ma_term_synonym")
+	
+	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM="selected_top_level_ma_term_synonym";
+	
+	@Field("SELECTED_TOP_LEVEL_MA_TERM_SYNONYM")
 	private ArrayList<String> selectedTopLevelMaTermSynonym;
 //	<field column="name" name="annotatedHigherLevelMpTermName" />
 //	<field column="mpTerm" name="annotatedHigherLevelMpTermId" />

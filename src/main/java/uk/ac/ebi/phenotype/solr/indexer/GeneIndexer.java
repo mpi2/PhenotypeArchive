@@ -205,23 +205,30 @@ public class GeneIndexer extends AbstractIndexer {
 						gene.setIntermediateMpTerm(image.getIntermediateMpTerm());
 						gene.setIntermediateMpSynonym(image.getIntermediateMpTermSyn());
 						gene.setAnnotatedHigherLevelMaTermName(image.getAnnotatedHigherLevelMpTermName());
+						gene.setTopLevelMpSynonym(image.getTopLevelMpTermSynonym());
 						
 						
             			}
             			
-            			
-
-            			
-            			
+            			if(image.getMaTermId()!=null){            			
 //    					<field column="ma_id" xpath="/response/result/doc/arr[@name='ma_id']/str" />
 //    					<field column="ma_term" xpath="/response/result/doc/arr[@name='ma_term']/str" />
 //    					<field column="ma_term_synonym" xpath="/response/result/doc/arr[@name='ma_term_synonym']/str" />
-//    					
+            			//gene.setMaTermId(image.getMaTermId());
+            			//doesn't look like the ma_id and ma_term are used in the gene index so not adding these - selected top level mas used only
+            			
+            				
 //    					<field column="selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='selected_top_level_ma_id']/str" />
 //    					<field column="selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term']/str" />				
 //    					<field column="selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term_synonym']/str" />				
 //    					
 //    					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+            				//gene.setSelectedTopLevelMaTermId(image.getSelectedTopLevelMaTermId());
+            				gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
+            				gene.setSelectedTopLevelMaTermId(image.getSelectedTopLevelMaTermId());
+            				gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
+            				gene.setAnnotatedHigherLevelMaTermName(image.getAnnotatedHigherLevelMpTermName());
+            			}
             		}
             		
             		gene.setMpId(mpIds);
