@@ -45,10 +45,10 @@ public class GeneIndexer extends AbstractIndexer {
     @Qualifier("geneIndexing")
     SolrServer geneCore;
     
-//    @Autowired
-//    @Qualifier("mpIndexing")
-//    SolrServer mpCore;
-//    
+    @Autowired
+    @Qualifier("mpIndexing")
+    SolrServer mpCore;
+    
     @Autowired
     @Qualifier("pipelineIndexing")
     SolrServer pipelineCore;
@@ -98,17 +98,20 @@ public class GeneIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
+    	long startTime = System.currentTimeMillis();
     	try {
             logger.info("Starting Gene Indexer...");
+            
             initialiseSupportingBeans();
             
             int count=0;
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
+            System.out.println("alleles size="+alleles.size());
             
             geneCore.deleteByQuery("*:*");
           
             for(AlleleDTO allele:alleles){
-            	System.out.println("allele="+allele.getMarkerSymbol());
+            	//System.out.println("allele="+allele.getMarkerSymbol());
             	GeneDTO gene=new GeneDTO();
             	gene.setMgiAccessionId(allele.getMgiAccessionId());
             	gene.setDataType(allele.getDataType());
@@ -194,8 +197,9 @@ public class GeneIndexer extends AbstractIndexer {
             			if(image.getMp_id()!=null){
             			mpIds.addAll(image.getMp_id());
 						mpTerms.addAll(image.getMpTerm());
-						mpSyns.addAll(image.getMpSyns());
-						
+						if(image.getMpSyns()!=null){
+							mpSyns.addAll(image.getMpSyns());
+						}
 //    					<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
 //    					<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
 //    					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
@@ -236,7 +240,7 @@ public class GeneIndexer extends AbstractIndexer {
             	geneCore.addBean(gene, 60000);
             	count++;
 
-				if (count % 10 == 0) {
+				if (count % 10000 == 0) {
 					System.out.println(" added " + count + " beans");
 				}
             }
@@ -250,7 +254,8 @@ public class GeneIndexer extends AbstractIndexer {
 				throw new IndexerException(e);
 			}
 
-        
+    	long endTime = System.currentTimeMillis();
+		System.out.println("time was " + (endTime - startTime) / 1000);
 
         logger.info("Gene Indexer complete!");
     }
