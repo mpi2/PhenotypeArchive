@@ -498,7 +498,7 @@
                 </div>
             </div>
 
-        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js"></script>
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
 
         </jsp:body>
 
