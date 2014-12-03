@@ -133,3 +133,333 @@ CREATE TABLE stat_result_phenotype_call_summary (
   COLLATE =utf8_general_ci
   ENGINE =MyISAM;
 
+
+DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
+CREATE TABLE statistical_result_phenotype_call_summary (
+
+  phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
+  result_id                 INT(10) UNSIGNED,
+  result_table              VARCHAR(200),
+
+  PRIMARY KEY (phenotype_call_summary_id, result_id, result_table)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+DROP TABLE IF EXISTS statistical_result_additional;
+CREATE TABLE statistical_result_additional (
+  id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  result_id                  INT(10) UNSIGNED,
+  result_table               VARCHAR(200),
+  raw_output                 MEDIUMTEXT,
+  dataset                    MEDIUMTEXT,
+
+  PRIMARY KEY (id),
+  KEY result_idx (result_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+DROP TABLE IF EXISTS statistical_result_mixed_model;
+CREATE TABLE statistical_result_mixed_model (
+
+  id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  control_id                       INT(10) UNSIGNED,
+  experimental_id                  INT(10) UNSIGNED,
+  experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+  external_db_id                   INT(10),
+  project_id                       INT(10) UNSIGNED,
+  organisation_id                  INT(10) UNSIGNED,
+  pipeline_id                      INT(10) UNSIGNED,
+  procedure_id                     INT(10) UNSIGNED,
+  parameter_id                     INT(10) UNSIGNED,
+  colony_id                        VARCHAR(200),
+  dependent_variable               VARCHAR(200),
+  control_selection_strategy       VARCHAR(100),
+  mp_acc                           VARCHAR(20)      NULL,
+  mp_db_id                         INT(10)          NULL,
+  male_controls                    INT(10) UNSIGNED,
+  male_mutants                     INT(10) UNSIGNED,
+  female_controls                  INT(10) UNSIGNED,
+  female_mutants                   INT(10) UNSIGNED,
+  metadata_group                   VARCHAR(50) DEFAULT '',
+  statistical_method               VARCHAR(200),
+  status                           VARCHAR(200),
+  batch_significance               BOOLEAN,
+  variance_significance            BOOLEAN,
+  null_test_significance           DOUBLE,
+  genotype_parameter_estimate      DOUBLE,
+  genotype_stderr_estimate         DOUBLE,
+  genotype_effect_pvalue           DOUBLE,
+  genotype_percentage_change       VARCHAR(200),
+  gender_parameter_estimate        DOUBLE,
+  gender_stderr_estimate           DOUBLE,
+  gender_effect_pvalue             DOUBLE,
+  weight_parameter_estimate        DOUBLE,
+  weight_stderr_estimate           DOUBLE,
+  weight_effect_pvalue             DOUBLE,
+  gp1_genotype                     VARCHAR(200),
+  gp1_residuals_normality_test     DOUBLE,
+  gp2_genotype                     VARCHAR(200),
+  gp2_residuals_normality_test     DOUBLE,
+  blups_test                       DOUBLE,
+  rotated_residuals_normality_test DOUBLE,
+  intercept_estimate               DOUBLE,
+  intercept_stderr_estimate        DOUBLE,
+  interaction_significance         BOOLEAN,
+  interaction_effect_pvalue        DOUBLE,
+  gender_female_ko_estimate        DOUBLE,
+  gender_female_ko_stderr_estimate DOUBLE,
+  gender_female_ko_pvalue          DOUBLE,
+  gender_male_ko_estimate          DOUBLE,
+  gender_male_ko_stderr_estimate   DOUBLE,
+  gender_male_ko_pvalue            DOUBLE,
+  classification_tag               VARCHAR(200),
+
+  PRIMARY KEY (id),
+  KEY organisation_idx (organisation_id),
+  KEY pipeline_idx (pipeline_id),
+  KEY parameter_idx (parameter_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+DROP TABLE IF EXISTS statistical_result_fisher_exact;
+CREATE TABLE statistical_result_fisher_exact (
+
+  id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  control_id                 INT(10) UNSIGNED,
+  experimental_id            INT(10) UNSIGNED,
+  experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable'),
+  experimental_zygosity      ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+  external_db_id             INT(10),
+  project_id                 INT(10) UNSIGNED,
+  organisation_id            INT(10) UNSIGNED,
+  pipeline_id                INT(10) UNSIGNED,
+  procedure_id               INT(10) UNSIGNED,
+  parameter_id               INT(10) UNSIGNED,
+  colony_id                  VARCHAR(200),
+  dependent_variable         VARCHAR(200),
+  mp_acc                     VARCHAR(20) NULL,
+  mp_db_id                   INT(10) NULL,
+  control_selection_strategy VARCHAR(100),
+  male_controls              INT(10) UNSIGNED,
+  male_mutants               INT(10) UNSIGNED,
+  female_controls            INT(10) UNSIGNED,
+  female_mutants             INT(10) UNSIGNED,
+  metadata_group             VARCHAR(50) DEFAULT '',
+  status                     VARCHAR(200),
+  category_a                 TEXT,
+  category_b                 TEXT,
+  p_value                    DOUBLE,
+  effect_size                DOUBLE,
+
+  PRIMARY KEY (id),
+  KEY control_idx (control_id),
+  KEY experimental_idx (experimental_id),
+  KEY organisation_idx (organisation_id),
+  KEY pipeline_idx (pipeline_id),
+  KEY parameter_idx (parameter_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+DROP TABLE IF EXISTS statistical_result_logistic_regression;
+CREATE TABLE statistical_result_logistic_regression (
+
+  id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  control_id                 INT(10) UNSIGNED,
+  experimental_id            INT(10) UNSIGNED,
+  experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable'),
+  experimental_zygosity      ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+  external_db_id             INT(10),
+  project_id                 INT(10) UNSIGNED,
+  organisation_id            INT(10) UNSIGNED,
+  pipeline_id                INT(10) UNSIGNED,
+  procedure_id               INT(10) UNSIGNED,
+  parameter_id               INT(10) UNSIGNED,
+  colony_id                  VARCHAR(200),
+  dependent_variable         VARCHAR(200),
+  mp_acc                     VARCHAR(20) NULL,
+  mp_db_id                   INT(10) NULL,
+  control_selection_strategy VARCHAR(100),
+  male_controls              INT(10) UNSIGNED,
+  male_mutants               INT(10) UNSIGNED,
+  female_controls            INT(10) UNSIGNED,
+  female_mutants             INT(10) UNSIGNED,
+  metadata_group             VARCHAR(50) DEFAULT '',
+  status                     VARCHAR(200),
+  category_a                 TEXT,
+  category_b                 TEXT,
+  p_value                    DOUBLE,
+  effect_size                DOUBLE,
+  classification_tag         VARCHAR(200),
+  additional_information     TEXT,
+
+  PRIMARY KEY (id),
+  KEY control_idx (control_id),
+  KEY experimental_idx (experimental_id),
+  KEY organisation_idx (organisation_id),
+  KEY pipeline_idx (pipeline_id),
+  KEY parameter_idx (parameter_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+DROP TABLE IF EXISTS statistical_result_time_fixed_effect;
+CREATE TABLE statistical_result_time_fixed_effect (
+
+  id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  control_id                       INT(10) UNSIGNED,
+  experimental_id                  INT(10) UNSIGNED,
+  experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+  external_db_id                   INT(10),
+  project_id                       INT(10) UNSIGNED,
+  organisation_id                  INT(10) UNSIGNED,
+  pipeline_id                      INT(10) UNSIGNED,
+  procedure_id                     INT(10) UNSIGNED,
+  parameter_id                     INT(10) UNSIGNED,
+  colony_id                        VARCHAR(200),
+  dependent_variable               VARCHAR(200),
+  control_selection_strategy       VARCHAR(100),
+  male_mp_acc                      VARCHAR(20)      NULL,
+  male_mp_db_id                    INT(10)          NULL,
+  female_mp_acc                    VARCHAR(20)      NULL,
+  female_mp_db_id                  INT(10)          NULL,
+  male_controls                    INT(10) UNSIGNED,
+  male_mutants                     INT(10) UNSIGNED,
+  female_controls                  INT(10) UNSIGNED,
+  female_mutants                   INT(10) UNSIGNED,
+  metadata_group                   VARCHAR(50) DEFAULT '',
+  statistical_method               VARCHAR(200),
+  status                           VARCHAR(200),
+  batch_significance               BOOLEAN,
+  variance_significance            BOOLEAN,
+  null_test_significance           DOUBLE,
+  genotype_parameter_estimate      DOUBLE,
+  genotype_stderr_estimate         DOUBLE,
+  genotype_effect_pvalue           DOUBLE,
+  genotype_percentage_change       VARCHAR(200),
+  gender_parameter_estimate        DOUBLE,
+  gender_stderr_estimate           DOUBLE,
+  gender_effect_pvalue             DOUBLE,
+  weight_parameter_estimate        DOUBLE,
+  weight_stderr_estimate           DOUBLE,
+  weight_effect_pvalue             DOUBLE,
+  gp1_genotype                     VARCHAR(200),
+  gp1_residuals_normality_test     DOUBLE,
+  gp2_genotype                     VARCHAR(200),
+  gp2_residuals_normality_test     DOUBLE,
+  blups_test                       DOUBLE,
+  rotated_residuals_normality_test DOUBLE,
+  intercept_estimate               DOUBLE,
+  intercept_stderr_estimate        DOUBLE,
+  interaction_significance         BOOLEAN,
+  interaction_effect_pvalue        DOUBLE,
+  gender_female_ko_estimate        DOUBLE,
+  gender_female_ko_stderr_estimate DOUBLE,
+  gender_female_ko_pvalue          DOUBLE,
+  gender_male_ko_estimate          DOUBLE,
+  gender_male_ko_stderr_estimate   DOUBLE,
+  gender_male_ko_pvalue            DOUBLE,
+  classification_tag               VARCHAR(200),
+  additional_information           TEXT,
+
+  PRIMARY KEY (id),
+  KEY organisation_idx (organisation_id),
+  KEY pipeline_idx (pipeline_id),
+  KEY parameter_idx (parameter_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+DROP TABLE IF EXISTS statistical_result_reference_range_plus;
+CREATE TABLE statistical_result_reference_range_plus (
+
+  id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  control_id                       INT(10) UNSIGNED,
+  experimental_id                  INT(10) UNSIGNED,
+  experimental_sex                 ENUM('female', 'hermaphrodite', 'male', 'not_applicable'),
+  experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+  external_db_id                   INT(10),
+  project_id                       INT(10) UNSIGNED,
+  organisation_id                  INT(10) UNSIGNED,
+  pipeline_id                      INT(10) UNSIGNED,
+  procedure_id                     INT(10) UNSIGNED,
+  parameter_id                     INT(10) UNSIGNED,
+  colony_id                        VARCHAR(200),
+  dependent_variable               VARCHAR(200),
+  control_selection_strategy       VARCHAR(100),
+  mp_acc                           VARCHAR(20)      NULL,
+  mp_db_id                         INT(10)          NULL,
+  male_controls                    INT(10) UNSIGNED,
+  male_mutants                     INT(10) UNSIGNED,
+  female_controls                  INT(10) UNSIGNED,
+  female_mutants                   INT(10) UNSIGNED,
+  metadata_group                   VARCHAR(50) DEFAULT '',
+  statistical_method               VARCHAR(200),
+  status                           VARCHAR(200),
+  p_value                          DOUBLE,
+  effect_size                      DOUBLE,
+  classification_tag               VARCHAR(200),
+  additional_information           TEXT,
+
+  PRIMARY KEY (id),
+  KEY organisation_idx (organisation_id),
+  KEY pipeline_idx (pipeline_id),
+  KEY parameter_idx (parameter_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+DROP TABLE IF EXISTS statistical_result_wilcoxon;
+CREATE TABLE statistical_result_wilcoxon (
+
+  id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  control_id                       INT(10) UNSIGNED,
+  experimental_id                  INT(10) UNSIGNED,
+  experimental_sex                 ENUM('female', 'hermaphrodite', 'male', 'not_applicable'),
+  experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+  external_db_id                   INT(10),
+  project_id                       INT(10) UNSIGNED,
+  organisation_id                  INT(10) UNSIGNED,
+  pipeline_id                      INT(10) UNSIGNED,
+  procedure_id                     INT(10) UNSIGNED,
+  parameter_id                     INT(10) UNSIGNED,
+  colony_id                        VARCHAR(200),
+  dependent_variable               VARCHAR(200),
+  control_selection_strategy       VARCHAR(100),
+  mp_acc                           VARCHAR(20)      NULL,
+  mp_db_id                         INT(10)          NULL,
+  male_controls                    INT(10) UNSIGNED,
+  male_mutants                     INT(10) UNSIGNED,
+  female_controls                  INT(10) UNSIGNED,
+  female_mutants                   INT(10) UNSIGNED,
+  metadata_group                   VARCHAR(50) DEFAULT '',
+  statistical_method               VARCHAR(200),
+  status                           VARCHAR(200),
+  p_value                          DOUBLE,
+  effect_size                      DOUBLE,
+  classification_tag               VARCHAR(200),
+  additional_information           TEXT,
+
+  PRIMARY KEY (id),
+  KEY organisation_idx (organisation_id),
+  KEY pipeline_idx (pipeline_id),
+  KEY parameter_idx (parameter_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
