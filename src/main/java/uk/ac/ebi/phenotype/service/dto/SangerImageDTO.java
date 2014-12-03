@@ -606,11 +606,17 @@ public class SangerImageDTO {
 		return mp_id;
 	}
 
+	
+	public List<String> getMpSyns() {
+	
+		return mpSyns;
+	}
 
-	public void setMpSynonyms(List<String> mpSyns) {
 
+	
+	public void setMpSyns(List<String> mpSyns) {
+	
 		this.mpSyns = mpSyns;
-
 	}
 
 

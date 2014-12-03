@@ -433,7 +433,7 @@ public class SangerImagesIndexer {
 										System.err.println("no top level for " + annotation.mp_id);
 									}
 									if (mpSynMap.containsKey(annotation.mp_id)) {
-										o.setMpSynonyms(mpSynMap.get(annotation.mp_id));
+										o.setMpSyns(mpSynMap.get(annotation.mp_id));
 									}
 								}
 

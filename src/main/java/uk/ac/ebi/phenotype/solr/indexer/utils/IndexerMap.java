@@ -174,7 +174,7 @@ public class IndexerMap {
      * associations
      * @throws IndexerException
      */
-    public static Map<String, List<SangerImageDTO>> getSangerImages(SolrServer imagesCore) throws IndexerException {
+    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
         if (sangerImagesMap == null) {
             sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
         }
@@ -273,5 +273,11 @@ public class IndexerMap {
     public static void dumpSangerImagesMap(Map<String, List<SangerImageDTO>> map, String what, Integer maxIterations) {
         SolrUtils.dumpSangerImagesMap(map, what, maxIterations);
     }
+
+	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+
+		Map<String, List<SangerImageDTO>> map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
+		return map;
+	}
     
 }
