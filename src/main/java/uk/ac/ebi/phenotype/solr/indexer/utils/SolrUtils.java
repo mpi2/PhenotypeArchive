@@ -160,7 +160,8 @@ public class SolrUtils {
      * Extract the SOLR base URL from the <code>SolrServer</code>
      * instance
      * @param solrServer the <code>SolrServer</code> instance
-     * @return the SOLR server base URL
+     * @return the SOLR server base URL, if it can be found; or an empty string
+     * if it cannot.
      */
     public static String getBaseURL(SolrServer solrServer) {
         HttpSolrServer httpSolrServer = 
