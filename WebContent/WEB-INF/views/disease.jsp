@@ -132,9 +132,7 @@
             <jsp:include page="disease_predicted_mouse_models_frag.jsp"></jsp:include>            
         </div>
 
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-        <script type="text/javascript" src="http://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js"></script>
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
 
     </jsp:body>
 
