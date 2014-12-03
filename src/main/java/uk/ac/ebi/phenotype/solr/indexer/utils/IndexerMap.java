@@ -49,7 +49,7 @@ public class IndexerMap {
     private static Map<String, List<String>> maTermSynonymsMap = null;
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
-    private static Map<String, Map<String, String>> mpToHpTermsMap = null;
+    private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
 	private static List<AlleleDTO> alleles=null;
     
     
@@ -158,7 +158,7 @@ public class IndexerMap {
      * 
      * @throws IndexerException
      */
-    public static Map<String, Map<String, String>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
+    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
         if (mpToHpTermsMap == null) {
             mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
         }

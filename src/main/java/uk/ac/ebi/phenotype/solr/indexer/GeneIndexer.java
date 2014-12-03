@@ -187,21 +187,32 @@ public class GeneIndexer extends AbstractIndexer {
             		List<String> mpSyns=new ArrayList<>();
             		List<SangerImageDTO> list = sangerImages.get(gene.getMgiAccessionId());
             		for(SangerImageDTO image: list){
-            			if(image.getMp_id()!=null){
-            			mpIds.addAll(image.getMp_id());
-						mpTerms.addAll(image.getMpTerm());
-						mpSyns.addAll(image.getMpSyns());
-            			}
             			
 //            			<field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />
 //    					<field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
 //    					<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
+            			if(image.getMp_id()!=null){
+            			mpIds.addAll(image.getMp_id());
+						mpTerms.addAll(image.getMpTerm());
+						mpSyns.addAll(image.getMpSyns());
+						
 //    					<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
 //    					<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
 //    					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
 //    					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
 //    					<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-//    		
+						gene.setIntermediateMpId(image.getIntermediateMpId());
+						gene.setIntermediateMpTerm(image.getIntermediateMpTerm());
+						gene.setIntermediateMpSynonym(image.getIntermediateMpTermSyn());
+						gene.setAnnotatedHigherLevelMaTermName(image.getAnnotatedHigherLevelMpTermName());
+						
+						
+            			}
+            			
+            			
+
+            			
+            			
 //    					<field column="ma_id" xpath="/response/result/doc/arr[@name='ma_id']/str" />
 //    					<field column="ma_term" xpath="/response/result/doc/arr[@name='ma_term']/str" />
 //    					<field column="ma_term_synonym" xpath="/response/result/doc/arr[@name='ma_term_synonym']/str" />

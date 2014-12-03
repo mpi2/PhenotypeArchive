@@ -70,8 +70,67 @@ public class SangerImageDTO {
     
     // Alleles of a gene
     public static final String ALLELE_NAME = "allele_name";
+    public static final String INTERMEDIATE_MP_ID="intermediate_mp_id";
+    public static final String INTERMEDIATE_MP_TERM="intermediate_mp_term";
+    public static final String INTERMEDIATE_MP_TERM_SYN="intermediate_mp_term_synonym";
+    @Field(INTERMEDIATE_MP_ID)
+    private List<String> intermediateMpId;
+    @Field(INTERMEDIATE_MP_TERM)
+    private List<String> intermediateMpTerm;
     
-    @Field(MA_TERM_ID)
+    @Field(INTERMEDIATE_MP_TERM_SYN)
+    private List<String> intermediateMpTermSyn;
+    
+    
+	
+	
+	public List<String> getIntermediateMpTermSyn() {
+	
+		return intermediateMpTermSyn;
+	}
+
+
+
+
+	
+	public void setIntermediateMpTermSyn(List<String> intermediateMpTermSyn) {
+	
+		this.intermediateMpTermSyn = intermediateMpTermSyn;
+	}
+
+
+
+
+	public List<String> getIntermediateMpTerm() {
+	
+		return intermediateMpTerm;
+	}
+
+
+
+	
+	public void setIntermediateMpTerm(List<String> intermediateMpTerm) {
+	
+		this.intermediateMpTerm = intermediateMpTerm;
+	}
+
+
+
+	public List<String> getIntermediateMpId() {
+	
+		return intermediateMpId;
+	}
+
+
+	
+	public void setIntermediateMpId(List<String> intermediateMpId) {
+	
+		this.intermediateMpId = intermediateMpId;
+	}
+
+
+
+	@Field(MA_TERM_ID)
     private List<String> maTermId;
     
     @Field(ID)
@@ -135,28 +194,28 @@ public class SangerImageDTO {
     private List<String> alleleName;
     
     @Field("hp_id")
-    private String hpId;
+    private List<String> hpId;
     
     
-	public String getHpId() {
+	public List<String> getHpId() {
 	
 		return hpId;
 	}
 
 	
-	public void setHpId(String hpId) {
+	public void setHpId(List<String> hpId) {
 	
 		this.hpId = hpId;
 	}
 
 	
-	public String getHpTerm() {
+	public List<String> getHpTerm() {
 	
 		return hpTerm;
 	}
 
 	
-	public void setHpTerm(String hpTerm) {
+	public void setHpTerm(List<String> hpTerm) {
 	
 		this.hpTerm = hpTerm;
 	}
@@ -164,7 +223,7 @@ public class SangerImageDTO {
 
 
 	@Field("hp_term")
-    private String hpTerm;
+    private List<String> hpTerm;
 
     
     // SETTERS AND GETTERS
