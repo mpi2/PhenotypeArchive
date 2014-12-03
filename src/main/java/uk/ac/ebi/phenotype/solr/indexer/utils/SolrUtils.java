@@ -353,9 +353,8 @@ public class SolrUtils {
         int pos = 0;
         long total = Integer.MAX_VALUE;
         SolrQuery query = new SolrQuery("*:*");
-        query.setRows(BATCH_SIZE);
-        while (pos < 100){//total) {
-            query.setStart(pos);
+       
+            query.setRows(Integer.MAX_VALUE);
             QueryResponse response = null;
             try {
                 response = alleleCore.query(query);
@@ -363,10 +362,10 @@ public class SolrUtils {
                 throw new IndexerException(sse);
             }
             total = response.getResults().getNumFound();
+            System.out.println("total alleles="+total);
             alleleList = response.getBeans(AlleleDTO.class);
             
-            pos += BATCH_SIZE;
-        }
+           
         logger.debug("Loaded {} alleles", alleleList.size());
 
         return alleleList;
