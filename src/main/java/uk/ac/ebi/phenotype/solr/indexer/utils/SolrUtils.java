@@ -17,6 +17,7 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,6 +27,8 @@ import java.util.Map.Entry;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -128,6 +131,48 @@ public class SolrUtils {
         }
     }
     
+    /**
+     * Extract the <code>HttpSolrServer</code> from the <code>SolrServer</code>,
+     * if there is one. Most SolrServer implementations contain an <code>
+     * HttpSolrServer</code> instance. If the supplied solrServer does, that
+     * instance is returned; otherwise, null is returned. The method is synchronized 
+     * to insure thread safety.
+     * 
+     * @param solrServer the <code>SolrServer</code> instance
+     * @return the embedded <code>HttpSolrServer</code>, if there is one; null
+     * otherwise
+     */
+    public static synchronized HttpSolrServer getHttpSolrServer(SolrServer solrServer) {
+        HttpSolrServer httpSolrServer = null;
+        
+        try {
+            Field field = ConcurrentUpdateSolrServer.class.getDeclaredField("server");
+            field.setAccessible(true);
+            httpSolrServer = (HttpSolrServer)field.get(solrServer);
+        } catch (Exception e) {
+            System.out.println("Unable to get ConcurrentUpdateSolrServer's HttpSolrServer field: " + e.getLocalizedMessage());
+        }
+        
+        return httpSolrServer;
+    }
+    
+    /**
+     * Extract the SOLR base URL from the <code>SolrServer</code>
+     * instance
+     * @param solrServer the <code>SolrServer</code> instance
+     * @return the SOLR server base URL
+     */
+    public static String getBaseURL(SolrServer solrServer) {
+        HttpSolrServer httpSolrServer = 
+                (solrServer instanceof HttpSolrServer
+                ? (HttpSolrServer)solrServer
+                : getHttpSolrServer(solrServer));
+        if (httpSolrServer != null) {
+            return httpSolrServer.getBaseURL();
+        }
+        
+        return "";
+    }
     
     // POPULATE METHODS
     
@@ -142,19 +187,9 @@ public class SolrUtils {
      */
     protected static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrServer imagesCore) throws IndexerException {
         if (logger.isDebugEnabled()) {
-            String url = "";
-            try {
-                // This forces an exception. Fortunately, the url we want is embedded in the exception message!
-                // Exception message is: "Server at http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images returned non ok status:500, message:Internal Server Error"
-                url = imagesCore.ping().getRequestUrl();
-            } catch (Exception e) {
-                url = e.getLocalizedMessage().replaceFirst("Server at ", "");
-                int endIndex = url.indexOf(" returned non ok");
-                url = url.substring(0, endIndex);
-            }
-            logger.debug("USING images CORE AT: '" + url + "'");
+            logger.debug("USING images CORE AT: '" + SolrUtils.getBaseURL(imagesCore) + "'");
         }
-
+        
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
