@@ -289,7 +289,7 @@ span.viability, span.fertility {
 
 /* deals with facet count being concatenated when window is resized */
 li.fcat > span.flabel {
-    max-width: 170px;
+    max-width: 180px;
     display: inline-block;
     word-wrap:break-word !important;
 }
