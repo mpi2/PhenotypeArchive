@@ -368,10 +368,10 @@
 
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="latest_phenotyping_centre" type="string" indexed="true" stored="true" multiValued="false"/>
-	
 
 
- </fields>
+
+    </fields>
 
     <uniqueKey>id</uniqueKey>
 
