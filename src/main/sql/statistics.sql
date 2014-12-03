@@ -137,7 +137,7 @@ CREATE TABLE stat_result_phenotype_call_summary (
 DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
 
-  categorical_result_id     INT(10) UNSIGNED DEFAULT NULL,
+  phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
   result_id                 INT(10) UNSIGNED,
   result_table              VARCHAR(200),
 
