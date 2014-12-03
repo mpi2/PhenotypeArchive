@@ -115,6 +115,12 @@
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
+    
+     <bean id="pipelineIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/pipeline"/>
+        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
 
     <!-- Weaves in transactional advice around annotated Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />

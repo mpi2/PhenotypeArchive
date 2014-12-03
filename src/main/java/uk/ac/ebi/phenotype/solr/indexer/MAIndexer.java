@@ -227,7 +227,7 @@ public class MAIndexer extends AbstractIndexer {
                 IndexerMap.dumpOntologyMaTermMap(maParentMap, "Parent map:");
             }
 
-            maImagesMap = IndexerMap.getSangerImages(imagesCore);
+            maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
             if (logger.isDebugEnabled()) {
                 IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
             }

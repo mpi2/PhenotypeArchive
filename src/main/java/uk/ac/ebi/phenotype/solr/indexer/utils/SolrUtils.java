@@ -198,6 +198,72 @@ public class SolrUtils {
         return map;
     }
 
+    
+    /**
+     * Fetch a map of image terms indexed by ma id
+     *
+     * @param imagesCore a valid solr connection
+     * @return a map, indexed by child ma id, of all parent terms with
+     * associations
+     * @throws IndexerException
+     */
+    protected static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+        if (logger.isDebugEnabled()) {
+            String url = "";
+            try {
+                // This forces an exception. Fortunately, the url we want is embedded in the exception message!
+                // Exception message is: "Server at http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images returned non ok status:500, message:Internal Server Error"
+                url = imagesCore.ping().getRequestUrl();
+            } catch (Exception e) {
+                url = e.getLocalizedMessage().replaceFirst("Server at ", "");
+                int endIndex = url.indexOf(" returned non ok");
+                url = url.substring(0, endIndex);
+            }
+            logger.debug("USING images CORE AT: '" + url + "'");
+        }
+
+        Map<String, List<SangerImageDTO>> map = new HashMap();
+
+        int pos = 0;
+        long total = Integer.MAX_VALUE;
+        SolrQuery query = new SolrQuery("mgi_accession_id:*");
+        query.setRows(BATCH_SIZE);
+        while (pos < total) {
+            query.setStart(pos);
+            QueryResponse response = null;
+            try {
+                response = imagesCore.query(query);
+            } catch (Exception e) {
+                throw new IndexerException("Unable to query images core", e);
+            }
+            total = response.getResults().getNumFound();
+            List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
+            for (SangerImageDTO image : imageList) {
+                    if ( ! map.containsKey(image.getAccession())) {
+                        map.put(image.getAccession(), new ArrayList<SangerImageDTO>());
+                    }
+                    String imageId = image.getId();
+                    List<SangerImageDTO> sangerImageList = map.get(image.getAccession());
+
+                    boolean imageFound = false;
+                    for (SangerImageDTO dto : sangerImageList) {
+                        if (dto.getId().equalsIgnoreCase(imageId)) {
+                            imageFound = true;
+                            break;
+                        }
+                    }
+                    // Don't add duplicate images.
+                    if ( ! imageFound) {
+                        map.get(image.getAccession()).add(image);
+                    }
+                
+            }
+            pos += BATCH_SIZE;
+        }
+
+        return map;
+    }
+
     /**
      * Fetch a map of image terms indexed by ma id
      *
@@ -327,4 +393,7 @@ public class SolrUtils {
 
         return mpToHp;
     }
+
+
+	
 }
