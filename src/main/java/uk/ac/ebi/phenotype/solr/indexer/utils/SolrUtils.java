@@ -160,7 +160,8 @@ public class SolrUtils {
      * Extract the SOLR base URL from the <code>SolrServer</code>
      * instance
      * @param solrServer the <code>SolrServer</code> instance
-     * @return the SOLR server base URL
+     * @return the SOLR server base URL, if it can be found; or an empty string
+     * if it cannot.
      */
     public static String getBaseURL(SolrServer solrServer) {
         HttpSolrServer httpSolrServer = 
@@ -380,7 +381,7 @@ public class SolrUtils {
      * 
      * @throws IndexerException
      */
-    protected static Map<String, Map<String, String>> populateMpToHpTermsMap(SolrServer phenodigm_core) throws IndexerException {
+    protected static Map<String, List<Map<String, String>>> populateMpToHpTermsMap(SolrServer phenodigm_core) throws IndexerException {
 
 		// url="q=mp_id:&quot;${nodeIds.term_id}&quot;&amp;rows=999&amp;fq=type:mp_hp&amp;fl=hp_id,hp_term"
         // processor="XPathEntityProcessor" >
@@ -389,7 +390,7 @@ public class SolrUtils {
         // />
         // <field column="hp_term"
         // xpath="/response/result/doc/str[@name='hp_term']" />
-        Map<String, Map<String, String>> mpToHp = new HashMap<>();
+        Map<String, List<Map<String, String>>> mpToHp = new HashMap<>();
 
         int pos = 0;
         long total = Integer.MAX_VALUE;
@@ -411,14 +412,20 @@ public class SolrUtils {
                 if (doc.containsKey("hp_id")) {
                     String hp = (String) doc.get("hp_id");
                     if (doc.containsKey("mp_id")) {
+                    	
                         String mp = (String) doc.get("mp_id");
+                        List<Map<String, String>> mapList=new ArrayList<>();
                         Map<String, String> entryMap = new HashMap<>();
+                        if(mpToHp.containsKey(mp)){
+                        	mapList=mpToHp.get(mp);
+                        }
                         entryMap.put("hp_id", hp);
                         if (doc.containsKey("hp_term")) {
                             String hpTerm = (String) doc.get("hp_term");
                             entryMap.put("hp_term", hpTerm);
                         }
-                        mpToHp.put(mp, entryMap);
+                        mapList.add(entryMap);
+                        mpToHp.put(mp, mapList);
                     }
                 }
 
