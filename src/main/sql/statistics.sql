@@ -133,3 +133,157 @@ CREATE TABLE stat_result_phenotype_call_summary (
   COLLATE =utf8_general_ci
   ENGINE =MyISAM;
 
+-- -----------------------------------------------------------
+-- Statistical results by method
+-- -----------------------------------------------------------
+
+
+DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
+CREATE TABLE statistical_result_phenotype_call_summary (
+
+  phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
+  result_id                 INT(10) UNSIGNED,
+
+  PRIMARY KEY (phenotype_call_summary_id),
+  FOREIGN KEY result_idx (result_id) REFERENCES statistical_result (id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+
+DROP TABLE IF EXISTS statistical_result;
+CREATE TABLE statistical_result (
+
+  id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  control_id                       INT(10) UNSIGNED,
+  experimental_id                  INT(10) UNSIGNED,
+  experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+  external_db_id                   INT(10),
+  project_id                       INT(10) UNSIGNED,
+  organisation_id                  INT(10) UNSIGNED,
+  pipeline_id                      INT(10) UNSIGNED,
+  procedure_id                     INT(10) UNSIGNED,
+  parameter_id                     INT(10) UNSIGNED,
+  pipeline_stable_id               VARCHAR(50),
+  procedure_stable_id              VARCHAR(50),
+  parameter_stable_id              VARCHAR(50),
+  gene_acc                         VARCHAR(20)      NULL,
+  colony_id                        VARCHAR(200),
+  control_selection_strategy       VARCHAR(100),
+  male_mp_acc                      VARCHAR(20)      NULL,
+  female_mp_acc                    VARCHAR(20)      NULL,
+  male_controls                    INT(10) UNSIGNED,
+  male_mutants                     INT(10) UNSIGNED,
+  female_controls                  INT(10) UNSIGNED,
+  female_mutants                   INT(10) UNSIGNED,
+  metadata_group                   VARCHAR(50) DEFAULT '',
+  statistical_method               VARCHAR(200),
+  status                           VARCHAR(200),
+  type                             VARCHAR(200),
+  classification_tag               VARCHAR(200),
+  male_p_value                     DOUBLE,
+  male_effect_size                 DOUBLE,
+  female_p_value                   DOUBLE,
+  female_effect_size               DOUBLE,
+  both_p_value                     DOUBLE,
+  both_effect_size                 DOUBLE,
+
+  PRIMARY KEY (id),
+  KEY organisation_idx (organisation_id),
+  KEY pipeline_idx (pipeline_id),
+  KEY parameter_idx (parameter_id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+
+DROP TABLE IF EXISTS statistical_result_additional;
+CREATE TABLE statistical_result_additional (
+  id                         INT(10) UNSIGNED NOT NULL,
+  raw_output                 MEDIUMTEXT,
+  dataset                    MEDIUMTEXT,
+
+  PRIMARY KEY (id),
+  FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+DROP TABLE IF EXISTS statistical_result_phenstat;
+CREATE TABLE statistical_result_phenstat (
+
+  id                               INT(10) UNSIGNED NOT NULL,
+  interaction_significance         BOOLEAN,
+  batch_significance               BOOLEAN,
+  variance_significance            BOOLEAN,
+  genotype_pvalue                  DOUBLE,
+  genotype_estimate                DOUBLE,
+  genotype_stderr_estimate         DOUBLE,
+  gender_male_pvalue               DOUBLE,
+  gender_male_estimate             DOUBLE,
+  gender_male_stderr_estimate      DOUBLE,
+  gender_female_pvalue             DOUBLE,
+  gender_female_estimate           DOUBLE,
+  gender_female_stderr_estimate    DOUBLE,
+  genotype_effect_pvalue           DOUBLE,
+  genotype_percentage_change       VARCHAR(200),
+  gender_parameter_estimate        DOUBLE,
+  gender_stderr_estimate           DOUBLE,
+  gender_effect_pvalue             DOUBLE,
+  weight_parameter_estimate        DOUBLE,
+  weight_stderr_estimate           DOUBLE,
+  weight_effect_pvalue             DOUBLE,
+  group1_genotype                  VARCHAR(200),
+  group1_residuals_normality_test  DOUBLE,
+  group2_genotype                  VARCHAR(200),
+  group2_residuals_normality_test  DOUBLE,
+  blups_test                       DOUBLE,
+  rotated_residuals_normality_test DOUBLE,
+  intercept_estimate               DOUBLE,
+  intercept_stderr_estimate        DOUBLE,
+  interaction_effect_pvalue        DOUBLE,
+  classification_tag               VARCHAR(200),
+
+  PRIMARY KEY (id),
+  FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+DROP TABLE IF EXISTS statistical_result_fisher_exact;
+CREATE TABLE statistical_result_fisher_exact (
+
+  id                         INT(10) UNSIGNED NOT NULL,
+  category_a                 TEXT,
+  category_b                 TEXT,
+
+  PRIMARY KEY (id),
+  FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+
+
+
+DROP TABLE IF EXISTS statistical_result_manual;
+CREATE TABLE statistical_result_manual (
+
+  id                               INT(10) UNSIGNED NOT NULL,
+  method       VARCHAR(200),
+
+  PRIMARY KEY (id),
+  FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
+

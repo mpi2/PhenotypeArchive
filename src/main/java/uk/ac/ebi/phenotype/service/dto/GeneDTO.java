@@ -54,6 +54,8 @@ public class GeneDTO {
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_synonym";
 
 	public static final String ONTOLOGY_SUBSET = "ontology_subset";
+	public static final String MA_ID = "ma_id";
+	
 	public static final String INFERRED_MA_ID = "inferred_ma_id";
 	public static final String INFERRED_MA_TERM = "inferred_ma_term";
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = "inferred_selected_top_level_ma_id";
@@ -94,6 +96,51 @@ public class GeneDTO {
 	private List<Boolean>impcNovelPredictedInLocus;
 	
 	
+	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_ID)
+	private List<String>selectedTopLevelMaTermId;
+	
+	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
+	private List<String>selectedTopLevelMaTermSynonym;
+	
+	
+	
+	
+	public List<String> getSelectedTopLevelMaTermSynonym() {
+	
+		return selectedTopLevelMaTermSynonym;
+	}
+
+
+
+
+
+	
+	public void setSelectedTopLevelMaTermSynonym(List<String> selectedTopLevelMaTermSynonym) {
+	
+		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
+	}
+
+
+
+
+
+	public List<String> getSelectedTopLevelMaTermId() {
+	
+		return selectedTopLevelMaTermId;
+	}
+
+
+
+
+	
+	public void setSelectedTopLevelMaTermId(List<String> selectedTopLevelMaTermId) {
+	
+		this.selectedTopLevelMaTermId = selectedTopLevelMaTermId;
+	}
+
+
+
+
 	public List<Boolean> getImpcNovelPredictedInLocus() {
 	
 		return impcNovelPredictedInLocus;
