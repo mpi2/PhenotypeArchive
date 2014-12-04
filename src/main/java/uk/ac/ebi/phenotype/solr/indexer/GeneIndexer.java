@@ -1,6 +1,8 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
+import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
+
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
+import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 
@@ -63,8 +66,9 @@ public class GeneIndexer extends AbstractIndexer {
 //	<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>    
 //	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 
-    Map<String,List< Map<String,String>>> phenotypeSummaryGeneAccessionsToPipelineInfo=new HashMap<>();
-    Map<String, List<SangerImageDTO>> sangerImages=new HashMap<>();
+    private Map<String,List< Map<String,String>>> phenotypeSummaryGeneAccessionsToPipelineInfo=new HashMap<>();
+    private Map<String, List<SangerImageDTO>> sangerImages=new HashMap<>();
+    private Map<String, List<MpDTO>> mgiAccessionToMP=new HashMap<>();
     
 //    private Map<String, List<String>> ontologySubsetMap = new HashMap();        // key = term_id.
 //    private Map<String, List<String>> maTermSynonymMap = new HashMap();         // key = term_id.
@@ -184,11 +188,10 @@ public class GeneIndexer extends AbstractIndexer {
             	
             	//do images core data
             	
-            	if(sangerImages.containsKey(gene.getMgiAccessionId())){
+            	if(sangerImages.containsKey(allele.getMgiAccessionId())){
             		List<String>mpIds=new ArrayList<>();
             		List<String> mpTerms=new ArrayList<>();
-            		List<String> mpSyns=new ArrayList<>();
-            		List<SangerImageDTO> list = sangerImages.get(gene.getMgiAccessionId());
+            		List<SangerImageDTO> list = sangerImages.get(allele.getMgiAccessionId());
             		for(SangerImageDTO image: list){
             			
 //            			<field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />
@@ -197,9 +200,7 @@ public class GeneIndexer extends AbstractIndexer {
             			if(image.getMp_id()!=null){
             			mpIds.addAll(image.getMp_id());
 						mpTerms.addAll(image.getMpTerm());
-						if(image.getMpSyns()!=null){
-							mpSyns.addAll(image.getMpSyns());
-						}
+						
 //    					<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
 //    					<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
 //    					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
@@ -240,7 +241,24 @@ public class GeneIndexer extends AbstractIndexer {
             		}
             		
             		gene.setMpId(mpIds);
+            		gene.setMpTerm(mpTerms);
             	}
+            	
+            	//do the mps here
+            	if(allele.getMgiAccessionId()!=null && allele.getMgiAccessionId()!=""){
+            		if(mgiAccessionToMP.containsKey(allele.getMgiAccessionId())){
+            			List<MpDTO> mps=mgiAccessionToMP.get(allele.getMgiAccessionId());
+            			System.out.println("mps size for gene=");
+            			for(MpDTO mp:mps){
+            				System.out.println(allele.getMgiAccessionId()+" mp="+mp.getMpId());
+            			}
+            			
+            		}
+            		
+            		
+            		
+            	}
+            	
             	geneCore.addBean(gene, 60000);
             	count++;
 
@@ -283,8 +301,10 @@ public class GeneIndexer extends AbstractIndexer {
     
     private void initialiseSupportingBeans() throws IndexerException {
     	
-    	populatePhenotypeCallSummaryGeneAccessions();
+    	phenotypeSummaryGeneAccessionsToPipelineInfo=populatePhenotypeCallSummaryGeneAccessions();
     	sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
+    	mgiAccessionToMP=populateMgiAccessionToMp();
+    	System.out.println("mgiAccessionToMP size="+mgiAccessionToMP.size());
 //        try {
 //            // Grab all the supporting database content
 //            ontologySubsetMap = IndexerMap.getMaTermSubsets(ontoDbConnection);
@@ -308,7 +328,11 @@ public class GeneIndexer extends AbstractIndexer {
 //        }
     }
     
-    private void populatePhenotypeCallSummaryGeneAccessions(){
+    private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
+    	return SolrUtils.populateMgiAccessionToMp(mpCore);
+	}
+
+	private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions(){
     	System.out.println("populating PCS pipeline info");
     	String queryString="select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"+
     	" from phenotype_call_summary pcs"+
@@ -355,6 +379,7 @@ public class GeneIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+    	return phenotypeSummaryGeneAccessionsToPipelineInfo;
     
     }
 

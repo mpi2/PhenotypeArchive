@@ -162,7 +162,7 @@ public class IndexerMap {
         if (mpToHpTermsMap == null) {
             mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
         }
-        
+        System.out.println("mpToHpTermsMap size="+mpToHpTermsMap.size());
         return mpToHpTermsMap;
     }
     
