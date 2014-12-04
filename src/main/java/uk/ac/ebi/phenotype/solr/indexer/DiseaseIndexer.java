@@ -310,7 +310,6 @@ public class DiseaseIndexer extends AbstractIndexer {
 
 		DiseaseIndexer main = new DiseaseIndexer();
 		main.initialise(args);
-		main.injectDependencies();
 		main.run();
 
 		logger.info("Process finished.  Exiting.");
