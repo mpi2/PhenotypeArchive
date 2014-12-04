@@ -205,11 +205,13 @@ public class GeneIndexer extends AbstractIndexer {
 //    					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
 //    					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
 //    					<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+						if(image.getIntermediateMpId()!=null){
 						gene.setIntermediateMpId(image.getIntermediateMpId());
 						gene.setIntermediateMpTerm(image.getIntermediateMpTerm());
 						gene.setIntermediateMpSynonym(image.getIntermediateMpTermSyn());
 						gene.setAnnotatedHigherLevelMaTermName(image.getAnnotatedHigherLevelMpTermName());
-						gene.setTopLevelMpSynonym(image.getTopLevelMpTermSynonym());
+						//gene.setTopLevelMpSynonym(image.getTopLevelMpTermSynonym());
+						}
 						
 						
             			}
@@ -228,10 +230,12 @@ public class GeneIndexer extends AbstractIndexer {
 //    					
 //    					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
             				//gene.setSelectedTopLevelMaTermId(image.getSelectedTopLevelMaTermId());
-            				gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
-            				gene.setSelectedTopLevelMaTermId(image.getSelectedTopLevelMaTermId());
-            				gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
-            				gene.setAnnotatedHigherLevelMaTermName(image.getAnnotatedHigherLevelMpTermName());
+            				if(image.getSelectedTopLevelMaTerm()!=null){
+            					gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
+            					gene.setSelectedTopLevelMaTermId(image.getSelectedTopLevelMaTermId());
+            					gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
+            					gene.setAnnotatedHigherLevelMaTermName(image.getAnnotatedHigherLevelMpTermName());
+            				}
             			}
             		}
             		
@@ -243,6 +247,7 @@ public class GeneIndexer extends AbstractIndexer {
 				if (count % 10000 == 0) {
 					System.out.println(" added " + count + " beans");
 				}
+				//if(count>100)break;
             }
            
             System.out.println("commiting to gene core for last time!");
@@ -258,6 +263,7 @@ public class GeneIndexer extends AbstractIndexer {
 		System.out.println("time was " + (endTime - startTime) / 1000);
 
         logger.info("Gene Indexer complete!");
+        System.exit(0);
     }
     
     
@@ -303,6 +309,7 @@ public class GeneIndexer extends AbstractIndexer {
     }
     
     private void populatePhenotypeCallSummaryGeneAccessions(){
+    	System.out.println("populating PCS pipeline info");
     	String queryString="select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"+
     	" from phenotype_call_summary pcs"+
     	" inner join ontology_term term on term.acc=mp_acc"+
