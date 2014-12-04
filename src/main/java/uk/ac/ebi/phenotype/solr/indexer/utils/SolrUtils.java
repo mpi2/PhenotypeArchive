@@ -47,272 +47,252 @@ import static uk.ac.ebi.phenotype.solr.indexer.utils.OntologyUtils.BATCH_SIZE;
  */
 public class SolrUtils {
 
+
 	private static final Logger logger = LoggerFactory.getLogger(SolrUtils.class);
 
+    
+    // PRIVATE METHODS
+    
+    
+    private static void printItemList(String label, List<String> itemList) {
+        System.out.print("\t" + label);
+        int itemCount = 0;
+        if (itemList == null) {
+            System.out.print("\t[null]");
+        } else {
+            for (String item : itemList) {
+                if (itemCount == 0) {
+                    System.out.print("\t[");
+                } else {
+                    System.out.print(", ");
+                }
+                itemCount ++;
+                System.out.print(item);
+                if (itemCount == itemList.size()) {
+                    System.out.print("]");
+                }
+            }
+        }
 
-	// PRIVATE METHODS
+        System.out.println();
+    }
+    
+    
+    // UTILITY METHODS
+    
 
-	private static void printItemList(String label, List<String> itemList) {
+       
+    /**
+     * Extract the <code>HttpSolrServer</code> from the <code>SolrServer</code>,
+     * if there is one. Most SolrServer implementations contain an <code>
+     * HttpSolrServer</code> instance. If the supplied solrServer does, that
+     * instance is returned; otherwise, null is returned. The method is synchronized 
+     * to insure thread safety.
+     * 
+     * @param solrServer the <code>SolrServer</code> instance
+     * @return the embedded <code>HttpSolrServer</code>, if there is one; null
+     * otherwise
+     */
+    public static synchronized HttpSolrServer getHttpSolrServer(SolrServer solrServer) {
+        if (solrServer instanceof HttpSolrServer) {
+            return (HttpSolrServer)solrServer;
+        }
+        
+        HttpSolrServer httpSolrServer = null;
+        try {
+            Field[] fieldList = solrServer.getClass().getDeclaredFields();
+            for (Field field : fieldList) {
+                field.setAccessible(true);
+                Object o = field.get(solrServer);
+                if (o instanceof HttpSolrServer) {
+                    httpSolrServer = (HttpSolrServer)o;
+                    return httpSolrServer;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Exception while trying to extract HttpSolrServer from SolrServer: " + e.getLocalizedMessage());
+        }
+        
+        return httpSolrServer;
+    }
+    
+    /**
+     * Extract the SOLR base URL from the <code>SolrServer</code>
+     * instance
+     * @param solrServer the <code>SolrServer</code> instance
+     * @return the SOLR server base URL, if it can be found; or an empty string
+     * if it cannot.
+     */
+    public static String getBaseURL(SolrServer solrServer) {
+        HttpSolrServer httpSolrServer = 
+                (solrServer instanceof HttpSolrServer
+                ? (HttpSolrServer)solrServer
+                : getHttpSolrServer(solrServer));
+        if (httpSolrServer != null) {
+            return httpSolrServer.getBaseURL();
+        }
+        
+        return "";
+    }
+    
+    // POPULATE METHODS
+    
+    
+    /**
+     * Fetch a map of image terms indexed by ma id
+     *
+     * @param imagesCore a valid solr connection
+     * @return a map, indexed by child ma id, of all parent terms with
+     * associations
+     * @throws IndexerException
+     */
+    protected static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrServer imagesCore) throws IndexerException {
+        Map<String, List<SangerImageDTO>> map = new HashMap();
 
-		System.out.print("\t" + label);
-		int itemCount = 0;
-		if (itemList == null) {
-			System.out.print("\t[null]");
-		} else {
-			for (String item : itemList) {
-				if (itemCount == 0) {
-					System.out.print("\t[");
-				} else {
-					System.out.print(", ");
-				}
-				itemCount++;
-				System.out.print(item);
-				if (itemCount == itemList.size()) {
-					System.out.print("]");
-				}
-			}
-		}
+        int pos = 0;
+        long total = Integer.MAX_VALUE;
+        SolrQuery query = new SolrQuery("maTermId:*");
+        query.setRows(BATCH_SIZE);
+        while (pos < total) {
+            query.setStart(pos);
+            QueryResponse response = null;
+            try {
+                response = imagesCore.query(query);
+            } catch (Exception e) {
+                throw new IndexerException("Unable to query images core", e);
+            }
+            total = response.getResults().getNumFound();
+            List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
+            for (SangerImageDTO image : imageList) {
+                for (String termId : image.getMaTermId()) {
+                    if ( ! map.containsKey(termId)) {
+                        map.put(termId, new ArrayList<SangerImageDTO>());
+                    }
+                    String imageId = image.getId();
+                    List<SangerImageDTO> sangerImageList = map.get(termId);
 
-		System.out.println();
-	}
+                    boolean imageFound = false;
+                    for (SangerImageDTO dto : sangerImageList) {
+                        if (dto.getId().equalsIgnoreCase(imageId)) {
+                            imageFound = true;
+                            break;
+                        }
+                    }
+                    // Don't add duplicate images.
+                    if ( ! imageFound) {
+                        map.get(termId).add(image);
+                    }
+                }
+            }
+            pos += BATCH_SIZE;
+        }
 
+        return map;
+    }
 
-	// UTILITY METHODS
+    
+    /**
+     * Fetch a map of image terms indexed by ma id
+     *
+     * @param imagesCore a valid solr connection
+     * @return a map, indexed by child ma id, of all parent terms with
+     * associations
+     * @throws IndexerException
+     */
+    protected static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+        if (logger.isDebugEnabled()) {
+            String url = "";
+            try {
+                // This forces an exception. Fortunately, the url we want is embedded in the exception message!
+                // Exception message is: "Server at http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images returned non ok status:500, message:Internal Server Error"
+                url = imagesCore.ping().getRequestUrl();
+            } catch (Exception e) {
+                url = e.getLocalizedMessage().replaceFirst("Server at ", "");
+                int endIndex = url.indexOf(" returned non ok");
+                url = url.substring(0, endIndex);
+            }
+            logger.debug("USING images CORE AT: '" + url + "'");
+        }
 
-	/**
-	 * Dumps out the list of <code>SangerImageDTO</code>, prepending the <code>
-	 * what</code> string for map identification.
-	 * 
-	 * @param map
-	 *            the map to dump
-	 * @param what
-	 *            a string identifying the map, prepended to the output.
-	 * @param maxIterations
-	 *            The maximum number of iterations to dump. Any value not
-	 *            greater than 0 (including null) will dump the entire map.
-	 */
-	protected static void dumpSangerImagesMap(Map<String, List<SangerImageDTO>> map, String what, Integer maxIterations) {
+        Map<String, List<SangerImageDTO>> map = new HashMap();
 
-		if ((maxIterations == null) || (maxIterations < 1)) {
-			maxIterations = map.size();
-		}
+        int pos = 0;
+        long total = Integer.MAX_VALUE;
+        SolrQuery query = new SolrQuery("mgi_accession_id:*");
+        query.setRows(BATCH_SIZE);
+        while (pos < total) {
+            query.setStart(pos);
+            QueryResponse response = null;
+            try {
+                response = imagesCore.query(query);
+            } catch (Exception e) {
+                throw new IndexerException("Unable to query images core", e);
+            }
+            total = response.getResults().getNumFound();
+            List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
+            for (SangerImageDTO image : imageList) {
+                    if ( ! map.containsKey(image.getAccession())) {
+                        map.put(image.getAccession(), new ArrayList<SangerImageDTO>());
+                    }
+                    String imageId = image.getId();
+                    List<SangerImageDTO> sangerImageList = map.get(image.getAccession());
 
-		System.out.println(what);
+                    boolean imageFound = false;
+                    for (SangerImageDTO dto : sangerImageList) {
+                        if (dto.getId().equalsIgnoreCase(imageId)) {
+                            imageFound = true;
+                            break;
+                        }
+                    }
+                    // Don't add duplicate images.
+                    if ( ! imageFound) {
+                        map.get(image.getAccession()).add(image);
+                    }
+                
+            }
+            pos += BATCH_SIZE;
+        }
 
-		Iterator<Entry<String, List<SangerImageDTO>>> it = map.entrySet().iterator();
-		while ((it.hasNext()) && (maxIterations-- > 0)) {
-			Entry<String, List<SangerImageDTO>> entry = it.next();
-			System.out.println("KEY: " + entry.getKey());
-			List<SangerImageDTO> dtoList = entry.getValue();
-			for (SangerImageDTO dto : dtoList) {
-				printItemList("procedure_name:", dto.getProcedureName());
-				printItemList("expName:", dto.getExpName());
-				printItemList("expName_exp:", dto.getExpNameExp());
-				printItemList("symbol_gene:", dto.getSymbolGene());
+        return map;
+    }
 
-				printItemList("mgi_accession_id:", dto.getMgiAccessionId());
-				printItemList("marker_symbol:", dto.getMarkerSymbol());
-				printItemList("marker_name:", dto.getMarkerName());
-				printItemList("marker_synonym:", dto.getMarkerSynonym());
-				printItemList("marker_type:", dto.getMarkerType());
-				printItemList("human_gene_symbol:", dto.getHumanGeneSymbol());
+    
+    
+    /**
+     * Fetch all alleles
+     *
+     * @param alleleCore a valid solr connection
+     * @return a list of all alleles
+     * 
+     * @throws IndexerException
+     */
+    protected static List<AlleleDTO> getAllAlleles(SolrServer alleleCore) throws IndexerException {
+    	List<AlleleDTO> alleleList=new ArrayList<>();
 
-				printItemList("status:", dto.getStatus());
-				printItemList("imits_phenotype_started:", dto.getImitsPhenotypeStarted());
-				printItemList("imits_phenotype_complete:", dto.getImitsPhenotypeComplete());
-				printItemList("imits_phenotype_status:", dto.getImitsPhenotypeStatus());
+        int pos = 0;
+        long total = Integer.MAX_VALUE;
+        SolrQuery query = new SolrQuery("*:*");
+       
+            query.setRows(Integer.MAX_VALUE);
+            QueryResponse response = null;
+            try {
+                response = alleleCore.query(query);
+            } catch (SolrServerException sse) {
+                throw new IndexerException(sse);
+            }
+            total = response.getResults().getNumFound();
+            System.out.println("total alleles="+total);
+            alleleList = response.getBeans(AlleleDTO.class);
+            
+           
+        logger.debug("Loaded {} alleles", alleleList.size());
 
-				printItemList("latest_phenotype_status:", dto.getLatestPhenotypeStatus());
-
-				System.out.println("\tlegacy_phenotype_status:\t" + dto.getLegacyPhenotypeStatus());
-				printItemList("latest_production_centre:", dto.getLatestProductionCentre());
-				printItemList("latest_phenotyping_centre:", dto.getLatestPhenotypingCentre());
-
-				printItemList("allele_name:", dto.getAlleleName());
-				System.out.println();
-			}
-
-			System.out.println();
-		}
-	}
-
-
-	/**
-	 * Extract the <code>HttpSolrServer</code> from the <code>SolrServer</code>,
-	 * if there is one. Most SolrServer implementations contain an <code>
-	 * HttpSolrServer</code> instance. If the supplied solrServer does, that
-	 * instance is returned; otherwise, null is returned. The method is
-	 * synchronized to insure thread safety.
-	 * 
-	 * @param solrServer
-	 *            the <code>SolrServer</code> instance
-	 * @return the embedded <code>HttpSolrServer</code>, if there is one; null
-	 *         otherwise
-	 */
-	public static synchronized HttpSolrServer getHttpSolrServer(SolrServer solrServer) {
-
-		HttpSolrServer httpSolrServer = null;
-
-		try {
-			Field field = ConcurrentUpdateSolrServer.class.getDeclaredField("server");
-			field.setAccessible(true);
-			httpSolrServer = (HttpSolrServer) field.get(solrServer);
-		} catch (Exception e) {
-			System.out.println("Unable to get ConcurrentUpdateSolrServer's HttpSolrServer field: " + e.getLocalizedMessage());
-		}
-
-		return httpSolrServer;
-	}
-
-
-	/**
-	 * Extract the SOLR base URL from the <code>SolrServer</code> instance
-	 * 
-	 * @param solrServer
-	 *            the <code>SolrServer</code> instance
-	 * @return the SOLR server base URL, if it can be found; or an empty string
-	 *         if it cannot.
-	 */
-	public static String getBaseURL(SolrServer solrServer) {
-
-		HttpSolrServer httpSolrServer = (solrServer instanceof HttpSolrServer ? (HttpSolrServer) solrServer : getHttpSolrServer(solrServer));
-		if (httpSolrServer != null) { return httpSolrServer.getBaseURL(); }
-
-		return "";
-	}
-
-
-	// POPULATE METHODS
-
-	/**
-	 * Fetch a map of image terms indexed by ma id
-	 * 
-	 * @param imagesCore
-	 *            a valid solr connection
-	 * @return a map, indexed by child ma id, of all parent terms with
-	 *         associations
-	 * @throws IndexerException
-	 */
-	protected static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrServer imagesCore)
-	throws IndexerException {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("USING images CORE AT: '" + SolrUtils.getBaseURL(imagesCore) + "'");
-		}
-
-		Map<String, List<SangerImageDTO>> map = new HashMap();
-
-		int pos = 0;
-		long total = Integer.MAX_VALUE;
-		SolrQuery query = new SolrQuery("maTermId:*");
-		query.setRows(BATCH_SIZE);
-		while (pos < total) {
-			query.setStart(pos);
-			QueryResponse response = null;
-			try {
-				response = imagesCore.query(query);
-			} catch (Exception e) {
-				throw new IndexerException("Unable to query images core", e);
-			}
-			total = response.getResults().getNumFound();
-			List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
-			for (SangerImageDTO image : imageList) {
-				for (String termId : image.getMaTermId()) {
-					if (!map.containsKey(termId)) {
-						map.put(termId, new ArrayList<SangerImageDTO>());
-					}
-					String imageId = image.getId();
-					List<SangerImageDTO> sangerImageList = map.get(termId);
-
-					boolean imageFound = false;
-					for (SangerImageDTO dto : sangerImageList) {
-						if (dto.getId().equalsIgnoreCase(imageId)) {
-							imageFound = true;
-							break;
-						}
-					}
-					// Don't add duplicate images.
-					if (!imageFound) {
-						map.get(termId).add(image);
-					}
-				}
-			}
-			pos += BATCH_SIZE;
-		}
-
-		return map;
-	}
+        return alleleList;
+    }
 
 
-	/**
-	 * Fetch a map of image terms indexed by ma id
-	 * 
-	 * @param imagesCore
-	 *            a valid solr connection
-	 * @return a map, indexed by child ma id, of all parent terms with
-	 *         associations
-	 * @throws IndexerException
-	 */
-	protected static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore)
-	throws IndexerException {
 
-		if (logger.isDebugEnabled()) {
-			String url = "";
-			try {
-				// This forces an exception. Fortunately, the url we want is
-				// embedded in the exception message!
-				// Exception message is:
-				// "Server at http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images returned non ok status:500, message:Internal Server Error"
-				url = imagesCore.ping().getRequestUrl();
-			} catch (Exception e) {
-				url = e.getLocalizedMessage().replaceFirst("Server at ", "");
-				int endIndex = url.indexOf(" returned non ok");
-				url = url.substring(0, endIndex);
-			}
-			logger.debug("USING images CORE AT: '" + url + "'");
-		}
 
-		Map<String, List<SangerImageDTO>> map = new HashMap();
-
-		int pos = 0;
-		long total = Integer.MAX_VALUE;
-		SolrQuery query = new SolrQuery("mgi_accession_id:*");
-		query.setRows(BATCH_SIZE);
-		while (pos < total) {
-			query.setStart(pos);
-			QueryResponse response = null;
-			try {
-				response = imagesCore.query(query);
-			} catch (Exception e) {
-				throw new IndexerException("Unable to query images core", e);
-			}
-			total = response.getResults().getNumFound();
-			List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
-			for (SangerImageDTO image : imageList) {
-				if (!map.containsKey(image.getAccession())) {
-					map.put(image.getAccession(), new ArrayList<SangerImageDTO>());
-				}
-				String imageId = image.getId();
-				List<SangerImageDTO> sangerImageList = map.get(image.getAccession());
-
-				boolean imageFound = false;
-				for (SangerImageDTO dto : sangerImageList) {
-					if (dto.getId().equalsIgnoreCase(imageId)) {
-						imageFound = true;
-						break;
-					}
-				}
-				// Don't add duplicate images.
-				if (!imageFound) {
-					map.get(image.getAccession()).add(image);
-				}
-
-			}
-			pos += BATCH_SIZE;
-		}
-
-		return map;
-	}
 
 
 	/**
@@ -358,39 +338,6 @@ public class SolrUtils {
 	}
 
 
-	/**
-	 * Fetch all alleles
-	 * 
-	 * @param alleleCore
-	 *            a valid solr connection
-	 * @return a list of all alleles
-	 * 
-	 * @throws IndexerException
-	 */
-	protected static List<AlleleDTO> getAllAlleles(SolrServer alleleCore)
-	throws IndexerException {
-
-		List<AlleleDTO> alleleList = new ArrayList<>();
-
-		int pos = 0;
-		long total = Integer.MAX_VALUE;
-		SolrQuery query = new SolrQuery("*:*");
-
-		query.setRows(Integer.MAX_VALUE);
-		QueryResponse response = null;
-		try {
-			response = alleleCore.query(query);
-		} catch (SolrServerException sse) {
-			throw new IndexerException(sse);
-		}
-		total = response.getResults().getNumFound();
-		System.out.println("total alleles=" + total);
-		alleleList = response.getBeans(AlleleDTO.class);
-
-		logger.debug("Loaded {} alleles", alleleList.size());
-
-		return alleleList;
-	}
 
 
 	/**
@@ -504,6 +451,64 @@ public class SolrUtils {
 			pos += BATCH_SIZE;
 		}
 		return mps;
+	}
+
+	
+	/**
+	 * Dumps out the list of <code>SangerImageDTO</code>, prepending the <code>
+	 * what</code> string for map identification.
+	 * 
+	 * @param map
+	 *            the map to dump
+	 * @param what
+	 *            a string identifying the map, prepended to the output.
+	 * @param maxIterations
+	 *            The maximum number of iterations to dump. Any value not
+	 *            greater than 0 (including null) will dump the entire map.
+	 */
+	protected static void dumpSangerImagesMap(Map<String, List<SangerImageDTO>> map, String what, Integer maxIterations) {
+
+		if ((maxIterations == null) || (maxIterations < 1)) {
+			maxIterations = map.size();
+		}
+
+		System.out.println(what);
+
+		Iterator<Entry<String, List<SangerImageDTO>>> it = map.entrySet().iterator();
+		while ((it.hasNext()) && (maxIterations-- > 0)) {
+			Entry<String, List<SangerImageDTO>> entry = it.next();
+			System.out.println("KEY: " + entry.getKey());
+			List<SangerImageDTO> dtoList = entry.getValue();
+			for (SangerImageDTO dto : dtoList) {
+				printItemList("procedure_name:", dto.getProcedureName());
+				printItemList("expName:", dto.getExpName());
+				printItemList("expName_exp:", dto.getExpNameExp());
+				printItemList("symbol_gene:", dto.getSymbolGene());
+
+				printItemList("mgi_accession_id:", dto.getMgiAccessionId());
+				printItemList("marker_symbol:", dto.getMarkerSymbol());
+				printItemList("marker_name:", dto.getMarkerName());
+				printItemList("marker_synonym:", dto.getMarkerSynonym());
+				printItemList("marker_type:", dto.getMarkerType());
+				printItemList("human_gene_symbol:", dto.getHumanGeneSymbol());
+
+				printItemList("status:", dto.getStatus());
+				printItemList("imits_phenotype_started:", dto.getImitsPhenotypeStarted());
+				printItemList("imits_phenotype_complete:", dto.getImitsPhenotypeComplete());
+				printItemList("imits_phenotype_status:", dto.getImitsPhenotypeStatus());
+
+				printItemList("latest_phenotype_status:", dto.getLatestPhenotypeStatus());
+
+				System.out.println("\tlegacy_phenotype_status:\t" + dto.getLegacyPhenotypeStatus());
+				printItemList("latest_production_centre:", dto.getLatestProductionCentre());
+				printItemList("latest_phenotyping_centre:", dto.getLatestPhenotypingCentre());
+
+				printItemList("allele_name:", dto.getAlleleName());
+				System.out.println();
+			}
+
+			System.out.println();
+		}
 	}
 
 }
