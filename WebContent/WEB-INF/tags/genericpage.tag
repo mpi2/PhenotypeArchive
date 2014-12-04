@@ -130,14 +130,9 @@ ga('send', 'pageview');
 
 <!-- javascript -->
 <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}"></script>
-<!--<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
-<!--<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>-->
-<!--<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js?v=${version}'></script>-->
-<!--<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js?v=${version}'></script>-->
-<!--<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js?v=${version}'></script>-->
-
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery-1.10.2.min.js?v=${version}"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery-ui-1.10.3.min.js?v=${version}"></script>
+<!--We're calling these from Google as this will download from the closest geographic location which will speed page-loads for Aussies and Kiwis-->
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/DataTables-1.10.4/media/js/jquery.dataTables.min.js?v=${version}"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/DataTables-1.10.4/extensions/TableTools/js/dataTables.tableTools.min.js?v=${version}"></script>
         

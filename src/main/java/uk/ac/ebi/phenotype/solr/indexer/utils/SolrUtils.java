@@ -143,14 +143,23 @@ public class SolrUtils {
      * otherwise
      */
     public static synchronized HttpSolrServer getHttpSolrServer(SolrServer solrServer) {
-        HttpSolrServer httpSolrServer = null;
+        if (solrServer instanceof HttpSolrServer) {
+            return (HttpSolrServer)solrServer;
+        }
         
+        HttpSolrServer httpSolrServer = null;
         try {
-            Field field = ConcurrentUpdateSolrServer.class.getDeclaredField("server");
-            field.setAccessible(true);
-            httpSolrServer = (HttpSolrServer)field.get(solrServer);
+            Field[] fieldList = solrServer.getClass().getDeclaredFields();
+            for (Field field : fieldList) {
+                field.setAccessible(true);
+                Object o = field.get(solrServer);
+                if (o instanceof HttpSolrServer) {
+                    httpSolrServer = (HttpSolrServer)o;
+                    return httpSolrServer;
+                }
+            }
         } catch (Exception e) {
-            System.out.println("Unable to get ConcurrentUpdateSolrServer's HttpSolrServer field: " + e.getLocalizedMessage());
+            System.out.println("Exception while trying to extract HttpSolrServer from SolrServer: " + e.getLocalizedMessage());
         }
         
         return httpSolrServer;
@@ -187,10 +196,6 @@ public class SolrUtils {
      * @throws IndexerException
      */
     protected static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrServer imagesCore) throws IndexerException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("USING images CORE AT: '" + SolrUtils.getBaseURL(imagesCore) + "'");
-        }
-        
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
