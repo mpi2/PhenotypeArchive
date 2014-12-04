@@ -527,11 +527,11 @@
                 var diseaseTables= [
                     {id: '#orthologous_diseases_table',
                         tableConf:{
-                        "processing": true,
-                        "paging": false,
-                        "info": false,
-                        "searching": false,
-                        "order": [[2, 'desc'], [4, 'desc'], [3, 'desc']]
+                        processing: true,
+                        paging: false,
+                        info: false,
+                        searching: false,
+                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']]
                     }},
                     {id: '#predicted_diseases_table', 
                         tableConf: {
