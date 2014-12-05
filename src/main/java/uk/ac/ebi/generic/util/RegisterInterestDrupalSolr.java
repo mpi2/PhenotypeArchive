@@ -2,6 +2,7 @@ package uk.ac.ebi.generic.util;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,8 @@ public class RegisterInterestDrupalSolr {
 
 	private Boolean loggedIn = null;
 	private List<String> interestingGenes = null;
-
+	private List<String> interestingMps = null;
+	
 	public RegisterInterestDrupalSolr(Map<String,String> config, HttpServletRequest request) {
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
 		this.drupalProxy = new DrupalHttpProxy(request);
@@ -50,7 +52,7 @@ public class RegisterInterestDrupalSolr {
 
 		if (interestingGenes == null) {
 			interestingGenes = new ArrayList<String>();
-	
+	System.out.println(drupalBaseUrl);
 			try {
 				URL url = new URL(drupalBaseUrl + "/genesofinterest");
 				String content = drupalProxy.getContent(url);
@@ -65,10 +67,35 @@ public class RegisterInterestDrupalSolr {
 				e.printStackTrace();
 			}
 		}
-
+		
 		return interestingGenes.contains(geneid);
 	}
 	
+	public boolean mpAlreadyInterested(String mpid) {
+		
+		
+		if ( ! loggedIn()) { return false; }
+
+		if (interestingMps == null) {
+			interestingMps = new ArrayList<String>();
+			System.out.println(drupalBaseUrl);
+			try {
+				URL url = new URL(drupalBaseUrl + "/phenotypesofinterest");
+				String content = drupalProxy.getContent(url);
+				JSONObject j = (JSONObject) JSONSerializer.toJSON(content);
+				if(j.has("MPterms")) {
+					JSONArray ar = j.getJSONArray("MPterms");
+					for(int i = 0; i<ar.size();i++) {
+						interestingMps.add(ar.getString(i));
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return interestingMps.contains(mpid);
+	}
 	
 	/**
 	 * is this user logged in
