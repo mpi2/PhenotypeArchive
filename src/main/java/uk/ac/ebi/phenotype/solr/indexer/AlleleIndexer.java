@@ -15,8 +15,6 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -32,25 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 
 import javax.annotation.Resource;
-import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,7 +48,7 @@ import java.util.*;
 /**
  * @author Matt
  */
-public class AlleleIndexer {
+public class AlleleIndexer extends AbstractIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
 	public static final int PHENODIGM_BATCH_SIZE = 50000;
@@ -123,68 +110,82 @@ public class AlleleIndexer {
 	}
 
 
-	public void run() throws IOException, SolrServerException {
+	@Override
+	protected Logger getLogger() {
 
-		initializeSolrCores();
+		return logger;
+	}
+
+
+	public void run() throws IndexerException {
 
 		int start = 0;
 		long rows = 0;
 		long startTime = new Date().getTime();
-		SolrQuery query = new SolrQuery("mgi_accession_id:*");
-		query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
-		query.setRows(BATCH_SIZE);
 
-		logger.info("Populating lookups");
+		try {
+			initializeSolrCores();
 
-		populateStatusLookup();
-		logger.info("Populated status lookup, {} records", statusLookup.size());
+			SolrQuery query = new SolrQuery("mgi_accession_id:*");
+			query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
+			query.setRows(BATCH_SIZE);
 
-		populateHumanSymbolLookup();
-		logger.info("Populated human symbol lookup, {} records", humanSymbolLookup.size());
+			logger.info("Populating lookups");
 
-		populateDiseaseLookup();
-		logger.info("Populated disease lookup, {} records", diseaseLookup.size());
+			populateStatusLookup();
+			logger.info("Populated status lookup, {} records", statusLookup.size());
 
-		populateLegacyLookup();
-		logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
+			populateHumanSymbolLookup();
+			logger.info("Populated human symbol lookup, {} records", humanSymbolLookup.size());
 
-		alleleCore.deleteByQuery("*:*");
-		alleleCore.commit();
+			populateDiseaseLookup();
+			logger.info("Populated disease lookup, {} records", diseaseLookup.size());
 
-		while (start <= rows) {
-			query.setStart(start);
-			QueryResponse response = sangerAlleleCore.query(query);
-			rows = response.getResults().getNumFound();
-			List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
+			populateLegacyLookup();
+			logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
 
-			// Convert to Allele DTOs
-			Map<String, AlleleDTO> alleles = convertSangerGeneBeans(sangerGenes);
+			alleleCore.deleteByQuery("*:*");
+			alleleCore.commit();
 
-			// Look up the marker synonyms
-			lookupMarkerSynonyms(alleles);
+			while (start <= rows) {
+				query.setStart(start);
+				QueryResponse response = sangerAlleleCore.query(query);
+				rows = response.getResults().getNumFound();
+				List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
 
-			// Look up the human mouse symbols
-			lookupHumanMouseSymbols(alleles);
+				// Convert to Allele DTOs
+				Map<String, AlleleDTO> alleles = convertSangerGeneBeans(sangerGenes);
 
-			// Look up the ES cell status
-			lookupEsCellStatus(alleles);
+				// Look up the marker synonyms
+				lookupMarkerSynonyms(alleles);
 
-			// Look up the disease data
-			lookupDiseaseData(alleles);
+				// Look up the human mouse symbols
+				lookupHumanMouseSymbols(alleles);
 
-			// Do the second set of mappings
-			doSangerAlleleMapping(alleles);
+				// Look up the ES cell status
+				lookupEsCellStatus(alleles);
 
-			// Now index the alleles
-			indexAlleles(alleles);
+				// Look up the disease data
+				lookupDiseaseData(alleles);
 
-			start += BATCH_SIZE;
+				// Do the second set of mappings
+				doSangerAlleleMapping(alleles);
 
-			logger.info("Indexed {} records", start);
+				// Now index the alleles
+				indexAlleles(alleles);
 
+				start += BATCH_SIZE;
+
+				logger.info("Indexed {} records", start);
+
+			}
+
+			alleleCore.commit();
+
+		} catch (SolrServerException | IOException e) {
+			throw new IndexerException(e);
 		}
 
-		alleleCore.commit();
 		logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
 	}
 
@@ -576,62 +577,10 @@ public class AlleleIndexer {
 	}
 
 
-	public static void main(String[] args) throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
+	public static void main(String[] args) throws IndexerException {
 
-		OptionParser parser = new OptionParser();
-
-		// parameter to indicate which spring context file to use
-		parser.accepts("context").withRequiredArg().ofType(String.class);
-
-		OptionSet options = parser.parse(args);
-		String context = (String) options.valuesOf("context").get(0);
-
-		logger.info("Using application context file {}", context);
-
-		// Wire up spring support for this application
 		AlleleIndexer main = new AlleleIndexer();
-
-		ApplicationContext applicationContext;
-
-		File f = new File(context);
-		if (f.exists() && !f.isDirectory()) {
-
-			try {
-
-				// Try context as a file resource
-				applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-
-			} catch (RuntimeException e) {
-
-				logger.warn("An error occurred loading the file: {}", e.getMessage());
-
-				// Try context as a class path resource
-				applicationContext = new ClassPathXmlApplicationContext(context);
-
-				logger.warn("Using classpath app-config file: {}", context);
-
-			}
-
-		} else {
-
-			// Try context as a class path resource
-			applicationContext = new ClassPathXmlApplicationContext(context);
-
-			logger.warn("Using classpath app-config file: {}", context);
-
-		}
-
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-		// allow hibernate session to stay open the whole execution
-		PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-		DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-		transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-		transactionManager.getTransaction(transactionAttribute);
-
-		DataSource ds = ((DataSource) applicationContext.getBean("komp2DataSource"));
-		connection = ds.getConnection();
-
+		main.initialise(args);
 		main.run();
 
 		logger.info("Process finished.  Exiting.");

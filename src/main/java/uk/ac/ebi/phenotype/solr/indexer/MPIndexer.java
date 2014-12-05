@@ -77,7 +77,7 @@ public class MPIndexer extends AbstractIndexer {
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
-    private static SolrServer phenodigmCore;
+    private SolrServer phenodigmCore;
 
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
@@ -783,7 +783,7 @@ public class MPIndexer extends AbstractIndexer {
 
             for (MPHPBean bean : hpBeans) {
                 hpIds.add(bean.getHpId());
-                hpIds.add(bean.getHpTerm());
+                hpTerms.add(bean.getHpTerm());
             }
 
             if (mp.getHpId() == null) {
@@ -835,7 +835,7 @@ public class MPIndexer extends AbstractIndexer {
             mp.getTopLevelMpId().addAll(topLevelMpIds);
             mp.getTopLevelMpTerm().addAll(topLevelMpTerms);
             mp.getTopLevelMpTermId().addAll(topLevelMpTermIds);
-            mp.getTopLevelMpTermSynonym().addAll(new ArrayList<String>(topLevelSynonyms));
+            mp.getTopLevelMpTermSynonym().addAll(new ArrayList<>(topLevelSynonyms));
         }
     }
 
@@ -849,8 +849,8 @@ public class MPIndexer extends AbstractIndexer {
                 for (MPTermNodeBean bean : intermediateTerms.get(intId)) {
                     intermediateTermIds.add(bean.getTermId());
                     intermediateTermNames.add(bean.getName());
-                    if (mpTermSynonyms.containsKey(intId)) {
-                        intermediateSynonyms.addAll(mpTermSynonyms.get(intId));
+                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
+                        intermediateSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
                     }
                 }
             }
@@ -862,7 +862,7 @@ public class MPIndexer extends AbstractIndexer {
             }
             mp.getIntermediateMpId().addAll(intermediateTermIds);
             mp.getIntermediateMpTerm().addAll(intermediateTermNames);
-            mp.getIntermediateMpTermSynonym().addAll(new ArrayList<String>(intermediateSynonyms));
+            mp.getIntermediateMpTermSynonym().addAll(new ArrayList<>(intermediateSynonyms));
         }
     }
 
@@ -876,8 +876,8 @@ public class MPIndexer extends AbstractIndexer {
                 for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
                     childTermIds.add(bean.getTermId());
                     childTermNames.add(bean.getName());
-                    if (mpTermSynonyms.containsKey(childId)) {
-                        childSynonyms.addAll(mpTermSynonyms.get(childId));
+                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
+                        childSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
                     }
                 }
             }
@@ -889,7 +889,7 @@ public class MPIndexer extends AbstractIndexer {
             }
             mp.getChildMpId().addAll(childTermIds);
             mp.getChildMpTerm().addAll(childTermNames);
-            mp.getChildMpTermSynonym().addAll(new ArrayList<String>(childSynonyms));
+            mp.getChildMpTermSynonym().addAll(new ArrayList<>(childSynonyms));
         }
     }
 
@@ -962,13 +962,13 @@ public class MPIndexer extends AbstractIndexer {
 
             mp.setInferredMaTermId(maInferredIds);
             mp.setInferredMaTerm(maInferredTerms);
-            mp.setInferredMaTermSynonym(new ArrayList<String>(maInferredSynonyms));
+            mp.setInferredMaTermSynonym(new ArrayList<>(maInferredSynonyms));
             mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
             mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
-            mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>(maTopLevelSynonyms));
+            mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(maTopLevelSynonyms));
             mp.setInferredChildMaId(maChildLevelTermIds);
             mp.setInferredChildMaTerm(maChildLevelTerms);
-            mp.setInferredChildMaTermSynonym(new ArrayList<String>(maChildLevelSynonyms));
+            mp.setInferredChildMaTermSynonym(new ArrayList<>(maChildLevelSynonyms));
         }
     }
 
