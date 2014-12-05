@@ -36,6 +36,8 @@ import org.apache.solr.client.solrj.beans.Field;
  */
 public class SangerImageDTO {
     public static final String MA_TERM_ID = "maTermId";
+    public static final String SELECTED_TOP_LEVEL_MA_TERM="selected_top_level_ma_term";
+    public static final String SELECTED_TOP_LEVEL_MA_TERM_ID="selected_top_level_ma_term_id";
     
     public static final String ID = "id";       // image ID (unique key)
     
@@ -70,8 +72,123 @@ public class SangerImageDTO {
     
     // Alleles of a gene
     public static final String ALLELE_NAME = "allele_name";
+    public static final String INTERMEDIATE_MP_ID="intermediate_mp_id";
+    public static final String INTERMEDIATE_MP_TERM="intermediate_mp_term";
+    public static final String INTERMEDIATE_MP_TERM_SYN="intermediate_mp_term_synonym";
+    @Field(INTERMEDIATE_MP_ID)
+    private List<String> intermediateMpId;
+    @Field(INTERMEDIATE_MP_TERM)
+    private List<String> intermediateMpTerm;
     
-    @Field(MA_TERM_ID)
+    @Field(INTERMEDIATE_MP_TERM_SYN)
+    private List<String> intermediateMpTermSyn;
+    
+    @Field(SELECTED_TOP_LEVEL_MA_TERM_ID)
+    private List<String> selectedTopLevelMaTermId;
+    
+    
+	
+
+
+
+	
+	public List<String> getSelectedTopLevelMaTermId() {
+	
+		return selectedTopLevelMaTermId;
+	}
+
+
+
+
+
+
+	
+	public void setSelectedTopLevelMaTermId(List<String> selectedTopLevelMaTermId) {
+	
+		this.selectedTopLevelMaTermId = selectedTopLevelMaTermId;
+	}
+
+
+
+	@Field(SELECTED_TOP_LEVEL_MA_TERM)
+    private List<String> selectedTopLevelMaTerm;
+    
+	
+	
+	
+	
+
+
+
+
+
+	
+	public List<String> getSelectedTopLevelMaTerm() {
+	
+		return selectedTopLevelMaTerm;
+	}
+
+
+
+
+
+	
+	public void setSelectedTopLevelMaTerm(List<String> selectedTopLevelMaTerm) {
+	
+		this.selectedTopLevelMaTerm = selectedTopLevelMaTerm;
+	}
+
+
+
+
+
+	public List<String> getIntermediateMpTermSyn() {
+	
+		return intermediateMpTermSyn;
+	}
+
+
+
+
+	
+	public void setIntermediateMpTermSyn(List<String> intermediateMpTermSyn) {
+	
+		this.intermediateMpTermSyn = intermediateMpTermSyn;
+	}
+
+
+
+
+	public List<String> getIntermediateMpTerm() {
+	
+		return intermediateMpTerm;
+	}
+
+
+
+	
+	public void setIntermediateMpTerm(List<String> intermediateMpTerm) {
+	
+		this.intermediateMpTerm = intermediateMpTerm;
+	}
+
+
+
+	public List<String> getIntermediateMpId() {
+	
+		return intermediateMpId;
+	}
+
+
+	
+	public void setIntermediateMpId(List<String> intermediateMpId) {
+	
+		this.intermediateMpId = intermediateMpId;
+	}
+
+
+
+	@Field(MA_TERM_ID)
     private List<String> maTermId;
     
     @Field(ID)
@@ -135,28 +252,28 @@ public class SangerImageDTO {
     private List<String> alleleName;
     
     @Field("hp_id")
-    private String hpId;
+    private List<String> hpId;
     
     
-	public String getHpId() {
+	public List<String> getHpId() {
 	
 		return hpId;
 	}
 
 	
-	public void setHpId(String hpId) {
+	public void setHpId(List<String> hpId) {
 	
 		this.hpId = hpId;
 	}
 
 	
-	public String getHpTerm() {
+	public List<String> getHpTerm() {
 	
 		return hpTerm;
 	}
 
 	
-	public void setHpTerm(String hpTerm) {
+	public void setHpTerm(List<String> hpTerm) {
 	
 		this.hpTerm = hpTerm;
 	}
@@ -164,7 +281,7 @@ public class SangerImageDTO {
 
 
 	@Field("hp_term")
-    private String hpTerm;
+    private List<String> hpTerm;
 
     
     // SETTERS AND GETTERS
@@ -505,7 +622,10 @@ public class SangerImageDTO {
 	// <field column="name" name="selected_top_level_ma_term" />
 	@Field("selected_top_level_ma_id")
 	private List<String> maTopLevelTermIds;
-	@Field("selected_top_level_ma_term_synonym")
+	
+	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM="selected_top_level_ma_term_synonym";
+	
+	@Field("SELECTED_TOP_LEVEL_MA_TERM_SYNONYM")
 	private ArrayList<String> selectedTopLevelMaTermSynonym;
 //	<field column="name" name="annotatedHigherLevelMpTermName" />
 //	<field column="mpTerm" name="annotatedHigherLevelMpTermId" />
@@ -606,11 +726,17 @@ public class SangerImageDTO {
 		return mp_id;
 	}
 
+	
+	public List<String> getMpSyns() {
+	
+		return mpSyns;
+	}
 
-	public void setMpSynonyms(List<String> mpSyns) {
 
+	
+	public void setMpSyns(List<String> mpSyns) {
+	
 		this.mpSyns = mpSyns;
-
 	}
 
 

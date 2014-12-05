@@ -54,6 +54,8 @@ public class GeneDTO {
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_synonym";
 
 	public static final String ONTOLOGY_SUBSET = "ontology_subset";
+	public static final String MA_ID = "ma_id";
+	
 	public static final String INFERRED_MA_ID = "inferred_ma_id";
 	public static final String INFERRED_MA_TERM = "inferred_ma_term";
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = "inferred_selected_top_level_ma_id";
@@ -94,6 +96,51 @@ public class GeneDTO {
 	private List<Boolean>impcNovelPredictedInLocus;
 	
 	
+	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_ID)
+	private List<String>selectedTopLevelMaTermId;
+	
+	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
+	private List<String>selectedTopLevelMaTermSynonym;
+	
+	
+	
+	
+	public List<String> getSelectedTopLevelMaTermSynonym() {
+	
+		return selectedTopLevelMaTermSynonym;
+	}
+
+
+
+
+
+	
+	public void setSelectedTopLevelMaTermSynonym(List<String> selectedTopLevelMaTermSynonym) {
+	
+		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
+	}
+
+
+
+
+
+	public List<String> getSelectedTopLevelMaTermId() {
+	
+		return selectedTopLevelMaTermId;
+	}
+
+
+
+
+	
+	public void setSelectedTopLevelMaTermId(List<String> selectedTopLevelMaTermId) {
+	
+		this.selectedTopLevelMaTermId = selectedTopLevelMaTermId;
+	}
+
+
+
+
 	public List<Boolean> getImpcNovelPredictedInLocus() {
 	
 		return impcNovelPredictedInLocus;
@@ -229,9 +276,7 @@ public class GeneDTO {
 	@Field(MP_DEFINITION)
 	List<String> mpDefinition;
 
-	@Field(MP_SYNONYM)
-	List<String> mpSynonym;
-
+	
 	@Field(CHILD_MP_ID)
 	List<String> childMpId;
 
@@ -803,18 +848,7 @@ public class GeneDTO {
 	}
 
 
-	public List<String> getMpSynonym() {
-
-		return mpSynonym;
-	}
-
-
-	public void setMpSynonym(List<String> mpSynonym) {
-
-		this.mpSynonym = mpSynonym;
-	}
-
-
+	
 	public List<String> getTopLevelMpId() {
 
 		return topLevelMpId;
@@ -1320,7 +1354,6 @@ public class GeneDTO {
 		result = prime * result + ((mouseStatus == null) ? 0 : mouseStatus.hashCode());
 		result = prime * result + ((mpDefinition == null) ? 0 : mpDefinition.hashCode());
 		result = prime * result + ((mpId == null) ? 0 : mpId.hashCode());
-		result = prime * result + ((mpSynonym == null) ? 0 : mpSynonym.hashCode());
 		result = prime * result + ((mpTerm == null) ? 0 : mpTerm.hashCode());
 		result = prime * result + ((ontologySubset == null) ? 0 : ontologySubset.hashCode());
 		result = prime * result + Float.floatToIntBits(p_value);
@@ -1486,9 +1519,6 @@ public class GeneDTO {
 		if (mpId == null) {
 			if (other.mpId != null) { return false; }
 		} else if (!mpId.equals(other.mpId)) { return false; }
-		if (mpSynonym == null) {
-			if (other.mpSynonym != null) { return false; }
-		} else if (!mpSynonym.equals(other.mpSynonym)) { return false; }
 		if (mpTerm == null) {
 			if (other.mpTerm != null) { return false; }
 		} else if (!mpTerm.equals(other.mpTerm)) { return false; }
@@ -1560,7 +1590,7 @@ public class GeneDTO {
 	@Override
 	public String toString() {
 
-		return "GeneDTO [dataType=" + dataType + ", mgiAccessionId=" + mgiAccessionId + ", markerSymbol=" + markerSymbol + ", humanGeneSymbol=" + humanGeneSymbol + ", markerName=" + markerName + ", markerSynonym=" + markerSynonym + ", markerType=" + markerType + ", imitsPhenotypeStarted=" + imitsPhenotypeStarted + ", imitsPhenotypeComplete=" + imitsPhenotypeComplete + ", imitsPhenotypeStatus=" + imitsPhenotypeStatus + ", status=" + status + ", latestEsCellStatus=" + latestEsCellStatus + ", latestMouseStatus=" + latestMouseStatus + ", latestPhenotypeStatus=" + latestPhenotypeStatus + ", latestProjectStatus=" + latestProjectStatus + ", latestProductionCentre=" + latestProductionCentre + ", latestPhenotypingCentre=" + latestPhenotypingCentre + ", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes + ", hasQc=" + hasQc + ", alleleName=" + alleleName + ", imitsEsCellStatus=" + imitsEsCellStatus + ", esCellStatus=" + esCellStatus + ", imitsMouseStatus=" + imitsMouseStatus + ", mouseStatus=" + mouseStatus + ", phenotypeStatus=" + phenotypeStatus + ", productionCentre=" + productionCentre + ", phenotypingCentre=" + phenotypingCentre + ", p_value=" + p_value + ", mpId=" + mpId + ", mpTerm=" + mpTerm + ", mpDefinition=" + mpDefinition + ", mpSynonym=" + mpSynonym + ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm=" + topLevelMpTerm + ", topLevelMpDefinition=" + topLevelMpDefinition + ", ontologySubset=" + ontologySubset + ", inferredMaId=" + inferredMaId + ", inferredMaTerm=" + inferredMaTerm + ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm + ", type=" + type + ", diseaseId=" + diseaseId + ", diseaseSource=" + diseaseSource + ", diseaseTerm=" + diseaseTerm + ", diseaseAlts=" + diseaseAlts + ", diseaseClasses=" + diseaseClasses + ", humanCurated=" + humanCurated + ", mouseCurated=" + mouseCurated + ", mgiPredicted=" + mgiPredicted + ", impcPredicted=" + impcPredicted + ", mgiPredictedInLocus=" + mgiPredictedInLocus + ", impcPredictedInLocus=" + impcPredictedInLocus + ", pipelineName=" + pipelineName + ", pipelineStableId=" + pipelineStableId + ", procedureName=" + procedureName + ", procedureStableId=" + procedureStableId + ", parameterName=" + parameterName + ", parameterStableId=" + parameterStableId + ", procParamName=" + procParamName + ", procParamStableId=" + procParamStableId + ", expName=" + expName + ", subtype=" + subtype + ", annotatedHigherLevelMaTermName=" + annotatedHigherLevelMaTermName + ", annotatedHigherLevelMpTermName=" + annotatedHigherLevelMpTermName + ", text=" + text + ", autoSuggest=" + autoSuggest + ", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm + "]";
+		return "GeneDTO [dataType=" + dataType + ", mgiAccessionId=" + mgiAccessionId + ", markerSymbol=" + markerSymbol + ", humanGeneSymbol=" + humanGeneSymbol + ", markerName=" + markerName + ", markerSynonym=" + markerSynonym + ", markerType=" + markerType + ", imitsPhenotypeStarted=" + imitsPhenotypeStarted + ", imitsPhenotypeComplete=" + imitsPhenotypeComplete + ", imitsPhenotypeStatus=" + imitsPhenotypeStatus + ", status=" + status + ", latestEsCellStatus=" + latestEsCellStatus + ", latestMouseStatus=" + latestMouseStatus + ", latestPhenotypeStatus=" + latestPhenotypeStatus + ", latestProjectStatus=" + latestProjectStatus + ", latestProductionCentre=" + latestProductionCentre + ", latestPhenotypingCentre=" + latestPhenotypingCentre + ", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes + ", hasQc=" + hasQc + ", alleleName=" + alleleName + ", imitsEsCellStatus=" + imitsEsCellStatus + ", esCellStatus=" + esCellStatus + ", imitsMouseStatus=" + imitsMouseStatus + ", mouseStatus=" + mouseStatus + ", phenotypeStatus=" + phenotypeStatus + ", productionCentre=" + productionCentre + ", phenotypingCentre=" + phenotypingCentre + ", p_value=" + p_value + ", mpId=" + mpId + ", mpTerm=" + mpTerm + ", mpDefinition=" + mpDefinition + ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm=" + topLevelMpTerm + ", topLevelMpDefinition=" + topLevelMpDefinition + ", ontologySubset=" + ontologySubset + ", inferredMaId=" + inferredMaId + ", inferredMaTerm=" + inferredMaTerm + ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm + ", type=" + type + ", diseaseId=" + diseaseId + ", diseaseSource=" + diseaseSource + ", diseaseTerm=" + diseaseTerm + ", diseaseAlts=" + diseaseAlts + ", diseaseClasses=" + diseaseClasses + ", humanCurated=" + humanCurated + ", mouseCurated=" + mouseCurated + ", mgiPredicted=" + mgiPredicted + ", impcPredicted=" + impcPredicted + ", mgiPredictedInLocus=" + mgiPredictedInLocus + ", impcPredictedInLocus=" + impcPredictedInLocus + ", pipelineName=" + pipelineName + ", pipelineStableId=" + pipelineStableId + ", procedureName=" + procedureName + ", procedureStableId=" + procedureStableId + ", parameterName=" + parameterName + ", parameterStableId=" + parameterStableId + ", procParamName=" + procParamName + ", procParamStableId=" + procParamStableId + ", expName=" + expName + ", subtype=" + subtype + ", annotatedHigherLevelMaTermName=" + annotatedHigherLevelMaTermName + ", annotatedHigherLevelMpTermName=" + annotatedHigherLevelMpTermName + ", text=" + text + ", autoSuggest=" + autoSuggest + ", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm + "]";
 	}
 
 }

@@ -82,7 +82,7 @@ public class SangerImagesIndexer {
 	private Map<String, TopLevelBean> mpNode2termTopLevel = new HashMap<>();
 	private Map<Integer, TopLevelBean> nodeIdToMpTermInfo = new HashMap<>();
 	private Map<String, List<AlleleDTO>> alleles;
-	Map<String, Map<String, String>> mpToHpMap;
+	Map<String, List<Map<String, String>>> mpToHpMap;
 	
 	HashMap<Integer, String> nodeToMp = new HashMap<Integer, String>();//used for multiple MP parents for mp to hp mappings
 
@@ -400,11 +400,17 @@ public class SangerImagesIndexer {
 									mp_ids.add(annotation.mp_id);
 									mp_terms.add(annotation.mp_term);
 									if (mpToHpMap.containsKey(annotation.mp_id)) {
-										Map<String, String> hpMap = mpToHpMap.get(annotation.mp_id);
-										String hpId = hpMap.get("hp_id");
-										String hpTerm = hpMap.get("hp_term");
-										o.setHpId(hpId);
-										o.setHpTerm(hpTerm);
+										List<Map<String, String>> hpMap = mpToHpMap.get(annotation.mp_id);
+										List<String> hpIds=null;
+										List<String> hpTerms=null;
+										for(Map<String, String> map: hpMap){
+										String hpId = map.get("hp_id");
+										String hpTerm = map.get("hp_term");
+										hpIds.add(hpId);
+										hpTerms.add(hpTerm);
+										}
+										o.setHpId(hpIds);
+										o.setHpTerm(hpTerms);
 									}
 									// need to get top level stuff here
 									if (mpNode2termTopLevel.containsKey(annotation.mp_id)) {
@@ -433,7 +439,7 @@ public class SangerImagesIndexer {
 										System.err.println("no top level for " + annotation.mp_id);
 									}
 									if (mpSynMap.containsKey(annotation.mp_id)) {
-										o.setMpSynonyms(mpSynMap.get(annotation.mp_id));
+										o.setMpSyns(mpSynMap.get(annotation.mp_id));
 									}
 								}
 

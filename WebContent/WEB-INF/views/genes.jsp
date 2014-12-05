@@ -26,7 +26,7 @@
                             <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                             </c:if>
-                             <c:if test="${not empty impcImageFacets}">
+                            <c:if test="${not empty impcImageFacets}">
                             <li><a href="#section-impc-images">Impc Images</a></li>
                             </c:if>
                             <c:if test="${not empty orthologousDiseaseAssociations}">
@@ -50,7 +50,7 @@
                 <script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
                 <!--[if !IE]><!-->
                 <script>
-                    dcc.heatmapUrlGenerator = function(genotype_id, type) {
+                    dcc.heatmapUrlGenerator = function (genotype_id, type) {
                         return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
                     };
                 </script>
@@ -225,104 +225,104 @@
                                                 <div class="no-sprite sprite_endocrine_exocrine_gland_phenotype " data-hasqtip="27" title="endocrine/exocrine gland phenotype"></div>
                                                 <div class="no-sprite sprite_vision_eye_phenotype" data-hasqtip="27" title="vision/eye phenotype"></div>
 
-																								<c:forEach var="group" items="${topLevelMpGroups}">
-	                                                <c:if test="${group != 'mammalian phenotype' }">
-	                                                 	<div class="sprite sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
-																									</c:if>
-																								</c:forEach>
-																								
+                                                <c:forEach var="group" items="${topLevelMpGroups}">
+                                                    <c:if test="${group != 'mammalian phenotype' }">
+                                                        <div class="sprite sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
+                                                    </c:if>
+                                                </c:forEach>
+
                                             </div>
 
-                                						<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
+                                            <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
                                             <c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">
-	                                          	<p>In <b>${zyg} :</b></p>
-	                                          	<ul>
-	                                            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes().size() > 0}'>
-	                                                <li><p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
-	                                                <ul>
-	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}'>
-	                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if>  </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-	                                                        </c:forEach>
-	                                                </ul>
-	                                                </li>
-	                                            </c:if>
-	
-	                                            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes().size() > 0}'>
-	                                                <li><p> Following phenotypic abnormalities occured in <b>females</b> only</p>
-	                                                <ul>
-	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes()}'> 
-	                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
-	                                                        </c:forEach>
-	                                                </ul>
-	                                                </li>
-	                                            </c:if>
-	
-	                                            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes().size() > 0}'>
-	                                                <li><p> Following phenotypic abnormalities occured in <b>males</b> only</p>
-	                                                <ul>
-	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes()}'>
-	                                                        <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-	                                                        </c:forEach>
-	                                                </ul>
-	                                                </li>
-	                                            </c:if>
-	                                            </ul>
-	                                            </c:forEach>
+                                                <p>In <b>${zyg} :</b></p>
+                                                <ul>
+                                                    <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes().size() > 0}'>
+                                                        <li><p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
+                                                            <ul>
+                                                                <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}'>
+                                                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if>  </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+                                                                    </c:forEach>
+                                                            </ul>
+                                                        </li>
+                                                    </c:if>
+
+                                                    <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes().size() > 0}'>
+                                                        <li><p> Following phenotypic abnormalities occured in <b>females</b> only</p>
+                                                            <ul>
+                                                                <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes()}'> 
+                                                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
+                                                                    </c:forEach>
+                                                            </ul>
+                                                        </li>
+                                                    </c:if>
+
+                                                    <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes().size() > 0}'>
+                                                        <li><p> Following phenotypic abnormalities occured in <b>males</b> only</p>
+                                                            <ul>
+                                                                <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes()}'>
+                                                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+                                                                    </c:forEach>
+                                                            </ul>
+                                                        </li>
+                                                    </c:if>
+                                                </ul>
+                                            </c:forEach>
 
                                         </c:when>
                                         <c:otherwise>
                                             <div class="alert alert-info">There are currently no post QC phenotype associations for the gene ${gene.symbol} </div> <br/>
                                         </c:otherwise>
                                     </c:choose>
-                                    
+
                                     <c:if test='${hasPreQcData || summaryNumber > 0}'>
-                                            <!-- Associations table -->
-                                            <h5>Filter this table</h5>
+                                        <!-- Associations table -->
+                                        <h5>Filter this table</h5>
 
 
-                                            <div class="row-fluid">
-                                                <div class="container span12">
-                                                    <br/>	
-                                                    <div class="row-fluid" id="phenotypesDiv">	
-                                                        <div class="container span12">
-                                                            <div id="filterParams" >
-                                                                <c:forEach var="filterParameters" items="${paramValues.fq}">
-                                                                    ${filterParameters}
+                                        <div class="row-fluid">
+                                            <div class="container span12">
+                                                <br/>	
+                                                <div class="row-fluid" id="phenotypesDiv">	
+                                                    <div class="container span12">
+                                                        <div id="filterParams" >
+                                                            <c:forEach var="filterParameters" items="${paramValues.fq}">
+                                                                ${filterParameters}
+                                                            </c:forEach>
+                                                        </div> 
+                                                        <c:if test="${not empty phenotypes}">
+                                                            <form class="tablefiltering no-style" id="target" action="destination.html">
+                                                                <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+                                                                    <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+                                                                        <c:forEach var="facet" items="${phenoFacet.value}">
+                                                                            <option>${facet.key}</option>
+                                                                        </c:forEach>
+                                                                    </select> 
                                                                 </c:forEach>
-                                                            </div> 
-                                                            <c:if test="${not empty phenotypes}">
-                                                                <form class="tablefiltering no-style" id="target" action="destination.html">
-                                                                    <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-                                                                        <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-                                                                            <c:forEach var="facet" items="${phenoFacet.value}">
-                                                                                <option>${facet.key}</option>
-                                                                            </c:forEach>
-                                                                        </select> 
-                                                                    </c:forEach>
-                                                                    <div class="clear"></div>
-                                                                </form>
                                                                 <div class="clear"></div>
+                                                            </form>
+                                                            <div class="clear"></div>
 
-                                                                <c:set var="count" value="0" scope="page" />
-                                                                <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
-                                                                    <c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
-                                                                </c:forEach>
+                                                            <c:set var="count" value="0" scope="page" />
+                                                            <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
+                                                                <c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
+                                                            </c:forEach>
 
-                                                                <jsp:include page="PhenoFrag.jsp"></jsp:include>
-                                                                    <div id="exportIconsDiv"></div>
-                                                            </c:if>
+                                                            <jsp:include page="PhenoFrag.jsp"></jsp:include>
+                                                                <div id="exportIconsDiv"></div>
+                                                        </c:if>
 
-                                                            <!-- if no data to show -->
-                                                            <c:if test="${empty phenotypes}">
-                                                                <div class="alert alert-info">Pre QC data has been submitted for this gene. Once the QC process is finished phenotype associations stats will be made available.</div>
-                                                            </c:if>
+                                                        <!-- if no data to show -->
+                                                        <c:if test="${empty phenotypes}">
+                                                            <div class="alert alert-info">Pre QC data has been submitted for this gene. Once the QC process is finished phenotype associations stats will be made available.</div>
+                                                        </c:if>
 
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
-																		</c:if>
+                                    </c:if>
                                     <!-- Show list of links to data for every center/pipeline/allele combination -->
                                     <c:if test="${!(empty dataMapList)}">
                                         <p class="with-label no-margin">
@@ -360,40 +360,40 @@
                                     <div class="alert"><strong>Warning!</strong>${imageErrors }</div>
                                 </div>
                             </c:if>
-                            
-                            
-                             <!-- nicolas accordion for images here -->
+
+
+                            <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
                                     <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
-                                    
-                                        
-                                            <div class="accordion-group">
-                                                <div class="accordion-heading">
-                                                   <%--  ${entry.name} (${entry.count}) --%>
-                                                   ${fn:length(impcImageFacets)} Image Parameters
-                                                </div>
-                                                <div class="accordion-body">
+
+
+                                        <div class="accordion-group">
+                                            <div class="accordion-heading">
+                                                <%--  ${entry.name} (${entry.count}) --%>
+                                                ${fn:length(impcImageFacets)} Image Parameters
+                                            </div>
+                                            <div class="accordion-body">
                                                 <ul>
-                                                <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
-                                                    
+                                                    <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
+
                                                         <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
                                                             <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" count="${entry.count}"></t:impcimgdisplay2>
                                                                 </a>
                                                         </c:forEach>
-                                                    
-                                                    <%-- <div class="clear"></div>
-                                                    <c:if test="${entry.count>5}">
-                                                        <p class="textright"><a href="${baseUrl}/imagePicker/${acc}/${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
-                                                    </c:if> --%>
-                                                  </c:forEach><!-- solrFacets end -->
-                                                  </ul>
-                                                </div><!--  end of accordion body -->
-                                            </div>
-                                       
+
+                                                        <%-- <div class="clear"></div>
+                                                        <c:if test="${entry.count>5}">
+                                                            <p class="textright"><a href="${baseUrl}/imagePicker/${acc}/${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+                                                        </c:if> --%>
+                                                    </c:forEach><!-- solrFacets end -->
+                                                </ul>
+                                            </div><!--  end of accordion body -->
+                                        </div>
+
 
                                     </div><!--  end of inner -->
                                 </div> <!-- end of section -->
@@ -462,20 +462,44 @@
                                 </div>
                             </c:if>
 
-                <!--Disease Sections-->
+                            <!--Disease Sections-->
                             <c:if test="${not empty orthologousDiseaseAssociations}">                 
                                 <div class="section" id="orthologous-diseases">
-                                    <jsp:include page="genes_orthologous_diseases_frag.jsp"></jsp:include>
-                                </div>
+                                    <h2 class="title" id="section-disease-models">Disease Models <small class="sub">associated by gene orthology</small>
+                                        <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                        <span class="documentation">
+                                            <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+                                                <i class="fa fa-question-circle pull-right"></i>
+                                            </a>
+                                        </span>
+                                    </h2>
+                                    <div class="inner">
+                                        <table id="orthologous_diseases_table" class="table tableSorter disease">
+                                            <jsp:include page="genes_orthologous_diseases_table_frag.jsp"></jsp:include>
+                                            </table>
+                                        </div>
+                                    </div>
                             </c:if>
-                
+
                             <c:if test="${not empty phenotypicDiseaseAssociations}">                 
                                 <div class="section"id="predicted-diseases">
-                                    <jsp:include page="genes_predicted_diseases_frag.jsp"></jsp:include>
-                                </div>
+                                    <h2 class="title" id="section-potential-disease-models">Potential Disease Models <small class="sub">predicted by phenotypic similarity</small>
+                                        <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                        <span class="documentation">
+                                            <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+                                                <i class="fa fa-question-circle pull-right"></i>
+                                            </a>
+                                        </span>
+                                    </h2>
+                                    <div class="inner">
+                                        <table id="predicted_diseases_table" class="table tableSorter disease">
+                                            <jsp:include page="genes_predicted_diseases_table_frag.jsp"></jsp:include>
+                                            </table>
+                                        </div>
+                                    </div>
                             </c:if>
-                
-                <!--Order Mice-->
+
+                            <!--Order Mice-->
                             <div class="section" id="order">
                                 <h2 class="title documentation">Order Mouse and ES Cells (allele core)
                                     <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
@@ -484,7 +508,7 @@
                                     <div id="allele"></div>
                                 </div>
                             </div>
-                               
+
                             <div class="section" id="order2">
                                 <h2 class="title documentation">Order Mouse and ES Cells
                                     <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
@@ -498,8 +522,31 @@
                 </div>
             </div>
 
-        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
-
+            <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
+            <script type="text/javascript">
+                var diseaseTables= [
+                    {id: '#orthologous_diseases_table',
+                        tableConf:{
+                        processing: true,
+                        paging: false,
+                        info: false,
+                        searching: false,
+                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']]
+                    }},
+                    {id: '#predicted_diseases_table', 
+                        tableConf: {
+                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']]
+                    }}
+                ];
+                
+                $(document).ready(function () {
+                for (var i = 0; i < diseaseTables.length; i++) {
+                    var diseaseTable = diseaseTables[i];
+                    var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+                    $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
+                }
+            });
+            </script>
         </jsp:body>
 
     </t:genericpage>

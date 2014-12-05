@@ -49,7 +49,7 @@ public class IndexerMap {
     private static Map<String, List<String>> maTermSynonymsMap = null;
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
-    private static Map<String, Map<String, String>> mpToHpTermsMap = null;
+    private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
 	private static List<AlleleDTO> alleles=null;
     
     
@@ -158,11 +158,11 @@ public class IndexerMap {
      * 
      * @throws IndexerException
      */
-    public static Map<String, Map<String, String>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
+    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
         if (mpToHpTermsMap == null) {
             mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
         }
-        
+        System.out.println("mpToHpTermsMap size="+mpToHpTermsMap.size());
         return mpToHpTermsMap;
     }
     
@@ -174,7 +174,7 @@ public class IndexerMap {
      * associations
      * @throws IndexerException
      */
-    public static Map<String, List<SangerImageDTO>> getSangerImages(SolrServer imagesCore) throws IndexerException {
+    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
         if (sangerImagesMap == null) {
             sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
         }
@@ -273,5 +273,11 @@ public class IndexerMap {
     public static void dumpSangerImagesMap(Map<String, List<SangerImageDTO>> map, String what, Integer maxIterations) {
         SolrUtils.dumpSangerImagesMap(map, what, maxIterations);
     }
+
+	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+
+		Map<String, List<SangerImageDTO>> map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
+		return map;
+	}
     
 }

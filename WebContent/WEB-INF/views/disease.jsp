@@ -123,17 +123,80 @@
 
             </div>
         </div>
-        
-        <div class="section">
-            <jsp:include page="disease_orthologous_mouse_models_frag.jsp"></jsp:include>            
-        </div>
-        
-        <div class="section">
-            <jsp:include page="disease_predicted_mouse_models_frag.jsp"></jsp:include>            
+
+        <div class="section" id="orthologous_mouse_models">
+            <h2 class="title">Mouse Models <small class="sub">associated by gene orthology</small>
+                <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                <span class='documentation'>
+                    <a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'>
+                        <i class="fa fa-question-circle pull-right"></i>
+                    </a>
+                </span>
+            </h2>
+            <div class="inner">                
+                <c:choose>
+                    <c:when test="${empty orthologousGeneAssociations}">
+                        No mouse models associated with ${disease.diseaseId} by orthology to a human gene.
+                    </c:when>
+                    <c:otherwise>
+                        <!--The following genes are associated with ${disease.diseaseId} by phenotypic similarity.-->
+                        <table id="orthologous_models_table" class="table tablesorter disease">
+                            <jsp:include page="disease_orthologous_models_table_frag.jsp"></jsp:include>            
+                            </table>
+                    </c:otherwise>
+                </c:choose>
+            </div>
         </div>
 
-        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
+        <div class="section" id="potential_mouse_models">
+            <h2 class="title">Potential Mouse Models <small class="sub">predicted by phenotypic similarity</small>
+                <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                <span class='documentation'>
+                    <a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'>
+                        <i class="fa fa-question-circle pull-right"></i>
+                    </a>
+                </span>
+            </h2>
+            <div class="inner">                
+                <c:choose>
+                    <c:when test="${empty phenotypicGeneAssociations}">
+                        No potential mouse models associated with ${disease.diseaseId} by phenotypic similarity.
+                    </c:when>
+                    <c:otherwise>
+                        <!--The following genes are associated with ${disease.diseaseId} by phenotypic similarity.-->
+                        <table id="predicted_models_table" class="table tablesorter disease"> 
+                            <jsp:include page="disease_predicted_models_table_frag.jsp"></jsp:include>
+                            </table>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
 
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
+        <script type="text/javascript">
+            var diseaseTables = [
+                {id: '#orthologous_models_table',
+                    tableConf: {
+                        paging: false,
+                        info: false,
+                        searching: false,
+                        order: [[3, 'desc'], [2, 'desc']]
+                    }
+                },
+                {id: '#predicted_models_table',
+                    tableConf: {
+                        order: [[1, 'desc'], [3, 'desc'], [2, 'desc']]
+                    }
+                }
+            ];
+            $(document).ready(function () {
+                for (var i = 0; i < diseaseTables.length; i++) {
+                    var diseaseTable = diseaseTables[i];
+                    var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+                    $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
+                }
+            });
+        </script>
     </jsp:body>
 
 </t:genericpage>

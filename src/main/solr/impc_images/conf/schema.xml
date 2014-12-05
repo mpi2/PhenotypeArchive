@@ -293,7 +293,7 @@
 	<!-- centers -->
 	<field name="latest_production_centre" type="string" indexed="true" multiValued="true"/>
 	<field name="latest_phenotyping_centre" type="string" indexed="true" multiValued="true"/>
-	
+
 	<field name="latest_phenotype_status" type="string" indexed="true" multiValued="true"/> 
 	<field name="legacy_phenotype_status" type="int" indexed="true" stored="true" multiValued="false"/>	
 	
@@ -354,8 +354,7 @@
 	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	
 	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/> 
+	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>
 	
   	<!-- bucket list qf -->
   	<field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>
@@ -365,13 +364,12 @@
    
   
   	<!--  for copyFields -->
-	
+
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-	<field name="latest_phenotyping_centre" type="string" indexed="true" stored="true" multiValued="false"/>
-	
 
 
- </fields>
+
+    </fields>
 
     <uniqueKey>id</uniqueKey>
 

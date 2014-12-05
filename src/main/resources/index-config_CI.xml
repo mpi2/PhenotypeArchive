@@ -9,8 +9,8 @@
         <property name="locations">
             <list>
                 <value>classpath:appConfig.properties</value>
-                <value>file:${user.home}/configfiles/devDatasourcesConfig.properties</value>
-                <value>file:${user.home}/configfiles/devAppConfig.properties</value>
+                <value>file:${user.home}/configfiles/ciDatasourcesConfig.properties</value>
+                <value>file:${user.home}/configfiles/ciAppConfig.properties</value>
             </list>
         </property>
     </bean>

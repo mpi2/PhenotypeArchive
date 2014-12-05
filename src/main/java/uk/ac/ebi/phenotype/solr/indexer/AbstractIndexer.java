@@ -45,15 +45,13 @@ public abstract class AbstractIndexer {
 	public abstract void run() throws IndexerException;
 	
 	public void initialise(String[] args) throws IndexerException {
-		OptionSet options = parseCommandLine(args);
-		applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
-		initialiseHibernateSession(applicationContext);
+            OptionSet options = parseCommandLine(args);
+            applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
+            applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+            initialiseHibernateSession(applicationContext);
+            printConfiguration();
 	}
-
-	protected void injectDependencies() {
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-	}
-
+        
 	protected OptionSet parseCommandLine(String[] args) {
 		OptionParser parser = new OptionParser();
 
@@ -89,5 +87,16 @@ public abstract class AbstractIndexer {
 		transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
 		transactionManager.getTransaction(transactionAttribute);
 	}
+        
+        /**
+         * This is a hook for extended classes to implement to print their
+         * configuration - e.g. source and target solr urls, batch values, etc.
+         * 
+         * The intention is to someday make this abstract to insure all implementors
+         * provide a printConfiguration method specific to their indexer.
+         */
+        protected void printConfiguration() {
+            
+        }
 	
 }

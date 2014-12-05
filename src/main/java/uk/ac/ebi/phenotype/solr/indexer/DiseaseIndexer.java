@@ -267,9 +267,6 @@ public class DiseaseIndexer extends AbstractIndexer {
 					if (gene.getMpDefinition() != null) {
 						geneLookup.get(d).MP_DEFINITION.addAll(gene.getMpDefinition());
 					}
-					if (gene.getMpSynonym() != null) {
-						geneLookup.get(d).MP_SYNONYM.addAll(gene.getMpSynonym());
-					}
 					if (gene.getTopLevelMpId() != null) {
 						geneLookup.get(d).TOP_LEVEL_MP_ID.addAll(gene.getTopLevelMpId());
 					}
@@ -310,38 +307,9 @@ public class DiseaseIndexer extends AbstractIndexer {
 
 		DiseaseIndexer main = new DiseaseIndexer();
 		main.initialise(args);
-		main.injectDependencies();
 		main.run();
 
 		logger.info("Process finished.  Exiting.");
-
-//		OptionParser parser = new OptionParser();
-//
-//		// parameter to indicate which spring context file to use
-//		parser.accepts("context").withRequiredArg().ofType(String.class);
-//
-//		OptionSet options = parser.parse(args);
-//		String context = (String) options.valuesOf("context").get(0);
-//
-//		ApplicationContext applicationContext;
-//		logger.info("Using application context file {}", context);
-//
-//		File f = new File(context);
-//		if (f.exists() && !f.isDirectory()) {
-//			try {
-//				applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-//			} catch (RuntimeException e) {
-//				logger.info("An error occurred loading the file: {}", e.getMessage());
-//				applicationContext = new ClassPathXmlApplicationContext(context);
-//				logger.info("Using classpath app-config file: {}", context);
-//			}
-//		} else {
-//			applicationContext = new ClassPathXmlApplicationContext(context);
-//			logger.info("Using classpath app-config file: {}", context);
-//		}
-//
-//		// Do the spring dependency injection on the main class and execute the run() method
-//		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 	}
 
 
