@@ -1059,9 +1059,6 @@ public class MPIndexer extends AbstractIndexer {
                 if (allele.getImpcPredicted() != null) {
                     mp.getImpcPredicted().addAll(allele.getImpcPredicted());
                 }
-                if (allele.getDiseaseHumanPhenotypes() != null) {
-                    mp.getDiseaseHumanPhenotypes().addAll(allele.getDiseaseHumanPhenotypes());
-                }
                 if (allele.getMgiPredictedKnownGene() != null) {
                     mp.getMgiPredictedKnownGene().addAll(allele.getMgiPredictedKnownGene());
                 }
@@ -1127,7 +1124,6 @@ public class MPIndexer extends AbstractIndexer {
             mp.setMouseCurated(new ArrayList<Boolean>());
             mp.setMgiPredicted(new ArrayList<Boolean>());
             mp.setImpcPredicted(new ArrayList<Boolean>());
-            mp.setDiseaseHumanPhenotypes(new ArrayList<String>());
             mp.setMgiPredictedKnownGene(new ArrayList<Boolean>());
             mp.setImpcPredictedKnownGene(new ArrayList<Boolean>());
             mp.setMgiNovelPredictedInLocus(new ArrayList<Boolean>());
