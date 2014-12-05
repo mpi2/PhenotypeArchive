@@ -248,10 +248,31 @@ public class GeneIndexer extends AbstractIndexer {
             	if(allele.getMgiAccessionId()!=null && allele.getMgiAccessionId()!=""){
             		if(mgiAccessionToMP.containsKey(allele.getMgiAccessionId())){
             			List<MpDTO> mps=mgiAccessionToMP.get(allele.getMgiAccessionId());
-            			System.out.println("mps size for gene=");
+            			//System.out.println("mps size for gene="+mps.size());
             			for(MpDTO mp:mps){
             				System.out.println(allele.getMgiAccessionId()+" mp="+mp.getMpId());
+            				
+//            				<field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />
+//        					<field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
+//        					<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
+//        					<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
+//        					<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
+//        					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
+//        					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+//        					<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+//        		
+//        					<field column="ma_id" xpath="/response/result/doc/arr[@name='ma_id']/str" />
+//        					<field column="ma_term" xpath="/response/result/doc/arr[@name='ma_term']/str" />
+//        					<field column="ma_term_synonym" xpath="/response/result/doc/arr[@name='ma_term_synonym']/str" />
+//        					
+//        					<field column="selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='selected_top_level_ma_id']/str" />
+//        					<field column="selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term']/str" />				
+//        					<field column="selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term_synonym']/str" />				
+//        					
+//        					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+        			
             			}
+            			//gene.setMpId(mp.getMpTermId());
             			
             		}
             		

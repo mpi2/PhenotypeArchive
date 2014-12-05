@@ -504,7 +504,6 @@ public class SolrUtils {
 				printItemList("latest_phenotyping_centre:", dto.getLatestPhenotypingCentre());
 
 				printItemList("allele_name:", dto.getAlleleName());
-				System.out.println();
 			}
 
 			System.out.println();
