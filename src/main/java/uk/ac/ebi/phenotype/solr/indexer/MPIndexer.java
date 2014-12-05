@@ -1214,7 +1214,6 @@ public class MPIndexer extends AbstractIndexer {
 
         MPIndexer main = new MPIndexer();
         main.initialise(args);
-        main.injectDependencies();
         main.run();
 
         logger.info("Process finished.  Exiting.");
