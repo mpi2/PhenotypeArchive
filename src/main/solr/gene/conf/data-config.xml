@@ -95,8 +95,6 @@
 			<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/arr[@name='mgi_novel_predicted_in_locus']/bool" /> 
 			<field column="impc_novel_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_novel_predicted_in_locus']/bool" /> 
 
-			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />	
-
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" 
 				stream="true" 
