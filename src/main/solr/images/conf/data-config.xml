@@ -326,9 +326,6 @@
 						<field column="disease_id" name="disease_id"/>						
 						<field column="disease_term" name="disease_term"/>
 						<field column="disease_alts" splitBy="\|" name="disease_alts"/>
-						<entity dataSource="phenodigmdb" name="disease_phenotypes" query="select concat(dh.hp_id, '_' , hp.name) as phenotype from disease_hp dh join hp_term_infos hp on hp.term_id = dh.hp_id where dh.disease_id = '${disease.disease_id}';">
-						    <field column="phenotype" name="disease_human_phenotypes"/>
-						</entity>
 						
 					</entity>
 					-->

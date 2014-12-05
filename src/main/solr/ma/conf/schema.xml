@@ -170,6 +170,23 @@
         <!-- allele level fields of a gene -->
         <field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 	
+<<<<<<< HEAD
+	<!-- disease core stuff -->	
+	<field name="type" type="string" indexed="true" stored="true"  multiValued="true" />	
+	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" /> 
+	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="true" /> 
+	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true" multiValued="true" />
+	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="human_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="mouse_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted_known_gene" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted_known_gene" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
+=======
         <!-- disease core stuff -->	
         <field name="type" type="string" indexed="true" stored="true"  multiValued="true" />	
         <field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" /> 
@@ -186,6 +203,7 @@
         <field name="impc_predicted_known_gene" type="boolean" indexed="true" stored="true" multiValued="true" />
         <field name="mgi_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
         <field name="impc_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
+>>>>>>> branch 'master' of https://github.com/mpi2/PhenotypeArchive.git
 
         <!-- images core stuff -->	
         <field name="annotationTermId"   type="string"   indexed="true"  stored="true"  multiValued="true" />

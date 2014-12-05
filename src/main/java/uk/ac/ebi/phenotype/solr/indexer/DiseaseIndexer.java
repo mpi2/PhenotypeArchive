@@ -267,9 +267,6 @@ public class DiseaseIndexer extends AbstractIndexer {
 					if (gene.getMpDefinition() != null) {
 						geneLookup.get(d).MP_DEFINITION.addAll(gene.getMpDefinition());
 					}
-					if (gene.getMpSynonym() != null) {
-						geneLookup.get(d).MP_SYNONYM.addAll(gene.getMpSynonym());
-					}
 					if (gene.getTopLevelMpId() != null) {
 						geneLookup.get(d).TOP_LEVEL_MP_ID.addAll(gene.getTopLevelMpId());
 					}
