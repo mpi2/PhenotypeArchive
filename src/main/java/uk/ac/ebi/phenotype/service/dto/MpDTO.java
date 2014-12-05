@@ -82,7 +82,6 @@ public class MpDTO {
 	public static final String DISEASE_TERM = "disease_term";
 	public static final String DISEASE_ALTS = "disease_alts";
 	public static final String DISEASE_CLASSES = "disease_classes";
-	public static final String DISEASE_HUMAN_PHENOTYPES = "disease_human_phenotypes";
 	public static final String HUMAN_CURATED = "human_curated";
 	public static final String MOUSE_CURATED = "mouse_curated";
 	public static final String MGI_PREDICTED = "mgi_predicted";
@@ -349,9 +348,6 @@ public class MpDTO {
 
 	@Field(DISEASE_CLASSES)
 	private List<String> diseaseClasses;
-
-	@Field(DISEASE_HUMAN_PHENOTYPES)
-	private List<String> diseaseHumanPhenotypes;
 
 	@Field(HUMAN_CURATED)
 	private List<Boolean> humanCurated;
@@ -1353,17 +1349,6 @@ public class MpDTO {
 	}
 
 
-	public List<String> getDiseaseHumanPhenotypes() {
-
-		return diseaseHumanPhenotypes;
-	}
-
-
-	public void setDiseaseHumanPhenotypes(List<String> diseaseHumanPhenotypes) {
-
-		this.diseaseHumanPhenotypes = diseaseHumanPhenotypes;
-	}
-
 
 	public List<Boolean> getHumanCurated() {
 
@@ -1995,8 +1980,6 @@ public class MpDTO {
 		if (diseaseAlts != null ? !diseaseAlts.equals(mpDTO.diseaseAlts) : mpDTO.diseaseAlts != null) return false;
 		if (diseaseClasses != null ? !diseaseClasses.equals(mpDTO.diseaseClasses) : mpDTO.diseaseClasses != null)
 			return false;
-		if (diseaseHumanPhenotypes != null ? !diseaseHumanPhenotypes.equals(mpDTO.diseaseHumanPhenotypes) : mpDTO.diseaseHumanPhenotypes != null)
-			return false;
 		if (diseaseId != null ? !diseaseId.equals(mpDTO.diseaseId) : mpDTO.diseaseId != null) return false;
 		if (diseaseSource != null ? !diseaseSource.equals(mpDTO.diseaseSource) : mpDTO.diseaseSource != null)
 			return false;
@@ -2229,7 +2212,6 @@ public class MpDTO {
 		result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
 		result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
 		result = 31 * result + (diseaseClasses != null ? diseaseClasses.hashCode() : 0);
-		result = 31 * result + (diseaseHumanPhenotypes != null ? diseaseHumanPhenotypes.hashCode() : 0);
 		result = 31 * result + (humanCurated != null ? humanCurated.hashCode() : 0);
 		result = 31 * result + (mouseCurated != null ? mouseCurated.hashCode() : 0);
 		result = 31 * result + (mgiPredicted != null ? mgiPredicted.hashCode() : 0);

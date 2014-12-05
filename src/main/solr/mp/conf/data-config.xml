@@ -363,7 +363,6 @@
 				    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
 				    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
 				    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-					<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />  					
 					<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
 					<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
 					<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 
@@ -423,7 +422,6 @@
 				    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
 				    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
 				    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-					<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />  					
 					<field column="mgi_predicted_known_gene" xpath="/response/result/doc/bool[@name='mgi_predicted_known_gene']" /> 
 					<field column="impc_predicted_known_gene" xpath="/response/result/doc/bool[@name='impc_predicted_known_gene']" /> 
 					<field column="mgi_novel_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_novel_predicted_in_locus']" /> 

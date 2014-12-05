@@ -254,7 +254,6 @@
 	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
 	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 
 	<field name="human_curated" type="boolean" indexed="true" stored="true"/>
 	<field name="mouse_curated" type="boolean" indexed="true" stored="true"/>
