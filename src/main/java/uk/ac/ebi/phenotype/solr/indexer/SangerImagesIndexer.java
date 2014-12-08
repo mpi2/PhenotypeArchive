@@ -39,6 +39,7 @@ import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
+import uk.ac.ebi.phenotype.solr.indexer.utils.SangerProcedureMapper;
 
 /**
  * Populate the experiment core
@@ -199,6 +200,14 @@ public class SangerImagesIndexer {
 
 		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
 		sangerProcedureToImpcMapping.put("Xray", "X-ray");
+		sangerProcedureToImpcMapping.put("X-ray Imaging","Xray");
+		sangerProcedureToImpcMapping.put("X-ray","Xray");
+//		  'Adult LacZ' : 'Wholemount Expression',
+//          'FACS Analysis' : 'Flow Cytometry',
+//          'Histopathology' : 'Histology Slide',
+//          'X-ray' : 'Xray',
+//          'X-ray Imaging' : 'Xray',
+//          'Combined SHIRPA and Dysmorphology' : 'Embryo Dysmorphology'
 		// 'Xray' : 'X-ray Imaging',
 		sangerProcedureToImpcMapping.put("Flow Cytometry", "FACS Analysis");
 		sangerProcedureToImpcMapping.put("Histology Slide", "Histopathology");
@@ -335,7 +344,7 @@ public class SangerImagesIndexer {
 					o.setExpName(Arrays.asList(expBean.name));
 					o.setSangerProcedureName(expBean.name);
 					List<String> procedureList = new ArrayList<String>();
-					procedureList.add(this.getImpcProcedureFromSanger(expBean.name));
+					procedureList.add(SangerProcedureMapper.getImpcProcedureFromSanger(expBean.name));
 					o.setProcedureName(procedureList);
 					// o.setExperimentName(name)
 				}
@@ -1054,15 +1063,7 @@ public class SangerImagesIndexer {
 	}
 
 
-	private String getImpcProcedureFromSanger(String sangerProcedure) {
-
-		if (sangerProcedureToImpcMapping.containsKey(sangerProcedure)) {
-			return sangerProcedureToImpcMapping.get(sangerProcedure);
-		} else {
-			return sangerProcedure;
-		}
-
-	}
+	
 
 
 	public void populateMpSynonyms() {
