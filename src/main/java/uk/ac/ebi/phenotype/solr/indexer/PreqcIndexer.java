@@ -1,7 +1,5 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -9,13 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,9 +20,6 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -40,7 +28,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
-public class PreqcIndexer {
+public class PreqcIndexer extends AbstractIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(PreqcIndexer.class);
 
@@ -83,284 +71,241 @@ public class PreqcIndexer {
 	private Connection conn_ontodb = null;
 	private String preqcXmlFilename;
 
-	public static void main(String[] args) throws XPathExpressionException, IOException, SolrServerException, ParserConfigurationException, SAXException,
-			SQLException {
-		OptionParser parser = new OptionParser();
 
-		// parameter to indicate which spring context file to use
-		parser.accepts("context").withRequiredArg().ofType(String.class);
-
-		OptionSet options = parser.parse(args);
-		String context = (String) options.valuesOf("context").get(0);
-
-		logger.info("Using application context file {}", context);
-
-		// Wire up spring support for this application
-
-		PreqcIndexer indexer = new PreqcIndexer();
-
-		ApplicationContext applicationContext;
-		try {
-
-			// Try context as a file resource
-			applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-
-		} catch (RuntimeException e) {
-
-			logger.warn("An error occurred loading the file: {}", e.getMessage());
-
-			// Try context as a class path resource
-			applicationContext = new ClassPathXmlApplicationContext(context);
-
-			logger.warn("Using classpath app-config file: {}", context);
-
-		}
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(indexer, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-		// allow hibernate session to stay open the whole execution
-		PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-		DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-		transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-		transactionManager.getTransaction(transactionAttribute);
-
-		indexer.run();
-		logger.info("Process finished.  Exiting.");
-	}
-
-	private void run() throws IOException, SolrServerException, SAXException, ParserConfigurationException, SQLException {
+	public void run() throws IndexerException {
 		long start = System.currentTimeMillis();
 
 		logger.info(" start time: " + (System.currentTimeMillis() - start));
-
-		conn_komp2 = komp2DataSource.getConnection();
-		conn_ontodb = ontodbDataSource.getConnection();
-		preqcXmlFilename = config.get("preqcXmlFilename");
 
 		zygosityMapping.put("Heterozygous", "heterozygote");
 		zygosityMapping.put("Homozygous", "homozygote");
 		zygosityMapping.put("Hemizygous", "hemizygote");
 
-		doGeneSymbol2IdMapping();
-		doAlleleSymbol2NameIdMapping();
-		doStrainId2NameMapping();
-		doImpressSid2NameMapping();
-		doOntologyMapping();
-		
-		destServer.deleteByQuery("*:*");
-
-		Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(preqcXmlFilename));
-
-		Element rootElement = document.getDocumentElement();
-		XPath xPath = XPathFactory.newInstance().newXPath();
-		NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
-
-		System.out.println("length: " + nodes.getLength());
-		System.out.println(" read document time: " + (System.currentTimeMillis() - start));
-
-		int counter = 1;
 		Set<String> bad = new HashSet<>();
-		
-		for (int i = 0; i < nodes.getLength(); ++i) {
-			Element e = (Element) nodes.item(i);
 
-			NodeList childNodes = e.getChildNodes();
+		try {
 
-			Integer id = null;
-			String colonyId = null;
-			Double pValue = null;
-			String sex = null;
-			String phenotypeTerm = null;
-			String externalId = null;
-			String zygosity = null;
-			String datasource = null;
-			String project = null;
-			// <organisation>Wtsi</organisation>
-			String gene = null;
-			Double effectSize = null;
-			String strain = null; // MGI:2159965</strain>
-			String allele = null; // >Pfkfb4&lt;sup&gt;tm1a(KOMP)Wtsi&lt;/sup&gt;</allele>
-			String pipeline = null; // >IMPC_001</pipeline>
-			String procedure = null; // >IMPC_ABR</procedure>
-			String parameter = null; // >IMPC_ABR_002_001</parameter>
-			String phenotypingCenter = null; // >Wtsi</phenotypingCenter>
+			conn_komp2 = komp2DataSource.getConnection();
+			conn_ontodb = ontodbDataSource.getConnection();
+			preqcXmlFilename = config.get("preqcXmlFilename");
 
-			
-			for (int j = 0; j < childNodes.getLength(); ++j) {
-				Node cnode = childNodes.item(j);
-				if (cnode.getNodeType() == Node.ELEMENT_NODE) {
-					switch (cnode.getNodeName()) {
-					case "id":
-						id = Integer.parseInt(cnode.getTextContent());
-						break;
-					case "colonyId":
-						colonyId = cnode.getTextContent();
-						break;
-					case "pValue":
-						pValue = Double.parseDouble(cnode.getTextContent());
-						break;
-					case "sex":
-						sex = cnode.getTextContent();
-						break;
-					case "phenotypeTerm":
-						phenotypeTerm = cnode.getTextContent();
-						break;
-					case "externalId":
-						externalId = cnode.getTextContent();
-						break;
-					case "zygosity":
-						zygosity = cnode.getTextContent();
-						break;
-					case "datasource":
-						datasource = cnode.getTextContent();
-						break;
-					case "project":
-						project = cnode.getTextContent();
-						break;
-					case "gene":
-						gene = cnode.getTextContent();
-						break;
-					case "effectSize":
-						effectSize = Double.parseDouble(cnode.getTextContent());
-						break;
-					case "strain":
-						strain = cnode.getTextContent();
-						break;
-					case "allele":
-						allele = cnode.getTextContent().replace("<sup>","<").replace("</sup>",">");
-						break;
-					case "pipeline":
-						pipeline = cnode.getTextContent();
-						break;
-					case "procedure":
-						procedure = cnode.getTextContent();
-						break;
-					case "parameter":
-						parameter = cnode.getTextContent();
-						break;
-					case "phenotypingCenter":
-						phenotypingCenter = cnode.getTextContent().toUpperCase();
-						break;
+			doGeneSymbol2IdMapping();
+			doAlleleSymbol2NameIdMapping();
+			doStrainId2NameMapping();
+			doImpressSid2NameMapping();
+			doOntologyMapping();
+
+			destServer.deleteByQuery("*:*");
+
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(preqcXmlFilename));
+
+			Element rootElement = document.getDocumentElement();
+			NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
+
+			System.out.println("length: " + nodes.getLength());
+			System.out.println("  read document time: " + (System.currentTimeMillis() - start));
+
+			int counter = 1;
+			for (int i = 0; i < nodes.getLength(); ++i) {
+				Element e = (Element) nodes.item(i);
+
+				NodeList childNodes = e.getChildNodes();
+
+				Integer id = null;
+				String colonyId = null;
+				Double pValue = null;
+				String sex = null;
+				String phenotypeTerm = null;
+				String externalId = null;
+				String zygosity = null;
+				String datasource = null;
+				String project = null;
+				String gene = null;
+				Double effectSize = null;
+				String strain = null;
+				String allele = null;
+				String pipeline = null;
+				String procedure = null;
+				String parameter = null;
+				String phenotypingCenter = null;
+
+				for (int j = 0; j < childNodes.getLength(); ++j) {
+					Node cnode = childNodes.item(j);
+					if (cnode.getNodeType() == Node.ELEMENT_NODE) {
+						switch (cnode.getNodeName()) {
+							case "id":
+								id = Integer.parseInt(cnode.getTextContent());
+								break;
+							case "colonyId":
+								colonyId = cnode.getTextContent();
+								break;
+							case "pValue":
+								pValue = Double.parseDouble(cnode.getTextContent());
+								break;
+							case "sex":
+								sex = cnode.getTextContent();
+								break;
+							case "phenotypeTerm":
+								phenotypeTerm = cnode.getTextContent();
+								break;
+							case "externalId":
+								externalId = cnode.getTextContent();
+								break;
+							case "zygosity":
+								zygosity = cnode.getTextContent();
+								break;
+							case "datasource":
+								datasource = cnode.getTextContent();
+								break;
+							case "project":
+								project = cnode.getTextContent();
+								break;
+							case "gene":
+								gene = cnode.getTextContent();
+								break;
+							case "effectSize":
+								effectSize = Double.parseDouble(cnode.getTextContent());
+								break;
+							case "strain":
+								strain = cnode.getTextContent();
+								break;
+							case "allele":
+								allele = cnode.getTextContent().replace("<sup>", "<").replace("</sup>", ">");
+								break;
+							case "pipeline":
+								pipeline = cnode.getTextContent();
+								break;
+							case "procedure":
+								procedure = cnode.getTextContent();
+								break;
+							case "parameter":
+								parameter = cnode.getTextContent();
+								break;
+							case "phenotypingCenter":
+								phenotypingCenter = cnode.getTextContent().toUpperCase();
+								break;
+						}
 					}
 				}
-			}
 
-			// Skip this one: phenotypeTerm is null
-			if (phenotypeTerm == null ){
-				logger.warn("Phenotype term is missing for record with id {}", id);
-				continue;
-			}
-
-			// Skip this one: pValue not significant OR phenotypeTerm is MA
-			if ( (pValue != null && pValue >= 0.0001 ) || phenotypeTerm.startsWith("MA:") ){//|| id != 726238) {
-				continue;
-			}
-
-			if (mpId2TermMapping.get(phenotypeTerm) == null){
-				bad.add(phenotypeTerm);
-				continue;
-			}
-			
-			GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
-			
-			o.setColonyId(colonyId);
-			o.setP_value(pValue);
-			o.setExternalId(externalId);
-			if( ! zygosityMapping.containsKey(zygosity)) {
-				logger.warn("Zygosity {} not found for record id {}", zygosity, id);
-
-				continue;
-			}
-			o.setZygosity(zygosityMapping.get(zygosity));
-			o.setResourceName(datasource);
-			o.setProjectName(project);
-
-			o.setMarkerSymbol(gene);
-			o.setMarkerAccessionId(geneSymbol2IdMapping.get(gene));
-
-			o.setEffect_size(effectSize);
-
-			o.setStrainAccessionId(strain);
-			o.setStrainName(strainId2NameMapping.get(strain));
-			
-			if ( alleleSymbol2NameIdMapping.get(allele) == null  ){
-				// use fake id if we cannot find the symbol from komp2
-				o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
-				o.setAlleleName(allele);
-			}
-			else {
-				o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
-				o.setAlleleName(alleleSymbol2NameIdMapping.get(allele).name);
-			}
-			o.setAlleleSymbol(allele);
-			
-			o.setPipelineName(pipelineSid2NameMapping.get(pipeline));
-			o.setPipelineStableId(pipeline);
-
-			o.setProcedureName(procedureSid2NameMapping.get(procedure));
-			o.setProcedureStableId(procedure);
-
-			o.setParameterName(parameterSid2NameMapping.get(parameter));
-			o.setParameterStableId(parameter);
-
-			if (EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter)) {
-				o.setPhenotypingCenter(EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter));
-			} else {
-				o.setPhenotypingCenter(phenotypingCenter);
-			}
-
-			o.setMpTermId(phenotypeTerm);
-			
-			o.setMpTermName(mpId2TermMapping.get(phenotypeTerm));
-			
-			// Set the intermediate terms
-			List<String> ids = new ArrayList<>();
-			List<String> names = new ArrayList<>();
-
-			for (MpTermDTO mp : getIntermediateMpTerms(phenotypeTerm)) {
-				ids.add(mp.id);
-				names.add(mp.name);
-			}
-
-			o.setIntermediateMpTermId(ids);
-			o.setIntermediateMpTermName(names);
-
-			// Set the top level terms
-			ids = new ArrayList<>();
-			names = new ArrayList<>();
-
-			for (MpTermDTO mp : getTopMpTerms(phenotypeTerm)) {
-				ids.add(mp.id);
-				names.add(mp.name);
-			}
-
-			o.setTopLevelMpTermId(ids);
-			o.setTopLevelMpTermName(names);
-
-			if (sex.equals("Both")) {
-				o.setId(counter++); // use incremental id instead of id field from Harwell
-				o.setSex("female");
-				destServer.addBean(o, 60000); // commit by time: 1min
-
-				o.setId(counter++);
-				o.setSex("male");
-				destServer.addBean(o, 60000);
-			} 
-			else {
-				o.setId(counter++);
-
-				try {
-					SexType.valueOf(sex.toLowerCase());
-				} catch (IllegalArgumentException se) {
-					logger.error("Got unexpected sex value '{}' from PreQC file. Not loading", se);
+				// Skip this one: phenotypeTerm is null
+				if (phenotypeTerm == null) {
+					logger.warn("Phenotype term is missing for record with id {}", id);
 					continue;
 				}
 
-				o.setSex(sex.toLowerCase());
-				destServer.addBean(o, 60000);
+				// Skip this one: pValue not significant OR phenotypeTerm is MA
+				if ((pValue != null && pValue >= 0.0001) || phenotypeTerm.startsWith("MA:")) {//|| id != 726238) {
+					continue;
+				}
+
+				if (mpId2TermMapping.get(phenotypeTerm) == null) {
+					bad.add(phenotypeTerm);
+					continue;
+				}
+
+				GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
+
+				o.setResourceName(datasource);
+				o.setProjectName(project);
+				o.setColonyId(colonyId);
+				o.setExternalId(externalId);
+				o.setStrainAccessionId(strain);
+				o.setStrainName(strainId2NameMapping.get(strain));
+				o.setMarkerSymbol(gene);
+				o.setMarkerAccessionId(geneSymbol2IdMapping.get(gene));
+				o.setPipelineName(pipelineSid2NameMapping.get(pipeline));
+				o.setPipelineStableId(pipeline);
+				o.setProcedureName(procedureSid2NameMapping.get(procedure));
+				o.setProcedureStableId(procedure);
+				o.setParameterName(parameterSid2NameMapping.get(parameter));
+				o.setParameterStableId(parameter);
+				o.setMpTermId(phenotypeTerm);
+				o.setMpTermName(mpId2TermMapping.get(phenotypeTerm));
+				o.setP_value(pValue);
+				o.setEffect_size(effectSize);
+
+				if (!zygosityMapping.containsKey(zygosity)) {
+					logger.warn("Zygosity {} not found for record id {}", zygosity, id);
+					continue;
+				}
+				o.setZygosity(zygosityMapping.get(zygosity));
+
+				if (alleleSymbol2NameIdMapping.get(allele) == null) {
+					// use fake id if we cannot find the symbol from komp2
+					o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
+					o.setAlleleName(allele);
+				} else {
+					o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
+					o.setAlleleName(alleleSymbol2NameIdMapping.get(allele).name);
+				}
+				o.setAlleleSymbol(allele);
+
+				if (EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter)) {
+					o.setPhenotypingCenter(EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter));
+				} else {
+					o.setPhenotypingCenter(phenotypingCenter);
+				}
+
+				// Set the intermediate terms
+				List<String> ids = new ArrayList<>();
+				List<String> names = new ArrayList<>();
+
+				for (MpTermDTO mp : getIntermediateMpTerms(phenotypeTerm)) {
+					ids.add(mp.id);
+					names.add(mp.name);
+				}
+
+				o.setIntermediateMpTermId(ids);
+				o.setIntermediateMpTermName(names);
+
+				// Set the top level terms
+				ids = new ArrayList<>();
+				names = new ArrayList<>();
+
+				for (MpTermDTO mp : getTopMpTerms(phenotypeTerm)) {
+					ids.add(mp.id);
+					names.add(mp.name);
+				}
+
+				o.setTopLevelMpTermId(ids);
+				o.setTopLevelMpTermName(names);
+
+				if (sex.equals("Both")) {
+
+					// use incremental id instead of id field from Harwell
+					o.setId(counter++);
+					o.setSex(SexType.female.getName());
+					destServer.addBean(o);
+
+					o.setId(counter++);
+					o.setSex(SexType.male.getName());
+					destServer.addBean(o);
+
+				} else {
+
+					o.setId(counter++);
+
+					try {
+
+						SexType.valueOf(sex.toLowerCase());
+
+					} catch (IllegalArgumentException se) {
+						logger.error("Got unexpected sex value '{}' from PreQC file. Not loading", se);
+						continue;
+					}
+
+					o.setSex(sex.toLowerCase());
+					destServer.addBean(o);
+				}
+
 			}
-			
+
+			destServer.commit();
+
+		} catch (ParserConfigurationException | SAXException | SQLException | SolrServerException | IOException e) {
+			throw new IndexerException(e);
 		}
-		destServer.commit();
 
 		System.out.println("time: " + (System.currentTimeMillis() - start));
 		logger.warn("found {} unique mps not in ontodb", bad.size());
@@ -677,8 +622,10 @@ public class PreqcIndexer {
 		String id;
 		String name;
 
+
 		@Override
 		public int hashCode() {
+
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + getOuterType().hashCode();
@@ -687,8 +634,10 @@ public class PreqcIndexer {
 			return result;
 		}
 
+
 		@Override
 		public boolean equals(Object obj) {
+
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -711,9 +660,29 @@ public class PreqcIndexer {
 			return true;
 		}
 
+
 		private PreqcIndexer getOuterType() {
+
 			return PreqcIndexer.this;
 		}
+	}
+
+	public static void main(String[] args) throws IndexerException {
+
+		PreqcIndexer main = new PreqcIndexer();
+		main.initialise(args);
+		main.run();
+
+		logger.info("Process finished.  Exiting.");
 
 	}
+
+
+	@Override
+	protected Logger getLogger() {
+
+		return logger ;
+	}
+
+
 }
