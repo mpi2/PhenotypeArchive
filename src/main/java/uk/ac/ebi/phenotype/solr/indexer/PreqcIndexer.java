@@ -299,6 +299,10 @@ public class PreqcIndexer extends AbstractIndexer {
 					destServer.addBean(o);
 				}
 
+				if(counter%1000==0) {
+					logger.info("Added {} preqc documents to index", counter);
+				}
+
 			}
 
 			destServer.commit();

@@ -562,6 +562,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
 				if (MOUSE_STATUS_MAPPINGS.containsKey(mouseStatus)) {
 					mouseStatus = MOUSE_STATUS_MAPPINGS.get(mouseStatus);
+					allele.setLatestMouseStatus(mouseStatus);
 				}
 
 				if (latest) {
