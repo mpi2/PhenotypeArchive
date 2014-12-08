@@ -196,7 +196,7 @@ public class DataTableController {
 
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, boolean legacyOnly){	
 		
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -308,7 +308,7 @@ public class DataTableController {
 	
 	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start){
 				
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
 		JSONObject j = new JSONObject();
@@ -406,7 +406,7 @@ public class DataTableController {
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {
-				if (registerInterest.mpAlreadyInterested(mpId)) {
+				if (registerInterest.alreadyInterested(mpId)) {
 					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
 							+ "<i class='fa fa-sign-out'></i>"
 							+ "<a id='"+mpId+"' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
