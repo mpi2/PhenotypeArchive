@@ -325,7 +325,7 @@ public class OntologyUtils {
      * @throws SQLException when a database exception occurs
      * @return a map of all top-level mp terms, indexed by mp term id
      */
-    protected static Map<String, List<OntologyTermBean>> populateMpSelectedTopLevelTerms(Connection ontoDbConnection) throws SQLException {
+    protected static Map<String, List<OntologyTermBean>> populateMpTopLevelTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String query =
                   "SELECT DISTINCT\n"
@@ -363,10 +363,10 @@ public class OntologyUtils {
     
     
     /**
-     * Returns a list of synonyms matching <code>maTermId</code>
+     * Returns a cached map of synonyms matching <code>maTermId</code>
      * @param ontoDbConnection
      * @param maTermId the ma term id to match
-     * @return a list of synonyms matching <code>maTermId</code>
+     * @return a list of ma synonyms matching <code>maTermId</code>
      * @throws SQLException 
      */
     protected static List<String> getMaSynonyms(Connection ontoDbConnection, String maTermId) throws SQLException {
@@ -378,10 +378,10 @@ public class OntologyUtils {
     }
     
     /**
-     * Returns a list of synonyms matching <code>mpTermId</code>
+     * Returns a cached map of synonyms matching <code>mpTermId</code>
      * @param ontoDbConnection
      * @param mpTermId the mp term id to match
-     * @return a list of synonyms matching <code>mpTermId</code>
+     * @return a list of mp synonyms matching <code>mpTermId</code>
      * @throws SQLException 
      */
     protected static List<String> getMpSynonyms(Connection ontoDbConnection, String mpTermId) throws SQLException {

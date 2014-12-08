@@ -21,11 +21,7 @@
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.solr.client.solrj.SolrServer;
@@ -51,6 +47,7 @@ public class IndexerMap {
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
     private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
+    private static Map<String, List<OntologyTermBean>> mpTopLevelTermsMap = null;
     private static List<AlleleDTO> alleles = null;
     
     
@@ -92,10 +89,10 @@ public class IndexerMap {
     }
     
     /**
-     * Fetch a map of image terms indexed by ma id
+     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
      *
      * @param phenodigm_core a valid solr connection
-     * @return a map, indexed by mp id, of all hp terms
+     * @return a cached map of all mp terms to hp terms, indexed by mp id.
      * 
      * @throws IndexerException
      */
@@ -108,11 +105,12 @@ public class IndexerMap {
     }
     
     /**
-     * Fetch a map of image terms indexed by ma id
+     * Returns a cached map of all sanger image terms associated to all ma ids,
+     * indexed by ma term id.
      *
      * @param imagesCore a valid solr connection
-     * @return a map, indexed by child ma id, of all parent terms with
-     * associations
+     * @return a cached map of all sanger image terms associated to all ma ids,
+     * indexed by ma term id.
      * @throws IndexerException
      */
     public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
@@ -123,6 +121,16 @@ public class IndexerMap {
         return sangerImagesMap;
     }
     
+    /**
+     * Returns a cached map of all ma selected top-level terms, indexed by ma
+     * term id.
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a cached list of all ma selected top-level terms, indexed by ma
+     * term id.
+     */
     public static Map<String, List<OntologyTermBean>> getMaSelectedTopLevelTerms(Connection ontoDbConnection) throws SQLException {
         if (maSelectedTopLevelTermsMap == null) {
             maSelectedTopLevelTermsMap = OntologyUtils.populateMaSelectedTopLevelTerms(ontoDbConnection);
@@ -130,15 +138,14 @@ public class IndexerMap {
         
         return maSelectedTopLevelTermsMap;
     }
-          
+    
     /**
-     * Queries the ma_term_subsets table, returning a map
+     * Returns a cached map of all ma subsets, indexed by ma id.
      *
-     * @param ontoDbConnection active database connection to table named
-     *     'ma_term_subsets'.
-     * 
+     * @param ontoDbConnection active database connection
+     *
      * @throws SQLException when a database exception occurs
-     * @return the populated map, indexed by term id.
+     * @return a cached list of all ma subsets, indexed by ma id.
      */
     public static Map<String, List<String>> getMaTermSubsets(Connection ontoDbConnection) throws SQLException {
         if (maTermSubsetsMap == null) {
@@ -147,14 +154,14 @@ public class IndexerMap {
         
         return maTermSubsetsMap;
     }
-    
+
     /**
-     * Fetch a map of child terms indexed by parent ma id
-     * 
-     * @param ontoDbConnection a valid database connection
-     * @return a map, indexed by parent ma id, of all child ma terms with
-     * associations to child terms
-     * @throws SQLException 
+     * Returns a cached map of all ma child terms, indexed by parent ma id.
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a cached list of all ma child terms, indexed by parent ma id.
      */
     public static Map<String, List<OntologyTermBean>> getMaTermChildTerms(Connection ontoDbConnection) throws SQLException {
         if (maTermChildTermsMap == null) {
@@ -165,12 +172,12 @@ public class IndexerMap {
     }
     
     /**
-     * Fetch a map of parent terms indexed by child ma id
-     * 
-     * @param ontoDbConnection a valid database connection
-     * @return a map, indexed by child ma id, of all parent ma terms with
-     * associations to child terms
-     * @throws SQLException 
+     * Returns a cached map of all ma parent terms, indexed by child ma id.
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a cached list of all ma parent terms, indexed by child ma id.
      */
     public static Map<String, List<OntologyTermBean>> getMaTermParentTerms(Connection ontoDbConnection) throws SQLException {
         if (maTermParentTermsMap == null) {
@@ -181,14 +188,41 @@ public class IndexerMap {
     }
     
     /**
-     * Returns a list of synonyms matching <code>termId</code>
+     * Returns a cached map of ma synonyms matching <code>maTermId</code>
      * @param ontoDbConnection
-     * @param maTermId the MA term id to match
-     * @return a list of synonyms matching <code>termId</code>
+     * @param maTermId the ma term id to match
+     * @return a list of ma synonyms matching <code>maTermId</code>
      * @throws SQLException 
      */
     public static List<String> getMaSynonyms(Connection ontoDbConnection, String maTermId) throws SQLException {
         return OntologyUtils.getMaSynonyms(ontoDbConnection, maTermId);
+    }
+    
+    /**
+     * Returns a cached map of mp synonyms matching <code>mpTermId</code>
+     * @param ontoDbConnection active database connection
+     * @param mpTermId the mp term id to match
+     * @return a list of mp synonyms matching <code>mpTermId</code>
+     * @throws SQLException 
+     */
+    public static List<String> getMpSynonyms(Connection ontoDbConnection, String mpTermId) throws SQLException {
+        return OntologyUtils.getMpSynonyms(ontoDbConnection, mpTermId);
+    }
+    
+    /**
+     * Returns a cached map of all mp top-level terms, indexed by mp term id.
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a cached list of all mp top-level terms, indexed by mp term id.
+     */
+    public static Map<String, List<OntologyTermBean>> getMpTopLevelTerms(Connection ontoDbConnection) throws SQLException {
+        if (mpTopLevelTermsMap == null) {
+            mpTopLevelTermsMap = OntologyUtils.populateMpTopLevelTerms(ontoDbConnection);
+        }
+        
+        return mpTopLevelTermsMap;
     }
     
     

@@ -325,7 +325,7 @@ public class SolrUtils {
 
 
 	/**
-	 * Fetch a map of image terms indexed by ma id
+	 * Fetch a map of mp terms associated to hp terms, indexed by mp id.
 	 * 
 	 * @param phenodigm_core
 	 *            a valid solr connection
