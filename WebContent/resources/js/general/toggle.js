@@ -18,13 +18,23 @@
  */
 jQuery(document).ready(	function() {
 
-$('a.interest').click(function(){
-	var mgiId = $(this).attr('id');
-	var label = $(this).text();
-	var regBtn = $(this);
-	$.ajax({
-		url: '/toggleflagfromjs/' + mgiId,                       
-		success: function (response) {
+	$('a.interest').click(function(){
+		var termId = $(this).attr('id');
+		var endpoint = null;
+	     
+	     if ( /^MP:/.exec(termId) ){
+	     	endpoint = "/togglempflagfromjs/";
+	     }
+	     else if ( /^MGI:/.exec(termId) ){
+	     	endpoint = "/toggleflagfromjs/";
+	     }
+		
+		
+		var label = $(this).text();
+		var regBtn = $(this);
+		$.ajax({
+			url: endpoint + termId,                           
+			success: function (response) {
 			function endsWith(str, suffix) {
 				return str.indexOf(suffix, str.length - suffix.length) !== -1;
         	}

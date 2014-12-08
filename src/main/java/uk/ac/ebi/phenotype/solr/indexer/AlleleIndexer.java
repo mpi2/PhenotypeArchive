@@ -311,8 +311,7 @@ public class AlleleIndexer extends AbstractIndexer {
 			DiseaseBean.MGI_PREDICTED_KNOWN_GENE,
 			DiseaseBean.IMPC_PREDICTED_KNOWN_GENE,
 			DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
-			DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS,
-			DiseaseBean.DISEASE_HUMAN_PHENOTYPES), ",");
+			DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS), ",");
 
 		// The solrcloud instance cannot give us all results back at once,
 		// we must batch up the calls and build it up piece at a time
@@ -497,9 +496,6 @@ public class AlleleIndexer extends AbstractIndexer {
 				dto.getImpcPredictedKnownGene().add(db.isImpcPredictedKnownGene());
 				dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
 				dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
-				if (db.getDiseaseHumanPhenotypes() != null) {
-					dto.getDiseaseHumanPhenotypes().addAll(db.getDiseaseHumanPhenotypes());
-				}
 			}
 
 		}
