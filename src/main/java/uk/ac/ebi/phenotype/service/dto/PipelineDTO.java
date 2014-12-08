@@ -238,6 +238,10 @@ public class PipelineDTO {
 	private List<String> procedureParamName;
 //    "pipeline_stable_id": "IMPC_001",
 //    "ididid": "9_2_1",
+	@Field("parameter_stable_key")
+	private String parameterStableKey;
+	@Field("ididid")
+	private String ididid;
 
 
 	public void addProcedureId(int procId) {
@@ -320,5 +324,25 @@ public class PipelineDTO {
 			this.procedureParamName=new ArrayList<String>();
 		}
 		this.procedureParamName.add(procParamName);
+	}
+
+
+
+
+
+	public void setParameterStableKey(String paramStableKey) {
+
+		this.parameterStableKey=paramStableKey;
+		
+	}
+
+
+
+
+
+	public void setIdIdId(String ididid) {
+
+		this.ididid=ididid;
+		
 	}
 }

@@ -115,6 +115,7 @@ public class PipelineIndexer extends AbstractIndexer {
             	String paramStableId=row.get(ObservationDTO.PARAMETER_STABLE_ID);
             	String paramStableName=row.get(ObservationDTO.PARAMETER_NAME);
             	pipe.setParameterStableId(paramStableId);
+            	pipe.setParameterStableKey(row.get("stable_key"));
             	
             	Set<Integer> procedureIds=paramIdToProcedureList.get(paramDbId);
             	//if(procedureIds.size()>1){System.out.println("more than one procedure for this parameterDbId"+paramDbId);
@@ -153,7 +154,10 @@ public class PipelineIndexer extends AbstractIndexer {
             				pipe.setPipelineStableKey(pipeline.pipelineStableKey);
             				pipe.setPipeProcId(pipeline.pipeProcSid);
 
-            				
+//            				select concat(${phenotype_parameter.id},'_',${phenotype_pipeline_procedure.pproc_id},'_',${phenotype_pipeline_procedure.pipe_id}) as ididid">
+//            				<field column="ididid" name="ididid" />
+            				String ididid=paramDbId+"_"+procId+"_"+pipe.getPipelineId();
+            				pipe.setIdIdId(ididid);
             				
             			}
             		}
@@ -184,7 +188,7 @@ public class PipelineIndexer extends AbstractIndexer {
     	long endTime = System.currentTimeMillis();
 		System.out.println("time was " + (endTime - startTime) / 1000);
 
-        logger.info("Gene Indexer complete!");
+        logger.info("Pipeline Indexer complete!");
         System.exit(0);
     }
     
