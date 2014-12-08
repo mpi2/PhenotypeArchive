@@ -36,6 +36,7 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -98,6 +99,10 @@ public class AlleleIndexer extends AbstractIndexer {
 	private SolrServer phenodigmCore;
 
 	@Autowired
+	@Qualifier("komp2DataSource")
+	DataSource komp2DataSource;
+
+	@Autowired
 	@Qualifier("alleleIndexing")
 	private SolrServer alleleCore;
 
@@ -124,6 +129,8 @@ public class AlleleIndexer extends AbstractIndexer {
 		long startTime = new Date().getTime();
 
 		try {
+			connection = komp2DataSource.getConnection();
+
 			initializeSolrCores();
 
 			SolrQuery query = new SolrQuery("mgi_accession_id:*");
@@ -182,7 +189,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
 			alleleCore.commit();
 
-		} catch (SolrServerException | IOException e) {
+		} catch (SQLException | SolrServerException | IOException e) {
 			throw new IndexerException(e);
 		}
 

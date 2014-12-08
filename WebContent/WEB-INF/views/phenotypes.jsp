@@ -108,6 +108,22 @@
 			
 				<div class="section">
 					<div class="inner">
+					
+						 <!--  login interest button -->
+                         <div class="floatright">
+                             <c:choose>
+                                 <c:when test="${registerButtonAnchor!=''}">
+                                     <p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+                                         </c:when>
+                                         <c:otherwise>
+                                     <p> <a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+                                         </c:otherwise>
+                                     </c:choose>
+                                     <c:if test="${orderPossible}">
+                                 <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+                             </c:if>
+                         </div>
+					
 						<c:if test="${not empty phenotype.description}">
 							<p class="with-label"> <span class="label"> Definition</span> ${phenotype.description} </p>
 						</c:if>

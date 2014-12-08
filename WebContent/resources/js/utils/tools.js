@@ -2086,12 +2086,22 @@
 
                     $('a.interest').click(function() {
 
-                        var mgiId = $(this).attr('id');
+                        var termId = $(this).attr('id');
+                        var endpoint = null;
+                        
+                        if ( /^MP:/.exec(termId) ){
+                        	endpoint = "/togglempflagfromjs/";
+                        }
+                        else if ( /^MGI:/.exec(termId) ){
+                        	endpoint = "/toggleflagfromjs/";
+                        }
+                        
+                        
                         var label = $(this).text();
                         var regBtn = $(this);
 
                         $.ajax({
-                            url: '/toggleflagfromjs/' + mgiId,
+                            url: endpoint + termId,
                             success: function(response) {
                                 //console.log('success');
 
