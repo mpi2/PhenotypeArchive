@@ -39,7 +39,6 @@ public class DiseaseBean {
 	public static final String IMPC_PREDICTED_KNOWN_GENE = "impc_predicted_known_gene";
 	public static final String MGI_NOVEL_PREDICTED_IN_LOCUS = "mgi_novel_predicted_in_locus";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS = "impc_novel_predicted_in_locus";
-	public static final String DISEASE_HUMAN_PHENOTYPES = "phenotypes";
 
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;
@@ -85,9 +84,6 @@ public class DiseaseBean {
 
 	@Field(IMPC_NOVEL_PREDICTED_IN_LOCUS)
 	private boolean impcNovelPredictedInLocus;
-
-	@Field(DISEASE_HUMAN_PHENOTYPES)
-	private List<String> diseaseHumanPhenotypes;
 
 	public String getMgiAccessionId() {
 
@@ -293,20 +289,6 @@ public class DiseaseBean {
 	 */
 	public void setImpcNovelPredictedInLocus(boolean impc_novel_predicted_in_locus) {
 		this.impcNovelPredictedInLocus = impc_novel_predicted_in_locus;
-	}
-
-	/**
-	 * @return the disease_human_phenotypes
-	 */
-	public List<String> getDiseaseHumanPhenotypes() {
-		return diseaseHumanPhenotypes;
-	}
-
-	/**
-	 * @param disease_human_phenotypes the disease_human_phenotypes to set
-	 */
-	public void setDiseaseHumanPhenotypes(List<String> disease_human_phenotypes) {
-		this.diseaseHumanPhenotypes = disease_human_phenotypes;
 	}
 
 }
