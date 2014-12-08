@@ -80,8 +80,6 @@ public class GenesController {
 	private final Logger log = LoggerFactory.getLogger(GenesController.class);
 	private static final int numberOfImagesToDisplay = 5;
 
-	RegisterInterestDrupalSolr registerInterest;
-
 	@Autowired
 	private DatasourceDAO datasourceDao;
 	@Autowired
@@ -243,9 +241,13 @@ public class GenesController {
 
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
-		registerInterest = new RegisterInterestDrupalSolr(config, request);
-		this.registerInterestState(acc, model, request);
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
+		Map<String, String> regInt = registerInterest.registerInterestState(acc, request, registerInterest);
 
+		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
+		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
+		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
+	
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
@@ -566,43 +568,46 @@ public class GenesController {
 	 * @param model
 	 * @throws UnsupportedEncodingException
 	 */
-	private void registerInterestState(String acc, Model model, HttpServletRequest request)
-	throws UnsupportedEncodingException {
-
-		String registerInterestButtonString = "";
-		String registerButtonAnchor = "";
-		String id = acc;
-
-		if (registerInterest.loggedIn()) {
-			if (registerInterest.alreadyInterested(acc)) {
-				registerInterestButtonString = "Unregister interest";
-				id = acc;
-			} else {
-				registerInterestButtonString = "Register interest";
-				id = acc;
-			}
-		} else {
-			registerInterestButtonString = "Login to register interest";
-			// Use the drupal destination parameter to redirect back to this
-			// page
-			// after logging in
-			String dest = (String) request.getAttribute("javax.servlet.forward.request_uri");
-			if (request.getQueryString() != null) {
-				dest += URLEncoder.encode("?" + request.getQueryString(), "UTF-8");
-			}
-
-			if (dest == null) {
-				dest = ((String) request.getAttribute("baseUrl")).substring(1) + request.getRequestURI().substring(request.getContextPath().length());
-			}
-
-			registerButtonAnchor = "/user/login?destination=" + dest;
-
-		}
-
-		model.addAttribute("registerInterestButtonString", registerInterestButtonString);
-		model.addAttribute("registerButtonAnchor", registerButtonAnchor);
-		model.addAttribute("registerButtonId", id);
-	}
+//	private Map<String, String> registerInterestState(String acc, HttpServletRequest request, RegisterInterestDrupalSolr registerInterest)
+//	throws UnsupportedEncodingException {
+//
+//		String registerInterestButtonString = "";
+//		String registerButtonAnchor = "";
+//		String id = acc;
+//
+//		if (registerInterest.loggedIn()) {
+//			if (registerInterest.alreadyInterested(acc)) {
+//				registerInterestButtonString = "Unregister interest";
+//				id = acc;
+//			} else {
+//				registerInterestButtonString = "Register interest";
+//				id = acc;
+//			}
+//		} else {
+//			registerInterestButtonString = "Login to register interest";
+//			// Use the drupal destination parameter to redirect back to this
+//			// page
+//			// after logging in
+//			String dest = (String) request.getAttribute("javax.servlet.forward.request_uri");
+//			if (request.getQueryString() != null) {
+//				dest += URLEncoder.encode("?" + request.getQueryString(), "UTF-8");
+//			}
+//
+//			if (dest == null) {
+//				dest = ((String) request.getAttribute("baseUrl")).substring(1) + request.getRequestURI().substring(request.getContextPath().length());
+//			}
+//
+//			registerButtonAnchor = "/user/login?destination=" + dest;
+//
+//		}
+//
+//		Map<String, String> retVal = new HashMap<>();
+//		retVal.put("registerInterestButtonString", registerInterestButtonString);
+//		retVal.put("registerButtonAnchor", registerButtonAnchor);
+//		retVal.put("registerButtonId", id);
+//		
+//		return retVal;
+//	}
 
 
 	/**

@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
@@ -219,6 +220,14 @@ public class PhenotypesController {
             mpSiblings = new HashSet();
         }
 
+        // register interest state
+ 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
+ 		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest);
+
+ 		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
+ 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
+ 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
+        
         model.addAttribute("anatomy", anatomyTerms);
         model.addAttribute("go", goTerms);
         model.addAttribute("siblings", mpSiblings);
