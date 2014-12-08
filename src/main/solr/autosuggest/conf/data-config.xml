@@ -136,7 +136,6 @@
 				<field column="impc_predicted" xpath="/response/result/doc/arr[@name='impc_predicted']/bool" /> 
 				<field column="mgi_predicted_in_locus" xpath="/response/result/doc/arr[@name='mgi_predicted_in_locus']/bool" /> 
 				<field column="impc_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_predicted_in_locus']/bool" /> 			
-				<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />	
 
 				<!-- MP terms associated with this MGI gene -->
 				<entity dataSource="mp_core" name="mpCore" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=99999"

@@ -114,7 +114,6 @@
 	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
 	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 
 	<field name="human_curated" type="boolean" indexed="true" stored="true"/>
 	<field name="mouse_curated" type="boolean" indexed="true" stored="true"/>
@@ -379,7 +378,6 @@
 	<copyField source="disease_classes" dest="auto_suggest"/>
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_source" dest="auto_suggest"/>
-	<copyField source="disease_human_phenotypes" dest="auto_suggest"/>
 		
 	<copyField source="mgi_accession_id" dest="auto_suggest"/>
 	<copyField source="marker_symbol" dest="auto_suggest"/> 

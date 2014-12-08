@@ -15,8 +15,10 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import org.apache.http.HttpHost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -25,28 +27,21 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.*;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 /**
  * @author Matt Pearce
@@ -55,25 +50,39 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 public class MPIndexer extends AbstractIndexer {
 
     private static final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
-    private static Connection komp2DbConnection;
-    private static Connection ontoDbConnection;
 
-    private static final String ALLELE_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele";
-    private static final String IMAGES_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images";
-    private static final String PREQC_URL = "http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/preqc";
-    private static final String PHENODIGM_URL = "http://solrcloudlive.sanger.ac.uk/solr/phenodigm";
+    @Autowired
+    @Qualifier("alleleIndexing")
+    private SolrServer alleleCore;
+
+    @Autowired
+    @Qualifier("preqcIndexing")
+    private SolrServer preqcCore;
+
+    @Autowired
+    @Qualifier("komp2DataSource")
+    DataSource komp2DataSource;
+
+    @Autowired
+    @Qualifier("ontodbDataSource")
+    DataSource ontodbDataSource;
+
     /**
      * Destination Solr core
      */
-    private static final String MP_URL = "http://localhost:8983/solr/mp";
+    @Autowired
+    @Qualifier("mpIndexing")
+    private SolrServer mpCore;
+
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
+
+    private SolrServer phenodigmCore;
+
+    private static Connection komp2DbConnection;
+    private static Connection ontoDbConnection;
 
     private static final int BATCH_SIZE = 50;
-
-    private final SolrServer alleleCore;
-    private final SolrServer imagesCore;
-    private final SolrServer preqcCore;
-    private final SolrServer phenodigmCore;
-    private final SolrServer mpCore;
 
     // Maps of supporting database content
     Map<String, List<MPHPBean>> mphpBeans;
@@ -109,17 +118,16 @@ public class MPIndexer extends AbstractIndexer {
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
 
-    public MPIndexer() {
-        this.alleleCore = new HttpSolrServer(ALLELE_URL);
-        this.imagesCore = new HttpSolrServer(IMAGES_URL);
-        this.preqcCore = new HttpSolrServer(PREQC_URL);
-        this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-        this.mpCore = new HttpSolrServer(MP_URL);
-    }
+    public MPIndexer() { }
 
     @Override
     public void run() throws IndexerException {
         logger.info("Starting MP Indexer...");
+
+        initializeSolrCores();
+
+        initializeDatabaseConnections();
+
         initialiseSupportingBeans();
 
         List<MpDTO> mpBatch = new ArrayList<>(BATCH_SIZE);
@@ -176,6 +184,57 @@ public class MPIndexer extends AbstractIndexer {
 
         logger.info("MP Indexer complete!");
     }
+
+
+    /**
+     * Initialize the database connections required
+     *
+     * @throws IndexerException when there's an issue
+     */
+    private void initializeDatabaseConnections() throws IndexerException {
+
+        try {
+            komp2DbConnection = komp2DataSource.getConnection();
+            ontoDbConnection = ontodbDataSource.getConnection();
+        } catch (SQLException e) {
+            throw new IndexerException(e);
+        }
+
+    }
+
+
+    /**
+     * Initialize the phenodigm core -- using a proxy if configured.
+     * <p/>
+     * A proxy is specified by supplying two JVM variables
+     * - externalProxyHost the host (not including the protocol)
+     * - externalProxyPort the integer port number
+     */
+    private void initializeSolrCores() {
+
+        final String PHENODIGM_URL = config.get("phenodigm.solrserver");
+
+        // Use system proxy if set for external solr servers
+        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
+
+            String PROXY_HOST = System.getProperty("externalProxyHost");
+            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
+
+            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
+            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+
+            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+
+            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
+
+        } else {
+
+            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
+
+        }
+    }
+
 
     private void initialiseSupportingBeans() throws IndexerException {
         try {
@@ -724,7 +783,7 @@ public class MPIndexer extends AbstractIndexer {
 
             for (MPHPBean bean : hpBeans) {
                 hpIds.add(bean.getHpId());
-                hpIds.add(bean.getHpTerm());
+                hpTerms.add(bean.getHpTerm());
             }
 
             if (mp.getHpId() == null) {
@@ -776,7 +835,7 @@ public class MPIndexer extends AbstractIndexer {
             mp.getTopLevelMpId().addAll(topLevelMpIds);
             mp.getTopLevelMpTerm().addAll(topLevelMpTerms);
             mp.getTopLevelMpTermId().addAll(topLevelMpTermIds);
-            mp.getTopLevelMpTermSynonym().addAll(new ArrayList<String>(topLevelSynonyms));
+            mp.getTopLevelMpTermSynonym().addAll(new ArrayList<>(topLevelSynonyms));
         }
     }
 
@@ -790,8 +849,8 @@ public class MPIndexer extends AbstractIndexer {
                 for (MPTermNodeBean bean : intermediateTerms.get(intId)) {
                     intermediateTermIds.add(bean.getTermId());
                     intermediateTermNames.add(bean.getName());
-                    if (mpTermSynonyms.containsKey(intId)) {
-                        intermediateSynonyms.addAll(mpTermSynonyms.get(intId));
+                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
+                        intermediateSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
                     }
                 }
             }
@@ -803,7 +862,7 @@ public class MPIndexer extends AbstractIndexer {
             }
             mp.getIntermediateMpId().addAll(intermediateTermIds);
             mp.getIntermediateMpTerm().addAll(intermediateTermNames);
-            mp.getIntermediateMpTermSynonym().addAll(new ArrayList<String>(intermediateSynonyms));
+            mp.getIntermediateMpTermSynonym().addAll(new ArrayList<>(intermediateSynonyms));
         }
     }
 
@@ -817,8 +876,8 @@ public class MPIndexer extends AbstractIndexer {
                 for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
                     childTermIds.add(bean.getTermId());
                     childTermNames.add(bean.getName());
-                    if (mpTermSynonyms.containsKey(childId)) {
-                        childSynonyms.addAll(mpTermSynonyms.get(childId));
+                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
+                        childSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
                     }
                 }
             }
@@ -830,7 +889,7 @@ public class MPIndexer extends AbstractIndexer {
             }
             mp.getChildMpId().addAll(childTermIds);
             mp.getChildMpTerm().addAll(childTermNames);
-            mp.getChildMpTermSynonym().addAll(new ArrayList<String>(childSynonyms));
+            mp.getChildMpTermSynonym().addAll(new ArrayList<>(childSynonyms));
         }
     }
 
@@ -903,13 +962,13 @@ public class MPIndexer extends AbstractIndexer {
 
             mp.setInferredMaTermId(maInferredIds);
             mp.setInferredMaTerm(maInferredTerms);
-            mp.setInferredMaTermSynonym(new ArrayList<String>(maInferredSynonyms));
+            mp.setInferredMaTermSynonym(new ArrayList<>(maInferredSynonyms));
             mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
             mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
-            mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>(maTopLevelSynonyms));
+            mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(maTopLevelSynonyms));
             mp.setInferredChildMaId(maChildLevelTermIds);
             mp.setInferredChildMaTerm(maChildLevelTerms);
-            mp.setInferredChildMaTermSynonym(new ArrayList<String>(maChildLevelSynonyms));
+            mp.setInferredChildMaTermSynonym(new ArrayList<>(maChildLevelSynonyms));
         }
     }
 
@@ -1000,9 +1059,6 @@ public class MPIndexer extends AbstractIndexer {
                 if (allele.getImpcPredicted() != null) {
                     mp.getImpcPredicted().addAll(allele.getImpcPredicted());
                 }
-                if (allele.getDiseaseHumanPhenotypes() != null) {
-                    mp.getDiseaseHumanPhenotypes().addAll(allele.getDiseaseHumanPhenotypes());
-                }
                 if (allele.getMgiPredictedKnownGene() != null) {
                     mp.getMgiPredictedKnownGene().addAll(allele.getMgiPredictedKnownGene());
                 }
@@ -1068,7 +1124,6 @@ public class MPIndexer extends AbstractIndexer {
             mp.setMouseCurated(new ArrayList<Boolean>());
             mp.setMgiPredicted(new ArrayList<Boolean>());
             mp.setImpcPredicted(new ArrayList<Boolean>());
-            mp.setDiseaseHumanPhenotypes(new ArrayList<String>());
             mp.setMgiPredictedKnownGene(new ArrayList<Boolean>());
             mp.setImpcPredictedKnownGene(new ArrayList<Boolean>());
             mp.setMgiNovelPredictedInLocus(new ArrayList<Boolean>());
@@ -1152,55 +1207,62 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     public static void main(String[] args) throws IndexerException {
-        OptionParser parser = new OptionParser();
 
-        // parameter to indicate which spring context file to use
-        parser.accepts("context").withRequiredArg().ofType(String.class);
-
-        OptionSet options = parser.parse(args);
-        String context = (String) options.valuesOf("context").get(0);
-
-        logger.info("Using application context file {}", context);
-
-        // Wire up spring support for this application
         MPIndexer main = new MPIndexer();
-
-        ApplicationContext applicationContext;
-        try {
-            // Try context as a file resource
-            applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-
-        } catch (RuntimeException e) {
-
-            logger.warn("An error occurred loading the file: {}", e.getMessage());
-
-            // Try context as a class path resource
-            applicationContext = new ClassPathXmlApplicationContext(context);
-
-            logger.warn("Using classpath app-config file: {}", context);
-
-        }
-            
-        try {
-            applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-            // allow hibernate session to stay open the whole execution
-            PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-            DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-            transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-            transactionManager.getTransaction(transactionAttribute);
-
-            DataSource komp2DS = ((DataSource) applicationContext.getBean("komp2DataSource"));
-            komp2DbConnection = komp2DS.getConnection();
-            DataSource ontoDS = ((DataSource) applicationContext.getBean("ontodbDataSource"));
-            ontoDbConnection = ontoDS.getConnection();
-        } catch (SQLException e) {
-            throw new IndexerException(e);
-        }
-
+        main.initialise(args);
         main.run();
 
         logger.info("Process finished.  Exiting.");
+
+//        OptionParser parser = new OptionParser();
+//
+//        // parameter to indicate which spring context file to use
+//        parser.accepts("context").withRequiredArg().ofType(String.class);
+//
+//        OptionSet options = parser.parse(args);
+//        String context = (String) options.valuesOf("context").get(0);
+//
+//        logger.info("Using application context file {}", context);
+//
+//        // Wire up spring support for this application
+//        MPIndexer main = new MPIndexer();
+//
+//        ApplicationContext applicationContext;
+//        try {
+//            // Try context as a file resource
+//            applicationContext = new FileSystemXmlApplicationContext("file:" + context);
+//
+//        } catch (RuntimeException e) {
+//
+//            logger.warn("An error occurred loading the file: {}", e.getMessage());
+//
+//            // Try context as a class path resource
+//            applicationContext = new ClassPathXmlApplicationContext(context);
+//
+//            logger.warn("Using classpath app-config file: {}", context);
+//
+//        }
+//
+//        try {
+//            applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+//
+//            // allow hibernate session to stay open the whole execution
+//            PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
+//            DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
+//            transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+//            transactionManager.getTransaction(transactionAttribute);
+//
+//            DataSource komp2DS = ((DataSource) applicationContext.getBean("komp2DataSource"));
+//            komp2DbConnection = komp2DS.getConnection();
+//            DataSource ontoDS = ((DataSource) applicationContext.getBean("ontodbDataSource"));
+//            ontoDbConnection = ontoDS.getConnection();
+//        } catch (SQLException e) {
+//            throw new IndexerException(e);
+//        }
+//
+//        main.run();
+//
+//        logger.info("Process finished.  Exiting.");
     }
 
 }

@@ -141,14 +141,14 @@
     <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="parameter_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>		
     <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>	
-    <field name="procedure_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" />
-    <field name="procedure_name" type="string" indexed="true" stored="true" required="true" />
-	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="true" />
-	<field name="proc_name_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="proc_param_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="procedure_id" type="int" indexed="true" stored="true" required="true" multiValued="true"/>
+    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="true" />
+    <field name="procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
+	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
+    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="true"/>
+	<field name="proc_name_id" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
+    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
+    <field name="proc_param_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
 
 	<field name="pipeline_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" />
@@ -254,7 +254,6 @@
 	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
 	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 
 	<field name="human_curated" type="boolean" indexed="true" stored="true"/>
 	<field name="mouse_curated" type="boolean" indexed="true" stored="true"/>

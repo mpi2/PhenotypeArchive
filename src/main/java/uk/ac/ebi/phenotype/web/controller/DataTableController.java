@@ -196,7 +196,7 @@ public class DataTableController {
 
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, boolean legacyOnly){	
 		
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -308,6 +308,7 @@ public class DataTableController {
 	
 	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start){
 				
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
 		JSONObject j = new JSONObject();
@@ -402,6 +403,37 @@ public class DataTableController {
 			    //e.printStackTrace();
 			}
 			rowData.add(mpDef);	
+			
+			// register of interest
+			if (registerInterest.loggedIn()) {
+				if (registerInterest.alreadyInterested(mpId)) {
+					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
+							+ "<i class='fa fa-sign-out'></i>"
+							+ "<a id='"+mpId+"' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
+							+ "</div>";
+					
+					rowData.add(uinterest);					
+				} 
+				else {
+					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
+							+ "<i class='fa fa-sign-in'></i>"
+							+ "<a id='"+mpId+"' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
+							+ "</div>";
+					
+					rowData.add(rinterest);					
+				}
+			} 
+			else {	
+				// use the login link instead of register link to avoid user clicking on tab which
+				// will strip out destination link that we don't want to see happened
+				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
+								+ "<i class='fa fa-sign-in'></i>"
+								+ "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=mp'>&nbsp;Interest</a>"
+								//+ "<a class='regInterest' href='#'>Interest</a>"
+								+ "</div>";
+				
+				rowData.add(interest);
+			}
 			
 			j.getJSONArray("aaData").add(rowData);
 		} 

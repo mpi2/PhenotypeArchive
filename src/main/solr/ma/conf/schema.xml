@@ -170,14 +170,13 @@
         <!-- allele level fields of a gene -->
         <field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 	
-        <!-- disease core stuff -->	
-        <field name="type" type="string" indexed="true" stored="true"  multiValued="true" />	
-        <field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" /> 
-        <field name="disease_source" type="string" indexed="true" stored="true" multiValued="true" /> 
+        <!-- disease core stuff -->
+        <field name="type" type="string" indexed="true" stored="true"  multiValued="true" />
+        <field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="disease_source" type="string" indexed="true" stored="true" multiValued="true" />
         <field name="disease_term" type="text_en_splitting" indexed="true" stored="true" multiValued="true" />
         <field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
         <field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-        <field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
         <field name="human_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
         <field name="mouse_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
         <field name="mgi_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
