@@ -1,26 +1,7 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -34,12 +15,22 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
-
 import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SangerProcedureMapper;
+
+import javax.sql.DataSource;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Populate the experiment core
@@ -408,19 +399,24 @@ public class SangerImagesIndexer {
 								if (annotation.mp_id != null) {
 									mp_ids.add(annotation.mp_id);
 									mp_terms.add(annotation.mp_term);
+
 									if (mpToHpMap.containsKey(annotation.mp_id)) {
+
 										List<Map<String, String>> hpMap = mpToHpMap.get(annotation.mp_id);
-										List<String> hpIds=null;
-										List<String> hpTerms=null;
-										for(Map<String, String> map: hpMap){
-										String hpId = map.get("hp_id");
-										String hpTerm = map.get("hp_term");
-										hpIds.add(hpId);
-										hpTerms.add(hpTerm);
+										List<String> hpIds = new ArrayList<>();
+										List<String> hpTerms = new ArrayList<>();
+
+										for (Map<String, String> map : hpMap) {
+											String hpId = map.get("hp_id");
+											String hpTerm = map.get("hp_term");
+											if (hpId != null) hpIds.add(hpId);
+											if (hpTerm != null) hpTerms.add(hpTerm);
 										}
-										o.setHpId(hpIds);
-										o.setHpTerm(hpTerms);
+
+										if (hpIds != null && ! hpIds.isEmpty()) o.setHpId(hpIds);
+										if (hpTerms != null && ! hpTerms.isEmpty()) o.setHpTerm(hpTerms);
 									}
+
 									// need to get top level stuff here
 									if (mpNode2termTopLevel.containsKey(annotation.mp_id)) {
 										TopLevelBean topLevelBean = mpNode2termTopLevel.get(annotation.mp_id);
