@@ -46,73 +46,14 @@ public class IndexerMap {
     private static Map<String, List<String>> maTermSubsetsMap = null;
     private static Map<String, List<OntologyTermBean>> maTermChildTermsMap = null;
     private static Map<String, List<OntologyTermBean>> maTermParentTermsMap = null;
+    private static Map<String, List<OntologyTermBean>> maSelectedTopLevelTermsMap = null;
     private static Map<String, List<String>> maTermSynonymsMap = null;
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
     private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
-	private static List<AlleleDTO> alleles=null;
+    private static List<AlleleDTO> alleles = null;
     
     
-    // PRIVATE METHODS
-    
-    
-    private static Map<String, List<String>> populateMaTermSubsets(Connection ontoDbConnection) throws SQLException {
-        Map<String, List<String>> map = new HashMap();
-        String query = 
-                  "SELECT\n"
-                + "  term_id\n"
-                + ", subset\n"
-                + "FROM ma_term_subsets mts\n";
-
-        try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
-            ResultSet resultSet = p.executeQuery();
-
-            while (resultSet.next()) {
-                String termId = resultSet.getString("term_id");
-                String subset = resultSet.getString("subset");
-                if ( ! map.containsKey(termId)) {
-                    map.put(termId, new ArrayList<String>());
-                }
-
-                map.get(termId).add(subset);   
-            }
-        }
-
-        return map;
-    }
-    
-    /**
-     * Fetch a map of ma synonyms indexed by ma term id
-     * 
-     * @param ontoDbConnection active database connection to table named
-     *     'ma_synonyms'.
-     * 
-     * @throws SQLException when a database exception occurs
-     * @return a map, indexed by 
-     */
-    private static Map<String, List<String>> populateMaTermSynonyms(Connection ontoDbConnection) throws SQLException {
-        Map<String, List<String>> map = new HashMap();
-        String query = "SELECT\n"
-                + "  term_id\n"
-                + ", syn_name\n"
-                + "FROM ma_synonyms\n";
-
-        try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
-            ResultSet resultSet = p.executeQuery();
-
-            while (resultSet.next()) {
-                String termId = resultSet.getString("term_id");
-                String synName = resultSet.getString("syn_name");
-                if ( ! map.containsKey(termId)) {
-                    map.put(termId, new ArrayList<String>());
-                }
-
-                map.get(termId).add(synName);   
-            }
-        }
-        
-        return map;
-    }
     
     
     // PUBLIC METHODS
@@ -182,6 +123,14 @@ public class IndexerMap {
         return sangerImagesMap;
     }
     
+    public static Map<String, List<OntologyTermBean>> getMaSelectedTopLevelTerms(Connection ontoDbConnection) throws SQLException {
+        if (maSelectedTopLevelTermsMap == null) {
+            maSelectedTopLevelTermsMap = OntologyUtils.populateMaSelectedTopLevelTerms(ontoDbConnection);
+        }
+        
+        return maSelectedTopLevelTermsMap;
+    }
+          
     /**
      * Queries the ma_term_subsets table, returning a map
      *
@@ -193,7 +142,7 @@ public class IndexerMap {
      */
     public static Map<String, List<String>> getMaTermSubsets(Connection ontoDbConnection) throws SQLException {
         if (maTermSubsetsMap == null) {
-            maTermSubsetsMap = populateMaTermSubsets(ontoDbConnection);
+            maTermSubsetsMap = OntologyUtils.populateMaTermSubsets(ontoDbConnection);
         }
         
         return maTermSubsetsMap;
@@ -232,20 +181,14 @@ public class IndexerMap {
     }
     
     /**
-     * Fetch a map of ma synonyms indexed by ma term id
-     * 
-     * @param ontoDbConnection active database connection to table named
-     *     'ma_synonyms'.
-     * 
-     * @throws SQLException when a database exception occurs
-     * @return a map, indexed by 
+     * Returns a list of synonyms matching <code>termId</code>
+     * @param ontoDbConnection
+     * @param maTermId the MA term id to match
+     * @return a list of synonyms matching <code>termId</code>
+     * @throws SQLException 
      */
-    public static Map<String, List<String>> getMaTermSynonyms(Connection ontoDbConnection) throws SQLException {
-        if (maTermSynonymsMap == null) {
-            maTermSynonymsMap = populateMaTermSynonyms(ontoDbConnection);
-        }
-        
-        return maTermSynonymsMap;
+    public static List<String> getMaSynonyms(Connection ontoDbConnection, String maTermId) throws SQLException {
+        return OntologyUtils.getMaSynonyms(ontoDbConnection, maTermId);
     }
     
     

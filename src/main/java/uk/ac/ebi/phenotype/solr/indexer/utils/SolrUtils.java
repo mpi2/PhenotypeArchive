@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -249,20 +248,6 @@ public class SolrUtils {
      * @throws IndexerException
      */
     protected static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
-        if (logger.isDebugEnabled()) {
-            String url = "";
-            try {
-                // This forces an exception. Fortunately, the url we want is embedded in the exception message!
-                // Exception message is: "Server at http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images returned non ok status:500, message:Internal Server Error"
-                url = imagesCore.ping().getRequestUrl();
-            } catch (Exception e) {
-                url = e.getLocalizedMessage().replaceFirst("Server at ", "");
-                int endIndex = url.indexOf(" returned non ok");
-                url = url.substring(0, endIndex);
-            }
-            logger.debug("USING images CORE AT: '" + url + "'");
-        }
-
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
@@ -358,19 +343,18 @@ public class SolrUtils {
         int pos = 0;
         long total = Integer.MAX_VALUE;
         SolrQuery query = new SolrQuery("*:*");
-       
-            query.setRows(Integer.MAX_VALUE);
-            QueryResponse response = null;
-            try {
-                response = alleleCore.query(query);
-            } catch (SolrServerException sse) {
-                throw new IndexerException(sse);
-            }
-            total = response.getResults().getNumFound();
-            System.out.println("total alleles="+total);
-            alleleList = response.getBeans(AlleleDTO.class);
-            
-           
+
+        query.setRows(Integer.MAX_VALUE);
+        QueryResponse response = null;
+        try {
+            response = alleleCore.query(query);
+        } catch (SolrServerException sse) {
+            throw new IndexerException(sse);
+        }
+        total = response.getResults().getNumFound();
+        System.out.println("total alleles="+total);
+        alleleList = response.getBeans(AlleleDTO.class);
+        
         logger.debug("Loaded {} alleles", alleleList.size());
 
         return alleleList;

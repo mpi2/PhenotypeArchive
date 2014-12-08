@@ -42,123 +42,9 @@ public class OntologyUtils {
     
     public static final int MAX_ROWS = 1000000;
     public static final int BATCH_SIZE = 50;
-
-    /**
-     * Fetch a map of child terms indexed by parent ma id
-     * 
-     * @param ontoDbConnection a valid database connection
-     * @return a map, indexed by parent ma id, of all child terms with associations
-     * to parent terms
-     * @throws SQLException 
-     */
-    protected static Map<String, List<OntologyTermBean>> populateMaTermChildTerms(Connection ontoDbConnection) throws SQLException {
-        Map<String, List<OntologyTermBean>> map = new HashMap();
-        String childTermQuery =
-            "SELECT DISTINCT\n" +
-            "  ti.term_id  AS parent_ma_id\n" +
-            ", ti2.term_id AS child_ma_id\n" +
-            ", ti2.name    AS child_ma_term\n" +
-            ", CONCAT(ti2.term_id, '__', ti2.name) AS termId_termName\n" +
-            "FROM ma_term_infos ti\n" +
-            "INNER JOIN ma_node2term       nt  ON ti.term_id       = nt.term_id\n" +
-            "INNER JOIN ma_parent_children pc  ON nt.node_id       = pc.parent_node_id\n" +
-            "INNER JOIN ma_node2term       nt2 ON pc.child_node_id = nt2.node_id\n" +
-            "INNER JOIN ma_term_infos      ti2 ON nt2.term_id      = ti2.term_id\n" +
-            "ORDER BY ti.term_id, ti2.term_id, ti2.name";
-        String childTermSynonymsQuery =
-            "SELECT\n" +
-            "  term_id\n" +
-            ", syn_name\n" +
-            "FROM ma_synonyms ms\n" +
-            "WHERE term_id = ?";
-        
-        try (PreparedStatement ps = ontoDbConnection.prepareStatement(childTermQuery)) {
-            ps.setMaxRows(MAX_ROWS);
-            ResultSet resultSet = ps.executeQuery();
-            while (resultSet.next()) {
-                OntologyTermBean bean = new OntologyTermBean();
-                String mapKey = resultSet.getString("parent_ma_id");
-                bean.setId(resultSet.getString("child_ma_id"));
-                bean.setTerm(resultSet.getString("child_ma_term"));
-                bean.setIdTerm(resultSet.getString("termId_termName"));
-                bean.setSynonyms(new ArrayList<String>());
-                try (PreparedStatement p2 = ontoDbConnection.prepareStatement(childTermSynonymsQuery)) {
-                    p2.setString(1, bean.getId());
-                    ResultSet resultSet2 = p2.executeQuery();
-                    while (resultSet2.next()) {
-                        String synonym = resultSet2.getString("syn_name");
-                        bean.getSynonyms().add(synonym);
-                    }
-                    p2.close();
-                }
-                
-                if ( ! map.containsKey(mapKey)) {
-                    map.put(mapKey, new ArrayList<OntologyTermBean>());
-                }
-                map.get(mapKey).add(bean);
-            }
-        }
-        
-        return map;
-    }
     
-    /**
-     * Fetch a map of parent terms indexed by child ma id
-     * 
-     * @param ontoDbConnection a valid database connection
-     * @return a map, indexed by child ma id, of all ma terms with associations
-     * to child terms
-     * @throws SQLException 
-     */
-    protected static Map<String, List<OntologyTermBean>> populateMaTermParentTerms(Connection ontoDbConnection) throws SQLException {
-        Map<String, List<OntologyTermBean>> map = new HashMap();
-        String parentTermQuery =
-            "SELECT DISTINCT\n" +
-            "  n2node.term_id AS child_ma_id\n" +
-            ", mt.term_id AS parent_ma_id\n" +
-            ", mt.name AS parent_ma_term\n" +
-            "FROM ma_term_infos mt\n" +
-            "INNER JOIN ma_node2term n2term ON n2term.term_id = mt.term_id\n" +
-            "INNER JOIN ma_node_top_level tln ON tln.top_level_node_id = n2term.node_id\n" +
-            "INNER JOIN ma_node2term n2node ON n2node.node_id = tln.node_id\n" +
-            "ORDER BY n2node.term_id, mt.term_id, mt.name\n";
-        String parentTermSynonymsQuery =
-            "SELECT\n" +
-            "  term_id\n" +
-            ", syn_name\n" +
-            "FROM ma_synonyms ms\n" +
-            "WHERE term_id = ?";
-        
-        try (PreparedStatement ps = ontoDbConnection.prepareStatement(parentTermQuery)) {
-            ps.setMaxRows(MAX_ROWS);
-            ResultSet resultSet = ps.executeQuery();
-            while (resultSet.next()) {
-                OntologyTermBean bean = new OntologyTermBean();
-                String mapKey = resultSet.getString("child_ma_id");
-                bean.setId(resultSet.getString("parent_ma_id"));
-                bean.setTerm(resultSet.getString("parent_ma_term"));
-                bean.setIdTerm("");
-                bean.setSynonyms(new ArrayList<String>());
-                try (PreparedStatement p2 = ontoDbConnection.prepareStatement(parentTermSynonymsQuery)) {
-                    p2.setString(1, bean.getId());
-                    ResultSet resultSet2 = p2.executeQuery();
-                    while (resultSet2.next()) {
-                        String synonym = resultSet2.getString("syn_name");
-                        bean.getSynonyms().add(synonym);
-                    }
-                    p2.close();
-                }
-                
-                if ( ! map.containsKey(mapKey)) {
-                    map.put(mapKey, new ArrayList<OntologyTermBean>());
-                }
-                
-                map.get(mapKey).add(bean);
-            }
-        }
-        
-        return map;
-    }
+    private static Map<String, List<String>> maSynonymsMap = null;
+    private static Map<String, List<String>> mpSynonymsMap = null;
     
     /**
      * Dumps out the <code>OntologyTermBean</code> map, prepending the <code>
@@ -184,8 +70,8 @@ public class OntologyUtils {
             int recordIndex = 0;
             
             for (OntologyTermBean bean : record.value) {
-                System.out.format("%10.10s\t%10.10s\t", recordIndex == 0 ? record.key : "", bean.getId());
-                System.out.print(bean.getTerm() + "\t");
+                System.out.format("%10.10s\t%10.10s\t", recordIndex == 0 ? record.key : "", bean.getTermId());
+                System.out.print(bean.getName() + "\t");
                 List<String> synonyms = bean.getSynonyms();
                 int synonymCount = 0;
                 for (String synonym : synonyms) {
@@ -208,8 +94,309 @@ public class OntologyUtils {
             System.out.println();
         }
     }
+
+    /**
+     * Query the database, returning a map of all selected ma top-level terms,
+     * indexed by ma term id. Terry has hand-picked these intermediate-level
+     * terms to be treated as top-level terms.
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a map of all selected top-level ma terms, indexed by ma term id
+     */
+    protected static Map<String, List<OntologyTermBean>> populateMaSelectedTopLevelTerms(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<OntologyTermBean>> map = new HashMap();
+        String query =
+                  "SELECT DISTINCT\n"
+                + "  ti.term_id           AS maTermId\n"
+                + ", ti.name              AS maTermName\n"
+                + ", ti2.term_id          AS selectedMaTermId\n"
+                + ", ti2.name             AS selectedMaTermName\n"
+                + "FROM ma_term_infos ti\n"
+                + "JOIN ma_node2term nt                        ON nt.term_id           = ti .term_id\n"
+                + "JOIN ma_node_2_selected_top_level_mapping m ON m .node_id           = nt .node_id\n"
+                + "JOIN ma_term_infos ti2                      ON m .top_level_term_id = ti2.term_id\n"
+                + "ORDER BY ti.term_id, ti2.term_id\n"
+                ;
+        try (final PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String mapKey = resultSet.getString("maTermId");
+                if ( ! map.containsKey(mapKey)) {
+                    map.put(mapKey, new ArrayList<OntologyTermBean>());
+                }
+                String termId = resultSet.getString("selectedMaTermId");
+                String name = resultSet.getString("selectedMaTermName");
+                List<String> synonyms = getMaSynonyms(ontoDbConnection, termId);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                map.get(mapKey).add(bean);
+            }
+        }
+        
+        return map;
+    }
+
+    /**
+     * Query the database, returning a map of all ma synonyms indexed by ma term id
+     *
+     * @param ontoDbConnection active database connection to table named
+     *     'ma_synonyms'.
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a map, indexed by ma term id
+     */
+    protected static Map populateMaSynonyms(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<String>> map = new HashMap();
+        String synonymsQuery =
+            "SELECT\n" +
+            "  term_id\n" +
+            ", syn_name\n" +
+            "FROM ma_synonyms ms";
+        
+        try (PreparedStatement ps = ontoDbConnection.prepareStatement(synonymsQuery)) {
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                String termId = resultSet.getString("term_id");
+                String synonym = resultSet.getString("syn_name");
+                if ( ! map.containsKey(termId)) {
+                    map.put(termId, new ArrayList<String>());
+                }
+                List<String> synonyms = map.get(termId);
+                if ( ! synonyms.contains(synonym)) {
+                    synonyms.add(synonym);
+                }
+            }
+            
+            ps.close();
+        }
+        
+        return map;
+    }
+
+    /**
+     * Query the database, returning a map of all mp synonyms indexed by mp term id
+     *
+     * @param ontoDbConnection active database connection to table named
+     *     'mp_synonyms'.
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a map, indexed by mp term id
+     */
+    protected static Map populateMpSynonyms(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<String>> map = new HashMap();
+        String synonymsQuery =
+            "SELECT\n" +
+            "  term_id\n" +
+            ", syn_name\n" +
+            "FROM ma_synonyms ms";
+        
+        try (PreparedStatement ps = ontoDbConnection.prepareStatement(synonymsQuery)) {
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                String termId = resultSet.getString("term_id");
+                String synonym = resultSet.getString("syn_name");
+                if ( ! map.containsKey(termId)) {
+                    map.put(termId, new ArrayList<String>());
+                }
+                List<String> synonyms = map.get(termId);
+                if ( ! synonyms.contains(synonym)) {
+                    synonyms.add(synonym);
+                }
+            }
+            
+            ps.close();
+        }
+        
+        return map;
+    }
     
-    public static class OntologyTermRecord /*implements Comparator<OntologyTermRecord>*/ {
+    /**
+     * Fetch a map of all child terms indexed by parent ma id
+     * 
+     * @param ontoDbConnection a valid database connection
+     * @return a map of all child terms associated with parent terms, indexed by
+     * parent ma id
+     * @throws SQLException 
+     */
+    protected static Map<String, List<OntologyTermBean>> populateMaTermChildTerms(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<OntologyTermBean>> map = new HashMap();
+        String childTermQuery =
+            "SELECT DISTINCT\n" +
+            "  ti.term_id  AS maTermId\n" +
+            ", ti2.term_id AS child_ma_id\n" +
+            ", ti2.name    AS child_ma_term\n" +
+            "FROM ma_term_infos ti\n" +
+            "INNER JOIN ma_node2term       nt  ON ti.term_id       = nt.term_id\n" +
+            "INNER JOIN ma_parent_children pc  ON nt.node_id       = pc.parent_node_id\n" +
+            "INNER JOIN ma_node2term       nt2 ON pc.child_node_id = nt2.node_id\n" +
+            "INNER JOIN ma_term_infos      ti2 ON nt2.term_id      = ti2.term_id\n" +
+            "ORDER BY ti.term_id, ti2.term_id, ti2.name";
+        
+        try (PreparedStatement ps = ontoDbConnection.prepareStatement(childTermQuery)) {
+            ps.setMaxRows(MAX_ROWS);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                String mapKey = resultSet.getString("maTermId");
+                if ( ! map.containsKey(mapKey)) {
+                    map.put(mapKey, new ArrayList<OntologyTermBean>());
+                }
+                String termId = resultSet.getString("child_ma_id");
+                String name = resultSet.getString("child_ma_term");
+                List<String> synonyms = getMaSynonyms(ontoDbConnection, mapKey);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                map.get(mapKey).add(bean);
+            }
+        }
+        
+        return map;
+    }
+    
+    /**
+     * Query the database, returning a map of all parent terms indexed by child ma id
+     * 
+     * @param ontoDbConnection a valid database connection
+     * @return a map of all parent terms associated with child terms, indexed by
+     * child ma id
+     * @throws SQLException 
+     */
+    protected static Map<String, List<OntologyTermBean>> populateMaTermParentTerms(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<OntologyTermBean>> map = new HashMap();
+        String parentTermQuery =
+            "SELECT DISTINCT\n" +
+            "  n2node.term_id AS maTermId\n" +
+            ", mt.term_id AS parent_ma_id\n" +
+            ", mt.name AS parent_ma_term\n" +
+            "FROM ma_term_infos mt\n" +
+            "INNER JOIN ma_node2term n2term ON n2term.term_id = mt.term_id\n" +
+            "INNER JOIN ma_node_top_level tln ON tln.top_level_node_id = n2term.node_id\n" +
+            "INNER JOIN ma_node2term n2node ON n2node.node_id = tln.node_id\n" +
+            "ORDER BY n2node.term_id, mt.term_id, mt.name\n";
+        
+        try (PreparedStatement ps = ontoDbConnection.prepareStatement(parentTermQuery)) {
+            ps.setMaxRows(MAX_ROWS);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                String mapKey = resultSet.getString("maTermId");
+                if ( ! map.containsKey(mapKey)) {
+                    map.put(mapKey, new ArrayList<OntologyTermBean>());
+                }
+                String termId = resultSet.getString("parent_ma_id");
+                String name = resultSet.getString("parent_ma_term");
+                List<String> synonyms = getMaSynonyms(ontoDbConnection, mapKey);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                map.get(mapKey).add(bean);
+            }
+        }
+        
+        return map;
+    }
+
+    /**
+     * Query the database, returning a map of all ma term subsets indexed by
+     * ma term id
+     * @param ontoDbConnection
+     * @return a map of all ma term subsets indexed by ma term id
+     * @throws SQLException 
+     */
+    protected static Map<String, List<String>> populateMaTermSubsets(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<String>> map = new HashMap();
+        String query = "SELECT\n" + "  term_id\n" + ", subset\n" + "FROM ma_term_subsets mts\n";
+        try (final PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String termId = resultSet.getString("term_id");
+                String subset = resultSet.getString("subset");
+                if ( ! map.containsKey(termId)) {
+                    map.put(termId, new ArrayList<String>());
+                }
+                map.get(termId).add(subset);
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Query the database, returning a map of all mp top-level terms,
+     * indexed by mp term id
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a map of all top-level mp terms, indexed by mp term id
+     */
+    protected static Map<String, List<OntologyTermBean>> populateMpSelectedTopLevelTerms(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<OntologyTermBean>> map = new HashMap();
+        String query =
+                  "SELECT DISTINCT\n"
+                + "  ti.term_id  AS mpTermId\n"
+                + ", ti.name     AS mpTermName\n"
+                + ", ti2.term_id AS mpTopLevelId\n"
+                + ", ti2.name    AS mpTopLevelName\n"
+                + "FROM mp_term_infos     AS ti\n"
+                + "JOIN mp_node2term      AS nt  ON nt .term_id = ti .term_id\n"
+                + "JOIN mp_node_top_level AS m   ON m  .node_id = nt .node_id\n"
+                + "JOIN mp_node2term      AS nt2 ON nt2.node_id = m  .top_level_node_id\n"
+                + "JOIN mp_term_infos     AS ti2 ON ti2.term_id = nt2.term_id\n"
+                + "ORDER BY ti.term_id, ti2.term_id\n";
+                
+        try (final PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String mapKey = resultSet.getString("mpTermId");
+                if ( ! map.containsKey(mapKey)) {
+                    map.put(mapKey, new ArrayList<OntologyTermBean>());
+                }
+                String termId = resultSet.getString("mpTopLevelId");
+                String name = resultSet.getString("mpTopLevelName");
+                List<String> synonyms = getMpSynonyms(ontoDbConnection, termId);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                map.get(mapKey).add(bean);
+            }
+        }
+        
+        return map;
+    }
+
+    
+    // PRIVATE METHODS
+    
+    
+    /**
+     * Returns a list of synonyms matching <code>maTermId</code>
+     * @param ontoDbConnection
+     * @param maTermId the ma term id to match
+     * @return a list of synonyms matching <code>maTermId</code>
+     * @throws SQLException 
+     */
+    protected static List<String> getMaSynonyms(Connection ontoDbConnection, String maTermId) throws SQLException {
+        if (maSynonymsMap == null) {
+            maSynonymsMap = populateMaSynonyms(ontoDbConnection);
+        }
+        
+        return maSynonymsMap.get(maTermId);
+    }
+    
+    /**
+     * Returns a list of synonyms matching <code>mpTermId</code>
+     * @param ontoDbConnection
+     * @param mpTermId the mp term id to match
+     * @return a list of synonyms matching <code>mpTermId</code>
+     * @throws SQLException 
+     */
+    protected static List<String> getMpSynonyms(Connection ontoDbConnection, String mpTermId) throws SQLException {
+        if (mpSynonymsMap == null) {
+            mpSynonymsMap = populateMpSynonyms(ontoDbConnection);
+        }
+        
+        return mpSynonymsMap.get(mpTermId);
+    }
+    
+    
+    // INTERNAL CLASSES
+    
+    
+    public static class OntologyTermRecord {
         public String key;
         public List<OntologyTermBean> value;
         
@@ -237,14 +424,14 @@ public class OntologyUtils {
     public static class OntologyTermBeanComparator implements Comparator<OntologyTermBean> {
         @Override
         public int compare(OntologyTermBean thisBean, OntologyTermBean thatBean) {
-            if (thisBean.getId().equalsIgnoreCase(thatBean.getId())) {
-                if (thisBean.getTerm().equalsIgnoreCase(thatBean.getTerm())) {
+            if (thisBean.getTermId().equalsIgnoreCase(thatBean.getTermId())) {
+                if (thisBean.getName().equalsIgnoreCase(thatBean.getName())) {
                     return 0;
                 } else {
-                    return thisBean.getTerm().compareTo(thatBean.getTerm());
+                    return thisBean.getName().compareTo(thatBean.getName());
                 }
             } else {
-                return thisBean.getId().compareTo(thatBean.getId());
+                return thisBean.getTermId().compareTo(thatBean.getTermId());
             }
         }
     }
