@@ -26,6 +26,7 @@ public class RegisterInterestDrupalSolr {
 	private DrupalHttpProxy drupalProxy;
 	private String drupalBaseUrl;
 
+	private List<String> interestingTerms = null;
 	private Boolean loggedIn = null;
 	
 	public RegisterInterestDrupalSolr(String drupalBaseUrl, HttpServletRequest request) {
@@ -48,7 +49,6 @@ public class RegisterInterestDrupalSolr {
 	 */
 	public boolean alreadyInterested(String id) {
 		String endpoint = null;
-		List<String> interestingTerms = null;
 		String key = null;
 		
 		if ( id.startsWith("MP") ){
