@@ -560,56 +560,6 @@ public class GenesController {
 		}
 	}
 
-
-	/**
-	 * Add to the model the registered/unregistered interest labels
-	 * 
-	 * @param acc
-	 * @param model
-	 * @throws UnsupportedEncodingException
-	 */
-//	private Map<String, String> registerInterestState(String acc, HttpServletRequest request, RegisterInterestDrupalSolr registerInterest)
-//	throws UnsupportedEncodingException {
-//
-//		String registerInterestButtonString = "";
-//		String registerButtonAnchor = "";
-//		String id = acc;
-//
-//		if (registerInterest.loggedIn()) {
-//			if (registerInterest.alreadyInterested(acc)) {
-//				registerInterestButtonString = "Unregister interest";
-//				id = acc;
-//			} else {
-//				registerInterestButtonString = "Register interest";
-//				id = acc;
-//			}
-//		} else {
-//			registerInterestButtonString = "Login to register interest";
-//			// Use the drupal destination parameter to redirect back to this
-//			// page
-//			// after logging in
-//			String dest = (String) request.getAttribute("javax.servlet.forward.request_uri");
-//			if (request.getQueryString() != null) {
-//				dest += URLEncoder.encode("?" + request.getQueryString(), "UTF-8");
-//			}
-//
-//			if (dest == null) {
-//				dest = ((String) request.getAttribute("baseUrl")).substring(1) + request.getRequestURI().substring(request.getContextPath().length());
-//			}
-//
-//			registerButtonAnchor = "/user/login?destination=" + dest;
-//
-//		}
-//
-//		Map<String, String> retVal = new HashMap<>();
-//		retVal.put("registerInterestButtonString", registerInterestButtonString);
-//		retVal.put("registerButtonAnchor", registerButtonAnchor);
-//		retVal.put("registerButtonId", id);
-//		
-//		return retVal;
-//	}
-
-
 	/**
 	 * Error handler for gene not found
 	 * 

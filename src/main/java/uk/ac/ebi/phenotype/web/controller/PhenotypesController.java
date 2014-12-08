@@ -228,6 +228,7 @@ public class PhenotypesController {
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
         
+ 		// other stuff
         model.addAttribute("anatomy", anatomyTerms);
         model.addAttribute("go", goTerms);
         model.addAttribute("siblings", mpSiblings);
