@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
+import uk.ac.ebi.phenotype.solr.indexer.utils.SangerProcedureMapper;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -70,6 +71,7 @@ public class PipelineIndexer extends AbstractIndexer {
     private Map<Integer, Map<String,String>> paramDbIdToParameter=null;
     private Map<Integer, Set<Integer>> paramIdToProcedureList=null;
     private Map<Integer, ProcedureBean> procedureIdToProcedure=null;
+	private Map<Integer, PipelineBean> procedureIdToPipeline;
    
     private static final int BATCH_SIZE = 50;
         
@@ -110,23 +112,53 @@ public class PipelineIndexer extends AbstractIndexer {
             	PipelineDTO pipe=new PipelineDTO();
             	pipe.setParameterId(paramDbId);
             	pipe.setParameterName(row.get(ObservationDTO.PARAMETER_NAME));
-            	pipe.setParameterStableId(row.get(ObservationDTO.PARAMETER_STABLE_ID));
+            	String paramStableId=row.get(ObservationDTO.PARAMETER_STABLE_ID);
+            	String paramStableName=row.get(ObservationDTO.PARAMETER_NAME);
+            	pipe.setParameterStableId(paramStableId);
             	
             	Set<Integer> procedureIds=paramIdToProcedureList.get(paramDbId);
-            	if(procedureIds.size()>1){System.out.println("more than one procedure for this parameterDbId"+paramDbId);
+            	//if(procedureIds.size()>1){System.out.println("more than one procedure for this parameterDbId"+paramDbId);
             	for(int procId: procedureIds){
             		//where="pproc_id=phenotype_procedure_parameter.procedure_id">
-            		
+            		//need to change pipelineDTOs to have multiple procedures
             		if(procedureIdToProcedure.containsKey(procId)){
             			ProcedureBean procBean = procedureIdToProcedure.get(procId);
             			//System.out.println(procBean.procedureStableId);
-            			pipe.setProcedureId(procId);
-            			pipe.setProcedureName(procBean.procedureName);
-            			System.out.println(procBean.procedureName+" "+procBean.procedureStableId+pipe.getParameterName());
-            			pipe.setProcedureStableId(procBean.procedureStableId);
+            			pipe.addProcedureId(procId);
+            			pipe.addProcedureName(procBean.procedureName);
+            			//System.out.println(procBean.procedureName+" "+procBean.procedureStableId+pipe.getParameterName());
+            			pipe.addProcedureStableId(procBean.procedureStableId);
+            			pipe.addProcedureStableKey(procBean.procedureStableKey);
+            			pipe.addProcedureNameId(procBean.procNameId);
+            			pipe.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
+            			
+//        				<field column="proc_param_stable_id" name="proc_param_stable_id" />
+//						<field column="proc_param_name" name="proc_param_name" />
+            			String procParamStableId=procBean.procedureStableId+"___"+paramStableId;
+            			String procParamName=procBean.procedureName+"___"+paramStableName;
+            			pipe.addProcParamStableId(procParamStableId);
+            			pipe.addProcParamName(procParamName);
+            			//add the pipeline info here
+            			if(procedureIdToPipeline.containsKey(procId)){
+            				PipelineBean pipeline = procedureIdToPipeline.get(procId);
+            				//System.out.println("pipeline name="+pipeline.pipelineName+" "+pipeline.pipelineStableId);
+//            				<field column="pipe_id" name="pipeline_id" />
+//    						<field column="pipe_stable_id" name="pipeline_stable_id" />
+//    						<field column="pipe_name" name="pipeline_name" />
+//    						<field column="pipe_stable_key" name="pipeline_stable_key" />
+//    						<field column="pipe_proc_sid" name="pipe_proc_sid" />
+            				pipe.setPipelineId(pipeline.pipelineId);
+            				pipe.setPipelineName(pipeline.pipelineName);
+            				pipe.setPipelineStableId(pipeline.pipelineStableId);
+            				pipe.setPipelineStableKey(pipeline.pipelineStableKey);
+            				pipe.setPipeProcId(pipeline.pipeProcSid);
+
+            				
+            				
+            			}
             		}
             	}
-            	}
+            	//}
 //            	pipe.setPipelineName(pipelineName);
 //            	pipe.setPipelineStableId(pipelineStableId);
 //            	pipe.setPipelineId(pipelineId);
@@ -170,6 +202,7 @@ public class PipelineIndexer extends AbstractIndexer {
     	paramDbIdToParameter=populateParamDbIdToParametersMap();
     	paramIdToProcedureList=populateParamIdToProcedureIdListMap();
     	procedureIdToProcedure=populateProcedureIdToProcedureMap();
+    	procedureIdToPipeline=populateProcedureIdToPipelineMap();
     	
     }
     
@@ -257,10 +290,12 @@ public class PipelineIndexer extends AbstractIndexer {
 				int procId=resultSet.getInt("pproc_id");
 				String procStableId=resultSet.getString("stable_id");
 				String procName=resultSet.getString("name");
-				String stableKey=resultSet.getString("stable_key");
+				int stableKey=resultSet.getInt("stable_key");
+				String procNameId=resultSet.getString("proc_name_id");
 				proc.procedureStableId= procStableId;
 				proc.procedureName=procName;
 				proc.procedureStableKey=stableKey;
+				proc.procNameId=procNameId;
 				procedureIdToProcedureMap.put(procId, proc);
 			}
 			
@@ -271,11 +306,86 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 	
 	public class ProcedureBean{
+		
 		public String procedureName;
 		int procedureId;
 		String procedureStableId;
-		String procedureStableKey;
+		int procedureStableKey;
+		String procNameId;
 		
+	}
+	
+	//select pproc.id as pproc_id, ppipe.name as pipe_name, ppipe.id as pipe_id, ppipe.stable_id as pipe_stable_id, ppipe.stable_key as pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___', pproc.stable_id) as pipe_proc_sid from phenotype_procedure pproc inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id where ppipe.db_id=6
+	private Map<Integer, PipelineBean> populateProcedureIdToPipelineMap(){
+		System.out.println("populating PCS pipeline info");
+    	Map<Integer, PipelineBean> procIdToPipelineMap=new HashMap<>();
+    	String queryString="select pproc.id as pproc_id, ppipe.name as pipe_name, ppipe.id as pipe_id, ppipe.stable_id as pipe_stable_id, ppipe.stable_key as pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___', pproc.stable_id) as pipe_proc_sid from phenotype_procedure pproc inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id where ppipe.db_id=6";
+	
+    	
+    	try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				PipelineBean pipe=new PipelineBean();
+				
+				int procedureId=resultSet.getInt("pproc_id");
+				String pipeName=resultSet.getString("pipe_name");
+				int pipeId=resultSet.getInt("pipe_id");
+				String pipeStableId=resultSet.getString("pipe_stable_id");
+				int pipeStableKey=resultSet.getInt("pipe_stable_key");
+				String pipeProcSid=resultSet.getString("pipe_proc_sid");
+				pipe.pipelineId= pipeId;
+				pipe.pipelineName=pipeName;
+				pipe.pipelineStableKey=pipeStableKey;
+				pipe.pipelineStableId=pipeStableId;
+				pipe.pipeProcSid=pipeProcSid;
+				procIdToPipelineMap.put(procedureId, pipe);
+			}
+			
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return procIdToPipelineMap;
+	}
+	
+	public class PipelineBean{
+		public String pipelineName;
+		int pipelineId;
+		String pipelineStableId;
+		int pipelineStableKey;
+		String pipeProcSid;
+	}
+	
+	//select pp.id as pp_id, concat(pproc.name, '___', pp.name) as proc_param_name, concat(pproc.stable_id, '___', pp.stable_id) as proc_param_stable_id, pp.stable_id, pp.name, pp.stable_key from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id
+	private Map<Integer, PipelineBean> populateHyphenatedMap(){
+		System.out.println("populating PCS pipeline info");
+    	Map<Integer, PipelineBean> procIdToPipelineMap=new HashMap<>();
+    	String queryString="select pp.id as pp_id, concat(pproc.name, '___', pp.name) as proc_param_name, concat(pproc.stable_id, '___', pp.stable_id) as proc_param_stable_id, pp.stable_id, pp.name, pp.stable_key from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id";
+    	
+    	try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				PipelineBean pipe=new PipelineBean();
+				
+				int procedureId=resultSet.getInt("pproc_id");
+				String pipeName=resultSet.getString("pipe_name");
+				int pipeId=resultSet.getInt("pipe_id");
+				String pipeStableId=resultSet.getString("pipe_stable_id");
+				int pipeStableKey=resultSet.getInt("pipe_stable_key");
+				String pipeProcSid=resultSet.getString("pipe_proc_sid");
+				pipe.pipelineId= pipeId;
+				pipe.pipelineName=pipeName;
+				pipe.pipelineStableKey=pipeStableKey;
+				pipe.pipelineStableId=pipeStableId;
+				pipe.pipeProcSid=pipeProcSid;
+				procIdToPipelineMap.put(procedureId, pipe);
+			}
+			
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return procIdToPipelineMap;
 	}
 	
     public static void main(String[] args) throws IndexerException {
