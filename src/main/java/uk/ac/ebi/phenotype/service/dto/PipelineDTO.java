@@ -56,6 +56,31 @@ public class PipelineDTO {
 	private List<String> procedureNameId;
 	
 	
+	//    "pipe_proc_sid": "IMPC Pipeline___Housing and Husbandry___IMPC_HOU_001",
+	@Field(ObservationDTO.PIPELINE_ID)
+	private int pipelineId;
+//    "pipeline_id": 1,
+	//@Field()
+	//private int pipelineStableKey;
+//    "pipeline_stable_key": 7,
+	@Field(ObservationDTO.PIPELINE_STABLE_ID)
+	private String pipelineStableId;
+	
+	@Field("proc_param_stable_id")
+	private List<String> procedureParamStableId;
+	
+	@Field("proc_param_name")
+	private List<String> procedureParamName;
+//    "pipeline_stable_id": "IMPC_001",
+//    "ididid": "9_2_1",
+	@Field("parameter_stable_key")
+	private String parameterStableKey;
+	@Field("ididid")
+	private String ididid;
+	
+	@Field(GeneDTO.MGI_ACCESSION_ID)
+	private List<String> mgiAccession;
+	
 	
 
 	
@@ -221,27 +246,24 @@ public class PipelineDTO {
 	
 		return MAPPED_PROCEDIURE_NAME;
 	}
-	//    "pipe_proc_sid": "IMPC Pipeline___Housing and Husbandry___IMPC_HOU_001",
-	@Field(ObservationDTO.PIPELINE_ID)
-	private int pipelineId;
-//    "pipeline_id": 1,
-	//@Field()
-	//private int pipelineStableKey;
-//    "pipeline_stable_key": 7,
-	@Field(ObservationDTO.PIPELINE_STABLE_ID)
-	private String pipelineStableId;
+
+
+	public List<String> getMgiAccession() {
 	
-	@Field("proc_param_stable_id")
-	private List<String> procedureParamStableId;
+		return mgiAccession;
+	}
+
+	public void setMgiAccession(List<String> mgiAccession) {
 	
-	@Field("proc_param_name")
-	private List<String> procedureParamName;
-//    "pipeline_stable_id": "IMPC_001",
-//    "ididid": "9_2_1",
-	@Field("parameter_stable_key")
-	private String parameterStableKey;
-	@Field("ididid")
-	private String ididid;
+		this.mgiAccession = mgiAccession;
+	}
+	
+	public void addMgiAccession(String mgiAccession){
+		if(this.mgiAccession==null){
+			this.mgiAccession=new ArrayList<>();
+		}
+		this.mgiAccession.add(mgiAccession);
+	}
 
 
 	public void addProcedureId(int procId) {
@@ -278,9 +300,6 @@ public class PipelineDTO {
 		this.procedureStableKey.add(procedureStableKey);
 		
 	}
-
-
-
 
 
 	public void addProcedureNameId(String procNameId) {

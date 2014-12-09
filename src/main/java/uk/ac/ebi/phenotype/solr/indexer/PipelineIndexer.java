@@ -72,6 +72,8 @@ public class PipelineIndexer extends AbstractIndexer {
     private Map<Integer, Set<Integer>> paramIdToProcedureList=null;
     private Map<Integer, ProcedureBean> procedureIdToProcedure=null;
 	private Map<Integer, PipelineBean> procedureIdToPipeline;
+	private Map<String, List<GfMpBean>> pppidsToGfMpBeans;
+	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
    
     private static final int BATCH_SIZE = 50;
         
@@ -158,6 +160,21 @@ public class PipelineIndexer extends AbstractIndexer {
 //            				<field column="ididid" name="ididid" />
             				String ididid=paramDbId+"_"+procId+"_"+pipe.getPipelineId();
             				pipe.setIdIdId(ididid);
+            				if(pppidsToGfMpBeans.containsKey(ididid)){
+            					List<GfMpBean> gfMpBeanList=pppidsToGfMpBeans.get(ididid);
+            					for(GfMpBean gfMpBean: gfMpBeanList){
+            						String mgiAccession=gfMpBean.gfAcc;
+            						System.out.println("adding "+mgiAccession);
+            						pipe.addMgiAccession(mgiAccession);
+            						if(mgiToAlleleMap.containsKey(mgiAccession)){
+            							List<AlleleDTO> alleles = mgiToAlleleMap.get(mgiAccession);
+            							for(AlleleDTO allele: alleles){
+            								System.out.println("allele mouse status="+allele.getGeneLatestMouseStatus());
+            							}
+            						}
+            					}
+            					
+            				}
             				
             			}
             		}
@@ -207,6 +224,8 @@ public class PipelineIndexer extends AbstractIndexer {
     	paramIdToProcedureList=populateParamIdToProcedureIdListMap();
     	procedureIdToProcedure=populateProcedureIdToProcedureMap();
     	procedureIdToPipeline=populateProcedureIdToPipelineMap();
+    	pppidsToGfMpBeans=populateGfAccAndMp();
+    	mgiToAlleleMap=IndexerMap.getGeneToAlleles(alleleCore);
     	
     }
     
@@ -360,36 +379,43 @@ public class PipelineIndexer extends AbstractIndexer {
 		String pipeProcSid;
 	}
 	
-	//select pp.id as pp_id, concat(pproc.name, '___', pp.name) as proc_param_name, concat(pproc.stable_id, '___', pp.stable_id) as proc_param_stable_id, pp.stable_id, pp.name, pp.stable_key from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id
-	private Map<Integer, PipelineBean> populateHyphenatedMap(){
+	
+	private Map<String,List<GfMpBean>> populateGfAccAndMp(){
 		System.out.println("populating PCS pipeline info");
-    	Map<Integer, PipelineBean> procIdToPipelineMap=new HashMap<>();
-    	String queryString="select pp.id as pp_id, concat(pproc.name, '___', pp.name) as proc_param_name, concat(pproc.stable_id, '___', pp.stable_id) as proc_param_stable_id, pp.stable_id, pp.name, pp.stable_key from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id";
+    	Map<String, List<GfMpBean>> gfMpBeansMap=new HashMap<>();
+    	String queryString="select distinct concat(s.parameter_id,'_',s.procedure_id,'_',s.pipeline_id) as pppIds, s.gf_acc, s.mp_acc, s.parameter_id as pp_parameter_id, s.procedure_id as pproc_procedure_id, s.pipeline_id as ppipe_pipeline_id, s.allele_acc, s.strain_acc from phenotype_parameter pp INNER JOIN phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id INNER JOIN phenotype_procedure pproc on ppp.procedure_id=pproc.id INNER JOIN phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id INNER JOIN phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id inner join phenotype_call_summary s on ppipe.id=s.pipeline_id and pproc.id=s.procedure_id and pp.id=s.parameter_id";
     	
     	try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
-				PipelineBean pipe=new PipelineBean();
+				GfMpBean gfMpBean=new GfMpBean();
 				
-				int procedureId=resultSet.getInt("pproc_id");
-				String pipeName=resultSet.getString("pipe_name");
-				int pipeId=resultSet.getInt("pipe_id");
-				String pipeStableId=resultSet.getString("pipe_stable_id");
-				int pipeStableKey=resultSet.getInt("pipe_stable_key");
-				String pipeProcSid=resultSet.getString("pipe_proc_sid");
-				pipe.pipelineId= pipeId;
-				pipe.pipelineName=pipeName;
-				pipe.pipelineStableKey=pipeStableKey;
-				pipe.pipelineStableId=pipeStableId;
-				pipe.pipeProcSid=pipeProcSid;
-				procIdToPipelineMap.put(procedureId, pipe);
+				String pppids=resultSet.getString("pppids");
+				String gfAcc=resultSet.getString("gf_acc");
+				String mpAcc=resultSet.getString("mp_acc");
+				//String alleleAcc=resultSet.getString("allele_acc");//doesn't look like these are needed?
+				//String strainAcc=resultSet.getString("strain_acc");
+				gfMpBean.gfAcc=gfAcc;
+				gfMpBean.mpAcc=mpAcc;
+				List<GfMpBean> beanList=new ArrayList<>();
+				if(gfMpBeansMap.containsKey(pppids)){
+					beanList=gfMpBeansMap.get(pppids);
+				}
+				beanList.add(gfMpBean);
+				gfMpBeansMap.put(pppids, beanList);
 			}
 			
     	} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return procIdToPipelineMap;
+		return gfMpBeansMap;
+	}
+	
+	class GfMpBean{
+		String gfAcc;
+		String mpAcc;
+		
 	}
 	
     public static void main(String[] args) throws IndexerException {
