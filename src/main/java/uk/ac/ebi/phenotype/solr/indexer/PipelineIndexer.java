@@ -226,40 +226,72 @@ public class PipelineIndexer extends AbstractIndexer {
 									System.out.println("MPTerm="+mpTermId);
 									MpDTO mp=mpIdToMp.get(mpTermId);
 									System.out.println("mp anno higher level="+mp.getAnnotatedHigherLevelMpTermName());
-//									<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />					
+									pipe.addMpId(mpTermId);
+//									<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />	
+									pipe.addMpTerm(mp.getMpTerm());
 //									<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
-//									<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />		
-//									<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />	
+									pipe.addMpDefinition(mp.getMpDefinition());
+//									<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />
+									if(mp.getMpTermSynonym()!=null){
+									pipe.addMpTermSynonym(mp.getMpTermSynonym());
+									}
+//									<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
+									pipe.addOntologySubset(mp.getOntologySubset());
 //									<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+									pipe.addTopLevelMpId(mp.getTopLevelMpTermId());
 //									
 //									<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
-//									<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							
+									pipe.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+//									<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />
+									if(mp.getTopLevelMpTermSynonym()!=null){
+									pipe.addTopLevelMpTermSynonym(mp.getTopLevelMpTermSynonym());
+									}
 //									<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />					
-//									
+									pipe.addIntermediateMpId(mp.getIntermediateMpId());
+									
 //									<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
-//									<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
-//									<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
-//					
+									pipe.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+									//<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
+									pipe.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
+									//<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
+									pipe.addChildMpId(mp.getChildMpId());
 //									<field column="child_mp_id" xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
-//									<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />							
+									pipe.addChildMpTerm(mp.getChildMpTerm());
+//									<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />
+									if(mp.getChildMaTermSynonym()!=null){
+									pipe.addChildMpTermSynonym(mp.getChildMaTermSynonym());
+									}
 //									<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />					
-//					
-//									<field column="hp_id" xpath="/response/result/doc/arr[@name='hp_id']/str" />					
+									pipe.addHpId(mp.getHpId());
+//									<field column="hp_id" xpath="/response/result/doc/arr[@name='hp_id']/str" />
+									pipe.addHpTerm(mp.getHpTerm());
 //									<field column="hp_term" xpath="/response/result/doc/arr[@name='hp_term']/str" />
-//					
-//									<!-- MA: inferred from MP -->
-//									<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />	
-//									<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
+									if(mp.getInferredMaId()!=null){
+										pipe.addInferredMaId(mp.getInferredMaId());
+//										<!-- MA: inferred from MP -->
+//										<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />
+										pipe.addInferredMaTerm(mp.getInferredMaTerm());
+//										<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
+										pipe.addInferredMaTermSynonym(mp.getInferredMaTermSynonym());
+									}
 //									<field column="inferred_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_ma_term_synonym']/str" />
-//								
-//									<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-//									<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />				
+									if(mp.getInferredSelectedTopLevelMaId()!=null){
+										pipe.addInferredSelectedTopLevelMaId(mp.getInferredSelectedTopLevelMaId());
+//										<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
+										pipe.addInferredSelectedTopLevelMaTerm(mp.getInferredSelectedTopLevelMaTerm());
+//										<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />				
+									pipe.addInferredSelectedToLevelMaTermSynonym(mp.getInferredSelectedTopLevelMaTermSynonym());
 //									<field column="inferred_selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term_synonym']/str" />				
-//								
-//									<field column="inferred_child_ma_id" xpath="/response/result/doc/arr[@name='inferred_child_ma_id']/str" />
-//									<field column="inferred_child_ma_term" xpath="/response/result/doc/arr[@name='inferred_child_ma_term']/str" />				
-//									<field column="inferred_child_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_child_ma_term_synonym']/str" />				
-//						
+
+									}
+									if(mp.getInferredChildMaId()!=null){
+										pipe.addInferredChildMaId(mp.getInferredChildMaId());
+//										<field column="inferred_child_ma_id" xpath="/response/result/doc/arr[@name='inferred_child_ma_id']/str" />
+										pipe.addInferredChildMaTerm(mp.getInferredChildMaTerm());
+//										<field column="inferred_child_ma_term" xpath="/response/result/doc/arr[@name='inferred_child_ma_term']/str" />
+										pipe.addInferredChildMaTermSynonyms(mp.getInferredChildMaTermSynonym());
+//										<field column="inferred_child_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_child_ma_term_synonym']/str" />				
+									}
 								}
 
 							}
