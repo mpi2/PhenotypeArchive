@@ -80,12 +80,392 @@ public class PipelineDTO {
 	
 	@Field(GeneDTO.MGI_ACCESSION_ID)
 	private List<String> mgiAccession;
-	
+	@Field(GeneDTO.MARKER_TYPE)
+	private List<String> markerType;
+	@Field(GeneDTO.MARKER_SYMBOL)
+	private List<String> markerSymbol;
+	@Field(GeneDTO.MARKER_SYNONYM)
+	private List<String>markerSynonyms;
+	@Field(GeneDTO.MARKER_NAME)
+	private List<String> markerName;
+	@Field(GeneDTO.HUMAN_GENE_SYMBOL)
+	private List<String> humanGeneSymbol;
+	@Field(GeneDTO.STATUS)
+	private List<String> status;//status name from Bill Skarnes and used at EBI -->	
+
+	@Field(GeneDTO.IMITS_PHENOTYPE_STARTED)
+	private List<String> imitsPhenotypeStarted;
+
+	@Field(GeneDTO.IMITS_PHENOTYPE_COMPLETE)
+	private List<String> imitsPhenotypeComplete;
+	@Field(GeneDTO.IMITS_PHENOTYPE_STATUS)
+	private List<String> imitsPhenotypeStatus;
+	@Field(GeneDTO.LATEST_PRODUCTION_CENTRE)
+	private List<String> latestProductionCentre;
+	@Field(GeneDTO.LATEST_PHENOTYPING_CENTRE)
+	private List<String> latestPhenotypingCentre;
+	@Field(GeneDTO.LATEST_PHENOTYPE_STATUS)
+	private List<String> latestPhenotypingStatus;
+	@Field(GeneDTO.LEGACY_PHENOTYPE_STATUS)
+	private List<String> legacyPhenotypingStatus;
+	@Field(GeneDTO.ALLELE_NAME)
+	private List<String> alleleName;
+
 	
 
 	
 	
 	
+	
+	public List<String> getProcedureParamStableId() {
+	
+		return procedureParamStableId;
+	}
+
+
+
+
+
+	
+	public void setProcedureParamStableId(List<String> procedureParamStableId) {
+	
+		this.procedureParamStableId = procedureParamStableId;
+	}
+
+
+
+
+
+	
+	public List<String> getProcedureParamName() {
+	
+		return procedureParamName;
+	}
+
+
+
+
+
+	
+	public void setProcedureParamName(List<String> procedureParamName) {
+	
+		this.procedureParamName = procedureParamName;
+	}
+
+
+
+
+
+	
+	public String getIdidid() {
+	
+		return ididid;
+	}
+
+
+
+
+
+	
+	public void setIdidid(String ididid) {
+	
+		this.ididid = ididid;
+	}
+
+
+
+
+
+	
+	public List<String> getMarkerType() {
+	
+		return markerType;
+	}
+
+
+
+
+
+	
+	public void setMarkerType(List<String> markerType) {
+	
+		this.markerType = markerType;
+	}
+
+
+
+
+
+	
+	public List<String> getMarkerSymbol() {
+	
+		return markerSymbol;
+	}
+
+
+
+
+
+	
+	public void setMarkerSymbol(List<String> markerSymbol) {
+	
+		this.markerSymbol = markerSymbol;
+	}
+
+
+
+
+
+	
+	public List<String> getMarkerSynonyms() {
+	
+		return markerSynonyms;
+	}
+
+
+
+
+
+	
+	public void setMarkerSynonyms(List<String> markerSynonyms) {
+	
+		this.markerSynonyms = markerSynonyms;
+	}
+
+
+
+
+
+	
+	public List<String> getMarkerName() {
+	
+		return markerName;
+	}
+
+
+
+
+
+	
+	public void setMarkerName(List<String> markerName) {
+	
+		this.markerName = markerName;
+	}
+
+
+
+
+
+	
+	public List<String> getHumanGeneSymbol() {
+	
+		return humanGeneSymbol;
+	}
+
+
+
+
+
+	
+	public void setHumanGeneSymbol(List<String> humanGeneSymbol) {
+	
+		this.humanGeneSymbol = humanGeneSymbol;
+	}
+
+
+
+
+
+	
+	public List<String> getStatus() {
+	
+		return status;
+	}
+
+
+
+
+
+	
+	public void setStatus(List<String> status) {
+	
+		this.status = status;
+	}
+
+
+
+
+
+	
+	public List<String> getImitsPhenotypeStarted() {
+	
+		return imitsPhenotypeStarted;
+	}
+
+
+
+
+
+	
+	public void setImitsPhenotypeStarted(List<String> imitsPhenotypeStarted) {
+	
+		this.imitsPhenotypeStarted = imitsPhenotypeStarted;
+	}
+
+
+
+
+
+	
+	public List<String> getImitsPhenotypeComplete() {
+	
+		return imitsPhenotypeComplete;
+	}
+
+
+
+
+
+	
+	public void setImitsPhenotypeComplete(List<String> imitsPhenotypeComplete) {
+	
+		this.imitsPhenotypeComplete = imitsPhenotypeComplete;
+	}
+
+
+
+
+
+	
+	public List<String> getImitsPhenotypeStatus() {
+	
+		return imitsPhenotypeStatus;
+	}
+
+
+
+
+
+	
+	public void setImitsPhenotypeStatus(List<String> imitsPhenotypeStatus) {
+	
+		this.imitsPhenotypeStatus = imitsPhenotypeStatus;
+	}
+
+
+
+
+
+	
+	public List<String> getLatestProductionCentre() {
+	
+		return latestProductionCentre;
+	}
+
+
+
+
+
+	
+	public void setLatestProductionCentre(List<String> latestProductionCentre) {
+	
+		this.latestProductionCentre = latestProductionCentre;
+	}
+
+
+
+
+
+	
+	public List<String> getLatestPhenotypingCentre() {
+	
+		return latestPhenotypingCentre;
+	}
+
+
+
+
+
+	
+	public void setLatestPhenotypingCentre(List<String> latestPhenotypingCentre) {
+	
+		this.latestPhenotypingCentre = latestPhenotypingCentre;
+	}
+
+
+
+
+
+	
+	public List<String> getLatestPhenotypingStatus() {
+	
+		return latestPhenotypingStatus;
+	}
+
+
+
+
+
+	
+	public void setLatestPhenotypingStatus(List<String> latestPhenotypingStatus) {
+	
+		this.latestPhenotypingStatus = latestPhenotypingStatus;
+	}
+
+
+
+
+
+	
+	public List<String> getLegacyPhenotypingStatus() {
+	
+		return legacyPhenotypingStatus;
+	}
+
+
+
+
+
+	
+	public void setLegacyPhenotypingStatus(List<String> legacyPhenotypingStatus) {
+	
+		this.legacyPhenotypingStatus = legacyPhenotypingStatus;
+	}
+
+
+
+
+
+	
+	public List<String> getAlleleName() {
+	
+		return alleleName;
+	}
+
+
+
+
+
+	
+	public void setAlleleName(List<String> alleleName) {
+	
+		this.alleleName = alleleName;
+	}
+
+
+
+
+
+	
+	public String getParameterStableKey() {
+	
+		return parameterStableKey;
+	}
+
+
+
+
+
 	public List<String> getProcedureNameId() {
 	
 		return procedureNameId;
@@ -362,6 +742,199 @@ public class PipelineDTO {
 	public void setIdIdId(String ididid) {
 
 		this.ididid=ididid;
+		
+	}
+
+
+
+
+
+
+	public void addMarkerType(String markerType) {
+
+		if(this.markerType==null){
+			this.markerType=new ArrayList<String>();
+		}
+		this.markerType.add(markerType);
+		
+	}
+
+
+
+
+
+
+	public void addMarkerSymbol(String markerSymbol2) {
+
+		if(this.markerSymbol==null){
+			this.markerSymbol=new ArrayList<String>();
+		}
+		this.markerSymbol.add(markerSymbol2);
+		
+	}
+
+
+
+
+
+
+	public void addMarkerSynonym(List<String> markerSynonym) {
+
+		if(this.markerSynonyms==null){
+			this.markerSynonyms=new ArrayList<String>();
+		}
+		this.markerSynonyms.addAll(markerSynonym);
+		
+	}
+
+
+
+
+
+
+	public void addMarkerName(String markerName) {
+
+		if(this.markerName==null){
+			this.markerName=new ArrayList<String>();
+		}
+		this.markerName.add(markerName);
+		
+	}
+
+
+
+
+
+
+	public void addHumanGeneSymbol(List<String> humanGeneSymbol) {
+
+		if(this.humanGeneSymbol==null){
+			this.humanGeneSymbol=new ArrayList<String>();
+		}
+		this.humanGeneSymbol.addAll(humanGeneSymbol);
+		
+	}
+
+
+
+
+
+
+	public void addStatus(String status) {
+
+		if(this.status==null){
+			this.status=new ArrayList<String>();
+		}
+		this.status.add(status);
+		
+	}
+
+
+
+
+
+
+	public void addImitsPhenotypeStarted(String imitsPhenotypeStarted) {
+
+		if(this.imitsPhenotypeStarted==null){
+			this.imitsPhenotypeStarted=new ArrayList<String>();
+		}
+		this.imitsPhenotypeStarted.add(imitsPhenotypeStarted);
+	}
+
+
+
+
+
+
+	public void addImitsPhenotypeComplete(String imitsPhenotypeComplete) {
+
+		if(this.imitsPhenotypeComplete==null){
+			this.imitsPhenotypeComplete=new ArrayList<String>();
+		}
+		this.imitsPhenotypeComplete.add(imitsPhenotypeComplete);
+		
+	}
+
+
+
+
+
+
+	public void addImitsPhenotypeStatus(String imitsPhenotypeStatus) {
+
+		if(this.imitsPhenotypeStatus==null){
+			this.imitsPhenotypeStatus=new ArrayList<String>();
+		}
+		this.imitsPhenotypeStatus.add(imitsPhenotypeStatus);
+		
+	}
+
+
+
+
+
+
+	public void addLatestProductionCentre(List<String> latestProductionCentre) {
+
+		if(this.latestProductionCentre==null){
+			this.latestProductionCentre=new ArrayList<String>();
+		}
+		this.latestProductionCentre.addAll(latestProductionCentre);
+		
+	}
+
+
+
+
+
+
+	public void addLatestPhenotypingCentre(List<String> latestPhenotypingCentre) {
+
+		if(this.latestPhenotypingCentre==null){
+			this.latestPhenotypingCentre=new ArrayList<String>();
+		}
+		this.latestPhenotypingCentre.addAll(latestPhenotypingCentre);
+	}
+
+
+
+
+
+
+	public void addLatestPhenotypingCentre(String latestPhenotypingStatus) {
+
+		if(this.latestPhenotypingStatus==null){
+			this.latestPhenotypingStatus=new ArrayList<String>();
+		}
+		this.latestPhenotypingStatus.add(latestPhenotypingStatus);
+	}
+
+
+
+
+
+
+	public void addLegacyPhenotypingStatus(String latestPhenotypingStatus) {
+
+		if(this.latestPhenotypingStatus==null){
+			this.latestPhenotypingStatus=new ArrayList<String>();
+		}
+		this.latestPhenotypingStatus.add(latestPhenotypingStatus);
+		
+	}
+
+
+
+
+
+
+	public void addAlleleName(List<String> alleleName) {
+
+		if(this.alleleName==null){
+			this.alleleName=new ArrayList<String>();
+		}
+		this.alleleName.addAll(alleleName);
 		
 	}
 }
