@@ -505,7 +505,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
 	private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
 
-		alleleCore.addBeans(alleles.values());
+		alleleCore.addBeans(alleles.values(), 60000);
 	}
 
 
