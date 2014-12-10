@@ -282,7 +282,7 @@ public class PipelineIndexer extends AbstractIndexer {
 //										<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />
 										pipe.addInferredMaTerm(mp.getInferredMaTerm());
 //										<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
-										if(mp.getInferredChildMaTermSynonym()!=null){
+										if(mp.getInferredMaTermSynonym()!=null){
 										pipe.addInferredMaTermSynonym(mp.getInferredMaTermSynonym());
 										}
 									}
