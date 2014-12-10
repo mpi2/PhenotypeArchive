@@ -255,8 +255,10 @@ public class PipelineIndexer extends AbstractIndexer {
 									
 //									<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
 									pipe.addIntermediateMpTerm(mp.getIntermediateMpTerm());
-									//<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
+									//<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />
+									if(mp.getIntermediateMpTermSynonym()!=null){
 									pipe.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
+									}
 									//<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
 									pipe.addChildMpId(mp.getChildMpId());
 //									<field column="child_mp_id" xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
