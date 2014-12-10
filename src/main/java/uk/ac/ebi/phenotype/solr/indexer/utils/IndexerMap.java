@@ -20,15 +20,16 @@
 
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 import org.apache.solr.client.solrj.SolrServer;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class encapsulates the code and data necessary to represent all of the
@@ -48,6 +49,7 @@ public class IndexerMap {
     private static Map<String, List<AlleleDTO>> allelesMap = null;
     private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
     private static Map<String, List<OntologyTermBean>> mpTopLevelTermsMap = null;
+    private static Map<String, List<OntologyTermBean>> mpIntermediateTermsMap = null;
     private static List<AlleleDTO> alleles = null;
     
     
@@ -224,8 +226,25 @@ public class IndexerMap {
         
         return mpTopLevelTermsMap;
     }
-    
-    
+
+    /**
+     * Returns a cached map of all mp intermediate-level terms, indexed by mp term id.
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a cached list of all mp intermediate-level terms, indexed by mp term id.
+     */
+    public static Map<String, List<OntologyTermBean>> getMpIntermediateLevelTerms(Connection ontoDbConnection) throws SQLException {
+        if (mpIntermediateTermsMap == null) {
+            mpIntermediateTermsMap = OntologyUtils.populateMpIntermediateTerms(ontoDbConnection);
+        }
+
+        return mpIntermediateTermsMap;
+    }
+
+
+
     // UTILITY METHODS
     
     
