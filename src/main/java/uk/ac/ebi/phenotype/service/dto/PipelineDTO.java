@@ -1208,7 +1208,7 @@ public class PipelineDTO {
 		if (this.topLevelMpId == null) {
 			this.topLevelMpId = new ArrayList<String>();
 		}
-		this.ontologySubset.addAll(topLevelMpTermId);
+		this.topLevelMpId.addAll(topLevelMpTermId);
 		
 	}
 

@@ -236,9 +236,13 @@ public class PipelineIndexer extends AbstractIndexer {
 									pipe.addMpTermSynonym(mp.getMpTermSynonym());
 									}
 //									<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
+									if(mp.getOntologySubset()!=null){
 									pipe.addOntologySubset(mp.getOntologySubset());
+									}
 //									<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+									if(mp.getTopLevelMpTermId()!=null){
 									pipe.addTopLevelMpId(mp.getTopLevelMpTermId());
+									}
 //									
 //									<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
 									pipe.addTopLevelMpTerm(mp.getTopLevelMpTerm());
