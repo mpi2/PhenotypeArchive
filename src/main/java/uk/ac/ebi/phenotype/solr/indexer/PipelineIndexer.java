@@ -81,6 +81,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<Integer, PipelineBean> procedureIdToPipeline;
 	private Map<String, List<GfMpBean>> pppidsToGfMpBeans;
 	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
+	private Map<String, MpDTO> mpIdToMp;
 
 	private static final int BATCH_SIZE = 50;
 
@@ -218,8 +219,47 @@ public class PipelineIndexer extends AbstractIndexer {
 											pipe.addLatestPhenotypingCentre(allele.getLatestPhenotypeStatus());
 											pipe.addLegacyPhenotypingStatus(allele.getLatestPhenotypeStatus());
 											pipe.addAlleleName(allele.getAlleleName());
-										}
+										}											
 									}
+									//mps for parameter
+									String mpTermId=gfMpBean.mpAcc;
+									System.out.println("MPTerm="+mpTermId);
+									MpDTO mp=mpIdToMp.get(mpTermId);
+									System.out.println("mp anno higher level="+mp.getAnnotatedHigherLevelMpTermName());
+//									<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />					
+//									<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
+//									<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />		
+//									<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />	
+//									<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+//									
+//									<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
+//									<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							
+//									<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />					
+//									
+//									<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
+//									<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
+//									<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
+//					
+//									<field column="child_mp_id" xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
+//									<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />							
+//									<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />					
+//					
+//									<field column="hp_id" xpath="/response/result/doc/arr[@name='hp_id']/str" />					
+//									<field column="hp_term" xpath="/response/result/doc/arr[@name='hp_term']/str" />
+//					
+//									<!-- MA: inferred from MP -->
+//									<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />	
+//									<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
+//									<field column="inferred_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_ma_term_synonym']/str" />
+//								
+//									<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
+//									<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />				
+//									<field column="inferred_selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term_synonym']/str" />				
+//								
+//									<field column="inferred_child_ma_id" xpath="/response/result/doc/arr[@name='inferred_child_ma_id']/str" />
+//									<field column="inferred_child_ma_term" xpath="/response/result/doc/arr[@name='inferred_child_ma_term']/str" />				
+//									<field column="inferred_child_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_child_ma_term_synonym']/str" />				
+//						
 								}
 
 							}
@@ -276,6 +316,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		procedureIdToPipeline = populateProcedureIdToPipelineMap();
 		pppidsToGfMpBeans = populateGfAccAndMp();
 		mgiToAlleleMap = IndexerMap.getGeneToAlleles(alleleCore);
+		mpIdToMp=populateMpIdToMp();
 
 	}
 
@@ -488,6 +529,9 @@ public class PipelineIndexer extends AbstractIndexer {
 
 	}
 
+	private Map<String, MpDTO> populateMpIdToMp() throws IndexerException{
+		return SolrUtils.populateMpTermIdToMp(mpCore);
+	}
 
 	public static void main(String[] args)
 	throws IndexerException {

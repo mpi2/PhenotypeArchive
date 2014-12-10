@@ -111,12 +111,639 @@ public class PipelineDTO {
 	@Field(GeneDTO.ALLELE_NAME)
 	private List<String> alleleName;
 
+//	<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />
+	@Field(MpDTO.MP_ID)
+	private List<String> mpId;
+//	<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
+	@Field(MpDTO.MP_TERM)
+	private List<String> mpTerm;
+//	<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />
+	@Field(MpDTO.MP_DEFINITION)
+	private List<String> mpDefinition;
+//	<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
+	@Field(MpDTO.MP_TERM_SYNONYM)
+	private List<String> mpTermSynonym;
+//	<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+	@Field(MpDTO.ONTOLOGY_SUBSET)
+	private List<String> ontologySubset;
+//	<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
+	@Field(MpDTO.TOP_LEVEL_MP_ID)
+	private List<String> topLevelMpId;	
+//	<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />		
+	@Field(MpDTO.TOP_LEVEL_MP_TERM)
+	private List<String> topLevelMpTerm;
+//	<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />
+	@Field(MpDTO.TOP_LEVEL_MP_TERM_SYNONYM)
+	private List<String> topLevelMpTermSynonym;
+//	
+//	<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
+	@Field(MpDTO.INTERMEDIATE_MP_ID)
+	private List<String> intermediateMpId;
+//	<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />	
+	@Field(MpDTO.INTERMEDIATE_MP_TERM)
+	private List<String> intermediateMpTerm;
+//	<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
+
+	@Field(MpDTO.INTERMEDIATE_MP_TERM_SYNONYM)
+	private List<String> intermediateMpTermSynonym;
+//	<field column="child_mp_id" xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
+	@Field(MpDTO.CHILD_MP_ID)
+	private List<String> childMpId;
+//	<field column="child_mp_term" xpath="/response/result/doc/arr[@name='child_mp_term']/str" />	
+	@Field(MpDTO.CHILD_MP_TERM)
+	private List<String> childMpTerm;
+//	<field column="child_mp_term_synonym" xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />
+	@Field(MpDTO.CHILD_MP_TERM_SYNONYM)
+	private List<String> childMpTermSynonym;
+//
+//	<field column="hp_id" xpath="/response/result/doc/arr[@name='hp_id']/str" />
+	@Field(MpDTO.HP_ID)
+	private List<String> hpId;
+//	<field column="hp_term" xpath="/response/result/doc/arr[@name='hp_term']/str" />
+	@Field(MpDTO.HP_TERM)
+	private List<String> hpTerm;
+//	<!-- MA: inferred from MP -->
+//	<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />	
+	@Field(MpDTO.INFERRED_MA_ID)
+	private List<String> inferredMaId;
+//	<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
+	@Field(MpDTO.INFERRED_CHILD_MA_TERM)
+	private List<String> inferredMaTerm;
+//	<field column="inferred_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_ma_term_synonym']/str" />
+	@Field(MpDTO.INFERRED_MA_TERM_SYNONYM)
+	private List<String> inferredMaTermSynonym;
+//
+//	<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
+	@Field(MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID)
+	private List<String> selectedTopLevelMaId;
+//	<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />				
+	@Field(MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM)
+	private List<String> inferredSelectedTopLevelMaTerm;
+	//	<field column="inferred_selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term_synonym']/str" />				
+	@Field(MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
+	private List<String> inferredSelectedToLevelMaTermSynonym;
+//	<field column="inferred_child_ma_id" xpath="/response/result/doc/arr[@name='inferred_child_ma_id']/str" />
+	@Field(MpDTO.INFERRED_CHILD_MA_ID)
+	private List<String> inferredChildMaId;
+	//<field column="inferred_child_ma_term" xpath="/response/result/doc/arr[@name='inferred_child_ma_term']/str" />				
+	@Field(MpDTO.INFERRED_CHILD_MA_TERM)
+	private List<String> inferredChildMaTerm;
+	//	<field column="inferred_child_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_child_ma_term_synonym']/str" />				
+	@Field(MpDTO.INFERRED_CHILD_MA_TERM_SYNONYM)
+	private List<String> inferredChildMaTermSynonym;
 	
+	
+	
+	
+	public List<String> getMpId() {
+	
+		return mpId;
+	}
+
+
+
+
+
 
 	
+	public void setMpId(List<String> mpId) {
 	
+		this.mpId = mpId;
+	}
+
+
+
+
+
+
 	
+	public List<String> getMpTerm() {
 	
+		return mpTerm;
+	}
+
+
+
+
+
+
+	
+	public void setMpTerm(List<String> mpTerm) {
+	
+		this.mpTerm = mpTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getMpDefinition() {
+	
+		return mpDefinition;
+	}
+
+
+
+
+
+
+	
+	public void setMpDefinition(List<String> mpDefinition) {
+	
+		this.mpDefinition = mpDefinition;
+	}
+
+
+
+
+
+
+	
+	public List<String> getMpTermSynonym() {
+	
+		return mpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public void setMpTermSynonym(List<String> mpTermSynonym) {
+	
+		this.mpTermSynonym = mpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public List<String> getOntologySubset() {
+	
+		return ontologySubset;
+	}
+
+
+
+
+
+
+	
+	public void setOntologySubset(List<String> ontologySubset) {
+	
+		this.ontologySubset = ontologySubset;
+	}
+
+
+
+
+
+
+	
+	public List<String> getTopLevelMpId() {
+	
+		return topLevelMpId;
+	}
+
+
+
+
+
+
+	
+	public void setTopLevelMpId(List<String> topLevelMpId) {
+	
+		this.topLevelMpId = topLevelMpId;
+	}
+
+
+
+
+
+
+	
+	public List<String> getTopLevelMpTerm() {
+	
+		return topLevelMpTerm;
+	}
+
+
+
+
+
+
+	
+	public void setTopLevelMpTerm(List<String> topLevelMpTerm) {
+	
+		this.topLevelMpTerm = topLevelMpTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getTopLevelMpTermSynonym() {
+	
+		return topLevelMpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public void setTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
+	
+		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public List<String> getIntermediateMpId() {
+	
+		return intermediateMpId;
+	}
+
+
+
+
+
+
+	
+	public void setIntermediateMpId(List<String> intermediateMpId) {
+	
+		this.intermediateMpId = intermediateMpId;
+	}
+
+
+
+
+
+
+	
+	public List<String> getIntermediateMpTerm() {
+	
+		return intermediateMpTerm;
+	}
+
+
+
+
+
+
+	
+	public void setIntermediateMpTerm(List<String> intermediateMpTerm) {
+	
+		this.intermediateMpTerm = intermediateMpTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getIntermediateMpTermSynonym() {
+	
+		return intermediateMpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public void setIntermediateMpTermSynonym(List<String> intermediateMpTermSynonym) {
+	
+		this.intermediateMpTermSynonym = intermediateMpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public List<String> getChildMpId() {
+	
+		return childMpId;
+	}
+
+
+
+
+
+
+	
+	public void setChildMpId(List<String> childMpId) {
+	
+		this.childMpId = childMpId;
+	}
+
+
+
+
+
+
+	
+	public List<String> getChildMpTerm() {
+	
+		return childMpTerm;
+	}
+
+
+
+
+
+
+	
+	public void setChildMpTerm(List<String> childMpTerm) {
+	
+		this.childMpTerm = childMpTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getChildMpTermSynonym() {
+	
+		return childMpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public void setChildMpTermSynonym(List<String> childMpTermSynonym) {
+	
+		this.childMpTermSynonym = childMpTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public List<String> getHpId() {
+	
+		return hpId;
+	}
+
+
+
+
+
+
+	
+	public void setHpId(List<String> hpId) {
+	
+		this.hpId = hpId;
+	}
+
+
+
+
+
+
+	
+	public List<String> getHpTerm() {
+	
+		return hpTerm;
+	}
+
+
+
+
+
+
+	
+	public void setHpTerm(List<String> hpTerm) {
+	
+		this.hpTerm = hpTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredMaId() {
+	
+		return inferredMaId;
+	}
+
+
+
+
+
+
+	
+	public void setInferredMaId(List<String> inferredMaId) {
+	
+		this.inferredMaId = inferredMaId;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredMaTerm() {
+	
+		return inferredMaTerm;
+	}
+
+
+
+
+
+
+	
+	public void setInferredMaTerm(List<String> inferredMaTerm) {
+	
+		this.inferredMaTerm = inferredMaTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredMaTermSynonym() {
+	
+		return inferredMaTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public void setInferredMaTermSynonym(List<String> inferredMaTermSynonym) {
+	
+		this.inferredMaTermSynonym = inferredMaTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public List<String> getSelectedTopLevelMaId() {
+	
+		return selectedTopLevelMaId;
+	}
+
+
+
+
+
+
+	
+	public void setSelectedTopLevelMaId(List<String> selectedTopLevelMaId) {
+	
+		this.selectedTopLevelMaId = selectedTopLevelMaId;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredSelectedTopLevelMaTerm() {
+	
+		return inferredSelectedTopLevelMaTerm;
+	}
+
+
+
+
+
+
+	
+	public void setInferredSelectedTopLevelMaTerm(List<String> inferredSelectedTopLevelMaTerm) {
+	
+		this.inferredSelectedTopLevelMaTerm = inferredSelectedTopLevelMaTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredSelectedToLevelMaTermSynonym() {
+	
+		return inferredSelectedToLevelMaTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public void setInferredSelectedToLevelMaTermSynonym(List<String> inferredSelectedToLevelMaTermSynonym) {
+	
+		this.inferredSelectedToLevelMaTermSynonym = inferredSelectedToLevelMaTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredChildMaId() {
+	
+		return inferredChildMaId;
+	}
+
+
+
+
+
+
+	
+	public void setInferredChildMaId(List<String> inferredChildMaId) {
+	
+		this.inferredChildMaId = inferredChildMaId;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredChildMaTerm() {
+	
+		return inferredChildMaTerm;
+	}
+
+
+
+
+
+
+	
+	public void setInferredChildMaTerm(List<String> inferredChildMaTerm) {
+	
+		this.inferredChildMaTerm = inferredChildMaTerm;
+	}
+
+
+
+
+
+
+	
+	public List<String> getInferredChildMaTermSynonym() {
+	
+		return inferredChildMaTermSynonym;
+	}
+
+
+
+
+
+
+	
+	public void setInferredChildMaTermSynonym(List<String> inferredChildMaTermSynonym) {
+	
+		this.inferredChildMaTermSynonym = inferredChildMaTermSynonym;
+	}
+
+
+
+
+
+
 	public List<String> getProcedureParamStableId() {
 	
 		return procedureParamStableId;
