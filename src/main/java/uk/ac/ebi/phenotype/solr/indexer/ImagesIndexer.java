@@ -28,6 +28,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -130,11 +131,9 @@ public class ImagesIndexer extends AbstractIndexer {
 			while (pos < total) {
 				query.setStart(pos);
 				QueryResponse response = null;
-				try {
+	
 					response = observationService.query(query);
-				} catch (Exception e) {
-					throw new IndexerException("Unable to query images core", e);
-				}
+				
 				total = response.getResults().getNumFound();
 				List<ImageDTO> imageList = response.getBeans(ImageDTO.class);
 				for (ImageDTO imageDTO : imageList) {
@@ -166,24 +165,20 @@ public class ImagesIndexer extends AbstractIndexer {
 						}
 					}
 
-					pos += BATCH_SIZE;
-					server.addBeans(imageList, 60000);
-					if (pos % 10000 == 0) {
-						System.out.println(" added ImageDTO" + pos + " beans");
-					}
+					
 
+				}
+				pos += BATCH_SIZE;
+				server.addBeans(imageList);
+				if (pos % 1000 == 0) {
+					System.out.println(" added ImageDTO" + pos + " beans");
 				}
 
 			}
 
-		} catch (Exception e) {
-
-			e.printStackTrace();
-
-		}
-		try {
+		
 			server.commit();
-		} catch (SolrServerException | IOException e) {
+		} catch (SolrServerException | IOException | SQLException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
