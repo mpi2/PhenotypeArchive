@@ -47,7 +47,11 @@ import java.util.*;
 
 
 /**
+ * Index the allele core from the sanger allele2 core
+ *
  * @author Matt
+ * @author jmason
+ *
  */
 public class AlleleIndexer extends AbstractIndexer {
 
