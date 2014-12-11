@@ -436,6 +436,46 @@ public class SolrUtils {
 		}
 		return mps;
 	}
+	
+	/**
+	 * Get a map of MpDTOs by key mgiAccesion
+	 * 
+	 * @param mpSolrServer
+	 * @return the map
+	 * @throws IndexerException
+	 */
+	public static Map<String, MpDTO> populateMpTermIdToMp(SolrServer mpSolrServer)
+	throws IndexerException {
+
+		Map<String, MpDTO> mps = new HashMap<>();
+		int pos = 0;
+		long total = Integer.MAX_VALUE;
+		SolrQuery query = new SolrQuery("*:*");
+		//query.add("fl=mp_id,mp_term,mp_definition,mp_term_synonym,ontology_subset,hp_id,hp_term,top_level_mp_id,top_level_mp_term,top_level_mp_term_synonym,intermediate_mp_id,intermediate_mp_term,intermediate_mp_term_synonym,child_mp_id,child_mp_term,child_mp_term_synonym,inferred_ma_id,inferred_ma_term,inferred_ma_term_synonym,inferred_selected_top_level_ma_id,inferred_selected_top_level_ma_term,inferred_selected_top_level_ma_term_synonym,inferred_child_ma_id,inferred_child_ma_term,inferred_child_ma_term_synonym");
+		query.setRows(BATCH_SIZE);
+		while (pos < total) {
+			query.setStart(pos);
+			QueryResponse response = null;
+			try {
+				response = mpSolrServer.query(query);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
+			}
+			total = response.getResults().getNumFound();
+			List<MpDTO> mpBeans = response.getBeans(MpDTO.class);
+
+			for (MpDTO mp : mpBeans) {
+				if (mp.getMpId() != null && !mp.getMpId().equals("")) {
+						
+							mps.put(mp.getMpId(), mp);
+						
+				}
+			}
+			pos += BATCH_SIZE;
+		}
+		return mps;
+	}
 
 	
 	/**
