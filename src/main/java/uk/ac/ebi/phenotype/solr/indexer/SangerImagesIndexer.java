@@ -60,7 +60,6 @@ public class SangerImagesIndexer {
 	private Map<String, List<String>> synonyms = new HashMap<>();
 	private Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
 	private Map<Integer, ExperimentDict> expMap = new HashMap<>();
-	private Map<String, String> sangerProcedureToImpcMapping = new HashMap<String, String>();
 	private Map<Integer, List<Tag>> tags = new HashMap<>();
 	private Map<Integer, List<Annotation>> annotationsMap = new HashMap<>();
 	private Map<String, String> uptoDateMaMap = new HashMap<>();
@@ -188,39 +187,6 @@ public class SangerImagesIndexer {
 		populateAlleles();
 		populateMpToHpTermsMap();
 
-		// for(bean: maTopLevelNodes){
-		//
-		// }
-
-		// maChildMap = OntologyUtil.populateChildTerms(ontoDbConnection);
-		// maParentMap = OntologyUtil.populateParentTerms(ontoDbConnection);
-		// System.out.println("maChildMap size=" + maChildMap.size());
-		// System.out.println("maParentMap size=" + maParentMap.size());
-
-		sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
-		sangerProcedureToImpcMapping.put("Xray", "X-ray");
-		sangerProcedureToImpcMapping.put("X-ray Imaging", "Xray");
-		sangerProcedureToImpcMapping.put("X-ray", "Xray");
-		// 'Adult LacZ' : 'Wholemount Expression',
-		// 'FACS Analysis' : 'Flow Cytometry',
-		// 'Histopathology' : 'Histology Slide',
-		// 'X-ray' : 'Xray',
-		// 'X-ray Imaging' : 'Xray',
-		// 'Combined SHIRPA and Dysmorphology' : 'Embryo Dysmorphology'
-		// 'Xray' : 'X-ray Imaging',
-		sangerProcedureToImpcMapping.put("Flow Cytometry", "FACS Analysis");
-		sangerProcedureToImpcMapping.put("Histology Slide", "Histopathology");
-		sangerProcedureToImpcMapping.put("Embryo Dysmorphology", "Combined SHIRPA and Dysmorphology");
-		//
-		// logger.info("Populating data source, project, and category translation maps");
-		// populateDatasourceDataMap();
-		// populateCategoryNamesDataMap();
-		//
-		// logger.info("Populating biological data maps");
-		// populateBiologicalDataMap();
-		// populateLineBiologicalDataMap();
-		//
-		// logger.info("Populating experiment solr core");
 		Long start = System.currentTimeMillis();
 		try {
 			populateSangerImagesCore();
@@ -889,7 +855,6 @@ public class SangerImagesIndexer {
 				}
 
 			}
-			System.out.println("synonyms size=" + synonyms.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
