@@ -85,24 +85,25 @@ public class SangerImageDTO {
     
     @Field(SELECTED_TOP_LEVEL_MA_TERM_ID)
     private List<String> selectedTopLevelMaTermId;
+    @Field("genotype")
+    private String genotype;
+    @Field("mouseId")
+    private Integer mouseId;
     
-    
-	
+    @Field("colony_id")
+	private Integer colonyId;
+    @Field("sangerProcedureId")
+    Integer sangerProcedureId;
+    @Field("gender")
+	private String gender;
 
 
 
-	
 	public List<String> getSelectedTopLevelMaTermId() {
 	
 		return selectedTopLevelMaTermId;
 	}
 
-
-
-
-
-
-	
 	public void setSelectedTopLevelMaTermId(List<String> selectedTopLevelMaTermId) {
 	
 		this.selectedTopLevelMaTermId = selectedTopLevelMaTermId;
@@ -113,26 +114,12 @@ public class SangerImageDTO {
 	@Field(SELECTED_TOP_LEVEL_MA_TERM)
     private List<String> selectedTopLevelMaTerm;
     
-	
-	
-	
-	
-
-
-
-
-
-	
 	public List<String> getSelectedTopLevelMaTerm() {
 	
 		return selectedTopLevelMaTerm;
 	}
 
 
-
-
-
-	
 	public void setSelectedTopLevelMaTerm(List<String> selectedTopLevelMaTerm) {
 	
 		this.selectedTopLevelMaTerm = selectedTopLevelMaTerm;
@@ -1097,18 +1084,148 @@ public class SangerImageDTO {
 	}
 
 
-	public String getSangerProcedureId() {
+	public Integer getSangerProcedureId() {
 
 		return sangerProcedureId;
 	}
 
 
-	public void setSangerProcedureId(String sangerProcedureId) {
+	public void setSangerProcedureId(Integer sangerProcedureId) {
 
 		this.sangerProcedureId = sangerProcedureId;
 	}
 
-	String sangerProcedureId;
+	
+	public String getGenotype() {
+	
+		return genotype;
+	}
+
+	public void setGenotype(String genotype) {
+
+		this.genotype=genotype;
+		
+	}
+
+	public void setMouseId(Integer mouseId) {
+		this.mouseId=mouseId;
+	}
+
+	
+	public Integer getMouseId() {
+	
+		return mouseId;
+	}
+
+	public void setGender(String gender) {
+
+		this.gender=gender;
+		
+	}
+
+	
+	public String getGender() {
+	
+		return gender;
+	}
+
+	public void setColonyId(int colonyId) {
+
+		this.colonyId=colonyId;
+		
+	}
+
+	
+	public Integer getColonyId() {
+	
+		return colonyId;
+	}
+
+	public void addMarkerSymbol(String markerSymbol) {
+
+		if(this.markerSymbol==null){
+			this.markerSymbol=new ArrayList<>();
+		}
+		this.markerSymbol.add(markerSymbol);
+		
+	}
+
+	public void addMarkerName(String markerName) {
+
+		if(this.markerName==null){
+			this.markerName=new ArrayList<>();
+		}
+		this.markerName.add(markerName);
+	}
+
+	public void addMarkerSynonym(List<String> markerSynonym) {
+		if(this.markerSynonym==null){
+			this.markerSynonym=new ArrayList<>();
+		}
+		this.markerSynonym.addAll(markerSynonym);
+	}
+
+	public void addMarkerType(String markerType) {
+
+		if(this.markerType==null){
+			this.markerType=new ArrayList<>();
+		}
+		this.markerType.add(markerType);
+	}
+
+	public void addHumanGeneSymbol(List<String> humanGeneSymbol) {
+
+		if(this.humanGeneSymbol==null){
+			this.humanGeneSymbol=new ArrayList<>();
+		}
+		this.humanGeneSymbol.addAll(humanGeneSymbol);
+		
+	}
+
+	public void addStatus(String status) {
+
+		if(this.status==null){
+			this.status=new ArrayList<>();
+		}
+		this.status.add(status);
+		
+	}
+
+	public void addImitsPhenotypeStarted(String imitsPhenotypeStarted) {
+
+		if(this.imitsPhenotypeStarted==null){
+			this.imitsPhenotypeStarted=new ArrayList<>();
+		}
+		this.imitsPhenotypeStarted.add(imitsPhenotypeStarted);
+	}
+
+	public void addImitsPhenotypeComplete(String imitsPhenotypeComplete) {
+		if(this.imitsPhenotypeComplete==null){
+			this.imitsPhenotypeComplete=new ArrayList<>();
+		}
+		this.imitsPhenotypeComplete.add(imitsPhenotypeComplete);
+	}
+
+	public void addImitsPhenotypeStatus(String imitsPhenotypeStatus) {
+
+		if(this.imitsPhenotypeStatus==null){
+			this.imitsPhenotypeStatus=new ArrayList<>();
+		}
+		this.imitsPhenotypeStatus.add(imitsPhenotypeStatus);
+		
+	}
+
+	public void addMgiAccessionId(String mgiAccessionId) {
+
+		if(this.mgiAccessionId==null){
+			this.mgiAccessionId=new ArrayList<>();
+		}
+		this.mgiAccessionId.add(mgiAccessionId);
+		
+		
+	}
+
+	
 
 	//
 	// <entity dataSource="komp2ds" name="imaDcfImageView"
