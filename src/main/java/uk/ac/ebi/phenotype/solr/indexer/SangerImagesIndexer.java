@@ -295,6 +295,7 @@ public class SangerImagesIndexer {
 					o.setDcfId(dcfInfo.dcfId);
 					o.setDcfExpId(dcfInfo.dcfExpId);
 					o.setSangerProcedureName(dcfInfo.sangerProcedureName);
+					o.setExpNameExp(Arrays.asList(dcfInfo.sangerProcedureName+"_exp"));
 					o.setSangerProcedureId(dcfInfo.sangerProcedureId);
 				}
 				MouseBean mb = mouseMvMap.get(r.getInt("FOREIGN_KEY_ID"));
