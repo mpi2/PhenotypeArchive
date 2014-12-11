@@ -47,7 +47,11 @@ import java.util.*;
 
 
 /**
+ * Index the allele core from the sanger allele2 core
+ *
  * @author Matt
+ * @author jmason
+ *
  */
 public class AlleleIndexer extends AbstractIndexer {
 
@@ -174,9 +178,6 @@ public class AlleleIndexer extends AbstractIndexer {
 
 				// Look up the disease data
 				lookupDiseaseData(alleles);
-
-				// Do the second set of mappings
-				doSangerAlleleMapping(alleles);
 
 				// Now index the alleles
 				indexAlleles(alleles);
@@ -372,6 +373,17 @@ public class AlleleIndexer extends AbstractIndexer {
 			dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
 			dto.setLatestProjectStatus(bean.getLatestProjectStatus());
 
+			String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(bean.getLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
+			dto.setLatestProductionStatus(latestEsStatus);
+			dto.setLatestEsCellStatus(latestEsStatus);
+
+			if(StringUtils.isNotEmpty(bean.getLatestMouseStatus())) {
+				String latestMouseStatus = MOUSE_STATUS_MAPPINGS.containsKey(bean.getLatestMouseStatus()) ? MOUSE_STATUS_MAPPINGS.get(bean.getLatestMouseStatus()) : bean.getLatestMouseStatus();
+				dto.setLatestProductionStatus(latestMouseStatus);
+				dto.setLatestMouseStatus(latestMouseStatus);
+			}
+
+
 			if (legacyProjectLookup.containsKey(bean.getMgiAccessionId())) {
 				dto.setLegacyPhenotypeStatus(1);
 			}
@@ -454,12 +466,25 @@ public class AlleleIndexer extends AbstractIndexer {
 			}
 
 			for (SangerAlleleBean sab : statusLookup.get(id)) {
+
 				dto.getAlleleName().add(sab.getAlleleName());
-				dto.setImitsEsCellStatus(sab.getEsCellStatus());
-				dto.setImitsMouseStatus(sab.getMouseStatus());
 				dto.getPhenotypeStatus().add(sab.getPhenotypeStatus());
 				dto.getProductionCentre().add(sab.getProductionCentre());
 				dto.getPhenotypingCentre().add(sab.getPhenotypingCentre());
+
+				String esCellStat = ES_CELL_STATUS_MAPPINGS.containsKey(sab.getEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(sab.getEsCellStatus()) : sab.getEsCellStatus();
+				dto.getEsCellStatus().add(esCellStat);
+
+				if(StringUtils.isNotEmpty(sab.getMouseStatus())) {
+					String mouseStatus = MOUSE_STATUS_MAPPINGS.containsKey(sab.getMouseStatus()) ? MOUSE_STATUS_MAPPINGS.get(sab.getMouseStatus()) : sab.getMouseStatus();
+					dto.getMouseStatus().add(mouseStatus);
+				} else {
+					dto.getMouseStatus().add("");
+				}
+
+
+//				dto.setImitsEsCellStatus(sab.getEsCellStatus());
+//				dto.setImitsMouseStatus(sab.getMouseStatus());
 			}
 		}
 
@@ -507,94 +532,6 @@ public class AlleleIndexer extends AbstractIndexer {
 
 		alleleCore.addBeans(alleles.values(), 60000);
 	}
-
-
-	/**
-	 * Equivalent to mapping(row) Javascript method in DIH script.
-	 *
-	 * @param alleles
-	 */
-	private void doSangerAlleleMapping(Map<String, AlleleDTO> alleles) {
-
-		for (AlleleDTO allele : alleles.values()) {
-			if (allele.getLatestPhenotypeStatus() != null) {
-				allele.setImitsPhenotypeStatus(allele.getLatestPhenotypeStatus());
-			}
-
-			//All statuses are set by now, use them
-			String esCellStat = ES_CELL_STATUS_MAPPINGS.containsKey(allele.getImitsEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(allele.getImitsEsCellStatus()) : allele.getImitsEsCellStatus();
-			String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(allele.getGeneLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(allele.getGeneLatestEsCellStatus()) : allele.getGeneLatestEsCellStatus();
-
-			allele.setLatestProductionStatus(latestEsStatus);
-			allele.setLatestEsCellStatus(latestEsStatus);
-			allele.getEsCellStatus().add(esCellStat);
-
-//			if (allele.getImitsEsCellStatus() != null || allele.getGeneLatestEsCellStatus() != null) {
-//				String esCellStatus = null;
-//				boolean latest;
-//				if (StringUtils.isNotEmpty(allele.getImitsEsCellStatus())) {
-//					esCellStatus = allele.getImitsEsCellStatus();
-//					latest = false;
-//				} else {
-//					esCellStatus = allele.getGeneLatestEsCellStatus();
-//					latest = true;
-//				}
-//
-//				if (ES_CELL_STATUS_MAPPINGS.containsKey(esCellStatus)) {
-//					esCellStatus = ES_CELL_STATUS_MAPPINGS.get(esCellStatus);
-//				}
-//
-//				if (latest) {
-//					if (!"".equals(esCellStatus)) {
-//						// Single value
-//						allele.setLatestProductionStatus(esCellStatus);
-//					}
-//					// Single value
-//					allele.setLatestEsCellStatus(esCellStatus);
-//				} else {
-//					// Multi value
-//					allele.getEsCellStatus().add(esCellStatus);
-//				}
-//			}
-
-
-			if(StringUtils.isNotEmpty(allele.getGeneLatestMouseStatus())) {
-				String latestMouseStatus = MOUSE_STATUS_MAPPINGS.containsKey(allele.getGeneLatestMouseStatus()) ? MOUSE_STATUS_MAPPINGS.get(allele.getGeneLatestMouseStatus()) : allele.getGeneLatestMouseStatus();
-				allele.setLatestProductionStatus(latestMouseStatus);
-			}
-
-
-			if (StringUtils.isNotEmpty(allele.getImitsMouseStatus()) || StringUtils.isNotEmpty(allele.getGeneLatestMouseStatus())) {
-				String mouseStatus = null;
-				boolean latest;
-				if (allele.getImitsMouseStatus() != null) {
-					mouseStatus = allele.getImitsMouseStatus();
-					latest = false;
-				} else {
-					mouseStatus = allele.getGeneLatestMouseStatus();
-					latest = true;
-				}
-
-				if (MOUSE_STATUS_MAPPINGS.containsKey(mouseStatus)) {
-					mouseStatus = MOUSE_STATUS_MAPPINGS.get(mouseStatus);
-					allele.setLatestMouseStatus(mouseStatus);
-				}
-
-				if (latest) {
-					if (!"".equals(mouseStatus)) {
-						// Single-valued
-						allele.setLatestProductionStatus(mouseStatus);
-					}
-					// Single value
-					allele.setLatestMouseStatus(mouseStatus);
-				} else {
-					// Multi value
-					allele.getMouseStatus().add(mouseStatus);
-				}
-			}
-		}
-	}
-
 
 	public static void main(String[] args) throws IndexerException {
 
