@@ -1,34 +1,26 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
-import uk.ac.ebi.phenotype.solr.indexer.utils.SangerProcedureMapper;
-import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
+import uk.ac.ebi.phenotype.service.dto.MpDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.PipelineDTO;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
+import uk.ac.ebi.phenotype.solr.indexer.utils.SangerProcedureMapper;
+import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
+
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-
-import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-
-import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
-import uk.ac.ebi.phenotype.service.dto.GeneDTO;
-import uk.ac.ebi.phenotype.service.dto.MaDTO;
-import uk.ac.ebi.phenotype.service.dto.MpDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.service.dto.PipelineDTO;
-import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
-
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 /**
  * Populate the MA core
@@ -46,10 +38,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Qualifier("alleleIndexing")
 	SolrServer alleleCore;
 
-	// @Autowired
-	// @Qualifier("geneIndexing")
-	// SolrServer geneCore;
-	//
 	@Autowired
 	@Qualifier("mpIndexing")
 	SolrServer mpCore;
@@ -58,22 +46,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
 
-	// @Autowired
-	// @Qualifier("sangerImagesIndexing")
-	// SolrServer imagesCore;
 
-	// <dataSource name="allele_core" type="HttpDataSource"
-	// baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?"
-	// encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-	// <dataSource name="mp_core" type="HttpDataSource"
-	// baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?"
-	// encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-	// <dataSource name="pipeline_core" type="HttpDataSource"
-	// baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?"
-	// encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-	// <dataSource name="images_core" type="HttpDataSource"
-	// baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?"
-	// encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 
 	private Map<Integer, Map<String, String>> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> paramIdToProcedureList = null;
@@ -83,16 +56,9 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
 	private Map<String, MpDTO> mpIdToMp;
 
-	private static final int BATCH_SIZE = 50;
-
 
 	public PipelineIndexer() {
 
-		try {
-			komp2DbConnection = komp2DataSource.getConnection();
-		} catch (Exception e) {
-			logger.error("Unable to get komp2DataSource: " + e.getLocalizedMessage());
-		}
 	}
 
 
@@ -101,10 +67,9 @@ public class PipelineIndexer extends AbstractIndexer {
 	throws IndexerException {
 
 		super.initialise(args);
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+
 		try {
-			DataSource komp2DS = ((DataSource) applicationContext.getBean("komp2DataSource"));
-			this.komp2DbConnection = komp2DS.getConnection();
+			this.komp2DbConnection = komp2DataSource.getConnection();
 		} catch (SQLException sqle) {
 			logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
 			throw new IndexerException(sqle);
@@ -122,6 +87,7 @@ public class PipelineIndexer extends AbstractIndexer {
 			initialiseSupportingBeans();
 			int count = 0;
 			pipelineCore.deleteByQuery("*:*");
+			pipelineCore.commit();
 
 			for (Integer paramDbId : paramDbIdToParameter.keySet()) {
 				// System.out.println("allele="+allele.getMarkerSymbol());
