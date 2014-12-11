@@ -20,19 +20,14 @@
 
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 /**
  *
@@ -358,7 +353,48 @@ public class OntologyUtils {
         return map;
     }
 
-    
+    /**
+     * Query the database, returning a map of all mp top-level terms,
+     * indexed by mp term id
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a map of all top-level mp terms, indexed by mp term id
+     */
+    protected static Map<String, List<OntologyTermBean>> populateMpIntermediateTerms(Connection ontoDbConnection) throws SQLException {
+        Map<String, List<OntologyTermBean>> map = new HashMap();
+        String query = "SELECT DISTINCT " +
+                "ti2.term_id AS mpIntermediateId, " +
+                "ti2.name    AS mpIntermediateName, " +
+                "ti.term_id  AS mpTermId, " +
+                "ti.name     AS mpTermName " +
+                "FROM mp_node2term            AS nt " +
+                "INNER JOIN mp_node_subsumption_fullpath AS f ON nt.node_id = f.child_node_id " +
+                "INNER JOIN mp_term_infos     AS ti ON ti.term_id = nt.term_id " +
+                "INNER JOIN mp_node2term      AS nt2 ON nt2.node_id = f.node_id " +
+                "INNER JOIN mp_term_infos     AS ti2 ON ti2.term_id = nt2.term_id " +
+                "WHERE f.node_id != nt.node_id " ;
+
+        try (final PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String mapKey = resultSet.getString("mpTermId");
+                if ( ! map.containsKey(mapKey)) {
+                    map.put(mapKey, new ArrayList<OntologyTermBean>());
+                }
+                String termId = resultSet.getString("mpIntermediateId");
+                String name = resultSet.getString("mpIntermediateName");
+                List<String> synonyms = getMpSynonyms(ontoDbConnection, termId);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                map.get(mapKey).add(bean);
+            }
+        }
+
+        return map;
+    }
+
+
     // PRIVATE METHODS
     
     

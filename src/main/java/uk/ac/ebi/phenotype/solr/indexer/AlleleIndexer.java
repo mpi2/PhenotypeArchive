@@ -521,35 +521,50 @@ public class AlleleIndexer extends AbstractIndexer {
 				allele.setImitsPhenotypeStatus(allele.getLatestPhenotypeStatus());
 			}
 
-			if (allele.getImitsEsCellStatus() != null || allele.getGeneLatestEsCellStatus() != null) {
-				String esCellStatus = null;
-				boolean latest;
-				if (allele.getImitsEsCellStatus() != null) {
-					esCellStatus = allele.getImitsEsCellStatus();
-					latest = false;
-				} else {
-					esCellStatus = allele.getGeneLatestEsCellStatus();
-					latest = true;
-				}
+			//All statuses are set by now, use them
+			String esCellStat = ES_CELL_STATUS_MAPPINGS.containsKey(allele.getImitsEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(allele.getImitsEsCellStatus()) : allele.getImitsEsCellStatus();
+			String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(allele.getGeneLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(allele.getGeneLatestEsCellStatus()) : allele.getGeneLatestEsCellStatus();
 
-				if (ES_CELL_STATUS_MAPPINGS.containsKey(esCellStatus)) {
-					esCellStatus = ES_CELL_STATUS_MAPPINGS.get(esCellStatus);
-				}
+			allele.setLatestProductionStatus(latestEsStatus);
+			allele.setLatestEsCellStatus(latestEsStatus);
+			allele.getEsCellStatus().add(esCellStat);
 
-				if (latest) {
-					if (!"".equals(esCellStatus)) {
-						// Single value
-						allele.setLatestProductionStatus(esCellStatus);
-					}
-					// Single value
-					allele.setLatestEsCellStatus(esCellStatus);
-				} else {
-					// Multi value
-					allele.getEsCellStatus().add(esCellStatus);
-				}
+//			if (allele.getImitsEsCellStatus() != null || allele.getGeneLatestEsCellStatus() != null) {
+//				String esCellStatus = null;
+//				boolean latest;
+//				if (StringUtils.isNotEmpty(allele.getImitsEsCellStatus())) {
+//					esCellStatus = allele.getImitsEsCellStatus();
+//					latest = false;
+//				} else {
+//					esCellStatus = allele.getGeneLatestEsCellStatus();
+//					latest = true;
+//				}
+//
+//				if (ES_CELL_STATUS_MAPPINGS.containsKey(esCellStatus)) {
+//					esCellStatus = ES_CELL_STATUS_MAPPINGS.get(esCellStatus);
+//				}
+//
+//				if (latest) {
+//					if (!"".equals(esCellStatus)) {
+//						// Single value
+//						allele.setLatestProductionStatus(esCellStatus);
+//					}
+//					// Single value
+//					allele.setLatestEsCellStatus(esCellStatus);
+//				} else {
+//					// Multi value
+//					allele.getEsCellStatus().add(esCellStatus);
+//				}
+//			}
+
+
+			if(StringUtils.isNotEmpty(allele.getGeneLatestMouseStatus())) {
+				String latestMouseStatus = MOUSE_STATUS_MAPPINGS.containsKey(allele.getGeneLatestMouseStatus()) ? MOUSE_STATUS_MAPPINGS.get(allele.getGeneLatestMouseStatus()) : allele.getGeneLatestMouseStatus();
+				allele.setLatestProductionStatus(latestMouseStatus);
 			}
 
-			if (allele.getImitsMouseStatus() != null || allele.getGeneLatestMouseStatus() != null) {
+
+			if (StringUtils.isNotEmpty(allele.getImitsMouseStatus()) || StringUtils.isNotEmpty(allele.getGeneLatestMouseStatus())) {
 				String mouseStatus = null;
 				boolean latest;
 				if (allele.getImitsMouseStatus() != null) {
