@@ -40,9 +40,9 @@ import java.util.Map;
  * @author jwarren
  * 
  */
-public class ImagesIndexer extends AbstractIndexer {
+public class ImpcImagesIndexer extends AbstractIndexer {
 
-	private static final Logger logger = LoggerFactory.getLogger(ImagesIndexer.class);
+	private static final Logger logger = LoggerFactory.getLogger(ImpcImagesIndexer.class);
 
 	@Autowired
 	@Qualifier("observationIndexing")
@@ -60,7 +60,7 @@ public class ImagesIndexer extends AbstractIndexer {
 	private Map<String, String> config;
 
 
-	public ImagesIndexer() {
+	public ImpcImagesIndexer() {
 
 		super();
 	}
@@ -97,7 +97,7 @@ public class ImagesIndexer extends AbstractIndexer {
 		}
 		// Wire up spring support for this application
 
-		ImagesIndexer main = new ImagesIndexer();
+		ImpcImagesIndexer main = new ImpcImagesIndexer();
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
 		// System.out.println("solrUrl="+solrUrl);
