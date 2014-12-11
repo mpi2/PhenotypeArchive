@@ -1,13 +1,15 @@
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class SangerProcedureMapper {
-	private static  Map<String, String> sangerProcedureToImpcMapping = new HashMap<String, String>();
+	private static  final Map<String, String> sangerProcedureToImpcMapping = populateMap();
 	
 	private static Map<String, String> populateMap(){
+	Map<String, String> sangerProcedureToImpcMapping=new HashMap<>();
 	sangerProcedureToImpcMapping.put("Wholemount Expression", "Adult LacZ");
 	sangerProcedureToImpcMapping.put("Xray", "X-ray");
 	sangerProcedureToImpcMapping.put("X-ray Imaging","Xray");
@@ -22,14 +24,10 @@ public class SangerProcedureMapper {
 	sangerProcedureToImpcMapping.put("Flow Cytometry", "FACS Analysis");
 	sangerProcedureToImpcMapping.put("Histology Slide", "Histopathology");
 	sangerProcedureToImpcMapping.put("Embryo Dysmorphology", "Combined SHIRPA and Dysmorphology");
-	return sangerProcedureToImpcMapping;
+	return Collections.unmodifiableMap(sangerProcedureToImpcMapping);
 	}
 	
 	public static String getImpcProcedureFromSanger(String sangerProcedure) {
-		if(sangerProcedureToImpcMapping==null){
-			populateMap();
-		}
-
 		if (sangerProcedureToImpcMapping.containsKey(sangerProcedure)) {
 			return sangerProcedureToImpcMapping.get(sangerProcedure);
 		} else {
