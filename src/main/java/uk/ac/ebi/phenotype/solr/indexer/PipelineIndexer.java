@@ -230,8 +230,7 @@ public class PipelineIndexer extends AbstractIndexer {
 //									<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />	
 									pipe.addMpTerm(mp.getMpTerm());
 //									<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
-									pipe.addMpDefinition(mp.getMpDefinition());
-//									<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />
+
 									if(mp.getMpTermSynonym()!=null){
 									pipe.addMpTermSynonym(mp.getMpTermSynonym());
 									}

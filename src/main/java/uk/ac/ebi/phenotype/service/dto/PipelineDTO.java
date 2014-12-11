@@ -120,8 +120,7 @@ public class PipelineDTO {
 	private List<String> mpTerm;
 	// <field column="mp_definition"
 	// xpath="/response/result/doc/str[@name='mp_definition']" />
-	@Field(MpDTO.MP_DEFINITION)
-	private List<String> mpDefinition;
+	
 	// <field column="mp_term_synonym"
 	// xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
 	@Field(MpDTO.MP_TERM_SYNONYM)
@@ -245,18 +244,6 @@ public class PipelineDTO {
 	public void setMpTerm(List<String> mpTerm) {
 
 		this.mpTerm = mpTerm;
-	}
-
-
-	public List<String> getMpDefinition() {
-
-		return mpDefinition;
-	}
-
-
-	public void setMpDefinition(List<String> mpDefinition) {
-
-		this.mpDefinition = mpDefinition;
 	}
 
 
@@ -1172,16 +1159,6 @@ public class PipelineDTO {
 			this.mpTerm = new ArrayList<String>();
 		}
 		this.mpTerm.add(mpTerm);
-
-	}
-
-
-	public void addMpDefinition(String mpDefinition) {
-
-		if (this.mpDefinition == null) {
-			this.mpDefinition = new ArrayList<String>();
-		}
-		this.mpDefinition.add(mpDefinition);
 
 	}
 
