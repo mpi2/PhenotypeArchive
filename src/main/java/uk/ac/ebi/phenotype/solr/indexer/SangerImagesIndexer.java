@@ -36,7 +36,7 @@ import java.util.*;
  * Populate the experiment core
  */
 
-public class SangerImagesIndexer {
+public class SangerImagesIndexer extends AbstractIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
 	private static Connection connection;
@@ -158,7 +158,14 @@ public class SangerImagesIndexer {
 	}
 
 
-	private void run()
+	@Override
+	protected Logger getLogger() {
+
+		return logger;
+	}
+
+
+	public void run()
 	throws IndexerException {
 
 		logger.info("run method started");
