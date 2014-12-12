@@ -20,12 +20,11 @@
 
 package uk.ac.ebi.phenotype.service.dto;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.List;
-
-import org.apache.solr.client.solrj.beans.Field;
 
 /**
  * This DTO holds the code and data for transferring images from Sanger.
@@ -88,7 +87,7 @@ public class SangerImageDTO {
     @Field("genotype")
     private String genotype;
     @Field("mouseId")
-    private Integer mouseId;
+    private String mouseId;
     
     @Field("colony_id")
 	private Integer colonyId;
@@ -1107,12 +1106,12 @@ public class SangerImageDTO {
 		
 	}
 
-	public void setMouseId(Integer mouseId) {
+	public void setMouseId(String mouseId) {
 		this.mouseId=mouseId;
 	}
 
 	
-	public Integer getMouseId() {
+	public String getMouseId() {
 	
 		return mouseId;
 	}

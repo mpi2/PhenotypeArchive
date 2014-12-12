@@ -55,7 +55,7 @@ public class SangerImagesIndexer {
 
 	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
 	private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
-	private Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
+	private Map<String, MouseBean> mouseMvMap = new HashMap<>();
 	private Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
 	private Map<String, List<String>> synonyms = new HashMap<>();
 	private Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
@@ -645,7 +645,7 @@ public class SangerImagesIndexer {
 				 * column="ALLELE" name="genotypeString" />
 				 */
 
-				b.mouseId = resultSet.getInt("MOUSE_ID");
+				b.mouseId = resultSet.getString("MOUSE_ID");
 				b.ageInWeeks = resultSet.getString("AGE_IN_WEEKS");
 				b.genotypeString = resultSet.getString("ALLELE");
 				b.genotype = resultSet.getString("GENOTYPE");
@@ -1032,7 +1032,7 @@ public class SangerImagesIndexer {
 		 * name="dcfExpId" /> <field column="NAME" name="sangerProcedureName" />
 		 * <field column="PROCEDURE_ID" name="sangerProcedureId" />
 		 */
-		public Integer mouseId;
+		public String mouseId;
 		public String ageInWeeks;
 		public String genotypeString;
 
