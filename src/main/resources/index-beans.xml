@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-    xmlns:context="http://www.springframework.org/schema/context"
-	xmlns="http://www.springframework.org/schema/beans"
-	xsi:schemaLocation="
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		">
 
-	<context:annotation-config />
+    <context:annotation-config />
 
-	<!-- Get the datasources from the filesystem overrides -->
+    <!-- Get the datasources from the filesystem overrides -->
     <!-- Creates a MySQL Datasource -->
     <bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
@@ -55,10 +55,10 @@
     </bean>
 
     <!-- phenodigm external solr server via HTTP -->
-	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${phenodigm.solrserver}" />
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+        <constructor-arg index="0" value="${phenodigm.solrserver}" />
         <property name="soTimeout" value="5000" />
-	</bean>
+    </bean>
 
     <!--  Beans for writing to the solr servers -->
     <bean id="alleleIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -137,28 +137,47 @@
     </bean>
 
     <!-- Global configuration parameters -->
-	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
-		<property name="targetMapClass">
-			<value>java.util.HashMap</value>
-		</property>
-		<property name="sourceMap">
-			<map key-type="java.lang.String" value-type="java.lang.String">
-				<entry key="version" value="${pom.version}" />
-				<entry key="baseUrl" value="${baseUrl}" />
-				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
-				<entry key="solrUrl" value="${solrUrl}" />
-				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
-				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
-				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
-				<entry key="googleAnalytics" value="${googleAnalytics}" />
-				<entry key="liveSite" value="${liveSite}" />
-				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
+    <bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="targetMapClass">
+            <value>java.util.HashMap</value>
+        </property>
+        <property name="sourceMap">
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="version" value="${pom.version}" />
+                <entry key="baseUrl" value="${baseUrl}" />
+                <entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
+                <entry key="solrUrl" value="${solrUrl}" />
+                <entry key="internalSolrUrl" value="${internalSolrUrl}" />
+                <entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
+                <entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
+                <entry key="googleAnalytics" value="${googleAnalytics}" />
+                <entry key="liveSite" value="${liveSite}" />
+                <entry key="preqcXmlFilename" value="${preqcXmlfile}" />
                 <entry key="human2mouseFilename" value="${human2mouseFile}" />
                 <entry key="phenodigm.solrserver" value="${phenodigm.solrserver}" />
                 <entry key="imits.solrserver" value="${imits.solrserver}" />
-			</map>
-		</property>
-	</bean>
+            </map>
+        </property>
+    </bean>
+        
+    <!-- core indexer beans -->
+
+    <!-- used for concurrently loading the impc_images core -->
+    <bean id="observationIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer" />
+ <!--
+    <bean id="genotypePhenotypeIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GenotypePhenotypeIndexer" />
+    <bean id="statisticalResultIndexer" class="uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer" />
+-->    
+    <bean id="preqcIndexer" class="uk.ac.ebi.phenotype.solr.indexer.PreqcIndexer" />
+    <bean id="alleleIndexer" class="uk.ac.ebi.phenotype.solr.indexer.AlleleIndexer" />
+    <bean id="imagesIndexer" class="uk.ac.ebi.phenotype.solr.indexer.SangerImagesIndexer" />
+    <bean id="impcImagesIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ImpcImagesIndexer" />
+    <bean id="mpIndexer" class="uk.ac.ebi.phenotype.solr.indexer.MPIndexer" />
+    <bean id="maIndexer" class="uk.ac.ebi.phenotype.solr.indexer.MAIndexer" />
+    <bean id="pipelineIndexer" class="uk.ac.ebi.phenotype.solr.indexer.PipelineIndexer" />
+    <bean id="geneIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GeneIndexer" />
+    <bean id="diseaseIndexer" class="uk.ac.ebi.phenotype.solr.indexer.DiseaseIndexer" />
+    
 
 </beans>
 

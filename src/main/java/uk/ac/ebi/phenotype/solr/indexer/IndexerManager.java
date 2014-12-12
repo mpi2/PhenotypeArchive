@@ -27,6 +27,15 @@ import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import static uk.ac.ebi.phenotype.solr.indexer.AbstractIndexer.CONTEXT_ARG;
 
 /**
@@ -84,20 +93,60 @@ public class IndexerManager {
     };
     private final List<String> allCores = Arrays.asList(allCoresArray);
     
-    private static final CoreObjectLookup[] coreObjectLookup = new CoreObjectLookup[] {
-        new CoreObjectLookup(OBSERVATION_CORE,        ObservationIndexer.class)
-      , new CoreObjectLookup(GENOTYPE_PHENOTYPE_CORE, NotImplementedYet.class)
-      , new CoreObjectLookup(STATSTICAL_RESULT_CORE,  NotImplementedYet.class)
+    // -------------------- These aren't implemented yet. --------------------
+//    @Autowired
+//    ObservationIndexer observationIndexer;
+//        
+//    @Autowired
+//    GenotypePhenotypeIndexer genotypePhenotypeIndexer;
+//        
+//    @Autowired
+//    StatisticalResultIndexer statisticalResultIndexer;
+    
+    @Autowired
+    PreqcIndexer preqcIndexer;
+        
+    @Autowired
+    AlleleIndexer alleleIndexer;
+        
+    @Autowired
+    SangerImagesIndexer imagesIndexer;
+        
+    @Autowired
+    ImpcImagesIndexer impcImagesIndexer;
+        
+    @Autowired
+    MPIndexer mpIndexer;
+        
+    @Autowired
+    MAIndexer maIndexer;
+        
+    @Autowired
+    PipelineIndexer pipelineIndexer;
+        
+    @Autowired
+    GeneIndexer geneIndexer;
+        
+    @Autowired
+    DiseaseIndexer diseaseIndexer;
+    
+    
+    
+    private final IndexerItem[] indexers = new IndexerItem[] {
+        // Not implemented yet.
+//        new IndexerItem(OBSERVATION_CORE,        observationIndexer)
+//      , new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer)
+//      , new IndexerItem(STATSTICAL_RESULT_CORE,  statisticalResultIndexer)
             
-      , new CoreObjectLookup(PREQC_CORE,              PreqcIndexer.class)
-      , new CoreObjectLookup(ALLELE_CORE,             AlleleIndexer.class)
-      , new CoreObjectLookup(IMAGES_CORE,             SangerImagesIndexer.class)
-      , new CoreObjectLookup(IMPC_IMAGES_CORE,        ImpcImagesIndexer.class)
-      , new CoreObjectLookup(MP_CORE,                 MPIndexer.class)
-      , new CoreObjectLookup(MA_CORE,                 MAIndexer.class)
-      , new CoreObjectLookup(PIPELINE_CORE,           PipelineIndexer.class)
-      , new CoreObjectLookup(GENE_CORE,               GeneIndexer.class)
-      , new CoreObjectLookup(DISEASE_CORE,            DiseaseIndexer.class)
+        new IndexerItem(PREQC_CORE,              preqcIndexer)
+      , new IndexerItem(ALLELE_CORE,             alleleIndexer)
+      , new IndexerItem(IMAGES_CORE,             imagesIndexer)
+      , new IndexerItem(IMPC_IMAGES_CORE,        impcImagesIndexer)
+      , new IndexerItem(MP_CORE,                 mpIndexer)
+      , new IndexerItem(MA_CORE,                 maIndexer)
+      , new IndexerItem(PIPELINE_CORE,           pipelineIndexer)
+      , new IndexerItem(GENE_CORE,               geneIndexer)
+      , new IndexerItem(DISEASE_CORE,            diseaseIndexer)
     };
     
     public static final String NO_DEPS_ARG = "nodeps";
@@ -114,15 +163,20 @@ public class IndexerManager {
         }
     }
     
-    public static class CoreObjectLookup {
+    public class IndexerItem {
         public final String name;
-        public final Class indexerClass;
+        public final AbstractIndexer indexer;
         
-        public CoreObjectLookup(String name, Class indexerClass) {
+        public IndexerItem(String name, AbstractIndexer indexer) {
             this.name = name;
-            this.indexerClass = indexerClass;
+            this.indexer = indexer;
         }
     }
+    
+    protected ApplicationContext applicationContext;
+    
+    
+    
     
     
     // GETTERS
@@ -145,16 +199,53 @@ public class IndexerManager {
     
     
     public void initialise(String[] args) throws IndexerException {
-        parseCommandLine(args);
+        OptionSet options = parseCommandLine(args);
+        if (options != null) {
+            applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
+            applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+            initialiseHibernateSession(applicationContext);
+        } else {
+            throw new IndexerException("Failed to parse command-line options.");
+        }
+    }
+	
+    protected void initialiseHibernateSession(ApplicationContext applicationContext) {
+        // allow hibernate session to stay open the whole execution
+        PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
+        DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
+        transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+        transactionManager.getTransaction(transactionAttribute);
     }
 
     public void run() throws IndexerException {
         logger.info("Starting IndexerManager. nodeps = " + nodeps + ". Building the following cores (in order):");
         logger.info("\t" + StringUtils.join(cores));
         
-        
+        for (IndexerItem indexer : indexers) {
+//            indexer.indexer.initialise(args);
+        }
     }
     
+
+	
+    protected ApplicationContext loadApplicationContext(String context) {
+        ApplicationContext appContext;
+
+        try {
+            // Try context as a file resource
+            getLogger().info("Trying to load context from file system...");
+            appContext = new FileSystemXmlApplicationContext("file:" + context);
+            getLogger().info("Context loaded from file system");
+        } catch (BeansException e) {
+            getLogger().warn("Unable to load the context file: {}", e.getMessage());
+
+            // Try context as a class path resource
+            appContext = new ClassPathXmlApplicationContext(context);
+            getLogger().warn("Using classpath app-config file: {}", context);
+        }
+
+        return appContext;
+    }
     
     // PRIVATE METHODS
     
