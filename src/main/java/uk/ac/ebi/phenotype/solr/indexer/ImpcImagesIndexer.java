@@ -19,9 +19,11 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -51,6 +53,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Autowired
 	@Qualifier("impcImagesIndexing")
 	SolrServer server;
+	
+	@Autowired
+	@Qualifier("alleleIndexing")
+	SolrServer alleleIndexing;
 
 	@Autowired
 	@Qualifier("komp2DataSource")
@@ -58,6 +64,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
+
+	private Map<String, List<AlleleDTO>> alleles;
 
 
 	public ImpcImagesIndexer() {
@@ -115,7 +123,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Override
 	public void run()
 	throws IndexerException {
-
+		System.out.println("running impc_images indexer");
+		System.out.println("populating alleles");
+		this.alleles=populateAlleles();
+		System.out.println("populated alleles");
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		System.out.println("omeroRootUrl=" + impcMediaBaseUrl);
 		final String getExtraImageInfoSQL = "SELECT FULL_RESOLUTION_FILE_PATH, omero_id, " + ImageDTO.DOWNLOAD_FILE_PATH + ", " + ImageDTO.FULL_RESOLUTION_FILE_PATH + " FROM image_record_observation " + " WHERE " + ImageDTO.DOWNLOAD_FILE_PATH + " = ?";
@@ -166,6 +177,15 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 
 					
+					// add the extra stuf we need for the searching and faceting
+					// here
+					if (imageDTO.getGeneAccession() != null && imageDTO.getGeneAccession().equals("")) {
+						String geneAccession=imageDTO.getGeneAccession();
+						if (alleles.containsKey(geneAccession)) {
+							populateImageDtoStatuses(imageDTO, geneAccession);
+						}
+					}
+					
 
 				}
 				pos += BATCH_SIZE;
@@ -186,19 +206,115 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	}
 
 
-	public List<ImageDTO> getAllImageDTOs()
-	throws SolrServerException {
-
-		SolrQuery query = ImageService.allImageRecordSolrQuery();
-		return observationService.query(query).getBeans(ImageDTO.class);
-
-	}
-
 
 	@Override
 	protected Logger getLogger() {
 
 		return logger;
+	}
+
+	
+	public Map<String, List<AlleleDTO>> populateAlleles()
+	throws IndexerException {
+
+		return IndexerMap.getGeneToAlleles(alleleIndexing);
+	}
+	
+	private void populateImageDtoStatuses(ImageDTO img, String geneAccession) {
+
+		if (alleles.containsKey(geneAccession)) {
+			List<AlleleDTO> localAlleles = alleles.get(geneAccession);
+			for (AlleleDTO allele : localAlleles) {
+				
+//so some of the fields below a that we have multiples for for SangerIMages we only have one for ObservationDTOs??????
+				
+				// <field column="marker_symbol"
+				// xpath="/response/result/doc/str[@name='marker_symbol']" />
+				// <field column="marker_name"
+//				if(allele.getMarkerName()!=null){
+//				img.addMarkerName(allele.getMarkerName());
+//				}
+//				// xpath="/response/result/doc/str[@name='marker_name']" />
+//				// <field column="marker_synonym"
+//				if(allele.getMarkerSynonym()!=null){
+//				img.addMarkerSynonym(allele.getMarkerSynonym());
+//				}
+//				// xpath="/response/result/doc/arr[@name='marker_synonym']/str"
+//				// />
+//				// <field column="marker_type"
+//				if(allele.getMarkerType()!=null){
+//					img.addMarkerType(allele.getMarkerType());
+//					
+//				}
+				
+				// xpath="/response/result/doc/str[@name='marker_type']" />
+//				if(allele.getHumanGeneSymbol()!=null){
+//				img.addHumanGeneSymbol(allele.getHumanGeneSymbol());
+//				}
+				// <field column="human_gene_symbol"
+				// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str"
+				// />
+				//
+				if(allele.getStatus()!=null){
+				
+				img.addStatus(allele.getStatus());
+				}
+				// <!-- latest project status (ES cells/mice production status)
+				// -->
+				// <field column="status"
+				// xpath="/response/result/doc/str[@name='status']"
+				// />
+				//
+				if(allele.getImitsPhenotypeStarted()!=null){
+					img.addImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
+				}
+				// <!-- latest mice phenotyping status for faceting -->
+				// <field column="imits_phenotype_started"
+				// xpath="/response/result/doc/str[@name='imits_phenotype_started']"
+				// />
+				// <field column="imits_phenotype_complete"
+				if(allele.getImitsPhenotypeComplete()!=null){
+				img.addImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
+				}
+				// xpath="/response/result/doc/str[@name='imits_phenotype_complete']"
+				// />
+				// <field column="imits_phenotype_status"
+				if(allele.getImitsPhenotypeStatus()!=null){
+					img.addImitsPhenotypeStatus(allele.getImitsPhenotypeStatus());
+				}
+				// xpath="/response/result/doc/str[@name='imits_phenotype_status']"
+				// />
+				//
+				// <!-- phenotyping status -->
+				// <field column="latest_phenotype_status"
+				// xpath="/response/result/doc/str[@name='latest_phenotype_status']"
+				// />
+				if(allele.getLegacyPhenotypeStatus()!=null){
+				img.setLegacyPhenotypeStatus(allele.getLegacyPhenotypeStatus());
+				}
+				// <field column="legacy_phenotype_status"
+				// xpath="/response/result/doc/int[@name='legacy_phenotype_status']"
+				// />
+				//
+				// <!-- production/phenotyping centers -->
+				img.setLatestProductionCentre(allele.getLatestProductionCentre());
+				// <field column="latest_production_centre"
+				// xpath="/response/result/doc/arr[@name='latest_production_centre']/str"
+				// />
+				// <field column="latest_phenotyping_centre"
+				img.setLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
+				// xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str"
+				// />
+				//
+				// <!-- alleles of a gene -->
+				img.setAlleleName(allele.getAlleleName());
+				// <field column="allele_name"
+				// xpath="/response/result/doc/arr[@name='allele_name']/str" />
+				//
+				// </entity>
+			}
+		}
+
 	}
 
 }
