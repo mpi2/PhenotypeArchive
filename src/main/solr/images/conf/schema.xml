@@ -151,19 +151,6 @@
         <field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>    
         <field name="ageInWeeks"  type="string"   indexed="true"  stored="true"  multiValued="false" />
 
-
-        <!--<field name="inferredMaTermId" type="string" indexed="true" stored="true" multiValued="true" />-->
-        <!--<field name="inferredMaTermName" type="string" indexed="true" stored="true" multiValued="true" />    -->
-        <!--<field name="annotatedHigherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />-->
-        <!--<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />-->
-        <!--<field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />-->
-        <!--<field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />-->
-        <!--<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />-->
-        <!--<field name="annotated_or_inferred_higherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />-->
-
-
-
-
         <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="institute"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="sangerSymbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -280,7 +267,6 @@
     <field name="annotatedHigherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
     <field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
 
-
         <!-- ma term -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
@@ -327,22 +313,11 @@
     <copyField source="tagValue" dest="auto_suggest" /> 
     <copyField source="expName" dest="auto_suggest" />
     <copyField source="annotationTermName" dest="auto_suggest" />
-    <copyField source="annotatedHigherLevelMaTermName" dest="auto_suggest" />
     <copyField source="annotatedHigherLevelMpTermName" dest="auto_suggest" />
 
-    <!-- <copyField source="annotatedHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMpTermName" />
-    <copyField source="annotatedHigherLevelMpTermId" dest="annotated_or_inferred_higherLevelMpTermId" />-->
-    
-    <copyField source="annotatedHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMaTermName" />
-    <copyField source="annotatedHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
 
-	<!-- copyField source="annotatedHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
-    <copyField source="inferredHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMxTermName" />-->
-  
     <copyField source="subtype" dest="marker_type" />
-    <copyField source="annotatedHigherLevelMaTermId" dest="selected_top_level_ma_id" />
-    <copyField source="annotatedHigherLevelMaTermName" dest="selected_top_level_ma_term" />
-    
+
     <copyField source="annotatedHigherLevelMpTermId" dest="top_level_mp_id" />
     <copyField source="annotatedHigherLevelMpTermName" dest="top_level_mp_term" />
 	  
@@ -359,7 +334,6 @@
     <copyField source="tagValue" dest="text_search" /> 
     <copyField source="expName" dest="text_search" />
     <copyField source="annotationTermName" dest="text_search" />
-    <copyField source="annotatedHigherLevelMaTermName" dest="text_search" />
     <copyField source="annotatedHigherLevelMpTermName" dest="text_search" />
     <copyField source="symbol" dest="text_search" />
     <copyField source="geneName" dest="text_search" />
