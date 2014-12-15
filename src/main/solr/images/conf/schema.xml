@@ -126,7 +126,7 @@
         <field name="_version_" type="long" indexed="true" stored="true"/> 
         <field name="id"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true"/>
         <field name="dataType"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true"/>
-        <field name="mouseId"    type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+        <field name="mouseId"    type="int"   indexed="true"  stored="true"  multiValued="false" />
         <field name="gender"    type="string"   indexed="true"  stored="true"  multiValued="false" /> 
         <field name="colonyName"   type="string"   indexed="true"  stored="true"  multiValued="false" /> 
         <field name="genotype"   type="string"   indexed="true"  stored="true"  multiValued="false" />
@@ -150,22 +150,20 @@
         <field name="originalFileName" type="string"   indexed="false"  stored="true"/>
         <field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>    
         <field name="ageInWeeks"  type="string"   indexed="true"  stored="true"  multiValued="false" />
-    
-        <field name="inferredMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="inferredMaTermName" type="string" indexed="true" stored="true" multiValued="true" />    
-    
-        <field name="annotatedHigherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />    
-        <field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="annotatedHigherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
-        
-        <field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />    
-     
-     
-        <field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="annotated_or_inferred_higherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
-    
+
+
+        <!--<field name="inferredMaTermId" type="string" indexed="true" stored="true" multiValued="true" />-->
+        <!--<field name="inferredMaTermName" type="string" indexed="true" stored="true" multiValued="true" />    -->
+        <!--<field name="annotatedHigherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />-->
+        <!--<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />-->
+        <!--<field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />-->
+        <!--<field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />-->
+        <!--<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />-->
+        <!--<field name="annotated_or_inferred_higherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />-->
+
+
+
+
         <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="institute"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="sangerSymbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -184,18 +182,9 @@
         <field name="dcfId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
         <field name="dcfExpId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
         <field name="sangerProcedureName"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-        <field name="sangerProcedureId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
+        <field name="sangerProcedureId"      type="int"   indexed="true"  stored="true"  multiValued="false"/>
         <field name="genotypeString"   type="string"   indexed="true"  stored="true"  multiValued="false" />
 
-        <!-- <field name="biological_model_id"  type="string"   indexed="true"  stored="true"  multiValued="true" /> -->
-        <!-- <field name="dcfMouseId"      type="string"   indexed="true"  stored="true"  multiValued="false"/> -->
-        <!-- <field name="strain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-        <field name="coreStrain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-        <field name="fullStrain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-        <field name="pipeline"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-        <field name="shapeOfRibs"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-        <field name="skullShape"      type="string"   indexed="true"  stored="true"  multiValued="false"/> -->    
-    
         <!-- from experiment schema as many fields are now the same with new image data -->
         <field name="phenotyping_center_id"   type="int"    indexed="true" stored="true" multiValued="false" />
         <field name="phenotyping_center"      type="string" indexed="true" stored="true" multiValued="false" />
@@ -287,8 +276,12 @@
 	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	
-	<!-- ma term -->
+
+    <field name="annotatedHigherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
+
+
+        <!-- ma term -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />	

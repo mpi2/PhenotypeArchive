@@ -17,13 +17,6 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -33,11 +26,15 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.Map.Entry;
+
 import static uk.ac.ebi.phenotype.solr.indexer.utils.OntologyUtils.BATCH_SIZE;
 
 /**
@@ -160,8 +157,10 @@ public class SolrUtils {
             } catch (Exception e) {
                 throw new IndexerException("Unable to query images core", e);
             }
+
             total = response.getResults().getNumFound();
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
+
             for (SangerImageDTO image : imageList) {
                 for (String termId : image.getMaTermId()) {
                     if ( ! map.containsKey(termId)) {
