@@ -55,7 +55,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
 	private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
-	private Map<String, MouseBean> mouseMvMap = new HashMap<>();
+	private Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
 	private Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
 	private Map<String, List<String>> synonyms = new HashMap<>();
 	private Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
@@ -281,7 +281,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 												// allele....
 					AlleleBean alBean = alleleMpiMap.get(mb.genotypeString);
 					o.setMouseId(mb.mouseId);
-					o.setGender(mb.gender);
+					o.setSex(mb.sex);
 					o.setColonyId(mb.colonyId);
 					if (alBean != null) {
 						o.setAllele_accession(alBean.allele_accession);
@@ -652,11 +652,11 @@ public class SangerImagesIndexer extends AbstractIndexer {
 				 * column="ALLELE" name="genotypeString" />
 				 */
 
-				b.mouseId = resultSet.getString("MOUSE_ID");
+				b.mouseId = resultSet.getInt("MOUSE_ID");
 				b.ageInWeeks = resultSet.getString("AGE_IN_WEEKS");
 				b.genotypeString = resultSet.getString("ALLELE");
 				b.genotype = resultSet.getString("GENOTYPE");
-				b.gender = resultSet.getString("gender");
+				b.sex = resultSet.getString("gender");
 				b.colonyId = resultSet.getInt("COLONY_ID");
 				// System.out.println("adding mouse id="+b);
 				mouseMvMap.put(b.mouseId, b);
@@ -1032,14 +1032,14 @@ public class SangerImagesIndexer extends AbstractIndexer {
 	protected class MouseBean {
 
 		public int colonyId;
-		public String gender;
+		public String sex;
 		public String genotype;
 		/*
 		 * <field column="DCF_ID" name="dcfId" /> <field column="EXPERIMENT_ID"
 		 * name="dcfExpId" /> <field column="NAME" name="sangerProcedureName" />
 		 * <field column="PROCEDURE_ID" name="sangerProcedureId" />
 		 */
-		public String mouseId;
+		public Integer mouseId;
 		public String ageInWeeks;
 		public String genotypeString;
 
