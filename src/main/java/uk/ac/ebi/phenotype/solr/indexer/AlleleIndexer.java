@@ -171,9 +171,9 @@ public class AlleleIndexer extends AbstractIndexer {
 			populateLegacyLookup();
 			logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
 
-			// GoTerm from Ensembl Biomart
+			// GoTerm from Ensembl Biomart: MGI gene id to GO term mapping
 			populateGoTermLookup(); 
-			logger.info("Populated legacy project lookup, {} records", goTermLookup.size());
+			logger.info("Populated go terms lookup, {} records", goTermLookup.size());
 			
 			alleleCore.deleteByQuery("*:*");
 			alleleCore.commit();
