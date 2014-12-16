@@ -135,7 +135,7 @@
 	<field name="gene_latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	
-+	<field name="legacy_phenotype_status" type="int" indexed="true" stored="true" multiValued="false"/>
+	<field name="legacy_phenotype_status" type="int" indexed="true" stored="true" multiValued="false"/>
 	<field name="latest_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="latest_project_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_production_centre" type="string" indexed="true" stored="true" multiValued="true"/>	
@@ -150,6 +150,12 @@
 	<field name="phenotype_status" type="string" indexed="true" stored="true" multiValued="true"/>	
 	<field name="production_centre" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="phenotyping_centre" type="string" indexed="true" stored="true" multiValued="true"/>	
+
+	<!-- GO stuff for gene -->
+	<field name="go_term_id" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="go_term_name" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="go_term_def" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="go_term_evid" type="string" indexed="true" stored="true" multiValued="true"/>
 
 	<!--disease fields -->
 	<field name="type" type="string" indexed="true" stored="true"/>	
@@ -192,6 +198,8 @@
 	<copyField source="latest_production_centre" dest="auto_suggest"/>
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 	
+	<copyField source="go_term_id" dest="auto_suggest"/>
+	<copyField source="go_term_name" dest="auto_suggest"/>
 	<copyField source="latest_production_status" dest="status"/> 
 	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
