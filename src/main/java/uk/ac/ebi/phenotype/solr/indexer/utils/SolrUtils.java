@@ -17,28 +17,24 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.Map.Entry;
+
 import static uk.ac.ebi.phenotype.solr.indexer.utils.OntologyUtils.BATCH_SIZE;
 
 /**
@@ -161,8 +157,10 @@ public class SolrUtils {
             } catch (Exception e) {
                 throw new IndexerException("Unable to query images core", e);
             }
+
             total = response.getResults().getNumFound();
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
+
             for (SangerImageDTO image : imageList) {
                 for (String termId : image.getMaTermId()) {
                     if ( ! map.containsKey(termId)) {
@@ -200,20 +198,6 @@ public class SolrUtils {
      * @throws IndexerException
      */
     protected static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
-        if (logger.isDebugEnabled()) {
-            String url = "";
-            try {
-                // This forces an exception. Fortunately, the url we want is embedded in the exception message!
-                // Exception message is: "Server at http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images returned non ok status:500, message:Internal Server Error"
-                url = imagesCore.ping().getRequestUrl();
-            } catch (Exception e) {
-                url = e.getLocalizedMessage().replaceFirst("Server at ", "");
-                int endIndex = url.indexOf(" returned non ok");
-                url = url.substring(0, endIndex);
-            }
-            logger.debug("USING images CORE AT: '" + url + "'");
-        }
-
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
@@ -272,19 +256,18 @@ public class SolrUtils {
         int pos = 0;
         long total = Integer.MAX_VALUE;
         SolrQuery query = new SolrQuery("*:*");
-       
-            query.setRows(Integer.MAX_VALUE);
-            QueryResponse response = null;
-            try {
-                response = alleleCore.query(query);
-            } catch (SolrServerException sse) {
-                throw new IndexerException(sse);
-            }
-            total = response.getResults().getNumFound();
-            System.out.println("total alleles="+total);
-            alleleList = response.getBeans(AlleleDTO.class);
-            
-           
+
+        query.setRows(Integer.MAX_VALUE);
+        QueryResponse response = null;
+        try {
+            response = alleleCore.query(query);
+        } catch (SolrServerException sse) {
+            throw new IndexerException(sse);
+        }
+        total = response.getResults().getNumFound();
+        System.out.println("total alleles="+total);
+        alleleList = response.getBeans(AlleleDTO.class);
+        
         logger.debug("Loaded {} alleles", alleleList.size());
 
         return alleleList;
@@ -341,7 +324,7 @@ public class SolrUtils {
 
 
 	/**
-	 * Fetch a map of image terms indexed by ma id
+	 * Fetch a map of mp terms associated to hp terms, indexed by mp id.
 	 * 
 	 * @param phenodigm_core
 	 *            a valid solr connection
@@ -446,6 +429,46 @@ public class SolrUtils {
 							mps.put(geneAccession, mpListPerGene);
 						}
 					}
+				}
+			}
+			pos += BATCH_SIZE;
+		}
+		return mps;
+	}
+	
+	/**
+	 * Get a map of MpDTOs by key mgiAccesion
+	 * 
+	 * @param mpSolrServer
+	 * @return the map
+	 * @throws IndexerException
+	 */
+	public static Map<String, MpDTO> populateMpTermIdToMp(SolrServer mpSolrServer)
+	throws IndexerException {
+
+		Map<String, MpDTO> mps = new HashMap<>();
+		int pos = 0;
+		long total = Integer.MAX_VALUE;
+		SolrQuery query = new SolrQuery("*:*");
+		//query.add("fl=mp_id,mp_term,mp_definition,mp_term_synonym,ontology_subset,hp_id,hp_term,top_level_mp_id,top_level_mp_term,top_level_mp_term_synonym,intermediate_mp_id,intermediate_mp_term,intermediate_mp_term_synonym,child_mp_id,child_mp_term,child_mp_term_synonym,inferred_ma_id,inferred_ma_term,inferred_ma_term_synonym,inferred_selected_top_level_ma_id,inferred_selected_top_level_ma_term,inferred_selected_top_level_ma_term_synonym,inferred_child_ma_id,inferred_child_ma_term,inferred_child_ma_term_synonym");
+		query.setRows(BATCH_SIZE);
+		while (pos < total) {
+			query.setStart(pos);
+			QueryResponse response = null;
+			try {
+				response = mpSolrServer.query(query);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
+			}
+			total = response.getResults().getNumFound();
+			List<MpDTO> mpBeans = response.getBeans(MpDTO.class);
+
+			for (MpDTO mp : mpBeans) {
+				if (mp.getMpId() != null && !mp.getMpId().equals("")) {
+						
+							mps.put(mp.getMpId(), mp);
+						
 				}
 			}
 			pos += BATCH_SIZE;

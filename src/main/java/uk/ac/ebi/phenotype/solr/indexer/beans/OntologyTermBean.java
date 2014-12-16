@@ -24,46 +24,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Encapsulates an ontology id, term, id & term concatenated, and a list
- * of synonyms.
+ * Encapsulates an ontology termId, name, termId & name concatenated, and a list
+ of synonyms.
  * 
  * @author mrelac
  */
 public class OntologyTermBean {
-    private String id;
-    private String term;
-    private String idTerm;
+    private String termId;
+    private String name;
     private List<String> synonyms;
     
+    /**
+     * Create a new, empty <code>OntologyTermBean</code> instance.
+     */
     public OntologyTermBean() {
-        id = "";
-        term = "";
-        idTerm = "";
-        synonyms = new ArrayList();
+        this("", "", new ArrayList<String>());
+    }
+    
+    /**
+     * Create a new<code>OntologyTermBean</code> initialised instance
+     * @param termId the ontology name termId
+     * @param name the name name
+     * @param synonyms a list of synonyms. May be empty or null. If null, a new
+     * <code>ArrayList&lt;String&gt;</code> is created, guaranteeing that it is
+     * not initialised to null.
+     * 
+     * NOTE: A concatenation of termId and name, separated by two underscores,
+     *       is available as a getter.
+     */
+    public OntologyTermBean(String termId, String name, List<String> synonyms) {
+        this.termId = termId;
+        this.name = name;
+        this.synonyms = synonyms;
+        if (synonyms == null) {
+            this.synonyms = new ArrayList();
+        }
     }
 
-    public String getId() {
-        return id;
+    
+    // BEAN SETTERS AND GETTERS
+    
+    
+    public String getTermId() {
+        return termId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setTermId(String termId) {
+        this.termId = termId;
     }
 
-    public String getTerm() {
-        return term;
+    public String getName() {
+        return name;
     }
 
-    public void setTerm(String term) {
-        this.term = term;
-    }
-
-    public String getIdTerm() {
-        return idTerm;
-    }
-
-    public void setIdTerm(String idTerm) {
-        this.idTerm = idTerm;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<String> getSynonyms() {
@@ -75,4 +90,23 @@ public class OntologyTermBean {
     }
     
     
+    // AUXILIARY METHODS
+
+    
+    /**
+     * Returns a concatenation of term id and term name.
+     * @return a concatenation of term id and term name, separated by a pair of
+     * underscores. If either id or name is null, that null component is replaced
+     * by an empty string.
+     */
+    public String getTermIdTermName() {
+        String value = "";
+        if (termId != null)
+            value += termId;
+        value += "__";
+        if (name != null)
+            value += name;
+        
+        return value;
+    }
 }

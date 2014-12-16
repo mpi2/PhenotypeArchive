@@ -15,6 +15,7 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import joptsimple.OptionException;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -46,20 +47,38 @@ public abstract class AbstractIndexer {
 	
 	public void initialise(String[] args) throws IndexerException {
             OptionSet options = parseCommandLine(args);
-            applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
-            applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-            initialiseHibernateSession(applicationContext);
-            printConfiguration();
+            if (options != null) {
+                applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
+                applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+                initialiseHibernateSession(applicationContext);
+                printConfiguration();
+            } else {
+                throw new IndexerException("Failed to parse command-line options.");
+            }
 	}
         
 	protected OptionSet parseCommandLine(String[] args) {
-		OptionParser parser = new OptionParser();
+            OptionParser parser = new OptionParser();
+            OptionSet options = null;
 
-		// parameter to indicate which spring context file to use
-		parser.accepts(CONTEXT_ARG).withRequiredArg().ofType(String.class);
+            // parameter to indicate which spring context file to use
+            parser.accepts(CONTEXT_ARG).withRequiredArg().ofType(String.class)
+                    .describedAs("Spring context file, such as 'index-app-config.xml'");
 
-		return parser.parse(args);
-	}
+            try {
+                options = parser.parse(args);
+            } catch (OptionException uoe){
+                if (args.length < 1) {
+                    System.out.println("Expected required context file parameter, such as 'index-app-config.xml'.");
+                } else {
+                    System.out.println("Unable to open required context file '" + CONTEXT_ARG + ".\n\nUsage:\n");
+                }
+                try { parser.printHelpOn(System.out); } catch (Exception e) {}
+                throw uoe;
+            }
+            
+            return options;
+        }
 	
 	protected ApplicationContext loadApplicationContext(String context) {
 		ApplicationContext applicationContext;
@@ -70,7 +89,7 @@ public abstract class AbstractIndexer {
 			applicationContext = new FileSystemXmlApplicationContext("file:" + context);
 			getLogger().info("Context loaded from file system");
 		} catch (BeansException e) {
-			getLogger().warn("An error occurred loading the file: {}", e.getMessage());
+			getLogger().warn("Unable to load the context file: {}", e.getMessage());
 
 			// Try context as a class path resource
 			applicationContext = new ClassPathXmlApplicationContext(context);

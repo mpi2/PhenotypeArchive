@@ -432,8 +432,8 @@ CREATE TABLE biological_model (
 
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	db_id                     INT(10) NOT NULL,
-	allelic_composition       VARCHAR(200) NOT NULL,
-	genetic_background        VARCHAR(200) NOT NULL,
+	allelic_composition       VARCHAR(300) NOT NULL,
+	genetic_background        VARCHAR(300) NOT NULL,
 	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable') DEFAULT NULL,
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
