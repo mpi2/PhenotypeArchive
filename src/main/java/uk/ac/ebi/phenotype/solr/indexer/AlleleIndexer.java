@@ -257,7 +257,6 @@ public class AlleleIndexer extends AbstractIndexer {
 		public String goTermEvid; // linkage type
 		public String goDomain;   // not sure if we need this
 		
-		
 	}
 	
 	private void populateGoTermLookup() throws IOException {
@@ -289,20 +288,20 @@ public class AlleleIndexer extends AbstractIndexer {
         String line;
         while ((line = in.readLine()) != null) {
             //System.out.println(line);
-			String[] values = line.split("\\t");
-			String goTermId      = values[0];
-			String goTermName    = values[1];
-			String goTermDef     = values[2];
-			String goTermEvid    = values[3]; // linkage type
-			String goDomain      = values[4]; // do we need this?
-			String mgiSymbol     = values[5];
-			String mgiId         = values[6];
+			String[] values   = line.split("\\t");
+			String goTermId   = values[0];
+			String goTermName = values[1];
+			String goTermDef  = values[2];
+			String goTermEvid = values[3]; // linkage type
+			String goDomain   = values[4]; // do we need this?
+			String mgiSymbol  = values[5];
+			String mgiId      = values[6];
 			
 			GoAnnotations ga = new GoAnnotations();
-			ga.goTermId      = goTermId;
-			ga.goTermName    = goTermName;
-			ga.goTermDef     = goTermDef;
-			ga.goTermEvid    = goTermEvid;
+			ga.goTermId   = goTermId;
+			ga.goTermName = goTermName;
+			ga.goTermDef  = goTermDef;
+			ga.goTermEvid = goTermEvid;
 			
 			List<GoAnnotations> gaList = new ArrayList<>();
 			
@@ -312,10 +311,8 @@ public class AlleleIndexer extends AbstractIndexer {
 			
 			gaList.add(ga);
 			goTermLookup.put(mgiId, gaList);
-
 			
 			//logger.debug(mgiId + ":  ---> " + goTermId + "\t" + goTermEvid);
-			
         }
         in.close();
        
@@ -637,12 +634,8 @@ public class AlleleIndexer extends AbstractIndexer {
 				dto.getGoTermNames().add(ga.goTermName);
 				dto.getGoTermDefs().add(ga.goTermDef);
 				dto.getGoTermEvids().add(ga.goTermEvid);
-		            
-				
-	            System.out.println(dto.toString());
 	        }
 		}
-			
 	}
 	
 	private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
