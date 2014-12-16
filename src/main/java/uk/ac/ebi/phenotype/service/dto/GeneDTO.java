@@ -2,7 +2,9 @@ package uk.ac.ebi.phenotype.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GeneDTO {
 
@@ -90,6 +92,14 @@ public class GeneDTO {
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
 	public static final String MGI_PREDICTED_KNOWN_GENE="mgi_predicted_known_gene";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS="impc_novel_predicted_in_locus";
+
+	// go term stuff
+	public static final String GOTERMID = "go_term_id";
+	public static final String GOTERMNAME = "go_term_name";
+	public static final String GOTERMDEF = "go_term_def";
+	public static final String GOTERMEVID = "go_term_evid";
+	
+	
 	
 	// <!-- gene level fields -->
 	@Field(IMPC_NOVEL_PREDICTED_IN_LOCUS)
@@ -415,7 +425,20 @@ public class GeneDTO {
 	@Field(SELECTED_TOP_LEVEL_MA_TERM)
 	List<String> selectedTopLevelMaTerm;
 
-
+	@Field(GOTERMID)
+	private Set<String> goTermIds = new LinkedHashSet<>();
+	
+	@Field(GOTERMNAME)
+	private Set<String> goTermNames = new LinkedHashSet<>();
+	
+	@Field(GOTERMDEF)
+	private Set<String> goTermDefs = new LinkedHashSet<>();
+	
+	@Field(GOTERMEVID)
+	private Set<String> goTermEvids = new LinkedHashSet<>();
+	
+	
+	
 	public List<String> getTopLevelMpSynonym() {
 
 		return topLevelMpSynonym;
@@ -1305,6 +1328,69 @@ public class GeneDTO {
 	}
 
 
+	/**
+	 * @return the goTermIds
+	 */
+	public Set<String> getGoTermIds() {
+		return goTermIds;
+	}
+
+	/**
+	 * @param goTermIds
+	 *            the goTermIds to set
+	 */
+	public void setGoTermIds(Set<String> goTermIds) {
+		this.goTermIds = goTermIds;
+	}
+	
+	/**
+	 * @return the goTermNames
+	 */
+	public Set<String> getGoTermNames() {
+		return goTermNames;
+	}
+
+	/**
+	 * @param goTermNames
+	 *            the goTermNames to set
+	 */
+	public void setGoTermNames(Set<String> goTermNames) {
+		this.goTermNames = goTermNames;
+	}
+	
+	/**
+	 * @return the goTermDefs
+	 */
+	public Set<String> getGoTermDefs() {
+		return goTermDefs;
+	}
+
+	/**
+	 * @param goTermDefs
+	 *            the goTermDefs to set
+	 */
+	public void setGoTermDefs(Set<String> goTermDefs) {
+		this.goTermDefs = goTermDefs;
+	}
+	
+	
+	/**
+	 * @return the goTermEvids
+	 */
+	public Set<String> getGoTermEvids() {
+		return goTermEvids;
+	}
+
+	/**
+	 * @param goTermEvids
+	 *            the goTermEvids to set
+	 */
+	public void setGoTermEvids(Set<String> goTermEvids) {
+		this.goTermEvids = goTermEvids;
+	}
+	
+	
+
 	@Override
 	public boolean equals(Object o) {
 
@@ -1621,6 +1707,10 @@ public class GeneDTO {
 			", text=" + text +
 			", autoSuggest=" + autoSuggest +
 			", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
+			", goTermIds=" + goTermIds + 
+			", goTermNames" + goTermNames +
+			", goTermDefs" + goTermDefs +
+			", goTermEvids" + goTermEvids +
 			'}';
 	}
 }

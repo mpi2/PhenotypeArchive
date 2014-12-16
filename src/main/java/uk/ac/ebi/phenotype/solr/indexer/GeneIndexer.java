@@ -130,6 +130,10 @@ public class GeneIndexer extends AbstractIndexer {
             	gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
             	gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
             	gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
+            	gene.getGoTermIds().addAll(allele.getGoTermIds());
+            	gene.getGoTermNames().addAll(allele.getGoTermNames());
+            	gene.getGoTermDefs().addAll(allele.getGoTermDefs());
+            	gene.getGoTermEvids().addAll(allele.getGoTermEvids());
             	
             	//gene.setMpId(allele.getM)
             	
