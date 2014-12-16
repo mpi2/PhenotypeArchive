@@ -15,10 +15,13 @@
  */
 package uk.ac.ebi.phenotype.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 /**
  * @author Matt Pearce
@@ -183,18 +186,16 @@ public class AlleleDTO {
 
 	
 	@Field(GOTERMID)
-	private List<String> goTermIds = new ArrayList<>();
+	private Set<String> goTermIds = new LinkedHashSet<>();
 	
 	@Field(GOTERMNAME)
-	private List<String> goTermNames = new ArrayList<>();
+	private Set<String> goTermNames = new LinkedHashSet<>();
 	
 	@Field(GOTERMDEF)
-	private List<String> goTermDefs = new ArrayList<>();
+	private Set<String> goTermDefs = new LinkedHashSet<>();
 	
 	@Field(GOTERMEVID)
-	private List<String> goTermEvids = new ArrayList<>();
-	
-	
+	private Set<String> goTermEvids = new LinkedHashSet<>();
 	
 	
 	@Field(DISEASE_ID)
@@ -634,7 +635,7 @@ public class AlleleDTO {
 	/**
 	 * @return the goTermIds
 	 */
-	public List<String> getGoTermIds() {
+	public Set<String> getGoTermIds() {
 		return goTermIds;
 	}
 
@@ -642,14 +643,14 @@ public class AlleleDTO {
 	 * @param goTermIds
 	 *            the goTermIds to set
 	 */
-	public void setGoTermIds(List<String> goTermIds) {
+	public void setGoTermIds(Set<String> goTermIds) {
 		this.goTermIds = goTermIds;
 	}
 	
 	/**
 	 * @return the goTermNames
 	 */
-	public List<String> getGoTermNames() {
+	public Set<String> getGoTermNames() {
 		return goTermNames;
 	}
 
@@ -657,14 +658,14 @@ public class AlleleDTO {
 	 * @param goTermNames
 	 *            the goTermNames to set
 	 */
-	public void setGoTermNames(List<String> goTermNames) {
+	public void setGoTermNames(Set<String> goTermNames) {
 		this.goTermNames = goTermNames;
 	}
 	
 	/**
 	 * @return the goTermDefs
 	 */
-	public List<String> getGoTermDefs() {
+	public Set<String> getGoTermDefs() {
 		return goTermDefs;
 	}
 
@@ -672,7 +673,7 @@ public class AlleleDTO {
 	 * @param goTermDefs
 	 *            the goTermDefs to set
 	 */
-	public void setGoTermDefs(List<String> goTermDefs) {
+	public void setGoTermDefs(Set<String> goTermDefs) {
 		this.goTermDefs = goTermDefs;
 	}
 	
@@ -680,7 +681,7 @@ public class AlleleDTO {
 	/**
 	 * @return the goTermEvids
 	 */
-	public List<String> getGoTermEvids() {
+	public Set<String> getGoTermEvids() {
 		return goTermEvids;
 	}
 
@@ -688,7 +689,7 @@ public class AlleleDTO {
 	 * @param goTermEvids
 	 *            the goTermEvids to set
 	 */
-	public void setGoTermEvids(List<String> goTermEvids) {
+	public void setGoTermEvids(Set<String> goTermEvids) {
 		this.goTermEvids = goTermEvids;
 	}
 	
