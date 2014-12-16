@@ -15,29 +15,6 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -53,11 +30,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 
 /**
@@ -90,7 +80,7 @@ public class AlleleIndexer extends AbstractIndexer {
 	private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
 	
 	// Set of MGI IDs that have GO annotation(s)
-	private static Map<String, List<GoAnnotations>> goTermLookup = new HashMap<>();
+	private static Map<String, Set<GoAnnotations>> goTermLookup = new HashMap<>();
 	
 
 	static {
@@ -250,15 +240,40 @@ public class AlleleIndexer extends AbstractIndexer {
 	}
 
 	public class GoAnnotations {
-		
+
 		public String goTermId;
 		public String goTermName;
 		public String goTermDef;
 		public String goTermEvid; // linkage type
 		public String goDomain;   // not sure if we need this
-		
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			GoAnnotations that = (GoAnnotations) o;
+
+			if (goDomain != null ? !goDomain.equals(that.goDomain) : that.goDomain != null) return false;
+			if (goTermDef != null ? !goTermDef.equals(that.goTermDef) : that.goTermDef != null) return false;
+			if (goTermEvid != null ? !goTermEvid.equals(that.goTermEvid) : that.goTermEvid != null) return false;
+			if (goTermId != null ? !goTermId.equals(that.goTermId) : that.goTermId != null) return false;
+			if (goTermName != null ? !goTermName.equals(that.goTermName) : that.goTermName != null) return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = goTermId != null ? goTermId.hashCode() : 0;
+			result = 31 * result + (goTermName != null ? goTermName.hashCode() : 0);
+			result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
+			result = 31 * result + (goTermEvid != null ? goTermEvid.hashCode() : 0);
+			result = 31 * result + (goDomain != null ? goDomain.hashCode() : 0);
+			return result;
+		}
 	}
-	
+
 	private void populateGoTermLookup() throws IOException {
 		
 		String qryStr = "http://www.ensembl.org/biomart/martservice?query=";
@@ -266,17 +281,17 @@ public class AlleleIndexer extends AbstractIndexer {
 				+ "<!DOCTYPE Query>"
 				+ "<Query  virtualSchemaName = \"default\" formatter = \"TSV\" header = \"0\" uniqueRows = \"0\" count = \"\" datasetConfigVersion = \"0.6\" >"
 				+ "<Dataset name = \"mmusculus_gene_ensembl\" interface = \"default\" >"
-                + "<Filter name = \"source\" value = \"ensembl\"/>"
-                + "<Filter name = \"with_mgi\" excluded = \"0\"/>"
-                + "<Attribute name = \"go_id\" />"
-                + "<Attribute name = \"name_1006\" />"
-                + "<Attribute name = \"definition_1006\" />"
-                + "<Attribute name = \"go_linkage_type\" />"
-                + "<Attribute name = \"namespace_1003\" />"
-                + "<Attribute name = \"mgi_symbol\" />"
-                + "<Attribute name = \"mgi_id\" />"
-                + "</Dataset>"
-                + "</Query>", "UTF-8");
+				+ "<Filter name = \"source\" value = \"ensembl\"/>"
+				+ "<Filter name = \"with_mgi\" excluded = \"0\"/>"
+				+ "<Attribute name = \"go_id\" />"
+				+ "<Attribute name = \"name_1006\" />"
+				+ "<Attribute name = \"definition_1006\" />"
+				+ "<Attribute name = \"go_linkage_type\" />"
+				+ "<Attribute name = \"namespace_1003\" />"
+				+ "<Attribute name = \"mgi_symbol\" />"
+				+ "<Attribute name = \"mgi_id\" />"
+				+ "</Dataset>"
+				+ "</Query>", "UTF-8");
 		
 		URL url = new URL(qryStr + params);
 	    
@@ -303,7 +318,7 @@ public class AlleleIndexer extends AbstractIndexer {
 			ga.goTermDef  = goTermDef;
 			ga.goTermEvid = goTermEvid;
 			
-			List<GoAnnotations> gaList = new ArrayList<>();
+			Set<GoAnnotations> gaList = new HashSet<>();
 			
 			if ( goTermLookup.get(mgiId) != null ){
 				gaList = goTermLookup.get(mgiId);
