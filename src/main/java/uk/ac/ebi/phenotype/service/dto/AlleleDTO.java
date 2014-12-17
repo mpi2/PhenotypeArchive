@@ -15,10 +15,13 @@
  */
 package uk.ac.ebi.phenotype.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 /**
  * @author Matt Pearce
@@ -57,6 +60,12 @@ public class AlleleDTO {
 	public static final String PHENOTYPE_STATUS = "phenotype_status";
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
+	
+	public static final String GOTERMID = "go_term_id";
+	public static final String GOTERMNAME = "go_term_name";
+	public static final String GOTERMDEF = "go_term_def";
+	public static final String GOTERMEVID = "go_term_evid";
+	
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
 	public static final String DISEASE_TERM = "disease_term";
@@ -175,6 +184,20 @@ public class AlleleDTO {
 	@Field(PHENOTYPING_CENTRE)
 	private List<String> phenotypingCentre = new ArrayList<>();
 
+	
+	@Field(GOTERMID)
+	private List<String> goTermIds = new ArrayList<>();
+	
+	@Field(GOTERMNAME)
+	private List<String> goTermNames = new ArrayList<>();
+	
+	@Field(GOTERMDEF)
+	private List<String> goTermDefs = new ArrayList<>();
+	
+	@Field(GOTERMEVID)
+	private List<String> goTermEvids = new ArrayList<>();
+	
+	
 	@Field(DISEASE_ID)
 	private List<String> diseaseId = new ArrayList<>();
 	@Field(DISEASE_SOURCE)
@@ -607,6 +630,71 @@ public class AlleleDTO {
 		this.phenotypingCentre = phenotypingCentre;
 	}
 
+	
+
+	/**
+	 * @return the goTermIds
+	 */
+	public List<String> getGoTermIds() {
+		return goTermIds;
+	}
+
+	/**
+	 * @param goTermIds
+	 *            the goTermIds to set
+	 */
+	public void setGoTermIds(List<String> goTermIds) {
+		this.goTermIds = goTermIds;
+	}
+	
+	/**
+	 * @return the goTermNames
+	 */
+	public List<String> getGoTermNames() {
+		return goTermNames;
+	}
+
+	/**
+	 * @param goTermNames
+	 *            the goTermNames to set
+	 */
+	public void setGoTermNames(List<String> goTermNames) {
+		this.goTermNames = goTermNames;
+	}
+	
+	/**
+	 * @return the goTermDefs
+	 */
+	public List<String> getGoTermDefs() {
+		return goTermDefs;
+	}
+
+	/**
+	 * @param goTermDefs
+	 *            the goTermDefs to set
+	 */
+	public void setGoTermDefs(List<String> goTermDefs) {
+		this.goTermDefs = goTermDefs;
+	}
+	
+	
+	/**
+	 * @return the goTermEvids
+	 */
+	public List<String> getGoTermEvids() {
+		return goTermEvids;
+	}
+
+	/**
+	 * @param goTermEvids
+	 *            the goTermEvids to set
+	 */
+	public void setGoTermEvids(List<String> goTermEvids) {
+		this.goTermEvids = goTermEvids;
+	}
+	
+	
+	
 	/**
 	 * @return the diseaseId
 	 */
@@ -878,6 +966,10 @@ public class AlleleDTO {
 			", phenotypeStatus=" + phenotypeStatus +
 			", productionCentre=" + productionCentre +
 			", phenotypingCentre=" + phenotypingCentre +
+			", goTermIds=" + goTermIds + 
+			", goTermNames" + goTermNames +
+			", goTermDefs" + goTermDefs +
+			", goTermEvids" + goTermEvids +
 			", diseaseId=" + diseaseId +
 			", diseaseSource=" + diseaseSource +
 			", diseaseTerm=" + diseaseTerm +

@@ -1,32 +1,26 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
-import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import uk.ac.ebi.phenotype.service.dto.*;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
+import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
+
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-
-import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-
-import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
-import uk.ac.ebi.phenotype.service.dto.GeneDTO;
-import uk.ac.ebi.phenotype.service.dto.MaDTO;
-import uk.ac.ebi.phenotype.service.dto.MpDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
-
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Populate the MA core
@@ -60,40 +54,21 @@ public class GeneIndexer extends AbstractIndexer {
     @Qualifier("sangerImagesIndexing")
     SolrServer imagesCore;
 
-    
-//    <dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-// 	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
-//	<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>    
-//	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
-
-    private Map<String,List< Map<String,String>>> phenotypeSummaryGeneAccessionsToPipelineInfo=new HashMap<>();
+	    private Map<String,List< Map<String,String>>> phenotypeSummaryGeneAccessionsToPipelineInfo=new HashMap<>();
     private Map<String, List<SangerImageDTO>> sangerImages=new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP=new HashMap<>();
-    
-//    private Map<String, List<String>> ontologySubsetMap = new HashMap();        // key = term_id.
-//    private Map<String, List<String>> maTermSynonymMap = new HashMap();         // key = term_id.
-//    private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();     // key = parent term_id.
-//    private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();    // key = child term_id.
-//    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
-//    
-    private static final int BATCH_SIZE = 50;
-        
+
     
     public GeneIndexer() {
-        try {
-           komp2DbConnection = komp2DataSource.getConnection();
-        } catch (Exception e) {
-            logger.error("Unable to get komp2DataSource: " + e.getLocalizedMessage());
-        }
     }
     
     @Override
     public void initialise(String[] args) throws IndexerException {
         super.initialise(args);
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+
         try {
-            DataSource ontoDS = ((DataSource) applicationContext.getBean("komp2DataSource"));
-            this.komp2DbConnection = ontoDS.getConnection();
+	        komp2DbConnection = komp2DataSource.getConnection();
         } catch (SQLException sqle) {
             logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
             throw new IndexerException(sqle);
@@ -155,6 +130,10 @@ public class GeneIndexer extends AbstractIndexer {
             	gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
             	gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
             	gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
+            	gene.getGoTermIds().addAll(allele.getGoTermIds());
+            	gene.getGoTermNames().addAll(allele.getGoTermNames());
+            	gene.getGoTermDefs().addAll(allele.getGoTermDefs());
+            	gene.getGoTermEvids().addAll(allele.getGoTermEvids());
             	
             	//gene.setMpId(allele.getM)
             	

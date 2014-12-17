@@ -37,8 +37,12 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -73,9 +77,11 @@ public class AlleleIndexer extends AbstractIndexer {
 	// Set of MGI IDs that have legacy projects
 	private static Map<String, Integer> legacyProjectLookup = new HashMap<>();
 
-
 	private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
-
+	
+	// Set of MGI IDs that have GO annotation(s)
+	private static Map<String, Set<GoAnnotations>> goTermLookup = new HashMap<>();
+	
 
 	static {
 		ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
@@ -155,6 +161,10 @@ public class AlleleIndexer extends AbstractIndexer {
 			populateLegacyLookup();
 			logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
 
+			// GoTerm from Ensembl Biomart: MGI gene id to GO term mapping
+			populateGoTermLookup(); 
+			logger.info("Populated go terms lookup, {} records", goTermLookup.size());
+			
 			alleleCore.deleteByQuery("*:*");
 			alleleCore.commit();
 
@@ -179,6 +189,9 @@ public class AlleleIndexer extends AbstractIndexer {
 				// Look up the disease data
 				lookupDiseaseData(alleles);
 
+				// Look uup the GO Term data
+				lookupGoData(alleles);
+				
 				// Now index the alleles
 				indexAlleles(alleles);
 
@@ -226,7 +239,101 @@ public class AlleleIndexer extends AbstractIndexer {
 		}
 	}
 
+	public class GoAnnotations {
 
+		public String goTermId;
+		public String goTermName;
+		public String goTermDef;
+		public String goTermEvid; // linkage type
+		public String goDomain;   // not sure if we need this
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			GoAnnotations that = (GoAnnotations) o;
+
+			if (goDomain != null ? !goDomain.equals(that.goDomain) : that.goDomain != null) return false;
+			if (goTermDef != null ? !goTermDef.equals(that.goTermDef) : that.goTermDef != null) return false;
+			if (goTermEvid != null ? !goTermEvid.equals(that.goTermEvid) : that.goTermEvid != null) return false;
+			if (goTermId != null ? !goTermId.equals(that.goTermId) : that.goTermId != null) return false;
+			if (goTermName != null ? !goTermName.equals(that.goTermName) : that.goTermName != null) return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = goTermId != null ? goTermId.hashCode() : 0;
+			result = 31 * result + (goTermName != null ? goTermName.hashCode() : 0);
+			result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
+			result = 31 * result + (goTermEvid != null ? goTermEvid.hashCode() : 0);
+			result = 31 * result + (goDomain != null ? goDomain.hashCode() : 0);
+			return result;
+		}
+	}
+
+	private void populateGoTermLookup() throws IOException {
+		
+		String qryStr = "http://www.ensembl.org/biomart/martservice?query=";
+		String params = URLEncoder.encode("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				+ "<!DOCTYPE Query>"
+				+ "<Query  virtualSchemaName = \"default\" formatter = \"TSV\" header = \"0\" uniqueRows = \"0\" count = \"\" datasetConfigVersion = \"0.6\" >"
+				+ "<Dataset name = \"mmusculus_gene_ensembl\" interface = \"default\" >"
+				+ "<Filter name = \"source\" value = \"ensembl\"/>"
+				+ "<Filter name = \"with_mgi\" excluded = \"0\"/>"
+				+ "<Attribute name = \"go_id\" />"
+				+ "<Attribute name = \"name_1006\" />"
+				+ "<Attribute name = \"definition_1006\" />"
+				+ "<Attribute name = \"go_linkage_type\" />"
+				+ "<Attribute name = \"namespace_1003\" />"
+				+ "<Attribute name = \"mgi_symbol\" />"
+				+ "<Attribute name = \"mgi_id\" />"
+				+ "</Dataset>"
+				+ "</Query>", "UTF-8");
+		
+		URL url = new URL(qryStr + params);
+	    
+        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+        // output file
+     	//PrintWriter out = new PrintWriter(new FileWriter("/Users/ckc/Documents/work/temp/mgiId2GO.csv"));
+     		
+        String line;
+        while ((line = in.readLine()) != null) {
+            //System.out.println(line);
+			String[] values   = line.split("\\t");
+			String goTermId   = values[0];
+			String goTermName = values[1];
+			String goTermDef  = values[2];
+			String goTermEvid = values[3]; // linkage type
+			String goDomain   = values[4]; // do we need this?
+			String mgiSymbol  = values[5];
+			String mgiId      = values[6];
+			
+			GoAnnotations ga = new GoAnnotations();
+			ga.goTermId   = goTermId;
+			ga.goTermName = goTermName;
+			ga.goTermDef  = goTermDef;
+			ga.goTermEvid = goTermEvid;
+			
+			Set<GoAnnotations> gaList = new HashSet<>();
+			
+			if ( goTermLookup.get(mgiId) != null ){
+				gaList = goTermLookup.get(mgiId);
+			}
+			
+			gaList.add(ga);
+			goTermLookup.put(mgiId, gaList);
+			
+			//logger.debug(mgiId + ":  ---> " + goTermId + "\t" + goTermEvid);
+        }
+        in.close();
+       
+        logger.info("Populated goTerm lookup, {} records", goTermLookup.size());
+	}
+	
 	private void populateLegacyLookup() throws SolrServerException {
 
 		String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
@@ -490,8 +597,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
 		logger.debug("Finished ES cell status lookup");
 	}
-
-
+	
 	private void lookupDiseaseData(Map<String, AlleleDTO> alleles) {
 
 		logger.debug("Starting disease data lookup");
@@ -527,7 +633,26 @@ public class AlleleIndexer extends AbstractIndexer {
 		logger.debug("Finished disease data lookup");
 	}
 
+	private void lookupGoData(Map<String, AlleleDTO> alleles) {
+		logger.debug("Starting GO data lookup");
+		
+		for (String id : alleles.keySet()) {
 
+			AlleleDTO dto = alleles.get(id);
+
+			if (!goTermLookup.containsKey(id)) {
+				continue;
+			}
+	        
+			for (GoAnnotations ga : goTermLookup.get(id)) {
+				dto.getGoTermIds().add(ga.goTermId);
+				dto.getGoTermNames().add(ga.goTermName);
+				dto.getGoTermDefs().add(ga.goTermDef);
+				dto.getGoTermEvids().add(ga.goTermEvid);
+	        }
+		}
+	}
+	
 	private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
 
 		alleleCore.addBeans(alleles.values(), 60000);
