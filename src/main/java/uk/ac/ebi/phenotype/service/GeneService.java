@@ -925,4 +925,34 @@ public class GeneService {
 		
 		return res;
 	}
+
+	/**
+	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
+	 * @param geneIds
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public Map<String, GeneDTO> getHumanOrthologsForGeneSet(Set<String> geneIds)
+		throws SolrServerException {
+
+		Map<String, GeneDTO> geneToHumanOrthologMap = new HashMap<>();
+
+		SolrQuery solrQuery = new SolrQuery();
+
+		solrQuery.setQuery("*:*");
+		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+		solrQuery.setRows(100000);
+		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.DISEASE_ID);
+
+		QueryResponse rsp = solr.query(solrQuery);
+
+		List<GeneDTO> genes = rsp.getBeans(GeneDTO.class);
+		for (GeneDTO gene : genes) {
+			geneToHumanOrthologMap.put(gene.getMgiAccessionId(), gene);
+		}
+
+		return geneToHumanOrthologMap;
+	}
+
+
 }
