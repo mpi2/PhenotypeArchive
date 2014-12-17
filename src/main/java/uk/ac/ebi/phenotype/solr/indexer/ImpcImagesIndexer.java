@@ -231,6 +231,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// <field column="marker_symbol"
 				// xpath="/response/result/doc/str[@name='marker_symbol']" />
 				// <field column="marker_name"
+				if(allele.getMarkerSymbol()!=null){
+				img.addSymbol(allele.getMarkerSymbol());
+				}
 				if(allele.getMarkerName()!=null){
 				img.addMarkerName(allele.getMarkerName());
 				}
@@ -313,6 +316,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// xpath="/response/result/doc/arr[@name='allele_name']/str" />
 				//
 				// </entity>
+				img.setSubtype(allele.getMarkerType());
 			}
 		}
 

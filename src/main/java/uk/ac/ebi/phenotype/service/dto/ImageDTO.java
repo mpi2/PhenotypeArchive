@@ -59,9 +59,31 @@ public class ImageDTO extends ObservationDTO {
 	private String markerType;
 	@Field(SangerImageDTO.HUMAN_GENE_SYMBOL)
 	private List<String> humanGeneSymbol;
+	@Field("symbol")
+	private String symbol;
+	@Field("subtype")
+	private String subtype;
 
 	
 	
+	
+	public String getSubtype() {
+	
+		return subtype;
+	}
+
+
+
+
+	
+	public void setSubtype(String subtype) {
+	
+		this.subtype = subtype;
+	}
+
+
+
+
 	public String getSymbolGene() {
 		if((this.getGeneSymbol()!=null)&&(this.getGeneAccession()!=null)){
 			this.symbolGene=this.getGeneSymbol()+"_"+this.getAlleleAccession();
@@ -265,6 +287,15 @@ public class ImageDTO extends ObservationDTO {
 			this.humanGeneSymbol=new ArrayList<String>();
 		}
 		this.humanGeneSymbol.addAll(humanGeneSymbol);
+		
+	}
+
+
+
+
+	public void addSymbol(String markerName) {
+
+		this.symbol=markerName;
 		
 	}
 	
