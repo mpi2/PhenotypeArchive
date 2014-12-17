@@ -179,7 +179,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					
 					// add the extra stuf we need for the searching and faceting
 					// here
-					if (imageDTO.getGeneAccession() != null && imageDTO.getGeneAccession().equals("")) {
+					if (imageDTO.getGeneAccession() != null && !imageDTO.getGeneAccession().equals("")) {
 						String geneAccession=imageDTO.getGeneAccession();
 						if (alleles.containsKey(geneAccession)) {
 							populateImageDtoStatuses(imageDTO, geneAccession);
@@ -231,32 +231,33 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// <field column="marker_symbol"
 				// xpath="/response/result/doc/str[@name='marker_symbol']" />
 				// <field column="marker_name"
-//				if(allele.getMarkerName()!=null){
-//				img.addMarkerName(allele.getMarkerName());
-//				}
+				if(allele.getMarkerName()!=null){
+				img.addMarkerName(allele.getMarkerName());
+				}
+				
 //				// xpath="/response/result/doc/str[@name='marker_name']" />
 //				// <field column="marker_synonym"
-//				if(allele.getMarkerSynonym()!=null){
-//				img.addMarkerSynonym(allele.getMarkerSynonym());
-//				}
+				if(allele.getMarkerSynonym()!=null){
+				img.addMarkerSynonym(allele.getMarkerSynonym());
+				}
 //				// xpath="/response/result/doc/arr[@name='marker_synonym']/str"
 //				// />
 //				// <field column="marker_type"
-//				if(allele.getMarkerType()!=null){
-//					img.addMarkerType(allele.getMarkerType());
-//					
-//				}
+				if(allele.getMarkerType()!=null){
+					img.addMarkerType(allele.getMarkerType());
+					
+				}
 				
 				// xpath="/response/result/doc/str[@name='marker_type']" />
-//				if(allele.getHumanGeneSymbol()!=null){
-//				img.addHumanGeneSymbol(allele.getHumanGeneSymbol());
-//				}
+				if(allele.getHumanGeneSymbol()!=null){
+				img.addHumanGeneSymbol(allele.getHumanGeneSymbol());
+				}
 				// <field column="human_gene_symbol"
 				// xpath="/response/result/doc/arr[@name='human_gene_symbol']/str"
 				// />
 				//
 				if(allele.getStatus()!=null){
-				
+				//System.out.println("adding status="+allele.getStatus());
 				img.addStatus(allele.getStatus());
 				}
 				// <!-- latest project status (ES cells/mice production status)

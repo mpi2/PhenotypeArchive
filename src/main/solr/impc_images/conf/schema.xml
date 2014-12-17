@@ -362,6 +362,12 @@
   	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
    
+   
+    <copyField source="symbol" dest="marker_symbol" />
+    <copyField source="symbol" dest="auto_suggest" />
+    <copyField source="geneName" dest="auto_suggest" />
+    <copyField source="geneSynonyms" dest="auto_suggest" />
+    <copyField source="subtype" dest="auto_suggest" />
   
   	<!--  for copyFields -->
 
