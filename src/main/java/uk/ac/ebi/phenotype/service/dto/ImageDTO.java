@@ -51,9 +51,39 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> latestPhenotypingCentre;
 	@Field(SangerImageDTO.ALLELE_NAME)
 	private List<String> alleleName;
+	@Field(SangerImageDTO.MARKER_SYMBOL)
+	private List<String> markerSymbol;
+	@Field(SangerImageDTO.MARKER_SYNONYM)
+	private List<String> markerSynonym;
+	@Field(SangerImageDTO.MARKER_TYPE)
+	private String markerType;
+	@Field(SangerImageDTO.HUMAN_GENE_SYMBOL)
+	private List<String> humanGeneSymbol;
+	@Field("symbol")
+	private String symbol;
+	@Field("subtype")
+	private String subtype;
 
 	
 	
+	
+	public String getSubtype() {
+	
+		return subtype;
+	}
+
+
+
+
+	
+	public void setSubtype(String subtype) {
+	
+		this.subtype = subtype;
+	}
+
+
+
+
 	public String getSymbolGene() {
 		if((this.getGeneSymbol()!=null)&&(this.getGeneAccession()!=null)){
 			this.symbolGene=this.getGeneSymbol()+"_"+this.getAlleleAccession();
@@ -151,9 +181,9 @@ public class ImageDTO extends ObservationDTO {
 	public void addImitsPhenotypeStarted(String imitsPhenotypeStarted1) {
 
 		if(this.imitsPhenotypeStarted==null){
-			imitsPhenotypeStarted=new ArrayList<String>();
+			this.imitsPhenotypeStarted=new ArrayList<String>();
 		}
-		imitsPhenotypeStarted.add(imitsPhenotypeStarted1);
+		this.imitsPhenotypeStarted.add(imitsPhenotypeStarted1);
 		
 	}
 
@@ -163,9 +193,9 @@ public class ImageDTO extends ObservationDTO {
 	public void addImitsPhenotypeComplete(String imitsPhenotypeComplete1) {
 
 		if(this.imitsPhenotypeComplete==null){
-			imitsPhenotypeComplete=new ArrayList<String>();
+			this.imitsPhenotypeComplete=new ArrayList<String>();
 		}
-		imitsPhenotypeComplete.add(imitsPhenotypeComplete1);
+		this.imitsPhenotypeComplete.add(imitsPhenotypeComplete1);
 		
 	}
 
@@ -175,9 +205,9 @@ public class ImageDTO extends ObservationDTO {
 	public void addImitsPhenotypeStatus(String imitsPhenotypeStatus1) {
 
 		if(this.imitsPhenotypeStatus==null){
-			imitsPhenotypeStatus=new ArrayList<String>();
+			this.imitsPhenotypeStatus=new ArrayList<String>();
 		}
-		imitsPhenotypeStatus.add(imitsPhenotypeStatus1);
+		this.imitsPhenotypeStatus.add(imitsPhenotypeStatus1);
 		
 	}
 
@@ -214,6 +244,59 @@ public class ImageDTO extends ObservationDTO {
 	public void setAlleleName(List<String> alleleName) {
 
 		this.alleleName=alleleName;
+	}
+
+
+
+
+	public void addMarkerName(String markerName) {
+		if(this.markerSymbol==null){
+			this.markerSymbol=new ArrayList<String>();
+		}
+		this.markerSymbol.add(markerName);
+		
+		
+	}
+
+
+
+
+	public void addMarkerSynonym(List<String> markerSynonym) {
+		if(this.markerSynonym==null){
+			this.markerSynonym=new ArrayList<String>();
+		}
+		this.markerSynonym.addAll(markerSynonym);
+		
+	}
+
+
+
+
+	public void addMarkerType(String markerType) {
+
+		this.markerType=markerType;
+		
+	}
+
+
+
+
+	public void addHumanGeneSymbol(List<String> humanGeneSymbol) {
+
+		if(this.humanGeneSymbol==null){
+			this.humanGeneSymbol=new ArrayList<String>();
+		}
+		this.humanGeneSymbol.addAll(humanGeneSymbol);
+		
+	}
+
+
+
+
+	public void addSymbol(String markerName) {
+
+		this.symbol=markerName;
+		
 	}
 	
 	

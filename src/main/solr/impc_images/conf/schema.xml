@@ -169,9 +169,10 @@
         <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="institute"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="sangerSymbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="geneName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="geneSynonyms"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+        -->
+        <field name="geneName"  type="string"   indexed="true"  stored="true"  multiValued="true" /> 
+         <field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+        <field name="geneSynonyms"  type="string"   indexed="true"  stored="true"  multiValued="true" /><!--
         <field name="alleleName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="maTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="maTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -362,6 +363,13 @@
   	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
    
+   	<field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+   
+    <copyField source="symbol" dest="marker_symbol" />
+    <copyField source="symbol" dest="auto_suggest" />
+    <copyField source="geneName" dest="auto_suggest" />
+    <copyField source="geneSynonyms" dest="auto_suggest" />
+    <copyField source="subtype" dest="auto_suggest" />
   
   	<!--  for copyFields -->
 
