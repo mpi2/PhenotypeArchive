@@ -103,17 +103,18 @@ public class OntologyUtils {
     protected static Map<String, List<OntologyTermBean>> populateMaSelectedTopLevelTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String query =
-                  "SELECT DISTINCT\n"
+            "SELECT DISTINCT\n"
                 + "  ti.term_id           AS maTermId\n"
                 + ", ti.name              AS maTermName\n"
                 + ", ti2.term_id          AS selectedMaTermId\n"
                 + ", ti2.name             AS selectedMaTermName\n"
+                + ", ti2.definition       AS selectedMaTermNameDefinition\n"
                 + "FROM ma_term_infos ti\n"
                 + "JOIN ma_node2term nt                        ON nt.term_id           = ti .term_id\n"
                 + "JOIN ma_node_2_selected_top_level_mapping m ON m .node_id           = nt .node_id\n"
                 + "JOIN ma_term_infos ti2                      ON m .top_level_term_id = ti2.term_id\n"
-                + "ORDER BY ti.term_id, ti2.term_id\n"
-                ;
+                + "ORDER BY ti.term_id, ti2.term_id\n";
+
         try (final PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
@@ -123,8 +124,9 @@ public class OntologyUtils {
                 }
                 String termId = resultSet.getString("selectedMaTermId");
                 String name = resultSet.getString("selectedMaTermName");
+                String definition = resultSet.getString("selectedMaTermNameDefinition");
                 List<String> synonyms = getMaSynonyms(ontoDbConnection, termId);
-                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms, definition);
                 map.get(mapKey).add(bean);
             }
         }
@@ -218,15 +220,16 @@ public class OntologyUtils {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String childTermQuery =
             "SELECT DISTINCT\n" +
-            "  ti.term_id  AS maTermId\n" +
-            ", ti2.term_id AS child_ma_id\n" +
-            ", ti2.name    AS child_ma_term\n" +
-            "FROM ma_term_infos ti\n" +
-            "INNER JOIN ma_node2term       nt  ON ti.term_id       = nt.term_id\n" +
-            "INNER JOIN ma_parent_children pc  ON nt.node_id       = pc.parent_node_id\n" +
-            "INNER JOIN ma_node2term       nt2 ON pc.child_node_id = nt2.node_id\n" +
-            "INNER JOIN ma_term_infos      ti2 ON nt2.term_id      = ti2.term_id\n" +
-            "ORDER BY ti.term_id, ti2.term_id, ti2.name";
+                "  ti.term_id     AS maTermId\n" +
+                ", ti2.term_id    AS child_ma_id\n" +
+                ", ti2.name       AS child_ma_term\n" +
+                ", ti2.definition AS child_ma_definition\n" +
+                "FROM ma_term_infos ti\n" +
+                "INNER JOIN ma_node2term       nt  ON ti.term_id       = nt.term_id\n" +
+                "INNER JOIN ma_parent_children pc  ON nt.node_id       = pc.parent_node_id\n" +
+                "INNER JOIN ma_node2term       nt2 ON pc.child_node_id = nt2.node_id\n" +
+                "INNER JOIN ma_term_infos      ti2 ON nt2.term_id      = ti2.term_id\n" +
+                "ORDER BY ti.term_id, ti2.term_id, ti2.name";
         
         try (PreparedStatement ps = ontoDbConnection.prepareStatement(childTermQuery)) {
             ps.setMaxRows(MAX_ROWS);
@@ -238,8 +241,9 @@ public class OntologyUtils {
                 }
                 String termId = resultSet.getString("child_ma_id");
                 String name = resultSet.getString("child_ma_term");
+                String definition = resultSet.getString("child_ma_definition");
                 List<String> synonyms = getMaSynonyms(ontoDbConnection, mapKey);
-                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms, definition);
                 map.get(mapKey).add(bean);
             }
         }
@@ -259,14 +263,15 @@ public class OntologyUtils {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String parentTermQuery =
             "SELECT DISTINCT\n" +
-            "  n2node.term_id AS maTermId\n" +
-            ", mt.term_id AS parent_ma_id\n" +
-            ", mt.name AS parent_ma_term\n" +
-            "FROM ma_term_infos mt\n" +
-            "INNER JOIN ma_node2term n2term ON n2term.term_id = mt.term_id\n" +
-            "INNER JOIN ma_node_top_level tln ON tln.top_level_node_id = n2term.node_id\n" +
-            "INNER JOIN ma_node2term n2node ON n2node.node_id = tln.node_id\n" +
-            "ORDER BY n2node.term_id, mt.term_id, mt.name\n";
+                "  n2node.term_id AS maTermId\n" +
+                ", mt.term_id AS parent_ma_id\n" +
+                ", mt.name AS parent_ma_term\n" +
+                ", mt.definition AS parent_ma_definition\n" +
+                "FROM ma_term_infos mt\n" +
+                "INNER JOIN ma_node2term n2term ON n2term.term_id = mt.term_id\n" +
+                "INNER JOIN ma_node_top_level tln ON tln.top_level_node_id = n2term.node_id\n" +
+                "INNER JOIN ma_node2term n2node ON n2node.node_id = tln.node_id\n" +
+                "ORDER BY n2node.term_id, mt.term_id, mt.name\n";
         
         try (PreparedStatement ps = ontoDbConnection.prepareStatement(parentTermQuery)) {
             ps.setMaxRows(MAX_ROWS);
@@ -278,8 +283,9 @@ public class OntologyUtils {
                 }
                 String termId = resultSet.getString("parent_ma_id");
                 String name = resultSet.getString("parent_ma_term");
+                String definition = resultSet.getString("parent_ma_definition");
                 List<String> synonyms = getMaSynonyms(ontoDbConnection, mapKey);
-                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms, definition);
                 map.get(mapKey).add(bean);
             }
         }
@@ -323,11 +329,12 @@ public class OntologyUtils {
     protected static Map<String, List<OntologyTermBean>> populateMpTopLevelTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String query =
-                  "SELECT DISTINCT\n"
-                + "  ti.term_id  AS mpTermId\n"
-                + ", ti.name     AS mpTermName\n"
-                + ", ti2.term_id AS mpTopLevelId\n"
-                + ", ti2.name    AS mpTopLevelName\n"
+            "SELECT DISTINCT\n"
+                + "  ti.term_id     AS mpTermId\n"
+                + ", ti.name        AS mpTermName\n"
+                + ", ti2.term_id    AS mpTopLevelId\n"
+                + ", ti2.name       AS mpTopLevelName\n"
+                + ", ti2.definition AS mpTopLevelDefinition\n"
                 + "FROM mp_term_infos     AS ti\n"
                 + "JOIN mp_node2term      AS nt  ON nt .term_id = ti .term_id\n"
                 + "JOIN mp_node_top_level AS m   ON m  .node_id = nt .node_id\n"
@@ -344,8 +351,9 @@ public class OntologyUtils {
                 }
                 String termId = resultSet.getString("mpTopLevelId");
                 String name = resultSet.getString("mpTopLevelName");
+                String definition = resultSet.getString("mpTopLevelDefinition");
                 List<String> synonyms = getMpSynonyms(ontoDbConnection, termId);
-                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms, definition);
                 map.get(mapKey).add(bean);
             }
         }
@@ -365,16 +373,17 @@ public class OntologyUtils {
     protected static Map<String, List<OntologyTermBean>> populateMpIntermediateTerms(Connection ontoDbConnection) throws SQLException {
         Map<String, List<OntologyTermBean>> map = new HashMap();
         String query = "SELECT DISTINCT " +
-                "ti2.term_id AS mpIntermediateId, " +
-                "ti2.name    AS mpIntermediateName, " +
-                "ti.term_id  AS mpTermId, " +
-                "ti.name     AS mpTermName " +
-                "FROM mp_node2term            AS nt " +
-                "INNER JOIN mp_node_subsumption_fullpath AS f ON nt.node_id = f.child_node_id " +
-                "INNER JOIN mp_term_infos     AS ti ON ti.term_id = nt.term_id " +
-                "INNER JOIN mp_node2term      AS nt2 ON nt2.node_id = f.node_id " +
-                "INNER JOIN mp_term_infos     AS ti2 ON ti2.term_id = nt2.term_id " +
-                "WHERE f.node_id != nt.node_id " ;
+            "ti2.term_id    AS mpIntermediateId, " +
+            "ti2.name       AS mpIntermediateName, " +
+            "ti2.definition AS mpIntermediateDefinition, " +
+            "ti.term_id     AS mpTermId, " +
+            "ti.name        AS mpTermName " +
+            "FROM mp_node2term            AS nt " +
+            "INNER JOIN mp_node_subsumption_fullpath AS f ON nt.node_id = f.child_node_id " +
+            "INNER JOIN mp_term_infos     AS ti ON ti.term_id = nt.term_id " +
+            "INNER JOIN mp_node2term      AS nt2 ON nt2.node_id = f.node_id " +
+            "INNER JOIN mp_term_infos     AS ti2 ON ti2.term_id = nt2.term_id " +
+            "WHERE f.node_id != nt.node_id ";
 
         try (final PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
             ResultSet resultSet = p.executeQuery();
@@ -385,8 +394,9 @@ public class OntologyUtils {
                 }
                 String termId = resultSet.getString("mpIntermediateId");
                 String name = resultSet.getString("mpIntermediateName");
+                String definition = resultSet.getString("mpIntermediateDefinition");
                 List<String> synonyms = getMpSynonyms(ontoDbConnection, termId);
-                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms, definition);
                 map.get(mapKey).add(bean);
             }
         }

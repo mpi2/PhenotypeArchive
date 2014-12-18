@@ -89,11 +89,11 @@ public abstract class AbstractIndexer {
 			applicationContext = new FileSystemXmlApplicationContext("file:" + context);
 			getLogger().info("Context loaded from file system");
 		} catch (BeansException e) {
-			getLogger().warn("Unable to load the context file: {}", e.getMessage());
+			getLogger().info("Unable to load the context file: {}", e.getMessage());
 
 			// Try context as a class path resource
 			applicationContext = new ClassPathXmlApplicationContext(context);
-			getLogger().warn("Using classpath app-config file: {}", context);
+			getLogger().info("Using classpath app-config file: {}", context);
 		}
 		
 		return applicationContext;
