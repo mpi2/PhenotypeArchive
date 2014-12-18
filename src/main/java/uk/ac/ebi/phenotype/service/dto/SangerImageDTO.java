@@ -57,10 +57,6 @@ public class SangerImageDTO {
 	public static final String IMITS_PHENOTYPE_COMPLETE = "imits_phenotype_complete";
 	public static final String IMITS_PHENOTYPE_STATUS = "imits_phenotype_status";
 
-	// Phenotyping status
-	public static final String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
-	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
-
 	// Production/phenotyping centers
 	public static final String LATEST_PRODUCTION_CENTRE = "latest_production_centre";
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
@@ -221,10 +217,10 @@ public class SangerImageDTO {
 	@Field(IMITS_PHENOTYPE_STATUS)
 	private List<String> imitsPhenotypeStatus;
 
-	@Field(LATEST_PHENOTYPE_STATUS)
+	@Field(AlleleDTO.LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypeStatus;
 
-	@Field(LEGACY_PHENOTYPE_STATUS)
+	@Field(AlleleDTO.LEGACY_PHENOTYPE_STATUS)
 	private Integer legacyPhenotypeStatus;
 
 	@Field(LATEST_PRODUCTION_CENTRE)
@@ -584,7 +580,7 @@ public class SangerImageDTO {
 
 	public Integer getLegacyPhenotypeStatus() {
 
-		return legacyPhenotypeStatus;
+		return this.legacyPhenotypeStatus;
 	}
 
 
@@ -592,6 +588,7 @@ public class SangerImageDTO {
 
 		this.legacyPhenotypeStatus = legacyPhenotypeStatus;
 	}
+	
 
 
 	public List<String> getLatestProductionCentre() {
