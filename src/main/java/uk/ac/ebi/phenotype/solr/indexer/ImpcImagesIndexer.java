@@ -225,7 +225,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		if (alleles.containsKey(geneAccession)) {
 			List<AlleleDTO> localAlleles = alleles.get(geneAccession);
 			for (AlleleDTO allele : localAlleles) {
-				System.out.println(allele);
+				
 //so some of the fields below a that we have multiples for for SangerIMages we only have one for ObservationDTOs??????
 				
 				// <field column="marker_symbol"
@@ -318,8 +318,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// </entity>
 				img.setSubtype(allele.getMarkerType());
 				img.addLatestPhenotypeStatus(allele.getLatestPhenotypeStatus());
+				if(img.getLegacyPhenotypeStatus()!=null){
 				System.out.println("adding legacy phenotype status="+allele.getLegacyPhenotypeStatus());
 				img.setLegacyPhenotypeStatus(allele.getLegacyPhenotypeStatus());
+				}
 			}
 		}
 
