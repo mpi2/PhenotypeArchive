@@ -22,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +42,6 @@ import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
-import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
@@ -83,62 +84,108 @@ public class SecondaryProjectController {
 	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
 	@RequestMapping(value = "/secondaryproject/{id}/download", method = RequestMethod.GET)
-	public ResponseEntity<String> downloadSecondaryProjectData(@PathVariable String id, Model model)
-		throws SolrServerException, IOException, URISyntaxException, SQLException, IndexerException {
+	public ResponseEntity<String> downloadSecondaryProjectData(@PathVariable String id, Model model) {
 
 		logger.info("Downloading data for secondary project id=" + id);
-
-		Set<String> accessions = sp.getAccessionsBySecondaryProjectId(id);
-
-		List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
 
 		Map<String, Set<String>> mpterms = new HashMap<>();
 		Map<String, Set<String>> hpterms = new HashMap<>();
 		Map<String, Set<String>> humanterms = new HashMap<>();
 		Map<String, Set<String>> diseaseterms = new HashMap<>();
-
-		Map<String, List<Map<String, String>>> getMpToHpTerms = IndexerMap.getMpToHpTerms(phenodigmCore);
-		Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
-
-
+		Map<String, String> mousesymbols = new HashMap<>();
 		List<String> resp = new ArrayList<>();
 
-		for(PhenotypeCallSummary pcs : results) {
-			String MGIID = pcs.getGene().getId().getAccession();
+		try {
+			Set<String> accessions = sp.getAccessionsBySecondaryProjectId(id);
 
-			if ( ! mpterms.containsKey(MGIID)) {
-				mpterms.put(MGIID, new HashSet<String>());
+			Map<String, List<Map<String, String>>> getMpToHpTerms = IndexerMap.getMpToHpTerms(phenodigmCore);
+			Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
+
+			// Gather all the phenotype calls by gene id
+			Map<String, List<PhenotypeCallSummary>> pcss = new HashMap<>();
+			for (PhenotypeCallSummary pcs : genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries()) {
+				if (!pcss.containsKey(pcs.getGene().getId().getAccession())) {
+					pcss.put(pcs.getGene().getId().getAccession(), new ArrayList<PhenotypeCallSummary>());
+				}
+				pcss.get(pcs.getGene().getId().getAccession()).add(pcs);
 			}
-			mpterms.get(MGIID).add(pcs.getPhenotypeTerm().getId().getAccession());
 
-			for (Map<String, String> hpTerm : getMpToHpTerms.get(pcs.getPhenotypeTerm().getId().getAccession())) {
-				String hpid = hpTerm.get("hp_id");
-				if ( ! hpterms.containsKey(MGIID)) {
+			for (String MGIID : accessions) {
+
+				if (!mpterms.containsKey(MGIID)) {
+					mpterms.put(MGIID, new HashSet<String>());
+				}
+				if (!humanterms.containsKey(MGIID)) {
+					humanterms.put(MGIID, new HashSet<String>());
+				}
+				if (!diseaseterms.containsKey(MGIID)) {
+					diseaseterms.put(MGIID, new HashSet<String>());
+				}
+				if (!hpterms.containsKey(MGIID)) {
 					hpterms.put(MGIID, new HashSet<String>());
 				}
-				hpterms.get(MGIID).add(hpid);
+
+				GeneDTO g = geneService.getGeneById(MGIID);
+				if(g!=null) mousesymbols.put(MGIID, g.getMarkerSymbol());
+
+				logger.info(" looking for mp terms for {}", MGIID);
+				if (pcss.containsKey(MGIID)) {
+					for (PhenotypeCallSummary pcs : pcss.get(MGIID)) {
+						String mp = pcs.getPhenotypeTerm().getId().getAccession();
+						mpterms.get(MGIID).add(mp);
+
+						logger.info("  looking for hp terms for {}", mp);
+						if (getMpToHpTerms.containsKey(mp)) {
+							for (Map<String, String> hpTerm : getMpToHpTerms.get(mp)) {
+								String hpid = hpTerm.get("hp_id");
+								logger.info("   adding hp term {} for {}", hpid, mp);
+								hpterms.get(MGIID).add(hpid);
+							}
+						}
+					}
+				} else if (genes.get(MGIID)!=null && genes.get(MGIID).getLatestPhenotypeStatus() != null && genes.get(MGIID).getLatestPhenotypeStatus().equalsIgnoreCase(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE)) {
+					mpterms.get(MGIID).add("No phenotype calls");
+				} else if (genes.get(MGIID)!=null && genes.get(MGIID).getLatestPhenotypeStatus() != null && genes.get(MGIID).getLatestPhenotypeStatus().equalsIgnoreCase(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED)) {
+					mpterms.get(MGIID).add("PreQC data available");
+				} else {
+					mpterms.get(MGIID).add("No data");
+				}
+
+				logger.info(" looking for human symbols for {}", MGIID);
+				if (genes.get(MGIID) != null && genes.get(MGIID).getHumanGeneSymbol() != null) {
+					humanterms.get(MGIID).addAll(genes.get(MGIID).getHumanGeneSymbol());
+					logger.info(" adding human symbols {} for {}", genes.get(MGIID).getHumanGeneSymbol(), MGIID);
+				}
+
+				if (genes.get(MGIID) != null && genes.get(MGIID).getDiseaseId() != null) {
+
+					diseaseterms.get(MGIID).addAll(genes.get(MGIID).getDiseaseId());
+				}
+
 			}
 
-			if ( ! humanterms.containsKey(MGIID)) {
-				humanterms.put(MGIID, new HashSet<String>());
+			resp.add(StringUtils.join(Arrays.asList("MGI ID", "Mouse symbol", "Human symbol", "MP terms", "HP terms", "Disease associations"), "\t"));
+			for (String MGIID : accessions) {
+				List line = Arrays.asList(MGIID,
+					mousesymbols.get(MGIID),
+					StringUtils.join(humanterms.get(MGIID), ","),
+					StringUtils.join(mpterms.get(MGIID), ","),
+					StringUtils.join(hpterms.get(MGIID), ","),
+					StringUtils.join(diseaseterms.get(MGIID), ",")
+				);
+				resp.add(StringUtils.join(line, "\t"));
 			}
-			humanterms.get(MGIID).addAll(genes.get(MGIID).getHumanGeneSymbol());
 
-			if ( ! diseaseterms.containsKey(MGIID)) {
-				diseaseterms.put(MGIID, new HashSet<String>());
-			}
-			diseaseterms.get(MGIID).addAll(genes.get(MGIID).getDiseaseId());
-
-			List line = Arrays.asList(MGIID,
-				StringUtils.join(humanterms.get(MGIID),","),
-				StringUtils.join(mpterms.get(MGIID),","),
-				StringUtils.join(hpterms.get(MGIID), ","),
-				StringUtils.join(diseaseterms.get(MGIID), ",")
-			);
-			resp.add(StringUtils.join(line, "\t"));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		return new ResponseEntity<String>(StringUtils.join(resp,"\n"), createResponseHeaders(), HttpStatus.OK);
+	}
 
-		return new ResponseEntity<String>(StringUtils.join(resp,"\n"), HttpStatus.OK);
+	private HttpHeaders createResponseHeaders(){
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.TEXT_PLAIN);
+		return responseHeaders;
 	}
 
 
