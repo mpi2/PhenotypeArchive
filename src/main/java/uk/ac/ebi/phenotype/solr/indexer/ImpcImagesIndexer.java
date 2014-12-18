@@ -317,6 +317,11 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				//
 				// </entity>
 				img.setSubtype(allele.getMarkerType());
+				img.addLatestPhenotypeStatus(allele.getLatestPhenotypeStatus());
+				if(img.getLegacyPhenotypeStatus()!=null){
+				System.out.println("adding legacy phenotype status="+allele.getLegacyPhenotypeStatus());
+				img.setLegacyPhenotypeStatus(allele.getLegacyPhenotypeStatus());
+				}
 			}
 		}
 

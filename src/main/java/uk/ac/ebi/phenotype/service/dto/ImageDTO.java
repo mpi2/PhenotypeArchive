@@ -43,8 +43,11 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> imitsPhenotypeComplete;
 	@Field(SangerImageDTO.IMITS_PHENOTYPE_STATUS)
 	private List<String> imitsPhenotypeStatus;
-	@Field(SangerImageDTO.LEGACY_PHENOTYPE_STATUS)
+	@Field(AlleleDTO.LEGACY_PHENOTYPE_STATUS)
 	private Integer legacyPhenotypeStatus;
+	
+	
+
 	@Field(SangerImageDTO.LATEST_PRODUCTION_CENTRE)
 	private List<String> latestProductionCentre;
 	@Field(SangerImageDTO.LATEST_PHENOTYPING_CENTRE)
@@ -63,6 +66,8 @@ public class ImageDTO extends ObservationDTO {
 	private String symbol;
 	@Field("subtype")
 	private String subtype;
+	@Field(AlleleDTO.LATEST_PHENOTYPE_STATUS)
+	private List<String> latestPhenotypeStatus;
 
 	
 	
@@ -220,6 +225,10 @@ public class ImageDTO extends ObservationDTO {
 		
 	}
 
+	public Integer getLegacyPhenotypeStatus() {
+		
+		return legacyPhenotypeStatus;
+	}
 
 
 
@@ -296,6 +305,24 @@ public class ImageDTO extends ObservationDTO {
 	public void addSymbol(String markerName) {
 
 		this.symbol=markerName;
+		
+	}
+
+
+
+
+
+	public void setLatestPhenotypeStatus(List<String> latestPhenotypeStatus) {
+
+		this.latestPhenotypeStatus=latestPhenotypeStatus;
+		
+	}
+	
+	public void addLatestPhenotypeStatus(String latestPhenotypeStatus) {
+		if(this.latestPhenotypeStatus==null){
+			this.latestPhenotypeStatus=new ArrayList<String>();
+		}
+		this.latestPhenotypeStatus.add(latestPhenotypeStatus);
 		
 	}
 	
