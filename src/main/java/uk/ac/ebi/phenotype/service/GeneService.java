@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -26,6 +25,8 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.data.imits.StatusConstants;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
@@ -40,7 +41,7 @@ public class GeneService {
 
 	private HttpSolrServer solr;
 
-	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
 
 	public static final class GeneFieldValue {
 		public final static String CENTRE_WTSI = "WTSI";
@@ -925,4 +926,34 @@ public class GeneService {
 		
 		return res;
 	}
+
+	/**
+	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
+	 * @param geneIds
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public Map<String, GeneDTO> getHumanOrthologsForGeneSet(Set<String> geneIds)
+		throws SolrServerException {
+
+		Map<String, GeneDTO> geneToHumanOrthologMap = new HashMap<>();
+
+		SolrQuery solrQuery = new SolrQuery();
+
+		solrQuery.setQuery("*:*");
+		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+		solrQuery.setRows(100000);
+		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.DISEASE_ID, GeneDTO.LATEST_PHENOTYPE_STATUS);
+		log.info("server query is: {}", solrQuery.toString());
+		QueryResponse rsp = solr.query(solrQuery);
+
+		List<GeneDTO> genes = rsp.getBeans(GeneDTO.class);
+		for (GeneDTO gene : genes) {
+			geneToHumanOrthologMap.put(gene.getMgiAccessionId(), gene);
+		}
+
+		return geneToHumanOrthologMap;
+	}
+
+
 }

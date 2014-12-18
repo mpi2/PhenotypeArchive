@@ -15,17 +15,6 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -36,9 +25,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class AllelesController {
@@ -74,7 +76,7 @@ public class AllelesController {
             @PathVariable String name,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+            RedirectAttributes attributes) throws Exception {
 
         HashMap<String, HashMap<String, List<String>>> constructs = solrIndex2.getAlleleQcInfo(alleleType, type, name);
         model.addAttribute("qcData", constructs);
@@ -95,7 +97,7 @@ public class AllelesController {
             @PathVariable String acc,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+            RedirectAttributes attributes) throws Exception {
 
         log.info("#### alleles1...");
 
@@ -310,6 +312,7 @@ public class AllelesController {
     public String alleles2(
             @PathVariable String acc,
             @PathVariable String allele_name,
+            @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
@@ -321,6 +324,8 @@ public class AllelesController {
         String debug = request.getParameter("debug");
         log.info("#### alleles1: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
+
+        if(bare) model.addAttribute("bare", bare);
 
         return allelesCommon(acc, allele_name, model, request, attributes);
     }
@@ -384,7 +389,7 @@ public class AllelesController {
             String allele_name,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+            RedirectAttributes attributes) throws Exception {
 
         log.info("#### AllelesController::allelesCommon");
         log.info("#### acc: " + acc);
@@ -420,6 +425,9 @@ public class AllelesController {
         log.info("#### summary: " + constructs.get("summary"));
         log.info("#### title: " + constructs.get("title"));
 
+        if (model.containsAttribute("show_header")) {
+            return "alleles_noheader";
+        }
         return "alleles";
     }
 

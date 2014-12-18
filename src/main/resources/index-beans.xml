@@ -136,6 +136,14 @@
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
+    <!-- used for concurrently loading the autosuggest core -->
+    <bean id="autosuggestIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/autosuggest"/>
+        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+
+
     <!-- Global configuration parameters -->
     <bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
         <property name="targetMapClass">
