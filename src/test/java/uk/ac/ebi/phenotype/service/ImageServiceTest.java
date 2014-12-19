@@ -1,27 +1,23 @@
 package uk.ac.ebi.phenotype.service;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map.Entry;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -91,7 +87,7 @@ public class ImageServiceTest {
 		SexType sex = SexType.female;
 		String biologicalSampleGroup = "control";
 		try {
-			imagesResponse = imageService.getControlImagesForProcedure(metaDataGroup, "JAX", strain, procedureName, parameterStableId, null, 2, sex, 7);
+			imagesResponse = imageService.getControlImagesForProcedure(metaDataGroup, "JAX", strain, procedureName, parameterStableId, null, 2, sex);
 
 			for (SolrDocument doc : imagesResponse.getResults()) {
 				assertTrue(doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP).equals(biologicalSampleGroup));

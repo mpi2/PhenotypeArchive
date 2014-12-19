@@ -1,11 +1,9 @@
 package uk.ac.ebi.phenotype.service.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.solr.client.solrj.beans.Field;
 
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageDTO extends ObservationDTO {
 	
@@ -56,6 +54,8 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> alleleName;
 	@Field(SangerImageDTO.MARKER_SYMBOL)
 	private List<String> markerSymbol;
+	@Field(SangerImageDTO.MARKER_NAME)
+	private List<String> markerName;
 	@Field(SangerImageDTO.MARKER_SYNONYM)
 	private List<String> markerSynonym;
 	@Field(SangerImageDTO.MARKER_TYPE)
@@ -78,9 +78,30 @@ public class ImageDTO extends ObservationDTO {
 	}
 
 
+	public List<String> getMarkerName() {
+
+		return markerName;
+	}
 
 
-	
+	public void setMarkerName(List<String> markerName) {
+
+		this.markerName = markerName;
+	}
+
+
+	public List<String> getMarkerSymbol() {
+
+		return markerSymbol;
+	}
+
+
+	public void setMarkerSymbol(List<String> markerSymbol) {
+
+		this.markerSymbol = markerSymbol;
+	}
+
+
 	public void setSubtype(String subtype) {
 	
 		this.subtype = subtype;
@@ -259,10 +280,10 @@ public class ImageDTO extends ObservationDTO {
 
 
 	public void addMarkerName(String markerName) {
-		if(this.markerSymbol==null){
-			this.markerSymbol=new ArrayList<String>();
+		if(this.markerName==null){
+			this.markerName=new ArrayList<>();
 		}
-		this.markerSymbol.add(markerName);
+		this.markerName.add(markerName);
 		
 		
 	}
@@ -272,7 +293,7 @@ public class ImageDTO extends ObservationDTO {
 
 	public void addMarkerSynonym(List<String> markerSynonym) {
 		if(this.markerSynonym==null){
-			this.markerSynonym=new ArrayList<String>();
+			this.markerSynonym=new ArrayList<>();
 		}
 		this.markerSynonym.addAll(markerSynonym);
 		

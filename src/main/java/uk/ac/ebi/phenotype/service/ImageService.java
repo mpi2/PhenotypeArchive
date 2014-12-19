@@ -22,7 +22,7 @@ import java.util.*;
 public class ImageService {
 
 	private final HttpSolrServer solr;
-	private final Logger log = LoggerFactory.getLogger(ImageService.class);
+	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
 
 	public ImageService(String solrUrl) {
@@ -85,7 +85,7 @@ public class ImageService {
 		SolrQuery solrQuery = new SolrQuery();
 		String[] paramsKeyValues = query.split("&");
 		for (String paramKV : paramsKeyValues) {
-			log.debug("paramKV=" + paramKV);
+			logger.debug("paramKV=" + paramKV);
 			String[] keyValue = paramKV.split("=");
 			if (keyValue.length > 1) {
 				String key = keyValue[0];
@@ -165,71 +165,52 @@ public class ImageService {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl);
-		if (metadataGroup != null) {
+		if (StringUtils.isNotEmpty(metadataGroup)) {
 			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":" + metadataGroup);
 		}
-		if (strain != null) {
+		if (StringUtils.isNotEmpty(strain)) {
 			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
 		}
 		if (sex != null) {
 			solrQuery.addFilterQuery("sex:" + sex.name());
 		}
-		if (parameterStableId != null) {
+		if (StringUtils.isNotEmpty(parameterStableId)) {
 			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
 		}
 
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-//		System.out.println("images experimental query=" + solrQuery);
+		logger.info("images experimental query: {}/select?{}", solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
 
 
-	/**
-	 * 
-	 * @param metadataGroup
-	 * @param center
-	 * @param strain
-	 * @param procedure_name
-	 * @param parameter
-	 * @param date
-	 * @param numberOfImagesToRetrieve
-	 * @param sex
-	 * @param daysEitherSide
-	 *            if this is 0 we wont filter by date
-	 * @return
-	 * @throws SolrServerException
-	 */
-	public QueryResponse getControlImagesForProcedure(String metadataGroup, String center, String strain, String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex, int daysEitherSide)
-	throws SolrServerException {
+	public QueryResponse getControlImagesForProcedure(String metadataGroup, String center, String strain, String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex)
+		throws SolrServerException {
 
-		System.out.println("trying to get controls with " + daysEitherSide + " days either side");
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
-		solrQuery.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center+"\"", ObservationDTO.METADATA_GROUP + ":" + metadataGroup, ObservationDTO.STRAIN_NAME + ":" + strain, ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter, ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
+		logger.info("Getting {} nearest controls around {}", numberOfImagesToRetrieve, date);
+
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(
+				ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control",
+				ObservationDTO.PHENOTYPING_CENTER + ":\"" + center+"\"",
+				ObservationDTO.STRAIN_NAME + ":" + strain,
+				ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter,
+				ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"")
+			.setRows(numberOfImagesToRetrieve)
+			.setSort("abs(ms(date_of_experiment,"+org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(date)+"))", SolrQuery.ORDER.asc);
+
+		if (StringUtils.isNotEmpty(metadataGroup)) {
+			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":" + metadataGroup);
+		}
 		if (sex != null) {
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
-		if (daysEitherSide != 0) {// if days either side is 0 then don't filter
-									// by date
-			Calendar c = Calendar.getInstance();
-			c.setTime(date);
-			c.add(Calendar.DATE, -daysEitherSide);
-			Date before = c.getTime();
-			c.setTime(date);
-			c.add(Calendar.DATE, daysEitherSide);
-			Date after = c.getTime();
-			// 1995-12-31T23:59:59.999Z
-			// System.out.println("date="+date+"weekBefore="+before);
-			String fromDate = org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(before);
-			String toDate = org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(after);
-			// System.out.println("date="+fromDate+"weekBefore="+toDate);
-			solrQuery.addFilterQuery("date_of_experiment:[" + fromDate + " TO " + toDate + "]");
-		}
-		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println(solrQuery);
+
+		logger.info("getControlImagesForProcedure solr query: {}/select?{}", solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -258,13 +239,13 @@ public class ImageService {
 
 		QueryResponse solrR = this.getProcedureFacetsForGeneByProcedure(acc, "experimental");
 		if (solrR == null) {
-			log.error("no response from solr data source for acc=" + acc);
+			logger.error("no response from solr data source for acc=" + acc);
 			return;
 		}
 
 		List<FacetField> procedures = solrR.getFacetFields();
 		if (procedures == null) {
-			log.error("no facets from solr data source for acc=" + acc);
+			logger.error("no facets from solr data source for acc=" + acc);
 			return;
 		}
 
@@ -308,36 +289,41 @@ public class ImageService {
 	public SolrDocumentList getControls(int numberOfControls, SolrDocumentList list, SexType sex, SolrDocument imgDoc)
 	throws SolrServerException {
 
-		QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 7);
-		if (responseControl != null && responseControl.getResults().size() > 0) {
-			log.info("adding control to list");
-			list.addAll(responseControl.getResults());
+		QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex);
+		logger.info("adding control to list");
+		list.addAll(responseControl.getResults());
 
-		} else {
-			log.error("no control images returned trying 7 days either side");
-			responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 30);
-			if (responseControl != null && responseControl.getResults().size() > 0) {
-				log.info("adding control to list");
-				list.addAll(responseControl.getResults());
+//		QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 7);
+//		if (responseControl != null && responseControl.getResults().size() > 0) {
+//			logger.info("adding control to list");
+//			list.addAll(responseControl.getResults());
+//
+//		} else {
+//			logger.error("no control images returned trying 7 days either side");
+//			responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 30);
+//			if (responseControl != null && responseControl.getResults().size() > 0) {
+//				logger.info("adding control to list");
+//				list.addAll(responseControl.getResults());
+//
+//			} else {
+//				logger.error("no control images returned trying 30days either side");
+//				responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 182);
+//				if (responseControl != null && responseControl.getResults().size() > 0) {
+//					logger.info("adding control to list");
+//					list.addAll(responseControl.getResults());
+//
+//				} else {
+//					logger.error("no control images returned trying 182 days either side trying no date filter");
+//					responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 0);
+//					if (responseControl != null && responseControl.getResults().size() > 0) {
+//						logger.info("adding control to list");
+//						list.addAll(responseControl.getResults());
+//
+//					}
+//				}
+//			}
+//		}
 
-			} else {
-				log.error("no control images returned trying 30days either side");
-				responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 182);
-				if (responseControl != null && responseControl.getResults().size() > 0) {
-					log.info("adding control to list");
-					list.addAll(responseControl.getResults());
-
-				} else {
-					log.error("no control images returned trying 182 days either side trying no date filter");
-					responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 0);
-					if (responseControl != null && responseControl.getResults().size() > 0) {
-						log.info("adding control to list");
-						list.addAll(responseControl.getResults());
-
-					}
-				}
-			}
-		}
 		return list;
 	}
 
@@ -367,13 +353,13 @@ public class ImageService {
 										// page for links
 		QueryResponse solrR = this.getParameterFacetsForGeneByProcedure(acc, procedureName, "experimental");
 		if (solrR == null) {
-			log.error("no response from solr data source for acc=" + acc);
+			logger.error("no response from solr data source for acc=" + acc);
 			return;
 		}
 
 		List<FacetField> facets = solrR.getFacetFields();
 		if (facets == null) {
-			log.error("no facets from solr data source for acc=" + acc);
+			logger.error("no facets from solr data source for acc=" + acc);
 			return;
 		}
 

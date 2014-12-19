@@ -42,6 +42,7 @@ public class GeneService {
 	private HttpSolrServer solr;
 
 	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
+	public static final String MOUSE_STATUS_TEMPLATE = "<span class='status %s' title='%s'><span>Mice<br>%s</span></span>";
 
 	public static final class GeneFieldValue {
 		public final static String CENTRE_WTSI = "WTSI";
@@ -432,47 +433,41 @@ public class GeneService {
 		JSONObject jsondoc = JSONObject.fromObject(org.noggit.JSONUtil.toJSON(doc));
 
 		try {
-					
-			System.out.println("getStatusFromDoc - " + jsondoc);
-			
+
 			/* ******** mice production status ******** */
 			String patternStr = "(tm.*)\\(.+\\).+"; // allele name pattern
 			Pattern pattern = Pattern.compile(patternStr);
 
-			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele
-			// docs)
+			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs)
 			if (doc.containsKey("mouse_status")) {
 
-				ArrayList<String> alleleNames = (ArrayList<String>) doc
-						.getFieldValue("allele_name");
-				ArrayList<String> mouseStatus = (ArrayList<String>) doc
-						.getFieldValue("mouse_status");
+				ArrayList<String> alleleNames = (ArrayList<String>) doc.getFieldValue("allele_name");
+				ArrayList<String> mouseStatus = (ArrayList<String>) doc.getFieldValue("mouse_status");
 
 				for (int i = 0; i < mouseStatus.size(); i++) {
-					System.out.println("GOT HERE ");
-					String mouseStatusStr = mouseStatus.get(i).toString();			
-					
+
+					String mouseStatusStr = mouseStatus.get(i).toString();
+					String alleleName = alleleNames.get(i).toString();
+					Matcher matcher = pattern.matcher(alleleName);
+
 					if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
-						String alleleName = alleleNames.get(i).toString();
-						Matcher matcher = pattern.matcher(alleleName);
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
-							miceStatus += "<span class='status done' title='"
-									+ StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' >"
-									+ "	<span>Mice<br>" + alleleType
-									+ "</span>" + "</span>";
+							miceStatus += String.format(
+								MOUSE_STATUS_TEMPLATE,
+								"done",
+								StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE,
+								alleleType);
 						}
 						
-					} else if (mouseStatusStr
-							.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
-						String alleleName = alleleNames.get(i).toString();
-						Matcher matcher = pattern.matcher(alleleName);
+					} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
-							miceStatus += "<span class='status inprogress' title='"+StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_IN_PROGRESS+"' >"
-									+ "	<span>Mice<br>"
-									+ alleleType
-									+ "</span>" + "</span>";
+							miceStatus += String.format(
+								MOUSE_STATUS_TEMPLATE,
+								"inprogress",
+								StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_IN_PROGRESS,
+								alleleType);
 						}
 					}
 				}
@@ -502,6 +497,7 @@ public class GeneService {
 		HashMap<String, String> res = new HashMap<>();
 		res.put("icons", esCellStatusHTMLRepresentation + miceStatus + phenotypingStatusHTMLRepresentation);
 		res.put("orderPossible", order.toString());
+
 		return res;
 	}
 	
