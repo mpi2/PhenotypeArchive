@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
@@ -21,12 +21,11 @@ import java.util.*;
 
 
 /**
- * Populate the Genotype-Phenotype core
+ * Load documents into the statistical-results SOLR core
  */
+public class StatisticalResultIndexer extends AbstractIndexer {
 
-public class GenotypePhenotypeIndexer extends AbstractIndexer {
-
-	private static final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
+	private static final Logger logger = LoggerFactory.getLogger(StatisticalResultIndexer.class);
 	private static Connection connection;
 
 	@Autowired
@@ -47,7 +46,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 	Map<String, List<OntologyTermBean>> mpTopTerms = new HashMap<>();
 	Map<String, List<OntologyTermBean>> mpIntTerms = new HashMap<>();
 
-	public GenotypePhenotypeIndexer() {
+	public StatisticalResultIndexer() {
 	}
 
 	public void initialise(String[] args) throws IndexerException {
@@ -65,7 +64,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
 			procedureMap = IndexerMap.getImpressProcedures(connection);
 			parameterMap = IndexerMap.getImpressParameters(connection);
-			logger.info("Done Populating impress maps");
 
 		} catch (SQLException e) {
 			throw new IndexerException(e);
@@ -77,7 +75,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
 
 	public static void main(String[] args) throws IndexerException {
-		GenotypePhenotypeIndexer main = new GenotypePhenotypeIndexer();
+		StatisticalResultIndexer main = new StatisticalResultIndexer();
 		main.initialise(args);
 		main.run();
 
@@ -96,38 +94,68 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 		Long start = System.currentTimeMillis();
 		try {
 
-			logger.info("Populating genotype-phenotype solr core");
-			populateGenotypePhenotypeSolrCore();
+			logger.info("Populating statistical-results solr core");
+			populateStatisticalResultsSolrCore();
 
 		} catch (SQLException | IOException | SolrServerException e) {
 			throw new IndexerException(e);
 		}
 
-		logger.info("Populating genotype-phenotype solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
+		logger.info("Populating statistical-results solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
 	}
 
 
-	public void populateGenotypePhenotypeSolrCore() throws SQLException, IOException, SolrServerException {
+	public void populateStatisticalResultsSolrCore() throws SQLException, IOException, SolrServerException {
 
 		int count=0;
 
 		gpSolrServer.deleteByQuery("*:*");
 
-		String query = "SELECT s.id as id, o.name as phenotyping_center, s.external_id, s.parameter_id as parameter_id, " +
-			"s.procedure_id as procedure_id, s.pipeline_id as pipeline_id, s.gf_acc as marker_accession_id, gf.symbol as marker_symbol, " +
-			"s.allele_acc as allele_accession_id, al.name as allele_name, al.symbol as allele_symbol, s.strain_acc as strain_accession_id, " +
-			"st.name as strain_name, s.sex as sex, s.zygosity as zygosity, p.name as project_name, p.fullname as project_fullname, " +
-			"s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, s.colony_id, " +
-			"db.name as resource_fullname, db.short_name as resource_name " +
-			"FROM phenotype_call_summary s " +
-			"INNER JOIN organisation o ON s.organisation_id = o.id " +
-			"INNER JOIN project p ON s.project_id = p.id " +
-			"INNER JOIN ontology_term ot ON ot.acc = s.mp_acc " +
-			"INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc " +
-			"LEFT OUTER JOIN strain st ON s.strain_acc = st.acc " +
-			"LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
-			"INNER JOIN external_db db ON s.external_db_id = db.id " +
-			"WHERE 0.0001 >= s.p_value";
+		String query = "(SELECT\n" +
+			"                        CONCAT(dependent_variable, '_', id) as doc_id,\n" +
+			"                        'unidimensional' AS data_type, id, control_id, \n" +
+			"                        experimental_id, NULL AS sex, experimental_zygosity,\n" +
+			"                        external_db_id, project_id, organisation_id,\n" +
+			"                        pipeline_id, parameter_id, colony_id,\n" +
+			"                        dependent_variable, control_selection_strategy, male_controls,\n" +
+			"                        male_mutants, female_controls, female_mutants,\n" +
+			"                        metadata_group, statistical_method, status,\n" +
+			"                        NULL AS category_a, NULL AS category_b, NULL AS categorical_p_value,\n" +
+			"                        NULL AS categorical_effect_size, 'Suppressed' AS raw_output, batch_significance,\n" +
+			"                        variance_significance, null_test_significance, genotype_parameter_estimate,\n" +
+			"                        genotype_stderr_estimate, genotype_effect_pvalue, gender_parameter_estimate,\n" +
+			"                        gender_stderr_estimate, gender_effect_pvalue, weight_parameter_estimate,\n" +
+			"                        weight_stderr_estimate, weight_effect_pvalue, gp1_genotype,\n" +
+			"                        gp1_residuals_normality_test, gp2_genotype, gp2_residuals_normality_test,\n" +
+			"                        blups_test, rotated_residuals_normality_test, intercept_estimate,\n" +
+			"                        intercept_stderr_estimate, interaction_significance, interaction_effect_pvalue,\n" +
+			"                        gender_female_ko_estimate, gender_female_ko_stderr_estimate, gender_female_ko_pvalue,\n" +
+			"                        gender_male_ko_estimate, gender_male_ko_stderr_estimate, gender_male_ko_pvalue,\n" +
+			"                        classification_tag, additional_information\n" +
+			"                    FROM stats_unidimensional_results WHERE dependent_variable NOT LIKE '%FER%' AND dependent_variable NOT LIKE '%VIA%')\n" +
+			"                    UNION ALL\n" +
+			"                        (SELECT\n" +
+			"                        CONCAT(dependent_variable, '_', id) as doc_id,\n" +
+			"                        'categorical' AS data_type, id, control_id,\n" +
+			"                        experimental_id, experimental_sex as sex, experimental_zygosity,\n" +
+			"                        external_db_id, project_id, organisation_id,\n" +
+			"                        pipeline_id, parameter_id, colony_id,\n" +
+			"                        dependent_variable, control_selection_strategy, male_controls,\n" +
+			"                        male_mutants, female_controls, female_mutants,\n" +
+			"                        metadata_group, statistical_method, status,\n" +
+			"                        category_a, category_b, p_value as categorical_p_value,\n" +
+			"                        effect_size AS categorical_effect_size, 'Suppressed' AS raw_output, NULL AS batch_significance,\n" +
+			"                        NULL AS variance_significance, NULL AS null_test_significance, NULL AS genotype_parameter_estimate,\n" +
+			"                        NULL AS genotype_stderr_estimate, NULL AS genotype_effect_pvalue, NULL AS gender_parameter_estimate,\n" +
+			"                        NULL AS gender_stderr_estimate, NULL AS gender_effect_pvalue, NULL AS weight_parameter_estimate,\n" +
+			"                        NULL AS weight_stderr_estimate, NULL AS weight_effect_pvalue, NULL AS gp1_genotype,\n" +
+			"                        NULL AS gp1_residuals_normality_test, NULL AS gp2_genotype, NULL AS gp2_residuals_normality_test,\n" +
+			"                        NULL AS blups_test, NULL AS rotated_residuals_normality_test, NULL AS intercept_estimate,\n" +
+			"                        NULL AS intercept_stderr_estimate, NULL AS interaction_significance, NULL AS interaction_effect_pvalue,\n" +
+			"                        NULL AS gender_female_ko_estimate, NULL AS gender_female_ko_stderr_estimate, NULL AS gender_female_ko_pvalue,\n" +
+			"                        NULL AS gender_male_ko_estimate, NULL AS gender_male_ko_stderr_estimate, NULL AS gender_male_ko_pvalue,\n" +
+			"                        NULL AS classification_tag, NULL AS additional_information\n" +
+			"                    FROM stats_categorical_results WHERE dependent_variable NOT LIKE '%FER%' AND dependent_variable NOT LIKE '%VIA%')";
 
 		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -136,18 +164,17 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 			ResultSet r = p.executeQuery();
 			while (r.next()) {
 
-				GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
+				StatisticalResultDTO doc = new StatisticalResultDTO();
 
-				doc.setId(r.getInt("id"));
+				doc.setDocId(r.getString("doc_id"));
 				doc.setSex(r.getString("sex"));
 				doc.setZygosity(r.getString("zygosity"));
 				doc.setPhenotypingCenter(r.getString("phenotyping_center"));
 				doc.setProjectName(r.getString("project_name"));
-				doc.setProjectFullname(r.getString("project_fullname"));
 				doc.setMpTermId(r.getString("mp_term_id"));
 				doc.setMpTermName(r.getString("mp_term_name"));
-				doc.setP_value(r.getDouble("p_value"));
-				doc.setEffect_size(r.getDouble("effect_size"));
+				doc.setpValue(r.getDouble("p_value"));
+				doc.setEffectSize(r.getDouble("effect_size"));
 				doc.setMarkerAccessionId(r.getString("marker_accession_id"));
 				doc.setMarkerSymbol(r.getString("marker_symbol"));
 				doc.setColonyId(r.getString("colony_id"));
@@ -158,7 +185,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 				doc.setStrainName(r.getString("strain_name"));
 				doc.setResourceFullname(r.getString("resource_fullname"));
 				doc.setResourceName(r.getString("resource_name"));
-				doc.setExternalId(r.getString("external_id"));
 
 				doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
 				doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
@@ -172,6 +198,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 				doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
 				doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
 
+				/*
+				TODO: The sexes can have different MP terms!!!  Need to handle this case
+				 */
 				List<String> termIds = new ArrayList<>();
 				List<String> termNames = new ArrayList<>();
 				Set<String> termSynonyms = new HashSet<>();
@@ -185,8 +214,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 					}
 					doc.setTopLevelMpTermId(termIds);
 					doc.setTopLevelMpTermName(termNames);
-					doc.setTopLevelMpTermSynonym(new ArrayList(termSynonyms));
-					doc.setTopLevelMpTermDefinition(termDefinitions);
 				}
 
 				termIds = new ArrayList<>();
@@ -202,8 +229,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 					}
 					doc.setIntermediateMpTermId(termIds);
 					doc.setIntermediateMpTermName(termNames);
-					doc.setIntermediateMpTermSynonym(new ArrayList(termSynonyms));
-					doc.setIntermediateMpTermDefinition(termDefinitions);
 				}
 
 				gpSolrServer.addBean(doc, 30000);
@@ -225,10 +250,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 		}
 
 	}
-
-
-
-
 
 
 }

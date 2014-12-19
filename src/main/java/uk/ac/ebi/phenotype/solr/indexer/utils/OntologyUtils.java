@@ -20,6 +20,7 @@
 
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
+import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 import java.sql.Connection;
@@ -437,11 +438,97 @@ public class OntologyUtils {
         
         return mpSynonymsMap.get(mpTermId);
     }
-    
-    
+
+
+    /**
+     * Return relevant impress pipeline map
+     *
+     * @throws java.sql.SQLException when a database exception occurs
+     */
+    public static Map<Integer, ImpressBean> populateImpressPipeline(Connection connection) throws SQLException {
+
+        Map<Integer, ImpressBean> impressMap;
+
+        String query = "SELECT id, stable_key, name, stable_id FROM phenotype_pipeline";
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            impressMap = populateImpressMap(p);
+        }
+
+        return impressMap;
+    }
+
+
+
+    /**
+     * Return relevant impress procedure map
+     *
+     * @throws java.sql.SQLException when a database exception occurs
+     */
+    public static Map<Integer, ImpressBean> populateImpressProcedure(Connection connection) throws SQLException {
+
+        Map<Integer, ImpressBean> impressMap;
+
+        String query = "SELECT id, stable_key, name, stable_id FROM phenotype_procedure";
+
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            impressMap = populateImpressMap(p);
+        }
+
+        return impressMap;
+    }
+
+    /**
+     * Return relevant impress parameter map
+     *
+     * @throws java.sql.SQLException when a database exception occurs
+     */
+    public static Map<Integer, ImpressBean> populateImpressParameter(Connection connection) throws SQLException {
+
+        Map<Integer, ImpressBean> impressMap;
+
+        String query = "SELECT id, stable_key, name, stable_id FROM phenotype_parameter";
+
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            impressMap = populateImpressMap(p);
+        }
+
+        return impressMap;
+    }
+
+
+
+
+    // INTERNAL METHODS
+
+    private static Map<Integer, ImpressBean> populateImpressMap(PreparedStatement p) throws SQLException {
+
+        Map<Integer, ImpressBean> impressMap = new HashMap<>();
+
+        ResultSet resultSet = p.executeQuery();
+
+        while (resultSet.next()) {
+
+            ImpressBean b = new ImpressBean();
+
+            b.id = resultSet.getInt("id");
+            b.stableKey = resultSet.getString("stable_key");
+            b.stableId = resultSet.getString("stable_id");
+            b.name = resultSet.getString("name");
+
+            impressMap.put(resultSet.getInt("id"), b);
+        }
+
+        return impressMap;
+    }
+
+
+
     // INTERNAL CLASSES
-    
-    
+
+
     public static class OntologyTermRecord {
         public String key;
         public List<OntologyTermBean> value;

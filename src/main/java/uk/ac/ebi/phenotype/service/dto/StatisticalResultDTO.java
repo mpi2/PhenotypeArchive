@@ -124,16 +124,16 @@ public class StatisticalResultDTO {
     private String mpTermName;
 
     @Field(TOP_LEVEL_MP_TERM_ID)
-    private String topLevelMpTermId;
+    private List<String> topLevelMpTermId;
 
     @Field(TOP_LEVEL_MP_TERM_NAME)
-    private String topLevelMpTermName;
+    private List<String> topLevelMpTermName;
 
     @Field(INTERMEDIATE_MP_TERM_ID)
-    private String intermediateMpTermId;
+    private List<String> intermediateMpTermId;
 
     @Field(INTERMEDIATE_MP_TERM_NAME)
-    private String intermediateMpTermName;
+    private List<String> intermediateMpTermName;
 
     @Field(RESOURCE_NAME)
     private String resourceName;
@@ -408,42 +408,42 @@ public class StatisticalResultDTO {
     }
 
     
-    public String getTopLevelMpTermId() {
+    public List<String> getTopLevelMpTermId() {
         return topLevelMpTermId;
     }
 
     
-    public void setTopLevelMpTermId(String topLevelMpTermId) {
+    public void setTopLevelMpTermId(List<String> topLevelMpTermId) {
         this.topLevelMpTermId = topLevelMpTermId;
     }
 
     
-    public String getTopLevelMpTermName() {
+    public List<String> getTopLevelMpTermName() {
         return topLevelMpTermName;
     }
 
     
-    public void setTopLevelMpTermName(String topLevelMpTermName) {
+    public void setTopLevelMpTermName(List<String> topLevelMpTermName) {
         this.topLevelMpTermName = topLevelMpTermName;
     }
 
     
-    public String getIntermediateMpTermId() {
+    public List<String> getIntermediateMpTermId() {
         return intermediateMpTermId;
     }
 
     
-    public void setIntermediateMpTermId(String intermediateMpTermId) {
+    public void setIntermediateMpTermId(List<String> intermediateMpTermId) {
         this.intermediateMpTermId = intermediateMpTermId;
     }
 
     
-    public String getIntermediateMpTermName() {
+    public List<String> getIntermediateMpTermName() {
         return intermediateMpTermName;
     }
 
     
-    public void setIntermediateMpTermName(String intermediateMpTermName) {
+    public void setIntermediateMpTermName(List<String> intermediateMpTermName) {
         this.intermediateMpTermName = intermediateMpTermName;
     }
 
