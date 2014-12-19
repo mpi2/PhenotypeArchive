@@ -100,6 +100,8 @@ public class SecondaryProjectController {
 		Map<String, Set<String>> mpterms = new HashMap<>();
 		Map<String, Set<String>> preqcmpterms = new HashMap<>();
 		Map<String, Set<String>> hpterms = new HashMap<>();
+		Map<String, Set<String>> mptermnames = new HashMap<>();
+		Map<String, Set<String>> hptermnames = new HashMap<>();
 		Map<String, Set<String>> humanterms = new HashMap<>();
 		Map<String, Set<String>> diseaseterms = new HashMap<>();
 		Map<String, String> mousesymbols = new HashMap<>();
@@ -124,18 +126,20 @@ public class SecondaryProjectController {
 
 				if (!mpterms.containsKey(MGIID)) {
 					mpterms.put(MGIID, new HashSet<String>());
+					mptermnames.put(MGIID, new HashSet<String>());
 				}
 				if (!preqcmpterms.containsKey(MGIID)) {
 					preqcmpterms.put(MGIID, new HashSet<String>());
+				}
+				if (!hpterms.containsKey(MGIID)) {
+					hpterms.put(MGIID, new HashSet<String>());
+					hptermnames.put(MGIID, new HashSet<String>());
 				}
 				if (!humanterms.containsKey(MGIID)) {
 					humanterms.put(MGIID, new HashSet<String>());
 				}
 				if (!diseaseterms.containsKey(MGIID)) {
 					diseaseterms.put(MGIID, new HashSet<String>());
-				}
-				if (!hpterms.containsKey(MGIID)) {
-					hpterms.put(MGIID, new HashSet<String>());
 				}
 
 				GeneDTO g = geneService.getGeneById(MGIID);
@@ -145,14 +149,19 @@ public class SecondaryProjectController {
 				if (pcss.containsKey(MGIID)) {
 					for (PhenotypeCallSummary pcs : pcss.get(MGIID)) {
 						String mp = pcs.getPhenotypeTerm().getId().getAccession();
+						String mpterm = pcs.getPhenotypeTerm().getName();
 						mpterms.get(MGIID).add(mp);
+						mptermnames.get(MGIID).add(mpterm);
+
 
 						logger.info("  looking for hp terms for {}", mp);
 						if (getMpToHpTerms.containsKey(mp)) {
 							for (Map<String, String> hpTerm : getMpToHpTerms.get(mp)) {
 								String hpid = hpTerm.get("hp_id");
+								String hpname = hpTerm.get("hp_term");
 								logger.info("   adding hp term {} for {}", hpid, mp);
 								hpterms.get(MGIID).add(hpid);
+								hptermnames.get(MGIID).add(hpname);
 							}
 						}
 					}
@@ -189,14 +198,16 @@ public class SecondaryProjectController {
 
 			}
 
-			resp.add(StringUtils.join(Arrays.asList("MGI ID", "Mouse symbol", "Human symbol", "MP terms", "HP terms", "Disease associations"), "\t"));
+			resp.add(StringUtils.join(Arrays.asList("MGI ID", "Mouse symbol", "Human symbol", "MP terms", "HP terms", "Disease associations", "MP term names", "HP term names"), "\t"));
 			for (String MGIID : accessions) {
 				List line = Arrays.asList(MGIID,
 					mousesymbols.get(MGIID),
 					StringUtils.join(humanterms.get(MGIID), ","),
 					StringUtils.join(mpterms.get(MGIID), ","),
 					StringUtils.join(hpterms.get(MGIID), ","),
-					StringUtils.join(diseaseterms.get(MGIID), ",")
+					StringUtils.join(diseaseterms.get(MGIID), ","),
+					StringUtils.join(mptermnames.get(MGIID), ","),
+					StringUtils.join(hptermnames.get(MGIID), ",")
 				);
 				resp.add(StringUtils.join(line, "\t"));
 			}
@@ -204,7 +215,7 @@ public class SecondaryProjectController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<String>(StringUtils.join(resp,"\n"), createResponseHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(StringUtils.join(resp,"\n"), createResponseHeaders(), HttpStatus.OK);
 	}
 
 	private HttpHeaders createResponseHeaders(){
