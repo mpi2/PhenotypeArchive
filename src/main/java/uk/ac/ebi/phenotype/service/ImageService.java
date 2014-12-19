@@ -286,43 +286,30 @@ public class ImageService {
 	}
 
 
+	/**
+	 * Gets numberOfControls images which are "nearest in time" to the date of experiment defined
+	 * in the imgDoc parameter for the specified sex.
+	 *
+	 * @param numberOfControls how many control images to collect
+	 * @param list this is an in/out parameter that gets modified by this method (!)
+	 * @param sex the sex of the specimen in the images
+	 * @param imgDoc the solr document representing the image record
+	 * @return solr document list, now updated to include all appropriate control images
+	 * @throws SolrServerException
+	 */
 	public SolrDocumentList getControls(int numberOfControls, SolrDocumentList list, SexType sex, SolrDocument imgDoc)
 	throws SolrServerException {
 
-		QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex);
-		logger.info("adding control to list");
-		list.addAll(responseControl.getResults());
+		final String metadataGroup = (String) imgDoc.get(ObservationDTO.METADATA_GROUP);
+		final String center = (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER);
+		final String strain = (String) imgDoc.get(ObservationDTO.STRAIN_NAME);
+		final String procedureName = (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME);
+		final String parameter = (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID);
+		final Date date = (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT);
 
-//		QueryResponse responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 7);
-//		if (responseControl != null && responseControl.getResults().size() > 0) {
-//			logger.info("adding control to list");
-//			list.addAll(responseControl.getResults());
-//
-//		} else {
-//			logger.error("no control images returned trying 7 days either side");
-//			responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 30);
-//			if (responseControl != null && responseControl.getResults().size() > 0) {
-//				logger.info("adding control to list");
-//				list.addAll(responseControl.getResults());
-//
-//			} else {
-//				logger.error("no control images returned trying 30days either side");
-//				responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 182);
-//				if (responseControl != null && responseControl.getResults().size() > 0) {
-//					logger.info("adding control to list");
-//					list.addAll(responseControl.getResults());
-//
-//				} else {
-//					logger.error("no control images returned trying 182 days either side trying no date filter");
-//					responseControl = this.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControls, sex, 0);
-//					if (responseControl != null && responseControl.getResults().size() > 0) {
-//						logger.info("adding control to list");
-//						list.addAll(responseControl.getResults());
-//
-//					}
-//				}
-//			}
-//		}
+		QueryResponse responseControl = this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
+		logger.info("Found {} controls. Adding to list", responseControl.getResults().getNumFound());
+		list.addAll(responseControl.getResults());
 
 		return list;
 	}
