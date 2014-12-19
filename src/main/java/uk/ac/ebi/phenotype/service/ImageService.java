@@ -196,12 +196,12 @@ public class ImageService {
 			.setQuery("*:*")
 			.addFilterQuery(
 				ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control",
-				ObservationDTO.PHENOTYPING_CENTER + ":\"" + center+"\"",
+				ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\"",
 				ObservationDTO.STRAIN_NAME + ":" + strain,
 				ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter,
 				ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"")
 			.setRows(numberOfImagesToRetrieve)
-			.setSort("abs(ms(date_of_experiment,"+org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(date)+"))", SolrQuery.ORDER.asc);
+			.setSort("abs(ms(date_of_experiment," + org.apache.solr.common.util.DateUtil.getThreadLocalDateFormat().format(date) + "))", SolrQuery.ORDER.asc);
 
 		if (StringUtils.isNotEmpty(metadataGroup)) {
 			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":" + metadataGroup);
