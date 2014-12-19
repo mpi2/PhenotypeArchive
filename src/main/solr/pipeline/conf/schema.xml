@@ -150,12 +150,12 @@
     <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
     <field name="proc_param_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
 
-	<field name="pipeline_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" />
-    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" /> 
-    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" /> 
-	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" /> 
-	<field name="ididid" type="string" indexed="true" stored="true" required="true" /> 
+	<field name="pipeline_id" type="int" indexed="true" stored="true" required="true" multiValued="true"/>
+    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
+    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/> 
+    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="true"/> 
+	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" multiValued="true"/> 
+	<field name="ididid" type="string" indexed="true" stored="true" required="true" multiValued="true" /> 
 
 	<!-- MP stuff -->
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />

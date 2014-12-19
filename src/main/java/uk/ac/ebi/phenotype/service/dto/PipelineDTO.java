@@ -41,13 +41,13 @@ public class PipelineDTO {
 	// "proc_param_name": "Housing and Husbandry___Submitter ID",
 	// "proc_param_stable_id": "IMPC_HOU_001___IMPC_HOU_001_001",
 	@Field(ObservationDTO.PIPELINE_NAME)
-	private String pipelineName;
+	private List<String> pipelineName;
 	// "pipeline_name": "IMPC Pipeline",
 	@Field("pipe_proc_sid")
-	private String pipeProcId;
+	private List<String> pipeProcId;
 
 	@Field("pipeline_stable_key")
-	private int pipelineStableKey;
+	private List<Integer> pipelineStableKey;
 
 	@Field("procedure_stable_key")
 	private List<Integer> procedureStableKey;
@@ -63,7 +63,7 @@ public class PipelineDTO {
 	// private int pipelineStableKey;
 	// "pipeline_stable_key": 7,
 	@Field(ObservationDTO.PIPELINE_STABLE_ID)
-	private String pipelineStableId;
+	private List<String> pipelineStableId;
 
 	@Field("proc_param_stable_id")
 	private List<String> procedureParamStableId;
@@ -75,7 +75,7 @@ public class PipelineDTO {
 	@Field("parameter_stable_key")
 	private String parameterStableKey;
 	@Field("ididid")
-	private String ididid;
+	private List<String> ididid;
 
 	@Field(GeneDTO.MGI_ACCESSION_ID)
 	private List<String> mgiAccession;
@@ -535,13 +535,13 @@ public class PipelineDTO {
 	}
 
 
-	public String getIdidid() {
+	public List<String> getIdidid() {
 
 		return ididid;
 	}
 
 
-	public void setIdidid(String ididid) {
+	public void setIdidid(List<String> ididid) {
 
 		this.ididid = ididid;
 	}
@@ -745,25 +745,25 @@ public class PipelineDTO {
 	}
 
 
-	public int getPipelineStableKey() {
+	public List<Integer> getPipelineStableKey() {
 
 		return pipelineStableKey;
 	}
 
 
-	public void setPipelineStableKey(int pipelineStableKey) {
+	public void setPipelineStableKey(List<Integer> pipelineStableKey) {
 
 		this.pipelineStableKey = pipelineStableKey;
 	}
 
 
-	public String getPipeProcId() {
+	public List<String> getPipeProcId() {
 
 		return pipeProcId;
 	}
 
 
-	public void setPipeProcId(String pipeProcId) {
+	public void setPipeProcId(List<String> pipeProcId) {
 
 		this.pipeProcId = pipeProcId;
 	}
@@ -853,13 +853,13 @@ public class PipelineDTO {
 	}
 
 
-	public String getPipelineName() {
+	public List<String> getPipelineName() {
 
 		return pipelineName;
 	}
 
 
-	public void setPipelineName(String pipelineName) {
+	public void setPipelineName(List<String> pipelineName) {
 
 		this.pipelineName = pipelineName;
 	}
@@ -877,13 +877,13 @@ public class PipelineDTO {
 	}
 
 
-	public String getPipelineStableId() {
+	public List<String> getPipelineStableId() {
 
 		return pipelineStableId;
 	}
 
 
-	public void setPipelineStableId(String pipelineStableId) {
+	public void setPipelineStableId(List<String> pipelineStableId) {
 
 		this.pipelineStableId = pipelineStableId;
 	}
@@ -999,7 +999,7 @@ public class PipelineDTO {
 	}
 
 
-	public void setIdIdId(String ididid) {
+	public void setIdIdId(List<String> ididid) {
 
 		this.ididid = ididid;
 
@@ -1369,6 +1369,55 @@ public class PipelineDTO {
 			this.inferredChildMaTermSynonym = new ArrayList<String>();
 		}
 		this.inferredChildMaTermSynonym.addAll(inferredChildMaTermSynonym);
+		
+	}
+
+
+	public void addPipelineName(String pipelineName) {
+
+		if (this.pipelineName== null) {
+			this.pipelineName = new ArrayList<String>();
+		}
+		this.pipelineName.add(pipelineName);
+		
+	}
+
+
+	public void addPipelineStableId(String pipelineStableId) {
+
+		if (this.pipelineStableId== null) {
+			this.pipelineStableId = new ArrayList<String>();
+		}
+		this.pipelineStableId.add(pipelineStableId);
+		
+	}
+
+
+	public void addPipelineStableKey(Integer pipelineStableKey) {
+		if (this.pipelineStableKey== null) {
+			this.pipelineStableKey = new ArrayList<Integer>();
+		}
+		this.pipelineStableKey.add(pipelineStableKey);
+		
+	}
+
+
+	public void addPipeProcId(String pipeProcId) {
+
+		if (this.pipeProcId== null) {
+			this.pipeProcId = new ArrayList<String>();
+		}
+		this.pipeProcId.add(pipeProcId);
+		
+	}
+
+
+	public void addIdIdId(String ididid) {
+
+		if (this.ididid== null) {
+			this.ididid = new ArrayList<String>();
+		}
+		this.ididid.add(ididid);
 		
 	}
 }

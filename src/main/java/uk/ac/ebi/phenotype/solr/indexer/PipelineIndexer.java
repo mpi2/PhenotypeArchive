@@ -137,17 +137,17 @@ public class PipelineIndexer extends AbstractIndexer {
 							// <field column="pipe_proc_sid"
 							// name="pipe_proc_sid" />
 							pipe.setPipelineId(pipeline.pipelineId);
-							pipe.setPipelineName(pipeline.pipelineName);
-							pipe.setPipelineStableId(pipeline.pipelineStableId);
-							pipe.setPipelineStableKey(pipeline.pipelineStableKey);
-							pipe.setPipeProcId(pipeline.pipeProcSid);
+							pipe.addPipelineName(pipeline.pipelineName);
+							pipe.addPipelineStableId(pipeline.pipelineStableId);
+							pipe.addPipelineStableKey(pipeline.pipelineStableKey);
+							pipe.addPipeProcId(pipeline.pipeProcSid);
 
 							// select
 							// concat(${phenotype_parameter.id},'_',${phenotype_pipeline_procedure.pproc_id},'_',${phenotype_pipeline_procedure.pipe_id})
 							// as ididid">
 							// <field column="ididid" name="ididid" />
 							String ididid = paramDbId + "_" + procId + "_" + pipe.getPipelineId();
-							pipe.setIdIdId(ididid);
+							pipe.addIdIdId(ididid);
 							if (pppidsToGfMpBeans.containsKey(ididid)) {
 								List<GfMpBean> gfMpBeanList = pppidsToGfMpBeans.get(ididid);
 								for (GfMpBean gfMpBean : gfMpBeanList) {
@@ -478,6 +478,9 @@ public class PipelineIndexer extends AbstractIndexer {
 				pipe.pipelineStableKey = pipeStableKey;
 				pipe.pipelineStableId = pipeStableId;
 				pipe.pipeProcSid = pipeProcSid;
+				if(procIdToPipelineMap.containsKey(procedureId)){
+					System.out.println("procedure id already in map----------------------------------------"+ procedureId +" "+ pipeStableId);
+				}
 				procIdToPipelineMap.put(procedureId, pipe);
 			}
 
