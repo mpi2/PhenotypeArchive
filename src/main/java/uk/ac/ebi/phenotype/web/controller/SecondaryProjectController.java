@@ -18,6 +18,8 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +42,10 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.AlleleService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.PostQcService;
+import uk.ac.ebi.phenotype.service.PreQcService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
@@ -68,6 +72,11 @@ public class SecondaryProjectController {
 	PostQcService genotypePhenotypeService;
 
 	@Autowired
+	@Qualifier("preqcService")
+	PreQcService preQcService;
+
+
+	@Autowired
 	GeneService geneService;
 
 
@@ -89,6 +98,7 @@ public class SecondaryProjectController {
 		logger.info("Downloading data for secondary project id=" + id);
 
 		Map<String, Set<String>> mpterms = new HashMap<>();
+		Map<String, Set<String>> preqcmpterms = new HashMap<>();
 		Map<String, Set<String>> hpterms = new HashMap<>();
 		Map<String, Set<String>> humanterms = new HashMap<>();
 		Map<String, Set<String>> diseaseterms = new HashMap<>();
@@ -114,6 +124,9 @@ public class SecondaryProjectController {
 
 				if (!mpterms.containsKey(MGIID)) {
 					mpterms.put(MGIID, new HashSet<String>());
+				}
+				if (!preqcmpterms.containsKey(MGIID)) {
+					preqcmpterms.put(MGIID, new HashSet<String>());
 				}
 				if (!humanterms.containsKey(MGIID)) {
 					humanterms.put(MGIID, new HashSet<String>());
@@ -146,15 +159,27 @@ public class SecondaryProjectController {
 				} else if (genes.get(MGIID)!=null && genes.get(MGIID).getLatestPhenotypeStatus() != null && genes.get(MGIID).getLatestPhenotypeStatus().equalsIgnoreCase(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE)) {
 					mpterms.get(MGIID).add("No phenotype calls");
 				} else if (genes.get(MGIID)!=null && genes.get(MGIID).getLatestPhenotypeStatus() != null && genes.get(MGIID).getLatestPhenotypeStatus().equalsIgnoreCase(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED)) {
-					mpterms.get(MGIID).add("PreQC data available");
+
+					SolrDocumentList preQcMpTerms = preQcService.getPhenotypes(MGIID);
+					for (SolrDocument doc : preQcMpTerms) {
+						if(doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID)!=null) {
+							preqcmpterms.get(MGIID).add((String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID));
+						}
+					}
+					if(preqcmpterms.get(MGIID).isEmpty()) {
+						preqcmpterms.get(MGIID).add("No phenotype calls");
+					}
+
+					mpterms.get(MGIID).add("PREQC_MP_TERMS(" + StringUtils.join(preqcmpterms.get(MGIID), ",") + ")");
+
 				} else {
 					mpterms.get(MGIID).add("No data");
 				}
 
-				logger.info(" looking for human symbols for {}", MGIID);
+				logger.info("  looking for human symbols for {}", MGIID);
 				if (genes.get(MGIID) != null && genes.get(MGIID).getHumanGeneSymbol() != null) {
 					humanterms.get(MGIID).addAll(genes.get(MGIID).getHumanGeneSymbol());
-					logger.info(" adding human symbols {} for {}", genes.get(MGIID).getHumanGeneSymbol(), MGIID);
+					logger.info("   adding human symbols {} for {}", genes.get(MGIID).getHumanGeneSymbol(), MGIID);
 				}
 
 				if (genes.get(MGIID) != null && genes.get(MGIID).getDiseaseId() != null) {

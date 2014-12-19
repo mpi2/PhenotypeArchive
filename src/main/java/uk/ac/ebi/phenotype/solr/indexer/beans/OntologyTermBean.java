@@ -33,12 +33,13 @@ public class OntologyTermBean {
     private String termId;
     private String name;
     private List<String> synonyms;
+    private String definition;
     
     /**
      * Create a new, empty <code>OntologyTermBean</code> instance.
      */
     public OntologyTermBean() {
-        this("", "", new ArrayList<String>());
+        this("", "", new ArrayList<String>(), "");
     }
     
     /**
@@ -52,13 +53,14 @@ public class OntologyTermBean {
      * NOTE: A concatenation of termId and name, separated by two underscores,
      *       is available as a getter.
      */
-    public OntologyTermBean(String termId, String name, List<String> synonyms) {
+    public OntologyTermBean(String termId, String name, List<String> synonyms, String definition) {
         this.termId = termId;
         this.name = name;
         this.synonyms = synonyms;
         if (synonyms == null) {
             this.synonyms = new ArrayList();
         }
+        this.definition = definition;
     }
 
     
@@ -88,8 +90,17 @@ public class OntologyTermBean {
     public void setSynonyms(List<String> synonyms) {
         this.synonyms = synonyms;
     }
-    
-    
+
+    public String getDefinition() {
+        return definition;
+    }
+
+    public void setDefinition(String definition) {
+        this.definition = definition;
+    }
+
+
+
     // AUXILIARY METHODS
 
     

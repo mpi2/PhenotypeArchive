@@ -163,7 +163,7 @@
             async: false,
             type: 'post',
             success: function(subFacetJsons) {
-                console.log(subFacetJsons);
+                //console.log(subFacetJsons);
 
                 var cores = MPI2.searchAndFacetConfig.megaCores;
 

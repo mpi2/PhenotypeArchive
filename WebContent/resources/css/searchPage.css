@@ -150,7 +150,7 @@ span.annotType {
 table#diseaseGrid th:nth-child(1) {
 	width: 200px !important;
 }
-table#imagesGrid th:nth-child(1) {
+table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
 	width: 35% !important;
 }
 /* end of dataTable on search page */
