@@ -1,7 +1,5 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,15 +7,15 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
-import uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer;
+import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.util.Map;
 
@@ -31,6 +29,7 @@ public class ObservationIndexerTest {
 	private static final Logger logger = LoggerFactory.getLogger(ObservationIndexerTest.class);
 
 	@Autowired
+	@Qualifier("komp2DataSource")
 	private DataSource ds;
 
 	private Connection connection;
@@ -43,7 +42,7 @@ public class ObservationIndexerTest {
 
 	@Test
 	public void testPopulateBiologicalDataMap() throws Exception {
-		ObservationIndexer e = new ObservationIndexer(connection);
+		ObservationIndexer e = new ObservationIndexer();
 
 		e.populateBiologicalDataMap();
 		Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = e.getBiologicalData();
@@ -55,7 +54,7 @@ public class ObservationIndexerTest {
 
 	@Test
 	public void testPopulateLineBiologicalDataMap() throws Exception {
-		ObservationIndexer e = new ObservationIndexer(connection);
+		ObservationIndexer e = new ObservationIndexer();
 
 		e.populateLineBiologicalDataMap();
 		Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = e.getLineBiologicalData();
@@ -68,23 +67,20 @@ public class ObservationIndexerTest {
 
 	@Test
 	public void testImpressDataMaps() throws Exception {
-		ObservationIndexer e = new ObservationIndexer(connection);
-
-		e.populateImpressDataMap();
-		Map<Integer, ObservationIndexer.ImpressBean> bioDataMap;
+		Map<Integer, ImpressBean> bioDataMap;
 
 		// Pipelines
-		bioDataMap = e.getPipelineMap();
+		bioDataMap = IndexerMap.getImpressPipelines(connection);
 		Assert.assertTrue(bioDataMap.size() > 5);
 		logger.info("Size of pipeline data map {}", bioDataMap.size());
 
 		//Procedures
-		bioDataMap = e.getProcedureMap();
+		bioDataMap = IndexerMap.getImpressProcedures(connection);
 		Assert.assertTrue(bioDataMap.size() > 20);
 		logger.info("Size of procedure data map {}", bioDataMap.size());
 
 		//Parameters
-		bioDataMap = e.getParameterMap();
+		bioDataMap = IndexerMap.getImpressParameters(connection);
 		Assert.assertTrue(bioDataMap.size() > 500);
 		logger.info("Size of parameter data map {}", bioDataMap.size());
 
@@ -92,7 +88,7 @@ public class ObservationIndexerTest {
 
 	@Test
 	public void testDatasourceDataMaps() throws Exception {
-		ObservationIndexer e = new ObservationIndexer(connection);
+		ObservationIndexer e = new ObservationIndexer();
 
 		e.populateDatasourceDataMap();
 		Map<Integer, ObservationIndexer.DatasourceBean> bioDataMap;
@@ -111,7 +107,7 @@ public class ObservationIndexerTest {
 
 	@Test
 	public void testpopulateCategoryNamesDataMap() throws Exception {
-		ObservationIndexer e = new ObservationIndexer(connection);
+		ObservationIndexer e = new ObservationIndexer();
 
 		e.populateCategoryNamesDataMap();
 		Map<String, Map<String, String>> bioDataMap = e.getTranslateCategoryNames();
