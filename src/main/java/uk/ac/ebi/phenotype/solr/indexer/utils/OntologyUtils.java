@@ -22,6 +22,7 @@ package uk.ac.ebi.phenotype.solr.indexer.utils;
 
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OrganisationBean;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -499,6 +500,36 @@ public class OntologyUtils {
     }
 
 
+    /**
+     * Populate the map with organisation beans
+     *
+     * @param connection
+     * @return the populated map of organisation beans indexed by internal DB id
+     * @throws SQLException when a database error occurs
+     */
+    public static Map<Integer, OrganisationBean> populateOrganisationMap(Connection connection) throws SQLException {
+
+        Map<Integer, OrganisationBean> map = new HashMap<>();
+        String query = "SELECT id, name, fullname, country FROM organisation";
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+
+                OrganisationBean b = new OrganisationBean();
+
+                b.setId(resultSet.getInt("id"));
+                b.setName(resultSet.getString("name"));
+                b.setFullname(resultSet.getString("fullname"));
+                b.setCountry(resultSet.getString("country"));
+                map.put(b.getId(), b);
+            }
+        }
+
+        return map;
+
+    }
+
 
 
     // INTERNAL METHODS
@@ -523,7 +554,6 @@ public class OntologyUtils {
 
         return impressMap;
     }
-
 
 
     // INTERNAL CLASSES
