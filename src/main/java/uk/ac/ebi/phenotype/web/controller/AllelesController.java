@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -403,7 +407,8 @@ public class AllelesController {
         }
         
         Map<String, Object> constructs;
-        if ( model.containsAttribute("bare") ) {
+       
+        if ( request.getParameter("bare").equals("true") ) {
         	constructs = solrIndex2.getEucommToolsGeneProductInfo(acc, allele_name, d);
         }
         else {
