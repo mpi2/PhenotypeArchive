@@ -52,7 +52,7 @@ public class SolrIndex2 {
     private static final String ALLELE_NAME_FIELD = "allele_name_str";
     private static final String ALLELE_TYPE_FIELD = "allele_type";
     private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8983";
-
+    
     public JSONObject getResults(String url) throws IOException,
             URISyntaxException {
 
@@ -1048,6 +1048,29 @@ public class SolrIndex2 {
         return url;
     }
 
+    private String getGeneProductCoreUrlAlt4(String accession, String allele_name) {
+        String qallele_name = "";
+        String qallele_type = "";
+        if (allele_name != null) {
+            qallele_name = " AND " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
+
+            Pattern pattern = Pattern.compile(".+?\\d(.)");
+            Matcher matcher = pattern.matcher(allele_name);
+            if (matcher.find()) {
+                qallele_type = " AND allele_type:\"" + matcher.group(1) + "\"";
+            }
+        }
+
+        String target = "-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
+
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_product/select?q="
+                + target
+                + "&start=0&rows=100&hl=true&wt=json";
+
+
+        return url;
+    }
+    
     public static final String[] DELETE_VALUES = new String[]{"1b", "1d", "1", "1.1", "1.2"};
 
     private String isDeleted(String type) {
@@ -1822,6 +1845,16 @@ public class SolrIndex2 {
         return getGeneProductInfo(hash);
     }
 
+    public Map<String, Object> getEucommToolsGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
+        Map<String, String> hash = new HashMap<>();
+        hash.put("accession", accession);
+        hash.put("allele_name", allele_name);
+        hash.put("url", getGeneProductCoreUrlAlt4(accession, allele_name));
+        hash.put("debug", debug ? "true" : "false");
+        return getGeneProductInfo(hash);
+    }
+    
+    
     private Map<String, Object> getGeneProductInfo(Map<String, String> hash) throws IOException, URISyntaxException, Exception {
 
         String accession = hash.get("accession");

@@ -401,9 +401,15 @@ public class AllelesController {
         if(d) {
             model.addAttribute("debug", "true");
         }
-
-        Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, allele_name, d);
-
+        
+        Map<String, Object> constructs;
+        if ( model.containsAttribute("bare") ) {
+        	constructs = solrIndex2.getEucommToolsGeneProductInfo(acc, allele_name, d);
+        }
+        else {
+        	constructs = solrIndex2.getGeneProductInfo(acc, allele_name, d);
+        }
+        
         if (constructs == null) {
             return "alleles";
         }
