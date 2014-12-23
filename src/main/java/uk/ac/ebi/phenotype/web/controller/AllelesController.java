@@ -315,7 +315,7 @@ public class AllelesController {
     @RequestMapping("/alleles/{acc}/{allele_name:.*}")
     public String alleles2(
             @PathVariable String acc,
-            @PathVariable( value="allele_name") String allele_name,  // redefine, so that string after dot will not be truncated
+            @PathVariable(value="allele_name") String allele_name,  // redefine, so that string after dot will not be truncated
             @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
             Model model,
             HttpServletRequest request,
