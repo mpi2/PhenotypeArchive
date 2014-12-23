@@ -312,10 +312,10 @@ public class AllelesController {
         return json;
     }
 
-    @RequestMapping("/alleles/{acc}/{allele_name}")
+    @RequestMapping("/alleles/{acc}/{allele_name:.*}")
     public String alleles2(
             @PathVariable String acc,
-            @PathVariable String allele_name,
+            @PathVariable( value="allele_name") String allele_name,
             @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
             Model model,
             HttpServletRequest request,
@@ -329,7 +329,7 @@ public class AllelesController {
         log.info("#### alleles1: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
 
-        if(bare) model.addAttribute("bare", bare);
+        if (bare) model.addAttribute("bare", bare);
 
         return allelesCommon(acc, allele_name, model, request, attributes);
     }

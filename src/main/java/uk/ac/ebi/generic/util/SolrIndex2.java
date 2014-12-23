@@ -1067,7 +1067,7 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
-
+        
         return url;
     }
     
@@ -1859,6 +1859,8 @@ public class SolrIndex2 {
 
         String accession = hash.get("accession");
         String allele_name = hash.get("allele_name");
+        System.out.println("allele name: " + allele_name);
+        //String allele_name = URLEncoder.encode(hash.get("allele_name"), "UTF-8");
         String url = hash.get("url");
         boolean debug = hash.get("debug") != null && hash.get("debug").equals("true");
 
