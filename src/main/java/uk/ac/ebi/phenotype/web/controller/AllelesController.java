@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -308,10 +312,10 @@ public class AllelesController {
         return json;
     }
 
-    @RequestMapping("/alleles/{acc}/{allele_name}")
+    @RequestMapping("/alleles/{acc}/{allele_name:.*}")
     public String alleles2(
             @PathVariable String acc,
-            @PathVariable String allele_name,
+            @PathVariable(value="allele_name") String allele_name,  // redefine, so that string after dot will not be truncated
             @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
             Model model,
             HttpServletRequest request,
@@ -325,7 +329,7 @@ public class AllelesController {
         log.info("#### alleles1: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
 
-        if(bare) model.addAttribute("bare", bare);
+        if (bare) model.addAttribute("bare", bare);
 
         return allelesCommon(acc, allele_name, model, request, attributes);
     }
@@ -401,9 +405,16 @@ public class AllelesController {
         if(d) {
             model.addAttribute("debug", "true");
         }
-
-        Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, allele_name, d);
-
+        
+        Map<String, Object> constructs;
+       
+        if ( request.getParameter("bare").equals("true") ) {
+        	constructs = solrIndex2.getEucommToolsGeneProductInfo(acc, allele_name, d);
+        }
+        else {
+        	constructs = solrIndex2.getGeneProductInfo(acc, allele_name, d);
+        }
+        
         if (constructs == null) {
             return "alleles";
         }
