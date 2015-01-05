@@ -1048,6 +1048,7 @@ public class SolrIndex2 {
         return url;
     }
 
+    // this is for creating eucommtools allele project page that is used in creline.org
     private String getGeneProductCoreUrlAlt4(String accession, String allele_name) {
         String qallele_name = "";
         String qallele_type = "";
@@ -1065,7 +1066,7 @@ public class SolrIndex2 {
 
         String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_product/select?q="
                 + target
-                + "&start=0&rows=100&hl=true&wt=json";
+               	+ "&start=0&rows=100&hl=true&wt=json";
 
         
         return url;
