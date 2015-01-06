@@ -31,6 +31,8 @@ if(typeof(window.MPI2) === 'undefined') {
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
+config.hideProcedures = true;
+
 config.currentFq    = false;
 config.matchedFacet = false;
 config.lastImgSumCount = 0;
@@ -77,7 +79,12 @@ if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
 
-config.megaCores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images', 'impc_images'];
+if ( config.hideProcedures ){
+	config.megaCores = ['gene', 'mp', 'disease', 'ma', 'images', 'impc_images'];
+}
+else {
+	config.megaCores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images', 'impc_images'];
+}
 
 config.geneStatuses = ['Phenotype Data Available',
                'Mice Produced',

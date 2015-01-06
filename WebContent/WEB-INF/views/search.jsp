@@ -78,11 +78,12 @@
 								<span class="fcount"></span>
 								<ul></ul>
 							</li>
-							<li class="fmcat" id="pipeline">
+							<!-- <li class="fmcat" id="pipeline">
 								<span class="flabel">Procedures</span>
 								<span class="fcount"></span>
 								<ul></ul>
 							</li>
+							-->
 							<li class="fmcat" id="impc_images">
 								<span class="flabel">IMPC Images</span>
 								<span class="fcount"></span>
@@ -132,7 +133,7 @@
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script>
+			<!--  <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script> -->
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/impc_imagesFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js?v=${version}'></script>
