@@ -58,7 +58,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	}
 
 	public static void main(String[] args) throws IndexerException {
-		StatisticalResultIndexer main = new StatisticalResultIndexer();
+		ObservationIndexer main = new ObservationIndexer();
 		main.initialise(args);
 		main.run();
 
