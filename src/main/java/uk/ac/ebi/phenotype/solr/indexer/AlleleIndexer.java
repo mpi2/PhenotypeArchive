@@ -245,7 +245,7 @@ public class AlleleIndexer extends AbstractIndexer {
 		public String goTermName;
 		public String goTermDef;
 		public String goTermEvid; // linkage type
-		public String goDomain;   // not sure if we need this
+		public String goTermDomain;   // not sure if we need this
 
 		@Override
 		public boolean equals(Object o) {
@@ -254,7 +254,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
 			GoAnnotations that = (GoAnnotations) o;
 
-			if (goDomain != null ? !goDomain.equals(that.goDomain) : that.goDomain != null) return false;
+			if (goTermDomain != null ? !goTermDomain.equals(that.goTermDomain) : that.goTermDomain != null) return false;
 			if (goTermDef != null ? !goTermDef.equals(that.goTermDef) : that.goTermDef != null) return false;
 			if (goTermEvid != null ? !goTermEvid.equals(that.goTermEvid) : that.goTermEvid != null) return false;
 			if (goTermId != null ? !goTermId.equals(that.goTermId) : that.goTermId != null) return false;
@@ -269,7 +269,7 @@ public class AlleleIndexer extends AbstractIndexer {
 			result = 31 * result + (goTermName != null ? goTermName.hashCode() : 0);
 			result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
 			result = 31 * result + (goTermEvid != null ? goTermEvid.hashCode() : 0);
-			result = 31 * result + (goDomain != null ? goDomain.hashCode() : 0);
+			result = 31 * result + (goTermDomain != null ? goTermDomain.hashCode() : 0);
 			return result;
 		}
 	}
@@ -281,7 +281,7 @@ public class AlleleIndexer extends AbstractIndexer {
 				+ "<!DOCTYPE Query>"
 				+ "<Query  virtualSchemaName = \"default\" formatter = \"TSV\" header = \"0\" uniqueRows = \"0\" count = \"\" datasetConfigVersion = \"0.6\" >"
 				+ "<Dataset name = \"mmusculus_gene_ensembl\" interface = \"default\" >"
-				+ "<Filter name = \"source\" value = \"ensembl\"/>"
+				+ "<Filter name = \"go_evidence_code\" value = \"EXP,IDA,IGI,IMP,IPI\"/>"
 				+ "<Filter name = \"with_mgi\" excluded = \"0\"/>"
 				+ "<Attribute name = \"go_id\" />"
 				+ "<Attribute name = \"name_1006\" />"
@@ -303,20 +303,22 @@ public class AlleleIndexer extends AbstractIndexer {
         String line;
         while ((line = in.readLine()) != null) {
             //System.out.println(line);
-			String[] values   = line.split("\\t");
-			String goTermId   = values[0];
-			String goTermName = values[1];
-			String goTermDef  = values[2];
-			String goTermEvid = values[3]; // linkage type
-			String goDomain   = values[4]; // do we need this?
-			String mgiSymbol  = values[5];
-			String mgiId      = values[6];
+			String[] values     = line.split("\\t");
+			String goTermId     = values[0];
+			String goTermName   = values[1];
+			String goTermDef    = values[2];
+			String goTermEvid   = values[3]; // linkage type
+			String goTermDomain = values[4]; // molecular_function, cellular_component, biological_function
+			String mgiSymbol    = values[5];
+			String mgiId        = values[6];
 			
 			GoAnnotations ga = new GoAnnotations();
 			ga.goTermId   = goTermId;
 			ga.goTermName = goTermName;
 			ga.goTermDef  = goTermDef;
 			ga.goTermEvid = goTermEvid;
+			ga.goTermDomain = goTermDomain;
+			
 			
 			Set<GoAnnotations> gaList = new HashSet<>();
 			
@@ -649,6 +651,7 @@ public class AlleleIndexer extends AbstractIndexer {
 				dto.getGoTermNames().add(ga.goTermName);
 				dto.getGoTermDefs().add(ga.goTermDef);
 				dto.getGoTermEvids().add(ga.goTermEvid);
+				dto.getGoTermDomains().add(ga.goTermDomain);
 	        }
 		}
 	}

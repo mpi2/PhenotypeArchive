@@ -65,6 +65,7 @@ public class AlleleDTO {
 	public static final String GOTERMNAME = "go_term_name";
 	public static final String GOTERMDEF = "go_term_def";
 	public static final String GOTERMEVID = "go_term_evid";
+	public static final String GOTERMDOMAIN = "go_term_domain";
 	
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
@@ -196,6 +197,9 @@ public class AlleleDTO {
 	
 	@Field(GOTERMEVID)
 	private List<String> goTermEvids = new ArrayList<>();
+	
+	@Field(GOTERMDOMAIN)
+	private List<String> goTermDomains = new ArrayList<>();
 	
 	
 	@Field(DISEASE_ID)
@@ -693,7 +697,20 @@ public class AlleleDTO {
 		this.goTermEvids = goTermEvids;
 	}
 	
+	/**
+	 * @return the goTermDomains
+	 */
+	public List<String> getGoTermDomains() {
+		return goTermDomains;
+	}
 	
+	/**
+	 * @param goTermDomains
+	 *            the goTermDomains to set
+	 */
+	public void setGoTermDomains(List<String> goTermDomains) {
+		this.goTermDomains = goTermDomains;
+	}
 	
 	/**
 	 * @return the diseaseId
@@ -970,6 +987,7 @@ public class AlleleDTO {
 			", goTermNames" + goTermNames +
 			", goTermDefs" + goTermDefs +
 			", goTermEvids" + goTermEvids +
+			", goTermDomains" + goTermDomains +
 			", diseaseId=" + diseaseId +
 			", diseaseSource=" + diseaseSource +
 			", diseaseTerm=" + diseaseTerm +

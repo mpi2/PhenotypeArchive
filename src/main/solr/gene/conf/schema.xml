@@ -237,6 +237,7 @@
 	<field name="go_term_name" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_def" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_evid" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="go_term_domain" type="string" indexed="true" stored="true" multiValued="true"/>
 	
 	<!-- for copyfield -->
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
