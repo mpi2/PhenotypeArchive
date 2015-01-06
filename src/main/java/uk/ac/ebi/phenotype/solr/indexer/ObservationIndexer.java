@@ -1,30 +1,20 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import uk.ac.ebi.phenotype.pojo.BiologicalSampleType;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,10 +26,14 @@ import java.util.*;
  * Populate the experiment core
  */
 
-public class ObservationIndexer {
+public class ObservationIndexer extends AbstractIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
 	private static Connection connection;
+
+	@Autowired
+	@Qualifier("komp2DataSource")
+	DataSource komp2DataSource;
 
 	@Autowired
 	@Qualifier("observationIndexing")
@@ -61,77 +55,63 @@ public class ObservationIndexer {
 	public ObservationIndexer() {
 	}
 
-
-	public ObservationIndexer(Connection connection) {
-		ObservationIndexer.connection = connection;
-	}
-
-
-
-	public static void main(String[] args) throws SQLException, InterruptedException, JAXBException, IOException, NoSuchAlgorithmException, KeyManagementException, SolrServerException {
-		OptionParser parser = new OptionParser();
-
-		// parameter to indicate which spring context file to use
-		parser.accepts("context").withRequiredArg().ofType(String.class);
-
-		OptionSet options = parser.parse(args);
-		String context = (String) options.valuesOf("context").get(0);
-
-		logger.info("Using application context file {}", context);
-
-		// Wire up spring support for this application
-		ObservationIndexer main = new ObservationIndexer();
-
-		ApplicationContext applicationContext;
-		try {
-
-			// Try context as a file resource
-			applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-
-		} catch (RuntimeException e) {
-
-			logger.warn("An error occurred loading the file: {}", e.getMessage());
-
-			// Try context as a class path resource
-			applicationContext = new ClassPathXmlApplicationContext(context);
-
-			logger.warn("Using classpath app-config file: {}", context);
-
-		}
-		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-		// allow hibernate session to stay open the whole execution
-		PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-		DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-		transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-		transactionManager.getTransaction(transactionAttribute);
-
-		DataSource ds = ((DataSource) applicationContext.getBean("komp2DataSource"));
-		connection = ds.getConnection();
-
+	public static void main(String[] args) throws IndexerException {
+		StatisticalResultIndexer main = new StatisticalResultIndexer();
+		main.initialise(args);
 		main.run();
 
 		logger.info("Process finished.  Exiting.");
 	}
 
 
-	private void run() throws JAXBException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, SolrServerException {
+	@Override
+	protected Logger getLogger() {
+		return logger;
+	}
+
+	public void initialise(String[] args) throws IndexerException {
+
+		super.initialise(args);
+
+		try {
+
+			connection = komp2DataSource.getConnection();
+
+			logger.info("Populating impress maps");
+			pipelineMap = IndexerMap.getImpressPipelines(connection);
+			procedureMap = IndexerMap.getImpressProcedures(connection);
+			parameterMap = IndexerMap.getImpressParameters(connection);
+
+		} catch (SQLException e) {
+			throw new IndexerException(e);
+		}
+
+		printConfiguration();
+
+	}
 
 
-		logger.info("Populating impress maps");
-		populateImpressDataMap();
+	public void run() throws IndexerException {
 
-		logger.info("Populating data source, project, and category translation maps");
-		populateDatasourceDataMap();
-		populateCategoryNamesDataMap();
-
-		logger.info("Populating biological data maps");
-		populateBiologicalDataMap();
-		populateLineBiologicalDataMap();
-
-		logger.info("Populating experiment solr core");
 		Long start = System.currentTimeMillis();
-		populateObservationSolrCore();
+
+		try {
+
+			logger.info("Populating data source, project, and category translation maps");
+			populateDatasourceDataMap();
+			populateCategoryNamesDataMap();
+
+			logger.info("Populating biological data maps");
+			populateBiologicalDataMap();
+			populateLineBiologicalDataMap();
+
+			logger.info("Populating experiment solr core");
+			populateObservationSolrCore();
+
+		} catch (SolrServerException | SQLException | IOException e) {
+			throw new IndexerException(e);
+		}
+
 		logger.info("Populating experiment solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
 
 	}
@@ -477,49 +457,6 @@ public class ObservationIndexer {
 	}
 
 
-	/**
-	 * Add all the relevant data to the Impress map
-	 *
-	 * @throws SQLException when a database exception occurs
-	 */
-	public void populateImpressDataMap() throws SQLException {
-
-		List<String> queries = new ArrayList<>();
-		queries.add("SELECT id, name, stable_id, 'PIPELINE' as impress_type FROM phenotype_pipeline");
-		queries.add("SELECT id, name, stable_id, 'PROCEDURE' as impress_type FROM phenotype_procedure");
-		queries.add("SELECT id, name, stable_id, 'PARAMETER' as impress_type FROM phenotype_parameter");
-
-		for (String query : queries) {
-
-			try (PreparedStatement p = connection.prepareStatement(query)) {
-
-				ResultSet resultSet = p.executeQuery();
-
-				while (resultSet.next()) {
-
-					ImpressBean b = new ImpressBean();
-
-					b.id = resultSet.getInt("id");
-					b.stableId = resultSet.getString("stable_id");
-					b.name = resultSet.getString("name");
-
-					switch (resultSet.getString("impress_type")) {
-						case "PIPELINE":
-							pipelineMap.put(resultSet.getInt("id"), b);
-							break;
-						case "PROCEDURE":
-							procedureMap.put(resultSet.getInt("id"), b);
-							break;
-						case "PARAMETER":
-							parameterMap.put(resultSet.getInt("id"), b);
-							break;
-					}
-				}
-			}
-		}
-	}
-
-
 	public void populateDatasourceDataMap() throws SQLException {
 
 		List<String> queries = new ArrayList<>();
@@ -560,40 +497,23 @@ public class ObservationIndexer {
 		return translateCategoryNames;
 	}
 
-
 	public Map<String, BiologicalDataBean> getLineBiologicalData() {
 		return lineBiologicalData;
 	}
-
 
 	public Map<String, BiologicalDataBean> getBiologicalData() {
 		return biologicalData;
 	}
 
-
-	public Map<Integer, ImpressBean> getPipelineMap() {
-		return pipelineMap;
-	}
-
-
 	public Map<Integer, DatasourceBean> getDatasourceMap() {
 		return datasourceMap;
 	}
-
 
 	public Map<Integer, DatasourceBean> getProjectMap() {
 		return projectMap;
 	}
 
 
-	public Map<Integer, ImpressBean> getProcedureMap() {
-		return procedureMap;
-	}
-
-
-	public Map<Integer, ImpressBean> getParameterMap() {
-		return parameterMap;
-	}
 
 
 	/**
@@ -616,15 +536,6 @@ public class ObservationIndexer {
 		public String strainAcc;
 		public String strainName;
 		public String zygosity;
-	}
-
-	/**
-	 * Internal class to act as Map value DTO for impress data
-	 */
-	protected class ImpressBean {
-		public Integer id;
-		public String stableId;
-		public String name;
 	}
 
 	/**
