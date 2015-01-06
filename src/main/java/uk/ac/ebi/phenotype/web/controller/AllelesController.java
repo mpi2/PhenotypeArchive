@@ -409,6 +409,8 @@ public class AllelesController {
         Map<String, Object> constructs;
        
         if ( request.getParameter("bare").equals("true") ) {
+        	// here we reuse the IMPC code to create eucommtools allele project page that is used in creline.org
+        	// the main difference is the solr core used
         	constructs = solrIndex2.getEucommToolsGeneProductInfo(acc, allele_name, d);
         }
         else {

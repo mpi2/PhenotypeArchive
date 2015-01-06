@@ -134,6 +134,7 @@ public class GeneIndexer extends AbstractIndexer {
             	gene.getGoTermNames().addAll(allele.getGoTermNames());
             	gene.getGoTermDefs().addAll(allele.getGoTermDefs());
             	gene.getGoTermEvids().addAll(allele.getGoTermEvids());
+            	gene.getGoTermDomains().addAll(allele.getGoTermDomains());
             	
             	//gene.setMpId(allele.getM)
             	

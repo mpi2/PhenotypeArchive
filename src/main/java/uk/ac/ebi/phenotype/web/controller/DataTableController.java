@@ -120,7 +120,7 @@ public class DataTableController {
 		String fqOri = "";
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
-//		System.out.println("paramstr: " + solrParamStr);
+		System.out.println("paramstr: " + solrParamStr);
 		boolean legacyOnly = jParams.getBoolean("legacyOnly");
 		
 		// Get the query string
@@ -292,10 +292,18 @@ public class DataTableController {
 			String parameter = doc.getString("parameter_name");
 			rowData.add(parameter);
 			
-			String procedure = doc.getString("procedure_name");
-			String procedure_stable_key = doc.getString("procedure_stable_key");			
-			String procedureLink = "<a href='" + impressBaseUrl + procedure_stable_key + "'>" + procedure + "</a>";			
-			rowData.add(procedureLink);				
+			// a parameter can belong to multiple procedures
+			JSONArray procedures = doc.getJSONArray("procedure_name");
+			JSONArray procedure_stable_keys = doc.getJSONArray("procedure_stable_key");
+			
+			List<String> procedureLinks = new ArrayList<String>();
+			for( int p=0; p<procedures.size(); p++ ){
+				String procedure = procedures.get(p).toString();
+				String procedure_stable_key = procedure_stable_keys.get(p).toString();
+				procedureLinks.add("<a href='" + impressBaseUrl + procedure_stable_key + "'>" + procedure + "</a>");
+			}
+					
+			rowData.add(StringUtils.join(procedureLinks, "<br>")) ;
 			
 			String pipeline = doc.getString("pipeline_name");
 			rowData.add(pipeline);
