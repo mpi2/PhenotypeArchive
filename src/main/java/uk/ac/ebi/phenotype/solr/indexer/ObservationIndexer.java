@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
 	Map<Integer, DatasourceBean> projectMap = new HashMap<>();
+	Map<Integer, List<ParameterAssociationBean>> parameterAssociationMap = new HashMap<>();
 
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
@@ -104,6 +106,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			logger.info("Populating biological data maps");
 			populateBiologicalDataMap();
 			populateLineBiologicalDataMap();
+			populateParameterAssociationMap();
 
 			logger.info("Populating experiment solr core");
 			populateObservationSolrCore();
@@ -309,6 +312,22 @@ public class ObservationIndexer extends AbstractIndexer {
 					o.setDownloadFilePath(download_file_path);
 				}
 
+				if(parameterAssociationMap.containsKey(r.getInt("id"))) {
+					for (ParameterAssociationBean pb : parameterAssociationMap.get(r.getInt("id"))) {
+
+						// Will never be null, we hope
+						o.addParameterAssociationStableId(pb.parameterStableId);
+
+						if(StringUtils.isNotEmpty(pb.sequenceId)) {
+							o.addParameterAssociationSequenceId(pb.sequenceId);
+						}
+
+						if(StringUtils.isNotEmpty(pb.dimId)) {
+							o.addParameterAssociationDimId(pb.dimId);
+						}
+					}
+				}
+
 				// 60 seconds between commits
 				observationSolrServer.addBean(o, 60000);
 
@@ -457,6 +476,34 @@ public class ObservationIndexer extends AbstractIndexer {
 	}
 
 
+	public void populateParameterAssociationMap() throws SQLException {
+
+		String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id FROM parameter_association";
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+
+				Integer obsId = resultSet.getInt("observation_id");
+
+				ParameterAssociationBean pb = new ParameterAssociationBean();
+				pb.observationId = obsId;
+				pb.parameterStableId = resultSet.getString("parameter_id");
+				pb.sequenceId = resultSet.getString("sequence_id");
+				pb.dimId = resultSet.getString("dim_id");
+
+				if( ! parameterAssociationMap.containsKey(obsId)) {
+					parameterAssociationMap.put(obsId, new ArrayList<ParameterAssociationBean>());
+				}
+
+				parameterAssociationMap.get(obsId).add(pb);
+			}
+		}
+	}
+
+
 	public void populateDatasourceDataMap() throws SQLException {
 
 		List<String> queries = new ArrayList<>();
@@ -545,4 +592,16 @@ public class ObservationIndexer extends AbstractIndexer {
 		public Integer id;
 		public String name;
 	}
+
+	/**
+	 * Internal class to act as Map value DTO for datasource data
+	 */
+	protected class ParameterAssociationBean {
+		public Integer id;
+		public Integer observationId;
+		public String parameterStableId;
+		public String sequenceId;
+		public String dimId;
+	}
+
 }
