@@ -126,12 +126,12 @@ public class IndexerManager {
     };
     
     // -------------------- These aren't implemented yet. --------------------
-//    @Autowired
-//    ObservationIndexer observationIndexer;
-//        
-//    @Autowired
-//    GenotypePhenotypeIndexer genotypePhenotypeIndexer;
-//        
+    @Autowired
+    ObservationIndexer observationIndexer;
+        
+    @Autowired
+    GenotypePhenotypeIndexer genotypePhenotypeIndexer;
+        
 //    @Autowired
 //    StatisticalResultIndexer statisticalResultIndexer;
     
@@ -277,8 +277,8 @@ public class IndexerManager {
         
         for (String core : cores) {
             switch (core) {
-//                case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
-//                case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
+                case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
+                case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
 //                case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
                     
                 case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;

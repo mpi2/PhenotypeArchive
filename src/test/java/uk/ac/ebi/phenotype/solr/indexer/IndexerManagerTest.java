@@ -619,8 +619,9 @@ public class IndexerManagerTest {
         String[] expectedCores = new String[] { IndexerManager.MA_CORE };
         assertArrayEquals(expectedCores, actualCores);
         
-        // Validate and build the cores.
+        // Initialise, validate, and build the cores.
         try {
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
             indexerManager.maIndexer.validate();
             indexerManager.maIndexer.run();
         } catch (IndexerException ie) {
@@ -676,8 +677,9 @@ public class IndexerManagerTest {
         String[] expectedCores = new String[] { IndexerManager.MA_CORE, IndexerManager.MA_CORE };
         assertArrayEquals(expectedCores, actualCores);
         
-        // Validate and build the cores.
+        // Initialise, validate, and build the cores.
         try {
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
             indexerManager.maIndexer.validate();
             indexerManager.maIndexer.run();
         } catch (IndexerException ie) {
