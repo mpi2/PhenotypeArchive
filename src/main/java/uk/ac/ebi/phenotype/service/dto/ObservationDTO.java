@@ -61,6 +61,7 @@ public class ObservationDTO {
     public final static String PARAMETER_ASSOCIATION_STABLE_ID = "parameter_association_stable_id";
     public final static String PARAMETER_ASSOCIATION_SEQUENCE_ID = "parameter_association_sequence_id";
     public final static String PARAMETER_ASSOCIATION_DIM_ID = "parameter_association_dim_id";
+	public static final String PARAMETER_ASSOCIATION_NAME = "parameter_association_name";
 
 	@Field(ID)
     private Integer id;
@@ -205,14 +206,38 @@ public class ObservationDTO {
 
     @Field(PARAMETER_ASSOCIATION_DIM_ID)
     private List<String> parameterAssociationDimId;
+    
+    @Field(PARAMETER_ASSOCIATION_NAME)
+	private List<String> parameterAssociationName;
 
 
-    public void addParameterAssociationStableId(String id) {
+    
+	public List<String> getParameterAssociationName() {
+	
+		return parameterAssociationName;
+	}
+
+	
+	public void setParameterAssociationName(List<String> parameterAssociationName) {
+	
+		this.parameterAssociationName = parameterAssociationName;
+	}
+
+	public void addParameterAssociationStableId(String id) {
         if(parameterAssociationStableId == null) {
             parameterAssociationStableId = new ArrayList<>();
         }
         parameterAssociationStableId.add(id);
     }
+    
+    public void addParameterAssociationName(String paramAssociationName) {
+
+    	if(parameterAssociationName == null) {
+    		parameterAssociationName = new ArrayList<String>();
+        }
+    	parameterAssociationName.add(paramAssociationName);
+		
+	}
 
     public void addParameterAssociationSequenceId(String id) {
         if(parameterAssociationSequenceId == null) {
@@ -1038,6 +1063,8 @@ public class ObservationDTO {
 	public void setFileType(String fileType) {
 		this.fileType = fileType;
 	}
+
+	
 
 
 }

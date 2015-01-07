@@ -317,7 +317,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 						// Will never be null, we hope
 						o.addParameterAssociationStableId(pb.parameterStableId);
-
+						o.addParameterAssociationName(pb.parameterAssociationName);
 						if(StringUtils.isNotEmpty(pb.sequenceId)) {
 							o.addParameterAssociationSequenceId(pb.sequenceId);
 						}
@@ -325,6 +325,7 @@ public class ObservationIndexer extends AbstractIndexer {
 						if(StringUtils.isNotEmpty(pb.dimId)) {
 							o.addParameterAssociationDimId(pb.dimId);
 						}
+						
 					}
 				}
 
@@ -597,6 +598,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 * Internal class to act as Map value DTO for datasource data
 	 */
 	protected class ParameterAssociationBean {
+		public String parameterAssociationName;
 		public Integer id;
 		public Integer observationId;
 		public String parameterStableId;
