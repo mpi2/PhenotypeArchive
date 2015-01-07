@@ -44,6 +44,8 @@ public abstract class AbstractIndexer {
 	protected abstract Logger getLogger();
 	
 	public abstract void run() throws IndexerException;
+        
+        public         void validate() throws IndexerException { }
 	
 	public void initialise(String[] args) throws IndexerException {
             OptionSet options = parseCommandLine(args);

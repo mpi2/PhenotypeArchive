@@ -66,15 +66,26 @@ public class IndexerManagerTest {
     public void tearDown() {
     }
     
+    
+    // Consult IndexerManager.parseCommandLine() javadoc for derived test cases.
+    
+    
+    /***********************************************************************************/
+    /*    THE FOLLOWING TESTS GENERATE EXPECTED EXCEPTIONS AND THUS DO NOT BUILD       */
+    /*    ANY CORES. THEY ARE INTENDED TO TEST THE SPECIFIED COMMAND-LINE PARAMETERS   */
+    /*    FOR INVALID COMMAND-LINE OPTIONS.                                            */
+    /***********************************************************************************/
+    
+
      /**
-      * Test invoking static main with no valid context.
+      * Test invoking static main with no arguments.
       * 
       * Expected results: STATUS_NO_CONTEXT.
       */
      @Test
 //@Ignore
-     public void testStaticCommandLineNoArgs() {
-        String testName = "testStaticCommandLineNoArgs";
+    public void testStaticNoArgs() {
+        String testName = "testStaticNoArgs";
         System.out.println("-------------------" + testName + "-------------------");
         int retVal =  IndexerManager.main(new String[] { });
          
@@ -86,8 +97,34 @@ public class IndexerManagerTest {
                 fail("Expected MissingRequiredOptionsException");
                 break;
         }
-     }
-     
+    }
+    
+     /**
+      * Test invoking IndexerManagerInstance with no arguments.
+      * 
+      * Expected results: MissingRequiredContextException.
+      */
+     @Test
+//@Ignore
+    public void testInstanceNoArgs() {
+        String testName = "testInstanceNoArgs";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            if (ie.getCause() instanceof MissingRequiredContextException) {
+                // Do nothing. This is what we expect.
+                return;
+            }
+        }
+                
+        fail("Expected MissingRequiredContextException");
+    }
+    
      /**
       * Test invoking static main with empty context.
       * 
@@ -95,10 +132,10 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-     public void testStaticCommandLineEmptyContext() {
-        String testName = "testStaticCommandLineEmptyContext";
+    public void testStaticEmptyContext() {
+        String testName = "testStaticEmptyContext";
         System.out.println("-------------------" + testName + "-------------------");
-        String args[] = { "--context=" };
+        String[] args = { "--context=" };
         int retVal =  IndexerManager.main(args);
          
         switch (retVal) {
@@ -109,30 +146,34 @@ public class IndexerManagerTest {
                 fail("Expected MissingRequiredOptionsException");
                 break;
         }
-     }
-     
+    }
+    
      /**
-      * Test invoking static main with valid context.
+      * Test invoking IndexerManager instance with empty context.
       * 
-      * Expected results: STATUS_OK.
+      * Expected results: STATUS_NO_CONTEXT.
       */
      @Test
 //@Ignore
-     public void testStaticCommandLineValidContext() {
-        String testName = "testStaticCommandLineValidContext";
+    public void testInstanceEmptyContext() {
+        String testName = "testInstanceEmptyContext";
         System.out.println("-------------------" + testName + "-------------------");
-        String args[] = { "--context=index-config_DEV.xml" };
-        int retVal =  IndexerManager.main(args);
-         
-        switch (retVal) {
-            case IndexerManager.STATUS_OK:
-                break;
-
-            default:
-                fail("Expected success using context file 'index-config_DEV.xml'");
+        String[] args = { "--context=" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            if (ie.getCause() instanceof MissingRequiredContextException) {
+                // Do nothing. This is what we expect.
+                return;
+            }
         }
-     }
-     
+                
+        fail("Expected MissingRequiredContextException");
+    }
+    
      /**
       * Test invoking static main with invalid nodeps
       * 
@@ -140,8 +181,8 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-     public void testStaticCommandLineInvalidNoDeps() {
-        String testName = "testStaticCommandLineInvalidNoDeps";
+     public void testStaticNoCoresNodeps() {
+        String testName = "testStaticNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String args[] = { "--context=index-config_DEV.xml", "--nodeps" };
         int retVal =  IndexerManager.main(args);
@@ -156,14 +197,41 @@ public class IndexerManagerTest {
      }
      
      /**
+      * Test invoking IndexerManager instance with invalid nodeps argument specified
+      * 
+      * Expected results: NoDepsException.
+      */
+     @Test
+//@Ignore
+     public void testInstanceNoCoresNodeps() {
+        String testName = "testInstanceNoCoresNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String args[] = { "--context=index-config_DEV.xml", "--nodeps" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            if (ie.getCause() instanceof NoDepsException) {
+                // Do nothing. This is the expected exception.
+            } else {
+                fail(ie.getLocalizedMessage());
+            }
+        } catch (Exception e) {
+            fail(e.getLocalizedMessage());
+        }
+     }
+    
+     /**
       * Test invoking static main with invalid core name.
       * 
       * Expected results: STATUS_INVALID_CORE_NAME.
       */
      @Test
 //@Ignore
-     public void testStaticCommandLineInvalidCoreName() {
-        String testName = "testStaticCommandLineInvalidCoreName";
+     public void testStaticInvalidCoreName() {
+        String testName = "testStaticInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
         String args[] = { "--context=index-config_DEV.xml", "--cores=junk" };
         int retVal =  IndexerManager.main(args);
@@ -177,174 +245,22 @@ public class IndexerManagerTest {
         }
      }
      
-     
-     // INSTANCE TESTS (i.e. creates an IndexManager instance)
-     
-     
      /**
-      * Test missing cores without nodeps option.
+      * Test invoking static main with invalid core name.
       * 
-      * Expected results:
-      * 1. build all cores.
-      * 2. nodeps = false.
+      * Expected results: InvalidCoreNameException.
       */
-     @Test
+    @Test
 //@Ignore
-     public void testCommandLineMissingCoresWithoutNodeps() {
-        String testName = "testCommandLineMissingCoresWithoutNodeps";
+    public void testInstanceInvalidCoreName() {
+        String testName = "testInstanceInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml" };
+        String args[] = { "--context=index-config_DEV.xml", "--cores=junk" };
         IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
         try {
             indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-        
-        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(actualCores, IndexerManager.allCoresArray);
-        assertEquals(false, indexerManager.getNodeps());
-     }
-     
-     /**
-      * Test missing cores with nodeps option.
-      * 
-      * Expected results: IndexerException with cause: NoDepsException
-      */
-     @Test
-//@Ignore
-     public void testCommandLineMissingCoresWithNodeps() {
-        String testName = "testCommandLineMissingCoresWithNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--nodeps" };
-        IndexerManager indexManager = new IndexerManager();
-        try {
-            indexManager.initialise(args);
-        } catch (IndexerException ie) {
-            if (ie.getCause() instanceof NoDepsException) {
-                // Do nothing. This is the expected exception.
-            } else {
-                fail(ie.getLocalizedMessage());
-            }
-        } catch (Exception e) {
-            fail(e.getLocalizedMessage());
-        }
-     }
-     
-     /**
-      * Test empty cores without nodeps option.
-      * 
-      * Expected results:
-      * 1. build all cores.
-      * 2. nodeps = false.
-      */
-     @Test
-//@Ignore
-     public void testCommandLineEmptyCoresWithoutNodeps() {
-        String testName = "testCommandLineEmptyCoresWithoutNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=" };
-        IndexerManager indexerManager = new IndexerManager();
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-        
-        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(actualCores, IndexerManager.allCoresArray);
-        assertEquals(false, indexerManager.getNodeps());
-     }
-     
-     /**
-      * Test empty cores with nodeps option.
-      * 
-      * Expected results: IndexerException with cause: NoDepsException
-      */
-     @Test
-//@Ignore
-     public void testCommandLineEmptyCoresWithNodeps() {
-        String testName = "testCommandLineEmptyCoresWithNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--nodeps", "--cores=" };
-        IndexerManager indexManager = new IndexerManager();
-        try {
-            indexManager.initialise(args);
-        } catch (IndexerException ie) {
-            if (ie.getCause() instanceof NoDepsException) {
-                // Do nothing. This is the expected exception.
-            } else {
-                fail(ie.getLocalizedMessage());
-            }
-        } catch (Exception e) {
-            fail(e.getLocalizedMessage());
-        }
-     }
-     
-     /**
-      * Test single cores without nodeps option.
-      * 
-      * Expected results:
-      * 1. build specified core.
-      * 2. nodeps = false.
-      */
-     @Test
-//@Ignore
-     public void testCommandLine1CoresWithoutNodeps() {
-        String testName = "testCommandLine1CoresWithoutNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation" };
-        IndexerManager indexerManager = new IndexerManager();
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-        
-        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(actualCores, new String[] { IndexerManager.OBSERVATION_CORE });
-        assertEquals(false, indexerManager.getNodeps());
-     }
-     
-     /**
-      * Test single cores with nodeps option.
-      * 
-      * Expected results:
-      * 1. build specified core.
-      * 2. nodeps = true.
-      */
-     @Test
-//@Ignore
-     public void testCommandLine1CoresWithNodeps() {
-        String testName = "testCommandLine1CoresWithNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation", "--nodeps" };
-        IndexerManager indexerManager = new IndexerManager();
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-        
-        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(actualCores, new String[] { "observation" });
-        assertEquals(true, indexerManager.getNodeps());
-     }
-     
-     /**
-      * Test invalid cores.
-      * 
-      * Expected results: IndexerException with cause: InvalidCoreNameException
-      */
-//@Ignore
-     @Test
-     public void testCommandLineInvalidCores() {
-        String testName = "testCommandLineInvalidCores";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=junk" };
-        IndexerManager indexManager = new IndexerManager();
-        try {
-            indexManager.initialise(args);
         } catch (IndexerException ie) {
             if (ie.getCause() instanceof InvalidCoreNameException) {
                 // Do nothing. This is the expected exception.
@@ -355,21 +271,33 @@ public class IndexerManagerTest {
             fail(e.getLocalizedMessage());
         }
      }
+    
+    
+    /************************************************************************************************/
+    /*    THE FOLLOWING TESTS ARE NOT EXPECTED TO GENERATE EXCEPTIONS; THUS THEY CAN                */
+    /*    BUILD CORES. SINCE IT IS NOT THE JOB OF THE TESTS TO BUILD THE CORES, ONLY                */
+    /*    THE initialise() METHOD IS RUN; THE run() METHOD THAT ACTUALLY BUILDS THE CORES           */
+    /*    IS NOT RUN. THESE THEY ARE INTENDED TO TEST THE SPECIFIED COMMAND-LINE PARAMETERS         */
+    /*    FOR COMMAND-LINE OPTIONS AND TO TEST THAT ONLY THE EXPECTED CORES WOULD BE BUILT.         */
+    /*    testStaticXxx VERSIONS OF THESE TESTS CANNOT BE RUN BECAUSE THE run() METHOD IS ALWAYS    */
+    /*    CALLED AUTOMATICALLY, THERE BEING NO WAY TO SUPPRESS IT.                                  */
+    /************************************************************************************************/
      
-     /**
-      * Test two cores without nodeps option.
+    
+    /**
+      * Test invoking IndexerManager instance with no 'cores=' argument.
       * 
-      * Expected results:
-      * 1. build specified cores, in the order specified.
-      * 2. nodeps = false.
+      * Expected results: cores preqc to autosuggest ready to run.
       */
+    @Test
 //@Ignore
-     @Test
-     public void testCommandLine2CoresWithoutNodeps() {
-        String testName = "testCommandLine2CoresWithoutNodeps";
+    public void testInstanceNoCores() {
+        String testName = "testInstanceNoCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation,allele" };
+        String[] args = { "--context=index-config_DEV.xml" };
         IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
         try {
             indexerManager.initialise(args);
         } catch (IndexerException ie) {
@@ -377,24 +305,23 @@ public class IndexerManagerTest {
         }
         
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(actualCores, new String[] { "observation", "allele" });
-        assertEquals(true, indexerManager.getNodeps());
-     }
-     
+        assertArrayEquals(IndexerManager.allDailyCoresArray, actualCores);
+    }
+    
      /**
-      * Test two cores with nodeps option.
+      * Test invoking IndexerManager instance with empty 'cores=' argument.
       * 
-      * Expected results:
-      * 1. build specified core.
-      * 2. nodeps = true.
+      * Expected results: cores preqc to autosuggest ready to run.
       */
-//@Ignore
      @Test
-     public void testCommandLine2CoresWithNodeps() {
-        String testName = "testCommandLine2CoresWithNodeps";
+//@Ignore
+    public void testInstanceEmptyCores() {
+        String testName = "testInstanceEmptyCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation,allele" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=" };
         IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
         try {
             indexerManager.initialise(args);
         } catch (IndexerException ie) {
@@ -402,16 +329,361 @@ public class IndexerManagerTest {
         }
         
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(actualCores, new String[] { "observation", "allele" });
-        assertEquals(true, indexerManager.getNodeps());
+        assertArrayEquals(IndexerManager.allDailyCoresArray, actualCores);
+    }
+     
+     /**
+      * Test invoking IndexerManager instance starting at the first core (the
+      * observation core).
+      * 
+      * Expected results: cores observation to autosuggest ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceFirstCore() {
+        String testName = "testInstanceFirstCore";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        assertArrayEquals(IndexerManager.allCoresArray, actualCores);
      }
      
+     /**
+      * Test invoking IndexerManager instance starting at the first core (the
+      * observation core), using the nodeps option.
+      * 
+      * Expected results: the single observation core, ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceFirstCoreNodeps() {
+        String testName = "testInstanceFirstCoreNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation", "--nodeps" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] { IndexerManager.OBSERVATION_CORE };
+        assertArrayEquals(expectedCores, actualCores);
+     }
+     
+     /**
+      * Test invoking IndexerManager instance starting at the first daily core
+      * (the preqc core).
+      * 
+      * Expected results: All of the cores from preqc to autosuggest, ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceFirstDailyCore() {
+        String testName = "testInstanceFirstDailyCore";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] {
+          IndexerManager.PREQC_CORE
+        , IndexerManager.ALLELE_CORE
+        , IndexerManager.IMAGES_CORE
+        , IndexerManager.IMPC_IMAGES_CORE
+        , IndexerManager.MP_CORE
+        , IndexerManager.MA_CORE
+        , IndexerManager.PIPELINE_CORE
+        , IndexerManager.GENE_CORE
+        , IndexerManager.DISEASE_CORE
+        , IndexerManager.AUTOSUGGEST_CORE
+        };
+        assertArrayEquals(expectedCores, actualCores);
+     }
+     
+     /**
+      * Test invoking IndexerManager instance starting at the first daily core
+      * (the preqc core), using the nodeps option.
+      * 
+      * Expected results: the single preqc core, ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceFirstDailyCoreNodeps() {
+        String testName = "testInstanceFirstDailyCoreNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc", "--nodeps" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] { IndexerManager.PREQC_CORE };
+        assertArrayEquals(expectedCores, actualCores);
+     }
+     
+     /**
+      * Test invoking IndexerManager instance starting at the last core (the
+      * autosuggest core).
+      * 
+      * Expected results: the single autosuggest core, ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceLastCore() {
+        String testName = "testInstanceLastCore";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=autosuggest" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] { IndexerManager.AUTOSUGGEST_CORE };
+        assertArrayEquals(expectedCores, actualCores);
+     }
+     
+     /**
+      * Test invoking IndexerManager instance starting at the last core (the
+      * autosuggest core), using the nodeps option.
+      * 
+      * Expected results: the single autosuggest core, ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceLastCoreNodeps() {
+        String testName = "testInstanceLastCoreNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=autosuggest", "--nodeps" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] { IndexerManager.AUTOSUGGEST_CORE };
+        assertArrayEquals(expectedCores, actualCores);
+     }
+     
+     /**
+      * Test invoking IndexerManager instance specifying specific cores
+      * 
+      * Expected results: the specified cores, ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceMultipleCores() {
+        String testName = "testInstanceMultipleCores";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=pipeline,allele,impc_images,ma,disease,mp" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] {
+          IndexerManager.PIPELINE_CORE
+        , IndexerManager.ALLELE_CORE
+        , IndexerManager.IMPC_IMAGES_CORE
+        , IndexerManager.MA_CORE
+        , IndexerManager.DISEASE_CORE
+        , IndexerManager.MP_CORE
+        };
+        assertArrayEquals(expectedCores, actualCores);
+     }
+     
+     /**
+      * Test invoking IndexerManager instance specifying specific cores), using
+      * the nodeps option.
+      * 
+      * Expected results: the specified cores, ready to run.
+      */
+     @Test
+//@Ignore
+     public void testInstanceMultipleCoresNodeps() {
+        String testName = "testInstanceMultipleCoresNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=pipeline,preqc,allele,impc_images,ma,disease,mp", "--nodeps" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] {
+          IndexerManager.PIPELINE_CORE
+        , IndexerManager.PREQC_CORE
+        , IndexerManager.ALLELE_CORE
+        , IndexerManager.IMPC_IMAGES_CORE
+        , IndexerManager.MA_CORE
+        , IndexerManager.DISEASE_CORE
+        , IndexerManager.MP_CORE
+        };
+        assertArrayEquals(expectedCores, actualCores);
+     }
+    
+    
+    /************************************************************************************************/
+    /*    THE FOLLOWING TESTS ARE NOT EXPECTED TO GENERATE EXCEPTIONS. THEY TEST THE BUILDING OF    */
+    /*    THE CORES. SOME CORES TAKE A LONG TIME TO BUILD, SO ONLY CORES WITH A SHORT BUILD TIME    */
+    /*    WILL BE INCLUDED HERE.                                                                    */
+    /************************************************************************************************/
+     
+     
+     /**
+      * Test invoking static main specifying single core, using the nodeps option.
+      * 
+      * Expected results: The specified core to be built.
+      */
 //@Ignore
      @Test
-     public void testBuildMaCoreWithNodeps() {
-        String testName = "testBuildMaCoreWithNodeps";
+     public void testStaticBuildSingleCoreNodeps() {
+        String testName = "testStaticBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,observation" };
-        int retVal = IndexerManager.main(args);
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
+        int retVal =  IndexerManager.main(args);
+         
+        switch (retVal) {
+            case IndexerManager.STATUS_OK:
+                break;
+
+            default:
+                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
+        }
+     }
+     
+     /**
+      * Test invoking IndexerManager instance specifying a single core, using
+      * the nodeps option.
+      * 
+      * Expected results: The specified core to be built.
+      */
+//@Ignore
+     @Test
+     public void testInstanceBuildSingleCoreNodeps() {
+        String testName = "testInstanceBuildSingleCoreNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] { IndexerManager.MA_CORE };
+        assertArrayEquals(expectedCores, actualCores);
+        
+        // Initialise, validate, and build the cores.
+        try {
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
+            indexerManager.maIndexer.validate();
+            indexerManager.maIndexer.run();
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+     }
+     
+     /**
+      * Test invoking static main specifying multiple cores, using the nodeps option.
+      * 
+      * Expected results: The specified cores to be built.
+      */
+//@Ignore
+     @Test
+     public void testStaticBuildMultipleCoresNodeps() {
+        String testName = "testStaticBuildMultipleCoresNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
+        int retVal =  IndexerManager.main(args);
+         
+        switch (retVal) {
+            case IndexerManager.STATUS_OK:
+                break;
+
+            default:
+                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
+        }
+     }
+
+     
+     /**
+      * Test invoking IndexerManager instance specifying multiple cores, using
+      * the nodeps option.
+      * 
+      * Expected results: All of the specified cores built.
+      */
+//@Ignore
+     @Test
+     public void testInstanceBuildMultipleCoresNodeps() {
+        String testName = "testInstanceBuildMultipleCoresNodeps";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
+        IndexerManager indexerManager = new IndexerManager();
+        
+        // Determine which cores to build.
+        try {
+            indexerManager.initialise(args);
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
+        
+        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
+        String[] expectedCores = new String[] { IndexerManager.MA_CORE, IndexerManager.MA_CORE };
+        assertArrayEquals(expectedCores, actualCores);
+        
+        // Initialise, validate, and build the cores.
+        try {
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
+            indexerManager.maIndexer.validate();
+            indexerManager.maIndexer.run();
+        } catch (IndexerException ie) {
+            fail(ie.getLocalizedMessage());
+        }
      }
 }

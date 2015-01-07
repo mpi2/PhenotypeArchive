@@ -92,7 +92,7 @@
 		<field name="parameter_association_stable_id" type="string" indexed="true" stored="true" multiValued="true" />
 		<field name="parameter_association_sequence_id" type="string" indexed="true" stored="true" multiValued="true" />
 		<field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true" />
-
+		<field name="parameter_association_name" type="string" indexed="true" stored="true" multiValued="true" />
 	</fields>
 
 	<uniqueKey>id</uniqueKey>

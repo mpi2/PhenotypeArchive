@@ -194,6 +194,7 @@
     <bean id="pipelineIndexer" class="uk.ac.ebi.phenotype.solr.indexer.PipelineIndexer" />
     <bean id="geneIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GeneIndexer" />
     <bean id="diseaseIndexer" class="uk.ac.ebi.phenotype.solr.indexer.DiseaseIndexer" />
+    <bean id="autosuggestIndexer" class="uk.ac.ebi.phenotype.solr.indexer.AutosuggestIndexer" />
     
 
 </beans>
