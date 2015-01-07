@@ -52,6 +52,7 @@ public class IndexerMap {
     private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
     private static Map<String, List<OntologyTermBean>> mpTopLevelTermsMap = null;
     private static Map<String, List<OntologyTermBean>> mpIntermediateTermsMap = null;
+    private static Map<String, OntologyTermBean> mpTermsMap = null;
     private static List<AlleleDTO> alleles = null;
     private static Map<Integer, ImpressBean> pipelineMap = null;
     private static Map<Integer, ImpressBean> procedureMap = null;
@@ -312,6 +313,22 @@ public class IndexerMap {
             organisationMap = OntologyUtils.populateOrganisationMap(connection);
         }
         return organisationMap;
+    }
+
+    /**
+     * Returns a cached map of all mp terms indexed by MP accession id.
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a cached list of all ma child terms, indexed by parent ma id.
+     */
+    public static Map<String, OntologyTermBean> getMpTerms(Connection ontoDbConnection) throws SQLException {
+        if (mpTermsMap == null) {
+            mpTermsMap = OntologyUtils.populateMpTerms(ontoDbConnection);
+        }
+
+        return mpTermsMap;
     }
 
 
