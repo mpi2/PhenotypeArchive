@@ -479,6 +479,8 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	public void populateParameterAssociationMap() throws SQLException {
 
+		
+		Map<String,String> stableIdToNameMap=this.getAllParameters();
 		String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id FROM parameter_association";
 
 		try (PreparedStatement p = connection.prepareStatement(query)) {
@@ -492,6 +494,9 @@ public class ObservationIndexer extends AbstractIndexer {
 				ParameterAssociationBean pb = new ParameterAssociationBean();
 				pb.observationId = obsId;
 				pb.parameterStableId = resultSet.getString("parameter_id");
+				if(stableIdToNameMap.get(pb.parameterStableId)!=null){
+				pb.parameterAssociationName=stableIdToNameMap.get(pb.parameterStableId);
+				}
 				pb.sequenceId = resultSet.getString("sequence_id");
 				pb.dimId = resultSet.getString("dim_id");
 
@@ -502,6 +507,28 @@ public class ObservationIndexer extends AbstractIndexer {
 				parameterAssociationMap.get(obsId).add(pb);
 			}
 		}
+		
+		
+	}
+	
+	/**
+	 * Return all parameter stable ids and names
+	 * 
+	 * @exception SQLException When a database error occurrs
+	 */
+	public Map<String,String> getAllParameters() throws SQLException {
+		 Map<String,String> parameters = new HashMap<String,String>();
+
+		String query = "SELECT stable_id, name FROM komp2.phenotype_parameter";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				parameters.put(resultSet.getString("stable_id"), resultSet.getString("name"));
+			}
+		}
+
+		return parameters;
 	}
 
 
