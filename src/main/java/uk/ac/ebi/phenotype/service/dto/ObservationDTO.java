@@ -5,6 +5,7 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,8 +56,12 @@ public class ObservationDTO {
     public final static String VALUE = "value";
     public final static String METADATA = "metadata";
     public final static String METADATA_GROUP = "metadata_group";
-	public static final String DOWNLOAD_FILE_PATH = "download_file_path";
-	public static final String FILE_TYPE = "file_type";
+	public final static String DOWNLOAD_FILE_PATH = "download_file_path";
+	public final static String FILE_TYPE = "file_type";
+    public final static String PARAMETER_ASSOCIATION_STABLE_ID = "parameter_association_stable_id";
+    public final static String PARAMETER_ASSOCIATION_SEQUENCE_ID = "parameter_association_sequence_id";
+    public final static String PARAMETER_ASSOCIATION_DIM_ID = "parameter_association_dim_id";
+	public static final String PARAMETER_ASSOCIATION_NAME = "parameter_association_name";
 
 	@Field(ID)
     private Integer id;
@@ -193,9 +198,62 @@ public class ObservationDTO {
 	@Field(FILE_TYPE)
 	private String fileType;
 
+    @Field(PARAMETER_ASSOCIATION_STABLE_ID)
+    private List<String> parameterAssociationStableId;
+
+    @Field(PARAMETER_ASSOCIATION_SEQUENCE_ID)
+    private List<String> parameterAssociationSequenceId;
+
+    @Field(PARAMETER_ASSOCIATION_DIM_ID)
+    private List<String> parameterAssociationDimId;
+    
+    @Field(PARAMETER_ASSOCIATION_NAME)
+	private List<String> parameterAssociationName;
 
 
-	/**
+    
+	public List<String> getParameterAssociationName() {
+	
+		return parameterAssociationName;
+	}
+
+	
+	public void setParameterAssociationName(List<String> parameterAssociationName) {
+	
+		this.parameterAssociationName = parameterAssociationName;
+	}
+
+	public void addParameterAssociationStableId(String id) {
+        if(parameterAssociationStableId == null) {
+            parameterAssociationStableId = new ArrayList<>();
+        }
+        parameterAssociationStableId.add(id);
+    }
+    
+    public void addParameterAssociationName(String paramAssociationName) {
+
+    	if(parameterAssociationName == null) {
+    		parameterAssociationName = new ArrayList<String>();
+        }
+    	parameterAssociationName.add(paramAssociationName);
+		
+	}
+
+    public void addParameterAssociationSequenceId(String id) {
+        if(parameterAssociationSequenceId == null) {
+            parameterAssociationSequenceId = new ArrayList<>();
+        }
+        parameterAssociationSequenceId.add(id);
+    }
+
+    public void addParameterAssociationDimId(String id) {
+        if(parameterAssociationDimId == null) {
+            parameterAssociationDimId = new ArrayList<>();
+        }
+        parameterAssociationDimId.add(id);
+    }
+
+    /**
      * helper methods
      * 
      * @throws SQLException
@@ -960,7 +1018,44 @@ public class ObservationDTO {
 		this.downloadFilePath = downloadFilePath;
 	}
 
-	public String getFileType() {
+
+    public List<String> getParameterAssociationStableId() {
+
+        return parameterAssociationStableId;
+    }
+
+
+    public void setParameterAssociationStableId(List<String> parameterAssociationStableId) {
+
+        this.parameterAssociationStableId = parameterAssociationStableId;
+    }
+
+
+    public List<String> getParameterAssociationSequenceId() {
+
+        return parameterAssociationSequenceId;
+    }
+
+
+    public void setParameterAssociationSequenceId(List<String> parameterAssociationSequenceId) {
+
+        this.parameterAssociationSequenceId = parameterAssociationSequenceId;
+    }
+
+
+    public List<String> getParameterAssociationDimId() {
+
+        return parameterAssociationDimId;
+    }
+
+
+    public void setParameterAssociationDimId(List<String> parameterAssociationDimId) {
+
+        this.parameterAssociationDimId = parameterAssociationDimId;
+    }
+
+
+    public String getFileType() {
 		return fileType;
 	}
 
@@ -968,6 +1063,8 @@ public class ObservationDTO {
 	public void setFileType(String fileType) {
 		this.fileType = fileType;
 	}
+
+	
 
 
 }

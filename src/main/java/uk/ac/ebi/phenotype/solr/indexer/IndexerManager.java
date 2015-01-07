@@ -20,6 +20,7 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import joptsimple.OptionParser;
@@ -65,17 +66,33 @@ public class IndexerManager {
     public static final String PIPELINE_CORE = "pipeline";
     public static final String GENE_CORE = "gene";
     public static final String DISEASE_CORE = "disease";
+    public static final String AUTOSUGGEST_CORE = "autosuggest";
     
     // main return values.
-    public static final int STATUS_OK = 0;
-    public static final int STATUS_NO_CONTEXT = 1;
-    public static final int STATUS_NO_DEPS = 2;
+    public static final int STATUS_OK                = 0;
+    public static final int STATUS_NO_CONTEXT        = 1;
+    public static final int STATUS_NO_DEPS           = 2;
     public static final int STATUS_INVALID_CORE_NAME = 3;
+    public static final int STATUS_VALIDATION_ERROR  = 4;
+    
+    public static String getStatusCodeName(int statusCode) {
+        switch (statusCode) {
+            case STATUS_OK:                 return "STATUS_OK";
+            case STATUS_NO_CONTEXT:         return "STATUS_NO_CONTEXT";
+            case STATUS_NO_DEPS:            return "STATUS_NO_DEPS";
+            case STATUS_INVALID_CORE_NAME:  return "STATUS_INVALID_CORE_NAME";
+            case STATUS_VALIDATION_ERROR:   return "STATUS_VALIDATION_ERROR";
+            default:                        return "Unknown status code " + statusCode;
+        }
+    }
+    
+    // These are the args passed to the individual indexers. They should be all the same and should be the same context argument passed to the indexerManager.
+    private String[] indexerArgs;
     
     private Boolean nodeps;
     private List<String> cores;
     public static final String[] allCoresArray = new String[] {      // In dependency order.
-          // These are built only for a new data release.
+          // In dependency order. These are built only for a new data release.
           OBSERVATION_CORE
         , GENOTYPE_PHENOTYPE_CORE
         , STATSTICAL_RESULT_CORE
@@ -90,16 +107,31 @@ public class IndexerManager {
         , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
+        , AUTOSUGGEST_CORE
     };
-    private final List<String> allCores = Arrays.asList(allCoresArray);
+    private final List<String> allCoresList = Arrays.asList(allCoresArray);
+    
+    public static final String[] allDailyCoresArray = new String[] {      
+          // In dependency order. These are built daily.
+          PREQC_CORE
+        , ALLELE_CORE
+        , IMAGES_CORE
+        , IMPC_IMAGES_CORE
+        , MP_CORE
+        , MA_CORE
+        , PIPELINE_CORE
+        , GENE_CORE
+        , DISEASE_CORE
+        , AUTOSUGGEST_CORE
+    };
     
     // -------------------- These aren't implemented yet. --------------------
-//    @Autowired
-//    ObservationIndexer observationIndexer;
-//        
-//    @Autowired
-//    GenotypePhenotypeIndexer genotypePhenotypeIndexer;
-//        
+    @Autowired
+    ObservationIndexer observationIndexer;
+        
+    @Autowired
+    GenotypePhenotypeIndexer genotypePhenotypeIndexer;
+        
 //    @Autowired
 //    StatisticalResultIndexer statisticalResultIndexer;
     
@@ -130,24 +162,14 @@ public class IndexerManager {
     @Autowired
     DiseaseIndexer diseaseIndexer;
     
+    @Autowired
+    AutosuggestIndexer autosuggestIndexer;
     
     
-    private final IndexerItem[] indexers = new IndexerItem[] {
-        // Not implemented yet.
-//        new IndexerItem(OBSERVATION_CORE,        observationIndexer)
-//      , new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer)
-//      , new IndexerItem(STATSTICAL_RESULT_CORE,  statisticalResultIndexer)
-            
-        new IndexerItem(PREQC_CORE,              preqcIndexer)
-      , new IndexerItem(ALLELE_CORE,             alleleIndexer)
-      , new IndexerItem(IMAGES_CORE,             imagesIndexer)
-      , new IndexerItem(IMPC_IMAGES_CORE,        impcImagesIndexer)
-      , new IndexerItem(MP_CORE,                 mpIndexer)
-      , new IndexerItem(MA_CORE,                 maIndexer)
-      , new IndexerItem(PIPELINE_CORE,           pipelineIndexer)
-      , new IndexerItem(GENE_CORE,               geneIndexer)
-      , new IndexerItem(DISEASE_CORE,            diseaseIndexer)
-    };
+    
+    private IndexerItem[] indexerItems;
+    
+    public String[] args;
     
     public static final String NO_DEPS_ARG = "nodeps";
     public static final String CORES_ARG = "cores";
@@ -176,9 +198,6 @@ public class IndexerManager {
     protected ApplicationContext applicationContext;
     
     
-    
-    
-    
     // GETTERS
 
     
@@ -201,9 +220,11 @@ public class IndexerManager {
     public void initialise(String[] args) throws IndexerException {
         OptionSet options = parseCommandLine(args);
         if (options != null) {
+            this.args = args;
             applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
             applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
             initialiseHibernateSession(applicationContext);
+            loadIndexers();
         } else {
             throw new IndexerException("Failed to parse command-line options.");
         }
@@ -221,13 +242,17 @@ public class IndexerManager {
         logger.info("Starting IndexerManager. nodeps = " + nodeps + ". Building the following cores (in order):");
         logger.info("\t" + StringUtils.join(cores));
         
-        for (IndexerItem indexer : indexers) {
-//            indexer.indexer.initialise(args);
+        for (IndexerItem indexerItem : indexerItems) {
+            indexerItem.indexer.initialise(indexerArgs);
+            try {
+                indexerItem.indexer.validate();
+            } catch (Exception e) {
+                throw new IndexerException(new ValidationException(e));
+            }
+            indexerItem.indexer.run();
         }
     }
     
-
-	
     protected ApplicationContext loadApplicationContext(String context) {
         ApplicationContext appContext;
 
@@ -245,6 +270,31 @@ public class IndexerManager {
         }
 
         return appContext;
+    }
+    
+    private void loadIndexers() {
+        List<IndexerItem> indexerItemList = new ArrayList();
+        
+        for (String core : cores) {
+            switch (core) {
+                case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
+                case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
+//                case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
+                    
+                case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;
+                case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleIndexer));                           break;
+                case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesIndexer));                           break;
+                case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesIndexer));                  break;
+                case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpIndexer));                                   break;
+                case MA_CORE:                   indexerItemList.add(new IndexerItem(MA_CORE, maIndexer));                                   break;
+                case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineIndexer));                       break;
+                case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneIndexer));                               break;
+                case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseIndexer));                         break;
+//                case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestIndexer));                 break;
+            }
+        }
+        
+        indexerItems = indexerItemList.toArray(new IndexerItem[0]);
     }
     
     // PRIVATE METHODS
@@ -266,17 +316,19 @@ public class IndexerManager {
      *     - if nodeps is specified, it is ignored.
      *     - core names must be valid. No downstream cores are built.
      *
-     * Core Build Truth Table (example):
-     *    |--------------------------------------------------------------------------------|
-     *    |          command line          |  nodeps value   |       cores built           |
-     *    |--------------------------------------------------------------------------------|
-     *    | <empty>                        | false           | preqc to disease            |
-     *    | --nodeps                       | NoDepsException | <none>                      |
-     *    | --cores=mp                     | false           | mp,ma,pipeline,gene,disease |
-     *    | --cores-mp --nodeps            | true            | mp                          |
-     *    | --cores=mp,observation         | true            | mp,observation              |
-     *    |--cores-mp,observation --nodeps | true            | mp,observation              |
-     *    |--------------------------------------------------------------------------------|
+     * Core Build Truth Table (assume a valid '--context=' parameter is always supplied - not shown in table below to save space):
+     *    |---------------------------------------------------------------------------|
+     *    |          command line           |  nodeps value   |     cores built       |
+     *    |---------------------------------------------------------------------------|
+     *    | <empty>                         | false           | preqc to autosuggest  |
+     *    | --cores                         | false           | preqc to autosuggest  |
+     *    | --nodeps                        | NoDepsException | <none>                |
+     *    | --cores --nodeps                | NoDepsException | <none>                |
+     *    | --cores=mp                      | false           | mp to autosuggest     |
+     *    | --cores=mp --nodeps             | true            | mp                    |
+     *    | --cores=mp,observation          | true            | mp,observation        |
+     *    | --cores-mp,observation --nodeps | true            | mp,observation        |
+     *    |---------------------------------------------------------------------------|
      
      * @param args command-line arguments
      * @return<code>OptionSet</code> of parsed parameters
@@ -293,6 +345,7 @@ public class IndexerManager {
                 .ofType(String.class)
                 .describedAs("Spring context file, such as 'index-app-config.xml'");
         
+        // cores [optional]
         parser.accepts(CORES_ARG)
                 .withOptionalArg()
                 .ofType(String.class)
@@ -301,55 +354,87 @@ public class IndexerManager {
         parser.accepts(HELP_ARG)
                 .forHelp();
         
-        // Validate the parameters.
         try {
-            boolean coreMissingOrEmpty = false;
+            // Parse the parameters.
             options = parser.parse(args);
+            nodeps = options.has(NO_DEPS_ARG);
+            boolean coreMissingOrEmpty = false;
+            List<String> coresRequested = new ArrayList();                      // This is a list of the unique core values specified in the 'cores=' argument.
             
-            // Cores parameter list (may be empty)
-            String[] coresArray;
+            // Create a list of cores requested based on the value (or absence of) the 'cores=' argument.
             if (options.has(CORES_ARG)) {
-                String s = (String)options.valueOf((CORES_ARG));
-                if ((s == null) || (s.trim().isEmpty())) {
+                String rawCoresArgument = (String)options.valueOf((CORES_ARG));
+                if ((rawCoresArgument == null) || (rawCoresArgument.trim().isEmpty())) {
                     // Cores list is empty.
                     coreMissingOrEmpty = true;
-                    coresArray = allCoresArray;
-                } else if ( ! s.contains(",")) {
-                    coresArray = new String[] { s };
+                } else if ( ! rawCoresArgument.contains(",")) {
+                    coresRequested.add(rawCoresArgument);
                 } else {
-                    coresArray = ((String)options.valueOf(CORES_ARG)).split(",");
+                    String[] coresArray = ((String)options.valueOf(CORES_ARG)).split(",");
+                    coresRequested.addAll(Arrays.asList(coresArray));
                 }
             } else {
                 // Cores list is missing.
                 coreMissingOrEmpty = true;
-                coresArray = allCoresArray;
             }
-                
+            
+            // Validate the parameters.
             if (coreMissingOrEmpty) {
-                // Default behavior is to build all cores using dependencies.
+                // nodeps cannot be specified if the 'cores=' argument is missing.
                 if (options.has(NO_DEPS_ARG)) {
                     throw new IndexerException(new NoDepsException("Invalid argument 'nodeps' specified with empty core list."));
                 }
-            } else {
-                // Core(s) specified. Verify that each core name exists.
-                for (String core : coresArray) {
-                    if ( ! allCores.contains(core)) {
-                        throw new IndexerException(new InvalidCoreNameException("Invalid core name '" + core + "'"));
-                    }
+            }
+            // Verify that each core name in coresRequested exists. Throw an exception if any does not.
+            for (String core : coresRequested) {
+                if ( ! allCoresList.contains(core)) {
+                    throw new IndexerException(new InvalidCoreNameException("Invalid core name '" + core + "'"));
                 }
             }
             
-            cores = Arrays.asList(coresArray);
+            // Build the cores list as follows:
+            //   If coresRequested is empty
+            //       set firstCore to the first daily core, preqc.
+            //   Else if coresRequested size == 1
+            //     If nodeps
+            //       set firstCore to null.
+            //       set cores to coresRequested[0].
+            //     Else
+            //       set firstCore to coresRequested[0].
+            //   Else (coresRequested.size > 1)
+            //       set firstCore to null.
+            //       set cores to each value in coresRequested.
+            //
+            //   If firstCore is not null
+            //     search allCoresArray for the 0-relative firstCoreOffset of the value matching firstCore.
+            //     add to cores every core name from firstCoreOffset to the last core in allCoresList.
             
-            // Determine nodeps behaviour.
-            if (coreMissingOrEmpty) {
-                nodeps = false;
-            } else if (cores.size() == 1) {
-                nodeps = options.has(NO_DEPS_ARG);
-                if (nodeps == null)
-                    nodeps = false;
-            } else {
-                nodeps = true;
+            String firstCore = null;
+            cores = new ArrayList();
+            
+            if (coresRequested.isEmpty()) {
+                firstCore = PREQC_CORE;
+            } else if (coresRequested.size() == 1) {
+                if (nodeps) {
+                    cores.addAll(coresRequested);
+                } else {
+                    firstCore = coresRequested.get(0);
+                }
+            } else {    // coresRequested.size() > 1.
+                cores.addAll(coresRequested);
+            }
+            
+            if (firstCore != null) {
+                int firstCoreOffset = 0;
+                for (String core : allCoresArray) {
+                    if (core.equals(firstCore)) {
+                        break;
+                    }
+                    firstCoreOffset++;
+                }
+                for (int i = firstCoreOffset; i < allCoresArray.length; i++) {
+                    cores.add(allCoresArray[i]);
+                } 
             }
         } catch (IndexerException icne) {
             if (icne.getCause() instanceof InvalidCoreNameException) {
@@ -366,7 +451,9 @@ public class IndexerManager {
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
             throw new IndexerException(new MissingRequiredContextException());
         }
-
+        
+        indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
+        
         return options;
     }
     
@@ -385,7 +472,11 @@ public class IndexerManager {
                 return STATUS_NO_DEPS;
             } else if (ie.getCause() instanceof InvalidCoreNameException) {
                 return STATUS_INVALID_CORE_NAME;
+            } else if (ie.getCause() instanceof ValidationException) {
+                return STATUS_VALIDATION_ERROR;
             }
+            
+            return -1;
         }
         
         return STATUS_OK;

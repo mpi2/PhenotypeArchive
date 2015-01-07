@@ -530,6 +530,38 @@ public class OntologyUtils {
 
     }
 
+    /**
+     * Query the database, returning a map of all mp terms,
+     * indexed by mp accession id
+     *
+     * @param ontoDbConnection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a map of all mp terms, indexed by mp term id
+     */
+    protected static Map<String, OntologyTermBean> populateMpTerms(Connection ontoDbConnection) throws SQLException {
+
+        Map<String, OntologyTermBean> map = new HashMap();
+
+        String query = "SELECT DISTINCT term_id, name, definition FROM mp_term_infos";
+
+        try (final PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
+
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String termId = resultSet.getString("term_id");
+                String name = resultSet.getString("name");
+                String definition = resultSet.getString("definition");
+                List<String> synonyms = getMpSynonyms(ontoDbConnection, termId);
+                OntologyTermBean bean = new OntologyTermBean(termId, name, synonyms, definition);
+                map.put(termId, bean);
+            }
+
+        }
+
+        return map;
+    }
+
 
 
     // INTERNAL METHODS

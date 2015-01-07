@@ -181,10 +181,8 @@
 
     <!-- used for concurrently loading the impc_images core -->
     <bean id="observationIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer" />
- <!--
     <bean id="genotypePhenotypeIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GenotypePhenotypeIndexer" />
     <bean id="statisticalResultIndexer" class="uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer" />
--->    
     <bean id="preqcIndexer" class="uk.ac.ebi.phenotype.solr.indexer.PreqcIndexer" />
     <bean id="alleleIndexer" class="uk.ac.ebi.phenotype.solr.indexer.AlleleIndexer" />
     <bean id="imagesIndexer" class="uk.ac.ebi.phenotype.solr.indexer.SangerImagesIndexer" />
@@ -194,6 +192,7 @@
     <bean id="pipelineIndexer" class="uk.ac.ebi.phenotype.solr.indexer.PipelineIndexer" />
     <bean id="geneIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GeneIndexer" />
     <bean id="diseaseIndexer" class="uk.ac.ebi.phenotype.solr.indexer.DiseaseIndexer" />
+    <bean id="autosuggestIndexer" class="uk.ac.ebi.phenotype.solr.indexer.AutosuggestIndexer" />
     
 
 </beans>

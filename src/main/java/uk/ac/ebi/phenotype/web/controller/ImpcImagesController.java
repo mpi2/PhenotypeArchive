@@ -192,6 +192,10 @@ public class ImpcImagesController {
 			}
 			if ( key.equals("q") ){
 				qStr = value;
+				qStr=qStr.replace("\"", " ");
+				qStr=qStr.replace("(", " ");
+				qStr=qStr.replace(")", " ");
+				qStr=qStr.replace("observation_type:image_record", " ");
 			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
