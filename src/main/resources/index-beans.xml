@@ -118,30 +118,39 @@
     <!-- used for concurrently loading the samger images (or just images) core -->
     <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/images"/>
-        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the MP core -->
     <bean id="mpIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/mp"/>
-        <constructor-arg index="1" value="100000"/> <!--Queue size-->
-        <constructor-arg index="2" value="5"/> <!--Num threads-->
-    </bean>
-
-    <!-- used for concurrently loading the impc_images core -->
-    <bean id="impcImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/impc_images"/>
-        <constructor-arg index="1" value="100000"/> <!--Queue size-->
-        <constructor-arg index="2" value="5"/> <!--Num threads-->
+        <constructor-arg index="1" value="500"/> <!--Queue size-->
+        <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the autosuggest core -->
     <bean id="autosuggestIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/autosuggest"/>
-        <constructor-arg index="1" value="100000"/> <!--Queue size-->
-        <constructor-arg index="2" value="5"/> <!--Num threads-->
+        <constructor-arg index="1" value="1000"/> <!--Queue size-->
+        <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
+
+    <!-- used for concurrently loading the impc_images core -->
+    <bean id="impcImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/impc_images"/>
+        <constructor-arg index="1" value="10000"/> <!--Queue size-->
+        <constructor-arg index="2" value="3"/> <!--Num threads-->
+    </bean>
+
+
+    <!-- used for concurrently loading the statistical results core -->
+    <bean id="statisticalResultsIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/statistical-result"/>
+        <constructor-arg index="1" value="50000"/> <!--Queue size-->
+        <constructor-arg index="2" value="6"/> <!--Num threads-->
+    </bean>
+
 
 
     <!-- Global configuration parameters -->

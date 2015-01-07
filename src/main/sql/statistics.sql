@@ -66,6 +66,8 @@ CREATE TABLE stats_unidimensional_results (
   control_selection_strategy       VARCHAR(100),
   mp_acc                           VARCHAR(20)      NULL,
   mp_db_id                         INT(10)          NULL,
+  male_mp_acc                      VARCHAR(20)      NULL,
+  female_mp_acc                    VARCHAR(20)      NULL,
   male_controls                    INT(10) UNSIGNED,
   male_mutants                     INT(10) UNSIGNED,
   female_controls                  INT(10) UNSIGNED,

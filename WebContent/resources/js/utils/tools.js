@@ -142,10 +142,15 @@
             'mp'           : fieldConf.mpFacet.subFacetFqFields,
             'disease'      : fieldConf.diseaseFacet.subFacetFqFields,
             'ma'           : fieldConf.maFacet.subFacetFqFields,
-            'pipeline'     : fieldConf.pipelineFacet.subFacetFqFields,
+            //'pipeline'     : fieldConf.pipelineFacet.subFacetFqFields,
             'impc_images'  : fieldConf.impc_imagesFacet.subFacetFqFields,
             'images'       : fieldConf.imagesFacet.subFacetFqFields
         };
+        
+        if ( ! MPI2.searchAndFacetConfig.hideProcedures ){
+        	facetFields.pipeline = fieldConf.pipelineFacet.subFacetFqFields;
+        }
+        
 
         var facetUrls = {};
         for (var facet in facetFields) {

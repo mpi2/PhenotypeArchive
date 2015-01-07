@@ -26,6 +26,7 @@ import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OrganisationBean;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -55,6 +56,7 @@ public class IndexerMap {
     private static Map<Integer, ImpressBean> pipelineMap = null;
     private static Map<Integer, ImpressBean> procedureMap = null;
     private static Map<Integer, ImpressBean> parameterMap = null;
+    private static Map<Integer, OrganisationBean> organisationMap = null;
 
 
 
@@ -297,6 +299,22 @@ public class IndexerMap {
 
 
 
+    /**
+     * Returns a cached map of all organisations, indexed by internal database id.
+     *
+     * @param connection active database connection
+     *
+     * @throws SQLException when a database exception occurs
+     * @return a cached list of all impress parameter terms, indexed by internal database id.
+     */
+    public static Map<Integer, OrganisationBean> getOrganisationMap(Connection connection) throws SQLException {
+        if (organisationMap == null) {
+            organisationMap = OntologyUtils.populateOrganisationMap(connection);
+        }
+        return organisationMap;
+    }
+
+
 
     // UTILITY METHODS
     
@@ -328,5 +346,6 @@ public class IndexerMap {
 		Map<String, List<SangerImageDTO>> map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
 		return map;
 	}
+
 
 }
