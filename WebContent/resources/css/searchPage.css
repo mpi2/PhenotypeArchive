@@ -299,3 +299,18 @@ li.fcat > input {
 li.fcat:hover {
 	background-color: #F2F2F2;
 }
+div#goBlock {
+	width: 200px;	
+}
+div#goBlock table {
+	border: none !important;
+	border-collapse: collapse;
+	text-align: left; 
+}
+div#goBlock table td {
+	font-size: 12px;
+  	border: 1px solid lightgray;
+  	padding: 0 5px;
+  	align: center !important;
+  	
+}

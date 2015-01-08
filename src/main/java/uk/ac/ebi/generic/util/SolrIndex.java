@@ -861,7 +861,7 @@ public class SolrIndex {
 			
 			Map<String, String> annotUrls = new LinkedHashMap<>();
 			String noGo  = "w/o GO";
-			String hasGo = "w/ GO";
+			String hasGo = "w/  GO";
 			
 			annotUrls.put(noGo, noGoQuery);
 			annotUrls.put(hasGo, goQuery);

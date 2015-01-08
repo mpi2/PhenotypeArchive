@@ -33,6 +33,7 @@
 	</jsp:attribute>
 
     <jsp:body>		
+    <div id='goBlock'></div>
 		<div class="region region-sidebar-first">
 			<div id='facet' class='fblock block'>	
 				<div class="head">Filter your search</div>

@@ -16,7 +16,9 @@ import net.sf.json.JSONSerializer;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +38,7 @@ public class GoTermController {
 	private SolrIndex solrIndex;
 	
 	@RequestMapping(value = "/gostats", method = RequestMethod.GET)
-	public String statsTable(
+	public ResponseEntity<String> statsTable(
 			//@RequestParam(value = "q", required = false) String solrParams,
 			//@RequestParam(value = "subfacet", required = false) String subfacet,
 			HttpServletRequest request,
@@ -44,13 +46,19 @@ public class GoTermController {
 			Model model) throws IOException, URISyntaxException  {
 
 		Map<String, Map<String, JSONArray>> stats = solrIndex.getGO2ImpcGeneAnnotationStats();
-		return createTable(stats);
+		return new ResponseEntity<String>(createTable(stats), createResponseHeaders(), HttpStatus.CREATED);
+	}
+	
+	private HttpHeaders createResponseHeaders(){
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.TEXT_HTML);
+		return responseHeaders;
 	}
 	
 	public String createTable(Map<String,Map<String, JSONArray>> stats){
 	
 		StringBuilder builder = new StringBuilder();
-		builder.append("<table border=\"1\" border-collapse=\"collapse\" cellspacing=\"1\" cellpadding=\"5\" style=\"empty-cells:show\">");
+		builder.append("<table>");
 		builder.append("<tbody>");
 		
 		Iterator it = stats.entrySet().iterator();
