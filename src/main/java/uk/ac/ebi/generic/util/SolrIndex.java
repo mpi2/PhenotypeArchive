@@ -20,6 +20,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -499,11 +501,13 @@ public class SolrIndex {
 		log.debug("GETTING CONTENT FROM: " + url);
 		
 		HttpProxy proxy = new HttpProxy();
+		
 		try {
-                    String content = proxy.getContent(new URL(url));
-                    return (JSONObject) JSONSerializer.toJSON(content);
-		} catch (Exception e) {
-                }
+			String content = proxy.getContent(new URL(url));
+			return (JSONObject) JSONSerializer.toJSON(content);
+		} 
+		catch (Exception e) {
+        }
 		return null;
 	}
 
@@ -672,7 +676,7 @@ public class SolrIndex {
             return url;
         }
         
-	private Map<String, String> geneAlleleConstruct(JSONArray docs, int i) {
+        private Map<String, String> geneAlleleConstruct(JSONArray docs, int i) {
                 Map<String, String> construct = new HashMap<String, String>();
                         String markerSymbol = "";
                         String product = "";
@@ -835,6 +839,60 @@ public class SolrIndex {
 		map.put("control", controlDocument);
 		map.put("experimental", expDocument);
 		return map;
+	}
+	
+	public Map<String, Map<String, JSONArray>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
+	//public void getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
+		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
+		
+		
+		Map<String, Map<String, JSONArray>> statusEvidCount = new LinkedHashMap<String, Map<String, JSONArray>>();
+		
+		List<String> phenoStatuses = new ArrayList<String>();
+		phenoStatuses.add("Phenotyping Complete");
+		phenoStatuses.add("Phenotyping Started");
+		
+		for ( String status : phenoStatuses ){
+			String goParams = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:*&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goQuery = internalBaseSolrUrl + goParams;
+			
+			String noGoParams = "q=latest_phenotype_status:\"" + status + "\" AND -go_term_id:*&wt=json&rows=0";
+			String noGoQuery = internalBaseSolrUrl + noGoParams;
+			
+			Map<String, String> annotUrls = new LinkedHashMap<>();
+			String noGo  = "w/o GO";
+			String hasGo = "w/ GO";
+			
+			annotUrls.put(noGo, noGoQuery);
+			annotUrls.put(hasGo, goQuery);
+			
+			Map<String, JSONArray> annotCounts = new LinkedHashMap<>();
+			
+			Iterator it = annotUrls.entrySet().iterator();
+			while (it.hasNext()) {
+		        Map.Entry pairs = (Map.Entry)it.next();
+		        String annot = pairs.getKey().toString();
+		        String query = pairs.getValue().toString();
+		        it.remove(); // avoids a ConcurrentModificationException
+		        JSONObject json = getResults(query);
+		        //System.out.println("QUERY: " + query);
+		        
+		        if ( annot.equals(hasGo) ){ 
+		        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("go_term_evid");
+		        	annotCounts.put(annot, jfacet);
+		        }
+		        else {
+		        	int numFound = json.getJSONObject("response").getInt("numFound");
+		        	JSONArray ja = new JSONArray();
+		        	ja.add(numFound);
+		        	annotCounts.put(annot, ja);
+		        }
+			}
+			
+			statusEvidCount.put(status, annotCounts);
+			
+		}
+		return statusEvidCount;
 	}
 
 }
