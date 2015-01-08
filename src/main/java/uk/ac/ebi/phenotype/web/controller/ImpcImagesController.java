@@ -196,6 +196,7 @@ public class ImpcImagesController {
 				qStr=qStr.replace("\"", " ");
 				qStr=qStr.replace("(", " ");
 				qStr=qStr.replace(")", " ");
+				qStr=qStr.replace("_", " ");
 				qStr=qStr.replace("observation_type:image_record AND", " ");
 				qStr=qStr.replace(":", " ");
 			}

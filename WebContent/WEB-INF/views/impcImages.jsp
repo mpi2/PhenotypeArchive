@@ -59,13 +59,7 @@
                          <div id="grid">
 								<ul>
 										<c:forEach var="image" items="${images}" varStatus="status">
-											
-											 <!-- <img id="752" src="http://172.22.68.222:4080/webgateway/render_thumbnail/1278/200" alt="image" title="30910.bmp" style="width: 200px;"> -->
-													<%-- <a href="http://172.22.68.222:4080/webgateway/render_image/${image.omeroId}">
-													<img id="${image.omeroId}" src="http://172.22.68.222:4080/webgateway/render_thumbnail/${image.omeroId}/96" alt="image" title="${image.omeroId}" style="width: 96px;">
-													</a> --%>
 													<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
-											
 										</c:forEach>
 								</ul>
 							</div>
