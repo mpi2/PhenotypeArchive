@@ -102,7 +102,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 	    // Procedure prefix is the first two strings of the parameter after splitting on underscore
 	    // i.e. IMPC_BWT_001_001 => IMPC_BWT
-	    String procedurePrefix = StringUtils.join(Arrays.asList(pcs.getParameter().getStableId().split("_")).subList(0, 1), "_");
+	    String procedurePrefix = StringUtils.join(Arrays.asList(pcs.getProcedure().getStableId().split("_")).subList(0, 1), "_");
 	    if (source3iProcedurePrefixes.contains(procedurePrefix)) {
 		    this.setDataSourceName("3i");
 	    } else {
