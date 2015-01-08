@@ -134,7 +134,7 @@ function initFancybox() {
 //	    }
 //	});
 	
-	$('.fancybox').fancybox({
+	$('.fancybox').fancybox({'type' : 'image',
 		beforeLoad : function(){
 			console.log('calling fancybox');
 			  var url= $(this.element).attr("fullRes");
