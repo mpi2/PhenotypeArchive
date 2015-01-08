@@ -306,7 +306,6 @@ div#goBlock table {
 	text-align: left; 
 }
 div#goBlock table td {
-	font-size: 12px;
   	border: 1px solid lightgray;
   	padding: 0 5px;
   	align: center !important;
