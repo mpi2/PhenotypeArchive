@@ -157,7 +157,7 @@
     	        	} 
     	        	// restore the spliced core when done
     	        	aCores.push(defaultCore);
-    	    	}   	    
+    	    	}   
 	    	},
 	    	error: function(jqXHR, textStatus, errorThrown) {
 	    		$('div#facetSrchMsg').html('Error fetching data ...');

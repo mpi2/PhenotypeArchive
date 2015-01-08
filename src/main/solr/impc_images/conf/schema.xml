@@ -364,6 +364,10 @@
   	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
    
    	<field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+   	<field name="parameter_association_stable_id" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="parameter_association_sequence_id" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="parameter_association_name" type="string" indexed="true" stored="true" multiValued="true" />
    
     <copyField source="symbol" dest="marker_symbol" />
     <copyField source="symbol" dest="auto_suggest" />
