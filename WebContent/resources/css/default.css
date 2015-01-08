@@ -676,3 +676,8 @@ td, th                  { padding: 0.7em 1.2em 0.7em 0.3em; }
 #slogantext h1          { font-size: 2.7em; }
 #sloganbutton           { margin-bottom: 2em; } 
 }
+
+/* for dataTable */
+div.dataTables_info, div.dataTables_paginate {
+	display: inline;	
+}
