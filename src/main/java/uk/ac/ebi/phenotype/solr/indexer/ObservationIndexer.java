@@ -318,6 +318,9 @@ public class ObservationIndexer extends AbstractIndexer {
 						// Will never be null, we hope
 						o.addParameterAssociationStableId(pb.parameterStableId);
 						o.addParameterAssociationName(pb.parameterAssociationName);
+						if(StringUtils.isNotEmpty(pb.parameterAssociationValue)) {
+							o.addParameterAssociationValue(pb.parameterAssociationValue);
+						}
 						if(StringUtils.isNotEmpty(pb.sequenceId)) {
 							o.addParameterAssociationSequenceId(pb.sequenceId);
 						}

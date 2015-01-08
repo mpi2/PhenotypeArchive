@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 import java.sql.SQLException;
@@ -62,6 +63,7 @@ public class ObservationDTO {
     public final static String PARAMETER_ASSOCIATION_SEQUENCE_ID = "parameter_association_sequence_id";
     public final static String PARAMETER_ASSOCIATION_DIM_ID = "parameter_association_dim_id";
 	public static final String PARAMETER_ASSOCIATION_NAME = "parameter_association_name";
+	private static final String PARAMETER_ASSOCIATION_VALUE = "parameter_association_value";
 
 	@Field(ID)
     private Integer id;
@@ -209,9 +211,21 @@ public class ObservationDTO {
     
     @Field(PARAMETER_ASSOCIATION_NAME)
 	private List<String> parameterAssociationName;
+    @Field(PARAMETER_ASSOCIATION_VALUE)
+	private List<String> parameterAssociationValue;
 
 
     
+	public List<String> getParameterAssociationValue() {
+		return parameterAssociationValue;
+	}
+
+
+	public void setParameterAssociationValue(List<String> parameterAssociationValue) {
+		this.parameterAssociationValue = parameterAssociationValue;
+	}
+
+
 	public List<String> getParameterAssociationName() {
 	
 		return parameterAssociationName;
@@ -1062,6 +1076,15 @@ public class ObservationDTO {
 
 	public void setFileType(String fileType) {
 		this.fileType = fileType;
+	}
+
+
+	public void addParameterAssociationValue(String parameterAssValue) {
+		if(this.parameterAssociationValue==null){
+			parameterAssociationValue=new ArrayList<>();
+		}
+		parameterAssociationValue.add(parameterAssValue);
+		
 	}
 
 	
