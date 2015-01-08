@@ -192,10 +192,12 @@ public class ImpcImagesController {
 			}
 			if ( key.equals("q") ){
 				qStr = value;
+				//get rid of wierd solr comments etc so more human readable
 				qStr=qStr.replace("\"", " ");
 				qStr=qStr.replace("(", " ");
 				qStr=qStr.replace(")", " ");
-				qStr=qStr.replace("observation_type:image_record", " ");
+				qStr=qStr.replace("observation_type:image_record AND", " ");
+				qStr=qStr.replace(":", " ");
 			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;

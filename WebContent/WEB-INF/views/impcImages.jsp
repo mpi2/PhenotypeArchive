@@ -52,7 +52,7 @@
     
    <c:if test="${solrImagesError ne null}"><h4>There is an error the image index is down please contact the IMPC if this error persists</h4></c:if>
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
-		<c:if test="${imageCount ne 0}"><h1 class="title" id="top">${imageCount} images for query= ${q}</h1></c:if>
+		<c:if test="${imageCount ne 0}"><h1 class="title" id="top">${imageCount} images for ${q}</h1></c:if>
 <div  class="section">
 		<div class="inner">
                 <div class="accordion-body" style="display: block">
