@@ -299,9 +299,7 @@ li.fcat > input {
 li.fcat:hover {
 	background-color: #F2F2F2;
 }
-div#goBlock {
-	width: 200px;	
-}
+
 div#goBlock table {
 	border: none !important;
 	border-collapse: collapse;
