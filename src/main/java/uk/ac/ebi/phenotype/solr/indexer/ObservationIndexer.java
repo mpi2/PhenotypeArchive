@@ -494,6 +494,7 @@ public class ObservationIndexer extends AbstractIndexer {
 				ParameterAssociationBean pb = new ParameterAssociationBean();
 				pb.observationId = obsId;
 				pb.parameterStableId = resultSet.getString("parameter_id");
+				pb.parameterAssociationValue = resultSet.getString("parameter_assocation_value");
 				if(stableIdToNameMap.get(pb.parameterStableId)!=null){
 				pb.parameterAssociationName=stableIdToNameMap.get(pb.parameterStableId);
 				}
@@ -626,6 +627,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 */
 	protected class ParameterAssociationBean {
 		public String parameterAssociationName;
+		public String parameterAssociationValue;
 		public Integer id;
 		public Integer observationId;
 		public String parameterStableId;
