@@ -127,6 +127,13 @@
         <field name="metadata_group" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="data_frame" type="string" indexed="true" stored="true" multiValued="false"/>
 
+        
+        <field name="external_db_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="organisation_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="phenotyping_center_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="project_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        
         <!-- Information about the raw data -->
         <field name="control_biological_model_id" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="mutant_biological_model_id" type="int" indexed="true" stored="true" multiValued="false"/>
