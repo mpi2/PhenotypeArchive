@@ -29,10 +29,11 @@ allele = allele.replaceAll("##", "</sup>");
         </a>
                                                 <div class="caption">
                                                 <c:if test="${not empty count}">${count} Images<br/></c:if>
-                                                <c:if test="${not empty img.parameter_association_stable_id}">${img.parameter_association_stable_id}</c:if>
+                                                <c:if test="${not empty img.parameter_association_name}">
+                                                	<c:forEach var="pAssName" items="${img.parameter_association_name}" varStatus="status">${pAssName}, </c:forEach>
+                                                </c:if>
                                                 <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
-                                                <c:if test="${not empty img.parameter_association_name}">${img.parameter_association_name}</c:if>
                                                 		<%-- <c:forEach var="maTerm" items="${img.annotationTermName}" varStatus="status">${maTerm}, </c:forEach> --%>
                                                  		<%--  <c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
    												 		<c:if test="${not empty img.sex}">${img.sex}</c:if> --%>
