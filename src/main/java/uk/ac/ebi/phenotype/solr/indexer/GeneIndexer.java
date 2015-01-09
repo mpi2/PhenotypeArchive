@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -358,11 +359,60 @@ public class GeneIndexer extends AbstractIndexer {
                             if (mp.getInferredChildMaTermSynonym() != null) {
                                 gene.getInferredChildMaTermSynonym().addAll(mp.getInferredChildMaTermSynonym());
                             }
-
                         }
                     }
-
                 }
+
+
+                /**
+                 * Unique all the sets
+                 */
+
+                gene.setMpId(new ArrayList<>(new HashSet<>(gene.getMpId())));
+                gene.setMpTerm(new ArrayList<>(new HashSet<>(gene.getMpTerm())));
+                gene.setMpTermSynonym(new ArrayList<>(new HashSet<>(gene.getMpTermSynonym())));
+                gene.setMpTermDefinition(new ArrayList<>(new HashSet<>(gene.getMpTermDefinition())));
+                gene.setOntologySubset(new ArrayList<>(new HashSet<>(gene.getOntologySubset())));
+
+                gene.setMaId(new ArrayList<>(new HashSet<>(gene.getMaId())));
+                gene.setMaTerm(new ArrayList<>(new HashSet<>(gene.getMaTerm())));
+                gene.setMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getMaTermSynonym())));
+                gene.setMaTermDefinition(new ArrayList<>(new HashSet<>(gene.getMaTermDefinition())));
+
+                gene.setHpId(new ArrayList<>(new HashSet<>(gene.getHpId())));
+                gene.setHpTerm(new ArrayList<>(new HashSet<>(gene.getHpTerm())));
+
+                gene.setTopLevelMpId(new ArrayList<>(new HashSet<>(gene.getTopLevelMpId())));
+                gene.setTopLevelMpTerm(new ArrayList<>(new HashSet<>(gene.getTopLevelMpTerm())));
+                gene.setTopLevelMpTermSynonym(new ArrayList<>(new HashSet<>(gene.getTopLevelMpTermSynonym())));
+
+                gene.setIntermediateMpId(new ArrayList<>(new HashSet<>(gene.getIntermediateMpId())));
+                gene.setIntermediateMpTerm(new ArrayList<>(new HashSet<>(gene.getIntermediateMpTerm())));
+                gene.setIntermediateMpTermSynonym(new ArrayList<>(new HashSet<>(gene.getIntermediateMpTermSynonym())));
+
+                gene.setChildMpId(new ArrayList<>(new HashSet<>(gene.getChildMpId())));
+                gene.setChildMpTerm(new ArrayList<>(new HashSet<>(gene.getChildMpTerm())));
+                gene.setChildMpTermSynonym(new ArrayList<>(new HashSet<>(gene.getChildMpTermSynonym())));
+
+                gene.setChildMpId(new ArrayList<>(new HashSet<>(gene.getChildMpId())));
+                gene.setChildMpTerm(new ArrayList<>(new HashSet<>(gene.getChildMpTerm())));
+                gene.setChildMpTermSynonym(new ArrayList<>(new HashSet<>(gene.getChildMpTermSynonym())));
+
+                gene.setInferredMaId(new ArrayList<>(new HashSet<>(gene.getInferredMaId())));
+                gene.setInferredMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredMaTerm())));
+                gene.setInferredMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredMaTermSynonym())));
+
+                gene.setSelectedTopLevelMaId(new ArrayList<>(new HashSet<>(gene.getSelectedTopLevelMaId())));
+                gene.setSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getSelectedTopLevelMaTerm())));
+                gene.setSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getSelectedTopLevelMaTermSynonym())));
+
+                gene.setInferredChildMaId(new ArrayList<>(new HashSet<>(gene.getInferredChildMaId())));
+                gene.setInferredChildMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredChildMaTerm())));
+                gene.setInferredChildMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredChildMaTermSynonym())));
+
+                gene.setInferredSelectedTopLevelMaId(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaId())));
+                gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTerm())));
+                gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym()))); 
 
                 geneCore.addBean(gene, 60000);
                 count ++;
