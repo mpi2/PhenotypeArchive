@@ -125,15 +125,14 @@ public class IndexerManager {
         , AUTOSUGGEST_CORE
     };
     
-    // -------------------- These aren't implemented yet. --------------------
     @Autowired
     ObservationIndexer observationIndexer;
         
     @Autowired
     GenotypePhenotypeIndexer genotypePhenotypeIndexer;
-        
-//    @Autowired
-//    StatisticalResultIndexer statisticalResultIndexer;
+    
+    @Autowired
+    StatisticalResultIndexer statisticalResultIndexer;
     
     @Autowired
     PreqcIndexer preqcIndexer;
@@ -279,7 +278,7 @@ public class IndexerManager {
             switch (core) {
                 case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
                 case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
-//                case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
+                case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
                     
                 case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;
                 case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleIndexer));                           break;
