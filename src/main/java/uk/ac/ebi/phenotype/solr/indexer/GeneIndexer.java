@@ -227,7 +227,7 @@ public class GeneIndexer extends AbstractIndexer {
 					List<SangerImageDTO> list = sangerImages.get(allele.getMgiAccessionId());
 					for (SangerImageDTO image : list) {
 
-						if (image.getMp_id() != null) {
+						if (image.getMp_id() != null && ! gene.getMpId().contains(image.getMp_id())) {
 
 							gene.getMpId().addAll(image.getMp_id());
 							gene.getMpTerm().addAll(image.getMpTerm());
