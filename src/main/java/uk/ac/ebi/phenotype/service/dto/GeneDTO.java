@@ -82,7 +82,6 @@ public class GeneDTO {
 	public static final String DISEASE_TERM = "disease_term";
 	public static final String DISEASE_ALTS = "disease_alts";
 	public static final String DISEASE_CLASSES = "disease_classes";
-	public static final String DISEASE__HUMAN_PHENOTYPES = "disease__human_phenotypes";
 	public static final String HUMAN_CURATED = "human_curated";
 	public static final String MOUSE_CURATED = "mouse_curated";
 	public static final String MGI_PREDICTED = "mgi_predicted";
@@ -99,7 +98,7 @@ public class GeneDTO {
 	public static final String PROC_PARAM_STABLE_ID = "proc_param_stable_id";
 	public static final String EXPNAME = "expName";
 	public static final String SUBTYPE = "subtype";
-	public static final String ANNOTATEDHIGHERLEVELMPTERMNAME = "annotatedHigherLevelMpTermName";
+	public static final String ANNOTATED_HIGHER_LEVEL_MP_TERM_NAME = "annotatedHigherLevelMpTermName";
 	public static final String TEXT = "text";
 	public static final String AUTO_SUGGEST = "auto_suggest";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
@@ -107,11 +106,11 @@ public class GeneDTO {
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS="impc_novel_predicted_in_locus";
 
 	// go term stuff
-	public static final String GOTERMID = "go_term_id";
-	public static final String GOTERMNAME = "go_term_name";
-	public static final String GOTERMDEF = "go_term_def";
-	public static final String GOTERMEVID = "go_term_evid";
-	public static final String GOTERMDOMAIN = "go_term_domain";
+	public static final String GO_TERM_ID = "go_term_id";
+	public static final String GO_TERM_NAME = "go_term_name";
+	public static final String GO_TERM_DEF = "go_term_def";
+	public static final String GO_TERM_EVID = "go_term_evid";
+	public static final String GO_TERM_DOMAIN = "go_term_domain";
 	
 	
 	// <!-- gene level fields -->
@@ -458,7 +457,7 @@ public class GeneDTO {
 	@Field(SUBTYPE)
 	List<String> subtype;
 
-	@Field(ANNOTATEDHIGHERLEVELMPTERMNAME)
+	@Field(ANNOTATED_HIGHER_LEVEL_MP_TERM_NAME)
 	List<String> annotatedHigherLevelMpTermName;
 
 	// <!-- for copyfield -->
@@ -471,19 +470,19 @@ public class GeneDTO {
 	@Field(SELECTED_TOP_LEVEL_MA_TERM)
 	List<String> selectedTopLevelMaTerm;
 
-	@Field(GOTERMID)
+	@Field(GO_TERM_ID)
 	private List<String> goTermIds = new ArrayList<>();
 	
-	@Field(GOTERMNAME)
+	@Field(GO_TERM_NAME)
 	private List<String> goTermNames = new ArrayList<>();
 	
-	@Field(GOTERMDEF)
+	@Field(GO_TERM_DEF)
 	private List<String> goTermDefs = new ArrayList<>();
 	
-	@Field(GOTERMEVID)
+	@Field(GO_TERM_EVID)
 	private List<String> goTermEvids = new ArrayList<>();
 	
-	@Field(GOTERMDOMAIN)
+	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
 	
 	public List<String> getTopLevelMpTermSynonym() {
