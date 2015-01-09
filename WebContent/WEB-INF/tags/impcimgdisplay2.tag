@@ -16,12 +16,18 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="img" required="true" type="java.util.Map"%>
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
 <%@ attribute name="count" required="false" %>
+<%@ attribute name="href" required="false" %>
 
         <li>
-         
-        <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}">
-         <img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200">
-        </a>
+         <c:choose>
+         <c:when test="${not empty href}">
+         <a href="${href}">
+         </c:when>
+         <c:otherwise>
+         <a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}">
+         </c:otherwise>
+         </c:choose>
+         <img src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
                                                 <div class="caption">
                                                 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                 <c:if test="${not empty img.parameter_association_name}">
