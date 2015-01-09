@@ -52,7 +52,7 @@ public class GeneDTO {
 
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
-	public static final String CHILD_MP_TERM_SYNONYM = "child_mp_synonym";
+	public static final String CHILD_MP_TERM_SYNONYM = "child_mp_term_synonym";
 
 	public static final String TOP_LEVEL_MP_ID = "top_level_mp_id";
 	public static final String TOP_LEVEL_MP_TERM = "top_level_mp_term";
@@ -120,7 +120,7 @@ public class GeneDTO {
 	
 	
 	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_ID)
-	private List<String>selectedTopLevelMaTermId;
+	private List<String> selectedTopLevelMaId;
 	
 	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String>selectedTopLevelMaTermSynonym;
@@ -147,18 +147,18 @@ public class GeneDTO {
 
 
 
-	public List<String> getSelectedTopLevelMaTermId() {
+	public List<String> getSelectedTopLevelMaId() {
 	
-		return selectedTopLevelMaTermId;
+		return selectedTopLevelMaId;
 	}
 
 
 
 
 	
-	public void setSelectedTopLevelMaTermId(List<String> selectedTopLevelMaTermId) {
+	public void setSelectedTopLevelMaId(List<String> selectedTopLevelMaId) {
 	
-		this.selectedTopLevelMaTermId = selectedTopLevelMaTermId;
+		this.selectedTopLevelMaId = selectedTopLevelMaId;
 	}
 
 
@@ -1710,7 +1710,7 @@ public class GeneDTO {
 			return false;
 		if (selectedTopLevelMaTerm != null ? !selectedTopLevelMaTerm.equals(geneDTO.selectedTopLevelMaTerm) : geneDTO.selectedTopLevelMaTerm != null)
 			return false;
-		if (selectedTopLevelMaTermId != null ? !selectedTopLevelMaTermId.equals(geneDTO.selectedTopLevelMaTermId) : geneDTO.selectedTopLevelMaTermId != null)
+		if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(geneDTO.selectedTopLevelMaId) : geneDTO.selectedTopLevelMaId != null)
 			return false;
 		if (selectedTopLevelMaTermSynonym != null ? !selectedTopLevelMaTermSynonym.equals(geneDTO.selectedTopLevelMaTermSynonym) : geneDTO.selectedTopLevelMaTermSynonym != null)
 			return false;
@@ -1735,7 +1735,7 @@ public class GeneDTO {
 	public int hashCode() {
 
 		int result = impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0;
-		result = 31 * result + (selectedTopLevelMaTermId != null ? selectedTopLevelMaTermId.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
 		result = 31 * result + (selectedTopLevelMaTermSynonym != null ? selectedTopLevelMaTermSynonym.hashCode() : 0);
 		result = 31 * result + (mgiPredictedKnownGene != null ? mgiPredictedKnownGene.hashCode() : 0);
 		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
@@ -1820,7 +1820,7 @@ public class GeneDTO {
 
 		return "GeneDTO{" +
 			"impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
-			", selectedTopLevelMaTermId=" + selectedTopLevelMaTermId +
+			", selectedTopLevelMaId=" + selectedTopLevelMaId +
 			", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
 			", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
 			", dataType='" + dataType + '\'' +
