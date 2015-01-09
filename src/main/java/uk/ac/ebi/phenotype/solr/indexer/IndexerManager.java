@@ -52,7 +52,7 @@ public class IndexerManager {
     
     // core names.
     //      These are built only for a new data release.
-    public static final String OBSERVATION_CORE = "observation";                // For historic reasons, the core's actual name is 'experiment'.
+    public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
     public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
     public static final String STATSTICAL_RESULT_CORE = "statistical-result";
     
