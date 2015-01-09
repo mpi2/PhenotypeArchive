@@ -38,8 +38,17 @@ public class GeneDTO {
 	public static final String P_VALUE = "p_value";
 	public static final String MP_ID = "mp_id";
 	public static final String MP_TERM = "mp_term";
-	public static final String MP_DEFINITION = "mp_definition";
-	public static final String MP_SYNONYM = "mp_synonym";
+	public static final String MP_TERM_DEFINITION = "mp_term_definition";
+	public static final String MP_TERM_SYNONYM = "mp_term_synonym";
+
+	public static final String MA_ID = "ma_id";
+	public static final String MA_TERM = "ma_term";
+	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
+	public static final String MA_TERM_DEFINITION = "ma_term_definition";
+
+	public static final String HP_ID = "hp_id";
+	public static final String HP_TERM = "hp_term";
+
 
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
@@ -55,12 +64,18 @@ public class GeneDTO {
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_synonym";
 
 	public static final String ONTOLOGY_SUBSET = "ontology_subset";
-	public static final String MA_ID = "ma_id";
-	
+
 	public static final String INFERRED_MA_ID = "inferred_ma_id";
 	public static final String INFERRED_MA_TERM = "inferred_ma_term";
+	public static final String INFERRED_MA_TERM_SYNONYM = "inferred_ma_term_synonym";
+
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = "inferred_selected_top_level_ma_id";
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = "inferred_selected_top_level_ma_term";
+	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "inferred_selected_top_level_ma_term_synonym";
+	public static final String INFERRED_CHILD_MA_ID = "inferred_child_ma_id";
+	public static final String INFERRED_CHILD_MA_TERM = "inferred_child_ma_term";
+	public static final String INFERRED_CHILD_MA_TERM_SYNONYM = "inferred_child_ma_term_synonym";
+
 	public static final String TYPE = "type";
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
@@ -84,7 +99,6 @@ public class GeneDTO {
 	public static final String PROC_PARAM_STABLE_ID = "proc_param_stable_id";
 	public static final String EXPNAME = "expName";
 	public static final String SUBTYPE = "subtype";
-	public static final String ANNOTATEDHIGHERLEVELMATERMNAME = "annotatedHigherLevelMaTermName";
 	public static final String ANNOTATEDHIGHERLEVELMPTERMNAME = "annotatedHigherLevelMpTermName";
 	public static final String TEXT = "text";
 	public static final String AUTO_SUGGEST = "auto_suggest";
@@ -282,10 +296,31 @@ public class GeneDTO {
 	@Field(MP_TERM)
 	List<String> mpTerm;
 
-	@Field(MP_DEFINITION)
-	List<String> mpDefinition;
+	@Field(MP_TERM_SYNONYM)
+	List<String> mpTermSynonym;
 
-	
+	@Field(MP_TERM_DEFINITION)
+	List<String> mpTermDefinition;
+
+	@Field(MA_ID)
+	List<String> maId;
+
+	@Field(MA_TERM)
+	List<String> maTerm;
+
+	@Field(MA_TERM_SYNONYM)
+	List<String> maTermSynonym;
+
+	@Field(MA_TERM_DEFINITION)
+	List<String> maTermDefinition;
+
+	@Field(HP_ID)
+	List<String> hpId;
+
+	@Field(HP_TERM)
+	List<String> hpTerm;
+
+
 	@Field(CHILD_MP_ID)
 	List<String> childMpId;
 
@@ -302,7 +337,7 @@ public class GeneDTO {
 	List<String> topLevelMpTerm;
 
 	@Field(TOP_LEVEL_MP_TERM_SYNONYM)
-	List<String> topLevelMpSynonym;
+	List<String> topLevelMpTermSynonym;
 
 	@Field(TOP_LEVEL_MP_DEFINITION)
 	List<String> topLevelMpDefinition;
@@ -314,7 +349,7 @@ public class GeneDTO {
 	List<String> intermediateMpTerm;
 
 	@Field(INTERMEDIATE_MP_TERM_SYNONYM)
-	List<String> intermediateMpSynonym;
+	List<String> intermediateMpTermSynonym;
 
 
 	// <!-- ontology subset of mp terms -->
@@ -330,11 +365,26 @@ public class GeneDTO {
 	@Field(INFERRED_MA_TERM)
 	List<String> inferredMaTerm;
 
+	@Field(INFERRED_MA_TERM_SYNONYM)
+	List<String> inferredMaTermSynonym;
+
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	List<String> inferredSelectedTopLevelMaId;
 
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM)
 	List<String> inferredSelectedTopLevelMaTerm;
+
+	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
+	List<String> inferredSelectedTopLevelMaTermSynonym;
+
+	@Field(INFERRED_CHILD_MA_ID)
+	List<String> inferredChildMaId;
+
+	@Field(INFERRED_CHILD_MA_TERM)
+	List<String> inferredChildMaTerm;
+
+	@Field(INFERRED_CHILD_MA_TERM_SYNONYM)
+	List<String> inferredChildMaTermSynonym;
 
 	// <!--disease fields -->
 
@@ -408,9 +458,6 @@ public class GeneDTO {
 	@Field(SUBTYPE)
 	List<String> subtype;
 
-	@Field(ANNOTATEDHIGHERLEVELMATERMNAME)
-	List<String> annotatedHigherLevelMaTermName;
-
 	@Field(ANNOTATEDHIGHERLEVELMPTERMNAME)
 	List<String> annotatedHigherLevelMpTermName;
 
@@ -439,15 +486,15 @@ public class GeneDTO {
 	@Field(GOTERMDOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
 	
-	public List<String> getTopLevelMpSynonym() {
+	public List<String> getTopLevelMpTermSynonym() {
 
-		return topLevelMpSynonym;
+		return topLevelMpTermSynonym;
 	}
 
 
-	public void setTopLevelMpSynonym(List<String> topLevelMpSynonym) {
+	public void setTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
 
-		this.topLevelMpSynonym = topLevelMpSynonym;
+		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
 	}
 
 
@@ -487,15 +534,15 @@ public class GeneDTO {
 	}
 
 
-	public List<String> getIntermediateMpSynonym() {
+	public List<String> getIntermediateMpTermSynonym() {
 
-		return intermediateMpSynonym;
+		return intermediateMpTermSynonym;
 	}
 
 
-	public void setIntermediateMpSynonym(List<String> intermediateMpSynonym) {
+	public void setIntermediateMpTermSynonym(List<String> intermediateMpTermSynonym) {
 
-		this.intermediateMpSynonym = intermediateMpSynonym;
+		this.intermediateMpTermSynonym = intermediateMpTermSynonym;
 	}
 
 
@@ -859,19 +906,90 @@ public class GeneDTO {
 	}
 
 
-	public List<String> getMpDefinition() {
+	public List<String> getMpTermSynonym() {
 
-		return mpDefinition;
+		return mpTermSynonym;
 	}
 
 
-	public void setMpDefinition(List<String> mpDefinition) {
+	public void setMpTermSynonym(List<String> mpTermSynonym) {
 
-		this.mpDefinition = mpDefinition;
+		this.mpTermSynonym = mpTermSynonym;
 	}
 
 
-	
+	public List<String> getMpTermDefinition() {
+
+		return mpTermDefinition;
+	}
+
+
+	public void setMpTermDefinition(List<String> mpTermDefinition) {
+
+		this.mpTermDefinition = mpTermDefinition;
+	}
+
+
+	public List<String> getInferredSelectedTopLevelMaTermSynonym() {
+
+		return inferredSelectedTopLevelMaTermSynonym;
+	}
+
+
+	public void setInferredSelectedTopLevelMaTermSynonym(List<String> inferredSelectedTopLevelMaTermSynonym) {
+
+		this.inferredSelectedTopLevelMaTermSynonym = inferredSelectedTopLevelMaTermSynonym;
+	}
+
+
+	public List<String> getMaId() {
+
+		return maId;
+	}
+
+
+	public void setMaId(List<String> maId) {
+
+		this.maId = maId;
+	}
+
+
+	public List<String> getMaTerm() {
+
+		return maTerm;
+	}
+
+
+	public void setMaTerm(List<String> maTerm) {
+
+		this.maTerm = maTerm;
+	}
+
+
+	public List<String> getMaTermSynonym() {
+
+		return maTermSynonym;
+	}
+
+
+	public void setMaTermSynonym(List<String> maTermSynonym) {
+
+		this.maTermSynonym = maTermSynonym;
+	}
+
+
+	public List<String> getMaTermDefinition() {
+
+		return maTermDefinition;
+	}
+
+
+	public void setMaTermDefinition(List<String> maTermDefinition) {
+
+		this.maTermDefinition = maTermDefinition;
+	}
+
+
 	public List<String> getTopLevelMpId() {
 
 		return topLevelMpId;
@@ -887,6 +1005,30 @@ public class GeneDTO {
 	public List<String> getTopLevelMpTerm() {
 
 		return topLevelMpTerm;
+	}
+
+
+	public List<String> getHpId() {
+
+		return hpId;
+	}
+
+
+	public void setHpId(List<String> hpId) {
+
+		this.hpId = hpId;
+	}
+
+
+	public List<String> getHpTerm() {
+
+		return hpTerm;
+	}
+
+
+	public void setHpTerm(List<String> hpTerm) {
+
+		this.hpTerm = hpTerm;
 	}
 
 
@@ -944,6 +1086,18 @@ public class GeneDTO {
 	}
 
 
+	public List<String> getInferredMaTermSynonym() {
+
+		return inferredMaTermSynonym;
+	}
+
+
+	public void setInferredMaTermSynonym(List<String> inferredMaTermSynonym) {
+
+		this.inferredMaTermSynonym = inferredMaTermSynonym;
+	}
+
+
 	public List<String> getInferredSelectedTopLevelMaId() {
 
 		return inferredSelectedTopLevelMaId;
@@ -965,6 +1119,42 @@ public class GeneDTO {
 	public void setInferredSelectedTopLevelMaTerm(List<String> inferredSelectedTopLevelMaTerm) {
 
 		this.inferredSelectedTopLevelMaTerm = inferredSelectedTopLevelMaTerm;
+	}
+
+
+	public List<String> getInferredChildMaId() {
+
+		return inferredChildMaId;
+	}
+
+
+	public void setInferredChildMaId(List<String> inferredChildMaId) {
+
+		this.inferredChildMaId = inferredChildMaId;
+	}
+
+
+	public List<String> getInferredChildMaTerm() {
+
+		return inferredChildMaTerm;
+	}
+
+
+	public void setInferredChildMaTerm(List<String> inferredChildMaTerm) {
+
+		this.inferredChildMaTerm = inferredChildMaTerm;
+	}
+
+
+	public List<String> getInferredChildMaTermSynonym() {
+
+		return inferredChildMaTermSynonym;
+	}
+
+
+	public void setInferredChildMaTermSynonym(List<String> inferredChildMaTermSynonym) {
+
+		this.inferredChildMaTermSynonym = inferredChildMaTermSynonym;
 	}
 
 
@@ -1232,18 +1422,6 @@ public class GeneDTO {
 	}
 
 
-	public List<String> getAnnotatedHigherLevelMaTermName() {
-
-		return annotatedHigherLevelMaTermName;
-	}
-
-
-	public void setAnnotatedHigherLevelMaTermName(List<String> annotatedHigherLevelMaTermName) {
-
-		this.annotatedHigherLevelMaTermName = annotatedHigherLevelMaTermName;
-	}
-
-
 	public List<String> getAnnotatedHigherLevelMpTermName() {
 
 		return annotatedHigherLevelMpTermName;
@@ -1415,8 +1593,6 @@ public class GeneDTO {
 		GeneDTO geneDTO = (GeneDTO) o;
 
 		if (alleleName != null ? !alleleName.equals(geneDTO.alleleName) : geneDTO.alleleName != null) return false;
-		if (annotatedHigherLevelMaTermName != null ? !annotatedHigherLevelMaTermName.equals(geneDTO.annotatedHigherLevelMaTermName) : geneDTO.annotatedHigherLevelMaTermName != null)
-			return false;
 		if (annotatedHigherLevelMpTermName != null ? !annotatedHigherLevelMpTermName.equals(geneDTO.annotatedHigherLevelMpTermName) : geneDTO.annotatedHigherLevelMpTermName != null)
 			return false;
 		if (autoSuggest != null ? !autoSuggest.equals(geneDTO.autoSuggest) : geneDTO.autoSuggest != null) return false;
@@ -1468,7 +1644,7 @@ public class GeneDTO {
 			return false;
 		if (intermediateMpId != null ? !intermediateMpId.equals(geneDTO.intermediateMpId) : geneDTO.intermediateMpId != null)
 			return false;
-		if (intermediateMpSynonym != null ? !intermediateMpSynonym.equals(geneDTO.intermediateMpSynonym) : geneDTO.intermediateMpSynonym != null)
+		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(geneDTO.intermediateMpTermSynonym) : geneDTO.intermediateMpTermSynonym != null)
 			return false;
 		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(geneDTO.intermediateMpTerm) : geneDTO.intermediateMpTerm != null)
 			return false;
@@ -1503,7 +1679,7 @@ public class GeneDTO {
 		if (mouseCurated != null ? !mouseCurated.equals(geneDTO.mouseCurated) : geneDTO.mouseCurated != null)
 			return false;
 		if (mouseStatus != null ? !mouseStatus.equals(geneDTO.mouseStatus) : geneDTO.mouseStatus != null) return false;
-		if (mpDefinition != null ? !mpDefinition.equals(geneDTO.mpDefinition) : geneDTO.mpDefinition != null)
+		if (mpTermDefinition != null ? !mpTermDefinition.equals(geneDTO.mpTermDefinition) : geneDTO.mpTermDefinition != null)
 			return false;
 		if (mpId != null ? !mpId.equals(geneDTO.mpId) : geneDTO.mpId != null) return false;
 		if (mpTerm != null ? !mpTerm.equals(geneDTO.mpTerm) : geneDTO.mpTerm != null) return false;
@@ -1545,7 +1721,7 @@ public class GeneDTO {
 			return false;
 		if (topLevelMpId != null ? !topLevelMpId.equals(geneDTO.topLevelMpId) : geneDTO.topLevelMpId != null)
 			return false;
-		if (topLevelMpSynonym != null ? !topLevelMpSynonym.equals(geneDTO.topLevelMpSynonym) : geneDTO.topLevelMpSynonym != null)
+		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(geneDTO.topLevelMpTermSynonym) : geneDTO.topLevelMpTermSynonym != null)
 			return false;
 		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(geneDTO.topLevelMpTerm) : geneDTO.topLevelMpTerm != null)
 			return false;
@@ -1593,17 +1769,17 @@ public class GeneDTO {
 		result = 31 * result + (p_value != null ? p_value.hashCode() : 0);
 		result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
 		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
-		result = 31 * result + (mpDefinition != null ? mpDefinition.hashCode() : 0);
+		result = 31 * result + (mpTermDefinition != null ? mpTermDefinition.hashCode() : 0);
 		result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
 		result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
 		result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
 		result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
-		result = 31 * result + (topLevelMpSynonym != null ? topLevelMpSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (topLevelMpDefinition != null ? topLevelMpDefinition.hashCode() : 0);
 		result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
 		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
-		result = 31 * result + (intermediateMpSynonym != null ? intermediateMpSynonym.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
 		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
 		result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
@@ -1631,7 +1807,6 @@ public class GeneDTO {
 		result = 31 * result + (procParamStableId != null ? procParamStableId.hashCode() : 0);
 		result = 31 * result + (expName != null ? expName.hashCode() : 0);
 		result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
-		result = 31 * result + (annotatedHigherLevelMaTermName != null ? annotatedHigherLevelMaTermName.hashCode() : 0);
 		result = 31 * result + (annotatedHigherLevelMpTermName != null ? annotatedHigherLevelMpTermName.hashCode() : 0);
 		result = 31 * result + (text != null ? text.hashCode() : 0);
 		result = 31 * result + (autoSuggest != null ? autoSuggest.hashCode() : 0);
@@ -1679,17 +1854,17 @@ public class GeneDTO {
 			", p_value=" + p_value +
 			", mpId=" + mpId +
 			", mpTerm=" + mpTerm +
-			", mpDefinition=" + mpDefinition +
+			", mpTermDefinition=" + mpTermDefinition +
 			", childMpId=" + childMpId +
 			", childMpTerm=" + childMpTerm +
 			", childMpTermSynonym=" + childMpTermSynonym +
 			", topLevelMpId=" + topLevelMpId +
 			", topLevelMpTerm=" + topLevelMpTerm +
-			", topLevelMpSynonym=" + topLevelMpSynonym +
+			", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
 			", topLevelMpDefinition=" + topLevelMpDefinition +
 			", intermediateMpId=" + intermediateMpId +
 			", intermediateMpTerm=" + intermediateMpTerm +
-			", intermediateMpSynonym=" + intermediateMpSynonym +
+			", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
 			", ontologySubset=" + ontologySubset +
 			", inferredMaId=" + inferredMaId +
 			", inferredMaTerm=" + inferredMaTerm +
@@ -1717,7 +1892,6 @@ public class GeneDTO {
 			", procParamStableId=" + procParamStableId +
 			", expName=" + expName +
 			", subtype=" + subtype +
-			", annotatedHigherLevelMaTermName=" + annotatedHigherLevelMaTermName +
 			", annotatedHigherLevelMpTermName=" + annotatedHigherLevelMpTermName +
 			", text=" + text +
 			", autoSuggest=" + autoSuggest +
