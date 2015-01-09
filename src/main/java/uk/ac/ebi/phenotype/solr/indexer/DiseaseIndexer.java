@@ -264,8 +264,8 @@ public class DiseaseIndexer extends AbstractIndexer {
 					if (gene.getMpTerm() != null) {
 						geneLookup.get(d).MP_TERM.addAll(gene.getMpTerm());
 					}
-					if (gene.getMpDefinition() != null) {
-						geneLookup.get(d).MP_DEFINITION.addAll(gene.getMpDefinition());
+					if (gene.getMpTermDefinition() != null) {
+						geneLookup.get(d).MP_DEFINITION.addAll(gene.getMpTermDefinition());
 					}
 					if (gene.getTopLevelMpId() != null) {
 						geneLookup.get(d).TOP_LEVEL_MP_ID.addAll(gene.getTopLevelMpId());
@@ -273,8 +273,8 @@ public class DiseaseIndexer extends AbstractIndexer {
 					if (gene.getTopLevelMpTerm() != null) {
 						geneLookup.get(d).TOP_LEVEL_MP_TERM.addAll(gene.getTopLevelMpTerm());
 					}
-					if (gene.getTopLevelMpSynonym() != null) {
-						geneLookup.get(d).TOP_LEVEL_MP_TERM_SYNONYM.addAll(gene.getTopLevelMpSynonym());
+					if (gene.getTopLevelMpTermSynonym() != null) {
+						geneLookup.get(d).TOP_LEVEL_MP_TERM_SYNONYM.addAll(gene.getTopLevelMpTermSynonym());
 					}
 					if (gene.getIntermediateMpId() != null) {
 						geneLookup.get(d).INTERMEDIATE_MP_ID.addAll(gene.getIntermediateMpId());
@@ -282,8 +282,8 @@ public class DiseaseIndexer extends AbstractIndexer {
 					if (gene.getIntermediateMpTerm() != null) {
 						geneLookup.get(d).INTERMEDIATE_MP_TERM.addAll(gene.getIntermediateMpTerm());
 					}
-					if (gene.getIntermediateMpSynonym() != null) {
-						geneLookup.get(d).INTERMEDIATE_MP_TERM_SYNONYM.addAll(gene.getIntermediateMpSynonym());
+					if (gene.getIntermediateMpTermSynonym() != null) {
+						geneLookup.get(d).INTERMEDIATE_MP_TERM_SYNONYM.addAll(gene.getIntermediateMpTermSynonym());
 					}
 					if (gene.getChildMpId() != null) {
 						geneLookup.get(d).CHILD_MP_ID.addAll(gene.getChildMpId());

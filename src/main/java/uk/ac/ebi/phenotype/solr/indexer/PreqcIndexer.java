@@ -22,10 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 
 public class PreqcIndexer extends AbstractIndexer {
@@ -47,25 +44,26 @@ public class PreqcIndexer extends AbstractIndexer {
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
 
-	private static HashMap<String, String> geneSymbol2IdMapping = new HashMap<>();
-	private static HashMap<String, AlleleDTO> alleleSymbol2NameIdMapping = new HashMap<>();
-	private static HashMap<String, String> strainId2NameMapping = new HashMap<>();
-	private static HashMap<String, String> pipelineSid2NameMapping = new HashMap<>();
-	private static HashMap<String, String> procedureSid2NameMapping = new HashMap<>();
-	private static HashMap<String, String> parameterSid2NameMapping = new HashMap<>();
+	private static Map<String, String> geneSymbol2IdMapping = new HashMap<>();
+	private static Map<String, AlleleDTO> alleleSymbol2NameIdMapping = new HashMap<>();
+	private static Map<String, String> strainId2NameMapping = new HashMap<>();
+	private static Map<String, String> pipelineSid2NameMapping = new HashMap<>();
+	private static Map<String, String> procedureSid2NameMapping = new HashMap<>();
+	private static Map<String, String> parameterSid2NameMapping = new HashMap<>();
 
-	private static HashMap<String, String> mpId2TermMapping = new HashMap<>();
-	private static HashMap<Integer, String> mpNodeId2MpIdMapping = new HashMap<>();
+	private static Map<String, String> mpId2TermMapping = new HashMap<>();
+	private static Map<Integer, String> mpNodeId2MpIdMapping = new HashMap<>();
 
-	private static HashMap<String, String> mpId2NodeIdsMapping = new HashMap<>();
-	private static HashMap<Integer, Node2TopDTO> mpNodeId2TopLevelMapping = new HashMap<>();
+	private static Map<String, String> mpId2NodeIdsMapping = new HashMap<>();
+	private static Map<Integer, Node2TopDTO> mpNodeId2TopLevelMapping = new HashMap<>();
 
-	private static HashMap<Integer, String> mpNodeId2IntermediateNodeIdsMapping = new HashMap<>();
+	private static Map<Integer, String> mpNodeId2IntermediateNodeIdsMapping = new HashMap<>();
 
-	private static HashMap<String, List<MpTermDTO>> intermediateMpTerms = new HashMap<>();
-	private static HashMap<String, List<MpTermDTO>> topMpTerms = new HashMap<>();
+	private static Map<String, List<MpTermDTO>> intermediateMpTerms = new HashMap<>();
+	private static Map<String, List<MpTermDTO>> topMpTerms = new HashMap<>();
 
-	private static HashMap<String, String> zygosityMapping = new HashMap<String, String>();
+	private static Map<String, String> zygosityMapping = new HashMap<>();
+	private static Set<String> postQcData = new HashSet<>();
 
 	private Connection conn_komp2 = null;
 	private Connection conn_ontodb = null;
@@ -94,6 +92,7 @@ public class PreqcIndexer extends AbstractIndexer {
 			doStrainId2NameMapping();
 			doImpressSid2NameMapping();
 			doOntologyMapping();
+			populatePostQcData();
 
 			destServer.deleteByQuery("*:*");
 
@@ -201,6 +200,12 @@ public class PreqcIndexer extends AbstractIndexer {
 
 				if (mpId2TermMapping.get(phenotypeTerm) == null) {
 					bad.add(phenotypeTerm);
+					continue;
+				}
+
+				// Skip if we already have this data postQC
+				phenotypingCenter = EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter) ? EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
+				if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
 					continue;
 				}
 
@@ -361,7 +366,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
 	public void doImpressSid2NameMapping() {
 
-		HashMap<String, HashMap> impressMapping = new HashMap<String, HashMap>();
+		Map<String, Map> impressMapping = new HashMap<>();
 		impressMapping.put("phenotype_pipeline", pipelineSid2NameMapping);
 		impressMapping.put("phenotype_procedure", procedureSid2NameMapping);
 		impressMapping.put("phenotype_parameter", parameterSid2NameMapping);
@@ -371,7 +376,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
 		for (Map.Entry entry : impressMapping.entrySet()) {
 			String tableName = entry.getKey().toString();
-			HashMap<String, String> mapping = (HashMap) entry.getValue();
+			Map<String, String> mapping = (Map) entry.getValue();
 
 			String query = "select name, stable_id from " + tableName;
 			try {
@@ -609,6 +614,26 @@ public class PreqcIndexer extends AbstractIndexer {
 		}
 
 		return topMpTerms.get(mpId);
+	}
+
+	public void populatePostQcData() {
+
+		String query = "SELECT DISTINCT CONCAT(ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
+			"FROM observation o " +
+			"INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
+			"INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
+			"INNER JOIN organisation org ON org.id=bs.organisation_id " ;
+
+		try (PreparedStatement p = conn_komp2.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				postQcData.add(resultSet.getString("data_value"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private class Node2TopDTO {

@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class StatisticalResultDTO {
@@ -121,6 +122,10 @@ public class StatisticalResultDTO {
     public final static String MALE_KO_PARAMETER_ESTIMATE = "male_ko_parameter_estimate";
     public final static String CLASSIFICATION_TAG = "classification_tag";
 
+    public final static String EXTERNAL_DB_ID = "external_db_id";
+    public final static String ORGANISATION_ID = "organisation_id";
+    public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
+    public final static String PROJECT_ID = "project_id";
 
     @Field(DOCUMENT_ID)
     private String docId;
@@ -410,7 +415,18 @@ public class StatisticalResultDTO {
 
     @Field(CLASSIFICATION_TAG)
     private String classificationTag;
-
+    
+    @Field(EXTERNAL_DB_ID)
+    private Integer externalDbId;
+    
+    @Field(ORGANISATION_ID)
+    private Integer organisationId;
+    
+    @Field(PHENOTYPING_CENTER_ID)
+    private Integer phenotypingCenterId;
+    
+    @Field(PROJECT_ID)
+    private Integer projectId;
 
     public String getDocId() {
 
@@ -1551,6 +1567,37 @@ public class StatisticalResultDTO {
         this.classificationTag = classificationTag;
     }
 
+    public Integer getExternalDbId() {
+        return externalDbId;
+    }
+
+    public void setExternalDbId(Integer externalDbId) {
+        this.externalDbId = externalDbId;
+    }
+
+    public Integer getOrganisationId() {
+        return organisationId;
+    }
+
+    public void setOrganisationId(Integer organisationId) {
+        this.organisationId = organisationId;
+    }
+
+    public Integer getPhenotypingCenterId() {
+        return phenotypingCenterId;
+    }
+
+    public void setPhenotypingCenterId(Integer phenotypingCenterId) {
+        this.phenotypingCenterId = phenotypingCenterId;
+    }
+
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -1723,8 +1770,16 @@ public class StatisticalResultDTO {
             return false;
         if (weightEffectStderrEstimate != null ? !weightEffectStderrEstimate.equals(that.weightEffectStderrEstimate) : that.weightEffectStderrEstimate != null)
             return false;
+        if (externalDbId != null ? !externalDbId.equals(that.externalDbId) : that.externalDbId != null)
+            return false;
+        if (organisationId != null ? !organisationId.equals(that.organisationId) : that.organisationId != null)
+            return false;
+        if (phenotypingCenterId != null ? !phenotypingCenterId.equals(that.phenotypingCenterId) : that.phenotypingCenterId != null)
+            return false;
+        if (projectId != null ? !projectId.equals(that.projectId) : that.projectId != null)
+            return false;
+        
         return !(zygosity != null ? !zygosity.equals(that.zygosity) : that.zygosity != null);
-
     }
 
 
@@ -1826,6 +1881,10 @@ public class StatisticalResultDTO {
         result = 31 * result + (maleKoEffectStderrEstimate != null ? maleKoEffectStderrEstimate.hashCode() : 0);
         result = 31 * result + (maleKoParameterEstimate != null ? maleKoParameterEstimate.hashCode() : 0);
         result = 31 * result + (classificationTag != null ? classificationTag.hashCode() : 0);
+        result = 31 * result + (externalDbId != null ? externalDbId.hashCode() : 0);
+        result = 31 * result + (organisationId != null ? organisationId.hashCode() : 0);
+        result = 31 * result + (phenotypingCenterId != null ? phenotypingCenterId.hashCode() : 0);
+        result = 31 * result + (projectId != null ? projectId.hashCode() : 0);
         return result;
     }
 }

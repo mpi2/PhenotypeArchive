@@ -127,7 +127,6 @@
         <field name="metadata_group" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="data_frame" type="string" indexed="true" stored="true" multiValued="false"/>
 
-        
         <field name="external_db_id" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="id" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="organisation_id" type="int" indexed="true" stored="true" multiValued="false"/>

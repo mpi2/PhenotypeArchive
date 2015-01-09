@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -48,10 +49,6 @@ public class GeneIndexer extends AbstractIndexer {
 	SolrServer mpCore;
 
 	@Autowired
-	@Qualifier("pipelineIndexing")
-	SolrServer pipelineCore;
-
-	@Autowired
 	@Qualifier("sangerImagesIndexing")
 	SolrServer imagesCore;
 
@@ -72,11 +69,14 @@ public class GeneIndexer extends AbstractIndexer {
 		applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
 		try {
+
 			komp2DbConnection = komp2DataSource.getConnection();
+
 		} catch (SQLException sqle) {
 			logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
 			throw new IndexerException(sqle);
 		}
+
 	}
 
 
@@ -144,7 +144,7 @@ public class GeneIndexer extends AbstractIndexer {
 
 				//gene.setMpId(allele.getM)
 
-				//populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene
+				// Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene
 				if (phenotypeSummaryGeneAccessionsToPipelineInfo.containsKey(allele.getMgiAccessionId())) {
 					List<Map<String, String>> rows = phenotypeSummaryGeneAccessionsToPipelineInfo.get(allele.getMgiAccessionId());
 					List<String> pipelineNames = new ArrayList<>();
@@ -168,96 +168,153 @@ public class GeneIndexer extends AbstractIndexer {
 					gene.setProcedureStableId(procedureStableIds);
 					gene.setParameterName(parameterNames);
 					gene.setParameterStableId(parameterStableIds);
-					//gene.setPipelineName(row.get(ObservationDTO.PIPELINE_NAME));
-					//gene.
 				}
 
 				//do images core data
 
+				// Initialize all the ontology term lists
+				gene.setMpId(new ArrayList<String>());
+				gene.setMpTerm(new ArrayList<String>());
+				gene.setMpTermSynonym(new ArrayList<String>());
+				gene.setMpTermDefinition(new ArrayList<String>());
+				gene.setOntologySubset(new ArrayList<String>());
+
+				gene.setMaId(new ArrayList<String>());
+				gene.setMaTerm(new ArrayList<String>());
+				gene.setMaTermSynonym(new ArrayList<String>());
+				gene.setMaTermDefinition(new ArrayList<String>());
+
+				gene.setHpId(new ArrayList<String>());
+				gene.setHpTerm(new ArrayList<String>());
+
+				gene.setTopLevelMpId(new ArrayList<String>());
+				gene.setTopLevelMpTerm(new ArrayList<String>());
+				gene.setTopLevelMpTermSynonym(new ArrayList<String>());
+
+				gene.setIntermediateMpId(new ArrayList<String>());
+				gene.setIntermediateMpTerm(new ArrayList<String>());
+				gene.setIntermediateMpTermSynonym(new ArrayList<String>());
+
+				gene.setChildMpId(new ArrayList<String>());
+				gene.setChildMpTerm(new ArrayList<String>());
+				gene.setChildMpTermSynonym(new ArrayList<String>());
+
+				gene.setChildMpId(new ArrayList<String>());
+				gene.setChildMpTerm(new ArrayList<String>());
+				gene.setChildMpTermSynonym(new ArrayList<String>());
+
+
+				gene.setInferredMaId(new ArrayList<String>());
+				gene.setInferredMaTerm(new ArrayList<String>());
+				gene.setInferredMaTermSynonym(new ArrayList<String>());
+
+				gene.setSelectedTopLevelMaId(new ArrayList<String>());
+				gene.setSelectedTopLevelMaTerm(new ArrayList<String>());
+				gene.setSelectedTopLevelMaTermSynonym(new ArrayList<String>());
+
+				gene.setInferredChildMaId(new ArrayList<String>());
+				gene.setInferredChildMaTerm(new ArrayList<String>());
+				gene.setInferredChildMaTermSynonym(new ArrayList<String>());
+
+				gene.setInferredSelectedTopLevelMaId(new ArrayList<String>());
+				gene.setInferredSelectedTopLevelMaTerm(new ArrayList<String>());
+				gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>());
+
+
+				// Add all ontology information from images associated to this gene
 				if (sangerImages.containsKey(allele.getMgiAccessionId())) {
-					List<String> mpIds = new ArrayList<>();
-					List<String> mpTerms = new ArrayList<>();
+
 					List<SangerImageDTO> list = sangerImages.get(allele.getMgiAccessionId());
 					for (SangerImageDTO image : list) {
 
-//            			<field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />
-//    					<field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
-//    					<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
-						if (image.getMp_id() != null) {
-							mpIds.addAll(image.getMp_id());
-							mpTerms.addAll(image.getMpTerm());
+						if (image.getMp_id() != null && ! gene.getMpId().contains(image.getMp_id())) {
 
-//    					<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
-//    					<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
-//    					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
-//    					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-//    					<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-							if (image.getIntermediateMpId() != null) {
-								gene.setIntermediateMpId(image.getIntermediateMpId());
-								gene.setIntermediateMpTerm(image.getIntermediateMpTerm());
-								gene.setIntermediateMpSynonym(image.getIntermediateMpTermSyn());
-								gene.setAnnotatedHigherLevelMpTermName(image.getAnnotatedHigherLevelMpTermName());
-								//gene.setTopLevelMpSynonym(image.getTopLevelMpTermSynonym());
-							}
+							gene.getMpId().addAll(image.getMp_id());
+							gene.getMpTerm().addAll(image.getMpTerm());
+							if (image.getMpSyns() != null)  gene.getMpTermSynonym().addAll(image.getMpSyns());
 
+							if (image.getAnnotatedHigherLevelMpTermId() != null)  gene.getTopLevelMpId().addAll(image.getAnnotatedHigherLevelMpTermId());
+							if (image.getAnnotatedHigherLevelMpTermName() != null)  gene.getTopLevelMpTerm().addAll(image.getAnnotatedHigherLevelMpTermName());
+							if (image.getTopLevelMpTermSynonym() != null)  gene.getTopLevelMpTermSynonym().addAll(image.getTopLevelMpTermSynonym());
+
+							if (image.getIntermediateMpId() != null) gene.getIntermediateMpId().addAll(image.getIntermediateMpId());
+							if (image.getIntermediateMpTerm() != null) gene.getIntermediateMpTerm().addAll(image.getIntermediateMpTerm());
+							if (image.getIntermediateMpTermSyn() != null) gene.getIntermediateMpTermSynonym().addAll(image.getIntermediateMpTermSyn());
 
 						}
 
 						if (image.getMaTermId() != null) {
-//    					<field column="ma_id" xpath="/response/result/doc/arr[@name='ma_id']/str" />
-//    					<field column="ma_term" xpath="/response/result/doc/arr[@name='ma_term']/str" />
-//    					<field column="ma_term_synonym" xpath="/response/result/doc/arr[@name='ma_term_synonym']/str" />
-							//gene.setMaTermId(image.getMaTermId());
-							//doesn't look like the ma_id and ma_term are used in the gene index so not adding these - selected top level mas used only
 
+							gene.getMaId().addAll(image.getMaTermId());
+							gene.getMaTerm().addAll(image.getMaTermName());
+							if (image.getMaTermSynonym() != null) gene.getMaTermSynonym().addAll(image.getMaTermSynonym());
 
-//    					<field column="selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='selected_top_level_ma_id']/str" />
-//    					<field column="selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term']/str" />				
-//    					<field column="selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term_synonym']/str" />				
-//    					
-//    					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
-							if (image.getSelectedTopLevelMaTerm() != null) {
-								gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
-								gene.setSelectedTopLevelMaTermId(image.getSelectedTopLevelMaTermId());
-								gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
-							}
+							if (image.getSelectedTopLevelMaTermId() != null) gene.setSelectedTopLevelMaId(image.getSelectedTopLevelMaTermId());
+							if (image.getSelectedTopLevelMaTerm() != null) gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
+							if (image.getSelectedTopLevelMaTermSynonym() != null) gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
+
 						}
 					}
-
-					gene.setMpId(mpIds);
-					gene.setMpTerm(mpTerms);
 				}
 
-				//do the mps here
-				if (allele.getMgiAccessionId() != null && allele.getMgiAccessionId() != "") {
-					if (mgiAccessionToMP.containsKey(allele.getMgiAccessionId())) {
-						List<MpDTO> mps = mgiAccessionToMP.get(allele.getMgiAccessionId());
-						//System.out.println("mps size for gene="+mps.size());
-						for (MpDTO mp : mps) {
-							System.out.println(allele.getMgiAccessionId() + " mp=" + mp.getMpId());
 
-//            				<field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />
-//        					<field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
-//        					<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
-//        					<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
-//        					<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />							
-//        					<field column="intermediate_mp_term_synonym" xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str" />					
-//        					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-//        					<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-//        		
-//        					<field column="ma_id" xpath="/response/result/doc/arr[@name='ma_id']/str" />
-//        					<field column="ma_term" xpath="/response/result/doc/arr[@name='ma_term']/str" />
-//        					<field column="ma_term_synonym" xpath="/response/result/doc/arr[@name='ma_term_synonym']/str" />
-//        					
-//        					<field column="selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='selected_top_level_ma_id']/str" />
-//        					<field column="selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term']/str" />				
-//        					<field column="selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='selected_top_level_ma_term_synonym']/str" />				
-//        					
-//        					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+				// Add all ontology information directly associated from MP to this gene
+				if (StringUtils.isNotEmpty(allele.getMgiAccessionId())) {
+
+					if (mgiAccessionToMP.containsKey(allele.getMgiAccessionId())) {
+
+						List<MpDTO> mps = mgiAccessionToMP.get(allele.getMgiAccessionId());
+						for (MpDTO mp : mps) {
+
+							gene.getMpId().add(mp.getMpId());
+							gene.getMpTerm().add(mp.getMpTerm());
+							if (mp.getMpTermSynonym() != null) gene.getMpTermSynonym().addAll(mp.getMpTermSynonym());
+
+							if (mp.getOntologySubset() != null) gene.getOntologySubset().addAll(mp.getOntologySubset());
+
+							if (mp.getHpId() != null) {
+								gene.getHpId().addAll(mp.getHpId());
+								gene.getHpTerm().addAll(mp.getHpTerm());
+							}
+
+							if (mp.getTopLevelMpId() != null) {
+								gene.getTopLevelMpId().addAll(mp.getTopLevelMpId());
+								gene.getTopLevelMpTerm().addAll(mp.getTopLevelMpTerm());
+							}
+							if (mp.getTopLevelMpTermSynonym() != null) gene.getTopLevelMpTermSynonym().addAll(mp.getTopLevelMpTermSynonym());
+
+							if (mp.getIntermediateMpId() != null) {
+								gene.getIntermediateMpId().addAll(mp.getIntermediateMpId());
+								gene.getIntermediateMpTerm().addAll(mp.getIntermediateMpTerm());
+							}
+							if (mp.getIntermediateMpTermSynonym() != null) gene.getIntermediateMpTermSynonym().addAll(mp.getIntermediateMpTermSynonym());
+
+							if (mp.getChildMpId() != null) {
+								gene.getChildMpId().addAll(mp.getChildMpId());
+								gene.getChildMpTerm().addAll(mp.getChildMpTerm());
+							}
+							if (mp.getChildMpTermSynonym() != null) gene.getChildMpTermSynonym().addAll(mp.getChildMpTermSynonym());
+
+
+							if (mp.getInferredMaId() != null) {
+								gene.getInferredMaId().addAll(mp.getInferredMaId());
+								gene.getInferredMaTerm().addAll(mp.getInferredMaTerm());
+							}
+							if (mp.getInferredMaTermSynonym() != null) gene.getInferredMaTermSynonym().addAll(mp.getInferredMaTermSynonym());
+
+							if (mp.getInferredSelectedTopLevelMaId() != null) {
+								gene.getInferredSelectedTopLevelMaId().addAll(mp.getInferredSelectedTopLevelMaId());
+								gene.getInferredSelectedTopLevelMaTerm().addAll(mp.getInferredSelectedTopLevelMaTerm());
+							}
+							if (mp.getInferredSelectedTopLevelMaTermSynonym() != null) gene.getInferredSelectedTopLevelMaTermSynonym().addAll(mp.getInferredSelectedTopLevelMaTermSynonym());
+
+							if (mp.getInferredChildMaId() != null) {
+								gene.getInferredChildMaId().addAll(mp.getInferredChildMaId());
+								gene.getInferredChildMaTerm().addAll(mp.getInferredChildMaTerm());
+							}
+							if (mp.getInferredChildMaTermSynonym() != null) gene.getInferredChildMaTermSynonym().addAll(mp.getInferredChildMaTermSynonym());
 
 						}
-						//gene.setMpId(mp.getMpTermId());
-
 					}
 
 
@@ -269,14 +326,12 @@ public class GeneIndexer extends AbstractIndexer {
 				if (count % 10000 == 0) {
 					System.out.println(" added " + count + " beans");
 				}
-				//if(count>100)break;
 			}
 
-			System.out.println("commiting to gene core for last time!");
+			logger.info("Committing to gene core for last time");
 			geneCore.commit();
 
 		} catch (IOException | SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
@@ -301,37 +356,12 @@ public class GeneIndexer extends AbstractIndexer {
 
 	// PRIVATE METHODS
 
-
-	private final Integer MAX_ITERATIONS = 5;                                   // Set to non-null value > 0 to limit max_iterations.
-
-
 	private void initialiseSupportingBeans() throws IndexerException {
 
 		phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
 		sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
 		mgiAccessionToMP = populateMgiAccessionToMp();
 		System.out.println("mgiAccessionToMP size=" + mgiAccessionToMP.size());
-//        try {
-//            // Grab all the supporting database content
-//            ontologySubsetMap = IndexerMap.getMaTermSubsets(ontoDbConnection);
-//            maTermSynonymMap = IndexerMap.getMaTermSynonyms(ontoDbConnection);
-//
-//            maChildMap = IndexerMap.getMaTermChildTerms(ontoDbConnection);
-//            if (logger.isDebugEnabled()) {
-//                IndexerMap.dumpOntologyMaTermMap(maChildMap, "Child map:");
-//            }
-//            maParentMap = IndexerMap.getMaTermParentTerms(ontoDbConnection);
-//            if (logger.isDebugEnabled()) {
-//                IndexerMap.dumpOntologyMaTermMap(maParentMap, "Parent map:");
-//            }
-//
-//            maImagesMap = IndexerMap.getSangerImages(imagesCore);
-//            if (logger.isDebugEnabled()) {
-//                IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
-//            }
-//        } catch (SQLException e) {
-//            throw new IndexerException(e);
-//        }
 	}
 
 
@@ -357,16 +387,8 @@ public class GeneIndexer extends AbstractIndexer {
 
 			while (resultSet.next()) {
 				String gf_acc = resultSet.getString("gf_acc");
-				Map<String, String> rowMap = new HashMap<>();//store the row in a map of column names to values
-//				<field column="pipeline_name" xpath="/response/result/doc/str[@name='pipeline_name']" />	
-//				<field column="procedure_name" xpath="/response/result/doc/str[@name='procedure_name']" />	
-//				<field column="parameter_name" xpath="/response/result/doc/str[@name='parameter_name']" />	
-//				<field column="pipeline_stable_id" xpath="/response/result/doc/str[@name='pipeline_stable_id']" />	
-//				<field column="procedure_stable_id" xpath="/response/result/doc/str[@name='procedure_stable_id']" />	
-//				<field column="parameter_stable_id" xpath="/response/result/doc/str[@name='parameter_stable_id']" />
-//				<field column="proc_param_name" xpath="/response/result/doc/str[@name='proc_param_name']" />
-//				<field column="proc_param_stable_id" xpath="/response/result/doc/str[@name='proc_param_stable_id']" />
 
+				Map<String, String> rowMap = new HashMap<>();
 				rowMap.put(ObservationDTO.PARAMETER_NAME, resultSet.getString("param.name"));
 				rowMap.put(ObservationDTO.PARAMETER_STABLE_ID, resultSet.getString("param.stable_id"));
 				rowMap.put(ObservationDTO.PROCEDURE_STABLE_ID, resultSet.getString("proc.stable_id"));
@@ -376,10 +398,11 @@ public class GeneIndexer extends AbstractIndexer {
 				rowMap.put("proc_param_name", resultSet.getString("proc.name") + "___" + resultSet.getString("param.name"));
 				rowMap.put("proc_param_stable_id", resultSet.getString("proc.stable_id") + "___" + resultSet.getString("param.stable_id"));
 				List<Map<String, String>> rows = null;
+
 				if (phenotypeSummaryGeneAccessionsToPipelineInfo.containsKey(gf_acc)) {
 					rows = phenotypeSummaryGeneAccessionsToPipelineInfo.get(gf_acc);
 				} else {
-					rows = new ArrayList<Map<String, String>>();
+					rows = new ArrayList<>();
 				}
 				rows.add(rowMap);
 
