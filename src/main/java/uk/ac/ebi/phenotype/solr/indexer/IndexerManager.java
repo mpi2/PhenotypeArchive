@@ -174,15 +174,15 @@ public class IndexerManager {
     public static final String CORES_ARG = "cores";
     public static final String HELP_ARG = "help";
     
-    public static class NotImplementedYet extends AbstractIndexer {
-        @Override
-        public void run() throws IndexerException {
-            throw new IndexerException("Not implemented yet.");
-        }    @Override
-        protected Logger getLogger() {
-            return LoggerFactory.getLogger(NotImplementedYet.class);
-        }
-    }
+//    public static class NotImplementedYet extends AbstractIndexer {
+//        @Override
+//        public void run() throws IndexerException {
+//            throw new IndexerException("Not implemented yet.");
+//        }    @Override
+//        protected Logger getLogger() {
+//            return LoggerFactory.getLogger(NotImplementedYet.class);
+//        }
+//    }
     
     public class IndexerItem {
         public final String name;
@@ -242,13 +242,13 @@ public class IndexerManager {
         logger.info("\t" + StringUtils.join(cores));
         
         for (IndexerItem indexerItem : indexerItems) {
-            indexerItem.indexer.initialise(indexerArgs);
             try {
-                indexerItem.indexer.validate();
+                indexerItem.indexer.initialise(indexerArgs);
+                indexerItem.indexer.run();
+                indexerItem.indexer.validateBuild();
             } catch (Exception e) {
                 throw new IndexerException(new ValidationException(e));
             }
-            indexerItem.indexer.run();
         }
     }
     

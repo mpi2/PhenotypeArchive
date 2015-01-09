@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import javax.sql.DataSource;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
@@ -50,6 +51,22 @@ public class MAIndexer extends AbstractIndexer {
     
     public MAIndexer() {
         
+    }
+
+    public static final long MIN_EXPECTED_ROWS = 400;
+
+    @Override
+    public void validateBuild() throws IndexerException {
+        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
+        try {
+            Long numFound = maCore.query(query).getResults().getNumFound();
+            if (numFound < MIN_EXPECTED_ROWS) {
+                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
+            }
+            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
+        } catch (SolrServerException sse) {
+            throw new IndexerException(sse);
+        }
     }
     
     @Override
@@ -271,6 +288,7 @@ public class MAIndexer extends AbstractIndexer {
         MAIndexer indexer = new MAIndexer();
         indexer.initialise(args);
         indexer.run();
+        indexer.validateBuild();
 
         logger.info("Process finished.  Exiting.");
     }

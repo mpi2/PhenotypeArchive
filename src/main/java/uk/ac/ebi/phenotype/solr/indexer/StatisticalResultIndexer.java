@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -39,7 +40,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     @Autowired
     @Qualifier("statisticalResultsIndexing")
-    SolrServer statResultSolrServer;
+    SolrServer statResultCore;
 
     Map<String, List<OntologyTermBean>> mpTopTerms = new HashMap<>();
     Map<String, List<OntologyTermBean>> mpIntTerms = new HashMap<>();
@@ -53,6 +54,23 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 
     public StatisticalResultIndexer() {
+        
+    }
+    
+    public static final long MIN_EXPECTED_ROWS = 528000;
+    
+    @Override
+    public void validateBuild() throws IndexerException {
+        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
+        try {
+            Long numFound = statResultCore.query(query).getResults().getNumFound();
+            if (numFound < MIN_EXPECTED_ROWS) {
+                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
+            }
+            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
+        } catch (SolrServerException sse) {
+            throw new IndexerException(sse);
+        }
     }
 
     @Override
@@ -90,6 +108,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         StatisticalResultIndexer main = new StatisticalResultIndexer();
         main.initialise(args);
         main.run();
+        main.validateBuild();
 
         logger.info("Process finished.  Exiting.");
     }
@@ -115,7 +134,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         try {
             int count = 0;
 
-            statResultSolrServer.deleteByQuery("*:*");
+            statResultCore.deleteByQuery("*:*");
 
             // Populate unidimensional statistic results
             String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
@@ -153,7 +172,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseUnidimensionalResult(r);
-                    statResultSolrServer.addBean(doc, 30000);
+                    statResultCore.addBean(doc, 30000);
                     count ++;
 
                     if (count % 10000 == 0) {
@@ -189,7 +208,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseCategoricalResult(r);
-                    statResultSolrServer.addBean(doc, 30000);
+                    statResultCore.addBean(doc, 30000);
                     count ++;
 
                     if (count % 10000 == 0) {
@@ -200,7 +219,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             // Final commit to save the rest of the docs
             logger.info(" added {} beans", count);
-            statResultSolrServer.commit();
+            statResultCore.commit();
 
         } catch (SQLException | IOException | SolrServerException e) {
             logger.error("Big error {}", e.getMessage(), e);

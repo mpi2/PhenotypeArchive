@@ -582,7 +582,7 @@ public class IndexerManagerTest {
      public void testStaticBuildSingleCoreNodeps() {
         String testName = "testStaticBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result", "--nodeps" };
         int retVal =  IndexerManager.main(args);
          
         switch (retVal) {
@@ -605,7 +605,7 @@ public class IndexerManagerTest {
      public void testInstanceBuildSingleCoreNodeps() {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result", "--nodeps" };
         IndexerManager indexerManager = new IndexerManager();
         
         // Determine which cores to build.
@@ -622,8 +622,8 @@ public class IndexerManagerTest {
         // Initialise, validate, and build the cores.
         try {
             indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
-            indexerManager.maIndexer.validate();
             indexerManager.maIndexer.run();
+            indexerManager.maIndexer.validateBuild();
         } catch (IndexerException ie) {
             fail(ie.getLocalizedMessage());
         }
@@ -639,7 +639,7 @@ public class IndexerManagerTest {
      public void testStaticBuildMultipleCoresNodeps() {
         String testName = "testStaticBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result,statistical-result", "--nodeps" };
         int retVal =  IndexerManager.main(args);
          
         switch (retVal) {
@@ -663,7 +663,7 @@ public class IndexerManagerTest {
      public void testInstanceBuildMultipleCoresNodeps() {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result,statistical-result", "--nodeps" };
         IndexerManager indexerManager = new IndexerManager();
         
         // Determine which cores to build.
@@ -680,8 +680,8 @@ public class IndexerManagerTest {
         // Initialise, validate, and build the cores.
         try {
             indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
-            indexerManager.maIndexer.validate();
             indexerManager.maIndexer.run();
+            indexerManager.maIndexer.validateBuild();
         } catch (IndexerException ie) {
             fail(ie.getLocalizedMessage());
         }

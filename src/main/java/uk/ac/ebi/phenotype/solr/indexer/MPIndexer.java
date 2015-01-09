@@ -118,7 +118,25 @@ public class MPIndexer extends AbstractIndexer {
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
 
-    public MPIndexer() { }
+    public MPIndexer() {
+    
+    }
+
+    public static final long MIN_EXPECTED_ROWS = 1000;
+
+    @Override
+    public void validateBuild() throws IndexerException {
+        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
+        try {
+            Long numFound = mpCore.query(query).getResults().getNumFound();
+            if (numFound < MIN_EXPECTED_ROWS) {
+                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
+            }
+            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
+        } catch (SolrServerException sse) {
+            throw new IndexerException(sse);
+        }
+    }
 
     @Override
     public void run() throws IndexerException {
@@ -1211,6 +1229,7 @@ public class MPIndexer extends AbstractIndexer {
         MPIndexer main = new MPIndexer();
         main.initialise(args);
         main.run();
+        main.validateBuild();
 
         logger.info("Process finished.  Exiting.");
 
