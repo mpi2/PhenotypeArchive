@@ -57,11 +57,11 @@ public class GeneDTO {
 	public static final String TOP_LEVEL_MP_ID = "top_level_mp_id";
 	public static final String TOP_LEVEL_MP_TERM = "top_level_mp_term";
 	public static final String TOP_LEVEL_MP_DEFINITION = "top_level_mp_definition";
-	public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_synonym";
+	public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_term_synonym";
 
 	public static final String INTERMEDIATE_MP_ID = "intermediate_mp_id";
 	public static final String INTERMEDIATE_MP_TERM = "intermediate_mp_term";
-	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_synonym";
+	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_term_synonym";
 
 	public static final String ONTOLOGY_SUBSET = "ontology_subset";
 
