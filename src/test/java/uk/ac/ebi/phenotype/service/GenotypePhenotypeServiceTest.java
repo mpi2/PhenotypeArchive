@@ -8,12 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -140,5 +142,18 @@ public class GenotypePhenotypeServiceTest {
 //            assertTrue(row.getXAxisToCellMap().get("ESLIM_022_001_707").getpValue() < new Float(1));//this should have a significant p value or does at the moment of writing this test
 //            //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json&sort=p_value%20asc
 //        }
-		
+	
+	 @Test
+	    public void testGetAllPhenotypes() throws SolrServerException {
+	        System.out.println("run testGetAllPhenotypes");
+	        
+	        Set<String> phenotypes =  genotypePhenotypeService.getAllPhenotypesWithGeneAssociations();
+	        
+	        if (phenotypes == null) {
+	            fail("GenotypePhenotypeService.getAllPhenotypes() returned null!");
+	        } else {
+	            System.out.println("testGetAllPhenotypes: " + phenotypes.size() + " phenotypes found.");
+	            assertTrue("Expected at least 100 genotypes.", phenotypes.size() >= 100);
+	        }
+	    }
 }
