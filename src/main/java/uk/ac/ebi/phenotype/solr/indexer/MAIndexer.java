@@ -62,7 +62,8 @@ public class MAIndexer extends AbstractIndexer {
             throw new IndexerException(sqle);
         }
     }
-
+// refactor this body into new method populateMaCore().
+// Move initiaiseSupportingBeans content into initialise.
     @Override
     public void run() throws IndexerException {
         try {
@@ -212,7 +213,7 @@ public class MAIndexer extends AbstractIndexer {
         }
         
 
-        logger.info("MP Indexer complete!");
+        logger.info("MA Indexer complete!");
     }
     
     
