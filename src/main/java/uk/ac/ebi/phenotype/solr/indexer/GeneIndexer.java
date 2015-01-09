@@ -208,13 +208,17 @@ public class GeneIndexer extends AbstractIndexer {
 				gene.setInferredMaTerm(new ArrayList<String>());
 				gene.setInferredMaTermSynonym(new ArrayList<String>());
 
-				gene.setSelectedTopLevelMaTermId(new ArrayList<String>());
+				gene.setSelectedTopLevelMaId(new ArrayList<String>());
 				gene.setSelectedTopLevelMaTerm(new ArrayList<String>());
 				gene.setSelectedTopLevelMaTermSynonym(new ArrayList<String>());
 
 				gene.setInferredChildMaId(new ArrayList<String>());
 				gene.setInferredChildMaTerm(new ArrayList<String>());
 				gene.setInferredChildMaTermSynonym(new ArrayList<String>());
+
+				gene.setInferredSelectedTopLevelMaId(new ArrayList<String>());
+				gene.setInferredSelectedTopLevelMaTerm(new ArrayList<String>());
+				gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>());
 
 
 				// Add all ontology information from images associated to this gene
@@ -245,7 +249,7 @@ public class GeneIndexer extends AbstractIndexer {
 							gene.getMaTerm().addAll(image.getMaTermName());
 							if (image.getMaTermSynonym() != null) gene.getMaTermSynonym().addAll(image.getMaTermSynonym());
 
-							if (image.getSelectedTopLevelMaTermId() != null) gene.setSelectedTopLevelMaTermId(image.getSelectedTopLevelMaTermId());
+							if (image.getSelectedTopLevelMaTermId() != null) gene.setSelectedTopLevelMaId(image.getSelectedTopLevelMaTermId());
 							if (image.getSelectedTopLevelMaTerm() != null) gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
 							if (image.getSelectedTopLevelMaTermSynonym() != null) gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
 
