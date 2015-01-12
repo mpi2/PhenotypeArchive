@@ -496,7 +496,7 @@ public class ObservationIndexer extends AbstractIndexer {
     public void populateParameterAssociationMap() throws SQLException {
 
         Map<String, String> stableIdToNameMap = this.getAllParameters();
-        String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id FROM parameter_association";
+        String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id, parameter_association_value FROM parameter_association";
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -509,7 +509,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 ParameterAssociationBean pb = new ParameterAssociationBean();
                 pb.observationId = obsId;
                 pb.parameterStableId = resultSet.getString("parameter_id");
-                pb.parameterAssociationValue = resultSet.getString("parameter_assocation_value");
+                pb.parameterAssociationValue = resultSet.getString("parameter_association_value");
                 if (stableIdToNameMap.get(pb.parameterStableId) != null) {
                     pb.parameterAssociationName = stableIdToNameMap.get(pb.parameterStableId);
                 }
