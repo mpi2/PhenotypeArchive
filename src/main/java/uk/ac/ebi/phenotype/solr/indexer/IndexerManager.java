@@ -246,6 +246,8 @@ public class IndexerManager {
                 indexerItem.indexer.initialise(indexerArgs);
                 indexerItem.indexer.run();
                 indexerItem.indexer.validateBuild();
+            } catch (IndexerException ie) {
+                throw ie;
             } catch (Exception e) {
                 throw new IndexerException(new ValidationException(e));
             }
@@ -465,6 +467,23 @@ public class IndexerManager {
             manager.run();
             logger.info("IndexerManager process finished successfully.  Exiting.");
         } catch (IndexerException ie) {
+            // Print out the exceptions.
+            if (ie.getLocalizedMessage() != null) {
+                logger.error(ie.getLocalizedMessage());
+            }
+            int i = 0;
+            Throwable t = ie.getCause();
+            while (t != null) {
+                StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
+                if (t.getLocalizedMessage() != null) {
+                    errMsg.append(t.getLocalizedMessage());
+                } else {
+                    errMsg.append("<null>");
+                }
+                logger.error(errMsg.toString());
+                i++;
+                t = t.getCause();
+            }
             if (ie.getCause() instanceof MissingRequiredContextException) {
                 return STATUS_NO_CONTEXT;
             } else if (ie.getCause() instanceof NoDepsException) {
