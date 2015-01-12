@@ -346,6 +346,18 @@ public class ImageDTO extends ObservationDTO {
 		this.latestPhenotypeStatus.add(latestPhenotypeStatus);
 		
 	}
+
+
+	public String getSymbol() {
+		// TODO Auto-generated method stub
+		return symbol;
+	}
+
+
+	public void setSymbolGene(String symbolGene) {
+		this.symbolGene=symbolGene;
+		
+	}
 	
 	
 

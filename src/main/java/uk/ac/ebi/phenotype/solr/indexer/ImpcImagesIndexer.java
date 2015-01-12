@@ -188,12 +188,19 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 					// add the extra stuf we need for the searching and faceting
                     // here
-                    if (imageDTO.getGeneAccession() != null &&  ! imageDTO.getGeneAccession().equals("")) {
-                        String geneAccession = imageDTO.getGeneAccession();
-                        if (alleles.containsKey(geneAccession)) {
-                            populateImageDtoStatuses(imageDTO, geneAccession);
-                        }
-                    }
+                    if (imageDTO.getGeneAccession() != null && !imageDTO.getGeneAccession().equals("")) {
+						
+						String geneAccession=imageDTO.getGeneAccession();
+						if (alleles.containsKey(geneAccession)) {
+							populateImageDtoStatuses(imageDTO, geneAccession);
+							
+							if(imageDTO.getSymbol()!=null){
+								String symbolGene=imageDTO.getSymbol()+"_"+imageDTO.getGeneAccession();
+								imageDTO.setSymbolGene(symbolGene);
+							}
+						}
+						
+					}
 
                 }
                 pos += BATCH_SIZE;
