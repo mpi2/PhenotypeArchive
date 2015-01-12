@@ -454,6 +454,7 @@ public class IndexerManager {
         }
         
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
+        logger.info("indexer config file: '" + indexerArgs[0] + "'");
         
         return options;
     }
