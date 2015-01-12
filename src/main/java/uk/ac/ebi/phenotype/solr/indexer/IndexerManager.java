@@ -452,7 +452,7 @@ public class IndexerManager {
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
             throw new IndexerException(new MissingRequiredContextException());
         }
-        
+System.out.println("IndexerManager: indexerArgs = " + StringUtils.join(args));
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
         logger.info("indexer config file: '" + indexerArgs[0] + "'");
         
