@@ -462,14 +462,13 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
                 }
 
-                // 60 seconds between commits
-                sangerImagesCore.addBean(o, 60000);
+    // xxxxxxxxxxxxx0 seconds between commits
+                sangerImagesCore.addBean(o, 10000);
 
                 count ++;
 
                 if (count % 10000 == 0) {
                     System.out.println(" added " + count + " beans");
-                    sangerImagesCore.commit();
                 }
 
             }

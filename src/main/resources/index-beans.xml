@@ -118,8 +118,8 @@
     <!-- used for concurrently loading the samger images (or just images) core -->
     <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/images"/>
-        <constructor-arg index="1" value="10000"/> <!--Queue size-->
-        <constructor-arg index="2" value="5"/> <!--Num threads-->
+        <constructor-arg index="1" value="2000"/> <!--Queue size-->
+        <constructor-arg index="2" value="2"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the MP core -->

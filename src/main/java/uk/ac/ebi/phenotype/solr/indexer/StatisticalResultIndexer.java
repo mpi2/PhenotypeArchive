@@ -176,7 +176,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     count ++;
 
                     if (count % 10000 == 0) {
-                        logger.info(" added {} beans", count);
+                        logger.info(" added {} unidimensional beans", count);
                     }
                 }
             }
@@ -212,14 +212,14 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     count ++;
 
                     if (count % 10000 == 0) {
-                        logger.info(" added {} beans", count);
+                        logger.info(" added {} categorical beans", count);
                     }
                 }
             }
 
             // Final commit to save the rest of the docs
-            logger.info(" added {} beans", count);
-            statResultCore.commit();
+            logger.info(" added {} totalbeans", count);
+            statResultCore.commit(true, true);              // waitflush & waitserver.
 
         } catch (SQLException | IOException | SolrServerException e) {
             logger.error("Big error {}", e.getMessage(), e);

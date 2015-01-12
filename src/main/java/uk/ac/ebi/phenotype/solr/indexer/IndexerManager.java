@@ -458,9 +458,13 @@ public class IndexerManager {
         return options;
     }
     
+    public static void main(String[] args) {
+        mainReturnsStatus(args);
+    }
     
     
-    public static int main(String[] args) {
+    
+    public static int mainReturnsStatus(String[] args) {
         try {
             IndexerManager manager = new IndexerManager();
             manager.initialise(args);
