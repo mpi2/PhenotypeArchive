@@ -303,7 +303,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 + "<!DOCTYPE Query>"
                 + "<Query  virtualSchemaName = \"default\" formatter = \"TSV\" header = \"0\" uniqueRows = \"0\" count = \"\" datasetConfigVersion = \"0.6\" >"
                 + "<Dataset name = \"mmusculus_gene_ensembl\" interface = \"default\" >"
-                + "<Filter name = \"go_evidence_code\" value = \"EXP,IDA,IGI,IMP,IPI\"/>"
+                + "<Filter name = \"go_evidence_code\" value = \"EXP,IDA,IGI,IMP,IPI,ISO,ISS\"/>"
                 + "<Filter name = \"with_mgi\" excluded = \"0\"/>"
                 + "<Attribute name = \"go_id\" />"
                 + "<Attribute name = \"name_1006\" />"
