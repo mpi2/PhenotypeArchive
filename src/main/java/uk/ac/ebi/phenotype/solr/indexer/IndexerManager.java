@@ -450,7 +450,7 @@ public class IndexerManager {
                 System.out.println("Expected required context file parameter, such as 'index-app-config.xml'.");
             }
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
-            throw new IndexerException(new MissingRequiredContextException());
+            throw new IndexerException(uoe);
         }
 System.out.println("IndexerManager: indexerArgs = " + StringUtils.join(args));
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
