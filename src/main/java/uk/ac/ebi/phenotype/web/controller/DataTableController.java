@@ -516,9 +516,9 @@ public class DataTableController {
 	
 	public String parseJsonforImpcImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException{
 		
+		String baseUrl = config.get("baseUrl");
 		//String mediaBaseUrl = config.get("mediaBaseUrl");
-		String mediaBaseUrl = config.get("baseUrl") + "/impcImages/images?";
-		
+		String mediaBaseUrl = baseUrl + "/impcImages/images?";
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 		
 		
@@ -615,7 +615,7 @@ public class DataTableController {
 					if (doc.has("gene_symbol")) {
 						String geneSymbol  = doc.getString("gene_symbol");
 						String geneAccessionId  = doc.getString("gene_accession_id");
-						String url = request.getAttribute("baseUrl") + "/genes/" + geneAccessionId;
+						String url = baseUrl + "/genes/" + geneAccessionId;
 						String geneLink = "<a href='" + url +"'>" + geneSymbol + "</a>";
 						
 						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + geneLink + "</span>";						
@@ -659,10 +659,8 @@ public class DataTableController {
 				defaultQStr = defaultQStr + " AND " + fqStr; 
 				defaultFqStr = defaultFqStr + " AND " + fqStr;
 			}
-						
-			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			
-			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(facetFields);
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
 			int numAnnots = annots.size();
 
 	        JSONObject j = new JSONObject();
@@ -682,9 +680,11 @@ public class DataTableController {
 				String displayAnnotName = annot.name;
 				String annotVal = annot.val;
 				int imgCount = annot.imgCount;	
-				
 				String unit = imgCount > 1 ? "images" : "image";	
-				String valLink = "<a href='" + "#" + "'>" + annotVal + "</a>";
+
+				String link = annot.link != null ? annot.link : "";
+				String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
+				
 				query = annot.facet + ":\"" + annotVal + "\"";
 				
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
