@@ -52,7 +52,7 @@
     
    <c:if test="${solrImagesError ne null}"><h4>There is an error the image index is down please contact the IMPC if this error persists</h4></c:if>
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
-		<c:if test="${imageCount ne 0}"><h1 class="title" id="top">${imageCount} images for ${q}</h1></c:if>
+		<c:if test="${imageCount ne 0}"><h1 class="title" id="top">${imageCount} images for ${titleString}</h1></c:if>
 <div  class="section">
 		<div class="inner">
                 <div class="accordion-body" style="display: block">
@@ -73,17 +73,17 @@
 				<li class="disabled"><a>Prev</a></li>
 				</c:if>
 				<c:if test="${start ne 0}">
-				<li><a href='${baseUrl}/impcImages?start=${start-length}&length=${length}&${q}'>Prev</a></li>
+				<li><a href='${baseUrl}/impcImages/images?start=${start-length}&length=${length}&${q}'>Prev</a></li>
 				</c:if>
 
 				<c:forEach begin="0" end="${imageCount}" step="${length}" var="i">
 				<li <c:if test="${start eq i}">class="active"</c:if>>
-				<a href='${baseUrl}/impcImages?start=<c:if test="${i ne 0}">${i-1}</c:if><c:if test="${i eq 0}">${i}</c:if>&length=${length}&${q}'><fmt:formatNumber value="${(i+length)/length}" maxFractionDigits="0" /></a>
+				<a href='${baseUrl}/impcImages/images?start=<c:if test="${i ne 0}">${i-1}</c:if><c:if test="${i eq 0}">${i}</c:if>&length=${length}&q=${q}'><fmt:formatNumber value="${(i+length)/length}" maxFractionDigits="0" /></a>
 				</li>
 				</c:forEach>
 
 				<c:if test="${start+length lt imageCount}">
-				<li><a id="next" href='${baseUrl}/impcImages?start=${start+length}&length=${length}&${q}'>Next</a></li>
+				<li><a id="next" href='${baseUrl}/impcImages/images?start=${start+length}&length=${length}&q=${q}'>Next</a></li>
 				</c:if>
 				<c:if test="${start+length gt imageCount}">
 				<li class="disabled"><a>Next</a></li>
