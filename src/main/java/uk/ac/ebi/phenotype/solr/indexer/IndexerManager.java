@@ -27,6 +27,7 @@ import java.util.List;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.www.testing.model.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -125,6 +126,8 @@ public class IndexerManager {
         , DISEASE_CORE
         , AUTOSUGGEST_CORE
     };
+    
+    public static final int RETRY_COUNT = 1;            // If any core fails, retry building it up to this many times.
     
     @Autowired
     ObservationIndexer observationIndexer;
@@ -251,14 +254,29 @@ public class IndexerManager {
         logger.info("\t" + StringUtils.join(cores));
         
         for (IndexerItem indexerItem : indexerItems) {
-            try {
-                indexerItem.indexer.initialise(indexerArgs);
-                indexerItem.indexer.run();
-                indexerItem.indexer.validateBuild();
-            } catch (IndexerException ie) {
-                throw ie;
-            } catch (Exception e) {
-                throw new IndexerException(new ValidationException(e));
+            indexerItem.indexer.initialise(indexerArgs);
+            // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
+            for (int i = 0; i < RETRY_COUNT; i++) {
+                try {
+    if (i == i) throw new IndexerException();
+                    indexerItem.indexer.run();
+                    indexerItem.indexer.validateBuild();
+                    break;
+                } catch (IndexerException ie) {
+                    if (i < RETRY_COUNT) {
+                        logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
+                        TestUtils.sleep(60000);                                 // Sleep for 1 minute.
+                    } else {
+                        throw ie;
+                    }
+                } catch (Exception e) {
+                    if (i < RETRY_COUNT) {
+                        logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
+                        TestUtils.sleep(60000);                                 // Sleep for 1 minute.
+                    } else {
+                        throw new IndexerException(new ValidationException(e));
+                    }
+                }
             }
         }
     }
@@ -461,15 +479,17 @@ public class IndexerManager {
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
             throw new IndexerException(uoe);
         }
-System.out.println("IndexerManager: indexerArgs = " + StringUtils.join(args));
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
         logger.info("indexer config file: '" + indexerArgs[0] + "'");
         
         return options;
     }
     
-    public static void main(String[] args) {
-        mainReturnsStatus(args);
+    public static void main(String[] args) throws IndexerException {
+        int retVal = mainReturnsStatus(args);
+        if (retVal != STATUS_OK) {
+            throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
+        }
     }
     
     
