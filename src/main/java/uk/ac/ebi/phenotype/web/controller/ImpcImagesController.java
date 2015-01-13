@@ -146,7 +146,7 @@ public class ImpcImagesController {
 
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
 	throws IOException, URISyntaxException, SolrServerException {
-
+		String titleString="";
 		String queryString = request.getQueryString();
 		System.out.println("QUERY: "+queryString );
 		String startString = "0";
@@ -193,12 +193,13 @@ public class ImpcImagesController {
 			if ( key.equals("q") ){
 				qStr = value;
 				//get rid of wierd solr comments etc so more human readable
-				qStr=qStr.replace("\"", " ");
-				qStr=qStr.replace("(", " ");
-				qStr=qStr.replace(")", " ");
-				qStr=qStr.replace("_", " ");
-				qStr=qStr.replace("observation_type:image_record AND", " ");
-				qStr=qStr.replace(":", " ");
+				titleString=qStr;
+				titleString=titleString.replace("\"", " ");
+				titleString=titleString.replace("(", " ");
+				titleString=titleString.replace(")", " ");
+				titleString=titleString.replace("_", " ");
+				titleString=titleString.replace("observation_type:image_record AND", " ");
+				titleString=titleString.replace(":", " ");
 			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
@@ -212,6 +213,7 @@ public class ImpcImagesController {
 			model.addAttribute("imageCount", totalNumberFound);
 			//model.addAttribute("q", newQueryString);
 			model.addAttribute("q", qStr);
+			model.addAttribute("titleString", titleString);
 			// model.addAttribute("filterQueries", filterQueries);
 			// model.addAttribute("filterField", filterField);
 			// model.addAttribute("qf", qf);//e.g. auto_suggest

@@ -20,6 +20,7 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -230,10 +231,11 @@ public class IndexerManager {
         
         final int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
-        logger.info("Used memory : ", (runtime.totalMemory() - runtime.freeMemory()) / mb);
-        logger.info("Free memory : ", runtime.freeMemory());
-        logger.info("Total memory: ", runtime.totalMemory());
-        logger.info("Max memory  : ", runtime.maxMemory());
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        logger.info("Used memory : " + (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
+        logger.info("Free memory : " + formatter.format(runtime.freeMemory()));
+        logger.info("Total memory: " + formatter.format(runtime.totalMemory()));
+        logger.info("Max memory  : " + formatter.format(runtime.maxMemory()));
     }
 	
     protected void initialiseHibernateSession(ApplicationContext applicationContext) {
