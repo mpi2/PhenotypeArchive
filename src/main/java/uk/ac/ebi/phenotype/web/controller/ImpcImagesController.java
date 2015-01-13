@@ -125,7 +125,7 @@ public class ImpcImagesController {
 		String acc = request.getParameter("gene_accession_id");
 		String procedureName = request.getParameter("procedure_name");
 		String parameterStableId = request.getParameter("parameter_stable_id");
-		imageService.getControlAndExperimentalImpcImages(acc, model, procedureName, parameterStableId, 5, 100, "Adult LacZ");
+		imageService.getControlAndExperimentalImpcImages(acc, model, procedureName, parameterStableId, 5, 100, null);
 		return "impcImagesContAndExp";
 	}
 
