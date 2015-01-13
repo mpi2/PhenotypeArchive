@@ -232,7 +232,7 @@ public class FileExportController {
             @RequestParam(value = "sex", required = false) String sex,
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
-            @RequestParam(value = "hasgoterm", required = false) boolean hasgoterm,
+            @RequestParam(value = "dogoterm", required = false) boolean dogoterm,
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -294,9 +294,9 @@ public class FileExportController {
                     dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"), solrFilters, request);
                 }
             }
-            else if ( hasgoterm ) {
+            else if ( dogoterm ) {
             	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
-             	dataRows = composeGene2GoAnnotationDataRows(json, request, hasgoterm);
+             	dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm, gridFields);
             }
             else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
@@ -1139,34 +1139,41 @@ public class FileExportController {
         return res;
     }
     
-    private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm) {
+    private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm, String gridFields) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-
-        String baseUrl = request.getAttribute("baseUrl") + "/disease/";
+        System.out.println(" GOT " + docs.size() + " docs");
+        String baseUrl = request.getAttribute("baseUrl") + "/genes/";
+        String[] cols = gridFields.split(",");
         
         List<String> rowData = new ArrayList();
         // column names	
-        rowData.add("MGI gene accession id"
-        		+ "\tGene Symbol");
-        
-        if ( hasgoterm ){
-        	rowData.add("\tGO Term Id"
+        String fields = "Gene Symbol"
+        		+ "\tMGI gene link"
+        		+ "\tGO Term Id"
         		+ "\tGO Term Name"
         		+ "\tGO Term Evidence"
-        		+ "\tGO Term Domain"
-        		); 
-        }
+        		+ "\tGO Term Domain";
+        
+        rowData.add(fields);
         
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
 
-            String gId = doc.getString("mgi_accession_id");
-            data.add(hostName + baseUrl + "/genes/" + gId);
             data.add(doc.getString("marker_symbol"));
+            String gId = doc.getString("mgi_accession_id");
+            data.add(hostName + baseUrl + gId);
             
-            if ( hasgoterm ){
+            
+            if ( cols.length == 2 ){
+            	
+        		data.add("no info");
+        		data.add("no info");
+        		data.add("no info");
+        		data.add("no info");
+            }
+        	else {
 	            JSONArray _goTermIds = doc.getJSONArray("go_term_id");
 	            JSONArray _goTermNames = doc.getJSONArray("go_term_name");
 	            JSONArray _goTermEvids = doc.getJSONArray("go_term_evid");
@@ -1195,10 +1202,12 @@ public class FileExportController {
 	            	goTermDomains.add(_goTermDomains.get(j).toString());
 	            }
 	            data.add(StringUtils.join(goTermDomains, "|"));
-            }
+        	}
+            
             
             rowData.add(StringUtils.join(data, "\t"));
         }
+        System.out.println("ROWDATA: "+ rowData);
         return rowData;
     }
 
