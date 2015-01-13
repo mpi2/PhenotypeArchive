@@ -28,6 +28,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Matt Pearce
@@ -48,6 +49,7 @@ public abstract class AbstractIndexer {
     public abstract void validateBuild() throws IndexerException;
 
     public void initialise(String[] args) throws IndexerException {
+        getLogger().info("args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
         if (options != null) {
             applicationContext = loadApplicationContext((String) options.valuesOf(CONTEXT_ARG).get(0));

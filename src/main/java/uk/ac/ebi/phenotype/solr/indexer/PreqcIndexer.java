@@ -721,6 +721,11 @@ public class PreqcIndexer extends AbstractIndexer {
             return PreqcIndexer.this;
         }
     }
+    
+    @Override
+    public void initialise(String[] args) throws IndexerException {
+        super.initialise(args);
+    }
 
     public static void main(String[] args) throws IndexerException {
 

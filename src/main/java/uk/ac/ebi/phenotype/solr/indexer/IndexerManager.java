@@ -227,6 +227,13 @@ public class IndexerManager {
         } else {
             throw new IndexerException("Failed to parse command-line options.");
         }
+        
+        final int mb = 1024*1024;
+        Runtime runtime = Runtime.getRuntime();
+        logger.info("Used memory : ", (runtime.totalMemory() - runtime.freeMemory()) / mb);
+        logger.info("Free memory : ", runtime.freeMemory());
+        logger.info("Total memory: ", runtime.totalMemory());
+        logger.info("Max memory  : ", runtime.maxMemory());
     }
 	
     protected void initialiseHibernateSession(ApplicationContext applicationContext) {
@@ -450,10 +457,11 @@ public class IndexerManager {
                 System.out.println("Expected required context file parameter, such as 'index-app-config.xml'.");
             }
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
-            throw new IndexerException(new MissingRequiredContextException());
+            throw new IndexerException(uoe);
         }
-        
+System.out.println("IndexerManager: indexerArgs = " + StringUtils.join(args));
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
+        logger.info("indexer config file: '" + indexerArgs[0] + "'");
         
         return options;
     }
