@@ -127,7 +127,8 @@ public class IndexerManager {
         , AUTOSUGGEST_CORE
     };
     
-    public static final int RETRY_COUNT = 1;            // If any core fails, retry building it up to this many times.
+    public static final int RETRY_COUNT = 5;                                    // If any core fails, retry building it up to this many times.
+    public static final int RETRY_SLEEP_IN_MS = 60000;                             // If any core fails, sleep this long before reattempting to build the core.
     
     @Autowired
     ObservationIndexer observationIndexer;
@@ -256,7 +257,7 @@ public class IndexerManager {
         for (IndexerItem indexerItem : indexerItems) {
             indexerItem.indexer.initialise(indexerArgs);
             // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
-            for (int i = 0; i < RETRY_COUNT; i++) {
+            for (int i = 0; i <= RETRY_COUNT; i++) {
                 try {
                     indexerItem.indexer.run();
                     indexerItem.indexer.validateBuild();
@@ -264,16 +265,16 @@ public class IndexerManager {
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {
                         logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
-                        TestUtils.sleep(60000);                                 // Sleep for 1 minute.
+                        TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
                         throw ie;
                     }
                 } catch (Exception e) {
                     if (i < RETRY_COUNT) {
                         logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
-                        TestUtils.sleep(60000);                                 // Sleep for 1 minute.
+                        TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
-                        throw new IndexerException(new ValidationException(e));
+                        throw new IndexerException(e);
                     }
                 }
             }

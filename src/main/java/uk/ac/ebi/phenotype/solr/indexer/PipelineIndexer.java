@@ -293,7 +293,7 @@ public class PipelineIndexer extends AbstractIndexer {
                 // pipe.setPipelineStableId(pipelineStableId);
                 // pipe.setPipelineId(pipelineId);
 
-                pipelineCore.addBean(pipe, 60000);
+                pipelineCore.addBean(pipe, 2000);
                 count ++;
 
                 if (count % 10 == 0) {
@@ -303,7 +303,9 @@ public class PipelineIndexer extends AbstractIndexer {
             }
 
             System.out.println("commiting to Pipeline core for last time!");
+            logger.info("Pipeline commit started.");
             pipelineCore.commit();
+            logger.info("Pipeline commit finished.");
 
         } catch (IOException | SolrServerException e) {
             // TODO Auto-generated catch block
@@ -315,7 +317,6 @@ public class PipelineIndexer extends AbstractIndexer {
         System.out.println("time was " + (endTime - startTime) / 1000);
 
         logger.info("Pipeline Indexer complete!");
-        System.exit(0);
     }
 
 	// PROTECTED METHODS
@@ -505,8 +506,7 @@ public class PipelineIndexer extends AbstractIndexer {
     }
 
     private Map<String, List<GfMpBean>> populateGfAccAndMp() {
-
-        System.out.println("populating GfAcc and Mp info");
+        logger.info("populating GfAcc and Mp info - started");
         Map<String, List<GfMpBean>> gfMpBeansMap = new HashMap<>();
         String queryString = "select distinct concat(s.parameter_id,'_',s.procedure_id,'_',s.pipeline_id) as pppIds, s.gf_acc, s.mp_acc, s.parameter_id as pp_parameter_id, s.procedure_id as pproc_procedure_id, s.pipeline_id as ppipe_pipeline_id, s.allele_acc, s.strain_acc from phenotype_parameter pp INNER JOIN phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id INNER JOIN phenotype_procedure pproc on ppp.procedure_id=pproc.id INNER JOIN phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id INNER JOIN phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id inner join phenotype_call_summary s on ppipe.id=s.pipeline_id and pproc.id=s.procedure_id and pp.id=s.parameter_id";
 
@@ -535,6 +535,9 @@ public class PipelineIndexer extends AbstractIndexer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        logger.info("populating GfAcc and Mp info - finished");
+        
         return gfMpBeansMap;
     }
 
