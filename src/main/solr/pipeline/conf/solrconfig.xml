@@ -204,6 +204,7 @@
          The default is 100 MB.  -->
     <!-- <ramBufferSizeMB>100</ramBufferSizeMB> -->
     <!-- <maxBufferedDocs>1000</maxBufferedDocs> -->
+    <maxBufferedDocs>500</maxBufferedDocs>
 
     <!-- Expert: Merge Policy 
          The Merge Policy in Lucene controls how merging of segments is done.
