@@ -258,7 +258,6 @@ public class IndexerManager {
             // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
             for (int i = 0; i < RETRY_COUNT; i++) {
                 try {
-    if (i == i) throw new IndexerException();
                     indexerItem.indexer.run();
                     indexerItem.indexer.validateBuild();
                     break;
