@@ -228,6 +228,7 @@ public class IndexerManager {
             throw new IndexerException("Failed to parse command-line options.");
         }
         
+        final int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
         logger.info("Used memory : ", (runtime.totalMemory() - runtime.freeMemory()) / mb);
         logger.info("Free memory : ", runtime.freeMemory());
