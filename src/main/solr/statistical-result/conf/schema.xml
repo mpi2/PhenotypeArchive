@@ -161,8 +161,8 @@
         <field name="genotype_effect_p_value" type="double" indexed="true" stored="true" multiValued="false"/>
         <field name="genotype_effect_stderr_estimate" type="double" indexed="true" stored="true" multiValued="false"/>
         <field name="genotype_effect_parameter_estimate" type="double" indexed="true" stored="true" multiValued="false"/>
-        <field name="male_percentage_change" type="double" indexed="true" stored="true" multiValued="false"/>
-        <field name="female_percentage_change" type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="male_percentage_change" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="female_percentage_change" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="sex_effect_p_value" type="double" indexed="true" stored="true" multiValued="false"/>
         <field name="sex_effect_stderr_estimate" type="double" indexed="true" stored="true" multiValued="false"/>
         <field name="sex_effect_parameter_estimate" type="double" indexed="true" stored="true" multiValued="false"/>

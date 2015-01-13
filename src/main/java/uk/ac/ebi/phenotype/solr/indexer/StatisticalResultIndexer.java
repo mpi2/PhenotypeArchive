@@ -249,12 +249,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         if ( ! r.wasNull()) {
             Double femalePercentageChange = getFemalePercentageChange(percentageChange);
             if (femalePercentageChange != null) {
-                doc.setFemalePercentageChange(femalePercentageChange);
+                doc.setFemalePercentageChange(femalePercentageChange.toString() + "%");
             }
             
             Double malePercentageChange = getMalePercentageChange(percentageChange);
             if (malePercentageChange != null) {
-                doc.setMalePercentageChange(malePercentageChange);
+                doc.setMalePercentageChange(malePercentageChange.toString() + "%");
             }
         }
         

@@ -351,10 +351,10 @@ public class StatisticalResultDTO {
     private Double genotypeEffectParameterEstimate;
 
     @Field(FEMALE_PERCENTAGE_CHANGE)
-    private Double femalePercentageChange;
+    private String femalePercentageChange;
 
     @Field(MALE_PERCENTAGE_CHANGE)
-    private Double malePercentageChange;
+    private String malePercentageChange;
     
     @Field(SEX_EFFECT_P_VALUE)
     private Double sexEffectPValue;
@@ -1300,19 +1300,19 @@ public class StatisticalResultDTO {
         this.genotypeEffectParameterEstimate = genotypeEffectParameterEstimate;
     }
 
-    public Double getFemalePercentageChange() {
+    public String getFemalePercentageChange() {
         return femalePercentageChange;
     }
 
-    public void setFemalePercentageChange(Double femalePercentageChange) {
+    public void setFemalePercentageChange(String femalePercentageChange) {
         this.femalePercentageChange = femalePercentageChange;
     }
 
-    public Double getMalePercentageChange() {
+    public String getMalePercentageChange() {
         return malePercentageChange;
     }
 
-    public void setMalePercentageChange(Double malePercentageChange) {
+    public void setMalePercentageChange(String malePercentageChange) {
         this.malePercentageChange = malePercentageChange;
     }
 
