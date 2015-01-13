@@ -57,11 +57,17 @@ public class GoTermController {
 	
 	public String createTable(Map<String,Map<String, JSONArray>> stats){
 	
+		JSONArray kw = stats.get("Phenotyping Complete").get("w/  GO");
+		int hasGoRowSpan= kw.size() / 2;
+	    int noGoRowSpan = hasGoRowSpan + 1;
+	    
 		StringBuilder builder = new StringBuilder();
+		
 		builder.append("<table>");
 		builder.append("<tbody>");
 		
 		Iterator it = stats.entrySet().iterator();
+		
 		int counter = 0;
 		while (it.hasNext()) {
 			counter++;
@@ -72,20 +78,22 @@ public class GoTermController {
 	        Map<String, Map<String, JSONArray>> annotCounts = (Map<String, Map<String, JSONArray>>) pairs.getValue();
 	        it.remove(); // avoids a ConcurrentModificationException
 	       
+	       
 	        Iterator it2 = annotCounts.entrySet().iterator();
-	     
+	       
 	        while (it2.hasNext()) {
 	        	
 		        Map.Entry pairs2 = (Map.Entry)it2.next();
 		        String annot = pairs2.getKey().toString();
 		        JSONArray countList = (JSONArray) pairs2.getValue();
+		       
 		        it2.remove(); // avoids a ConcurrentModificationException
 		        
 		        //log.info(pairs2.getKey() + " = " + pairs2.getValue());
 		        
 		        if ( annot.equals("w/o GO") ){
 		        	builder.append("<tr>");
-		        	builder.append("<td class='phenoStatus' rowspan=6>" + phenoStatus + "</td>");
+		        	builder.append("<td class='phenoStatus' rowspan=" + noGoRowSpan + ">" + phenoStatus + "</td>");
 		        	builder.append("<td>" + annot + "</td>");
 		        	builder.append("<td colspan=2>" + countList.get(0) + "</td>");
 		        	builder.append("</tr>");
@@ -95,7 +103,7 @@ public class GoTermController {
 			        for ( int i=0; i<countList.size(); i=i+2 ){
 			        	builder.append("<tr>");
 			        	if ( i == 0 ){
-			        		builder.append("<td rowspan=5>" + annot + "</td>");
+			        		builder.append("<td rowspan=" + hasGoRowSpan + ">" + annot + "</td>");
 			        	}
 			        	builder.append("<td>" + countList.get(i) + "</td>");
 			        	builder.append("<td>" + countList.get(i+1) + "</td>");
@@ -118,6 +126,8 @@ public class GoTermController {
 										IGI	41
 										IMP	109
 										IPI	122
+										ISO 31
+										ISS	130
 		Phenotyping Started	w/o GO	378
 								w/ GO	
 										EXP	1
@@ -125,6 +135,8 @@ public class GoTermController {
 										IGI	95
 										IMP	254
 										IPI	222
+										ISO	61
+										ISS	262
 		*/
 		
 		return htmlTable;

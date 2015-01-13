@@ -131,7 +131,7 @@ public class SolrIndex {
 			String gridSolrParams, String gridFields, int start, int length)
 			throws IOException, URISyntaxException {
 
-//		System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
+		System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
 		
 		if (core.equals("gene")) {			
 			//gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
@@ -192,7 +192,7 @@ public class SolrIndex {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 			if (!showImgView) {
-				url += "&facet=on&facet.field=gene_symbol&facet.field=procedure_name&facet.mincount=1&facet.limit=-1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("IMPC_IMG PARAMS: " + url); 
 		} else if (mode.equals("imagesGrid")) {
@@ -377,23 +377,25 @@ public class SolrIndex {
 		public String name;
 		public String facet;
 		public String val;
+		public String link;
 		public int imgCount;
 	}
 	
-	public List<AnnotNameValCount> mergeImpcFacets(JSONObject facetFields) {
+	public List<AnnotNameValCount> mergeImpcFacets(JSONObject json, String baseUrl) {
 		
-		//JSONArray fields = new JSONArray();
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+	
 		List<AnnotNameValCount> annots = new ArrayList<>();
 		
 		Map<String, String> hm = new HashMap<String, String>();
-		hm.put("gene_symbol", "Gene");
+		hm.put("symbol_gene", "Gene");
 		hm.put("procedure_name", "Procedure");
 		
 		// Initialize a list on creation using an inner anonymous class
 		List<String> facetNames = new ArrayList<String>() {
 			private static final long serialVersionUID = 1L;
 			{
-				add("gene_symbol");
+				add("symbol_gene");  // facet field name
 				add("procedure_name");
 				//add("mpTermName");
 				//add("maTermName");
@@ -401,13 +403,22 @@ public class SolrIndex {
 		};
 		for (String facet : facetNames) {
 			
-			JSONArray arr = facetFields.getJSONArray(facet);
+			//JSONObject arr = facetFields.getJSONArray(facet);
+			JSONArray arr = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray(facet);
 			for (int i = 0; i < arr.size(); i = i + 2) {
 				
 				AnnotNameValCount annotNameValCount = new AnnotNameValCount();
+				
 				annotNameValCount.name     = hm.get(facet);
 				annotNameValCount.facet    = facet;
 				annotNameValCount.val      = arr.get(i).toString();
+				
+				if ( facet.equals("symbol_gene") ){
+					annotNameValCount.facet = "gene_symbol"; // query field name
+					String[] fields = annotNameValCount.val.split("_");
+					annotNameValCount.val = fields[0];
+					annotNameValCount.link = baseUrl + "/genes/" + fields[1];
+				}
 				annotNameValCount.imgCount = Integer.parseInt(arr.get(i+1).toString());
 				annots.add(annotNameValCount);
 			}
@@ -576,18 +587,17 @@ public class SolrIndex {
 			log.info("No Mice returned for the query!");
 		}
                 
-                List<String> mouseConstructs = new ArrayList<String>();
-                List<Map<String, String>> esCellConstructs = new ArrayList<Map<String, String>>();
-                List<Map<String, String>> nonTargetedEsCellConstructs = new ArrayList<Map<String, String>>();
-                List<Map<String, String>> geneConstructs = new ArrayList<Map<String, String>>();
-                List<Map<String, String>> constructs = new ArrayList<Map<String, String>>();
+        List<String> mouseConstructs = new ArrayList<String>();
+        List<Map<String, String>> esCellConstructs = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> nonTargetedEsCellConstructs = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> geneConstructs = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> constructs = new ArrayList<Map<String, String>>();
 
-                try {
-                        for (int i = 0; i < numberFound ; i++) {
-                                Map<String, String> construct = new HashMap<String, String>();
-				constructs.add(geneAlleleConstruct(docs, i));
-                                mouseConstructs.add(docs.getJSONObject(i).getString("allele_name"));
-				// }
+        try {
+        	for (int i = 0; i < numberFound ; i++) {
+        		Map<String, String> construct = new HashMap<String, String>();
+        		constructs.add(geneAlleleConstruct(docs, i));
+                mouseConstructs.add(docs.getJSONObject(i).getString("allele_name"));
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -601,8 +611,8 @@ public class SolrIndex {
 
 		log.info("url for geneAllele=" + esCellUrl);
                 
-                JSONObject esCellJsonObject = getResults(esCellUrl);
-                int esCellNumberFound = Integer.parseInt(esCellJsonObject.getJSONObject("response").getString("numFound"));
+        JSONObject esCellJsonObject = getResults(esCellUrl);
+        int esCellNumberFound = Integer.parseInt(esCellJsonObject.getJSONObject("response").getString("numFound"));
 		
 		JSONArray esCellDocs = esCellJsonObject.getJSONObject("response").getJSONArray("docs");
 
@@ -610,33 +620,33 @@ public class SolrIndex {
 			log.info("No EsCells returned for the query!");
 		}
                 
-                try {
-                        for (int i = 0; i < esCellNumberFound ; i++) {
-                            
-                                if (!mouseConstructs.contains(esCellDocs.getJSONObject(i).getString("allele_name"))){
-                                        if (esCellDocs.getJSONObject(i).getString("allele_type").equals("Targeted Non Conditional")) {
-                                                nonTargetedEsCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
-                                        }
-                                        else {
-                                                esCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
-                                        }
-                                }
-				// }
+        try {
+            for (int i = 0; i < esCellNumberFound ; i++) {
+                    
+                if (!mouseConstructs.contains(esCellDocs.getJSONObject(i).getString("allele_name"))){
+                    if (esCellDocs.getJSONObject(i).getString("allele_type").equals("Targeted Non Conditional")) {
+                            nonTargetedEsCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
+                    }
+                    else {
+                            esCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
+                    }
+                }
+				
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
                 
-                String geneUrl = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
+        String geneUrl = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
 				+ accession.replace(":", "\\:")
                                 + " AND type:gene"
 				+ "&start=0&rows=100&hl=true&wt=json";
 
 		log.info("url for geneAllele=" + geneUrl);
                 
-                JSONObject geneJsonObject = getResults(geneUrl);
-                int geneNumberFound = Integer.parseInt(geneJsonObject.getJSONObject("response").getString("numFound"));
+        JSONObject geneJsonObject = getResults(geneUrl);
+        int geneNumberFound = Integer.parseInt(geneJsonObject.getJSONObject("response").getString("numFound"));
 		
 		JSONArray geneDocs = geneJsonObject.getJSONObject("response").getJSONArray("docs");
 
@@ -644,24 +654,24 @@ public class SolrIndex {
 			log.info("No gene info returned for the query!");
 		}
                 
-                try {
-                        for (int i = 0; i < geneNumberFound ; i++) {
-                                if (geneDocs.getJSONObject(i).has("vector_project_ids") && geneDocs.getJSONObject(i).getString("vector_project_ids").length() > 0){
-                                            geneConstructs.add(geneAlleleConstruct(geneDocs, i));
-                                }
-			}
+		try {
+            for (int i = 0; i < geneNumberFound ; i++) {
+                if (geneDocs.getJSONObject(i).has("vector_project_ids") && geneDocs.getJSONObject(i).getString("vector_project_ids").length() > 0){
+                    geneConstructs.add(geneAlleleConstruct(geneDocs, i));
+                }
+            }
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
                 
                 
-                constructs.addAll(esCellConstructs);
-                if (constructs.size() < 1){
-                      constructs.addAll(nonTargetedEsCellConstructs);
-                }
-                constructs.addAll(geneConstructs);
-                return constructs;
+        constructs.addAll(esCellConstructs);
+        if (constructs.size() < 1){
+              constructs.addAll(nonTargetedEsCellConstructs);
+        }
+        constructs.addAll(geneConstructs);
+        return constructs;
         }
         
         private String getGeneAlleleUrlTest(String type, JSONObject jsonObject2) {
@@ -676,138 +686,135 @@ public class SolrIndex {
             return url;
         }
         
-        private Map<String, String> geneAlleleConstruct(JSONArray docs, int i) {
-                Map<String, String> construct = new HashMap<String, String>();
-                        String markerSymbol = "";
-                        String product = "";
-                        String alleleType = "";
-                        String type = "";
-                        String strainOfOrigin = "";
-                        String mgiAlleleName = "";
-                        String alleleMap = "";
-                        String alleleGenbankFile = "";
-                        String ikmcProjectId = "";
-                        String orderFromNames = "";
-                        String orderFromUrls = "";
-                        String orderHtml = "";
-                        String vectorProjectIds = "";
-                        String vectorProjectHtml = "";
-                        String mgi_accession_id = "";
-                        String mgiAlleleNameStrip = "";
-                                
-			if (docs.getJSONObject(i).has("mgi_accession_id")) {
-                                mgi_accession_id = docs.getJSONObject(i).getString("mgi_accession_id");
-			}
-			if (docs.getJSONObject(i).has("marker_symbol")) {
-                                markerSymbol = docs.getJSONObject(i).getString("marker_symbol");
-			}
-			if (docs.getJSONObject(i).has("product_type")) {
-                                product = docs.getJSONObject(i).getString("product_type");
-			}
-                        if (docs.getJSONObject(i).has("type")) {
-                                type = docs.getJSONObject(i).getString("type");
-			}
-			if (docs.getJSONObject(i).has("allele_type")) {
-				alleleType = docs.getJSONObject(i).getString("allele_type");
-                                if (alleleType.equals("Conditional Ready")){
-                                        alleleType = "Knockout First, Reporter-tagged insertion with conditional potential";
-                                }
-                                else if (alleleType.equals("Deletion")){
-                                        alleleType = "Reporter-Tagged Deletion";
-                                }
-			}
-			if (docs.getJSONObject(i).has("strain")) {
-				strainOfOrigin = docs.getJSONObject(i).getString("strain");
-			}
-			if (docs.getJSONObject(i).has("allele_name")) {
-				mgiAlleleName = docs.getJSONObject(i).getString("allele_name");
-                                mgiAlleleNameStrip = mgiAlleleName.replaceAll(markerSymbol, "");
-                                mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<sup\\>", "");
-                                mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<\\/sup\\>", "");
-			}
-                        if (docs.getJSONObject(i).has("allele_image_url")) {
-                                alleleMap = docs.getJSONObject(i).getString("allele_image_url");
-			}
-                        if (docs.getJSONObject(i).has("genbank_file_url")) {
-                                alleleGenbankFile = docs.getJSONObject(i).getString("genbank_file_url");
-			}
-                        if (docs.getJSONObject(i).has("project_ids")) {
-                                JSONArray projectArray = docs.getJSONObject(i).getJSONArray("project_ids");
-                                if (projectArray.size() > 0){
-                                        ikmcProjectId = projectArray.getString(0);
-                                }
-			}
-                        
-                        boolean allele_has_issue = false;
-                        if (docs.getJSONObject(i).has("allele_has_issue")) {
-                                String has_issue = docs.getJSONObject(i).getString("allele_has_issue");
-                                allele_has_issue = has_issue.equals("true");
-			}
-			log.error("#### geneAlleleConstruct: allele_has_issue: " + allele_has_issue);                        
-                        
-                        if (docs.getJSONObject(i).has("order_from_names")) {
-                                orderFromNames = docs.getJSONObject(i).getString("order_from_names");
-			}
-                        if (docs.getJSONObject(i).has("order_from_urls")) {
-                                orderFromUrls = docs.getJSONObject(i).getString("order_from_urls");
-			}
-                        
-                        String orderFromUrl = "";
-                        if(allele_has_issue) {
-                            String allele_id = docs.getJSONObject(i).has("allele_id") ? docs.getJSONObject(i).get("allele_id").toString() : null;
-                            String id = docs.getJSONObject(i).has("id") ? docs.getJSONObject(i).get("id").toString() : null;
-                            String product_type = docs.getJSONObject(i).has("product_type") ? docs.getJSONObject(i).get("product_type").toString() : null;
-                            String host = "https://www.mousephenotype.org/imits";
-                            //host = "localhost:3000";
-                            String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?doc_id=" + id + "&product_type=" + product_type + "&core=allele";
-                            orderFromUrl = url;
-                        }                        
-			log.error("#### geneAlleleConstruct: orderFromUrl: " + orderFromUrl);                        
-                        
-                        if (docs.getJSONObject(i).has("order_from_urls") && docs.getJSONObject(i).has("order_from_names")) {
-                                JSONArray orderUrlsArray = docs.getJSONObject(i).getJSONArray("order_from_urls");
-                                JSONArray orderNamesArray = docs.getJSONObject(i).getJSONArray("order_from_names");
-                                for (int j = 0; j < orderNamesArray.size() ; j++){
-                                    if(!orderFromUrl.isEmpty()) {
-                                        orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderFromUrl + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
-                                    }
-                                    else {
-                                        orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderUrlsArray.getString(j) + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
-                                    }
-                                }
-                        }
-                        if (docs.getJSONObject(i).has("vector_project_ids")) {
-                                vectorProjectIds = docs.getJSONObject(i).getString("vector_project_ids");
-			}                        
-                        if (docs.getJSONObject(i).has("vector_project_ids")) {
-                                JSONArray vectorProjectsArray = docs.getJSONObject(i).getJSONArray("vector_project_ids");
-                                for (int k = 0; k < vectorProjectsArray.size() ; k++){
-                                        vectorProjectHtml += "<a href=http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + vectorProjectsArray.getString(k) + ">" + vectorProjectsArray.getString(k) + "</a> ";
-                                }
-			}                         
-                        
-                        construct.put("mgi_accession_id", mgi_accession_id);
-                        construct.put("markerSymbol", markerSymbol);
-                        construct.put("product", product);
-                        construct.put("product_url", getGeneAlleleUrlTest(type, docs.getJSONObject(i)));
-                        construct.put("alleleType", alleleType);
-                        construct.put("type", type);
-                        construct.put("strainOfOrigin", strainOfOrigin);
-                        construct.put("mgiAlleleName", mgiAlleleName);
-                        construct.put("mgiAlleleNameStrip", mgiAlleleNameStrip);
-                        construct.put("alleleMap", alleleMap);
-                        construct.put("alleleGenbankFile", alleleGenbankFile);
-                        construct.put("ikmcProjectId", ikmcProjectId);
-                        construct.put("orderFromNames", orderFromNames);
-                        construct.put("orderFromUrls", orderFromUrls);
-                        construct.put("orderHtml", orderHtml);
-                        construct.put("vectorProjectIds", vectorProjectIds);    
-                        construct.put("vectorProjectHtml", vectorProjectHtml); 
-            return construct;
+    private Map<String, String> geneAlleleConstruct(JSONArray docs, int i) {
+    	Map<String, String> construct = new HashMap<String, String>();
+        String markerSymbol = "";
+        String product = "";
+        String alleleType = "";
+        String type = "";
+        String strainOfOrigin = "";
+        String mgiAlleleName = "";
+        String alleleMap = "";
+        String alleleGenbankFile = "";
+        String ikmcProjectId = "";
+        String orderFromNames = "";
+        String orderFromUrls = "";
+        String orderHtml = "";
+        String vectorProjectIds = "";
+        String vectorProjectHtml = "";
+        String mgi_accession_id = "";
+        String mgiAlleleNameStrip = "";
+                            
+		if (docs.getJSONObject(i).has("mgi_accession_id")) {
+            mgi_accession_id = docs.getJSONObject(i).getString("mgi_accession_id");
+		}
+		if (docs.getJSONObject(i).has("marker_symbol")) {
+            markerSymbol = docs.getJSONObject(i).getString("marker_symbol");
+		}
+		if (docs.getJSONObject(i).has("product_type")) {
+            product = docs.getJSONObject(i).getString("product_type");
+		}
+        if (docs.getJSONObject(i).has("type")) {
+            type = docs.getJSONObject(i).getString("type");
+		}
+		if (docs.getJSONObject(i).has("allele_type")) {
+			alleleType = docs.getJSONObject(i).getString("allele_type");
+            if (alleleType.equals("Conditional Ready")){
+                alleleType = "Knockout First, Reporter-tagged insertion with conditional potential";
+            }
+            else if (alleleType.equals("Deletion")){
+                alleleType = "Reporter-Tagged Deletion";
+            }
+		}
+		if (docs.getJSONObject(i).has("strain")) {
+			strainOfOrigin = docs.getJSONObject(i).getString("strain");
+		}
+		if (docs.getJSONObject(i).has("allele_name")) {
+			mgiAlleleName = docs.getJSONObject(i).getString("allele_name");
+            mgiAlleleNameStrip = mgiAlleleName.replaceAll(markerSymbol, "");
+            mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<sup\\>", "");
+            mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<\\/sup\\>", "");
+		}
+        if (docs.getJSONObject(i).has("allele_image_url")) {
+            alleleMap = docs.getJSONObject(i).getString("allele_image_url");
+		}
+        if (docs.getJSONObject(i).has("genbank_file_url")) {
+            alleleGenbankFile = docs.getJSONObject(i).getString("genbank_file_url");
+		}
+        if (docs.getJSONObject(i).has("project_ids")) {
+            JSONArray projectArray = docs.getJSONObject(i).getJSONArray("project_ids");
+            if (projectArray.size() > 0){
+                ikmcProjectId = projectArray.getString(0);
+            }
+		}
+                    
+        boolean allele_has_issue = false;
+        if (docs.getJSONObject(i).has("allele_has_issue")) {
+            String has_issue = docs.getJSONObject(i).getString("allele_has_issue");
+            allele_has_issue = has_issue.equals("true");
+		}
+		log.error("#### geneAlleleConstruct: allele_has_issue: " + allele_has_issue);                        
+                    
+        if (docs.getJSONObject(i).has("order_from_names")) {
+            orderFromNames = docs.getJSONObject(i).getString("order_from_names");
+		}
+        if (docs.getJSONObject(i).has("order_from_urls")) {
+            orderFromUrls = docs.getJSONObject(i).getString("order_from_urls");
+		}
+                    
+        String orderFromUrl = "";
+        if(allele_has_issue) {
+            String allele_id = docs.getJSONObject(i).has("allele_id") ? docs.getJSONObject(i).get("allele_id").toString() : null;
+            String id = docs.getJSONObject(i).has("id") ? docs.getJSONObject(i).get("id").toString() : null;
+            String product_type = docs.getJSONObject(i).has("product_type") ? docs.getJSONObject(i).get("product_type").toString() : null;
+            String host = "https://www.mousephenotype.org/imits";
+            //host = "localhost:3000";
+            String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?doc_id=" + id + "&product_type=" + product_type + "&core=allele";
+            orderFromUrl = url;
+        }                        
+		log.error("#### geneAlleleConstruct: orderFromUrl: " + orderFromUrl);                        
+                    
+        if (docs.getJSONObject(i).has("order_from_urls") && docs.getJSONObject(i).has("order_from_names")) {
+            JSONArray orderUrlsArray = docs.getJSONObject(i).getJSONArray("order_from_urls");
+            JSONArray orderNamesArray = docs.getJSONObject(i).getJSONArray("order_from_names");
+            for (int j = 0; j < orderNamesArray.size() ; j++){
+                if(!orderFromUrl.isEmpty()) {
+                    orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderFromUrl + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
+                }
+                else {
+                    orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderUrlsArray.getString(j) + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
+                }
+            }
         }
-        
-        
-	
+        if (docs.getJSONObject(i).has("vector_project_ids")) {
+            vectorProjectIds = docs.getJSONObject(i).getString("vector_project_ids");
+		}                        
+        if (docs.getJSONObject(i).has("vector_project_ids")) {
+            JSONArray vectorProjectsArray = docs.getJSONObject(i).getJSONArray("vector_project_ids");
+            for (int k = 0; k < vectorProjectsArray.size() ; k++){
+                    vectorProjectHtml += "<a href=http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + vectorProjectsArray.getString(k) + ">" + vectorProjectsArray.getString(k) + "</a> ";
+            }
+		}                         
+                    
+        construct.put("mgi_accession_id", mgi_accession_id);
+        construct.put("markerSymbol", markerSymbol);
+        construct.put("product", product);
+        construct.put("product_url", getGeneAlleleUrlTest(type, docs.getJSONObject(i)));
+        construct.put("alleleType", alleleType);
+        construct.put("type", type);
+        construct.put("strainOfOrigin", strainOfOrigin);
+        construct.put("mgiAlleleName", mgiAlleleName);
+        construct.put("mgiAlleleNameStrip", mgiAlleleNameStrip);
+        construct.put("alleleMap", alleleMap);
+        construct.put("alleleGenbankFile", alleleGenbankFile);
+        construct.put("ikmcProjectId", ikmcProjectId);
+        construct.put("orderFromNames", orderFromNames);
+        construct.put("orderFromUrls", orderFromUrls);
+        construct.put("orderHtml", orderHtml);
+        construct.put("vectorProjectIds", vectorProjectIds);    
+        construct.put("vectorProjectHtml", vectorProjectHtml); 
+        return construct;
+    }
 
 	public JSONObject getImageInfo(int imageId) throws SolrServerException,
 			IOException, URISyntaxException {
