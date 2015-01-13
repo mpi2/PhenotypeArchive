@@ -149,6 +149,22 @@ function initFancybox() {
 	        }
 	    }
 	});
+	
+	$('.fancyboxGraph').fancybox({
+		beforeLoad : function(){
+			console.log('calling fancybox');
+			  var url= $(this.element).attr("fullRes");
+			  this.fullRes = url;
+			 },
+	    afterLoad: function() {
+	        this.title = '<a href="' + this.fullRes + '"><i class="fa fa-download"></i> Download this image in high resolution</a>'+this.title;
+	    },
+	    helpers : {
+	        title: {
+	            type: 'inside'
+	        }
+	    }
+	});
 }
 
 function formatFancyboxTitle(title, currentObject, currentIndex, currentOpts) {
