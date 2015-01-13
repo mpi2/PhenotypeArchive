@@ -232,6 +232,7 @@ public class FileExportController {
             @RequestParam(value = "sex", required = false) String sex,
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
+            @RequestParam(value = "hasgoterm", required = false) boolean hasgoterm,
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -241,6 +242,7 @@ public class FileExportController {
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	System.out.println("------------\nEXPORT \n---------");
         log.debug("solr params: " + solrFilters);
+        log.info("solr params: " + solrFilters);
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
 		for (String pair : pairs) {
@@ -284,13 +286,19 @@ public class FileExportController {
                 }
                 String s = (sex.equalsIgnoreCase("null")) ? null : sex;
                 dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
-            } else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")) {
+            } 
+            else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")) {
                 if (mgiGeneId != null) {
                     dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"), solrFilters, request);
                 } else if (mpId != null) {
                     dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"), solrFilters, request);
                 }
-            } else {
+            }
+            else if ( hasgoterm ) {
+            	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
+             	dataRows = composeGene2GoAnnotationDataRows(json, request, hasgoterm);
+            }
+            else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
                 dataRows = composeDataTableExportRows(query, solrCoreName, json, rowStart, length, showImgView, solrFilters, request, legacyOnly);
             }
@@ -451,6 +459,7 @@ public class FileExportController {
         else if (solrCoreName.equals("disease")) {
             rows = composeDiseaseDataTableRows(json, request);
         }
+       
         return rows;
     }
 
@@ -1128,6 +1137,69 @@ public class FileExportController {
             }
         }
         return res;
+    }
+    
+    private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm) {
+    	
+        JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+
+        String baseUrl = request.getAttribute("baseUrl") + "/disease/";
+        
+        List<String> rowData = new ArrayList();
+        // column names	
+        rowData.add("MGI gene accession id"
+        		+ "\tGene Symbol");
+        
+        if ( hasgoterm ){
+        	rowData.add("\tGO Term Id"
+        		+ "\tGO Term Name"
+        		+ "\tGO Term Evidence"
+        		+ "\tGO Term Domain"
+        		); 
+        }
+        
+        for (int i = 0; i < docs.size(); i ++) {
+            List<String> data = new ArrayList();
+            JSONObject doc = docs.getJSONObject(i);
+
+            String gId = doc.getString("mgi_accession_id");
+            data.add(hostName + baseUrl + "/genes/" + gId);
+            data.add(doc.getString("marker_symbol"));
+            
+            if ( hasgoterm ){
+	            JSONArray _goTermIds = doc.getJSONArray("go_term_id");
+	            JSONArray _goTermNames = doc.getJSONArray("go_term_name");
+	            JSONArray _goTermEvids = doc.getJSONArray("go_term_evid");
+	            JSONArray _goTermDomains = doc.getJSONArray("go_term_domain");
+	            
+	            List<String> goTermIds = new ArrayList();
+	            for ( int j=0; j< _goTermIds.size(); j++ ) {
+	            	goTermIds.add(_goTermIds.get(j).toString());
+	            }
+	            data.add(StringUtils.join(goTermIds, "|"));
+	            
+	            List<String> goTermNames = new ArrayList();
+	            for ( int j=0; j< _goTermNames.size(); j++ ) {
+	            	goTermNames.add(_goTermNames.get(j).toString());
+	            }
+	            data.add(StringUtils.join(goTermNames, "|"));
+	            
+	            List<String> goTermEvids = new ArrayList();
+	            for ( int j=0; j< _goTermEvids.size(); j++ ) {
+	            	goTermEvids.add(_goTermEvids.get(j).toString());
+	            }
+	            data.add(StringUtils.join(goTermEvids, "|"));
+	            
+	            List<String> goTermDomains = new ArrayList();
+	            for ( int j=0; j< _goTermDomains.size(); j++ ) {
+	            	goTermDomains.add(_goTermDomains.get(j).toString());
+	            }
+	            data.add(StringUtils.join(goTermDomains, "|"));
+            }
+            
+            rowData.add(StringUtils.join(data, "\t"));
+        }
+        return rowData;
     }
 
 }
