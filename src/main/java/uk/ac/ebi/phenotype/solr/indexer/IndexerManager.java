@@ -265,6 +265,7 @@ public class IndexerManager {
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {
                         logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
+                        logErrors(ie);
                         TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
                         throw ie;
@@ -272,6 +273,7 @@ public class IndexerManager {
                 } catch (Exception e) {
                     if (i < RETRY_COUNT) {
                         logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
+                        logErrors(new IndexerException(e));
                         TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
                         throw new IndexerException(e);
@@ -501,23 +503,7 @@ public class IndexerManager {
             manager.run();
             logger.info("IndexerManager process finished successfully.  Exiting.");
         } catch (IndexerException ie) {
-            // Print out the exceptions.
-            if (ie.getLocalizedMessage() != null) {
-                logger.error(ie.getLocalizedMessage());
-            }
-            int i = 0;
-            Throwable t = ie.getCause();
-            while (t != null) {
-                StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
-                if (t.getLocalizedMessage() != null) {
-                    errMsg.append(t.getLocalizedMessage());
-                } else {
-                    errMsg.append("<null>");
-                }
-                logger.error(errMsg.toString());
-                i++;
-                t = t.getCause();
-            }
+            logErrors(ie);
             if (ie.getCause() instanceof MissingRequiredContextException) {
                 return STATUS_NO_CONTEXT;
             } else if (ie.getCause() instanceof NoDepsException) {
@@ -532,5 +518,25 @@ public class IndexerManager {
         }
         
         return STATUS_OK;
+    }
+    
+    private static void logErrors(IndexerException ie) {
+        // Print out the exceptions.
+        if (ie.getLocalizedMessage() != null) {
+            logger.error(ie.getLocalizedMessage());
+        }
+        int i = 0;
+        Throwable t = ie.getCause();
+        while (t != null) {
+            StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
+            if (t.getLocalizedMessage() != null) {
+                errMsg.append(t.getLocalizedMessage());
+            } else {
+                errMsg.append("<null>");
+            }
+            logger.error(errMsg.toString());
+            i++;
+            t = t.getCause();
+        }
     }
 }
