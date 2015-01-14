@@ -434,7 +434,6 @@ public class GeneIndexer extends AbstractIndexer {
         System.out.println("time was " + (endTime - startTime) / 1000);
 
         logger.info("Gene Indexer complete!");
-        System.exit(0);
     }
 
 	// PROTECTED METHODS
