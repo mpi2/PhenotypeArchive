@@ -27,6 +27,7 @@ import java.util.List;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.www.testing.model.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -125,6 +126,9 @@ public class IndexerManager {
         , DISEASE_CORE
         , AUTOSUGGEST_CORE
     };
+    
+    public static final int RETRY_COUNT = 5;                                    // If any core fails, retry building it up to this many times.
+    public static final int RETRY_SLEEP_IN_MS = 60000;                             // If any core fails, sleep this long before reattempting to build the core.
     
     @Autowired
     ObservationIndexer observationIndexer;
@@ -251,14 +255,30 @@ public class IndexerManager {
         logger.info("\t" + StringUtils.join(cores));
         
         for (IndexerItem indexerItem : indexerItems) {
-            try {
-                indexerItem.indexer.initialise(indexerArgs);
-                indexerItem.indexer.run();
-                indexerItem.indexer.validateBuild();
-            } catch (IndexerException ie) {
-                throw ie;
-            } catch (Exception e) {
-                throw new IndexerException(new ValidationException(e));
+            indexerItem.indexer.initialise(indexerArgs);
+            // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
+            for (int i = 0; i <= RETRY_COUNT; i++) {
+                try {
+                    indexerItem.indexer.run();
+                    indexerItem.indexer.validateBuild();
+                    break;
+                } catch (IndexerException ie) {
+                    if (i < RETRY_COUNT) {
+                        logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
+                        logErrors(ie);
+                        TestUtils.sleep(RETRY_SLEEP_IN_MS);
+                    } else {
+                        throw ie;
+                    }
+                } catch (Exception e) {
+                    if (i < RETRY_COUNT) {
+                        logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
+                        logErrors(new IndexerException(e));
+                        TestUtils.sleep(RETRY_SLEEP_IN_MS);
+                    } else {
+                        throw new IndexerException(e);
+                    }
+                }
             }
         }
     }
@@ -461,15 +481,17 @@ public class IndexerManager {
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
             throw new IndexerException(uoe);
         }
-System.out.println("IndexerManager: indexerArgs = " + StringUtils.join(args));
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
         logger.info("indexer config file: '" + indexerArgs[0] + "'");
         
         return options;
     }
     
-    public static void main(String[] args) {
-        mainReturnsStatus(args);
+    public static void main(String[] args) throws IndexerException {
+        int retVal = mainReturnsStatus(args);
+        if (retVal != STATUS_OK) {
+            throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
+        }
     }
     
     
@@ -481,23 +503,7 @@ System.out.println("IndexerManager: indexerArgs = " + StringUtils.join(args));
             manager.run();
             logger.info("IndexerManager process finished successfully.  Exiting.");
         } catch (IndexerException ie) {
-            // Print out the exceptions.
-            if (ie.getLocalizedMessage() != null) {
-                logger.error(ie.getLocalizedMessage());
-            }
-            int i = 0;
-            Throwable t = ie.getCause();
-            while (t != null) {
-                StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
-                if (t.getLocalizedMessage() != null) {
-                    errMsg.append(t.getLocalizedMessage());
-                } else {
-                    errMsg.append("<null>");
-                }
-                logger.error(errMsg.toString());
-                i++;
-                t = t.getCause();
-            }
+            logErrors(ie);
             if (ie.getCause() instanceof MissingRequiredContextException) {
                 return STATUS_NO_CONTEXT;
             } else if (ie.getCause() instanceof NoDepsException) {
@@ -512,5 +518,25 @@ System.out.println("IndexerManager: indexerArgs = " + StringUtils.join(args));
         }
         
         return STATUS_OK;
+    }
+    
+    private static void logErrors(IndexerException ie) {
+        // Print out the exceptions.
+        if (ie.getLocalizedMessage() != null) {
+            logger.error(ie.getLocalizedMessage());
+        }
+        int i = 0;
+        Throwable t = ie.getCause();
+        while (t != null) {
+            StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
+            if (t.getLocalizedMessage() != null) {
+                errMsg.append(t.getLocalizedMessage());
+            } else {
+                errMsg.append("<null>");
+            }
+            logger.error(errMsg.toString());
+            i++;
+            t = t.getCause();
+        }
     }
 }

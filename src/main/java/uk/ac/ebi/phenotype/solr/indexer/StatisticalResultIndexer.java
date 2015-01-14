@@ -147,6 +147,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     + "  metadata_group, statistical_method, status, "
                     + "  batch_significance, "
                     + "  variance_significance, null_test_significance, genotype_parameter_estimate, "
+                    + "  genotype_percentage_change, "
                     + "  genotype_stderr_estimate, genotype_effect_pvalue, gender_parameter_estimate, "
                     + "  gender_stderr_estimate, gender_effect_pvalue, weight_parameter_estimate, "
                     + "  weight_stderr_estimate, weight_effect_pvalue, gp1_genotype, "
@@ -243,6 +244,20 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setInteractionSignificant(r.getBoolean("interaction_significance"));
 
         doc.setGenotypeEffectParameterEstimate(r.getDouble("genotype_parameter_estimate"));
+        
+        String percentageChange = r.getString("genotype_percentage_change");
+        if ( ! r.wasNull()) {
+            Double femalePercentageChange = getFemalePercentageChange(percentageChange);
+            if (femalePercentageChange != null) {
+                doc.setFemalePercentageChange(femalePercentageChange.toString() + "%");
+            }
+            
+            Double malePercentageChange = getMalePercentageChange(percentageChange);
+            if (malePercentageChange != null) {
+                doc.setMalePercentageChange(malePercentageChange.toString() + "%");
+            }
+        }
+        
         doc.setGenotypeEffectStderrEstimate(r.getDouble("genotype_stderr_estimate"));
         doc.setGenotypeEffectPValue(r.getDouble("genotype_effect_pvalue"));
 
@@ -272,6 +287,44 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setAdditionalInformation(r.getString("additional_information"));
         return doc;
 
+    }
+        
+    private Double getFemalePercentageChange(String token) {
+        Double retVal = null;
+        
+        List<String> sexes = Arrays.asList(token.split(","));
+        for (String sex : sexes) {
+            if (sex.contains("Female")) {
+                try {
+                    String[] pieces = sex.split(":");
+                    retVal = Double.parseDouble(pieces[1].replaceAll("%", ""));
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                    // null statement;
+                }
+                break;
+            }
+        }
+        
+        return retVal;
+    }
+        
+    private Double getMalePercentageChange(String token) {
+        Double retVal = null;
+        
+        List<String> sexes = Arrays.asList(token.split(","));
+        for (String sex : sexes) {
+            if (sex.contains("Male")) {
+                try {
+                    String[] pieces = sex.split(":");
+                    retVal = Double.parseDouble(pieces[1].replaceAll("%", ""));
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                    // null statement;
+                }
+                break;
+            }
+        }
+        
+        return retVal;
     }
 
     private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {

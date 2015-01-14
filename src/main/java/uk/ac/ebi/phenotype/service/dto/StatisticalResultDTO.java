@@ -95,7 +95,10 @@ public class StatisticalResultDTO {
     public final static String GENOTYPE_EFFECT_P_VALUE = "genotype_effect_p_value";
     public final static String GENOTYPE_EFFECT_STDERR_ESTIMATE = "genotype_effect_stderr_estimate";
     public final static String GENOTYPE_EFFECT_PARAMETER_ESTIMATE = "genotype_effect_parameter_estimate";
-
+    
+    public final static String FEMALE_PERCENTAGE_CHANGE = "female_percentage_change";
+    public final static String MALE_PERCENTAGE_CHANGE = "male_percentage_change";
+    
     public final static String SEX_EFFECT_P_VALUE = "sex_effect_p_value";
     public final static String SEX_EFFECT_STDERR_ESTIMATE = "sex_effect_stderr_estimate";
     public final static String SEX_EFFECT_PARAMETER_ESTIMATE = "sex_effect_parameter_estimate";
@@ -347,6 +350,12 @@ public class StatisticalResultDTO {
     @Field(GENOTYPE_EFFECT_PARAMETER_ESTIMATE)
     private Double genotypeEffectParameterEstimate;
 
+    @Field(FEMALE_PERCENTAGE_CHANGE)
+    private String femalePercentageChange;
+
+    @Field(MALE_PERCENTAGE_CHANGE)
+    private String malePercentageChange;
+    
     @Field(SEX_EFFECT_P_VALUE)
     private Double sexEffectPValue;
 
@@ -1291,6 +1300,22 @@ public class StatisticalResultDTO {
         this.genotypeEffectParameterEstimate = genotypeEffectParameterEstimate;
     }
 
+    public String getFemalePercentageChange() {
+        return femalePercentageChange;
+    }
+
+    public void setFemalePercentageChange(String femalePercentageChange) {
+        this.femalePercentageChange = femalePercentageChange;
+    }
+
+    public String getMalePercentageChange() {
+        return malePercentageChange;
+    }
+
+    public void setMalePercentageChange(String malePercentageChange) {
+        this.malePercentageChange = malePercentageChange;
+    }
+
 
     public Double getSexEffectPValue() {
 
@@ -1646,6 +1671,10 @@ public class StatisticalResultDTO {
             return false;
         if (femaleKoParameterEstimate != null ? !femaleKoParameterEstimate.equals(that.femaleKoParameterEstimate) : that.femaleKoParameterEstimate != null)
             return false;
+        if (femalePercentageChange != null ? !femalePercentageChange.equals(that.femalePercentageChange) : that.femalePercentageChange != null)
+            return false;
+        if (malePercentageChange != null ? !malePercentageChange.equals(that.malePercentageChange) : that.malePercentageChange != null)
+            return false;
         if (femaleMpTermId != null ? !femaleMpTermId.equals(that.femaleMpTermId) : that.femaleMpTermId != null)
             return false;
         if (femaleMpTermName != null ? !femaleMpTermName.equals(that.femaleMpTermName) : that.femaleMpTermName != null)
@@ -1858,6 +1887,8 @@ public class StatisticalResultDTO {
         result = 31 * result + (genotypeEffectPValue != null ? genotypeEffectPValue.hashCode() : 0);
         result = 31 * result + (genotypeEffectStderrEstimate != null ? genotypeEffectStderrEstimate.hashCode() : 0);
         result = 31 * result + (genotypeEffectParameterEstimate != null ? genotypeEffectParameterEstimate.hashCode() : 0);
+        result = 31 * result + (femalePercentageChange != null ? femalePercentageChange.hashCode() : 0);
+        result = 31 * result + (malePercentageChange != null ? malePercentageChange.hashCode() : 0);
         result = 31 * result + (sexEffectPValue != null ? sexEffectPValue.hashCode() : 0);
         result = 31 * result + (sexEffectStderrEstimate != null ? sexEffectStderrEstimate.hashCode() : 0);
         result = 31 * result + (sexEffectParameterEstimate != null ? sexEffectParameterEstimate.hashCode() : 0);
