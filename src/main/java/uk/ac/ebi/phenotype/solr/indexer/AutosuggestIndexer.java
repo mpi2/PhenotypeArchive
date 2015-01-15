@@ -20,6 +20,7 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.AutosuggestBean;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import uk.ac.ebi.phenotype.service.dto.DiseaseDTO;
 import uk.ac.ebi.phenotype.service.dto.HpDTO;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
@@ -56,6 +57,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private SolrServer phenodigmCore;
 
     public static final long MIN_EXPECTED_ROWS = 180000;
+    public static final int PHENODIGM_CORE_MAX_RESULTS = 10000;
 
     @Override
     public void validateBuild() throws IndexerException {
@@ -131,10 +133,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(geneFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        Set<GeneDTO> genes = new HashSet(geneCore.query(query).getBeans(GeneDTO.class));
+        List<GeneDTO> genes = geneCore.query(query).getBeans(GeneDTO.class);
         for (GeneDTO gene : genes) {
 
-            List<AutosuggestBean> beans = new ArrayList<>();
+            Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : geneFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
@@ -193,10 +195,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(mpFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        Set<MpDTO> mps = new HashSet(mpCore.query(query).getBeans(MpDTO.class));
+        List<MpDTO> mps = mpCore.query(query).getBeans(MpDTO.class);
         for (MpDTO mp : mps) {
 
-            List<AutosuggestBean> beans = new ArrayList<>();
+            Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : mpFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
@@ -327,10 +329,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(diseaseFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        Set<DiseaseDTO> diseases = new HashSet(diseaseCore.query(query).getBeans(DiseaseDTO.class));
+        List<DiseaseDTO> diseases = diseaseCore.query(query).getBeans(DiseaseDTO.class);
         for (DiseaseDTO disease : diseases) {
 
-            List<AutosuggestBean> beans = new ArrayList<>();
+            Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : diseaseFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
@@ -374,10 +376,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(maFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        Set<MaDTO> mas = new HashSet(maCore.query(query).getBeans(MaDTO.class));
+        List<MaDTO> mas = maCore.query(query).getBeans(MaDTO.class);
         for (MaDTO ma : mas) {
 
-            List<AutosuggestBean> beans = new ArrayList<>();
+            Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : maFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
@@ -478,12 +480,13 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setQuery("*:*")
             .setFields(StringUtils.join(hpFields, ","))
             .addFilterQuery("type:hp_mp")
-            .setRows(Integer.MAX_VALUE);
+            .setRows(PHENODIGM_CORE_MAX_RESULTS);
 
-        Set<HpDTO> hps = new HashSet(phenodigmCore.query(query).getBeans(HpDTO.class));
+        QueryResponse r = phenodigmCore.query(query);
+        List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
         for (HpDTO hp : hps) {
 
-            List<AutosuggestBean> beans = new ArrayList<>();
+            Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : hpFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
