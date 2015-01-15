@@ -96,10 +96,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
         }
     }
 
-    
     @Override
     public void run() throws IndexerException {
         try {
+            initializeSolrCores();
 
             autosuggestCore.deleteByQuery("*:*");
 
@@ -154,19 +154,23 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         beans.add(a);
                         break;
                     case GeneDTO.MARKER_SYNONYM:
-                        for (String s : gene.getMarkerSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setMarkerSynonym(s);
-                            asyn.setDocType("gene");
-                            beans.add(asyn);
+                        if (gene.getMarkerSynonym() != null) {
+                            for (String s : gene.getMarkerSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setMarkerSynonym(s);
+                                asyn.setDocType("gene");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case GeneDTO.HUMAN_GENE_SYMBOL:
-                        for (String s : gene.getHumanGeneSymbol()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setHumanGeneSymbol(s);
-                            asyn.setDocType("gene");
-                            beans.add(asyn);
+                        if (gene.getHumanGeneSymbol() != null) {
+                            for (String s : gene.getHumanGeneSymbol()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setHumanGeneSymbol(s);
+                                asyn.setDocType("gene");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                 }
@@ -208,83 +212,103 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         beans.add(a);
                         break;
                     case MpDTO.MP_TERM_SYNONYM:
-                        for (String s : mp.getMpTermSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setMpTermSynonym(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getMpTermSynonym() != null) {
+                            for (String s : mp.getMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.TOP_LEVEL_MP_ID:
-                        for (String s : mp.getTopLevelMpId()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setTopLevelMpID(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getTopLevelMpId() != null) {
+                            for (String s : mp.getTopLevelMpId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setTopLevelMpID(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.TOP_LEVEL_MP_TERM:
-                        for (String s : mp.getTopLevelMpTerm()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setTopLevelMpTerm(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getTopLevelMpTerm() != null) {
+                            for (String s : mp.getTopLevelMpTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setTopLevelMpTerm(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.TOP_LEVEL_MP_TERM_SYNONYM:
-                        for (String s : mp.getTopLevelMpTermSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setTopLevelMpTermSynonym(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getTopLevelMpTermSynonym() != null) {
+                            for (String s : mp.getTopLevelMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setTopLevelMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.INTERMEDIATE_MP_ID:
-                        for (String s : mp.getIntermediateMpId()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setIntermediateMpID(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getIntermediateMpId() != null) {
+                            for (String s : mp.getIntermediateMpId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setIntermediateMpID(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.INTERMEDIATE_MP_TERM:
-                        for (String s : mp.getIntermediateMpTerm()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setIntermediateMpTerm(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getIntermediateMpTerm() != null) {
+                            for (String s : mp.getIntermediateMpTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setIntermediateMpTerm(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.INTERMEDIATE_MP_TERM_SYNONYM:
-                        for (String s : mp.getIntermediateMpTermSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setIntermediateMpTermSynonym(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getIntermediateMpTermSynonym() != null) {
+                            for (String s : mp.getIntermediateMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setIntermediateMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.CHILD_MP_ID:
-                        for (String s : mp.getChildMpId()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setChildMpID(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getChildMpId() != null) {
+                            for (String s : mp.getChildMpId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMpID(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.CHILD_MP_TERM:
-                        for (String s : mp.getChildMpTerm()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setChildMpTerm(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getChildMpTerm() != null) {
+                            for (String s : mp.getChildMpTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMpTerm(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MpDTO.CHILD_MP_TERM_SYNONYM:
-                        for (String s : mp.getChildMpTermSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setChildMpTermSynonym(s);
-                            asyn.setDocType("mp");
-                            beans.add(asyn);
+                        if (mp.getChildMpTermSynonym() != null) {
+                            for (String s : mp.getChildMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                 }
@@ -322,11 +346,13 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         beans.add(a);
                         break;
                     case DiseaseDTO.DISEASE_ALTS:
-                        for (String s : disease.getDiseaseAlts()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setDiseaseAlts(s);
-                            asyn.setDocType("disease");
-                            beans.add(asyn);
+                        if (disease.getDiseaseAlts() != null) {
+                            for (String s : disease.getDiseaseAlts()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setDiseaseAlts(s);
+                                asyn.setDocType("disease");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                 }
@@ -367,59 +393,73 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         beans.add(a);
                         break;
                     case MaDTO.MA_TERM_SYNONYM:
-                        for (String s : ma.getMaTermSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setMaTermSynonym(s);
-                            asyn.setDocType("ma");
-                            beans.add(asyn);
+                        if (ma.getMaTermSynonym() != null) {
+                            for (String s : ma.getMaTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setMaTermSynonym(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MaDTO.CHILD_MA_ID:
-                        for (String s : ma.getChildMaId()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setChildMaID(s);
-                            asyn.setDocType("ma");
-                            beans.add(asyn);
+                        if (ma.getChildMaId() != null) {
+                            for (String s : ma.getChildMaId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMaID(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MaDTO.CHILD_MA_TERM:
-                        for (String s : ma.getChildMaTerm()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setChildMaTerm(s);
-                            asyn.setDocType("ma");
-                            beans.add(asyn);
+                        if (ma.getChildMaTerm() != null) {
+                            for (String s : ma.getChildMaTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMaTerm(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MaDTO.CHILD_MA_TERM_SYNONYM:
-                        for (String s : ma.getChildMaTermSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setChildMaTermSynonym(s);
-                            asyn.setDocType("ma");
-                            beans.add(asyn);
+                        if (ma.getChildMaTermSynonym() != null) {
+                            for (String s : ma.getChildMaTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMaTermSynonym(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MaDTO.SELECTED_TOP_LEVEL_MA_ID:
-                        for (String s : ma.getSelectedTopLevelMaId()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setSelectedTopLevelMaID(s);
-                            asyn.setDocType("ma");
-                            beans.add(asyn);
+                        if (ma.getSelectedTopLevelMaId() != null) {
+                            for (String s : ma.getSelectedTopLevelMaId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setSelectedTopLevelMaID(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MaDTO.SELECTED_TOP_LEVEL_MA_TERM:
-                        for (String s : ma.getSelectedTopLevelMaTerm()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setSelectedTopLevelMaTerm(s);
-                            asyn.setDocType("ma");
-                            beans.add(asyn);
+                        if (ma.getSelectedTopLevelMaTerm() != null) {
+                            for (String s : ma.getSelectedTopLevelMaTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setSelectedTopLevelMaTerm(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                     case MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM:
-                        for (String s : ma.getSelectedTopLevelMaTermSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setSelectedTopLevelMaTermSynonym(s);
-                            asyn.setDocType("ma");
-                            beans.add(asyn);
+                        if (ma.getSelectedTopLevelMaTermSynonym() != null) {
+                            for (String s : ma.getSelectedTopLevelMaTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setSelectedTopLevelMaTermSynonym(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
                         }
                         break;
                 }
@@ -463,12 +503,14 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         beans.add(a);
                         break;
                     case HpDTO.HP_SYNONYM:
-                        for (String s : hp.getHpSynonym()) {
-                            AutosuggestBean asyn = new AutosuggestBean();
-                            asyn.setHpSynonym(s);
-                            asyn.setHpmpID(hp.getMpId());
-                            asyn.setHpmpTerm(hp.getMpTerm());
-                            beans.add(asyn);
+                        if (hp.getHpSynonym() != null) {
+                            for (String s : hp.getHpSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setHpSynonym(s);
+                                asyn.setHpmpID(hp.getMpId());
+                                asyn.setHpmpTerm(hp.getMpTerm());
+                                beans.add(asyn);
+                            }
                         }
                         break;
                 }
@@ -483,7 +525,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         AutosuggestIndexer main = new AutosuggestIndexer();
         main.initialise(args);
-        main.initializeSolrCores();
         main.run();
 
         logger.info("Process finished.  Exiting.");
