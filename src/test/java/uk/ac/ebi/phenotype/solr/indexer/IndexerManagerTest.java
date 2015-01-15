@@ -82,7 +82,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_NO_CONTEXT.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticNoArgs() {
         String testName = "testStaticNoArgs";
         System.out.println("-------------------" + testName + "-------------------");
@@ -104,7 +104,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredContextException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceNoArgs() {
         String testName = "testInstanceNoArgs";
         System.out.println("-------------------" + testName + "-------------------");
@@ -130,7 +130,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_NO_CONTEXT.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticEmptyContext() {
         String testName = "testStaticEmptyContext";
         System.out.println("-------------------" + testName + "-------------------");
@@ -153,7 +153,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_NO_CONTEXT.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyContext() {
         String testName = "testInstanceEmptyContext";
         System.out.println("-------------------" + testName + "-------------------");
@@ -179,7 +179,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_NO_DEPS.
       */
      @Test
-@Ignore
+//@Ignore
      public void testStaticNoCoresNodeps() {
         String testName = "testStaticNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -201,7 +201,7 @@ public class IndexerManagerTest {
       * Expected results: NoDepsException.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceNoCoresNodeps() {
         String testName = "testInstanceNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -228,7 +228,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_INVALID_CORE_NAME.
       */
      @Test
-@Ignore
+//@Ignore
      public void testStaticInvalidCoreName() {
         String testName = "testStaticInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
@@ -250,7 +250,7 @@ public class IndexerManagerTest {
       * Expected results: InvalidCoreNameException.
       */
     @Test
-@Ignore
+//@Ignore
     public void testInstanceInvalidCoreName() {
         String testName = "testInstanceInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
@@ -289,7 +289,7 @@ public class IndexerManagerTest {
       * Expected results: cores preqc to autosuggest ready to run.
       */
     @Test
-@Ignore
+//@Ignore
     public void testInstanceNoCores() {
         String testName = "testInstanceNoCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -313,7 +313,7 @@ public class IndexerManagerTest {
       * Expected results: cores preqc to autosuggest ready to run.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyCores() {
         String testName = "testInstanceEmptyCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -338,7 +338,7 @@ public class IndexerManagerTest {
       * Expected results: cores observation to autosuggest ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstCore() {
         String testName = "testInstanceFirstCore";
         System.out.println("-------------------" + testName + "-------------------");
@@ -363,7 +363,7 @@ public class IndexerManagerTest {
       * Expected results: the single observation core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstCoreNodeps() {
         String testName = "testInstanceFirstCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -389,7 +389,7 @@ public class IndexerManagerTest {
       * Expected results: All of the cores from preqc to autosuggest, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstDailyCore() {
         String testName = "testInstanceFirstDailyCore";
         System.out.println("-------------------" + testName + "-------------------");
@@ -426,7 +426,7 @@ public class IndexerManagerTest {
       * Expected results: the single preqc core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstDailyCoreNodeps() {
         String testName = "testInstanceFirstDailyCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -452,7 +452,7 @@ public class IndexerManagerTest {
       * Expected results: the single autosuggest core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceLastCore() {
         String testName = "testInstanceLastCore";
         System.out.println("-------------------" + testName + "-------------------");
@@ -478,7 +478,7 @@ public class IndexerManagerTest {
       * Expected results: the single autosuggest core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceLastCoreNodeps() {
         String testName = "testInstanceLastCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -503,7 +503,7 @@ public class IndexerManagerTest {
       * Expected results: the specified cores, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceMultipleCores() {
         String testName = "testInstanceMultipleCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -536,7 +536,7 @@ public class IndexerManagerTest {
       * Expected results: the specified cores, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceMultipleCoresNodeps() {
         String testName = "testInstanceMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -576,7 +576,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified core to be built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testStaticBuildSingleCoreNodeps() {
         String testName = "testStaticBuildSingleCoreNodeps";
@@ -599,7 +599,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified core to be built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testInstanceBuildSingleCoreNodeps() {
         String testName = "testInstanceBuildSingleCoreNodeps";
@@ -633,7 +633,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified cores to be built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testStaticBuildMultipleCoresNodeps() {
         String testName = "testStaticBuildMultipleCoresNodeps";
@@ -657,7 +657,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: All of the specified cores built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testInstanceBuildMultipleCoresNodeps() {
         String testName = "testInstanceBuildMultipleCoresNodeps";
@@ -687,18 +687,42 @@ public class IndexerManagerTest {
      }
      
      /**
-      * Build specified cores. NOTE: This test is not meant to be run with the
+      * Build daily cores. NOTE: This test is not meant to be run with the
       * test suite, as it takes a long time to complete. It is here to permit
       * building core(s) quickly and easily.
       * 
       * Expected results: The specified cores to be built.
       */
-//@Ignore
+@Ignore
+     @Test
+     public void testStaticBuildDailyCores() {
+        String testName = "testStaticBuildDailyCores";
+        System.out.println("-------------------" + testName + "-------------------");
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc" };
+        int retVal =  IndexerManager.mainReturnsStatus(args);
+         
+        switch (retVal) {
+            case IndexerManager.STATUS_OK:
+                break;
+
+            default:
+                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
+        }
+     }
+     
+     /**
+      * Build all cores. NOTE: This test is not meant to be run with the
+      * test suite, as it takes a long time to complete. It is here to permit
+      * building core(s) quickly and easily.
+      * 
+      * Expected results: The specified cores to be built.
+      */
+@Ignore
      @Test
      public void testStaticBuildCores() {
         String testName = "testStaticBuildCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
         int retVal =  IndexerManager.mainReturnsStatus(args);
          
         switch (retVal) {
