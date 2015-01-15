@@ -509,6 +509,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (hp.getHpSynonym() != null) {
                             for (String s : hp.getHpSynonym()) {
                                 AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setDocType("hp");
                                 asyn.setHpSynonym(s);
                                 asyn.setHpmpID(hp.getMpId());
                                 asyn.setHpmpTerm(hp.getMpTerm());
