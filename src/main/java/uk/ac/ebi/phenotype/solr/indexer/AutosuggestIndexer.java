@@ -56,7 +56,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     private SolrServer phenodigmCore;
 
-    public static final long MIN_EXPECTED_ROWS = 180000;
+    public static final long MIN_EXPECTED_ROWS = 340000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
 
     @Override
@@ -500,7 +500,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         beans.add(a);
                         break;
                     case HpDTO.HP_TERM:
-                        a.setHpID(hp.getHpTerm());
+                        a.setHpTerm(hp.getHpTerm());
                         a.setHpmpID(hp.getMpId());
                         a.setHpmpTerm(hp.getMpTerm());
                         beans.add(a);
