@@ -131,7 +131,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(geneFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        List<GeneDTO> genes = geneCore.query(query).getBeans(GeneDTO.class);
+        Set<GeneDTO> genes = new HashSet(geneCore.query(query).getBeans(GeneDTO.class));
         for (GeneDTO gene : genes) {
 
             List<AutosuggestBean> beans = new ArrayList<>();
@@ -193,7 +193,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(mpFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        List<MpDTO> mps = mpCore.query(query).getBeans(MpDTO.class);
+        Set<MpDTO> mps = new HashSet(mpCore.query(query).getBeans(MpDTO.class));
         for (MpDTO mp : mps) {
 
             List<AutosuggestBean> beans = new ArrayList<>();
@@ -327,7 +327,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(diseaseFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        List<DiseaseDTO> diseases = diseaseCore.query(query).getBeans(DiseaseDTO.class);
+        Set<DiseaseDTO> diseases = new HashSet(diseaseCore.query(query).getBeans(DiseaseDTO.class));
         for (DiseaseDTO disease : diseases) {
 
             List<AutosuggestBean> beans = new ArrayList<>();
@@ -374,7 +374,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(maFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        List<MaDTO> mas = maCore.query(query).getBeans(MaDTO.class);
+        Set<MaDTO> mas = new HashSet(maCore.query(query).getBeans(MaDTO.class));
         for (MaDTO ma : mas) {
 
             List<AutosuggestBean> beans = new ArrayList<>();
@@ -477,10 +477,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(hpFields, ","))
-            .setFilterQueries("type:hp_mp")
+            .addFilterQuery("type:hp_mp")
             .setRows(Integer.MAX_VALUE);
 
-        List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
+        Set<HpDTO> hps = new HashSet(phenodigmCore.query(query).getBeans(HpDTO.class));
         for (HpDTO hp : hps) {
 
             List<AutosuggestBean> beans = new ArrayList<>();
