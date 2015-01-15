@@ -24,6 +24,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 /**
@@ -134,5 +135,25 @@ public class Utils {
         }
         
         return retVal;
+    }
+    
+    /**
+     * Return the string representation of the specified <code>milliseconds</code>
+     * in hh:mm:ss format. NOTE: year, month, and day do not participate in the
+     * computation. If milliseconds is longer than 24 hours, incorrect results
+     * will be returned.
+     * 
+     * @param milliseconds
+     * @return 
+     */
+    public static String msToHms(Long milliseconds) {
+        String result = String.format("%02d:%02d:%02d", 
+            TimeUnit.MILLISECONDS.toHours(milliseconds),
+            TimeUnit.MILLISECONDS.toMinutes(milliseconds) - 
+            TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds)),
+            TimeUnit.MILLISECONDS.toSeconds(milliseconds) - 
+            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
+
+        return result;
     }
 }

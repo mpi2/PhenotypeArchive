@@ -21,8 +21,11 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Formatter;
 import java.util.List;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -40,6 +43,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import static uk.ac.ebi.phenotype.solr.indexer.AbstractIndexer.CONTEXT_ARG;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  * This class encapsulates the code and data necessary to represent an index
@@ -129,6 +133,8 @@ public class IndexerManager {
     
     public static final int RETRY_COUNT = 5;                                    // If any core fails, retry building it up to this many times.
     public static final int RETRY_SLEEP_IN_MS = 60000;                             // If any core fails, sleep this long before reattempting to build the core.
+
+    private enum RunStatus { OK, FAIL };
     
     @Autowired
     ObservationIndexer observationIndexer;
@@ -249,12 +255,14 @@ public class IndexerManager {
         transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
         transactionManager.getTransaction(transactionAttribute);
     }
-
+    
     public void run() throws IndexerException {
+        ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.info("Starting IndexerManager. nodeps = " + nodeps + ". Building the following cores (in order):");
         logger.info("\t" + StringUtils.join(cores));
         
         for (IndexerItem indexerItem : indexerItems) {
+            long start = new Date().getTime();
             indexerItem.indexer.initialise(indexerArgs);
             // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
             for (int i = 0; i <= RETRY_COUNT; i++) {
@@ -268,6 +276,7 @@ public class IndexerManager {
                         logErrors(ie);
                         TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
+                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw ie;
                     }
                 } catch (Exception e) {
@@ -276,13 +285,18 @@ public class IndexerManager {
                         logErrors(new IndexerException(e));
                         TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
+                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw new IndexerException(e);
                     }
                 }
             }
+            
+            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.OK, start, new Date().getTime()));
         }
+        
+        System.out.println(executionStatsList.toString());
     }
-    
+
     protected ApplicationContext loadApplicationContext(String context) {
         ApplicationContext appContext;
 
@@ -320,7 +334,7 @@ public class IndexerManager {
                 case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineIndexer));                       break;
                 case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneIndexer));                               break;
                 case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseIndexer));                         break;
-//                case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestIndexer));                 break;
+                case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestIndexer));                 break;
             }
         }
         
@@ -537,6 +551,76 @@ public class IndexerManager {
             logger.error(errMsg.toString());
             i++;
             t = t.getCause();
+        }
+    }
+    
+    /**
+     * Represents an execution status row. Used to display execution status in
+     * a readable format. Example:
+     *  "preqc started xxx. Finshed (OK) yyy. Elapsed time: hh:mm:ss".
+     */
+    private class ExecutionStatsRow {
+        private String coreName;
+        private RunStatus status;
+        private Long startTimeInMs;
+        private Long endTimeInMs;
+        
+        public ExecutionStatsRow() {
+            this("<undefined>", RunStatus.FAIL, 0, 0);
+        }
+        
+        public ExecutionStatsRow(String coreName, RunStatus status, long startTimeInMs, long endTimeInMs) {
+            this.coreName = coreName;
+            this.status = status;
+            this.startTimeInMs = startTimeInMs;
+            this.endTimeInMs = endTimeInMs;
+        }
+        
+        @Override
+        public String toString() {
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            StringBuilder sb = new StringBuilder();
+            Formatter formatter = new Formatter(sb);
+            long millis = endTimeInMs - startTimeInMs;
+            String elapsed = Utils.msToHms(millis);
+            formatter.format("%20s started %s. Finished (%s) %s. Elapsed time: %s",
+                             coreName, dateFormatter.format(startTimeInMs), status.name(),
+                             dateFormatter.format(endTimeInMs), elapsed);
+            
+            return sb.toString();
+        }
+    }
+    
+    private class ExecutionStatsList {
+        private final List<ExecutionStatsRow> rows = new ArrayList();
+        
+        public ExecutionStatsList() {
+            
+        }
+        
+        public ExecutionStatsList add(ExecutionStatsRow row) {
+            rows.add(row);
+            
+            return this;
+        }
+        
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if ((rows == null) || (rows.isEmpty())) {
+                sb.append("<empty>");
+            } else {
+                for (ExecutionStatsRow row : rows) {
+                    sb.append(row.toString());
+                    sb.append("\n");
+                }
+                sb.append("\n");
+                sb.append("Total build time: ");
+                String elapsed = Utils.msToHms(rows.get(rows.size() - 1).endTimeInMs - rows.get(0).startTimeInMs);
+                sb.append(elapsed);
+            }
+            
+            return sb.toString();
         }
     }
 }
