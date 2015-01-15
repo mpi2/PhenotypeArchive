@@ -75,20 +75,22 @@ public class IndexerManager {
     public static final String AUTOSUGGEST_CORE = "autosuggest";
     
     // main return values.
-    public static final int STATUS_OK                = 0;
-    public static final int STATUS_NO_CONTEXT        = 1;
-    public static final int STATUS_NO_DEPS           = 2;
-    public static final int STATUS_INVALID_CORE_NAME = 3;
-    public static final int STATUS_VALIDATION_ERROR  = 4;
+    public static final int STATUS_OK                  = 0;
+    public static final int STATUS_NO_DEPS             = 1;
+    public static final int STATUS_NO_ARGUMENT         = 2;
+    public static final int STATUS_UNRECOGNIZED_OPTION = 3;
+    public static final int STATUS_INVALID_CORE_NAME   = 4;
+    public static final int STATUS_VALIDATION_ERROR    = 5;
     
     public static String getStatusCodeName(int statusCode) {
         switch (statusCode) {
-            case STATUS_OK:                 return "STATUS_OK";
-            case STATUS_NO_CONTEXT:         return "STATUS_NO_CONTEXT";
-            case STATUS_NO_DEPS:            return "STATUS_NO_DEPS";
-            case STATUS_INVALID_CORE_NAME:  return "STATUS_INVALID_CORE_NAME";
-            case STATUS_VALIDATION_ERROR:   return "STATUS_VALIDATION_ERROR";
-            default:                        return "Unknown status code " + statusCode;
+            case STATUS_OK:                     return "STATUS_OK";
+            case STATUS_NO_DEPS:                return "STATUS_NO_DEPS";
+            case STATUS_NO_ARGUMENT:            return "STATUS_NO_ARGUMENT";
+            case STATUS_UNRECOGNIZED_OPTION:    return "STATUS_UNRECOGNIZED_OPTION";
+            case STATUS_INVALID_CORE_NAME:      return "STATUS_INVALID_CORE_NAME";
+            case STATUS_VALIDATION_ERROR:       return "STATUS_VALIDATION_ERROR";
+            default:                            return "Unknown status code " + statusCode;
         }
     }
     
@@ -391,7 +393,7 @@ public class IndexerManager {
         
         // cores [optional]
         parser.accepts(CORES_ARG)
-                .withOptionalArg()
+                .withRequiredArg()
                 .ofType(String.class)
                 .describedAs("A list of cores, in build order.");
         parser.accepts(NO_DEPS_ARG);
@@ -481,19 +483,22 @@ public class IndexerManager {
                 } 
             }
         } catch (IndexerException icne) {
-            if (icne.getCause() instanceof InvalidCoreNameException) {
-                System.out.println("Expected required context file parameter, such as 'index-app-config.xml'.");
-            }
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
             throw icne;
         } catch (Exception uoe) {
-            if ( (uoe.getLocalizedMessage().contains("Option context requires an argument")) 
-               || uoe.getLocalizedMessage().contains("Missing required option(s) context"))
-            {
-                System.out.println("Expected required context file parameter, such as 'index-app-config.xml'.");
+            Throwable t;
+            if (uoe.getLocalizedMessage().contains("is not a recognized option")) {
+                t = new UnrecognizedOptionException(uoe);
+            } else if (uoe.getLocalizedMessage().contains(" requires an argument")) {
+                t = new MissingRequiredArgumentException(uoe);
+            } else if (uoe.getLocalizedMessage().contains("Missing required option(s)")) {
+                t = new MissingRequiredArgumentException(uoe);
+            } else {
+                t = uoe;
             }
+                
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
-            throw new IndexerException(uoe);
+            throw new IndexerException(t);
         }
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
         logger.info("indexer config file: '" + indexerArgs[0] + "'");
@@ -518,10 +523,12 @@ public class IndexerManager {
             logger.info("IndexerManager process finished successfully.  Exiting.");
         } catch (IndexerException ie) {
             logErrors(ie);
-            if (ie.getCause() instanceof MissingRequiredContextException) {
-                return STATUS_NO_CONTEXT;
-            } else if (ie.getCause() instanceof NoDepsException) {
+            if (ie.getCause() instanceof NoDepsException) {
                 return STATUS_NO_DEPS;
+            } else if (ie.getCause() instanceof MissingRequiredArgumentException) {
+                return STATUS_NO_ARGUMENT;
+            } else if (ie.getCause() instanceof UnrecognizedOptionException) {
+                return STATUS_UNRECOGNIZED_OPTION;
             } else if (ie.getCause() instanceof InvalidCoreNameException) {
                 return STATUS_INVALID_CORE_NAME;
             } else if (ie.getCause() instanceof ValidationException) {

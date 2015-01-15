@@ -79,7 +79,7 @@ public class IndexerManagerTest {
      /**
       * Test invoking static main with no arguments.
       * 
-      * Expected results: STATUS_NO_CONTEXT.
+      * Expected results: STATUS_NO_ARGUMENT.
       */
      @Test
 //@Ignore
@@ -89,7 +89,7 @@ public class IndexerManagerTest {
         int retVal =  IndexerManager.mainReturnsStatus(new String[] { });
          
         switch (retVal) {
-            case IndexerManager.STATUS_NO_CONTEXT:
+            case IndexerManager.STATUS_NO_ARGUMENT:
                 break;
                 
             default:
@@ -101,7 +101,7 @@ public class IndexerManagerTest {
      /**
       * Test invoking IndexerManagerInstance with no arguments.
       * 
-      * Expected results: MissingRequiredContextException.
+      * Expected results: MissingRequiredArgumentException.
       */
      @Test
 //@Ignore
@@ -115,19 +115,19 @@ public class IndexerManagerTest {
         try {
             indexerManager.initialise(args);
         } catch (IndexerException ie) {
-            if (ie.getCause() instanceof MissingRequiredContextException) {
+            if (ie.getCause() instanceof MissingRequiredArgumentException) {
                 // Do nothing. This is what we expect.
                 return;
             }
         }
                 
-        fail("Expected MissingRequiredContextException");
+        fail("Expected MissingRequiredArgumentException");
     }
     
      /**
       * Test invoking static main with empty context.
       * 
-      * Expected results: STATUS_NO_CONTEXT.
+      * Expected results: STATUS_NO_ARGUMENT.
       */
      @Test
 //@Ignore
@@ -138,7 +138,7 @@ public class IndexerManagerTest {
         int retVal =  IndexerManager.mainReturnsStatus(args);
          
         switch (retVal) {
-            case IndexerManager.STATUS_NO_CONTEXT:
+            case IndexerManager.STATUS_NO_ARGUMENT:
                 break;
                 
             default:
@@ -150,7 +150,7 @@ public class IndexerManagerTest {
      /**
       * Test invoking IndexerManager instance with empty context.
       * 
-      * Expected results: STATUS_NO_CONTEXT.
+      * Expected results: MissingRequiredArgumentException.
       */
      @Test
 //@Ignore
@@ -164,13 +164,13 @@ public class IndexerManagerTest {
         try {
             indexerManager.initialise(args);
         } catch (IndexerException ie) {
-            if (ie.getCause() instanceof MissingRequiredContextException) {
+            if (ie.getCause() instanceof MissingRequiredArgumentException) {
                 // Do nothing. This is what we expect.
                 return;
             }
         }
                 
-        fail("Expected MissingRequiredContextException");
+        fail("Expected MissingRequiredArgumentException");
     }
     
      /**
@@ -310,7 +310,7 @@ public class IndexerManagerTest {
      /**
       * Test invoking IndexerManager instance with empty 'cores=' argument.
       * 
-      * Expected results: cores preqc to autosuggest ready to run.
+      * Expected results: MissingRequiredArgumentException.
       */
      @Test
 //@Ignore
@@ -324,11 +324,15 @@ public class IndexerManagerTest {
         try {
             indexerManager.initialise(args);
         } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
+            if (ie.getCause() instanceof MissingRequiredArgumentException) {
+                // Expected result. Do nothing.
+                return;
+            } else {
+                fail("Expected MissingRequiredArgumentException");
+            }
         }
         
-        String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        assertArrayEquals(IndexerManager.allDailyCoresArray, actualCores);
+        fail("Expected MissingRequiredArgumentException");
     }
      
      /**
@@ -342,7 +346,7 @@ public class IndexerManagerTest {
      public void testInstanceFirstCore() {
         String testName = "testInstanceFirstCore";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
         IndexerManager indexerManager = new IndexerManager();
         
         // Determine which cores to build.
@@ -367,7 +371,7 @@ public class IndexerManagerTest {
      public void testInstanceFirstCoreNodeps() {
         String testName = "testInstanceFirstCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=observation", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment", "--nodeps" };
         IndexerManager indexerManager = new IndexerManager();
         
         // Determine which cores to build.
@@ -581,7 +585,7 @@ public class IndexerManagerTest {
      public void testStaticBuildSingleCoreNodeps() {
         String testName = "testStaticBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
         int retVal =  IndexerManager.mainReturnsStatus(args);
          
         switch (retVal) {
@@ -604,7 +608,7 @@ public class IndexerManagerTest {
      public void testInstanceBuildSingleCoreNodeps() {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
         IndexerManager indexerManager = new IndexerManager();
         
         // Determine which cores to build.
@@ -638,7 +642,7 @@ public class IndexerManagerTest {
      public void testStaticBuildMultipleCoresNodeps() {
         String testName = "testStaticBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result,statistical-result", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
         int retVal =  IndexerManager.mainReturnsStatus(args);
          
         switch (retVal) {
@@ -662,7 +666,7 @@ public class IndexerManagerTest {
      public void testInstanceBuildMultipleCoresNodeps() {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=statistical-result,statistical-result", "--nodeps" };
+        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
         IndexerManager indexerManager = new IndexerManager();
         
         // Determine which cores to build.
@@ -693,22 +697,22 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified cores to be built.
       */
-@Ignore
-     @Test
-     public void testStaticBuildDailyCores() {
-        String testName = "testStaticBuildDailyCores";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc" };
-        int retVal =  IndexerManager.mainReturnsStatus(args);
-         
-        switch (retVal) {
-            case IndexerManager.STATUS_OK:
-                break;
-
-            default:
-                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
-        }
-     }
+//@Ignore
+//     @Test
+//     public void testStaticBuildDailyCores() {
+//        String testName = "testStaticBuildDailyCores";
+//        System.out.println("-------------------" + testName + "-------------------");
+//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc" };
+//        int retVal =  IndexerManager.mainReturnsStatus(args);
+//         
+//        switch (retVal) {
+//            case IndexerManager.STATUS_OK:
+//                break;
+//
+//            default:
+//                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
+//        }
+//     }
      
      /**
       * Build all cores. NOTE: This test is not meant to be run with the
@@ -717,20 +721,20 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified cores to be built.
       */
-@Ignore
-     @Test
-     public void testStaticBuildCores() {
-        String testName = "testStaticBuildCores";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
-        int retVal =  IndexerManager.mainReturnsStatus(args);
-         
-        switch (retVal) {
-            case IndexerManager.STATUS_OK:
-                break;
-
-            default:
-                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
-        }
-     }
+//@Ignore
+//     @Test
+//     public void testStaticBuildCores() {
+//        String testName = "testStaticBuildCores";
+//        System.out.println("-------------------" + testName + "-------------------");
+//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
+//        int retVal =  IndexerManager.mainReturnsStatus(args);
+//         
+//        switch (retVal) {
+//            case IndexerManager.STATUS_OK:
+//                break;
+//
+//            default:
+//                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
+//        }
+//     }
 }
