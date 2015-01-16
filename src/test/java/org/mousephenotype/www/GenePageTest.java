@@ -424,7 +424,8 @@ public class GenePageTest {
                                        "Pre-QC phenotype heatmap",
                                        "Phenotype Associated Images",
                                        "Expression",
-                                       "Potential Disease Models",
+                                       "Disease Models associated by gene orthology",
+                                       "Potential Disease Models predicted by phenotypic similarity",
                                        "Order Mouse and ES Cells",};
         List<String> expectedSectionTitles = Arrays.asList(sectionTitlesArray);
         List<String> actualSectionTitles = genePage.getSectionTitles();
