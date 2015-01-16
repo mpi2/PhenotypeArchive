@@ -98,7 +98,7 @@ public class DiseaseIndexer extends AbstractIndexer {
                                                            DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
                                                            DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS), ",");
 
-            logger.info("Querying externam PhenoDigm index");
+            logger.info("Querying external PhenoDigm index");
             SolrQuery query = new SolrQuery("*:*");
             query.addFilterQuery("type:disease");
             query.setFields(fields);

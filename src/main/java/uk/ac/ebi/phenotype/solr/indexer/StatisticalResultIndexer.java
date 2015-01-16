@@ -363,14 +363,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setResourceId(r.getInt("resource_id"));
         doc.setResourceName(r.getString("resource_name"));
         doc.setResourceFullname(r.getString("resource_fullname"));
+        doc.setProjectId(r.getInt("project_id"));
         doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
+        doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).id);
         doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
         doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
         doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).stableId);
+        doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).id);
         doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).stableKey);
         doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
         doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).stableId);
+        doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).id);
         doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).stableKey);
         doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
         doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
@@ -382,7 +386,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setDbId(r.getInt("db_id"));
         doc.setOrganisationId(r.getInt("organisation_id"));
         doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
-        doc.setProjectId(r.getInt("project_id"));
 
         // Biological details
         BiologicalDataBean b = biologicalDataMap.get(r.getInt("experimental_id"));
