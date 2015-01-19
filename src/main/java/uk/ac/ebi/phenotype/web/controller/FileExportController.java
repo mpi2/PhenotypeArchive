@@ -242,7 +242,7 @@ public class FileExportController {
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	System.out.println("------------\nEXPORT \n---------");
         log.debug("solr params: " + solrFilters);
-        log.info("solr params: " + solrFilters);
+       
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
 		for (String pair : pairs) {
@@ -296,7 +296,7 @@ public class FileExportController {
             }
             else if ( dogoterm ) {
             	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
-             	dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm, gridFields);
+            	dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm);
             }
             else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
@@ -1139,12 +1139,12 @@ public class FileExportController {
         return res;
     }
     
-    private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm, String gridFields) {
+    private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-        System.out.println(" GOT " + docs.size() + " docs");
+        //System.out.println(" GOT " + docs.size() + " docs");
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
-        String[] cols = gridFields.split(",");
+       
         
         List<String> rowData = new ArrayList();
         // column names	
@@ -1165,49 +1165,39 @@ public class FileExportController {
             String gId = doc.getString("mgi_accession_id");
             data.add(hostName + baseUrl + gId);
             
+
+            JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
+            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();;
+            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();;
+            JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();;
             
-            if ( cols.length == 2 ){
-            	
-        		data.add("no info");
-        		data.add("no info");
-        		data.add("no info");
-        		data.add("no info");
+            List<String> goTermIds = new ArrayList();
+            for ( int j=0; j< _goTermIds.size(); j++ ) {
+            	goTermIds.add(_goTermIds.get(j).toString());
             }
-        	else {
-	            JSONArray _goTermIds = doc.getJSONArray("go_term_id");
-	            JSONArray _goTermNames = doc.getJSONArray("go_term_name");
-	            JSONArray _goTermEvids = doc.getJSONArray("go_term_evid");
-	            JSONArray _goTermDomains = doc.getJSONArray("go_term_domain");
-	            
-	            List<String> goTermIds = new ArrayList();
-	            for ( int j=0; j< _goTermIds.size(); j++ ) {
-	            	goTermIds.add(_goTermIds.get(j).toString());
-	            }
-	            data.add(StringUtils.join(goTermIds, "|"));
-	            
-	            List<String> goTermNames = new ArrayList();
-	            for ( int j=0; j< _goTermNames.size(); j++ ) {
-	            	goTermNames.add(_goTermNames.get(j).toString());
-	            }
-	            data.add(StringUtils.join(goTermNames, "|"));
-	            
-	            List<String> goTermEvids = new ArrayList();
-	            for ( int j=0; j< _goTermEvids.size(); j++ ) {
-	            	goTermEvids.add(_goTermEvids.get(j).toString());
-	            }
-	            data.add(StringUtils.join(goTermEvids, "|"));
-	            
-	            List<String> goTermDomains = new ArrayList();
-	            for ( int j=0; j< _goTermDomains.size(); j++ ) {
-	            	goTermDomains.add(_goTermDomains.get(j).toString());
-	            }
-	            data.add(StringUtils.join(goTermDomains, "|"));
-        	}
+            data.add(goTermIds.size() > 0 ? StringUtils.join(goTermIds, "|") : "no info");
             
+            List<String> goTermNames = new ArrayList();
+            for ( int j=0; j< _goTermNames.size(); j++ ) {
+            	goTermNames.add(_goTermNames.get(j).toString());
+            }
+            data.add(goTermNames.size() > 0 ? StringUtils.join(goTermNames, "|") : "no info");
+            
+            List<String> goTermEvids = new ArrayList();
+            for ( int j=0; j< _goTermEvids.size(); j++ ) {
+            	goTermEvids.add(_goTermEvids.get(j).toString());
+            }
+            data.add(goTermEvids.size() > 0 ? StringUtils.join(goTermEvids, "|") : "no info");
+            
+            List<String> goTermDomains = new ArrayList();
+            for ( int j=0; j< _goTermDomains.size(); j++ ) {
+            	goTermDomains.add(_goTermDomains.get(j).toString());
+            }
+            data.add(goTermDomains.size() > 0 ? StringUtils.join(goTermDomains, "|") : "no info");
             
             rowData.add(StringUtils.join(data, "\t"));
         }
-        System.out.println("ROWDATA: "+ rowData);
+        
         return rowData;
     }
 
