@@ -128,10 +128,10 @@ public class SolrIndex {
 	 * @throws URISyntaxException
 	 */
 	public JSONObject getDataTableExportRows(String core,
-			String gridSolrParams, String gridFields, int start, int length)
+			String gridSolrParams, String gridFields, int start, int length, boolean showImgView)
 			throws IOException, URISyntaxException {
 
-		System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
+		//System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
 		
 		if (core.equals("gene")) {			
 			//gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
@@ -142,10 +142,12 @@ public class SolrIndex {
 		String newgridSolrParams = gridSolrParams 		
 				+ "&start=" + start + "&fl=" + gridFields;
 
+		//String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
+				//length, false);
 		String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
-				length, false);
-		
+				length, showImgView);
 		log.debug("Export data URL: " + url);
+		
 		return getResults(url);
 	}
 
@@ -222,6 +224,9 @@ public class SolrIndex {
 			url += gridSolrParams;
 			if (core.equals("images") && !showImgView) {				
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
+			}
+			else if (core.equals("impc_images") && !showImgView) {				
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
@@ -375,6 +380,7 @@ public class SolrIndex {
 	
 	public class AnnotNameValCount {
 		public String name;
+		public String id;
 		public String facet;
 		public String val;
 		public String link;
@@ -382,7 +388,7 @@ public class SolrIndex {
 	}
 	
 	public List<AnnotNameValCount> mergeImpcFacets(JSONObject json, String baseUrl) {
-		
+		System.out.println("JSON: "+ json);
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 	
 		List<AnnotNameValCount> annots = new ArrayList<>();
@@ -417,6 +423,7 @@ public class SolrIndex {
 					annotNameValCount.facet = "gene_symbol"; // query field name
 					String[] fields = annotNameValCount.val.split("_");
 					annotNameValCount.val = fields[0];
+					annotNameValCount.id = fields[1];
 					annotNameValCount.link = baseUrl + "/genes/" + fields[1];
 				}
 				annotNameValCount.imgCount = Integer.parseInt(arr.get(i+1).toString());

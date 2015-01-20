@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.pojo.*;
@@ -295,11 +296,11 @@ public class FileExportController {
                 }
             }
             else if ( dogoterm ) {
-            	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
+            	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
             	dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm);
             }
             else {
-                JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
+                JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
                 dataRows = composeDataTableExportRows(query, solrCoreName, json, rowStart, length, showImgView, solrFilters, request, legacyOnly);
             }
         }
@@ -659,155 +660,189 @@ public class FileExportController {
 
     private List<String> composeImpcImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
         //System.out.println("query: "+ query + " -- "+ solrParams);
-     	
-     	String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
-         
-         List<String> rowData = new ArrayList();
+    	
+    	// currently just use the solr field value
+     	//String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
+       
+     	List<String> rowData = new ArrayList();
+		
+     	String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/";
+     	String maBaseUrl   = request.getAttribute("baseUrl") + "/anatomy/";
+     	String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/";
+		
+		if (showImgView) {
+		
+			JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+			//rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
+			rowData.add("Procedure\tGene symbol\tGene symbol link\tImage link"); // column names	
+		 
+			for (int i = 0; i < docs.size(); i ++) {
+				List<String> data = new ArrayList();
+				JSONObject doc = docs.getJSONObject(i);
+		
+				//String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
+				String[] fields = {"procedure_name", "gene_symbol"};
+				for (String fld : fields) {
+					if (doc.has(fld)) {
+						List<String> lists = new ArrayList();
+		         
+						if ( fld.equals("gene_symbol") ){	
+			
+							data.add(doc.getString("gene_symbol"));
+							data.add(hostName + geneBaseUrl + doc.getString("gene_accession_id"));
+			     		
+						}
+						else if ( fld.equals("procedure_name") ){
+							data.add(doc.getString("procedure_name"));
+						}
+					} 
+					else {
+				     	/*if ( fld.equals("annotationTermId") ){
+				            data.add(NO_INFO_MSG);
+				            data.add(NO_INFO_MSG);
+				            data.add(NO_INFO_MSG);
+				     	}
+				     	else if ( fld.equals("symbol_gene") ){
+				     	*/
+						if ( fld.equals("gene_symbol") ){
+							data.add(NO_INFO_MSG);
+							data.add(NO_INFO_MSG);
+						}
+						else {
+							data.add(NO_INFO_MSG);
+						}
+					}
+				}
+		
+				data.add(doc.getString("jpeg_url"));
+				rowData.add(StringUtils.join(data, "\t"));
+			}
+        } 
+		else {
+			
+            // annotation view: images group by annotationTerm per row
+			
+			String baseUrl = config.get("baseUrl").replace("https:", "http:");
+			String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
+			
+            //rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
+            rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
+             
+            String fqStr = query;	
+			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
+			String defaultQStr = "q=observation_type:image_record";
+			String defaultFqStr = "fq=(biological_sample_group:experimental)";
+			
+			if ( !query.contains("fq=*:*") ){
+				fqStr = fqStr.replace("&fq=","");
+				defaultQStr = defaultQStr + " AND " + fqStr; 
+				defaultFqStr = defaultFqStr + " AND " + fqStr;
+			}
+			
+			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+			 
+            	//JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
+ 
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
+ 				
+            //int numFacets = sumFacets.size();
+			int numFacets = annots.size();
+            int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
+            int remainder = (numFacets / 2) % iDisplayLength;
+            int start = iDisplayStart * 2;  // 2 elements(name, count), hence multiply by 2
+            int end = iDisplayStart == quotient * iDisplayLength ? (iDisplayStart + remainder) * 2 : (iDisplayStart + iDisplayLength) * 2;
+ 
+            for (int i = start; i < end; i = i + 2) {
+            	List<String> data = new ArrayList();
+			
+				AnnotNameValCount annot = annots.get(i);
+				
+				String displayAnnotName = annot.name;
+				data.add(displayAnnotName);
+				
+				String annotVal = annot.val;
+				data.add(annotVal);
+				
+				if ( !annot.id.isEmpty() ){
+					data.add(annot.id);
+					data.add(annot.link);
+				}
+				else {
+					data.add(NO_INFO_MSG);
+					data.add(NO_INFO_MSG);
+				}
+				
+				int imgCount = annot.imgCount;
+				StringBuilder sb = new StringBuilder();
+				sb.append("");
+				sb.append(imgCount);
+				data.add(sb.toString());
 
-         String mpBaseUrl   = request.getAttribute("baseUrl") + "/phenotypes/";
-         String maBaseUrl   = request.getAttribute("baseUrl") + "/anatomy/";
-         String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/";
-        
-         if (showImgView) {
+				String link = annot.link != null ? annot.link : "";
+				String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
+				
+				query = annot.facet + ":\"" + annotVal + "\"";
+				
+				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
+				String thisImgUrl = "http:" + mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+				//String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + thisImgUrl + "</a>";
+				String imgSubSetLink = thisImgUrl;
+				
+				data.add(imgSubSetLink);
+				
+				// image path
+				//String imgPath = fetchImpcImagePathByAnnotName(query, defaultFqStr);
+				//rowData1.add(imgPath);
+				rowData.add(StringUtils.join(data, "\t"));
+			}	
+            //---
+//            JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+//
+//            JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
+//
+//            int numFacets = sumFacets.size();
+//            int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
+//            int remainder = (numFacets / 2) % iDisplayLength;
+//            int start = iDisplayStart * 2;  // 2 elements(name, count), hence multiply by 2
+//            int end = iDisplayStart == quotient * iDisplayLength ? (iDisplayStart + remainder) * 2 : (iDisplayStart + iDisplayLength) * 2;
+//
+//            for (int i = start; i < end; i = i + 2) {
+//            	List<String> data = new ArrayList();
+// 				// array element is an alternate of facetField and facetCount
+//                 
+//                String[] names = sumFacets.get(i).toString().split("_");
+//                if (names.length == 2) {  // only want facet value of xxx_yyy
+//                	String annotName = names[0];
+//                
+//                	Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp					
+//                	List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
+//                	
+//                	data.add(hm.get("label"));
+//                	data.add(annotName);
+//                	data.add(hm.get("id"));
+//                	//System.out.println("annotname: "+ annotName);
+//                	if ( hm.get("fullLink") != null ) {
+//                		data.add(hm.get("fullLink").toString());
+//                	}
+//                	else {
+//                		data.add(NO_INFO_MSG);
+//                	}
+//                 
+//                	String imgCount = sumFacets.get(i + 1).toString();
+//                	data.add(imgCount);
+//
+//                	String facetField = hm.get("field");
+//           
+//                	solrParams = solrParams.replaceAll("&q=.+&", "&q="+ query + " AND " + facetField + ":\"" + names[0] + "\"&");
+//                	String imgSubSetLink = hostName + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
+//                 
+//                	data.add(imgSubSetLink);
+//                	rowData.add(StringUtils.join(data, "\t"));
+//                 }
+//             }
+        }
 
-             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-             rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
-
-             for (int i = 0; i < docs.size(); i ++) {
-                 List<String> data = new ArrayList();
-                 JSONObject doc = docs.getJSONObject(i);
-
-                 //String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
-                 String[] fields = {"annotationTermId", "expName", "symbol_gene"};
-                 for (String fld : fields) {
-                     if (doc.has(fld)) {
-                         List<String> lists = new ArrayList();
-                         
-                     	if ( fld.equals("annotationTermId") ){
-                     		
-                     		// annotaton term with prefix
-                     		List<String> termLists = new ArrayList();
-                     		JSONArray termList = doc.getJSONArray("annotationTermName");
-                             
-                             // annotation id links
-                             List<String> link_lists = new ArrayList();
-                             
-                             JSONArray list = doc.getJSONArray(fld); // annotationTermId
- 	                    	for (int l = 0; l < list.size(); l++) {
- 	                    		String value = list.getString(l);
- 	                    		String termVal = termList.getString(l);
- 	                    		
- 	                    		if ( value.startsWith("MP:") ){
- 	                    			link_lists.add(hostName + mpBaseUrl + value);
- 	                    			termLists.add("MP:"+termVal);
- 	                    		}
- 	                    		else {
- 	                    			link_lists.add(hostName + maBaseUrl + value);
- 	                    			termLists.add("MA:"+termVal);
- 	                    		}
- 	                    		
- 	                         	lists.add(value);
- 	                        }
- 	                    	
- 	                    	data.add(StringUtils.join(termLists, "|"));
- 	                        data.add(StringUtils.join(lists, "|"));
- 	                        data.add(StringUtils.join(link_lists, "|"));
-                     	}
-                     	else if ( fld.equals("symbol_gene") ){
-                     		// gene symbol and its link
-                             List<String> link_lists = new ArrayList();
-                             
-                             JSONArray list = doc.getJSONArray(fld);
- 	                    	for (int l = 0; l < list.size(); l++) {
- 	                    		String[] parts = list.getString(l).split("_");
- 	                    		String symbol = parts[0];
- 	                    		String mgiId  = parts[1];
- 	                         	lists.add(symbol);
- 	                         	link_lists.add(hostName + geneBaseUrl + mgiId);
- 	                        }
- 	                        data.add(StringUtils.join(lists, "|"));
- 	                        data.add(StringUtils.join(link_lists, "|"));
-                     		
-                     	}
-                     	else {
-                     		JSONArray list = doc.getJSONArray(fld);
- 	                    	for (int l = 0; l < list.size(); l++) {
- 	                    		String value = list.getString(l);
- 	                         	lists.add(value);
- 	                        }
- 	                        data.add(StringUtils.join(lists, "|"));
-                     	}
-                     } 
-                     else {
-                     	if ( fld.equals("annotationTermId") ){
- 	                        data.add(NO_INFO_MSG);
- 	                        data.add(NO_INFO_MSG);
- 	                        data.add(NO_INFO_MSG);
-                     	}
-                     	else if ( fld.equals("symbol_gene") ){
-                     		data.add(NO_INFO_MSG);
-  	                        data.add(NO_INFO_MSG);
-                     	}
-                     	else {
-                     		data.add(NO_INFO_MSG);
-                     	}
-                     }
-                 }
-
-                 data.add(mediaBaseUrl + "/" + doc.getString("largeThumbnailFilePath"));
-                 rowData.add(StringUtils.join(data, "\t"));
-             }
-         } else {
-             //System.out.println("MODE: annotview " + showImgView);
- 			// annotation view
-             // annotation view: images group by annotationTerm per row
-             rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
-             JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-
-             JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
-
-             int numFacets = sumFacets.size();
-             int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
-             int remainder = (numFacets / 2) % iDisplayLength;
-             int start = iDisplayStart * 2;  // 2 elements(name, count), hence multiply by 2
-             int end = iDisplayStart == quotient * iDisplayLength ? (iDisplayStart + remainder) * 2 : (iDisplayStart + iDisplayLength) * 2;
-
-             for (int i = start; i < end; i = i + 2) {
-                 List<String> data = new ArrayList();
- 				// array element is an alternate of facetField and facetCount
-                 
-                 String[] names = sumFacets.get(i).toString().split("_");
-                 if (names.length == 2) {  // only want facet value of xxx_yyy
-                     String annotName = names[0];
-                    
-                     Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp					
-
-                     data.add(hm.get("label"));
-                     data.add(annotName);
-                     data.add(hm.get("id"));
-                     //System.out.println("annotname: "+ annotName);
-                     if ( hm.get("fullLink") != null ) {
-                     	data.add(hm.get("fullLink").toString());
-                     }
-                     else {
-                     	data.add(NO_INFO_MSG);
-                     }
-                     
-                     String imgCount = sumFacets.get(i + 1).toString();
-                     data.add(imgCount);
-
-                     String facetField = hm.get("field");
-               
-                     solrParams = solrParams.replaceAll("&q=.+&", "&q="+ query + " AND " + facetField + ":\"" + names[0] + "\"&");
-                     String imgSubSetLink = hostName + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
-                     
-                     data.add(imgSubSetLink);
-                     rowData.add(StringUtils.join(data, "\t"));
-                 }
-             }
-         }
-
-         return rowData;
+        return rowData;
      }
     
     private List<String> composeMpDataTableRows(JSONObject json, HttpServletRequest request) {
