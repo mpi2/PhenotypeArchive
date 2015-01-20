@@ -1014,7 +1014,7 @@ public class DataTableController {
 				+ "&" + fqStr
 				+ "&rows=" + maxNum;
 	
-		System.out.println("QUERYURL: "+queryUrl );
+		//System.out.println("QUERYURL: "+queryUrl );
 		List<String> imgPath = new ArrayList<String>();
 	
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);

@@ -18,23 +18,23 @@ package uk.ac.ebi.phenotype.solr.indexer;
 /**
  * @author Matt Pearce
  */
-public class MissingRequiredContextException extends Exception {
+public class UnrecognizedOptionException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public MissingRequiredContextException() {
+	public UnrecognizedOptionException() {
 		super();
 	}
 
-	public MissingRequiredContextException(String message) {
+	public UnrecognizedOptionException(String message) {
 		super(message);
 	}
 
-	public MissingRequiredContextException(Throwable cause) {
+	public UnrecognizedOptionException(Throwable cause) {
 		super(cause);
 	}
 
-	public MissingRequiredContextException(String message, Throwable cause) {
+	public UnrecognizedOptionException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

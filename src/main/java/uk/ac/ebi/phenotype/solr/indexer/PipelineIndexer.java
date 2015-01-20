@@ -297,7 +297,7 @@ public class PipelineIndexer extends AbstractIndexer {
                 count ++;
 
                 if (count % 10 == 0) {
-                    System.out.println(" added " + count + " beans");
+                    logger.info(" added " + count + " beans");
                 }
                 // if(count>100)break;
             }
@@ -485,7 +485,7 @@ public class PipelineIndexer extends AbstractIndexer {
                 pipe.pipelineStableId = pipeStableId;
                 pipe.pipeProcSid = pipeProcSid;
                 if (procIdToPipelineMap.containsKey(procedureId)) {
-                    System.out.println("procedure id already in map----------------------------------------" + procedureId + " " + pipeStableId);
+                    logger.debug("procedure id already in map----------------------------------------" + procedureId + " " + pipeStableId);
                 }
                 procIdToPipelineMap.put(procedureId, pipe);
             }

@@ -1,131 +1,546 @@
+
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.AutosuggestBean;
 
+import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import uk.ac.ebi.phenotype.service.dto.DiseaseDTO;
+import uk.ac.ebi.phenotype.service.dto.HpDTO;
+import uk.ac.ebi.phenotype.service.dto.MaDTO;
+import uk.ac.ebi.phenotype.service.dto.MpDTO;
 
-public class AutosuggestIndexer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AutosuggestIndexer.class);
+public class AutosuggestIndexer extends AbstractIndexer {
 
-	public static void main(String[] args) throws IOException, SolrServerException {
+    private static final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
 
-		OptionParser parser = new OptionParser();
-		parser.accepts("solrUrl").withRequiredArg().ofType(String.class);
+    @Autowired
+    @Qualifier("autosuggestIndexing")
+    private SolrServer autosuggestCore;
 
-		OptionSet options = parser.parse(args);
-		String solrUrl = (String) options.valueOf("solrUrl");
+    @Autowired
+    @Qualifier("geneIndexing")
+    private SolrServer geneCore;
 
-		System.out.println(solrUrl);
+    @Autowired
+    @Qualifier("mpIndexing")
+    private SolrServer mpCore;
 
-		HttpSolrServer destServer = new HttpSolrServer(solrUrl + "/autosuggest");
+    @Autowired
+    @Qualifier("diseaseIndexing")
+    private SolrServer diseaseCore;
 
-		destServer.deleteByQuery("*:*");
+    @Autowired
+    @Qualifier("maIndexing")
+    private SolrServer maCore;
 
-		final HashMap<String, String[]> coreFields = new HashMap<String, String[]>();
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
 
-		String[] geneFields    = { "mgi_accession_id", "marker_symbol", "marker_name", "marker_synonym", "human_gene_symbol" };
-		String[] mpFields 	   = { "mp_id", "mp_term", "mp_term_synonym", "top_level_mp_id", "top_level_mp_term", "top_level_mp_term_synonym", "intermediate_mp_id", "intermediate_mp_term", "intermediate_mp_term_synonym", "child_mp_id", "child_mp_term", "child_mp_term_synonym" };
-		String[] diseaseFields = { "disease_id", "disease_term", "disease_alts" };
-		String[] maFields 	   = { "ma_id", "ma_term", "ma_term_synonym", "child_ma_id", "child_ma_term", "child_ma_term_synonym", "selected_top_level_ma_id", "selected_top_level_ma_term", "selected_top_level_ma_term_synonym"};
-		String[] hpFields      = { "mp_id", "mp_term", "hp_id", "hp_term", "hp_synonym" };
+    private SolrServer phenodigmCore;
 
-		coreFields.put("gene", geneFields);
-		coreFields.put("mp", mpFields);
-		coreFields.put("disease", diseaseFields);
-		coreFields.put("ma", maFields);
-		coreFields.put("hp", hpFields);
+    public static final long MIN_EXPECTED_ROWS = 340000;
+    public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
 
-		final HashMap<String, Integer> valSeen = new HashMap<String, Integer>();
+    @Override
+    public void validateBuild() throws IndexerException {
+        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
+        try {
+            Long numFound = autosuggestCore.query(query).getResults().getNumFound();
+            if (numFound < MIN_EXPECTED_ROWS) {
+                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
+            }
+            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
+        } catch (SolrServerException sse) {
+            throw new IndexerException(sse);
+        }
+    }
 
-		for (Map.Entry<String, String[]> entry : coreFields.entrySet()) {
-			String core = entry.getKey().toString();
-			HttpSolrServer srcServer = new HttpSolrServer(solrUrl + "/" + core);
-			if ( core.equals("hp") ){
-				// phenodigm hp_mp mapping
-				srcServer = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
-			}
+    private void initializeSolrCores() {
 
-			SolrQuery query = new SolrQuery();
-			query.setQuery("*:*");
-			query.setStart(0);
-			query.setRows(99999999);
-			if ( core.equals("hp") ){
-				query.setFilterQueries("type:hp_mp");
-			}
+        final String PHENODIGM_URL = config.get("phenodigm.solrserver");
 
-			// retrieves wanted fields
-			query.setFields(entry.getValue());
+        // Use system proxy if set for external solr servers
+        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
 
-			QueryResponse response = srcServer.query(query);
-			SolrDocumentList results = response.getResults();
+            String PROXY_HOST = System.getProperty("externalProxyHost");
+            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
 
-			valSeen.clear(); // clear when we start with a new core
+            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
+            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
-			List<SolrInputDocument> docs = new ArrayList<>();
+            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
-			for (int i = 0; i < results.size(); ++i) {
-				SolrDocument srcDoc = results.get(i);
+            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 
-				Map<String, Object> docMap = srcDoc.getFieldValueMap();
+        } else {
 
-				for (String fieldName : srcDoc.getFieldNames()) {
-					SolrInputDocument doc = new SolrInputDocument();
+            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
 
-					if ( core.equals("hp") && fieldName.startsWith("mp_") ){
-						continue; // don't want to index these as a doc
-					}
+        }
+    }
 
-					// remove duplicate fieldname - value pair
-					// ie, want only one entry for eg, child_mp_term:heart
-					if ( valSeen.get(docMap.get(fieldName)) == null ){
-						valSeen.put(docMap.get(fieldName).toString(), 1);
+    @Override
+    public void run() throws IndexerException {
+        try {
+            initializeSolrCores();
 
-						doc.addField("docType", core);
-						if ( !core.equals("hp") ){
-							doc.addField(fieldName, docMap.get(fieldName));
-						}
-						else {
-							doc.addField(fieldName, docMap.get(fieldName));
-							doc.addField("hpmp_id", docMap.get("mp_id"));
-							doc.addField("hpmp_term", docMap.get("mp_term"));
-						}
+            autosuggestCore.deleteByQuery("*:*");
 
-						docs.add(doc);
-					}
-				}
+            populateGeneAutosuggestTerms();
+            populateMpAutosuggestTerms();
+            populateDiseaseAutosuggestTerms();
+            populateMaAutosuggestTerms();
+            populateHpAutosuggestTerms();
 
-				if (i % 1000 == 0) {
-					LOG.info("Trying to add "+docs.size() + " documents to solr core");
-					destServer.add(docs);
-					destServer.commit(); // periodically flush
 
-					docs = new ArrayList<>();
-					LOG.info("== COMMITTED RESULTS "+i+" of "+results.size()+" ====================================================");
-				}
+            // Final commit
+            autosuggestCore.commit();
 
-			}
+            // FIXME
+//            logger.info("Added {} beans", results.size());
 
-			LOG.info("Trying to add "+docs.size() + " documents to solr core");
-			destServer.add(docs);
-			destServer.commit();
-			LOG.info("  done with " + core);
-			LOG.info("== COMMITTED FINAL RESULTS "+results.size()+" ====================================================");
-		}
-	}
+        } catch (SolrServerException | IOException e) {
+            throw new IndexerException(e);
+        }
+    }
+
+
+    private void populateGeneAutosuggestTerms() throws SolrServerException, IOException {
+
+        List<String> geneFields = Arrays.asList(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL);
+
+        SolrQuery query = new SolrQuery()
+            .setQuery("*:*")
+            .setFields(StringUtils.join(geneFields, ","))
+            .setRows(Integer.MAX_VALUE);
+
+        List<GeneDTO> genes = geneCore.query(query).getBeans(GeneDTO.class);
+        for (GeneDTO gene : genes) {
+
+            Set<AutosuggestBean> beans = new HashSet<>();
+            for (String field : geneFields) {
+
+                AutosuggestBean a = new AutosuggestBean();
+                a.setDocType("gene");
+
+                switch (field) {
+                    case GeneDTO.MGI_ACCESSION_ID:
+                        a.setMgiAccessionID(gene.getMgiAccessionId());
+                        beans.add(a);
+                        break;
+                    case GeneDTO.MARKER_SYMBOL:
+                        a.setMarkerSymbol(gene.getMgiAccessionId());
+                        beans.add(a);
+                        break;
+                    case GeneDTO.MARKER_NAME:
+                        a.setMarkerName(gene.getMgiAccessionId());
+                        beans.add(a);
+                        break;
+                    case GeneDTO.MARKER_SYNONYM:
+                        if (gene.getMarkerSynonym() != null) {
+                            for (String s : gene.getMarkerSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setMarkerSynonym(s);
+                                asyn.setDocType("gene");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case GeneDTO.HUMAN_GENE_SYMBOL:
+                        if (gene.getHumanGeneSymbol() != null) {
+                            for (String s : gene.getHumanGeneSymbol()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setHumanGeneSymbol(s);
+                                asyn.setDocType("gene");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            autosuggestCore.addBeans(beans, 60000);
+
+        }
+    }
+
+    private void populateMpAutosuggestTerms() throws SolrServerException, IOException {
+
+        List<String> mpFields = Arrays.asList(
+                MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
+                MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM,
+                MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
+        
+        SolrQuery query = new SolrQuery()
+            .setQuery("*:*")
+            .setFields(StringUtils.join(mpFields, ","))
+            .setRows(Integer.MAX_VALUE);
+
+        List<MpDTO> mps = mpCore.query(query).getBeans(MpDTO.class);
+        for (MpDTO mp : mps) {
+
+            Set<AutosuggestBean> beans = new HashSet<>();
+            for (String field : mpFields) {
+
+                AutosuggestBean a = new AutosuggestBean();
+                a.setDocType("mp");
+
+                switch (field) {
+                    case MpDTO.MP_ID:
+                        a.setMpID(mp.getMpId());
+                        beans.add(a);
+                        break;
+                    case MpDTO.MP_TERM:
+                        a.setMpTerm(mp.getMpTerm());
+                        beans.add(a);
+                        break;
+                    case MpDTO.MP_TERM_SYNONYM:
+                        if (mp.getMpTermSynonym() != null) {
+                            for (String s : mp.getMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.TOP_LEVEL_MP_ID:
+                        if (mp.getTopLevelMpId() != null) {
+                            for (String s : mp.getTopLevelMpId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setTopLevelMpID(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.TOP_LEVEL_MP_TERM:
+                        if (mp.getTopLevelMpTerm() != null) {
+                            for (String s : mp.getTopLevelMpTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setTopLevelMpTerm(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.TOP_LEVEL_MP_TERM_SYNONYM:
+                        if (mp.getTopLevelMpTermSynonym() != null) {
+                            for (String s : mp.getTopLevelMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setTopLevelMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.INTERMEDIATE_MP_ID:
+                        if (mp.getIntermediateMpId() != null) {
+                            for (String s : mp.getIntermediateMpId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setIntermediateMpID(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.INTERMEDIATE_MP_TERM:
+                        if (mp.getIntermediateMpTerm() != null) {
+                            for (String s : mp.getIntermediateMpTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setIntermediateMpTerm(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.INTERMEDIATE_MP_TERM_SYNONYM:
+                        if (mp.getIntermediateMpTermSynonym() != null) {
+                            for (String s : mp.getIntermediateMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setIntermediateMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.CHILD_MP_ID:
+                        if (mp.getChildMpId() != null) {
+                            for (String s : mp.getChildMpId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMpID(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.CHILD_MP_TERM:
+                        if (mp.getChildMpTerm() != null) {
+                            for (String s : mp.getChildMpTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMpTerm(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MpDTO.CHILD_MP_TERM_SYNONYM:
+                        if (mp.getChildMpTermSynonym() != null) {
+                            for (String s : mp.getChildMpTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMpTermSynonym(s);
+                                asyn.setDocType("mp");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            autosuggestCore.addBeans(beans, 60000);
+
+        }
+    }
+    
+    private void populateDiseaseAutosuggestTerms() throws SolrServerException, IOException {
+
+        List<String> diseaseFields = Arrays.asList(DiseaseDTO.DISEASE_ID, DiseaseDTO.DISEASE_TERM, DiseaseDTO.DISEASE_ALTS);
+        SolrQuery query = new SolrQuery()
+            .setQuery("*:*")
+            .setFields(StringUtils.join(diseaseFields, ","))
+            .setRows(Integer.MAX_VALUE);
+
+        List<DiseaseDTO> diseases = diseaseCore.query(query).getBeans(DiseaseDTO.class);
+        for (DiseaseDTO disease : diseases) {
+
+            Set<AutosuggestBean> beans = new HashSet<>();
+            for (String field : diseaseFields) {
+
+                AutosuggestBean a = new AutosuggestBean();
+                a.setDocType("disease");
+
+                switch (field) {
+                    case DiseaseDTO.DISEASE_ID:
+                        a.setDiseaseID(disease.getDiseaseId());
+                        beans.add(a);
+                        break;
+                    case DiseaseDTO.DISEASE_TERM:
+                        a.setMarkerSymbol(disease.getDiseaseTerm());
+                        beans.add(a);
+                        break;
+                    case DiseaseDTO.DISEASE_ALTS:
+                        if (disease.getDiseaseAlts() != null) {
+                            for (String s : disease.getDiseaseAlts()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setDiseaseAlts(s);
+                                asyn.setDocType("disease");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            autosuggestCore.addBeans(beans, 60000);
+
+        }
+    }
+    
+    private void populateMaAutosuggestTerms() throws SolrServerException, IOException {
+
+        List<String> maFields = Arrays.asList(
+                MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
+                MaDTO.CHILD_MA_TERM_SYNONYM, MaDTO.SELECTED_TOP_LEVEL_MA_ID,
+                MaDTO.SELECTED_TOP_LEVEL_MA_TERM, MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM);
+        SolrQuery query = new SolrQuery()
+            .setQuery("*:*")
+            .setFields(StringUtils.join(maFields, ","))
+            .setRows(Integer.MAX_VALUE);
+
+        List<MaDTO> mas = maCore.query(query).getBeans(MaDTO.class);
+        for (MaDTO ma : mas) {
+
+            Set<AutosuggestBean> beans = new HashSet<>();
+            for (String field : maFields) {
+
+                AutosuggestBean a = new AutosuggestBean();
+                a.setDocType("ma");
+
+                switch (field) {
+                    case MaDTO.MA_ID:
+                        a.setMgiAccessionID(ma.getMaId());
+                        beans.add(a);
+                        break;
+                    case MaDTO.MA_TERM:
+                        a.setMaTerm(ma.getMaTerm());
+                        beans.add(a);
+                        break;
+                    case MaDTO.MA_TERM_SYNONYM:
+                        if (ma.getMaTermSynonym() != null) {
+                            for (String s : ma.getMaTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setMaTermSynonym(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MaDTO.CHILD_MA_ID:
+                        if (ma.getChildMaId() != null) {
+                            for (String s : ma.getChildMaId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMaID(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MaDTO.CHILD_MA_TERM:
+                        if (ma.getChildMaTerm() != null) {
+                            for (String s : ma.getChildMaTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMaTerm(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MaDTO.CHILD_MA_TERM_SYNONYM:
+                        if (ma.getChildMaTermSynonym() != null) {
+                            for (String s : ma.getChildMaTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setChildMaTermSynonym(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MaDTO.SELECTED_TOP_LEVEL_MA_ID:
+                        if (ma.getSelectedTopLevelMaId() != null) {
+                            for (String s : ma.getSelectedTopLevelMaId()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setSelectedTopLevelMaID(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MaDTO.SELECTED_TOP_LEVEL_MA_TERM:
+                        if (ma.getSelectedTopLevelMaTerm() != null) {
+                            for (String s : ma.getSelectedTopLevelMaTerm()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setSelectedTopLevelMaTerm(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                    case MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM:
+                        if (ma.getSelectedTopLevelMaTermSynonym() != null) {
+                            for (String s : ma.getSelectedTopLevelMaTermSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setSelectedTopLevelMaTermSynonym(s);
+                                asyn.setDocType("ma");
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            autosuggestCore.addBeans(beans, 60000);
+
+        }
+    }
+    
+    private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
+
+        List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
+        
+        SolrQuery query = new SolrQuery()
+            .setQuery("*:*")
+            .setFields(StringUtils.join(hpFields, ","))
+            .addFilterQuery("type:hp_mp")
+            .setRows(PHENODIGM_CORE_MAX_RESULTS);
+
+        QueryResponse r = phenodigmCore.query(query);
+        List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
+        for (HpDTO hp : hps) {
+
+            Set<AutosuggestBean> beans = new HashSet<>();
+            for (String field : hpFields) {
+
+                AutosuggestBean a = new AutosuggestBean();
+                a.setDocType("hp");
+
+                switch (field) {
+                    case HpDTO.HP_ID:
+                        a.setHpID(hp.getHpId());
+                        a.setHpmpID(hp.getMpId());
+                        a.setHpmpTerm(hp.getMpTerm());
+                        beans.add(a);
+                        break;
+                    case HpDTO.HP_TERM:
+                        a.setHpTerm(hp.getHpTerm());
+                        a.setHpmpID(hp.getMpId());
+                        a.setHpmpTerm(hp.getMpTerm());
+                        beans.add(a);
+                        break;
+                    case HpDTO.HP_SYNONYM:
+                        if (hp.getHpSynonym() != null) {
+                            for (String s : hp.getHpSynonym()) {
+                                AutosuggestBean asyn = new AutosuggestBean();
+                                asyn.setDocType("hp");
+                                asyn.setHpSynonym(s);
+                                asyn.setHpmpID(hp.getMpId());
+                                asyn.setHpmpTerm(hp.getMpTerm());
+                                beans.add(asyn);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            autosuggestCore.addBeans(beans, 60000);
+
+        }
+    }
+
+    public static void main(String[] args) throws IndexerException {
+
+        AutosuggestIndexer main = new AutosuggestIndexer();
+        main.initialise(args);
+        main.run();
+
+        logger.info("Process finished.  Exiting.");
+
+    }
+
+
+    @Override
+    protected Logger getLogger() {
+
+        return logger;
+    }
+
 }
 

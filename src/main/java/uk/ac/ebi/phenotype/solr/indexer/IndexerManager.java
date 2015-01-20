@@ -21,9 +21,15 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Formatter;
 import java.util.List;
+import java.util.Map;
+import joptsimple.HelpFormatter;
+import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +46,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import static uk.ac.ebi.phenotype.solr.indexer.AbstractIndexer.CONTEXT_ARG;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  * This class encapsulates the code and data necessary to represent an index
@@ -71,28 +78,34 @@ public class IndexerManager {
     public static final String AUTOSUGGEST_CORE = "autosuggest";
     
     // main return values.
-    public static final int STATUS_OK                = 0;
-    public static final int STATUS_NO_CONTEXT        = 1;
-    public static final int STATUS_NO_DEPS           = 2;
-    public static final int STATUS_INVALID_CORE_NAME = 3;
-    public static final int STATUS_VALIDATION_ERROR  = 4;
+    public static final int STATUS_OK                  = 0;
+    public static final int STATUS_NO_DEPS             = 1;
+    public static final int STATUS_NO_ARGUMENT         = 2;
+    public static final int STATUS_UNRECOGNIZED_OPTION = 3;
+    public static final int STATUS_INVALID_CORE_NAME   = 4;
+    public static final int STATUS_VALIDATION_ERROR    = 5;
     
     public static String getStatusCodeName(int statusCode) {
         switch (statusCode) {
-            case STATUS_OK:                 return "STATUS_OK";
-            case STATUS_NO_CONTEXT:         return "STATUS_NO_CONTEXT";
-            case STATUS_NO_DEPS:            return "STATUS_NO_DEPS";
-            case STATUS_INVALID_CORE_NAME:  return "STATUS_INVALID_CORE_NAME";
-            case STATUS_VALIDATION_ERROR:   return "STATUS_VALIDATION_ERROR";
-            default:                        return "Unknown status code " + statusCode;
+            case STATUS_OK:                     return "STATUS_OK";
+            case STATUS_NO_DEPS:                return "STATUS_NO_DEPS";
+            case STATUS_NO_ARGUMENT:            return "STATUS_NO_ARGUMENT";
+            case STATUS_UNRECOGNIZED_OPTION:    return "STATUS_UNRECOGNIZED_OPTION";
+            case STATUS_INVALID_CORE_NAME:      return "STATUS_INVALID_CORE_NAME";
+            case STATUS_VALIDATION_ERROR:       return "STATUS_VALIDATION_ERROR";
+            default:                            return "Unknown status code " + statusCode;
         }
     }
+    
+    // These are the args that can be passed to the indexer manager.
+    private Boolean all;
+    private List<String> cores;
+    private Boolean daily;
+    private Boolean nodeps;
     
     // These are the args passed to the individual indexers. They should be all the same and should be the same context argument passed to the indexerManager.
     private String[] indexerArgs;
     
-    private Boolean nodeps;
-    private List<String> cores;
     public static final String[] allCoresArray = new String[] {      // In dependency order.
           // In dependency order. These are built only for a new data release.
           OBSERVATION_CORE
@@ -129,6 +142,8 @@ public class IndexerManager {
     
     public static final int RETRY_COUNT = 5;                                    // If any core fails, retry building it up to this many times.
     public static final int RETRY_SLEEP_IN_MS = 60000;                             // If any core fails, sleep this long before reattempting to build the core.
+
+    private enum RunStatus { OK, FAIL };
     
     @Autowired
     ObservationIndexer observationIndexer;
@@ -175,19 +190,10 @@ public class IndexerManager {
     
     public String[] args;
     
-    public static final String NO_DEPS_ARG = "nodeps";
+    public static final String ALL_ARG = "all";
     public static final String CORES_ARG = "cores";
-    public static final String HELP_ARG = "help";
-    
-//    public static class NotImplementedYet extends AbstractIndexer {
-//        @Override
-//        public void run() throws IndexerException {
-//            throw new IndexerException("Not implemented yet.");
-//        }    @Override
-//        protected Logger getLogger() {
-//            return LoggerFactory.getLogger(NotImplementedYet.class);
-//        }
-//    }
+    public static final String DAILY_ARG = "daily";
+    public static final String NO_DEPS_ARG = "nodeps";
     
     public class IndexerItem {
         public final String name;
@@ -205,16 +211,24 @@ public class IndexerManager {
     // GETTERS
 
     
+    public Boolean getAll() {
+        return all;
+    }
+
+    public List<String> getCores() {
+        return cores;
+    }
+
+    public Boolean getDaily() {
+        return daily;
+    }
+
     public static Logger getLogger() {
         return logger;
     }
 
     public Boolean getNodeps() {
         return nodeps;
-    }
-
-    public List<String> getCores() {
-        return cores;
     }
     
     
@@ -233,6 +247,7 @@ public class IndexerManager {
             throw new IndexerException("Failed to parse command-line options.");
         }
         
+        // Print the jvm memory configuration.
         final int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
         DecimalFormat formatter = new DecimalFormat("#,###");
@@ -249,12 +264,14 @@ public class IndexerManager {
         transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
         transactionManager.getTransaction(transactionAttribute);
     }
-
+    
     public void run() throws IndexerException {
+        ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.info("Starting IndexerManager. nodeps = " + nodeps + ". Building the following cores (in order):");
         logger.info("\t" + StringUtils.join(cores));
         
         for (IndexerItem indexerItem : indexerItems) {
+            long start = new Date().getTime();
             indexerItem.indexer.initialise(indexerArgs);
             // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
             for (int i = 0; i <= RETRY_COUNT; i++) {
@@ -268,6 +285,7 @@ public class IndexerManager {
                         logErrors(ie);
                         TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
+                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw ie;
                     }
                 } catch (Exception e) {
@@ -276,13 +294,18 @@ public class IndexerManager {
                         logErrors(new IndexerException(e));
                         TestUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
+                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw new IndexerException(e);
                     }
                 }
             }
+            
+            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.OK, start, new Date().getTime()));
         }
+        
+        System.out.println(executionStatsList.toString());
     }
-    
+
     protected ApplicationContext loadApplicationContext(String context) {
         ApplicationContext appContext;
 
@@ -320,7 +343,7 @@ public class IndexerManager {
                 case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineIndexer));                       break;
                 case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneIndexer));                               break;
                 case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseIndexer));                         break;
-//                case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestIndexer));                 break;
+                case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestIndexer));                 break;
             }
         }
         
@@ -364,6 +387,53 @@ public class IndexerManager {
      * @return<code>OptionSet</code> of parsed parameters
      * @throws IndexerException 
      */
+    
+    /*
+     * Rules:
+     * 1. context is always required.
+     * 2. cores is always required.
+     * 2b. If 1 core:
+     *     - core name must be valid.
+     *     - if nodeps is specified:
+     *       - build only the specified core. Don't build downstream cores.
+     *     - else
+     *       - build requested core and all downstream cores.
+     * 2c. If more than 1 core:
+     *     - if nodeps is specified, it is ignored.
+     *     - core names must be valid. No downstream cores are built.
+     * 3. If 'all' is specified, build all of the cores: experiment to autosuggest.
+     *      Specifying --nodeps throws IllegalArgumentException.
+     * 4. If 'daily' is specified, build the daily cores: preqc to autosuggest.
+     *      Specifying --nodeps throws IllegalArgumentException.
+     *
+     * Core Build Truth Table (assume a valid '--context=' parameter is always supplied - not shown in table below to save space):
+     *    |-----------------------------------------------------------------------------------|
+     *    |          command line  | Action                                  |  nodeps value  |
+     *    |-----------------------------------------------------------------------------------|
+     *    | <empty>                | Throw MissingRequiredArgumentException  |      N/A       |
+     *    | --cores                | Throw MissingRequiredArgumentException  |      N/A       |
+     *    | --nodeps               | Throw MissingRequiredArgumentException  |      N/A       |
+     *    | --cores --nodeps       | Throw MissingRequiredArgumentException  |      N/A       |
+     *    | --cores= --nodeps      | Throw MissingRequiredArgumentException  |      N/A       |
+     *    | --cores=junk           | Throw InvalidCoreNameException          |      N/A       |
+     *    | --cores=mp             | build mp to autosuggest cores           |      false     |
+     *    | --cores=mp --nodeps    | build mp core only                      |      true      |
+     *    | --cores=mp,ma          | build mp and ma cores                   |      true      |
+     *    | --cores-mp,ma --nodeps | build mp and ma cores                   |      true      |
+     *    | --all                  | build experiment to autosuggest cores   |      false     |
+     *    | --all --cores=ma       | Return STATUS_VALIDATION_ERROR          |      N/A       |
+     *    | --all --nodeps         | Return STATUS_VALIDATION_ERROR          |      N/A       |
+     *    | --daily                | build preqc to autosuggest cores.       |      false     |
+     *    | --daily --cores=ma     | Return STATUS_VALIDATION_ERROR          |      N/A       |
+     *    | --daily --nodeps       | Return STATUS_VALIDATION_ERROR          |      N/A       |
+     *    | --all --daily          | Return STATUS_VALIDATION_ERROR          |      N/A       |
+     *    | --all --daily --nodeps | Return STATUS_VALIDATION_ERROR          |      N/A       |
+     *    |-----------------------------------------------------------------------------------|
+     
+     * @param args command-line arguments
+     * @return<code>OptionSet</code> of parsed parameters
+     * @throws IndexerException 
+     */
     private OptionSet parseCommandLine(String[] args) throws IndexerException {
         OptionParser parser = new OptionParser();
         OptionSet options = null;
@@ -377,21 +447,21 @@ public class IndexerManager {
         
         // cores [optional]
         parser.accepts(CORES_ARG)
-                .withOptionalArg()
+                .withRequiredArg()
                 .ofType(String.class)
                 .describedAs("A list of cores, in build order.");
+        
+        parser.accepts(ALL_ARG);
+        parser.accepts(DAILY_ARG);
         parser.accepts(NO_DEPS_ARG);
-        parser.accepts(HELP_ARG)
-                .forHelp();
         
         try {
             // Parse the parameters.
             options = parser.parse(args);
-            nodeps = options.has(NO_DEPS_ARG);
             boolean coreMissingOrEmpty = false;
             List<String> coresRequested = new ArrayList();                      // This is a list of the unique core values specified in the 'cores=' argument.
             
-            // Create a list of cores requested based on the value (or absence of) the 'cores=' argument.
+            // Create a list of cores requested based on the value the 'cores=' argument.
             if (options.has(CORES_ARG)) {
                 String rawCoresArgument = (String)options.valueOf((CORES_ARG));
                 if ((rawCoresArgument == null) || (rawCoresArgument.trim().isEmpty())) {
@@ -407,53 +477,46 @@ public class IndexerManager {
                 // Cores list is missing.
                 coreMissingOrEmpty = true;
             }
+            // The only case where nodeps is true is when:
+            //    --cores is specified, AND
+            //    (--nodeps is specified OR # cores requested > 1)
+            if ((options.has(NO_DEPS_ARG)) && (options.has(NO_DEPS_ARG) || coresRequested.size() > 1)) {
+                nodeps = true;
+            } else {
+                nodeps = false;
+            }
             
-            // Validate the parameters.
-            if (coreMissingOrEmpty) {
-                // nodeps cannot be specified if the 'cores=' argument is missing.
-                if (options.has(NO_DEPS_ARG)) {
-                    throw new IndexerException(new NoDepsException("Invalid argument 'nodeps' specified with empty core list."));
-                }
-            }
-            // Verify that each core name in coresRequested exists. Throw an exception if any does not.
-            for (String core : coresRequested) {
-                if ( ! allCoresList.contains(core)) {
-                    throw new IndexerException(new InvalidCoreNameException("Invalid core name '" + core + "'"));
-                }
-            }
+            validateParameters(options, coresRequested);
             
             // Build the cores list as follows:
-            //   If coresRequested is empty
-            //       set firstCore to the first daily core, preqc.
-            //   Else if coresRequested size == 1
-            //     If nodeps
-            //       set firstCore to null.
-            //       set cores to coresRequested[0].
-            //     Else
-            //       set firstCore to coresRequested[0].
-            //   Else (coresRequested.size > 1)
-            //       set firstCore to null.
-            //       set cores to each value in coresRequested.
+            //   If --all specified, set firstCore to experiment.
+            //   Else if --daily specified, set firstCore to preqc.
+            //   Else if --cores specified
+            //       If nodeps or coresRequested.size > 1
+            //           set firstCore to null.
+            //           set cores to coresRequested[0].
+            //       Else
+            //           set firstCore to coresRequested[0].
             //
             //   If firstCore is not null
             //     search allCoresArray for the 0-relative firstCoreOffset of the value matching firstCore.
-            //     add to cores every core name from firstCoreOffset to the last core in allCoresList.
+            //     add to cores every core name from firstCoreOffset to the last core in allCoresList.            
             
             String firstCore = null;
             cores = new ArrayList();
             
-            if (coresRequested.isEmpty()) {
+            if (options.has(ALL_ARG)) {
+                firstCore = OBSERVATION_CORE;
+            } else if (options.has(DAILY_ARG)) {
                 firstCore = PREQC_CORE;
-            } else if (coresRequested.size() == 1) {
-                if (nodeps) {
+            } else if (options.has(CORES_ARG)) {
+                if ((nodeps) || coresRequested.size() > 1) {
                     cores.addAll(coresRequested);
                 } else {
                     firstCore = coresRequested.get(0);
                 }
-            } else {    // coresRequested.size() > 1.
-                cores.addAll(coresRequested);
             }
-            
+
             if (firstCore != null) {
                 int firstCoreOffset = 0;
                 for (String core : allCoresArray) {
@@ -466,20 +529,35 @@ public class IndexerManager {
                     cores.add(allCoresArray[i]);
                 } 
             }
-        } catch (IndexerException icne) {
-            if (icne.getCause() instanceof InvalidCoreNameException) {
-                System.out.println("Expected required context file parameter, such as 'index-app-config.xml'.");
+        } catch (IndexerException ie) {
+            if ((ie.getLocalizedMessage() != null) && ( ! ie.getLocalizedMessage().isEmpty())) {
+                System.out.println(ie.getLocalizedMessage() + "\n");
             }
             try { parser.printHelpOn(System.out); } catch (Exception e) {}
-            throw icne;
+            throw ie;
         } catch (Exception uoe) {
-            if ( (uoe.getLocalizedMessage().contains("Option context requires an argument")) 
-               || uoe.getLocalizedMessage().contains("Missing required option(s) context"))
-            {
-                System.out.println("Expected required context file parameter, such as 'index-app-config.xml'.");
+            Throwable t;
+            if (uoe.getLocalizedMessage().contains("is not a recognized option")) {
+                t = new UnrecognizedOptionException(uoe);
+            } else if (uoe.getLocalizedMessage().contains(" requires an argument")) {
+                t = new MissingRequiredArgumentException(uoe);
+            } else if (uoe.getLocalizedMessage().contains("Missing required option(s)")) {
+                t = new MissingRequiredArgumentException(uoe);
+            } else {
+                t = uoe;
             }
-            try { parser.printHelpOn(System.out); } catch (Exception e) {}
-            throw new IndexerException(uoe);
+                
+            try {
+                if ((uoe.getLocalizedMessage() != null) && ( ! uoe.getLocalizedMessage().isEmpty())) {
+                    System.out.println(uoe.getLocalizedMessage() + "\n");
+                    
+                }
+                
+                parser.formatHelpWith( new IndexManagerHelpFormatter() );
+                parser.printHelpOn(System.out);
+                
+            } catch (Exception e) {}
+            throw new IndexerException(t);
         }
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
         logger.info("indexer config file: '" + indexerArgs[0] + "'");
@@ -487,14 +565,54 @@ public class IndexerManager {
         return options;
     }
     
+    public void validateParameters(OptionSet options, List<String> coresRequested) throws IndexerException {
+        // Exactly one of: ALL_ARG, DAILY_ARG, or CORES_ARG must be specified.
+        if ( ! (options.has(ALL_ARG) || (options.has(DAILY_ARG) || options.has(CORES_ARG)))) {
+            throw new IndexerException(new MissingRequiredArgumentException("Expected either --all, --daily, or --cores=aaa"));
+        }
+
+        // if DAILY_ARG specified, no other args are allowed.
+        if (options.has(ALL_ARG)) {
+            if ((options.has(DAILY_ARG)) || (options.has(CORES_ARG)) || (options.has(NO_DEPS_ARG))) {
+                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
+            }
+        }
+        // if DAILY_ARG specified, no other args are allowed.
+        if (options.has(DAILY_ARG)) {
+            if ((options.has(ALL_ARG)) || (options.has(CORES_ARG)) || (options.has(NO_DEPS_ARG))) {
+                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
+            }
+        }
+        // if CORES_ARG specified, neither ALL_ARG nor DAILY_ARG is permitted.
+        if (options.has(CORES_ARG)) {
+            if ((options.has(ALL_ARG)) || (options.has(DAILY_ARG))) {
+                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
+            }
+        }
+
+        // NO_DEPS_ARG may only be specified with CORES_ARG.
+        if (options.has(NO_DEPS_ARG)) {
+            if ((options.has(ALL_ARG)) || (options.has(DAILY_ARG))) {
+                throw new IndexerException(new ValidationException("--nodeps may only be specified with --cores"));
+            }
+        }
+
+        // Verify that each core name in coresRequested exists. Throw an exception if any does not.
+        for (String core : coresRequested) {
+            if ( ! allCoresList.contains(core)) {
+                throw new IndexerException(new InvalidCoreNameException("Invalid core name '" + core + "'"));
+            }
+        }
+    }
+    
+    
+    
     public static void main(String[] args) throws IndexerException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
             throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
         }
     }
-    
-    
     
     public static int mainReturnsStatus(String[] args) {
         try {
@@ -504,14 +622,18 @@ public class IndexerManager {
             logger.info("IndexerManager process finished successfully.  Exiting.");
         } catch (IndexerException ie) {
             logErrors(ie);
-            if (ie.getCause() instanceof MissingRequiredContextException) {
-                return STATUS_NO_CONTEXT;
-            } else if (ie.getCause() instanceof NoDepsException) {
+            if (ie.getCause() instanceof NoDepsException) {
                 return STATUS_NO_DEPS;
+            } else if (ie.getCause() instanceof MissingRequiredArgumentException) {
+                return STATUS_NO_ARGUMENT;
+            } else if (ie.getCause() instanceof UnrecognizedOptionException) {
+                return STATUS_UNRECOGNIZED_OPTION;
             } else if (ie.getCause() instanceof InvalidCoreNameException) {
                 return STATUS_INVALID_CORE_NAME;
             } else if (ie.getCause() instanceof ValidationException) {
                 return STATUS_VALIDATION_ERROR;
+            } else if (ie.getCause() instanceof MissingRequiredArgumentException) {
+                return STATUS_NO_ARGUMENT;
             }
             
             return -1;
@@ -537,6 +659,127 @@ public class IndexerManager {
             logger.error(errMsg.toString());
             i++;
             t = t.getCause();
+        }
+    }
+    
+    /**
+     * Represents an execution status row. Used to display execution status in
+     * a readable format. Example:
+     *  "preqc started xxx. Finshed (OK) yyy. Elapsed time: hh:mm:ss".
+     */
+    private class ExecutionStatsRow {
+        private String coreName;
+        private RunStatus status;
+        private Long startTimeInMs;
+        private Long endTimeInMs;
+        
+        public ExecutionStatsRow() {
+            this("<undefined>", RunStatus.FAIL, 0, 0);
+        }
+        
+        public ExecutionStatsRow(String coreName, RunStatus status, long startTimeInMs, long endTimeInMs) {
+            this.coreName = coreName;
+            this.status = status;
+            this.startTimeInMs = startTimeInMs;
+            this.endTimeInMs = endTimeInMs;
+        }
+        
+        @Override
+        public String toString() {
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            StringBuilder sb = new StringBuilder();
+            Formatter formatter = new Formatter(sb);
+            long millis = endTimeInMs - startTimeInMs;
+            String elapsed = Utils.msToHms(millis);
+            formatter.format("%20s started %s. Finished (%s) %s. Elapsed time: %s",
+                             coreName, dateFormatter.format(startTimeInMs), status.name(),
+                             dateFormatter.format(endTimeInMs), elapsed);
+            
+            return sb.toString();
+        }
+    }
+    
+    private class ExecutionStatsList {
+        private final List<ExecutionStatsRow> rows = new ArrayList();
+        
+        public ExecutionStatsList() {
+            
+        }
+        
+        public ExecutionStatsList add(ExecutionStatsRow row) {
+            rows.add(row);
+            
+            return this;
+        }
+        
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if ((rows == null) || (rows.isEmpty())) {
+                sb.append("<empty>");
+            } else {
+                for (ExecutionStatsRow row : rows) {
+                    sb.append(row.toString());
+                    sb.append("\n");
+                }
+                sb.append("\n");
+                sb.append("Total build time: ");
+                String elapsed = Utils.msToHms(rows.get(rows.size() - 1).endTimeInMs - rows.get(0).startTimeInMs);
+                sb.append(elapsed);
+            }
+            
+            return sb.toString();
+        }
+    }
+    
+    public class IndexManagerHelpFormatter implements HelpFormatter {
+        private String errorMessage;
+        
+        @Override
+        public String format( Map<String, ? extends OptionDescriptor> options ) {
+            String buffer = 
+                    "Usage: IndexerManager --context=aaa\n" +
+                    "     --all\n" +
+                    "   | --daily\n" +
+                    "   | --cores=aaa [--nodeps]\n" +
+                    "   | --cores=aaa,bbb[,ccc [, ...]]\n" +
+                    "   \n" +
+                    "where aaa is the context file name (should be on the classpath)\n" +
+                    "and aaa, bbb, and ccc are cores chosen from the list shown below." +
+                    "\n" +
+                    "if '--all' is specified, all cores from experiment to autosuggest are built.\n" +
+                    "if '--daily' is specified, all cores from preqc to autosuggest are built.\n" +
+                    "if ('--core=aaa' is specified, all cores from aaa to autosuggest are built.\n" +
+                    "if ('--cores=aaa --nodeps' is specified, ony core 'aaa' is built.\n" +
+                    "if ('--cores=aaa,bbb[,ccc [, ...]] is specified (i.e. 2 or more cores), only\n" + 
+                    "   the specified cores are built, and in the order specified.\n" +
+                    "   NOTE: specifying --nodeps with multiple cores is superfluous and is ignored,\n" +
+                    "         as nodeps is the default for this case.\n" +
+                    "\n" +
+                    "Core list (in priority build order):\n" +
+                    "   experiment\n" +
+                    "   genotype-phenotype\n" +
+                    "   statistical-result\n" +
+                    "   preqc\n" +
+                    "   allele\n" +
+                    "   images\n" +
+                    "   impc_images\n" +
+                    "   mp\n" +
+                    "   ma\n" +
+                    "   pipeline\n" +
+                    "   gene\n" +
+                    "   disease\n" +
+                    "   autosuggest\n";
+
+            return buffer;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        public void setErrorMessage(String errorMessage) {
+            this.errorMessage = errorMessage;
         }
     }
 }
