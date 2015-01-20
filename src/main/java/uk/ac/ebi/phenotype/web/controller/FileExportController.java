@@ -524,7 +524,7 @@ public class FileExportController {
             for (int i = 0; i < docs.size(); i ++) {
                 List<String> data = new ArrayList();
                 JSONObject doc = docs.getJSONObject(i);
-
+                System.out.println("this doc: "+ doc.toString());
                 //String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
                 String[] fields = {"annotationTermId", "expName", "symbol_gene"};
                 for (String fld : fields) {
@@ -588,15 +588,18 @@ public class FileExportController {
                     } 
                     else {
                     	if ( fld.equals("annotationTermId") ){
+                    		System.out.println("1"  + fld);
 	                        data.add(NO_INFO_MSG);
 	                        data.add(NO_INFO_MSG);
 	                        data.add(NO_INFO_MSG);
                     	}
                     	else if ( fld.equals("symbol_gene") ){
+                    		System.out.println("2"  + fld);
                     		data.add(NO_INFO_MSG);
  	                        data.add(NO_INFO_MSG);
                     	}
                     	else {
+                    		System.out.println("3"  + fld);
                     		data.add(NO_INFO_MSG);
                     	}
                     }
@@ -747,14 +750,24 @@ public class FileExportController {
  				
             //int numFacets = sumFacets.size();
 			int numFacets = annots.size();
-            int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
+			System.out.println("check number: "+ numFacets);
+			System.out.println("selected start: "+iDisplayStart);
+            /*int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
             int remainder = (numFacets / 2) % iDisplayLength;
             int start = iDisplayStart * 2;  // 2 elements(name, count), hence multiply by 2
             int end = iDisplayStart == quotient * iDisplayLength ? (iDisplayStart + remainder) * 2 : (iDisplayStart + iDisplayLength) * 2;
- 
-            for (int i = start; i < end; i = i + 2) {
+             */
+            
+            //int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
+            //int remainder = (numFacets / 2) % iDisplayLength;
+            int start = iDisplayStart;  // 2 elements(name, count), hence multiply by 2
+            int end = iDisplayStart + iDisplayLength;
+            end = end > numFacets ? numFacets : end; 
+
+            for (int i = start; i < end; i++ ) {
+            	
             	List<String> data = new ArrayList();
-			
+            	
 				AnnotNameValCount annot = annots.get(i);
 				
 				String displayAnnotName = annot.name;
@@ -763,7 +776,7 @@ public class FileExportController {
 				String annotVal = annot.val;
 				data.add(annotVal);
 				
-				if ( !annot.id.isEmpty() ){
+				if ( annot.id != null ){
 					data.add(annot.id);
 					data.add(annot.link);
 				}
@@ -794,6 +807,7 @@ public class FileExportController {
 				//String imgPath = fetchImpcImagePathByAnnotName(query, defaultFqStr);
 				//rowData1.add(imgPath);
 				rowData.add(StringUtils.join(data, "\t"));
+        	
 			}	
             //---
 //            JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
