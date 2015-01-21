@@ -316,8 +316,13 @@ public class SangerImagesIndexer extends AbstractIndexer {
                             List<String> topLevelMpTermSynonym = new ArrayList<>();
                             for (Annotation annotation : annotations) {
                                 annotationTermIds.add(annotation.annotationTermId);
-                                annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
+                                //if ma term
+                                
+                                //if mp term
+                                
+                                
                                 if (annotation.ma_id != null) {
+                                	annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
                                     ma_ids.add(annotation.ma_id);
                                     ma_terms.add(annotation.ma_term);
 
@@ -347,6 +352,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                                     }
                                 }
                                 if (annotation.mp_id != null) {
+                                	annotationTermNames.add(annotation.mp_term);
                                     mp_ids.add(annotation.mp_id);
                                     mp_terms.add(annotation.mp_term);
 

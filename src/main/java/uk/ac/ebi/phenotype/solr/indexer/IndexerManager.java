@@ -20,6 +20,7 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
 import joptsimple.HelpFormatter;
 import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
@@ -102,6 +104,7 @@ public class IndexerManager {
     private List<String> cores;
     private Boolean daily;
     private Boolean nodeps;
+    private Boolean deploy;
     
     // These are the args passed to the individual indexers. They should be all the same and should be the same context argument passed to the indexerManager.
     private String[] indexerArgs;
@@ -141,9 +144,14 @@ public class IndexerManager {
     };
     
     public static final int RETRY_COUNT = 5;                                    // If any core fails, retry building it up to this many times.
-    public static final int RETRY_SLEEP_IN_MS = 60000;                             // If any core fails, sleep this long before reattempting to build the core.
-
+    public static final int RETRY_SLEEP_IN_MS = 60000;                          // If any core fails, sleep this long before reattempting to build the core.
+    public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
+    
     private enum RunStatus { OK, FAIL };
+    
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
+    
     
     @Autowired
     ObservationIndexer observationIndexer;
@@ -185,7 +193,7 @@ public class IndexerManager {
     AutosuggestIndexer autosuggestIndexer;
     
     
-    
+    private String buildIndexesSolrUrl;
     private IndexerItem[] indexerItems;
     
     public String[] args;
@@ -193,6 +201,7 @@ public class IndexerManager {
     public static final String ALL_ARG = "all";
     public static final String CORES_ARG = "cores";
     public static final String DAILY_ARG = "daily";
+    public static final String DEPLOY_ARG = "deploy";
     public static final String NO_DEPS_ARG = "nodeps";
     
     public class IndexerItem {
@@ -230,9 +239,13 @@ public class IndexerManager {
     public Boolean getNodeps() {
         return nodeps;
     }
+
+    public Boolean getDeploy() {
+        return deploy;
+    }
     
     
-    // PUBLIC METHODS
+    // PUBLIC/PROTECTED METHODS
     
     
     public void initialise(String[] args) throws IndexerException {
@@ -246,6 +259,8 @@ public class IndexerManager {
         } else {
             throw new IndexerException("Failed to parse command-line options.");
         }
+        
+        buildIndexesSolrUrl = config.get("buildIndexesSolrUrl");
         
         // Print the jvm memory configuration.
         final int mb = 1024*1024;
@@ -276,6 +291,9 @@ public class IndexerManager {
             // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
             for (int i = 0; i <= RETRY_COUNT; i++) {
                 try {
+                    
+                    buildStagingArea();
+                    
                     indexerItem.indexer.run();
                     indexerItem.indexer.validateBuild();
                     break;
@@ -324,6 +342,50 @@ public class IndexerManager {
 
         return appContext;
     }
+    
+    public void validateParameters(OptionSet options, List<String> coresRequested) throws IndexerException {
+        // Exactly one of: ALL_ARG, DAILY_ARG, or CORES_ARG must be specified.
+        if ( ! (options.has(ALL_ARG) || (options.has(DAILY_ARG) || options.has(CORES_ARG)))) {
+            throw new IndexerException(new MissingRequiredArgumentException("Expected either --all, --daily, or --cores=aaa"));
+        }
+
+        // if DAILY_ARG specified, no other args are allowed.
+        if (options.has(ALL_ARG)) {
+            if ((options.has(DAILY_ARG)) || (options.has(CORES_ARG)) || (options.has(NO_DEPS_ARG))) {
+                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
+            }
+        }
+        // if DAILY_ARG specified, no other args are allowed.
+        if (options.has(DAILY_ARG)) {
+            if ((options.has(ALL_ARG)) || (options.has(CORES_ARG)) || (options.has(NO_DEPS_ARG))) {
+                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
+            }
+        }
+        // if CORES_ARG specified, neither ALL_ARG nor DAILY_ARG is permitted.
+        if (options.has(CORES_ARG)) {
+            if ((options.has(ALL_ARG)) || (options.has(DAILY_ARG))) {
+                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
+            }
+        }
+
+        // NO_DEPS_ARG may only be specified with CORES_ARG.
+        if (options.has(NO_DEPS_ARG)) {
+            if ((options.has(ALL_ARG)) || (options.has(DAILY_ARG))) {
+                throw new IndexerException(new ValidationException("--nodeps may only be specified with --cores"));
+            }
+        }
+
+        // Verify that each core name in coresRequested exists. Throw an exception if any does not.
+        for (String core : coresRequested) {
+            if ( ! allCoresList.contains(core)) {
+                throw new IndexerException(new InvalidCoreNameException("Invalid core name '" + core + "'"));
+            }
+        }
+    }
+    
+    
+    // PRIVATE METHODS
+    
     
     private void loadIndexers() {
         List<IndexerItem> indexerItemList = new ArrayList();
@@ -454,6 +516,7 @@ public class IndexerManager {
         parser.accepts(ALL_ARG);
         parser.accepts(DAILY_ARG);
         parser.accepts(NO_DEPS_ARG);
+        parser.accepts(DEPLOY_ARG);
         
         try {
             // Parse the parameters.
@@ -565,46 +628,26 @@ public class IndexerManager {
         return options;
     }
     
-    public void validateParameters(OptionSet options, List<String> coresRequested) throws IndexerException {
-        // Exactly one of: ALL_ARG, DAILY_ARG, or CORES_ARG must be specified.
-        if ( ! (options.has(ALL_ARG) || (options.has(DAILY_ARG) || options.has(CORES_ARG)))) {
-            throw new IndexerException(new MissingRequiredArgumentException("Expected either --all, --daily, or --cores=aaa"));
-        }
-
-        // if DAILY_ARG specified, no other args are allowed.
-        if (options.has(ALL_ARG)) {
-            if ((options.has(DAILY_ARG)) || (options.has(CORES_ARG)) || (options.has(NO_DEPS_ARG))) {
-                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
-            }
-        }
-        // if DAILY_ARG specified, no other args are allowed.
-        if (options.has(DAILY_ARG)) {
-            if ((options.has(ALL_ARG)) || (options.has(CORES_ARG)) || (options.has(NO_DEPS_ARG))) {
-                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
-            }
-        }
-        // if CORES_ARG specified, neither ALL_ARG nor DAILY_ARG is permitted.
-        if (options.has(CORES_ARG)) {
-            if ((options.has(ALL_ARG)) || (options.has(DAILY_ARG))) {
-                throw new IndexerException(new ValidationException("Expected exactly one of: --all, --daily, or --cores=aaa"));
-            }
-        }
-
-        // NO_DEPS_ARG may only be specified with CORES_ARG.
-        if (options.has(NO_DEPS_ARG)) {
-            if ((options.has(ALL_ARG)) || (options.has(DAILY_ARG))) {
-                throw new IndexerException(new ValidationException("--nodeps may only be specified with --cores"));
-            }
-        }
-
-        // Verify that each core name in coresRequested exists. Throw an exception if any does not.
-        for (String core : coresRequested) {
-            if ( ! allCoresList.contains(core)) {
-                throw new IndexerException(new InvalidCoreNameException("Invalid core name '" + core + "'"));
-            }
-        }
+    private void buildStagingArea() {
+//////        // Insure staging cores are deleted.
+//////        for (String core : cores) {
+//////            String stagingCoreFilename = buildIndexesSolrUrl + File.separator + core + STAGING_SUFFIX;
+//////            File file = new File(stagingCoreFilename);
+//////            
+//////            boolean b = file.canRead();
+//////            System.out.println();
+//////            
+//////            
+//////            
+//////            System.exit(999);
+//////        }
+        
+        // Build and initialise staging core directories.
+        
+        // Fetch schemas from git.
+        
+        // Create the cores.
     }
-    
     
     
     public static void main(String[] args) throws IndexerException {
