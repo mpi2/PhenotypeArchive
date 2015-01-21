@@ -1,5 +1,6 @@
 <%@tag description="Overall Page template" pageEncoding="UTF-8" 
 import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray,java.net.URLEncoder"
+
 %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -7,8 +8,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <%@ taglib uri="http://htmlcompressor.googlecode.com/taglib/compressor" prefix="compress" %>
 
 <%
-
-        /*
+	/*
         Get the menu JSON array from drupal, fallsback to a default menu when drupal
         cannot be contacted
         */
@@ -21,6 +21,13 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         String baseUrl = (request.getAttribute("baseUrl") != null && ! ((String)request.getAttribute("baseUrl")).isEmpty()) ? (String)request.getAttribute("baseUrl") : (String) application.getInitParameter("baseUrl");
         jspContext.setAttribute("baseUrl", baseUrl);
 
+
+        String pageUrl = request.getRequestURL().toString();
+        System.out.println("pageUrl = " + pageUrl);
+    
+        String pageParams = request.getQueryString();
+        System.out.println("pageParams = " + pageParams);
+        
         // Use the drupal destination parameter to redirect back to this page
         // after logging in
         String dest = (String)request.getAttribute("javax.servlet.forward.request_uri");
@@ -30,12 +37,11 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 
         String usermenu = menus[0]
         	.replace("current=menudisplaycombinedrendered", "destination="+dest)
-			.replace("user/register", "user/register?destination="+dest)
-			.replace(request.getContextPath(), baseUrl.substring(1));
+	.replace("user/register", "user/register?destination="+dest)
+	.replace(request.getContextPath(), baseUrl.substring(1));
 
         jspContext.setAttribute("usermenu", usermenu);
         jspContext.setAttribute("menu", menus[1]);
-
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
@@ -46,7 +52,9 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
+<c:set var="uri">${pageContext.request.requestURL}</c:set>
 <c:set var="domain">${pageContext.request.serverName}</c:set>
+
 
 <c:set var="queryStringPlaceholder">
 <c:choose>
@@ -74,6 +82,9 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
+<link rel="stylesheet" href="http://dev.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.css">
+
+
 <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
 
@@ -86,6 +97,7 @@ var baseUrl="${baseUrl}";
 var solrUrl='${solrUrl}';
 var drupalBaseUrl = "${drupalBaseUrl}";
 var mediaBaseUrl = "${mediaBaseUrl}";
+var params = "${params}";
 
 <%--
 Some browsers do not provide a console object see:
@@ -154,7 +166,9 @@ ga('send', 'pageview');
 
 
 <jsp:invoke fragment="bodyTag"/>
-
+	<div id="feedback_simple">
+    	<a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href="/website-feedback?page=${params}"><img src='http://dev.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.gif' /></a>
+    </div>
 	<div id="wrapper">
 	<c:choose>
 	<c:when test="${param['bare'] == null}">
@@ -248,7 +262,7 @@ ga('send', 'pageview');
     	</footer>
 	</c:otherwise>
 	</c:choose>
-
+    
 	    <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js?v=${version}' ></script>-->
 	    	    
 	    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>                 
