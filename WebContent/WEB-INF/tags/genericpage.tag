@@ -49,6 +49,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <c:set var="uri">${pageContext.request.requestURL}</c:set>
 <c:set var="domain">${pageContext.request.serverName}</c:set>
 
+
 <c:set var="queryStringPlaceholder">
 <c:choose>
   <c:when test="${not empty queryString}">${queryString}</c:when>
