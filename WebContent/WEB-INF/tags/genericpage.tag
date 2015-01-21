@@ -46,6 +46,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
+<c:set var="uri">${pageContext.request.requestURL}</c:set>
 <c:set var="domain">${pageContext.request.serverName}</c:set>
 
 <c:set var="queryStringPlaceholder">
@@ -74,6 +75,9 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
+<link rel="stylesheet" href="${domain}/sites/all/modules/feedback_simple/feedback_simple.css">
+
+
 <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
 
@@ -154,7 +158,9 @@ ga('send', 'pageview');
 
 
 <jsp:invoke fragment="bodyTag"/>
-
+	<div id="feedback_simple">
+    	<a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href="/website-feedback?page=${uri}"><img src='http://dev.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.gif' /></a>
+    </div>
 	<div id="wrapper">
 	<c:choose>
 	<c:when test="${param['bare'] == null}">
@@ -248,7 +254,7 @@ ga('send', 'pageview');
     	</footer>
 	</c:otherwise>
 	</c:choose>
-
+    
 	    <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js?v=${version}' ></script>-->
 	    	    
 	    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>                 
