@@ -378,7 +378,6 @@ public class ObservationIndexer extends AbstractIndexer {
                     }
 
                     if (b != null) {
-                        logger.info("Got weight {} for parameter {} (from parameter {}, date {})", b.weight, o.getParameterStableId(), b.parameterStableId, b.date);
                         o.setWeight(b.weight);
                         o.setWeightDate(b.date);
                         o.setWeightDaysOld(b.daysOld);
@@ -631,18 +630,15 @@ public class ObservationIndexer extends AbstractIndexer {
         WeightBean nearest = null;
 
         if ( weightMap.containsKey(specimenID) ) {
-            logger.debug(" weightmap contains {} values for specimen {}", weightMap.get(specimenID).size(), specimenID);
 
             for (WeightBean candidate : weightMap.get(specimenID)) {
 
                 if (nearest == null) {
-                    logger.debug("  Nearest weight for specimen {} is {} at {}", specimenID, candidate.weight, candidate.date);
                     nearest = candidate;
                     continue;
                 }
 
                 if (Math.abs(dateOfExperiment.getTime() - candidate.date.getTime()) < Math.abs(nearest.date.getTime() - candidate.date.getTime())) {
-                    logger.debug("  An even nearer date was found for specimen {}. {} at {} (instead of {})", specimenID, candidate.weight, candidate.date, nearest.date);
                     nearest = candidate;
                 }
             }
@@ -653,7 +649,6 @@ public class ObservationIndexer extends AbstractIndexer {
         // (Heuristic from Natasha Karp @ WTSI)
         // 4 days = 345,600,000 ms
         if (nearest != null && Math.abs(dateOfExperiment.getTime()-nearest.date.getTime()) > 3.456E8) {
-            logger.debug("  Oops, this weight date {} for specimen {} is more than 4 days from {}", nearest.date, specimenID, dateOfExperiment);
             nearest = null;
         }
         return nearest;
