@@ -66,7 +66,13 @@
 		<field name="observation_type"        type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="experiment_source_id"    type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="date_of_experiment"      type="tdate"  indexed="true" stored="true" multiValued="false" />
-	
+
+		<!-- weight parameters -->
+		<field name="weight_parameter_stable_id" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="weight_date"                type="tdate"  indexed="true" stored="true" multiValued="false" />
+		<field name="weight_days_old"            type="int" indexed="true" stored="true" multiValued="false" />
+		<field name="weight"                     type="float" indexed="true" stored="true" multiValued="false" />
+
 		<!-- unidimensional/multidimensional/time series -->
 		<field name="data_point"      type="float" indexed="true" stored="true" multiValued="false" />
 
