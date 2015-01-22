@@ -270,6 +270,8 @@ ga('send', 'pageview');
 	    
 	    <script type='text/javascript'>
 	    	$(document).ready(function(){
+	    		// assign the url to feedback link dynamically
+	    		// this won't work with hashtag change which is taken care of in search.jsp
 	    		$('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
 	    	});	    
 	    </script>  
