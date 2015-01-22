@@ -2088,7 +2088,6 @@
                     if ($('table#geneGrid').size() == 1) {
                         $('table#geneGrid th:nth-child(1)').width('45%');
                     }
-
                     
                     // mouseover synonyms in results dataTable
                     $('ul.synonym li, ul.hpTerms li, ul.ortholog li').mouseover(function(){
