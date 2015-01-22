@@ -62,10 +62,15 @@ public class ObservationDTO {
     public final static String PARAMETER_ASSOCIATION_STABLE_ID = "parameter_association_stable_id";
     public final static String PARAMETER_ASSOCIATION_SEQUENCE_ID = "parameter_association_sequence_id";
     public final static String PARAMETER_ASSOCIATION_DIM_ID = "parameter_association_dim_id";
-	public static final String PARAMETER_ASSOCIATION_NAME = "parameter_association_name";
-	private static final String PARAMETER_ASSOCIATION_VALUE = "parameter_association_value";
+	public final static String PARAMETER_ASSOCIATION_NAME = "parameter_association_name";
+	public final static String PARAMETER_ASSOCIATION_VALUE = "parameter_association_value";
+    public final static String WEIGHT_PARAMETER_STABLE_ID = "weight_parameter_stable_id";
+    public final static String WEIGHT_DATE = "weight_date";
+    public final static String WEIGHT_DAYS_OLD = "weight_days_old";
+    public final static String WEIGHT = "weight";
 
-	@Field(ID)
+
+    @Field(ID)
     private Integer id;
 
     @Field(DATASOURCE_ID)
@@ -211,9 +216,22 @@ public class ObservationDTO {
     
     @Field(PARAMETER_ASSOCIATION_NAME)
 	private List<String> parameterAssociationName;
+
     @Field(PARAMETER_ASSOCIATION_VALUE)
 	private List<String> parameterAssociationValue;
 
+
+    @Field(WEIGHT_PARAMETER_STABLE_ID)
+    private String weightParameterStableId;
+
+    @Field(WEIGHT_DATE)
+    private Date weightDate;
+
+    @Field(WEIGHT_DAYS_OLD)
+    private Integer weightDaysOld;
+
+    @Field(WEIGHT)
+    private Float weight;
 
     
 	public List<String> getParameterAssociationValue() {
@@ -1087,7 +1105,51 @@ public class ObservationDTO {
 		
 	}
 
-	
+
+    public String getWeightParameterStableId() {
+
+        return weightParameterStableId;
+    }
 
 
+    public void setWeightParameterStableId(String weightParameterStableId) {
+
+        this.weightParameterStableId = weightParameterStableId;
+    }
+
+
+    public Date getWeightDate() {
+
+        return weightDate;
+    }
+
+
+    public void setWeightDate(Date weightDate) {
+
+        this.weightDate = weightDate;
+    }
+
+
+    public Integer getWeightDaysOld() {
+
+        return weightDaysOld;
+    }
+
+
+    public void setWeightDaysOld(Integer weightDaysOld) {
+
+        this.weightDaysOld = weightDaysOld;
+    }
+
+
+    public Float getWeight() {
+
+        return weight;
+    }
+
+
+    public void setWeight(Float weight) {
+
+        this.weight = weight;
+    }
 }
