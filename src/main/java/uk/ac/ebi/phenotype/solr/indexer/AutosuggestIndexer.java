@@ -235,7 +235,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 }
             }
 
-            autosuggestCore.addBeans(beans, 60000);
+            if ( ! beans.isEmpty()) {
+                autosuggestCore.addBeans(beans, 60000);
+            }
 
         }
     }
@@ -409,7 +411,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 }
             }
 
-            autosuggestCore.addBeans(beans, 60000);
+            if ( ! beans.isEmpty()) {
+                autosuggestCore.addBeans(beans, 60000);
+            }
 
         }
     }
@@ -463,7 +467,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 }
             }
 
-            autosuggestCore.addBeans(beans, 60000);
+            if ( ! beans.isEmpty()) {
+                autosuggestCore.addBeans(beans, 60000);
+            }
 
         }
     }
@@ -598,8 +604,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 }
             }
 
-            autosuggestCore.addBeans(beans, 60000);
-
+            if ( ! beans.isEmpty()) {
+                autosuggestCore.addBeans(beans, 60000);
+            }
         }
     }
     
@@ -622,7 +629,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
                 AutosuggestBean a = new AutosuggestBean();
                 a.setDocType("hp");
-
+                
                 switch (field) {
                     case HpDTO.HP_ID:
                         mapKey = HpDTO.HP_ID + "_" + hp.getHpId();
@@ -660,8 +667,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 }
             }
 
-            autosuggestCore.addBeans(beans, 60000);
-
+            if ( ! beans.isEmpty()) {
+                autosuggestCore.addBeans(beans, 60000);
+            }
         }
     }
 
