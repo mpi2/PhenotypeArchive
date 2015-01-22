@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -21,7 +22,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Populate the experiment core
@@ -49,6 +49,9 @@ public class ObservationIndexer extends AbstractIndexer {
     Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
     Map<Integer, DatasourceBean> projectMap = new HashMap<>();
     Map<Integer, List<ParameterAssociationBean>> parameterAssociationMap = new HashMap<>();
+
+    Map<Integer, List<WeightBean>> weightMap = new HashMap<>();
+    Map<Integer, WeightBean> ipgttWeightMap = new HashMap<>();
 
     Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
@@ -123,6 +126,10 @@ public class ObservationIndexer extends AbstractIndexer {
             populateBiologicalDataMap();
             populateLineBiologicalDataMap();
             populateParameterAssociationMap();
+
+            logger.info("Populating weight maps");
+            populateWeightMap();
+            populateIpgttWeightMap();
 
             logger.info("Populating experiment solr core");
             populateObservationSolrCore();
@@ -343,6 +350,20 @@ public class ObservationIndexer extends AbstractIndexer {
                         }
 
                     }
+                }
+
+                // Add weight parameters
+                WeightBean b = getNearestWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
+
+                if (o.getParameterStableId().startsWith("IMPC_IPG")) {
+                    b = getNearestIpgttWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
+                }
+
+                if (b != null) {
+                    o.setWeight(b.weight);
+                    o.setWeightDate(b.date);
+                    o.setWeightDaysOld(b.daysOld);
+                    o.setWeightParameterStableId(b.parameterStableId);
                 }
 
                 // 60 seconds between commits
@@ -578,6 +599,146 @@ public class ObservationIndexer extends AbstractIndexer {
         }
     }
 
+
+    /**
+     * Compare all weight dates to select the nearest to the date of experiment
+     * @param specimenID the specimen
+     * @param dateOfExperiment the date
+     * @return the nearest weight bean to the date of the experiment
+     */
+    public WeightBean getNearestWeight(Integer specimenID, Date dateOfExperiment) {
+
+        WeightBean nearest = null;
+
+        if ( weightMap.containsKey(specimenID) ) {
+
+            for (WeightBean candidate : weightMap.get(specimenID)) {
+
+                if (nearest == null) {
+                    nearest = candidate;
+                    continue;
+                }
+
+                if (Math.abs(dateOfExperiment.getTime() - candidate.date.getTime()) < Math.abs(nearest.date.getTime() - candidate.date.getTime())) {
+                    nearest = candidate;
+                }
+            }
+        }
+
+        // Do not return weight that is > 4 days away from the experiment
+        // since the weight of the specimen become less and less relevant
+        // (Heuristic from Natasha Karp @ WTSI)
+        // 4 days = 345,600,000 ms
+        if (Math.abs(dateOfExperiment.getTime()-nearest.date.getTime()) > 3.456E8) {
+            nearest = null;
+        }
+        return nearest;
+    }
+
+    /**
+     * Select date of experiment
+     * @param specimenID the specimen
+     * @param dateOfExperiment the date
+     * @return the nearest weight bean to the date of the experiment
+     */
+    public WeightBean getNearestIpgttWeight(Integer specimenID, Date dateOfExperiment) {
+
+        WeightBean nearest = null;
+
+        if ( ipgttWeightMap.containsKey(specimenID) ) {
+            nearest = ipgttWeightMap.get(specimenID);
+        }
+
+        return nearest;
+    }
+
+    /**
+     * Return map of specimen ID => List of all weights ordered by date ASC
+     *
+     * @exception SQLException When a database error occurrs
+     */
+    public Map<String, List<WeightBean>> populateWeightMap() throws SQLException {
+        Map<String, List<WeightBean>> weightMap = new HashMap<>();
+
+        String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, " +
+            "date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old " +
+            "FROM observation o " +
+            "  INNER JOIN unidimensional_observation uo ON uo.id = o.id " +
+            "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
+            "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id " +
+            "  INNER JOIN experiment e ON e.id = eo.experiment_id " +
+            "WHERE parameter_stable_id IN ('IMPC_GRS_003_001', " +
+            "                              'IMPC_CAL_001_001', " +
+            "                              'IMPC_DXA_001_001', " +
+            "                              'IMPC_HWT_007_001', " +
+            "                              'IMPC_PAT_049_001', " +
+            "                              'IMPC_BWT_001_001', " +
+            "                              'IMPC_ABR_001_001', " +
+            "                              'IMPC_CHL_001_001', " +
+            "                              'TCP_CHL_001_001', " +
+            "                              'HMGU_ROT_004_001') " +
+            "ORDER BY biological_sample_id, date_of_experiment ASC";
+
+        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+
+                WeightBean b = new WeightBean();
+                b.date = resultSet.getDate("date_of_experiment");
+                b.weight = resultSet.getFloat("weight");
+                b.parameterStableId = resultSet.getString("parameter_stable_id");
+                b.daysOld = resultSet.getInt("days_old");
+
+                final String specimenId = resultSet.getString("biological_sample_id");
+
+                if( ! weightMap.containsKey(specimenId)) {
+                    weightMap.put(specimenId, new ArrayList<WeightBean>());
+                }
+
+                weightMap.get(specimenId).add(b);
+            }
+        }
+
+        return weightMap;
+    }
+
+    /**
+     * Return map of specimen ID => weight for
+     *
+     * @exception SQLException When a database error occurrs
+     */
+    public Map<String, WeightBean> populateIpgttWeightMap() throws SQLException {
+        Map<String, WeightBean> weightMap = new HashMap<>();
+
+        String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, " +
+            "date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old " +
+            "FROM observation o " +
+            "  INNER JOIN unidimensional_observation uo ON uo.id = o.id " +
+            "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
+            "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id " +
+            "  INNER JOIN experiment e ON e.id = eo.experiment_id " +
+            "WHERE parameter_stable_id = 'IMPC_IPG_001_001' " ;
+
+        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+
+                WeightBean b = new WeightBean();
+                b.date = resultSet.getDate("date_of_experiment");
+                b.weight = resultSet.getFloat("weight");
+                b.parameterStableId = resultSet.getString("parameter_stable_id");
+                b.daysOld = resultSet.getInt("days_old");
+
+                final String specimenId = resultSet.getString("biological_sample_id");
+                weightMap.put(specimenId, b);
+            }
+        }
+
+        return weightMap;
+    }
+
+
+
     public static Connection getConnection() {
         return connection;
     }
@@ -623,6 +784,16 @@ public class ObservationIndexer extends AbstractIndexer {
         public String strainAcc;
         public String strainName;
         public String zygosity;
+    }
+
+    /**
+     * Internal class to act as Map value DTO for weight data
+     */
+    protected class WeightBean {
+        public String parameterStableId;
+        public Date date;
+        public Float weight;
+        public Integer daysOld;
     }
 
     /**
