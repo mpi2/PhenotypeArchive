@@ -52,7 +52,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     private SolrServer phenodigmCore;
 
-    public static final long MIN_EXPECTED_ROWS = 340000;
+    public static final long MIN_EXPECTED_ROWS = 228000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
     
     // Sets used to insure uniqueness when loading core components.
