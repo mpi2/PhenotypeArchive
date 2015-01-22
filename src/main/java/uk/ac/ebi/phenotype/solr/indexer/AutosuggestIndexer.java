@@ -186,21 +186,21 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
                 switch (field) {
                     case GeneDTO.MGI_ACCESSION_ID:
-                        mapKey = GeneDTO.MGI_ACCESSION_ID + "_" + gene.getMgiAccessionId();
+                        mapKey = gene.getMgiAccessionId();
                         if (mgiAccessionIdSet.add(mapKey)) {
                             a.setMgiAccessionID(gene.getMgiAccessionId());
                             beans.add(a);
                         }
                         break;
                     case GeneDTO.MARKER_SYMBOL:
-                        mapKey = GeneDTO.MARKER_SYMBOL + "_" + gene.getMarkerSymbol();
+                        mapKey = gene.getMarkerSymbol();
                         if (markerSymbolSet.add(mapKey)) {
                             a.setMarkerSymbol(gene.getMgiAccessionId());
                             beans.add(a);
                         }
                         break;
                     case GeneDTO.MARKER_NAME:
-                        mapKey = GeneDTO.MARKER_NAME + "_" + a.getMarkerName();
+                        mapKey = a.getMarkerName();
                         if (markerNameSet.add(mapKey)) {
                             a.setMarkerName(gene.getMgiAccessionId());
                             beans.add(a);
@@ -209,7 +209,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case GeneDTO.MARKER_SYNONYM:
                         if (gene.getMarkerSynonym() != null) {
                             for (String s : gene.getMarkerSynonym()) {
-                                mapKey = GeneDTO.MARKER_SYMBOL + "_" + s;
+                                mapKey = s;
                                 if (markerSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMarkerSynonym(s);
@@ -222,7 +222,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case GeneDTO.HUMAN_GENE_SYMBOL:
                         if (gene.getHumanGeneSymbol() != null) {
                             for (String s : gene.getHumanGeneSymbol()) {
-                                mapKey = GeneDTO.HUMAN_GENE_SYMBOL + "_" + s;
+                                mapKey = s;
                                 if (humanGeneSymbolSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHumanGeneSymbol(s);
@@ -265,14 +265,14 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
                 switch (field) {
                     case MpDTO.MP_ID:
-                        mapKey = MpDTO.MP_ID + "_" + mp.getMpId();
+                        mapKey = mp.getMpId();
                         if (mpIdSet.add(mapKey)) {
                             a.setMpID(mp.getMpId());
                             beans.add(a);
                         }
                         break;
                     case MpDTO.MP_TERM:
-                        mapKey = MpDTO.MP_TERM + "_" + mp.getMpTerm();
+                        mapKey = mp.getMpTerm();
                         if (mpTermSet.add(mapKey)) {
                             a.setMpTerm(mp.getMpTerm());
                             beans.add(a);
@@ -281,7 +281,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.MP_TERM_SYNONYM:
                         if (mp.getMpTermSynonym() != null) {
                             for (String s : mp.getMpTermSynonym()) {
-                                mapKey = MpDTO.MP_TERM_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
@@ -294,7 +294,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.TOP_LEVEL_MP_ID:
                         if (mp.getTopLevelMpId() != null) {
                             for (String s : mp.getTopLevelMpId()) {
-                                mapKey = MpDTO.TOP_LEVEL_MP_ID + "_" + s;
+                                mapKey = s;
                                 if (topLevelMpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setTopLevelMpID(s);
@@ -307,7 +307,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.TOP_LEVEL_MP_TERM:
                         if (mp.getTopLevelMpTerm() != null) {
                             for (String s : mp.getTopLevelMpTerm()) {
-                                mapKey = MpDTO.TOP_LEVEL_MP_TERM + "_" + s;
+                                mapKey = s;
                                 if (topLevelMpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setTopLevelMpTerm(s);
@@ -320,7 +320,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.TOP_LEVEL_MP_TERM_SYNONYM:
                         if (mp.getTopLevelMpTermSynonym() != null) {
                             for (String s : mp.getTopLevelMpTermSynonym()) {
-                                mapKey = MpDTO.TOP_LEVEL_MP_TERM_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (topLevelMpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setTopLevelMpTermSynonym(s);
@@ -333,7 +333,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.INTERMEDIATE_MP_ID:
                         if (mp.getIntermediateMpId() != null) {
                             for (String s : mp.getIntermediateMpId()) {
-                                mapKey = MpDTO.INTERMEDIATE_MP_ID + "_" + s;
+                                mapKey = s;
                                 if (intermediateMpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setIntermediateMpID(s);
@@ -346,7 +346,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.INTERMEDIATE_MP_TERM:
                         if (mp.getIntermediateMpTerm() != null) {
                             for (String s : mp.getIntermediateMpTerm()) {
-                                mapKey = MpDTO.INTERMEDIATE_MP_TERM + "_" + s;
+                                mapKey = s;
                                 if (intermediateMpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setIntermediateMpTerm(s);
@@ -359,7 +359,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.INTERMEDIATE_MP_TERM_SYNONYM:
                         if (mp.getIntermediateMpTermSynonym() != null) {
                             for (String s : mp.getIntermediateMpTermSynonym()) {
-                                mapKey = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (intermediateMpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setIntermediateMpTermSynonym(s);
@@ -372,7 +372,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.CHILD_MP_ID:
                         if (mp.getChildMpId() != null) {
                             for (String s : mp.getChildMpId()) {
-                                mapKey = MpDTO.CHILD_MP_ID + "_" + s;
+                                mapKey = s;
                                 if (childMpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMpID(s);
@@ -385,7 +385,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.CHILD_MP_TERM:
                         if (mp.getChildMpTerm() != null) {
                             for (String s : mp.getChildMpTerm()) {
-                                mapKey = MpDTO.CHILD_MP_TERM + "_" + s;
+                                mapKey = s;
                                 if (childMpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMpTerm(s);
@@ -398,7 +398,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.CHILD_MP_TERM_SYNONYM:
                         if (mp.getChildMpTermSynonym() != null) {
                             for (String s : mp.getChildMpTermSynonym()) {
-                                mapKey = MpDTO.CHILD_MP_TERM_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (childMpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMpTermSynonym(s);
@@ -438,14 +438,14 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
                 switch (field) {
                     case DiseaseDTO.DISEASE_ID:
-                        mapKey = DiseaseDTO.DISEASE_ID + "_" + disease.getDiseaseId();
+                        mapKey = disease.getDiseaseId();
                         if (diseaseIdSet.add(mapKey)) {
                             a.setDiseaseID(disease.getDiseaseId());
                             beans.add(a);
                         }
                         break;
                     case DiseaseDTO.DISEASE_TERM:
-                        mapKey = DiseaseDTO.DISEASE_TERM + "_" + disease.getDiseaseTerm();
+                        mapKey = disease.getDiseaseTerm();
                         if (diseaseTermSet.add(mapKey)) {
                             a.setMarkerSymbol(disease.getDiseaseTerm());
                             beans.add(a);
@@ -454,7 +454,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case DiseaseDTO.DISEASE_ALTS:
                         if (disease.getDiseaseAlts() != null) {
                             for (String s : disease.getDiseaseAlts()) {
-                                mapKey = DiseaseDTO.DISEASE_ALTS + "_" + s;
+                                mapKey = s;
                                 if (diseaseAltsSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setDiseaseAlts(s);
@@ -497,14 +497,14 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
                 switch (field) {
                     case MaDTO.MA_ID:
-                        mapKey = MaDTO.MA_ID + "_" + ma.getMaId();
+                        mapKey = ma.getMaId();
                         if (maIdSet.add(mapKey)) {
                             a.setMaID(ma.getMaId());
                             beans.add(a);
                         }
                         break;
                     case MaDTO.MA_TERM:
-                        mapKey = MaDTO.MA_TERM + "_" + ma.getMaTerm();
+                        mapKey = ma.getMaTerm();
                         if (maTermSet.add(mapKey)) {
                             a.setMaTerm(ma.getMaTerm());
                             beans.add(a);
@@ -513,7 +513,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MaDTO.MA_TERM_SYNONYM:
                         if (ma.getMaTermSynonym() != null) {
                             for (String s : ma.getMaTermSynonym()) {
-                                mapKey = MaDTO.MA_TERM_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (maTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMaTermSynonym(s);
@@ -526,7 +526,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MaDTO.CHILD_MA_ID:
                         if (ma.getChildMaId() != null) {
                             for (String s : ma.getChildMaId()) {
-                                mapKey = MaDTO.CHILD_MA_ID + "_" + ma.getChildMaId();
+                                mapKey = s;
                                 if (childMaIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMaID(s);
@@ -539,7 +539,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MaDTO.CHILD_MA_TERM:
                         if (ma.getChildMaTerm() != null) {
                             for (String s : ma.getChildMaTerm()) {
-                                mapKey = MaDTO.CHILD_MA_TERM + "_" + s;
+                                mapKey = s;
                                 if (childMaTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMaTerm(s);
@@ -552,7 +552,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MaDTO.CHILD_MA_TERM_SYNONYM:
                         if (ma.getChildMaTermSynonym() != null) {
                             for (String s : ma.getChildMaTermSynonym()) {
-                                mapKey = MaDTO.CHILD_MA_TERM_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (childMaTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMaTermSynonym(s);
@@ -565,7 +565,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MaDTO.SELECTED_TOP_LEVEL_MA_ID:
                         if (ma.getSelectedTopLevelMaId() != null) {
                             for (String s : ma.getSelectedTopLevelMaId()) {
-                                mapKey = MaDTO.SELECTED_TOP_LEVEL_MA_ID + "_" + s;
+                                mapKey = s;
                                 if (selectedTopLevelMaIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setSelectedTopLevelMaID(s);
@@ -578,7 +578,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MaDTO.SELECTED_TOP_LEVEL_MA_TERM:
                         if (ma.getSelectedTopLevelMaTerm() != null) {
                             for (String s : ma.getSelectedTopLevelMaTerm()) {
-                                mapKey = MaDTO.SELECTED_TOP_LEVEL_MA_TERM + "_" + s;
+                                mapKey = s;
                                 if (selectedTopLevelMaTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setSelectedTopLevelMaTerm(s);
@@ -591,7 +591,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM:
                         if (ma.getSelectedTopLevelMaTermSynonym() != null) {
                             for (String s : ma.getSelectedTopLevelMaTermSynonym()) {
-                                mapKey = MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (selectedTopLevelMaTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setSelectedTopLevelMaTermSynonym(s);
@@ -632,7 +632,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 
                 switch (field) {
                     case HpDTO.HP_ID:
-                        mapKey = HpDTO.HP_ID + "_" + hp.getHpId();
+                        mapKey = hp.getHpId();
                         if (hpIdSet.add(mapKey)) {
                             a.setHpID(hp.getHpId());
                             a.setHpmpID(hp.getMpId());
@@ -641,7 +641,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         }
                         break;
                     case HpDTO.HP_TERM:
-                        mapKey = HpDTO.HP_TERM + "_" + hp.getHpTerm();
+                        mapKey = hp.getHpTerm();
                         if (hpTermSet.add(mapKey)) {
                             a.setHpTerm(hp.getHpTerm());
                             a.setHpmpID(hp.getMpId());
@@ -652,7 +652,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case HpDTO.HP_SYNONYM:
                         if (hp.getHpSynonym() != null) {
                             for (String s : hp.getHpSynonym()) {
-                                mapKey = HpDTO.HP_SYNONYM + "_" + s;
+                                mapKey = s;
                                 if (hpSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setDocType("hp");
