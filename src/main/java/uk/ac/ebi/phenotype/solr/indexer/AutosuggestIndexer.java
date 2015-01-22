@@ -123,6 +123,13 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateGeneAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> geneFields = Arrays.asList(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL);
+            
+        Set<String> mgiAccessionIdSet = new HashSet();
+        Set<String> markerSymbolSet = new HashSet();
+        Set<String> markerNameSet = new HashSet();
+        Set<String> markerSynonymSet = new HashSet();
+        Set<String> humanGeneSymbolSet = new HashSet();
+        String mapKey;
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -131,13 +138,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<GeneDTO> genes = geneCore.query(query).getBeans(GeneDTO.class);
         for (GeneDTO gene : genes) {
-            
-            Set<String> mgiAccessionIdSet = new HashSet();
-            Set<String> markerSymbolSet = new HashSet();
-            Set<String> markerNameSet = new HashSet();
-            Set<String> markerSynonymSet = new HashSet();
-            Set<String> humanGeneSymbolSet = new HashSet();
-            String mapKey;
             
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : geneFields) {
@@ -207,6 +207,20 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
                 MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM,
                 MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
+            
+        Set<String> mpIdSet = new HashSet();
+        Set<String> mpTermSet = new HashSet();
+        Set<String> mpTermSynonymSet = new HashSet();
+        Set<String> topLevelMpIdSet = new HashSet();
+        Set<String> topLevelMpTermSet = new HashSet();
+        Set<String> topLevelMpTermSynonymSet = new HashSet();
+        Set<String> intermediateMpIdSet = new HashSet();
+        Set<String> intermediateMpTermSet = new HashSet();
+        Set<String> intermediateMpTermSynonymSet = new HashSet();
+        Set<String> childMpIdSet = new HashSet();
+        Set<String> childMpTermSet = new HashSet();
+        Set<String> childMpTermSynonymSet = new HashSet();
+        String mapKey;
         
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -215,20 +229,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<MpDTO> mps = mpCore.query(query).getBeans(MpDTO.class);
         for (MpDTO mp : mps) {
-            
-            Set<String> mpIdSet = new HashSet();
-            Set<String> mpTermSet = new HashSet();
-            Set<String> mpTermSynonymSet = new HashSet();
-            Set<String> topLevelMpIdSet = new HashSet();
-            Set<String> topLevelMpTermSet = new HashSet();
-            Set<String> topLevelMpTermSynonymSet = new HashSet();
-            Set<String> intermediateMpIdSet = new HashSet();
-            Set<String> intermediateMpTermSet = new HashSet();
-            Set<String> intermediateMpTermSynonymSet = new HashSet();
-            Set<String> childMpIdSet = new HashSet();
-            Set<String> childMpTermSet = new HashSet();
-            Set<String> childMpTermSynonymSet = new HashSet();
-            String mapKey;
 
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : mpFields) {
@@ -392,6 +392,12 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateDiseaseAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> diseaseFields = Arrays.asList(DiseaseDTO.DISEASE_ID, DiseaseDTO.DISEASE_TERM, DiseaseDTO.DISEASE_ALTS);
+            
+        Set<String> diseaseIdSet = new HashSet();
+        Set<String> diseaseTermSet = new HashSet();
+        Set<String> diseaseAltsSet = new HashSet();
+        String mapKey;
+            
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(diseaseFields, ","))
@@ -399,11 +405,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<DiseaseDTO> diseases = diseaseCore.query(query).getBeans(DiseaseDTO.class);
         for (DiseaseDTO disease : diseases) {
-            
-            Set<String> diseaseIdSet = new HashSet();
-            Set<String> diseaseTermSet = new HashSet();
-            Set<String> diseaseAltsSet = new HashSet();
-            String mapKey;
             
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : diseaseFields) {
@@ -453,6 +454,18 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
                 MaDTO.CHILD_MA_TERM_SYNONYM, MaDTO.SELECTED_TOP_LEVEL_MA_ID,
                 MaDTO.SELECTED_TOP_LEVEL_MA_TERM, MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM);
+            
+        Set<String> maIdSet = new HashSet();
+        Set<String> maTermSet = new HashSet();
+        Set<String> maTermSynonymSet = new HashSet();
+        Set<String> childMaIdSet = new HashSet();
+        Set<String> childMaTermSet = new HashSet();
+        Set<String> childMaTermSynonymSet = new HashSet();
+        Set<String> selectedTopLevelMaIdSet = new HashSet();
+        Set<String> selectedTopLevelMaTermSet = new HashSet();
+        Set<String> selectedTopLevelMaTermSynonymSet = new HashSet();
+        String mapKey;
+            
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(maFields, ","))
@@ -460,17 +473,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<MaDTO> mas = maCore.query(query).getBeans(MaDTO.class);
         for (MaDTO ma : mas) {
-            
-            Set<String> maIdSet = new HashSet();
-            Set<String> maTermSet = new HashSet();
-            Set<String> maTermSynonymSet = new HashSet();
-            Set<String> childMaIdSet = new HashSet();
-            Set<String> childMaTermSet = new HashSet();
-            Set<String> childMaTermSynonymSet = new HashSet();
-            Set<String> selectedTopLevelMaIdSet = new HashSet();
-            Set<String> selectedTopLevelMaTermSet = new HashSet();
-            Set<String> selectedTopLevelMaTermSynonymSet = new HashSet();
-            String mapKey;
             
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : maFields) {
@@ -595,6 +597,11 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
+
+        Set<String> hpIdSet = new HashSet();
+        Set<String> hpTermSet = new HashSet();
+        Set<String> hpSynonymSet = new HashSet();
+        String mapKey;
         
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -605,11 +612,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
         QueryResponse r = phenodigmCore.query(query);
         List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
         for (HpDTO hp : hps) {
-
-            Set<String> hpIdSet = new HashSet();
-            Set<String> hpTermSet = new HashSet();
-            Set<String> hpSynonymSet = new HashSet();
-            String mapKey;
             
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : hpFields) {
