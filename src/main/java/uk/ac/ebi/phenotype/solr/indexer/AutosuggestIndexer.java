@@ -54,6 +54,52 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     public static final long MIN_EXPECTED_ROWS = 340000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
+    
+    // Sets used to insure uniqueness when loading core components.
+    
+    // gene
+    Set<String> mgiAccessionIdSet = new HashSet();
+    Set<String> markerSymbolSet = new HashSet();
+    Set<String> markerNameSet = new HashSet();
+    Set<String> markerSynonymSet = new HashSet();
+    Set<String> humanGeneSymbolSet = new HashSet();
+    
+    // mp
+    Set<String> mpIdSet = new HashSet();
+    Set<String> mpTermSet = new HashSet();
+    Set<String> mpTermSynonymSet = new HashSet();
+    Set<String> topLevelMpIdSet = new HashSet();
+    Set<String> topLevelMpTermSet = new HashSet();
+    Set<String> topLevelMpTermSynonymSet = new HashSet();
+    Set<String> intermediateMpIdSet = new HashSet();
+    Set<String> intermediateMpTermSet = new HashSet();
+    Set<String> intermediateMpTermSynonymSet = new HashSet();
+    Set<String> childMpIdSet = new HashSet();
+    Set<String> childMpTermSet = new HashSet();
+    Set<String> childMpTermSynonymSet = new HashSet();
+    
+    // disease
+    Set<String> diseaseIdSet = new HashSet();
+    Set<String> diseaseTermSet = new HashSet();
+    Set<String> diseaseAltsSet = new HashSet();
+    
+    // ma
+    Set<String> maIdSet = new HashSet();
+    Set<String> maTermSet = new HashSet();
+    Set<String> maTermSynonymSet = new HashSet();
+    Set<String> childMaIdSet = new HashSet();
+    Set<String> childMaTermSet = new HashSet();
+    Set<String> childMaTermSynonymSet = new HashSet();
+    Set<String> selectedTopLevelMaIdSet = new HashSet();
+    Set<String> selectedTopLevelMaTermSet = new HashSet();
+    Set<String> selectedTopLevelMaTermSynonymSet = new HashSet();
+    
+    // hp
+    Set<String> hpIdSet = new HashSet();
+    Set<String> hpTermSet = new HashSet();
+    Set<String> hpSynonymSet = new HashSet();
+        
+    String mapKey;
 
     @Override
     public void validateBuild() throws IndexerException {
@@ -123,13 +169,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateGeneAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> geneFields = Arrays.asList(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL);
-            
-        Set<String> mgiAccessionIdSet = new HashSet();
-        Set<String> markerSymbolSet = new HashSet();
-        Set<String> markerNameSet = new HashSet();
-        Set<String> markerSynonymSet = new HashSet();
-        Set<String> humanGeneSymbolSet = new HashSet();
-        String mapKey;
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -207,20 +246,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
                 MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM,
                 MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
-            
-        Set<String> mpIdSet = new HashSet();
-        Set<String> mpTermSet = new HashSet();
-        Set<String> mpTermSynonymSet = new HashSet();
-        Set<String> topLevelMpIdSet = new HashSet();
-        Set<String> topLevelMpTermSet = new HashSet();
-        Set<String> topLevelMpTermSynonymSet = new HashSet();
-        Set<String> intermediateMpIdSet = new HashSet();
-        Set<String> intermediateMpTermSet = new HashSet();
-        Set<String> intermediateMpTermSynonymSet = new HashSet();
-        Set<String> childMpIdSet = new HashSet();
-        Set<String> childMpTermSet = new HashSet();
-        Set<String> childMpTermSynonymSet = new HashSet();
-        String mapKey;
         
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -393,11 +418,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<String> diseaseFields = Arrays.asList(DiseaseDTO.DISEASE_ID, DiseaseDTO.DISEASE_TERM, DiseaseDTO.DISEASE_ALTS);
             
-        Set<String> diseaseIdSet = new HashSet();
-        Set<String> diseaseTermSet = new HashSet();
-        Set<String> diseaseAltsSet = new HashSet();
-        String mapKey;
-            
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(diseaseFields, ","))
@@ -454,17 +474,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
                 MaDTO.CHILD_MA_TERM_SYNONYM, MaDTO.SELECTED_TOP_LEVEL_MA_ID,
                 MaDTO.SELECTED_TOP_LEVEL_MA_TERM, MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM);
-            
-        Set<String> maIdSet = new HashSet();
-        Set<String> maTermSet = new HashSet();
-        Set<String> maTermSynonymSet = new HashSet();
-        Set<String> childMaIdSet = new HashSet();
-        Set<String> childMaTermSet = new HashSet();
-        Set<String> childMaTermSynonymSet = new HashSet();
-        Set<String> selectedTopLevelMaIdSet = new HashSet();
-        Set<String> selectedTopLevelMaTermSet = new HashSet();
-        Set<String> selectedTopLevelMaTermSynonymSet = new HashSet();
-        String mapKey;
             
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -597,11 +606,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
-
-        Set<String> hpIdSet = new HashSet();
-        Set<String> hpTermSet = new HashSet();
-        Set<String> hpSynonymSet = new HashSet();
-        String mapKey;
         
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
