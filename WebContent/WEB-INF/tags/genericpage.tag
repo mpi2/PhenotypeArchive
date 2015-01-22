@@ -22,11 +22,11 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         jspContext.setAttribute("baseUrl", baseUrl);
 
 
-        String pageUrl = request.getRequestURL().toString();
+        /*String pageUrl = request.getRequestURL().toString();
         System.out.println("pageUrl = " + pageUrl);
     
         String pageParams = request.getQueryString();
-        System.out.println("pageParams = " + pageParams);
+        System.out.println("pageParams = " + pageParams);*/
         
         // Use the drupal destination parameter to redirect back to this page
         // after logging in
@@ -82,7 +82,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
-<link rel="stylesheet" href="http://dev.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.css">
+<link rel="stylesheet" href="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.css">
 
 
 <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
@@ -166,7 +166,7 @@ ga('send', 'pageview');
 
 <jsp:invoke fragment="bodyTag"/>
 	<div id="feedback_simple">
-    	<a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href="/website-feedback?page=${uri}"><img src='http://dev.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.gif' /></a>
+    	<a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href=""><img src='http://dev.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.gif' /></a>
     </div>
 	<div id="wrapper">
 	<c:choose>
@@ -270,7 +270,7 @@ ga('send', 'pageview');
 	    
 	    <script type='text/javascript'>
 	    	$(document).ready(function(){
-	    			
+	    		$('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
 	    	});	    
 	    </script>  
 	   
