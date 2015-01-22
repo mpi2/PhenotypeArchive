@@ -166,7 +166,7 @@ ga('send', 'pageview');
 
 <jsp:invoke fragment="bodyTag"/>
 	<div id="feedback_simple">
-    	<a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href=""><img src='http://dev.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.gif' /></a>
+    	<a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href=""><img src="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.gif" /></a>
     </div>
 	<div id="wrapper">
 	<c:choose>
