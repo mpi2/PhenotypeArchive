@@ -57,18 +57,18 @@ public class ObservationIndexer extends AbstractIndexer {
 
     public final String ipgttWeightParamter = "IMPC_IPG_001_001";
     public final List<String> weightParamters = Arrays.asList(
-        "IMPC_GRS_003_001", "IMPC_CAL_001_001", "IMPC_DXA_001_001",
-        "IMPC_HWT_007_001", "IMPC_PAT_049_001", "IMPC_BWT_001_001",
-        "IMPC_ABR_001_001", "IMPC_CHL_001_001", "TCP_CHL_001_001",
-        "HMGU_ROT_004_001", "ESLIM_001_001_001", "ESLIM_002_001_001",
-        "ESLIM_003_001_001", "ESLIM_004_001_001", "ESLIM_005_001_001",
-        "ESLIM_020_001_001", "ESLIM_022_001_001", "ESLIM_009_001_003",
-        "ESLIM_010_001_003", "ESLIM_011_001_011", "ESLIM_012_001_005",
-        "ESLIM_013_001_018", "ESLIM_022_001_001", "GMC_916_001_022",
-        "GMC_908_001_001", "GMC_900_001_001", "GMC_926_001_003",
-        "GMC_922_001_002", "GMC_923_001_001", "GMC_921_001_002",
-        "GMC_902_001_003", "GMC_912_001_018", "GMC_917_001_001",
-        "GMC_920_001_001", "GMC_909_001_002", "GMC_914_001_001" );
+        "'IMPC_GRS_003_001'", "'IMPC_CAL_001_001'", "'IMPC_DXA_001_001'",
+        "'IMPC_HWT_007_001'", "'IMPC_PAT_049_001'", "'IMPC_BWT_001_001'",
+        "'IMPC_ABR_001_001'", "'IMPC_CHL_001_001'", "'TCP_CHL_001_001'",
+        "'HMGU_ROT_004_001'", "'ESLIM_001_001_001'", "'ESLIM_002_001_001'",
+        "'ESLIM_003_001_001'", "'ESLIM_004_001_001'", "'ESLIM_005_001_001'",
+        "'ESLIM_020_001_001'", "'ESLIM_022_001_001'", "'ESLIM_009_001_003'",
+        "'ESLIM_010_001_003'", "'ESLIM_011_001_011'", "'ESLIM_012_001_005'",
+        "'ESLIM_013_001_018'", "'ESLIM_022_001_001'", "'GMC_916_001_022'",
+        "'GMC_908_001_001'", "'GMC_900_001_001'", "'GMC_926_001_003'",
+        "'GMC_922_001_002'", "'GMC_923_001_001'", "'GMC_921_001_002'",
+        "'GMC_902_001_003'", "'GMC_912_001_018'", "'GMC_917_001_001'",
+        "'GMC_920_001_001'", "'GMC_909_001_002'", "'GMC_914_001_001'" );
 
 
     public ObservationIndexer() {
@@ -393,8 +393,6 @@ public class ObservationIndexer extends AbstractIndexer {
 
                 if (count % 1000 == 0) {
                     logger.info(" added " + count + " beans");
-
-                    break;
                 }
 
             }
