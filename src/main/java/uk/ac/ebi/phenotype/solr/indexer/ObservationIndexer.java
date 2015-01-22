@@ -55,6 +55,22 @@ public class ObservationIndexer extends AbstractIndexer {
 
     Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
+    public final String ipgttWeightParamter = "IMPC_IPG_001_001";
+    public final List<String> weightParamters = Arrays.asList(
+        "IMPC_GRS_003_001", "IMPC_CAL_001_001", "IMPC_DXA_001_001",
+        "IMPC_HWT_007_001", "IMPC_PAT_049_001", "IMPC_BWT_001_001",
+        "IMPC_ABR_001_001", "IMPC_CHL_001_001", "TCP_CHL_001_001",
+        "HMGU_ROT_004_001", "ESLIM_001_001_001", "ESLIM_002_001_001",
+        "ESLIM_003_001_001", "ESLIM_004_001_001", "ESLIM_005_001_001",
+        "ESLIM_020_001_001", "ESLIM_022_001_001", "ESLIM_009_001_003",
+        "ESLIM_010_001_003", "ESLIM_011_001_011", "ESLIM_012_001_005",
+        "ESLIM_013_001_018", "ESLIM_022_001_001", "GMC_916_001_022",
+        "GMC_908_001_001", "GMC_900_001_001", "GMC_926_001_003",
+        "GMC_922_001_002", "GMC_923_001_001", "GMC_921_001_002",
+        "GMC_902_001_003", "GMC_912_001_018", "GMC_917_001_001",
+        "GMC_920_001_001", "GMC_909_001_002", "GMC_914_001_001" );
+
+
     public ObservationIndexer() {
         
     }
@@ -352,18 +368,22 @@ public class ObservationIndexer extends AbstractIndexer {
                     }
                 }
 
-                // Add weight parameters
-                WeightBean b = getNearestWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
+                // Add weight parameters only if this observation isn't for a weight parameter
+                if ( ! weightParamters.contains(o.getParameterStableId()) && ! ipgttWeightParamter.equals(o.getParameterStableId())) {
 
-                if (o.getParameterStableId().startsWith("IMPC_IPG")) {
-                    b = getNearestIpgttWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
-                }
+                    WeightBean b = getNearestWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
 
-                if (b != null) {
-                    o.setWeight(b.weight);
-                    o.setWeightDate(b.date);
-                    o.setWeightDaysOld(b.daysOld);
-                    o.setWeightParameterStableId(b.parameterStableId);
+                    if (o.getParameterStableId().equals(ipgttWeightParamter)) {
+                        b = getNearestIpgttWeight(o.getBiologicalSampleId());
+                    }
+
+                    if (b != null) {
+                        logger.info("Got weight {} for parameter {} (from parameter {}, date {})", b.weight, o.getParameterStableId(), b.parameterStableId, b.date);
+                        o.setWeight(b.weight);
+                        o.setWeightDate(b.date);
+                        o.setWeightDaysOld(b.daysOld);
+                        o.setWeightParameterStableId(b.parameterStableId);
+                    }
                 }
 
                 // 60 seconds between commits
@@ -371,8 +391,10 @@ public class ObservationIndexer extends AbstractIndexer {
 
                 count ++;
 
-                if (count % 100000 == 0) {
+                if (count % 1000 == 0) {
                     logger.info(" added " + count + " beans");
+
+                    break;
                 }
 
             }
@@ -553,7 +575,7 @@ public class ObservationIndexer extends AbstractIndexer {
      * @exception SQLException When a database error occurrs
      */
     public Map<String, String> getAllParameters() throws SQLException {
-        Map<String, String> parameters = new HashMap<String, String>();
+        Map<String, String> parameters = new HashMap<>();
 
         String query = "SELECT stable_id, name FROM komp2.phenotype_parameter";
 
@@ -611,15 +633,18 @@ public class ObservationIndexer extends AbstractIndexer {
         WeightBean nearest = null;
 
         if ( weightMap.containsKey(specimenID) ) {
+            logger.debug(" weightmap contains {} values for specimen {}", weightMap.get(specimenID).size(), specimenID);
 
             for (WeightBean candidate : weightMap.get(specimenID)) {
 
                 if (nearest == null) {
+                    logger.debug("  Nearest weight for specimen {} is {} at {}", specimenID, candidate.weight, candidate.date);
                     nearest = candidate;
                     continue;
                 }
 
                 if (Math.abs(dateOfExperiment.getTime() - candidate.date.getTime()) < Math.abs(nearest.date.getTime() - candidate.date.getTime())) {
+                    logger.debug("  An even nearer date was found for specimen {}. {} at {} (instead of {})", specimenID, candidate.weight, candidate.date, nearest.date);
                     nearest = candidate;
                 }
             }
@@ -629,7 +654,8 @@ public class ObservationIndexer extends AbstractIndexer {
         // since the weight of the specimen become less and less relevant
         // (Heuristic from Natasha Karp @ WTSI)
         // 4 days = 345,600,000 ms
-        if (Math.abs(dateOfExperiment.getTime()-nearest.date.getTime()) > 3.456E8) {
+        if (nearest != null && Math.abs(dateOfExperiment.getTime()-nearest.date.getTime()) > 3.456E8) {
+            logger.debug("  Oops, this weight date {} for specimen {} is more than 4 days from {}", nearest.date, specimenID, dateOfExperiment);
             nearest = null;
         }
         return nearest;
@@ -638,10 +664,9 @@ public class ObservationIndexer extends AbstractIndexer {
     /**
      * Select date of experiment
      * @param specimenID the specimen
-     * @param dateOfExperiment the date
      * @return the nearest weight bean to the date of the experiment
      */
-    public WeightBean getNearestIpgttWeight(Integer specimenID, Date dateOfExperiment) {
+    public WeightBean getNearestIpgttWeight(Integer specimenID) {
 
         WeightBean nearest = null;
 
@@ -655,29 +680,26 @@ public class ObservationIndexer extends AbstractIndexer {
     /**
      * Return map of specimen ID => List of all weights ordered by date ASC
      *
-     * @exception SQLException When a database error occurrs
+     * @exception SQLException When a database error occurs
      */
-    public Map<String, List<WeightBean>> populateWeightMap() throws SQLException {
-        Map<String, List<WeightBean>> weightMap = new HashMap<>();
+    public void populateWeightMap() throws SQLException {
 
-        String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, " +
-            "date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old " +
-            "FROM observation o " +
-            "  INNER JOIN unidimensional_observation uo ON uo.id = o.id " +
-            "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
-            "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id " +
-            "  INNER JOIN experiment e ON e.id = eo.experiment_id " +
-            "WHERE parameter_stable_id IN ('IMPC_GRS_003_001', " +
-            "                              'IMPC_CAL_001_001', " +
-            "                              'IMPC_DXA_001_001', " +
-            "                              'IMPC_HWT_007_001', " +
-            "                              'IMPC_PAT_049_001', " +
-            "                              'IMPC_BWT_001_001', " +
-            "                              'IMPC_ABR_001_001', " +
-            "                              'IMPC_CHL_001_001', " +
-            "                              'TCP_CHL_001_001', " +
-            "                              'HMGU_ROT_004_001') " +
-            "ORDER BY biological_sample_id, date_of_experiment ASC";
+        int count=0;
+
+        String query = "SELECT\n" +
+            "  o.biological_sample_id, \n" +
+            "  data_point AS weight, \n" +
+            "  parameter_stable_id, \n" +
+            "  date_of_experiment, \n" +
+            "  datediff(date_of_experiment, ls.date_of_birth) as days_old, \n" +
+            "  e.organisation_id \n" +
+            "FROM observation o \n" +
+            "  INNER JOIN unidimensional_observation uo ON uo.id = o.id \n" +
+            "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id \n" +
+            "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id \n" +
+            "  INNER JOIN experiment e ON e.id = eo.experiment_id \n" +
+            "WHERE parameter_stable_id IN ("+StringUtils.join(weightParamters, ",")+") AND data_point > 0" +
+            "  ORDER BY biological_sample_id, date_of_experiment ASC \n" ;
 
         try (PreparedStatement statement = getConnection().prepareStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
@@ -689,17 +711,18 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
 
-                final String specimenId = resultSet.getString("biological_sample_id");
+                final Integer specimenId = resultSet.getInt("biological_sample_id");
 
                 if( ! weightMap.containsKey(specimenId)) {
                     weightMap.put(specimenId, new ArrayList<WeightBean>());
                 }
 
                 weightMap.get(specimenId).add(b);
+                count+=1;
             }
         }
 
-        return weightMap;
+        logger.info("Added {} weights to the weightmap for {} specimens", count, weightMap.size());
     }
 
     /**
@@ -707,8 +730,7 @@ public class ObservationIndexer extends AbstractIndexer {
      *
      * @exception SQLException When a database error occurrs
      */
-    public Map<String, WeightBean> populateIpgttWeightMap() throws SQLException {
-        Map<String, WeightBean> weightMap = new HashMap<>();
+    public void populateIpgttWeightMap() throws SQLException {
 
         String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, " +
             "date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old " +
@@ -717,7 +739,7 @@ public class ObservationIndexer extends AbstractIndexer {
             "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
             "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id " +
             "  INNER JOIN experiment e ON e.id = eo.experiment_id " +
-            "WHERE parameter_stable_id = 'IMPC_IPG_001_001' " ;
+            "WHERE parameter_stable_id = '"+ipgttWeightParamter+"' " ;
 
         try (PreparedStatement statement = getConnection().prepareStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
@@ -729,12 +751,11 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
 
-                final String specimenId = resultSet.getString("biological_sample_id");
-                weightMap.put(specimenId, b);
+                final Integer specimenId = resultSet.getInt("biological_sample_id");
+                ipgttWeightMap.put(specimenId, b);
             }
         }
 
-        return weightMap;
     }
 
 
