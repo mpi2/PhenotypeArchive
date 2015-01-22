@@ -52,7 +52,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     private SolrServer phenodigmCore;
 
-    public static final long MIN_EXPECTED_ROWS = 228000;
+    public static final long MIN_EXPECTED_ROWS = 218000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
     
     // Sets used to insure uniqueness when loading core components.
@@ -68,15 +68,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> mpIdSet = new HashSet();
     Set<String> mpTermSet = new HashSet();
     Set<String> mpTermSynonymSet = new HashSet();
-    Set<String> topLevelMpIdSet = new HashSet();
-    Set<String> topLevelMpTermSet = new HashSet();
-    Set<String> topLevelMpTermSynonymSet = new HashSet();
-    Set<String> intermediateMpIdSet = new HashSet();
-    Set<String> intermediateMpTermSet = new HashSet();
-    Set<String> intermediateMpTermSynonymSet = new HashSet();
-    Set<String> childMpIdSet = new HashSet();
-    Set<String> childMpTermSet = new HashSet();
-    Set<String> childMpTermSynonymSet = new HashSet();
     
     // disease
     Set<String> diseaseIdSet = new HashSet();
@@ -87,12 +78,6 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> maIdSet = new HashSet();
     Set<String> maTermSet = new HashSet();
     Set<String> maTermSynonymSet = new HashSet();
-    Set<String> childMaIdSet = new HashSet();
-    Set<String> childMaTermSet = new HashSet();
-    Set<String> childMaTermSynonymSet = new HashSet();
-    Set<String> selectedTopLevelMaIdSet = new HashSet();
-    Set<String> selectedTopLevelMaTermSet = new HashSet();
-    Set<String> selectedTopLevelMaTermSynonymSet = new HashSet();
     
     // hp
     Set<String> hpIdSet = new HashSet();
@@ -295,7 +280,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getTopLevelMpId() != null) {
                             for (String s : mp.getTopLevelMpId()) {
                                 mapKey = s;
-                                if (topLevelMpIdSet.add(mapKey)) {
+                                if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setTopLevelMpID(s);
                                     asyn.setDocType("mp");
@@ -308,7 +293,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getTopLevelMpTerm() != null) {
                             for (String s : mp.getTopLevelMpTerm()) {
                                 mapKey = s;
-                                if (topLevelMpTermSet.add(mapKey)) {
+                                if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setTopLevelMpTerm(s);
                                     asyn.setDocType("mp");
@@ -321,7 +306,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getTopLevelMpTermSynonym() != null) {
                             for (String s : mp.getTopLevelMpTermSynonym()) {
                                 mapKey = s;
-                                if (topLevelMpTermSynonymSet.add(mapKey)) {
+                                if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setTopLevelMpTermSynonym(s);
                                     asyn.setDocType("mp");
@@ -334,7 +319,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getIntermediateMpId() != null) {
                             for (String s : mp.getIntermediateMpId()) {
                                 mapKey = s;
-                                if (intermediateMpIdSet.add(mapKey)) {
+                                if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setIntermediateMpID(s);
                                     asyn.setDocType("mp");
@@ -347,7 +332,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getIntermediateMpTerm() != null) {
                             for (String s : mp.getIntermediateMpTerm()) {
                                 mapKey = s;
-                                if (intermediateMpTermSet.add(mapKey)) {
+                                if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setIntermediateMpTerm(s);
                                     asyn.setDocType("mp");
@@ -360,7 +345,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getIntermediateMpTermSynonym() != null) {
                             for (String s : mp.getIntermediateMpTermSynonym()) {
                                 mapKey = s;
-                                if (intermediateMpTermSynonymSet.add(mapKey)) {
+                                if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setIntermediateMpTermSynonym(s);
                                     asyn.setDocType("mp");
@@ -373,7 +358,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getChildMpId() != null) {
                             for (String s : mp.getChildMpId()) {
                                 mapKey = s;
-                                if (childMpIdSet.add(mapKey)) {
+                                if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMpID(s);
                                     asyn.setDocType("mp");
@@ -386,7 +371,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getChildMpTerm() != null) {
                             for (String s : mp.getChildMpTerm()) {
                                 mapKey = s;
-                                if (childMpTermSet.add(mapKey)) {
+                                if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMpTerm(s);
                                     asyn.setDocType("mp");
@@ -399,7 +384,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (mp.getChildMpTermSynonym() != null) {
                             for (String s : mp.getChildMpTermSynonym()) {
                                 mapKey = s;
-                                if (childMpTermSynonymSet.add(mapKey)) {
+                                if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMpTermSynonym(s);
                                     asyn.setDocType("mp");
@@ -527,7 +512,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (ma.getChildMaId() != null) {
                             for (String s : ma.getChildMaId()) {
                                 mapKey = s;
-                                if (childMaIdSet.add(mapKey)) {
+                                if (maIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMaID(s);
                                     asyn.setDocType("ma");
@@ -540,7 +525,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (ma.getChildMaTerm() != null) {
                             for (String s : ma.getChildMaTerm()) {
                                 mapKey = s;
-                                if (childMaTermSet.add(mapKey)) {
+                                if (maTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMaTerm(s);
                                     asyn.setDocType("ma");
@@ -553,7 +538,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (ma.getChildMaTermSynonym() != null) {
                             for (String s : ma.getChildMaTermSynonym()) {
                                 mapKey = s;
-                                if (childMaTermSynonymSet.add(mapKey)) {
+                                if (maTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setChildMaTermSynonym(s);
                                     asyn.setDocType("ma");
@@ -566,7 +551,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (ma.getSelectedTopLevelMaId() != null) {
                             for (String s : ma.getSelectedTopLevelMaId()) {
                                 mapKey = s;
-                                if (selectedTopLevelMaIdSet.add(mapKey)) {
+                                if (maIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setSelectedTopLevelMaID(s);
                                     asyn.setDocType("ma");
@@ -579,7 +564,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (ma.getSelectedTopLevelMaTerm() != null) {
                             for (String s : ma.getSelectedTopLevelMaTerm()) {
                                 mapKey = s;
-                                if (selectedTopLevelMaTermSet.add(mapKey)) {
+                                if (maTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setSelectedTopLevelMaTerm(s);
                                     asyn.setDocType("ma");
@@ -592,7 +577,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         if (ma.getSelectedTopLevelMaTermSynonym() != null) {
                             for (String s : ma.getSelectedTopLevelMaTermSynonym()) {
                                 mapKey = s;
-                                if (selectedTopLevelMaTermSynonymSet.add(mapKey)) {
+                                if (maTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setSelectedTopLevelMaTermSynonym(s);
                                     asyn.setDocType("ma");
