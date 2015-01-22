@@ -490,7 +490,10 @@
    			// hash tag query
    			// catch back/forward buttons and hash change: loada dataTable based on url params
    			$(window).bind("hashchange", function() {
-
+   				
+   				// for page feedback on search page that involves hashtag change
+   				$('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
+   				
    				MPI2.searchAndFacetConfig.update.hashChange = true;
    				//var hashStr = $.param.fragment();	 // not working with jQuery 10.0.1
    				var hashStr = $(location).attr('hash');	
