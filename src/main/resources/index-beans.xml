@@ -62,83 +62,83 @@
 
     <!--  Beans for writing to the solr servers -->
     <bean id="alleleIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/allele"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/allele_staging"/>
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
 
     <bean id="preqcIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc_staging"/>
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the experiment core -->
     <bean id="observationIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/experiment"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/experiment_staging"/>
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the MA core -->
     <bean id="maIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/ma"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/ma_staging"/>
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the disease core -->
     <bean id="diseaseIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/disease"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/disease_staging"/>
         <constructor-arg index="1" value="1000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the gene core -->
     <bean id="geneIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/gene"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/gene_staging"/>
         <constructor-arg index="1" value="1000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the genotype phenotype core -->
     <bean id="genotypePhenotypeIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/genotype-phenotype"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/genotype-phenotype_staging"/>
         <constructor-arg index="1" value="1000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the pipeline core -->
     <bean id="pipelineIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/pipeline"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/pipeline_staging"/>
         <constructor-arg index="1" value="500"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the samger images (or just images) core -->
     <bean id="sangerImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/images"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/images_staging"/>
         <constructor-arg index="1" value="2000"/> <!--Queue size-->
         <constructor-arg index="2" value="2"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the MP core -->
     <bean id="mpIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/mp"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/mp_staging"/>
         <constructor-arg index="1" value="200"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the autosuggest core -->
     <bean id="autosuggestIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/autosuggest"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/autosuggest_staging"/>
         <constructor-arg index="1" value="1000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
 
     <!-- used for concurrently loading the impc_images core -->
     <bean id="impcImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/impc_images"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/impc_images_staging"/>
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
@@ -146,7 +146,7 @@
 
     <!-- used for concurrently loading the statistical results core -->
     <bean id="statisticalResultsIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/statistical-result"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/statistical-result_staging"/>
         <constructor-arg index="1" value="50000"/> <!--Queue size-->
         <constructor-arg index="2" value="6"/> <!--Num threads-->
     </bean>
