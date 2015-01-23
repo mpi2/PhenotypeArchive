@@ -1035,7 +1035,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateMaNodeToTerms() {
 
-        System.out.println("pupulating ma_node2term");
+        System.out.println("populating ma_node2term");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "select * from ma_node2term";
 
@@ -1063,7 +1063,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateMaNodeToTopLevel() {
 
-        System.out.println("pupulating ma_node2term");
+        System.out.println("populating ma_node2topLevel");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "select distinct m.node_id, ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
 
