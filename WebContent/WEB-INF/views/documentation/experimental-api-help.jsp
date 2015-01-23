@@ -177,6 +177,26 @@
                     <td>indicating the date the data was collected</td>
                 </tr>
                 <tr>
+                    <td>weight</td>
+                    <td>float</td>
+                    <td>indicating the weight of the specimen observed</td>
+                </tr>
+                <tr>
+                    <td>weight_parameter_stable_id</td>
+                    <td>string</td>
+                    <td>indicating the particular weight parameter</td>
+                </tr>
+                <tr>
+                    <td>weight_date</td>
+                    <td>date</td>
+                    <td>indicating the actual date the weight was observed</td>
+                </tr>
+                <tr>
+                    <td>weight_days_old</td>
+                    <td>int</td>
+                    <td>indicating the age in days of the specimen when the weight was observed</td>
+                </tr>
+                <tr>
                     <td>data_point</td>
                     <td>float</td>
                     <td>indicates the measured data value (1) (2) (3)</td>
