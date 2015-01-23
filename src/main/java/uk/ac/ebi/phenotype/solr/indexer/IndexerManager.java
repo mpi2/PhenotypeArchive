@@ -20,7 +20,6 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,16 +67,16 @@ public class IndexerManager {
     public static final String STATSTICAL_RESULT_CORE = "statistical-result";
     
     //      These are built daily.
-    public static final String PREQC_CORE = "preqc";
-    public static final String ALLELE_CORE = "allele";
-    public static final String IMAGES_CORE = "images";
-    public static final String IMPC_IMAGES_CORE = "impc_images";
-    public static final String MP_CORE = "mp";
-    public static final String MA_CORE = "ma";
-    public static final String PIPELINE_CORE = "pipeline";
-    public static final String GENE_CORE = "gene";
-    public static final String DISEASE_CORE = "disease";
-    public static final String AUTOSUGGEST_CORE = "autosuggest";
+    public static final String PREQC_CORE = "preqc_staging";
+    public static final String ALLELE_CORE = "allele_staging";
+    public static final String IMAGES_CORE = "images_staging";
+    public static final String IMPC_IMAGES_CORE = "impc_images_staging";
+    public static final String MP_CORE = "mp_staging";
+    public static final String MA_CORE = "ma_staging";
+    public static final String PIPELINE_CORE = "pipeline_staging";
+    public static final String GENE_CORE = "gene_staging";
+    public static final String DISEASE_CORE = "disease_staging";
+    public static final String AUTOSUGGEST_CORE = "autosuggest_staging";
     
     // main return values.
     public static final int STATUS_OK                  = 0;
