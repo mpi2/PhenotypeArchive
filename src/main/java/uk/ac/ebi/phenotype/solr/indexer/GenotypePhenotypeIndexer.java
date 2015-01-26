@@ -49,7 +49,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     public GenotypePhenotypeIndexer() {
     }
 
-    public static final long MIN_EXPECTED_ROWS = 7600;
+    public static final long MIN_EXPECTED_ROWS = 7200;
 
     @Override
     public void validateBuild() throws IndexerException {
