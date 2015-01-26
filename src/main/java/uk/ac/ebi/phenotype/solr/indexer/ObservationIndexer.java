@@ -75,7 +75,7 @@ public class ObservationIndexer extends AbstractIndexer {
         
     }
 
-    public static final long MIN_EXPECTED_ROWS = 16630000;
+    public static final long MIN_EXPECTED_ROWS = 10000000;
 
     @Override
     public void validateBuild() throws IndexerException {
