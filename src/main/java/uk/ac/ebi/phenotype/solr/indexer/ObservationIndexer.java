@@ -75,7 +75,8 @@ public class ObservationIndexer extends AbstractIndexer {
         
     }
 
-    public static final long MIN_EXPECTED_ROWS = 16630000;
+    // This should be set to the lowest of: DEV, BETA, and Live.
+    public static final long MIN_EXPECTED_ROWS = 13000000;
 
     @Override
     public void validateBuild() throws IndexerException {
