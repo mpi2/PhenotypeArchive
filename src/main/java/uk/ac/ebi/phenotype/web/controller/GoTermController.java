@@ -61,7 +61,7 @@ public class GoTermController {
 	public String createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
 	
 		StringBuilder builder = new StringBuilder();
-		String legend = "F = molecular function<br>P = biological process.<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
+		String legend = "F = molecular function<br>P = biological process<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
 		
 		builder.append(legend);
 		builder.append("<table>");
@@ -99,7 +99,7 @@ public class GoTermController {
 				        if ( goMode.equals("w/o GO") ){
 				        	
 				        	builder.append("<tr>");
-				        	builder.append("<td class='phenoStatus'>" + goMode + "</td>");
+				        	builder.append("<td>" + goMode + "</td>");
 				        	builder.append("<td colspan=3>" + evids.get(0) + "</td>");
 				        	builder.append("</tr>");
 				        }
