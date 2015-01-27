@@ -61,7 +61,7 @@ public class GoTermController {
 	public String createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
 	
 		StringBuilder builder = new StringBuilder();
-		String legend = "F = molecular function, P = biological process.<br><span class='FP'>F or P</span><span class='F'>F</span><span class='P'>P</span>";
+		String legend = "F = molecular function, P = biological process.<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
 		
 		builder.append(legend);
 		builder.append("<table>");
@@ -112,7 +112,7 @@ public class GoTermController {
 				        		cellVals = evidValDomain.get(evidCode);
 				        	}
 				        	
-				        	cellVals.add("<span class='" + domain + "'>" + evids.get(i+1).toString() + "</span>");
+				        	cellVals.add("<div class='" + domain + "'>" + evids.get(i+1).toString() + "</div>");
 				        	evidValDomain.put(evidCode, cellVals);
 				        }
     				}
