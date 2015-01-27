@@ -57,7 +57,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         
     }
     
-    public static final long MIN_EXPECTED_ROWS = 528000;
+    public static final long MIN_EXPECTED_ROWS = 400000;
     
     @Override
     public void validateBuild() throws IndexerException {
