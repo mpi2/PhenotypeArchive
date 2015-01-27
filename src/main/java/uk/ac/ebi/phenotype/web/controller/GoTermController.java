@@ -61,7 +61,7 @@ public class GoTermController {
 	public String createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
 	
 		StringBuilder builder = new StringBuilder();
-		String legend = "F = molecular function, P = biological process.<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
+		String legend = "F = molecular function<br>P = biological process.<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
 		
 		builder.append(legend);
 		builder.append("<table>");
@@ -124,7 +124,7 @@ public class GoTermController {
     				Map.Entry pairs3 = (Map.Entry)cell.next();
     				String evidCode = pairs3.getKey().toString();
     				List<String> cellValLst = (List<String>) pairs3.getValue();
-    				String cellVals = StringUtils.join(cellValLst, ", ");
+    				String cellVals = StringUtils.join(cellValLst, "");
     				builder.append("<tr>");
 		        	builder.append("<td>" + evidCode + "</td>");
 		        	builder.append("<td>" + cellVals + "</td>");
