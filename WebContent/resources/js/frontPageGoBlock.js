@@ -1,8 +1,16 @@
 <link href="//dev.mousephenotype.org/data/css/searchPage.css" rel="stylesheet" />
 <link href="//dev.mousephenotype.org/data/js/vendor/jquery.sumoselect/sumoselect.css" rel="stylesheet" />
+
+
 <style type="text/css">.goselect {width: 240px;}
 table td {background-color: white;}
+td.phenoStatus {background-color: #F2F2F2;}
+.FP {background-color: #CC9999;}
+.F {background-color: #996699;}
+.P {background-color: #666699;}
+.FP, .F, .P {color: white; display: inline; margin-left: 3px; padding: 1px 3px; width: 40px; text-align: center; border-radius: 4px; font-size: 11px;}
 </style>
+
 <div id="goBlock">&nbsp;</div>
 
 <p>&nbsp;</p>
@@ -69,7 +77,7 @@ $(document).ready(function(){
 	     var commonQ = '(latest_phenotype_status:"Phenotyping Started" OR latest_phenotype_status:"Phenotyping Complete")';
 	     var commonFl =  "mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name";
 	     var rows = 999999;
-             var exportUrl = "http://localhost:8080/phenotype-archive/export";    
+	     var exportUrl = baseUrl + '/export';      
 
              // submit form dynamically
              $('button').click(function(){
