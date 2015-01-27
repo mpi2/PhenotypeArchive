@@ -855,51 +855,79 @@ public class SolrIndex {
 		return map;
 	}
 	
-	public Map<String, Map<String, JSONArray>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
+	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
 	//public void getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
 		
 		
-		Map<String, Map<String, JSONArray>> statusEvidCount = new LinkedHashMap<String, Map<String, JSONArray>>();
+		Map<String, Map<String, Map<String, JSONArray>>> statusEvidCount = new LinkedHashMap<>();
 		
 		List<String> phenoStatuses = new ArrayList<String>();
 		phenoStatuses.add("Phenotyping Complete");
 		phenoStatuses.add("Phenotyping Started");
 		
 		for ( String status : phenoStatuses ){
-			String goParams = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:*&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
-			String goQuery = internalBaseSolrUrl + goParams;
+			//String goParams = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:*&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+		
+			// either molecular_function or biological_process
+			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			
+			// only molecular_function
+			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			
+			// only biological_process
+			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			
+			Map<String, String> goQueries = new LinkedHashMap<>();
+			goQueries.put("FP", internalBaseSolrUrl + goParamsFP);
+			goQueries.put("F",  internalBaseSolrUrl + goParamsF);
+			goQueries.put("P",  internalBaseSolrUrl + goParamsP);
 			
 			String noGoParams = "q=latest_phenotype_status:\"" + status + "\" AND -go_term_id:*&wt=json&rows=0";
-			String noGoQuery = internalBaseSolrUrl + noGoParams;
+			Map<String, String> noGoQueries = new LinkedHashMap<>();
+			noGoQueries.put("none", internalBaseSolrUrl + noGoParams);
 			
-			Map<String, String> annotUrls = new LinkedHashMap<>();
+			Map<String, Map<String, String>> annotUrls = new LinkedHashMap<>();
 			String noGo  = "w/o GO";
 			String hasGo = "w/  GO";
 			
-			annotUrls.put(noGo, noGoQuery);
-			annotUrls.put(hasGo, goQuery);
+			annotUrls.put(noGo, noGoQueries);
+			annotUrls.put(hasGo, goQueries);
 			
-			Map<String, JSONArray> annotCounts = new LinkedHashMap<>();
+			Map<String, Map<String, JSONArray>> annotCounts = new LinkedHashMap<>();
 			
 			Iterator it = annotUrls.entrySet().iterator();
 			while (it.hasNext()) {
 		        Map.Entry pairs = (Map.Entry)it.next();
 		        String annot = pairs.getKey().toString();
-		        String query = pairs.getValue().toString();
+		       
+		        Map<String, String> queries = (Map<String, String>) pairs.getValue();
 		        it.remove(); // avoids a ConcurrentModificationException
-		        JSONObject json = getResults(query);
-		        //System.out.println("QUERY: " + query);
 		        
-		        if ( annot.equals(hasGo) ){ 
-		        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("go_term_evid");
-		        	annotCounts.put(annot, jfacet);
-		        }
-		        else {
-		        	int numFound = json.getJSONObject("response").getInt("numFound");
-		        	JSONArray ja = new JSONArray();
-		        	ja.add(numFound);
-		        	annotCounts.put(annot, ja);
+		        Map<String, JSONArray> jlist = new LinkedHashMap<>();
+		        Iterator itq = queries.entrySet().iterator();
+		        
+		        while (itq.hasNext()) {
+			        Map.Entry pairs2 = (Map.Entry)itq.next();
+			        String domain = pairs2.getKey().toString();
+			        String query = pairs2.getValue().toString();
+			        itq.remove(); // avoids a ConcurrentModificationException
+		        
+			        JSONObject json = getResults(query);
+			        //System.out.println("QUERY: " + query);
+			        
+			        if ( annot.equals(hasGo) ){ 
+			        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("go_term_evid");
+			        	jlist.put(domain, jfacet);
+			        	annotCounts.put(annot, jlist);
+			        }
+			        else {
+			        	int numFound = json.getJSONObject("response").getInt("numFound");
+			        	JSONArray ja = new JSONArray();
+			        	ja.add(numFound);
+			        	jlist.put(domain, ja);
+			        	annotCounts.put(annot, jlist);
+			        }
 		        }
 			}
 			
