@@ -120,7 +120,7 @@ public class DataTableController {
 		String fqOri = "";
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
-		System.out.println("paramstr: " + solrParamStr);
+		
 		boolean legacyOnly = jParams.getBoolean("legacyOnly");
 		
 		// Get the query string
