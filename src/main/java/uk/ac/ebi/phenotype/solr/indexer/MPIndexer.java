@@ -122,7 +122,7 @@ public class MPIndexer extends AbstractIndexer {
     
     }
 
-    public static final long MIN_EXPECTED_ROWS = 1000;
+    public static final long MIN_EXPECTED_ROWS = 600;
 
     @Override
     public void validateBuild() throws IndexerException {
@@ -185,6 +185,7 @@ public class MPIndexer extends AbstractIndexer {
                     // Update the batch, clear the list
                     mpCore.addBeans(mpBatch, 60000);
                     mpBatch.clear();
+                    mpCore.commit();
                     logger.info("Indexed {} beans", count);
                 }
             }
