@@ -71,7 +71,7 @@ public class PreqcIndexer extends AbstractIndexer {
     private String preqcXmlFilename;
 
 
-    public static final long MIN_EXPECTED_ROWS = 7500;
+    public static final long MIN_EXPECTED_ROWS = 5500;
 
     @Override
     public void validateBuild() throws IndexerException {
