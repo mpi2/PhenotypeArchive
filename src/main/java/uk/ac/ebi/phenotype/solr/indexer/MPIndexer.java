@@ -82,7 +82,7 @@ public class MPIndexer extends AbstractIndexer {
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
 
-    private static final int BATCH_SIZE = 50;
+    private static final int BATCH_SIZE = 10;
 
     // Maps of supporting database content
     Map<String, List<MPHPBean>> mphpBeans;
