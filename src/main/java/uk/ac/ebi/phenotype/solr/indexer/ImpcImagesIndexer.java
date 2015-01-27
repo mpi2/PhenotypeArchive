@@ -72,7 +72,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		super();
 	}
 
-	public static final long MIN_EXPECTED_ROWS = 12500;
+	public static final long MIN_EXPECTED_ROWS = 9500;
 
 	@Override
 	public void validateBuild() throws IndexerException {
