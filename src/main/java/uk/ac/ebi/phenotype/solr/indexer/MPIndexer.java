@@ -120,7 +120,7 @@ public class MPIndexer extends AbstractIndexer {
     
     }
 
-    public static final long MIN_EXPECTED_ROWS = 1000;
+    public static final long MIN_EXPECTED_ROWS = 600;
 
     @Override
     public void validateBuild() throws IndexerException {
