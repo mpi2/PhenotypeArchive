@@ -82,8 +82,6 @@ public class MPIndexer extends AbstractIndexer {
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
 
-    private static final int BATCH_SIZE = 50;
-
     // Maps of supporting database content
     Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
@@ -148,12 +146,16 @@ public class MPIndexer extends AbstractIndexer {
 
         initialiseSupportingBeans();
 
-        List<MpDTO> mpBatch = new ArrayList<>(BATCH_SIZE);
         int count = 0;
 
         logger.info("Starting indexing loop");
 
         try {
+
+            // Delete the documents in the core if there are any.
+            mpCore.deleteByQuery("*:*");
+            mpCore.commit();
+
             // Loop through the mp_term_infos
             String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
@@ -180,20 +182,12 @@ public class MPIndexer extends AbstractIndexer {
                 logger.debug("{}: Built MP DTO {}", count, termId);
                 count ++;
 
-                mpBatch.add(mp);
-                if (mpBatch.size() == BATCH_SIZE) {
-                    // Update the batch, clear the list
-                    mpCore.addBeans(mpBatch, 60000);
-                    mpBatch.clear();
-                    logger.info("Indexed {} beans", count);
-                }
+                mpCore.addBean(mp, 60000);
             }
 
-            // Make sure the last batch is indexed
-            mpCore.addBeans(mpBatch, 60000);
-            count += mpBatch.size();
             // Send a final commit
             mpCore.commit();
+
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
@@ -923,8 +917,8 @@ public class MPIndexer extends AbstractIndexer {
                     parentTermNames.add(bean.getName());
                 }
             }
-            if (mpTermSynonyms.containsKey(parentId)) {
-                parentSynonyms.addAll(mpTermSynonyms.get(parentId));
+            if (mpTermSynonyms.containsKey(parentId.toString())) {
+                parentSynonyms.addAll(mpTermSynonyms.get(parentId.toString()));
             }
         }
 
@@ -1055,39 +1049,51 @@ public class MPIndexer extends AbstractIndexer {
                 // NO TYPE FIELD IN ALLELE DATA!!! mp.getType().add(???)
                 if (allele.getDiseaseSource() != null) {
                     mp.getDiseaseSource().addAll(allele.getDiseaseSource());
+                    mp.setDiseaseSource(new ArrayList<>(new HashSet<>(mp.getDiseaseSource())));
                 }
                 if (allele.getDiseaseTerm() != null) {
                     mp.getDiseaseTerm().addAll(allele.getDiseaseTerm());
+                    mp.setDiseaseTerm(new ArrayList<>(new HashSet<>(mp.getDiseaseTerm())));
                 }
                 if (allele.getDiseaseAlts() != null) {
                     mp.getDiseaseAlts().addAll(allele.getDiseaseAlts());
+                    mp.setDiseaseAlts(new ArrayList<>(new HashSet<>(mp.getDiseaseAlts())));
                 }
                 if (allele.getDiseaseClasses() != null) {
                     mp.getDiseaseClasses().addAll(allele.getDiseaseClasses());
+                    mp.setDiseaseClasses(new ArrayList<>(new HashSet<>(mp.getDiseaseClasses())));
                 }
                 if (allele.getHumanCurated() != null) {
                     mp.getHumanCurated().addAll(allele.getHumanCurated());
+                    mp.setHumanCurated(new ArrayList<>(new HashSet<>(mp.getHumanCurated())));
                 }
                 if (allele.getMouseCurated() != null) {
                     mp.getMouseCurated().addAll(allele.getMouseCurated());
+                    mp.setMouseCurated(new ArrayList<>(new HashSet<>(mp.getMouseCurated())));
                 }
                 if (allele.getMgiPredicted() != null) {
                     mp.getMgiPredicted().addAll(allele.getMgiPredicted());
+                    mp.setMgiPredicted(new ArrayList<>(new HashSet<>(mp.getMgiPredicted())));
                 }
                 if (allele.getImpcPredicted() != null) {
                     mp.getImpcPredicted().addAll(allele.getImpcPredicted());
+                    mp.setImpcPredicted(new ArrayList<>(new HashSet<>(mp.getImpcPredicted())));
                 }
                 if (allele.getMgiPredictedKnownGene() != null) {
                     mp.getMgiPredictedKnownGene().addAll(allele.getMgiPredictedKnownGene());
+                    mp.setMgiPredictedKnownGene(new ArrayList<>(new HashSet<>(mp.getMgiPredictedKnownGene())));
                 }
                 if (allele.getImpcPredictedKnownGene() != null) {
                     mp.getImpcPredictedKnownGene().addAll(allele.getImpcPredictedKnownGene());
+                    mp.setImpcPredictedKnownGene(new ArrayList<>(new HashSet<>(mp.getImpcPredictedKnownGene())));
                 }
                 if (allele.getMgiNovelPredictedInLocus() != null) {
                     mp.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
+                    mp.setMgiNovelPredictedInLocus(new ArrayList<>(new HashSet<>(mp.getMgiNovelPredictedInLocus())));
                 }
                 if (allele.getImpcNovelPredictedInLocus() != null) {
                     mp.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
+                    mp.setImpcNovelPredictedInLocus(new ArrayList<>(new HashSet<>(mp.getImpcNovelPredictedInLocus())));
                 }
                 if (allele.getMarkerSymbol() != null) {
                     mp.getMarkerSymbol().add(allele.getMarkerSymbol());
@@ -1233,55 +1239,6 @@ public class MPIndexer extends AbstractIndexer {
 
         logger.info("Process finished.  Exiting.");
 
-//        OptionParser parser = new OptionParser();
-//
-//        // parameter to indicate which spring context file to use
-//        parser.accepts("context").withRequiredArg().ofType(String.class);
-//
-//        OptionSet options = parser.parse(args);
-//        String context = (String) options.valuesOf("context").get(0);
-//
-//        logger.info("Using application context file {}", context);
-//
-//        // Wire up spring support for this application
-//        MPIndexer main = new MPIndexer();
-//
-//        ApplicationContext applicationContext;
-//        try {
-//            // Try context as a file resource
-//            applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-//
-//        } catch (RuntimeException e) {
-//
-//            logger.warn("An error occurred loading the file: {}", e.getMessage());
-//
-//            // Try context as a class path resource
-//            applicationContext = new ClassPathXmlApplicationContext(context);
-//
-//            logger.warn("Using classpath app-config file: {}", context);
-//
-//        }
-//
-//        try {
-//            applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(main, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-//
-//            // allow hibernate session to stay open the whole execution
-//            PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-//            DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-//            transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-//            transactionManager.getTransaction(transactionAttribute);
-//
-//            DataSource komp2DS = ((DataSource) applicationContext.getBean("komp2DataSource"));
-//            komp2DbConnection = komp2DS.getConnection();
-//            DataSource ontoDS = ((DataSource) applicationContext.getBean("ontodbDataSource"));
-//            ontoDbConnection = ontoDS.getConnection();
-//        } catch (SQLException e) {
-//            throw new IndexerException(e);
-//        }
-//
-//        main.run();
-//
-//        logger.info("Process finished.  Exiting.");
     }
 
 }

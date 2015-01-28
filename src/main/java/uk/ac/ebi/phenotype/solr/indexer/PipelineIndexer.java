@@ -297,7 +297,8 @@ public class PipelineIndexer extends AbstractIndexer {
                 count ++;
 
                 if (count % 10 == 0) {
-                    logger.info(" added " + count + " beans");
+                	pipelineCore.commit();
+                    logger.info(" commited " + count + " beans");
                 }
                 // if(count>100)break;
             }
