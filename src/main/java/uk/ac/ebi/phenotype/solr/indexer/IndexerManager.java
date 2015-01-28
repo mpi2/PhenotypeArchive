@@ -62,21 +62,21 @@ public class IndexerManager {
     
     // core names.
     //      These are built only for a new data release.
-    public static final String OBSERVATION_CORE = "experiment_staging";                 // For historic reasons, the core's actual name is 'experiment'.
-    public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype_staging";
-    public static final String STATSTICAL_RESULT_CORE = "statistical-result_staging";
+    public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
+    public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
+    public static final String STATSTICAL_RESULT_CORE = "statistical-result";
     
     //      These are built daily.
-    public static final String PREQC_CORE = "preqc_staging";
-    public static final String ALLELE_CORE = "allele_staging";
-    public static final String IMAGES_CORE = "images_staging";
-    public static final String IMPC_IMAGES_CORE = "impc_images_staging";
-    public static final String MP_CORE = "mp_staging";
-    public static final String MA_CORE = "ma_staging";
-    public static final String PIPELINE_CORE = "pipeline_staging";
-    public static final String GENE_CORE = "gene_staging";
-    public static final String DISEASE_CORE = "disease_staging";
-    public static final String AUTOSUGGEST_CORE = "autosuggest_staging";
+    public static final String PREQC_CORE = "preqc";
+    public static final String ALLELE_CORE = "allele";
+    public static final String IMAGES_CORE = "images";
+    public static final String IMPC_IMAGES_CORE = "impc_images";
+    public static final String MP_CORE = "mp";
+    public static final String MA_CORE = "ma";
+    public static final String PIPELINE_CORE = "pipeline";
+    public static final String GENE_CORE = "gene";
+    public static final String DISEASE_CORE = "disease";
+    public static final String AUTOSUGGEST_CORE = "autosuggest";
     
     // main return values.
     public static final int STATUS_OK                  = 0;
