@@ -280,10 +280,14 @@ public class PipelineIndexer extends AbstractIndexer {
                                         if (mp.getInferredSelectedTopLevelMaId() != null) {
                                             pipe.addInferredSelectedTopLevelMaId(mp.getInferredSelectedTopLevelMaId());
 //										<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-                                            pipe.addInferredSelectedTopLevelMaTerm(mp.getInferredSelectedTopLevelMaTerm());
+                                            if (mp.getInferredSelectedTopLevelMaTerm() != null) {
+                                                pipe.addInferredSelectedTopLevelMaTerm(mp.getInferredSelectedTopLevelMaTerm());
+                                            }
 //										<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />				
-                                            pipe.addInferredSelectedToLevelMaTermSynonym(mp.getInferredSelectedTopLevelMaTermSynonym());
-//									<field column="inferred_selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term_synonym']/str" />				
+                                            if (mp.getInferredSelectedTopLevelMaTermSynonym() != null) {
+                                                pipe.addInferredSelectedToLevelMaTermSynonym(mp.getInferredSelectedTopLevelMaTermSynonym());
+                                            }
+//									<field column="inferred_selected_top_level_ma_term_synonym" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term_synonym']/str" />
 
                                         }
                                         if (mp.getInferredChildMaId() != null) {
@@ -308,14 +312,9 @@ public class PipelineIndexer extends AbstractIndexer {
                 // pipe.setPipelineStableId(pipelineStableId);
                 // pipe.setPipelineId(pipelineId);
 
-                pipelineCore.addBean(pipe, 2000);
+                pipelineCore.addBean(pipe, 20000);
                 count ++;
 
-                if (count % 10 == 0) {
-                	pipelineCore.commit();
-                    logger.info(" commited " + count + " beans");
-                }
-                // if(count>100)break;
             }
 
             System.out.println("commiting to Pipeline core for last time!");
