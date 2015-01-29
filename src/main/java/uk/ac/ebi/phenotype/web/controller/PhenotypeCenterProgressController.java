@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,7 +18,7 @@ import uk.ac.ebi.phenotype.service.PhenotypeCenterService;
 
 import org.springframework.ui.Model;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+
 @Controller
 public class PhenotypeCenterProgressController {
 	@Autowired
