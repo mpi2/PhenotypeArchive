@@ -1,9 +1,10 @@
 package uk.ac.ebi.phenotype.service.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.solr.client.solrj.beans.Field;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class PipelineDTO {
 
@@ -1136,7 +1137,7 @@ public class PipelineDTO {
 	public void addAlleleName(List<String> alleleName) {
 
 		if (this.alleleName == null) {
-			this.alleleName = new ArrayList<String>();
+			this.alleleName = new ArrayList<>();
 		}
 		this.alleleName.addAll(alleleName);
 
@@ -1146,7 +1147,7 @@ public class PipelineDTO {
 	public void addMpId(String mpTermId) {
 
 		if (this.mpId == null) {
-			this.mpId = new ArrayList<String>();
+			this.mpId = new ArrayList<>();
 		}
 		this.mpId.add(mpTermId);
 
@@ -1156,7 +1157,7 @@ public class PipelineDTO {
 	public void addMpTerm(String mpTerm) {
 
 		if (this.mpTerm == null) {
-			this.mpTerm = new ArrayList<String>();
+			this.mpTerm = new ArrayList<>();
 		}
 		this.mpTerm.add(mpTerm);
 
@@ -1166,107 +1167,111 @@ public class PipelineDTO {
 	public void addMpTermSynonym(List<String> mpTermSynonym) {
 
 		if (this.mpTermSynonym == null) {
-			this.mpTermSynonym = new ArrayList<String>();
+			this.mpTermSynonym = new ArrayList<>();
 		}
 		this.mpTermSynonym.addAll(mpTermSynonym);
+		this.mpTermSynonym = new ArrayList<>(new HashSet<>(this.mpTermSynonym));
 	}
 
 
 	public void addOntologySubset(List<String> ontologySubset) {
 
 		if (this.ontologySubset == null) {
-			this.ontologySubset = new ArrayList<String>();
+			this.ontologySubset = new ArrayList<>();
 		}
 		this.ontologySubset.addAll(ontologySubset);
+		this.ontologySubset = new ArrayList<>(new HashSet<>(this.ontologySubset));
 	}
 
 
 	public void addTopLevelMpId(List<String> topLevelMpTermId) {
 		if (this.topLevelMpId == null) {
-			this.topLevelMpId = new ArrayList<String>();
+			this.topLevelMpId = new ArrayList<>();
 		}
 		this.topLevelMpId.addAll(topLevelMpTermId);
-		
+		this.topLevelMpId = new ArrayList<>(new HashSet<>(this.topLevelMpId));
 	}
 
 
 	public void addTopLevelMpTerm(List<String> topLevelMpTerm) {
 		if (this.topLevelMpTerm == null) {
-			this.topLevelMpTerm = new ArrayList<String>();
+			this.topLevelMpTerm = new ArrayList<>();
 		}
 		this.topLevelMpTerm.addAll(topLevelMpTerm);
+		this.topLevelMpTerm = new ArrayList<>(new HashSet<>(this.topLevelMpTerm));
 	}
 
 
 	public void addTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
 		if (this.topLevelMpTermSynonym == null) {
-			this.topLevelMpTermSynonym = new ArrayList<String>();
+			this.topLevelMpTermSynonym = new ArrayList<>();
 		}
 		this.topLevelMpTermSynonym.addAll(topLevelMpTermSynonym);
-		
+		this.topLevelMpTermSynonym = new ArrayList<>(new HashSet<>(this.topLevelMpTermSynonym));
 	}
 
 
 	public void addIntermediateMpId(List<String> intermediateMpId) {
 		if (this.intermediateMpId == null) {
-			this.intermediateMpId = new ArrayList<String>();
+			this.intermediateMpId = new ArrayList<>();
 		}
 		this.intermediateMpId.addAll(intermediateMpId);
-		
+		this.intermediateMpId = new ArrayList<>(new HashSet<>(this.intermediateMpId));
 	}
 
 
 	public void addIntermediateMpTerm(List<String> intermediateMpTerm) {
 		if (this.intermediateMpTerm == null) {
-			this.intermediateMpTerm = new ArrayList<String>();
+			this.intermediateMpTerm = new ArrayList<>();
 		}
 		this.intermediateMpTerm.addAll(intermediateMpTerm);
+		this.intermediateMpTerm = new ArrayList<>(new HashSet<>(this.intermediateMpTerm));
 	}
 
 
 	public void addIntermediateMpTermSynonym(List<String> intermediateMpTermSynonym) {
 
 		if (this.intermediateMpTermSynonym == null) {
-			this.intermediateMpTermSynonym = new ArrayList<String>();
+			this.intermediateMpTermSynonym = new ArrayList<>();
 		}
 		this.intermediateMpTermSynonym.addAll(intermediateMpTermSynonym);
-		
+		this.intermediateMpTermSynonym = new ArrayList<>(new HashSet<>(this.intermediateMpTermSynonym));
 	}
 
 
 	public void addChildMpId(List<String> childMpId) {
 
 		if (this.childMpId == null) {
-			this.childMpId = new ArrayList<String>();
+			this.childMpId = new ArrayList<>();
 		}
 		this.childMpId.addAll(childMpId);
-		
-		
+		this.childMpId = new ArrayList<>(new HashSet<>(this.childMpId));
 	}
 
 
 	public void addChildMpTerm(List<String> childMpTerm) {
 
 		if (this.childMpTerm == null) {
-			this.childMpTerm = new ArrayList<String>();
+			this.childMpTerm = new ArrayList<>();
 		}
 		this.childMpTerm.addAll(childMpTerm);
-		
+		this.childMpTerm = new ArrayList<>(new HashSet<>(this.childMpTerm));
 	}
 
 
 	public void addChildMpTermSynonym(List<String> childMpTermSynonym) {
 
 		if (this.childMpTermSynonym == null) {
-			this.childMpTermSynonym = new ArrayList<String>();
+			this.childMpTermSynonym = new ArrayList<>();
 		}
 		this.childMpTermSynonym.addAll(childMpTermSynonym);
+		this.childMpTermSynonym = new ArrayList<>(new HashSet<>(this.childMpTermSynonym));
 	}
 
 
 	public void addHpId(List<String> hpId) {
 		if (this.hpId == null) {
-			this.hpId = new ArrayList<String>();
+			this.hpId = new ArrayList<>();
 		}
 		this.hpId.addAll(hpId);
 	}
@@ -1275,7 +1280,7 @@ public class PipelineDTO {
 	public void addHpTerm(List<String> hpTerm) {
 
 		if (this.hpTerm == null) {
-			this.hpTerm = new ArrayList<String>();
+			this.hpTerm = new ArrayList<>();
 		}
 		this.hpTerm.addAll(hpTerm);
 		
@@ -1285,7 +1290,7 @@ public class PipelineDTO {
 	public void addInferredMaId(List<String> inferredChildMaId) {
 
 		if (this.inferredChildMaId == null) {
-			this.inferredChildMaId = new ArrayList<String>();
+			this.inferredChildMaId = new ArrayList<>();
 		}
 		this.inferredChildMaId.addAll(inferredChildMaId);
 		
@@ -1295,7 +1300,7 @@ public class PipelineDTO {
 	public void addInferredMaTerm(List<String> inferredChildMaTerm) {
 
 		if (this.inferredChildMaTerm == null) {
-			this.inferredChildMaTerm = new ArrayList<String>();
+			this.inferredChildMaTerm = new ArrayList<>();
 		}
 		this.inferredChildMaTerm.addAll(inferredChildMaTerm);
 		
@@ -1305,7 +1310,7 @@ public class PipelineDTO {
 	public void addInferredMaTermSynonym(List<String> inferredChildMaTermSynonym) {
 
 		if (this.inferredChildMaTermSynonym == null) {
-			this.inferredChildMaTermSynonym = new ArrayList<String>();
+			this.inferredChildMaTermSynonym = new ArrayList<>();
 		}
 		this.inferredChildMaTermSynonym.addAll(inferredChildMaTermSynonym);
 		
@@ -1316,7 +1321,7 @@ public class PipelineDTO {
 	public void addInferredSelectedTopLevelMaId(List<String> inferredSelectedTopLevelMaId) {
 
 		if (this.inferredSelectedTopLevelMaId == null) {
-			this.inferredSelectedTopLevelMaId = new ArrayList<String>();
+			this.inferredSelectedTopLevelMaId = new ArrayList<>();
 		}
 		this.inferredSelectedTopLevelMaId.addAll(inferredSelectedTopLevelMaId);
 		
@@ -1327,7 +1332,7 @@ public class PipelineDTO {
 	public void addInferredSelectedTopLevelMaTerm(List<String> inferredSelectedTopLevelMaTerm) {
 
 		if (this.inferredSelectedTopLevelMaTerm == null) {
-			this.inferredSelectedTopLevelMaTerm = new ArrayList<String>();
+			this.inferredSelectedTopLevelMaTerm = new ArrayList<>();
 		}
 		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
 		
@@ -1337,9 +1342,9 @@ public class PipelineDTO {
 	public void addInferredSelectedToLevelMaTermSynonym(List<String> inferredSelectedTopLevelMaTermSynonym) {
 
 		if (this.inferredSelectedToLevelMaTermSynonym== null) {
-			this.inferredSelectedTopLevelMaTerm = new ArrayList<String>();
+			this.inferredSelectedToLevelMaTermSynonym = new ArrayList<>();
 		}
-		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
+		this.inferredSelectedToLevelMaTermSynonym.addAll(inferredSelectedTopLevelMaTermSynonym);
 		
 	}
 
@@ -1347,7 +1352,7 @@ public class PipelineDTO {
 	public void addInferredChildMaId(List<String> inferredChildMaId) {
 
 		if (this.inferredChildMaId== null) {
-			this.inferredChildMaId = new ArrayList<String>();
+			this.inferredChildMaId = new ArrayList<>();
 		}
 		this.inferredChildMaId.addAll(inferredChildMaId);
 		
@@ -1357,7 +1362,7 @@ public class PipelineDTO {
 	public void addInferredChildMaTerm(List<String> inferredChildMaTerm) {
 
 		if (this.inferredChildMaTerm== null) {
-			this.inferredChildMaTerm = new ArrayList<String>();
+			this.inferredChildMaTerm = new ArrayList<>();
 		}
 		this.inferredChildMaTerm.addAll(inferredChildMaTerm);
 		
@@ -1366,7 +1371,7 @@ public class PipelineDTO {
 
 	public void addInferredChildMaTermSynonyms(List<String> inferredChildMaTermSynonym) {
 		if (this.inferredChildMaTermSynonym== null) {
-			this.inferredChildMaTermSynonym = new ArrayList<String>();
+			this.inferredChildMaTermSynonym = new ArrayList<>();
 		}
 		this.inferredChildMaTermSynonym.addAll(inferredChildMaTermSynonym);
 		
@@ -1376,7 +1381,7 @@ public class PipelineDTO {
 	public void addPipelineName(String pipelineName) {
 
 		if (this.pipelineName== null) {
-			this.pipelineName = new ArrayList<String>();
+			this.pipelineName = new ArrayList<>();
 		}
 		this.pipelineName.add(pipelineName);
 		
@@ -1386,7 +1391,7 @@ public class PipelineDTO {
 	public void addPipelineStableId(String pipelineStableId) {
 
 		if (this.pipelineStableId== null) {
-			this.pipelineStableId = new ArrayList<String>();
+			this.pipelineStableId = new ArrayList<>();
 		}
 		this.pipelineStableId.add(pipelineStableId);
 		
@@ -1395,7 +1400,7 @@ public class PipelineDTO {
 
 	public void addPipelineStableKey(Integer pipelineStableKey) {
 		if (this.pipelineStableKey== null) {
-			this.pipelineStableKey = new ArrayList<Integer>();
+			this.pipelineStableKey = new ArrayList<>();
 		}
 		this.pipelineStableKey.add(pipelineStableKey);
 		
@@ -1405,7 +1410,7 @@ public class PipelineDTO {
 	public void addPipeProcId(String pipeProcId) {
 
 		if (this.pipeProcId== null) {
-			this.pipeProcId = new ArrayList<String>();
+			this.pipeProcId = new ArrayList<>();
 		}
 		this.pipeProcId.add(pipeProcId);
 		
@@ -1415,7 +1420,7 @@ public class PipelineDTO {
 	public void addIdIdId(String ididid) {
 
 		if (this.ididid== null) {
-			this.ididid = new ArrayList<String>();
+			this.ididid = new ArrayList<>();
 		}
 		this.ididid.add(ididid);
 		
