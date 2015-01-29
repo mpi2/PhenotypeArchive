@@ -4,6 +4,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,6 +63,15 @@ public class GoTermController {
 	
 		StringBuilder builder = new StringBuilder();
 		String legend = "F = molecular function<br>P = biological process<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
+		
+		Map<String, String> evidMap = new HashMap<>();
+		evidMap.put("EXP", "Inferred from Experiment");
+		evidMap.put("IDA", "Inferred from Direct Assay");
+		evidMap.put("IGI", "Inferred from Genetic Interaction");
+		evidMap.put("IMP", "Inferred from Mutant Phenotype");
+		evidMap.put("IPI", "Inferred from Physical Interaction");
+		evidMap.put("ISS", "Inferred from Sequence or structural Similarity");
+		evidMap.put("ISO", "Inferred from Sequence Orthology");
 		
 		builder.append(legend);
 		builder.append("<table>");
@@ -126,7 +136,7 @@ public class GoTermController {
     				List<String> cellValLst = (List<String>) pairs3.getValue();
     				String cellVals = StringUtils.join(cellValLst, "");
     				builder.append("<tr>");
-		        	builder.append("<td>" + evidCode + "</td>");
+		        	builder.append("<td class='evidCode' title='" + evidMap.get(evidCode) + "'>" + evidCode + "</td>");
 		        	builder.append("<td>" + cellVals + "</td>");
 		        	builder.append("</tr>");
     		     
