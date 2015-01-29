@@ -79,9 +79,6 @@
         title: {
             text: '${center.key}'
         },
-        subtitle: {
-            text: 'Source: <a href="http://en.wikipedia.org/wiki/List_of_cities_proper_by_population">Wikipedia</a>'
-        },
         xAxis: {
             type: 'category',
             labels: {
@@ -95,14 +92,14 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'Number of Procedures for Strain'
+                text: 'Number of Procedures for Colony'
             }
         },
         legend: {
             enabled: false
         },
         tooltip: {
-            pointFormat: 'Population in 2008: <b>{point.y:.1f} procedures</b>'
+            pointFormat: 'Number of procedures with data for this colony: <b>{point.y:.1f}</b>'
         },
         series: [{
             name: 'Population',
