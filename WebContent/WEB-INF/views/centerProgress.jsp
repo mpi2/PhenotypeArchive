@@ -74,7 +74,8 @@
 		            $(function () {
     $('#${center.key}').highcharts({
         chart: {
-            type: 'column'
+            type: 'bar',
+            height: 1000
         },
         title: {
             text: '${center.key}'
@@ -82,9 +83,9 @@
         xAxis: {
             type: 'category',
             labels: {
-                rotation: -45,
+                rotation: 0,
                 style: {
-                    fontSize: '13px',
+                    fontSize: '9px',
                     fontFamily: 'Verdana, sans-serif'
                 }
             }
