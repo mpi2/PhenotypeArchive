@@ -15,9 +15,9 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.io.File;
 import joptsimple.OptionException;
 import org.slf4j.Logger;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -88,22 +88,23 @@ public abstract class AbstractIndexer {
     }
 
     protected ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext applicationContext;
+        ApplicationContext appContext;
 
-        try {
+        // Try context as a file resource.
+        File file = new File(context);
+        if (file.exists()) {
             // Try context as a file resource
-            getLogger().info("Trying to load context from file system...");
-            applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-            getLogger().info("Context loaded from file system");
-        } catch (BeansException e) {
-            getLogger().info("Unable to load the context file: {}", e.getMessage());
-
+            getLogger().info("Trying to load context from file system file {} ...", context);
+            appContext = new FileSystemXmlApplicationContext("file:" + context);
+        } else {
             // Try context as a class path resource
-            applicationContext = new ClassPathXmlApplicationContext(context);
-            getLogger().info("Using classpath app-config file: {}", context);
+            getLogger().info("Trying to load context from classpath file: {}... ", context);
+            appContext = new ClassPathXmlApplicationContext(context);
         }
-
-        return applicationContext;
+            
+        getLogger().info("Context loaded");
+        
+        return appContext;
     }
 
     protected void initialiseHibernateSession(ApplicationContext applicationContext) {
