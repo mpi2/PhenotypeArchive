@@ -45,7 +45,6 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
@@ -638,19 +637,23 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	public List<Map<String, String>> getDistinctPipelineAlleleCenterListByGeneAccession(String genomicFeatureAcc)
 	throws SolrServerException {
 
-		List<Map<String, String>> results = new LinkedList<Map<String, String>>();
+		List<Map<String, String>> results = new LinkedList<>();
+		List<String> facetFields = Arrays.asList(
+			ObservationDTO.PIPELINE_STABLE_ID,
+			ObservationDTO.PIPELINE_NAME,
+			ObservationDTO.PHENOTYPING_CENTER,
+			ObservationDTO.ALLELE_ACCESSION_ID,
+			ObservationDTO.ALLELE_SYMBOL);
 
-		SolrQuery query = new SolrQuery().setQuery("*:*").
-		addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"").
-		addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").
-		setRows(0).
-		setFacet(true).
-		setFacetMinCount(1).
-		setFacetLimit(-1).
-		addFacetPivotField( ObservationDTO.PIPELINE_STABLE_ID + "," + ObservationDTO.PIPELINE_NAME + "," + 
-		ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.ALLELE_SYMBOL);
+		SolrQuery query = new SolrQuery().setQuery("*:*")
+			.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"")
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.setRows(0)
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetPivotField(StringUtils.join(facetFields, ","));
 
-		System.out.println("\n\n Look at this query: " + solr.getBaseURL() + "/select?" + query);
 		QueryResponse response = solr.query(query);
 
 		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
