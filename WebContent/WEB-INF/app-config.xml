@@ -63,6 +63,10 @@
 	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
+	
+	<bean id="phenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
+		<constructor-arg value="${internalSolrUrl}/experiment" />
+	</bean>
 
     <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
         <constructor-arg ref="sessionFactory" />
