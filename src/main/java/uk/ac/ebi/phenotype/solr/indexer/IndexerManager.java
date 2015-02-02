@@ -248,6 +248,7 @@ public class IndexerManager {
     
     
     public void initialise(String[] args) throws IndexerException {
+        logger.info("IndexerManager called with args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
         if (options != null) {
             this.args = args;
