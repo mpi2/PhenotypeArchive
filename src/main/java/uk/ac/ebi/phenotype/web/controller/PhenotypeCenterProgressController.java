@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -21,12 +22,18 @@ import org.springframework.ui.Model;
 
 @Controller
 public class PhenotypeCenterProgressController {
+	@Resource(name="phenotypeCenterService")
 	@Autowired
 	PhenotypeCenterService phenCenterProgress;
+	
+	@Resource(name="preQcPhenotypeCenterService")
+	@Autowired
+	PhenotypeCenterService preqQcPhenCenterProgress;
 	
 	@RequestMapping("/centerProgress")
 	public String showPhenotypeCenterProgress( HttpServletRequest request, Model model){
 		Map<String,Map<String, List<String>>> centerDataMap=null;
+		Map<String,Map<String, List<String>>> preQcCenterDataMap=null;
 		try {
 			centerDataMap = phenCenterProgress.getCentersProgressInformation();
 		} catch (SolrServerException e) {
@@ -34,9 +41,30 @@ public class PhenotypeCenterProgressController {
 			e.printStackTrace();
 		}
 		
+		
+		try {
+			preQcCenterDataMap = preqQcPhenCenterProgress.getCentersProgressInformation();
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		Map<String,JSONArray> centerDataJSON=new HashMap<>();
+		Map<String,JSONArray> preQcCenterDataJSON=new HashMap<>();
 		
 		
+		getPostOrPreQcData(centerDataMap, centerDataJSON);
+		getPostOrPreQcData(preQcCenterDataMap, preQcCenterDataJSON);
+		model.addAttribute("centerDataJSON", centerDataJSON);
+		model.addAttribute("centerDataMap", centerDataMap);
+		model.addAttribute("preQcCenterDataJSON", preQcCenterDataJSON);
+		model.addAttribute("preQcCenterDataMap", preQcCenterDataMap);
+		return "centerProgress";
+	}
+
+	private void getPostOrPreQcData(
+			Map<String, Map<String, List<String>>> centerDataMap,
+			Map<String, JSONArray> centerDataJSON) {
 		for(String center:centerDataMap.keySet()){
 			List<Pair> pairsList=new ArrayList<>();
 			Map<String, List<String>> strainsToProcedures=centerDataMap.get(center);
@@ -59,9 +87,6 @@ public class PhenotypeCenterProgressController {
 			centerDataJSON.put(center, centerContainer);
 		
 		}
-		model.addAttribute("centerDataJSON", centerDataJSON);
-		model.addAttribute("centerDataMap", centerDataMap);
-		return "centerProgress";
 	}
 	
 	private class Pair implements Comparable{

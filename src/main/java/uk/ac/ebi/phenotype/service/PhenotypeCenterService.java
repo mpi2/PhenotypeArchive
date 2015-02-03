@@ -23,8 +23,9 @@ public class PhenotypeCenterService {
 //	public PhenotypeCenterProgress(){
 //		this("https://www.ebi.ac.uk/mi/impc/solr/experiment");//"http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
 //	}
-	public PhenotypeCenterService(String solrUrl){
-		solr = new HttpSolrServer(solrUrl);
+	public PhenotypeCenterService(String baseSolrUrl){
+		solr = new HttpSolrServer(baseSolrUrl);
+		
 	}
 	
 	/**
@@ -39,12 +40,16 @@ public class PhenotypeCenterService {
 		SolrQuery query = new SolrQuery()
 		.setQuery("*:*")
 		.addFacetField(ObservationDTO.PHENOTYPING_CENTER)
+		.setFacetMinCount(1)
 		.setRows(0);
+		if(solr.getBaseURL().endsWith("experiment")){
+			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
+		}
 		
 		QueryResponse response = solr.query(query);
 		//String resp = response.getResponse().toString();
 		List<FacetField> fields = response.getFacetFields();
-		System.out.println("values="+fields.get(0).getValues());
+		//System.out.println("values="+fields.get(0).getValues());
 		for(Count values: fields.get(0).getValues()){
 			centers.add(values.getName());
 		}
@@ -61,15 +66,16 @@ public class PhenotypeCenterService {
 		List<String> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
 		.setQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
-		.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"")
 		.addFacetField(ObservationDTO.COLONY_ID)
 		.setFacetMinCount(1)
 		.setRows(0);
-		
+		if(solr.getBaseURL().endsWith("experiment")){
+				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
+		}
 		QueryResponse response = solr.query(query);
 		//String resp = response.getResponse().toString();
 		List<FacetField> fields = response.getFacetFields();
-		System.out.println("values="+fields.get(0).getValues());
+		//System.out.println("values="+fields.get(0).getValues());
 		for(Count values: fields.get(0).getValues()){
 			strains.add(values.getName());
 		}
@@ -91,15 +97,16 @@ public class PhenotypeCenterService {
 		SolrQuery query = new SolrQuery()
 		.setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
 		.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
-		.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"")
 		.addFacetField(ObservationDTO.PROCEDURE_NAME)
 		.setFacetMinCount(1)
 		.setRows(0);
-		
+		if(solr.getBaseURL().endsWith("experiment")){
+			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
+		}
 		QueryResponse response = solr.query(query);
 		//String resp = response.getResponse().toString();
 		List<FacetField> fields = response.getFacetFields();
-		System.out.println("values="+fields.get(0).getValues());
+		//System.out.println("values="+fields.get(0).getValues());
 		for(Count values: fields.get(0).getValues()){
 			procedures.add(values.getName());
 		}
