@@ -46,12 +46,12 @@
 			var base_url = '${baseUrl}';
 		</script>
 
-		<!-- Specify styles for pagination conrol spacing -->
 		<style>
-			div#strainPvalues_paginate span span { margin-left:10px; }
-			a.paginate_button { margin-left: 10px; }
+			.pagination ul {
+				list-style-type: none;
+			}
 		</style>
-        
+
   </jsp:attribute>
 
 	<jsp:body>
@@ -167,7 +167,9 @@
 
 	<script type="text/javascript">
 	$(document).ready(function() {
-		  var oTable = $('#strainPvalues').dataTable();
+		  var oTable = $('#strainPvalues').dataTable({
+			  "sPaginationType": "bootstrap"
+		  });
 
 		  // Sort immediately with p-value column starting with the lowest one
 		  oTable.fnSort( [ [5,'asc'] ] );
