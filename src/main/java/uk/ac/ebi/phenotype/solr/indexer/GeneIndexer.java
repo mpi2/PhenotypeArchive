@@ -152,7 +152,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
                 gene.getGoTermIds().addAll(allele.getGoTermIds());
                 gene.getGoTermNames().addAll(allele.getGoTermNames());
-                gene.getGoTermDefs().addAll(allele.getGoTermDefs());
+               // gene.getGoTermDefs().addAll(allele.getGoTermDefs());
                 gene.getGoTermEvids().addAll(allele.getGoTermEvids());
                 gene.getGoTermDomains().addAll(allele.getGoTermDomains());
 
