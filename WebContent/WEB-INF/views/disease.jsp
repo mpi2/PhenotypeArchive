@@ -37,10 +37,6 @@
         &nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&facet=disease"> Diseases</a>&nbsp;&raquo; ${disease.diseaseId}
     </jsp:attribute>
 
-    <jsp:attribute name="header">
-
-    </jsp:attribute>
-
     <jsp:body>
 
         <h1 class="title" id="top">Disease: ${disease.term}</h1>
@@ -180,12 +176,14 @@
                         paging: false,
                         info: false,
                         searching: false,
-                        order: [[3, 'desc'], [2, 'desc']]
+                        order: [[3, 'desc'], [2, 'desc']],
+                        "sPaginationType": "bootstrap"
                     }
                 },
                 {id: '#predicted_models_table',
                     tableConf: {
-                        order: [[1, 'desc'], [3, 'desc'], [2, 'desc']]
+                        order: [[1, 'desc'], [3, 'desc'], [2, 'desc']],
+                        "sPaginationType": "bootstrap"
                     }
                 }
             ];

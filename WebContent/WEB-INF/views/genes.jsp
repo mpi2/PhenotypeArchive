@@ -119,6 +119,12 @@
                 <![endif]-->
             </c:if>
 
+            <style>
+                .pagination ul {
+                    list-style-type: none;
+                }
+            </style>
+
         </jsp:attribute>
 
         <jsp:body>
@@ -531,11 +537,13 @@
                         paging: false,
                         info: false,
                         searching: false,
-                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']]
+                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                            "sPaginationType": "bootstrap"
                     }},
                     {id: '#predicted_diseases_table', 
                         tableConf: {
-                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']]
+                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                            "sPaginationType": "bootstrap"
                     }}
                 ];
                 
