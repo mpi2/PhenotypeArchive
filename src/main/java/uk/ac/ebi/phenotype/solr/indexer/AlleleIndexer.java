@@ -337,7 +337,7 @@ public class AlleleIndexer extends AbstractIndexer {
     			ga.goTermId   = resultSet.getString("go_id");
     			ga.goTermName = resultSet.getString("go_name");
     			ga.goTermEvid = resultSet.getString("go_evidence");
-    			ga.goTermDomain = resultSet.getString("go_domain");
+    			ga.goTermDomain = resultSet.getString("go_domain").toString().equals("F") ? "molecular_function" : "biological_process";
 
             	if ( ! goTermLookup.containsKey(ga.mgiSymbol)) {
             		goTermLookup.put(ga.mgiSymbol, new HashSet<GoAnnotations>());
