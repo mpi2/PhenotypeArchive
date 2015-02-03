@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
@@ -37,6 +38,7 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +46,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -212,7 +215,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             alleleCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException e) {
+        } catch (SQLException | SolrServerException | IOException | ClassNotFoundException e) {
             throw new IndexerException(e);
         }
 
@@ -251,9 +254,10 @@ public class AlleleIndexer extends AbstractIndexer {
 
         public String goTermId;
         public String goTermName;
-        public String goTermDef;
-        public String goTermEvid; // linkage type
-        public String goTermDomain;   // not sure if we need this
+        public String goTermDef;    // not populated for now
+        public String goTermEvid; 	
+        public String goTermDomain;   
+		public String mgiSymbol;
 
         @Override
         public boolean equals(Object o) {
@@ -269,9 +273,9 @@ public class AlleleIndexer extends AbstractIndexer {
             if (goTermDomain != null ?  ! goTermDomain.equals(that.goTermDomain) : that.goTermDomain != null) {
                 return false;
             }
-            if (goTermDef != null ?  ! goTermDef.equals(that.goTermDef) : that.goTermDef != null) {
+            /*if (goTermDef != null ?  ! goTermDef.equals(that.goTermDef) : that.goTermDef != null) {
                 return false;
-            }
+            }*/
             if (goTermEvid != null ?  ! goTermEvid.equals(that.goTermEvid) : that.goTermEvid != null) {
                 return false;
             }
@@ -289,72 +293,66 @@ public class AlleleIndexer extends AbstractIndexer {
         public int hashCode() {
             int result = goTermId != null ? goTermId.hashCode() : 0;
             result = 31 * result + (goTermName != null ? goTermName.hashCode() : 0);
-            result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
+           // result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
             result = 31 * result + (goTermEvid != null ? goTermEvid.hashCode() : 0);
             result = 31 * result + (goTermDomain != null ? goTermDomain.hashCode() : 0);
             return result;
         }
     }
+    
+    private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
+		
+		Class.forName ("oracle.jdbc.OracleDriver");
+		String url = "jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST =ora-vm-026.ebi.ac.uk)(PORT = 1531)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME =GOAPRO)))";
+		String user = "goselect";
+	    String pass = "selectgo";
+	    String queryString = "select distinct m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
+	    		+ "from go.eco2evidence evi "
+	    		+ "join "
+	    		+ "go.v_manual_annotations a on (evi.eco_id = a.eco_id) "
+	    		+ "join " 
+	    		+ "go.terms t on (t.go_id = a.go_id) "
+	    		+ "join "  
+	    		+ "go.uniprot_protein_metadata m on (m.accession = a.canonical_id) "  
+	    		+ "join "
+	    		+ "go.terms t on (t.go_id = a.go_id) "
+	    		+ "where "
+	    		+ "gene_name is not null "
+	    		+ "and a.is_public = 'Y' "
+	    		+ "and m.tax_id = 10090 "
+	    		+ "and evi.go_evidence in ('EXP', 'IDA', 'IPI', 'IMP', 'IGI', 'ISO', 'ISS') "
+	    		+ "and t.category in ('F', 'P') "
+	    		+ "and a.source in ('MGI','GOC')";
+	    
+	    Connection conn = DriverManager.getConnection(url, user, pass);
 
-    private void populateGoTermLookup() throws IOException {
+	    try (PreparedStatement p = conn.prepareStatement(queryString)) {
+            ResultSet resultSet = p.executeQuery();
 
-        String qryStr = "http://www.ensembl.org/biomart/martservice?query=";
-        String params = URLEncoder.encode("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<!DOCTYPE Query>"
-                + "<Query  virtualSchemaName = \"default\" formatter = \"TSV\" header = \"0\" uniqueRows = \"0\" count = \"\" datasetConfigVersion = \"0.6\" >"
-                + "<Dataset name = \"mmusculus_gene_ensembl\" interface = \"default\" >"
-                + "<Filter name = \"go_evidence_code\" value = \"EXP,IDA,IGI,IMP,IPI,ISO,ISS\"/>"
-                + "<Filter name = \"with_mgi\" excluded = \"0\"/>"
-                + "<Attribute name = \"go_id\" />"
-                + "<Attribute name = \"name_1006\" />"
-                + "<Attribute name = \"definition_1006\" />"
-                + "<Attribute name = \"go_linkage_type\" />"
-                + "<Attribute name = \"namespace_1003\" />"
-                + "<Attribute name = \"mgi_symbol\" />"
-                + "<Attribute name = \"mgi_id\" />"
-                + "</Dataset>"
-                + "</Query>", "UTF-8");
+            while (resultSet.next()) {
+            	
+            	GoAnnotations ga = new GoAnnotations();
+            	
+    			ga.mgiSymbol  = resultSet.getString("gene_name");
+    			ga.goTermId   = resultSet.getString("go_id");
+    			ga.goTermName = resultSet.getString("go_name");
+    			ga.goTermEvid = resultSet.getString("go_evidence");
+    			ga.goTermDomain = resultSet.getString("go_domain").toString().equals("F") ? "molecular_function" : "biological_process";
 
-        URL url = new URL(qryStr + params);
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-
-        // output file
-        //PrintWriter out = new PrintWriter(new FileWriter("/Users/ckc/Documents/work/temp/mgiId2GO.csv"));
-        String line;
-        while ((line = in.readLine()) != null) {
-            //System.out.println(line);
-            String[] values = line.split("\\t");
-            String goTermId = values[0];
-            String goTermName = values[1];
-            String goTermDef = values[2];
-            String goTermEvid = values[3]; // linkage type
-            String goTermDomain = values[4]; // molecular_function, cellular_component, biological_function
-            String mgiSymbol = values[5];
-            String mgiId = values[6];
-
-            GoAnnotations ga = new GoAnnotations();
-            ga.goTermId = goTermId;
-            ga.goTermName = goTermName;
-            ga.goTermDef = goTermDef;
-            ga.goTermEvid = goTermEvid;
-            ga.goTermDomain = goTermDomain;
-
-            Set<GoAnnotations> gaList = new HashSet<>();
-
-            if (goTermLookup.get(mgiId) != null) {
-                gaList = goTermLookup.get(mgiId);
+            	if ( ! goTermLookup.containsKey(ga.mgiSymbol)) {
+            		goTermLookup.put(ga.mgiSymbol, new HashSet<GoAnnotations>());
+            	}
+            	
+    			goTermLookup.get(ga.mgiSymbol).add(ga);
             }
-
-            gaList.add(ga);
-            goTermLookup.put(mgiId, gaList);
-
-            //logger.debug(mgiId + ":  ---> " + goTermId + "\t" + goTermEvid);
+            
+            System.out.println(goTermLookup.size());
+            logger.info("Populated goTerm lookup, {} records", goTermLookup.size());
+        } 
+	    catch (Exception e) {
+            e.printStackTrace();
         }
-        in.close();
-
-        logger.info("Populated goTerm lookup, {} records", goTermLookup.size());
-    }
+	}
 
     private void populateLegacyLookup() throws SolrServerException {
 
@@ -651,14 +649,15 @@ public class AlleleIndexer extends AbstractIndexer {
 
             AlleleDTO dto = alleles.get(id);
 
-            if ( ! goTermLookup.containsKey(id)) {
+            // use GO is populated based on gene symbol
+            if ( ! goTermLookup.containsKey(dto.getMarkerSymbol())) {
                 continue;
             }
 
-            for (GoAnnotations ga : goTermLookup.get(id)) {
+            for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
                 dto.getGoTermIds().add(ga.goTermId);
                 dto.getGoTermNames().add(ga.goTermName);
-                dto.getGoTermDefs().add(ga.goTermDef);
+                //dto.getGoTermDefs().add(ga.goTermDef);
                 dto.getGoTermEvids().add(ga.goTermEvid);
                 dto.getGoTermDomains().add(ga.goTermDomain);
             }

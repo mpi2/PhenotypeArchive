@@ -1,7 +1,5 @@
 <link href="//dev.mousephenotype.org/data/css/searchPage.css" rel="stylesheet" />
 <link href="//dev.mousephenotype.org/data/js/vendor/jquery.sumoselect/sumoselect.css" rel="stylesheet" />
-
-
 <style type="text/css">.goselect {width: 240px;}
 table td {background-color: white;}
 td.phenoStatus {background-color: #F2F2F2;}
@@ -10,7 +8,6 @@ td.phenoStatus {background-color: #F2F2F2;}
 .P {background-color: #666699;}
 .FP, .F, .P {color: white; display: inline; margin-left: 3px; padding: 1px 3px; width: 40px; text-align: center; border-radius: 4px; font-size: 11px;}
 </style>
-
 <div id="goBlock">&nbsp;</div>
 
 <p>&nbsp;</p>
@@ -43,17 +40,24 @@ $(document).ready(function(){
            
 
            $('li[data-val=nogo], li[data-val=all],li[data-val=onlygo]').click(function(){
-	         if (  $('li.selected').size() == 0 ){
-	            $(this).removeClass('selected');   
-	            $('p.SlectBox span').text(holderTxt);
+	       if (  $('li.selected').size() == 0 ){
+	    	   $(this).removeClass('selected');   
+	    	   var options = $('select option').size();
+
+	    	   for( var  i =0; i<options; i++) {
+	    		   $('.goselect')[0].sumo.unSelectItem(i);
+	    	   }
 	         }
-	         else {
-	             console.log($(this).attr('data-val'));
+	       else {
+	            //console.log($(this).attr('data-val'));
+                  
 	             $('li.selected').removeClass('selected');
 	             $(this).addClass('selected');
 	             $('p.SlectBox span').text($(this).text());
-	         }
-             });
+	       }
+
+
+           });
      
 	     $('li[data-val=exp], li[data-val=ida],li[data-val=igi],li[data-val=imp], li[data-val=ipi],li[data-val=iso], li[data-val=iss]').click(function(){
 		   if ($('li.selected').attr('data-val') == 'nogo' || $('li.selected').attr('data-val') == 'onlygo' || $('li.selected').attr('data-val') == 'all' ){

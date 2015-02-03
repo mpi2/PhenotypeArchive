@@ -61,6 +61,14 @@
 
     <dependencies>
 
+		<!--  orace jdbc driver -->
+		<dependency>
+		  <groupId>com.oracle</groupId>
+		  <artifactId>ojdbc6</artifactId>
+		  <version>11.2.0</version>
+		</dependency>
+		
+
         <!--Phenodigm disease pages dependencies -->
         <dependency>
             <groupId>uk.ac.sanger</groupId>
