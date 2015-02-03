@@ -60,7 +60,8 @@
 				
 				
 						 <div class="section" >
-								<h2 class="title"	id="section-associations"> Latest Status for each Center </h2>		
+								<h2 class="title"	id="section-associations"> Latest Status for each Center </h2>	
+					<!-- post QC data -->	
 		            <div class="inner">
 		            	<c:forEach var="center" items="${centerDataMap}">
 		            	<br/>
@@ -68,11 +69,9 @@
 		            	<div id="${center.key}"></div>
 		            <script>	
 		            
-		            
-		            var strainData=${centerDataJSON[center.key]};
-		            
 		            $(function () {
     $("[id='${center.key}']").highcharts({
+    	colors:[ 'rgba(9, 120, 161,0.7)', 'rgba(247, 157, 70,0.7)', 'rgba(61, 167, 208,0.7)', 'rgba(247, 181, 117,0.7)', 'rgba(100, 178, 208,0.7)', 'rgba(191, 75, 50,0.7)', 'rgba(3, 77, 105,0.7)', 'rgba(166, 30, 1,0.7)', 'rgba(36, 139, 75,0.7)', 'rgba(191, 75, 50,0.7)', 'rgba(1, 121, 46,0.7)', 'rgba(166, 30, 1,0.7)', 'rgba(51, 51, 51,0.7)', 'rgba(255, 201, 67,0.7)', 'rgba(191, 151, 50,0.7)'],
         chart: {
             type: 'bar',
             height: 1000
@@ -122,15 +121,82 @@
 });
 		            </script>
 		            		
-		            	</c:forEach>
-									
-		            	  <div class="clear"></div>   
-		            </div>
+		            		
+		            		
+		            		
+		            		
+		            		
+		            		
+		            		
+		            		<!-- preQc Data -->
+		            	<div id="preQc_${center.key}"></div>
+		            <script>	
 		            
-		        </div> <!-- section -->
+		            
+		            $(function () {
+    $("[id='preQc_${center.key}']").highcharts({
+    	colors:['rgba(239, 123, 11,0.7)', 'rgba(9, 120, 161,0.7)', 'rgba(247, 157, 70,0.7)', 'rgba(61, 167, 208,0.7)', 'rgba(247, 181, 117,0.7)', 'rgba(100, 178, 208,0.7)', 'rgba(191, 75, 50,0.7)', 'rgba(3, 77, 105,0.7)', 'rgba(166, 30, 1,0.7)', 'rgba(36, 139, 75,0.7)', 'rgba(191, 75, 50,0.7)', 'rgba(1, 121, 46,0.7)', 'rgba(166, 30, 1,0.7)', 'rgba(51, 51, 51,0.7)', 'rgba(255, 201, 67,0.7)', 'rgba(191, 151, 50,0.7)'],
+        chart: {
+            type: 'bar',
+            height: 1000
+        },
+        title: {
+            text: 'Pre QC Data For ${center.key}'
+        },
+        xAxis: {
+            type: 'category',
+            labels: {
+                rotation: 0,
+                style: {
+                    fontSize: '9px',
+                    fontFamily: 'Verdana, sans-serif'
+                }
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Number of Procedures for Colony'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        tooltip: {
+            pointFormat: 'Number of procedures with data for this colony: <b>{point.y:.1f}</b>'
+        },
+        series: [{
+            name: 'Population',
+            data: ${preQcCenterDataJSON[center.key]},
+            dataLabels: {
+                enabled: true,
+                color: '#FFFFFF',
+                align: 'right',
+                x: 4,
+                y: 10,
+                style: {
+                    fontSize: '13px',
+                    fontFamily: 'Verdana, sans-serif',
+                    textShadow: '0 0 3px black'
+                }
+            }
+        }]
+    });
+});
+		            </script>
+		            		
+		           
+		            		
+		            		
+		           </c:forEach>
+									
+		          <div class="clear"></div>   
+		         </div>
+		            
+		       </div> <!-- section -->
 		                            
 		        
-		                       
+		         
 		        
 						
 						
