@@ -150,11 +150,11 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
                 gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
                 gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
-                gene.getGoTermIds().addAll(allele.getGoTermIds());
-                gene.getGoTermNames().addAll(allele.getGoTermNames());
-                gene.getGoTermDefs().addAll(allele.getGoTermDefs());
-                gene.getGoTermEvids().addAll(allele.getGoTermEvids());
-                gene.getGoTermDomains().addAll(allele.getGoTermDomains());
+                gene.setGoTermIds(allele.getGoTermIds());
+                gene.setGoTermNames(allele.getGoTermNames());
+               // gene.getGoTermDefs().addAll(allele.getGoTermDefs());
+                gene.setGoTermEvids(allele.getGoTermEvids());
+                gene.setGoTermDomains(allele.getGoTermDomains());
 
 				//gene.setMpId(allele.getM)
                 // Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene

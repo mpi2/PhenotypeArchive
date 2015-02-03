@@ -69,6 +69,12 @@ public class ObservationIndexer extends AbstractIndexer {
         "'GMC_922_001_002'", "'GMC_923_001_001'", "'GMC_921_001_002'",
         "'GMC_902_001_003'", "'GMC_912_001_018'", "'GMC_917_001_001'",
         "'GMC_920_001_001'", "'GMC_909_001_002'", "'GMC_914_001_001'" );
+    public final List<String> maleFertilityParameters = Arrays.asList(
+        "IMPC_FER_001_001", "IMPC_FER_006_001", "IMPC_FER_007_001",
+        "IMPC_FER_008_001", "IMPC_FER_009_001");
+    public final List<String> femaleFertilityParameters = Arrays.asList(
+        "IMPC_FER_019_001", "IMPC_FER_010_001", "IMPC_FER_011_001",
+        "IMPC_FER_012_001", "IMPC_FER_013_001");
 
 
     public ObservationIndexer() {
@@ -255,8 +261,28 @@ public class ObservationIndexer extends AbstractIndexer {
                     o.setStrainName(b.strainName);
                     o.setPhenotypingCenter(b.phenotypingCenterName);
                     o.setPhenotypingCenterId(b.phenotypingCenterId);
-                    o.setSex(SexType.not_applicable.getName());
-                    o.setZygosity(ZygosityType.not_applicable.getName());
+
+                    // Viability applies to both sexes
+                    if (o.getParameterStableId().contains("_VIA_")) {
+                        o.setSex(SexType.both.getName());
+                    } else {
+                        // Fertility applies to the sex tested, separate parameters per male//female
+                        if (maleFertilityParameters.contains(o.getParameterStableId())) {
+                            o.setSex(SexType.male.getName());
+                        } else if (femaleFertilityParameters.contains(o.getParameterStableId())) {
+                            o.setSex(SexType.female.getName());
+                        }
+                        if(o.getSex() == null) {
+                            o.setSex(SexType.both.getName());
+                        }
+                    }
+
+                    if (b.zygosity != null) {
+                        o.setZygosity(b.zygosity);
+                    } else {
+                        // Default to hom
+                        o.setZygosity(ZygosityType.homozygote.getName());
+                    }
 
 					// All line level parameters are sample group "experimental" due to the nature of the
                     // procedures (i.e. no control mice will go through VIA or FER procedures.)
