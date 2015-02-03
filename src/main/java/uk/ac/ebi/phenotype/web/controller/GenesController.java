@@ -51,10 +51,7 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.pojo.*;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.ImageService;
-import uk.ac.ebi.phenotype.service.PreQcService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
+import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -88,6 +85,9 @@ public class GenesController {
 	private ImagesSolrDao imagesSolrDao;
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
+
+	@Autowired
+	ObservationService observationService;
 
 	@Autowired
 	SolrIndex solrIndex;
@@ -222,7 +222,7 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-			List<Map<String, String>> dataMapList = statsResultsService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
+			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);

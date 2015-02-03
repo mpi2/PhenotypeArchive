@@ -20,6 +20,7 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -248,6 +248,7 @@ public class IndexerManager {
     
     
     public void initialise(String[] args) throws IndexerException {
+        logger.info("IndexerManager called with args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
         if (options != null) {
             this.args = args;
@@ -294,7 +295,7 @@ public class IndexerManager {
                     buildStagingArea();
                     
                     indexerItem.indexer.run();
-                    indexerItem.indexer.validateBuild();
+//                    indexerItem.indexer.validateBuild();
                     break;
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {
@@ -326,19 +327,20 @@ public class IndexerManager {
     protected ApplicationContext loadApplicationContext(String context) {
         ApplicationContext appContext;
 
-        try {
+        // Try context as a file resource.
+        File file = new File(context);
+        if (file.exists()) {
             // Try context as a file resource
-            getLogger().info("Trying to load context from file system...");
+            getLogger().info("Trying to load context from file system file {} ...", context);
             appContext = new FileSystemXmlApplicationContext("file:" + context);
-            getLogger().info("Context loaded from file system");
-        } catch (BeansException e) {
-            getLogger().warn("Unable to load the context file: {}", e.getMessage());
-
+        } else {
             // Try context as a class path resource
+            getLogger().info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
-            getLogger().warn("Using classpath app-config file: {}", context);
         }
-
+            
+        getLogger().info("Context loaded");
+        
         return appContext;
     }
     
