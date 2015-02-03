@@ -45,6 +45,12 @@
 		<script type="text/javascript">
 			var base_url = '${baseUrl}';
 		</script>
+
+		<!-- Specify styles for pagination conrol spacing -->
+		<style>
+			div#strainPvalues_paginate span span { margin-left:10px; }
+			a.paginate_button { margin-left: 10px; }
+		</style>
         
   </jsp:attribute>
 
