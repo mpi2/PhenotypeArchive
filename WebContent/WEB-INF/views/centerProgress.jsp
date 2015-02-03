@@ -72,7 +72,7 @@
 		            var strainData=${centerDataJSON[center.key]};
 		            
 		            $(function () {
-    $('#${center.key}').highcharts({
+    $("[id='${center.key}']").highcharts({
         chart: {
             type: 'bar',
             height: 1000
@@ -107,7 +107,6 @@
             data: ${centerDataJSON[center.key]},
             dataLabels: {
                 enabled: true,
-                rotation: -90,
                 color: '#FFFFFF',
                 align: 'right',
                 x: 4,

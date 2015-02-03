@@ -34,7 +34,7 @@ public class PhenotypeCenterProgressTest {
 	public void getStrainsForCenterTest(){
 		List<String> strains=null;
 		try {
-			strains = phenotypeCenterProgress.getStrainsForCenter("UC Davis");
+			strains = phenotypeCenterProgress.getStrainsForCenter("MRC Harwell");
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
