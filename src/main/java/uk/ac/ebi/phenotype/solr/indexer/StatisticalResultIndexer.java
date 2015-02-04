@@ -336,14 +336,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         Set<String> categories = new HashSet<>();
         if (StringUtils.isNotEmpty(r.getString("category_a"))) {
-            for (String category : r.getString("category_a").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_a").split("|")));
         }
         if (StringUtils.isNotEmpty(r.getString("category_b"))) {
-            for (String category : r.getString("category_b").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_b").split("|")));
         }
 
         doc.setCategories(new ArrayList<>(categories));
