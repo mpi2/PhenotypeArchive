@@ -261,6 +261,7 @@ public class ObservationIndexer extends AbstractIndexer {
                     o.setStrainName(b.strainName);
                     o.setPhenotypingCenter(b.phenotypingCenterName);
                     o.setPhenotypingCenterId(b.phenotypingCenterId);
+                    o.setColonyId(b.colonyId);
 
                     // Viability applies to both sexes
                     if (o.getParameterStableId().contains("_VIA_")) {
