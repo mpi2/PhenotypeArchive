@@ -18,7 +18,7 @@
         resTemp[0].remove();
 </script>
 
-<table id="phenotypes">
+<table id="phenotypes"  class="table tableSorter">
 
     <thead>
     <tr>
@@ -70,24 +70,21 @@
             <td>${phenotype.prValueAsString}</td>
 
             <c:if test="${phenotype.isPreQc()}">
-            <td style="text-align:center;color:#EF7B0B;">
-            <c:if test="${not fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001926') && not fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001925') }">
-                <a href="${phenotype.graphUrl }" class="fancyboxGraph" style="color:#EF7B0B;;text-decoration:none;">
+            	<td style="text-align:center;color:#EF7B0B;">
+           			<c:if test="${not fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001926') && not fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001925') }">
+                	<a href="${phenotype.graphUrl }" class="fancyboxGraph" style="color:#EF7B0B;;text-decoration:none;">
                     <i class="fa fa-bar-chart-o" alt="Graphs"></i>
                     <i class="fa fa-exclamation" title="This is a preliminary association based on pre QC data."></i>
-                </a>
+                	</a>
                 </c:if>
                 <c:if test="${fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001926') || fn:containsIgnoreCase(phenotype.graphUrl, 'MP:0001925') }">
-                
                     <i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
                     <i class="fa fa-exclamation" title="This is a preliminary association based on pre QC data."></i>
-                
                 </c:if>
-            </td>
+            	</td>
             </c:if>
 
             <c:if test="${not phenotype.isPreQc()}">
-            	
                 	<td style="text-align:center;">
                 		<c:if test="${not fn:containsIgnoreCase(phenotype.graphUrl, 'IMPC_FER_') }">
                     		<a href="${phenotype.graphUrl }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="Graphs"></i>
@@ -97,10 +94,8 @@
                     		<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
                     	</c:if>
                 	</td>
-                
             </c:if>
-
-
+            
         </tr>
     </c:forEach>
     </tbody>

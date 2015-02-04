@@ -2,25 +2,29 @@ $(document).ready(function(){
 	
 	function initPhenoDataTable(){
             var aDataTblCols = [0,1,2,3,4,5,6,7,8];
-            var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-		"aoColumns": [{ "sType": "html", "mRender":function( data, type, full ) {
-      	  return (type === "filter") ? $(data).text() : data;
-        }},
-		             
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "html", "mRender":function( data, type, full ) {
-		            	  return (type === "filter") ? $(data).text() : data;
-		              }},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "html"},
+            var oDataTable = $('table#phenotypes').dataTable( {
+           // 	$.fn.initDataTable($('table#phenotypes'), {
+            	"aoColumns": [
+            	              { "sType": "html", "mRender":function( data, type, full ) {
+            	            	  return (type === "filter") ? $(data).text() : data;
+            	              }},
+            	              { "sType": "string"},
+            	              { "sType": "string"},
+            	              { "sType": "html", "mRender":function( data, type, full ) {
+            	            	  return (type === "filter") ? $(data).text() : data;
+            	              }},
+            	              { "sType": "string"},
+            	              { "sType": "string"},
+            	              { "sType": "html"},
                               { "sType": "allnumeric", "aTargets": [ 3 ] },
-		              { "sType": "string", "bSortable" : false }
-		              ],
-                               "aaSorting": [[ 7, 'asc' ]],//sort by the p value on init
-		              "bDestroy": true,
-		              "bFilter":false
+                              { "sType": "string", "bSortable" : false }
+                      ],
+                "aaSorting": [[ 7, 'asc' ]],//sort by the p value on init
+
+        		"bDestroy": true,
+        		"bFilter":false,
+        		"bPaginate":true,
+                "sPaginationType": "bootstrap"
             });
         }
 	

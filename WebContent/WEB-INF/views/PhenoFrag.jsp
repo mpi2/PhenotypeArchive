@@ -18,7 +18,7 @@
 </script>
 
 
-<table id="phenotypes" class="table tableSorter">
+<table id="genes" class="table tableSorter">
     <thead>
     <tr>
         <th class="headerSort">Phenotype</th>
