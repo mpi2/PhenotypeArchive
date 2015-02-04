@@ -199,7 +199,7 @@ public class ImpcImagesController {
 				titleString=titleString.replace(")", " ");
 				titleString=titleString.replace("_", " ");
 				titleString=titleString.replace("observation_type:image_record AND", " ");
-				titleString=titleString.replace(":", " ");
+				//titleString=titleString.replace(":", " "); // so that *:* will not become * *
 			}
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
