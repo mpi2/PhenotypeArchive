@@ -111,6 +111,10 @@ public class AlleleIndexer extends AbstractIndexer {
     DataSource komp2DataSource;
 
     @Autowired
+    @Qualifier("goaproDataSource")
+    DataSource goaproDataSource;
+    
+    @Autowired
     @Qualifier("alleleIndexing")
     private SolrServer alleleCore;
 
@@ -302,10 +306,6 @@ public class AlleleIndexer extends AbstractIndexer {
     
     private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
 		
-		Class.forName ("oracle.jdbc.OracleDriver");
-		String url = "jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST =ora-vm-026.ebi.ac.uk)(PORT = 1531)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME =GOAPRO)))";
-		String user = "goselect";
-	    String pass = "selectgo";
 	    String queryString = "select distinct m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
 	    		+ "from go.eco2evidence evi "
 	    		+ "join "
@@ -324,7 +324,7 @@ public class AlleleIndexer extends AbstractIndexer {
 	    		+ "and t.category in ('F', 'P') "
 	    		+ "and a.source in ('MGI','GOC')";
 	    
-	    Connection conn = DriverManager.getConnection(url, user, pass);
+	    Connection conn = goaproDataSource.getConnection();
 
 	    try (PreparedStatement p = conn.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
