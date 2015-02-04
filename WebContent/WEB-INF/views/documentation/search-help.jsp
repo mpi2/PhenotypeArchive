@@ -101,24 +101,24 @@
                             <div>Type an anatomical entity or MA:ID, click on the anatomy facet on the on the left panel, and the results grid will return relevant anatomy pages.
                                 <p>Eg. search by anatomy "eye":<br>
                             </div><br> 
-                            <img src='img/quick_anatomy_search.jpg' /><p>
-
+                            <img src='img/quick_anatomy_search.png' /><p>
+                        <!-- 
                             <h4><a name="quick_param_srch" href='#'>Quick Assay Search</a></h4>
                             <div>Type an assay, parameter or IMPReSS ID, click on the procedure facet on the left panel, and the results grid will return relevant parameter pages. 
                                 <p>Eg. search by parameter "grip strength":<br>
                             </div><br> 
-                            <img src='img/quick_param_search.jpg' /><p>	
-
+                            <img src='img/quick_param_search.png' /><p>	
+                        -->
 
                             <h4><a name="quick_img_srch" href='#'>Quick Image Search</a></h4>
-                            <div>Type a gene, phenotype, assay, or anatomical entity, click on the images facet on the left panel and the results grid will return relevant image pages.
-                                <p>By default, Annotation View will be displayed, where images are grouped by annotations.<p>Eg. search by phenotype "immune":<br>				
+                            <div>Type a gene, phenotype, assay, or anatomical entity, click on the Images (legacy) or IMPC images facet on the left panel and the results grid will return relevant image pages.
+                                <p>By default, Annotation View will be displayed, where images are grouped by annotations.<p>Eg. search by phenotype "trunk":<br>				
                             </div><br> 
                            
-							<img src='img/quick_img_search_annotView.jpg' /><p>
+							<img src='img/quick_img_search_annotView.png' /><p>
                             <p>To list annotations to an image, simply click on the "Show Image View" button to the top-right corner of the results grid. The label of the same button will then be switched to "Show Annotation View" so that you can toggle the views.</p><br>
                             
-                                <img src='img/quick_img_search.jpg' /><p>                   
+                                <img src='img/quick_img_search.png' /><p>                   
 
                             <h4><a name="export" href='#'>Data Export of Search Results</a></h4>
                             <div>Click on the export icon <p><img src='img/export.jpg' />
