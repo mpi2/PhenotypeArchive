@@ -203,9 +203,9 @@
         else if (oCounts.ma != 0) {
             return 'ma';
         }
-        else if (oCounts.pipeline != 0) {
+        /*else if (oCounts.pipeline != 0) {
             return 'pipeline';
-        }
+        }*/
         else if (oCounts.impc_images != 0) {
             return 'impc_images';
         }   
