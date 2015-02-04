@@ -26,6 +26,14 @@
         <property name="username" value="${ontodbusername}" />
         <property name="password" value="${ontodbpassword}" />
     </bean>
+    
+    <bean id="goaproDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+        <property name="url" value="${goaprourl}" />
+        <property name="username" value="${goaprousername}" />
+        <property name="password" value="${goapropassword}" />
+    </bean>
+    
 
     <!-- Weaves in transactional advice around annotated Transactional methods -->
     <tx:annotation-driven transaction-manager="transactionManager" />
