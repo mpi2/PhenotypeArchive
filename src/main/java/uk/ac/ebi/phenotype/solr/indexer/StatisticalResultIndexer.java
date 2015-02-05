@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -57,7 +57,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         
     }
     
-    public static final long MIN_EXPECTED_ROWS = 528000;
+    public static final long MIN_EXPECTED_ROWS = 400000;
     
     @Override
     public void validateBuild() throws IndexerException {
@@ -336,14 +336,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         Set<String> categories = new HashSet<>();
         if (StringUtils.isNotEmpty(r.getString("category_a"))) {
-            for (String category : r.getString("category_a").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_a").split("|")));
         }
         if (StringUtils.isNotEmpty(r.getString("category_b"))) {
-            for (String category : r.getString("category_b").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_b").split("|")));
         }
 
         doc.setCategories(new ArrayList<>(categories));
