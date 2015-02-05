@@ -8,6 +8,7 @@ import java.util.Map;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
 public class PhenotypeFacetResult {
+	
 	List<PhenotypeCallSummary> phenotypeCallSummaries=new ArrayList<PhenotypeCallSummary>();
 	public List<PhenotypeCallSummary> getPhenotypeCallSummaries() {
 		return phenotypeCallSummaries;

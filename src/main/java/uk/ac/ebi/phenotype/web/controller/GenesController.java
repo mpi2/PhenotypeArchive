@@ -130,7 +130,6 @@ public class GenesController {
 
 			while (headers.hasMoreElements()) {
 				String actualHeader = (String) headers.nextElement();
-				System.out.println("Header: " + header + ", Value: " + actualHeader);
 			}
 		}
 
@@ -333,13 +332,27 @@ public class GenesController {
 		// sex is collapsed into a single column
 		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
 		PhenotypeFacetResult phenoResult = null;
+		PhenotypeFacetResult preQcResult = null;
+		
 		try {
 
 			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
+			preQcResult = phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
+			
 			phenotypeList = phenoResult.getPhenotypeCallSummaries();
-		//TODO add pre-qc rows
-			phenotypeList.addAll(phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, queryString).getPhenotypeCallSummaries());
+			phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+			Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
+			
+			for (String key : preQcFacets.keySet()){
+				if (preQcFacets.get(key).keySet().size() > 0){
+					for (String key2: preQcFacets.get(key).keySet()){
+						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
+					}
+				}
+			}
+			
 			// sort facets first
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
