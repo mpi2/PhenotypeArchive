@@ -15,14 +15,7 @@
  */
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -33,10 +26,11 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
-
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
+
+import java.util.*;
 
 @Service
 public class MpService {
@@ -48,6 +42,28 @@ public class MpService {
     public MpService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
+
+	/**
+	 * Return the phenotype
+	 *
+	 * @return all genes from the gene core.
+	 * @throws SolrServerException
+	 */
+	public MpDTO getPhenotypes(String id) throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(MpDTO.MP_ID + ":" + id)
+			.setRows(1);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+
+		if (rsp.getResults().getNumFound() > 0) {
+			return mps.get(0);
+		}
+
+		return null;
+	}
 
     /**
      * Return all phenotypes from the mp core.

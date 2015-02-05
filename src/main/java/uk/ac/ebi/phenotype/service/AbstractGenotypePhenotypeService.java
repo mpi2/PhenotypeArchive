@@ -322,6 +322,15 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		return result;
 	}
 
+	public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) throws SolrServerException {
+		SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
+			.setRows(Integer.MAX_VALUE);
+
+		return solr.query(query).getBeans(GenotypePhenotypeDTO.class);
+
+	}
+
+
 
 	private SolrDocumentList runQuery(String q)
 	throws SolrServerException {

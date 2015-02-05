@@ -52,6 +52,9 @@ public class PreqcIndexer extends AbstractIndexer {
     private static Map<String, String> procedureSid2NameMapping = new HashMap<>();
     private static Map<String, String> parameterSid2NameMapping = new HashMap<>();
 
+    private static Map<String, String> projectMap = new HashMap<>();
+    private static Map<String, String> resourceMap = new HashMap<>();
+
     private static Map<String, String> mpId2TermMapping = new HashMap<>();
     private static Map<Integer, String> mpNodeId2MpIdMapping = new HashMap<>();
 
@@ -111,6 +114,7 @@ public class PreqcIndexer extends AbstractIndexer {
             doImpressSid2NameMapping();
             doOntologyMapping();
             populatePostQcData();
+            populateResourceMap();
 
             preqcCore.deleteByQuery("*:*");
 
@@ -230,7 +234,14 @@ public class PreqcIndexer extends AbstractIndexer {
                 GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
 
                 o.setResourceName(datasource);
+                if(resourceMap.containsKey(project.toUpperCase())) {
+                    o.setResourceFullname(resourceMap.get(project.toUpperCase()));
+                }
                 o.setProjectName(project);
+                if(projectMap.containsKey(project.toUpperCase())) {
+                    o.setProjectFullname(projectMap.get(project.toUpperCase()));
+                }
+
                 o.setColonyId(colonyId);
                 o.setExternalId(externalId);
                 o.setStrainAccessionId(strain);
@@ -379,6 +390,28 @@ public class PreqcIndexer extends AbstractIndexer {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    public void populateResourceMap() throws SQLException {
+
+        String projQuery = "SELECT p.name as name, p.fullname as fullname FROM project p";
+        String resQuery = "SELECT db.short_name as name, db.name as fullname FROM external_db db ";
+
+        try (PreparedStatement p = conn_komp2.prepareStatement(projQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            p.setFetchSize(Integer.MIN_VALUE);
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                projectMap.put(r.getString("name").toUpperCase(), r.getString("fullname"));
+            }
+        }
+        try (PreparedStatement p = conn_komp2.prepareStatement(resQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            p.setFetchSize(Integer.MIN_VALUE);
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                resourceMap.put(r.getString("name").toUpperCase(), r.getString("fullname"));
+            }
         }
     }
 

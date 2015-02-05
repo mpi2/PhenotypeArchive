@@ -395,9 +395,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setStrainName(b.strainName);
 
         // Data details
+
+        // Always set a metadata group here to allow for simpler searching for
+        // unique results and to maintain parity with the observation index
+        // where "empty string" metadata group means no required metadata.
         if (StringUtils.isNotEmpty(r.getString("metadata_group"))) {
             doc.setMetadataGroup(r.getString("metadata_group"));
+        } else {
+            doc.setMetadataGroup("");
         }
+
         doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
         doc.setStatisticalMethod(r.getString("statistical_method"));
         doc.setMaleControlCount(r.getInt("male_controls"));

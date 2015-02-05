@@ -39,13 +39,11 @@ import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.AlleleService;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.PreQcService;
+import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
@@ -79,6 +77,8 @@ public class SecondaryProjectController {
 	@Autowired
 	GeneService geneService;
 
+	@Autowired
+	MpService mpService;
 
 	@Autowired 
 	UnidimensionalChartAndTableProvider chartProvider;
@@ -98,11 +98,13 @@ public class SecondaryProjectController {
 		logger.info("Downloading data for secondary project id=" + id);
 
 		Map<String, Set<String>> mpterms = new HashMap<>();
+		Map<String, Set<String>> mptermnames = new HashMap<>();
+		Map<String, Set<String>> highMpterms = new HashMap<>();
+		Map<String, Set<String>> highMptermnames = new HashMap<>();
 		Map<String, Set<String>> preqcmpterms = new HashMap<>();
 		Map<String, Set<String>> hpterms = new HashMap<>();
-		Map<String, Set<String>> mptermnames = new HashMap<>();
 		Map<String, Set<String>> hptermnames = new HashMap<>();
-		Map<String, Set<String>> humanterms = new HashMap<>();
+		Map<String, Set<String>> humangenes = new HashMap<>();
 		Map<String, Set<String>> diseaseterms = new HashMap<>();
 		Map<String, String> mousesymbols = new HashMap<>();
 		List<String> resp = new ArrayList<>();
@@ -127,6 +129,8 @@ public class SecondaryProjectController {
 				if (!mpterms.containsKey(MGIID)) {
 					mpterms.put(MGIID, new HashSet<String>());
 					mptermnames.put(MGIID, new HashSet<String>());
+					highMpterms.put(MGIID, new HashSet<String>());
+					highMptermnames.put(MGIID, new HashSet<String>());
 				}
 				if (!preqcmpterms.containsKey(MGIID)) {
 					preqcmpterms.put(MGIID, new HashSet<String>());
@@ -135,8 +139,8 @@ public class SecondaryProjectController {
 					hpterms.put(MGIID, new HashSet<String>());
 					hptermnames.put(MGIID, new HashSet<String>());
 				}
-				if (!humanterms.containsKey(MGIID)) {
-					humanterms.put(MGIID, new HashSet<String>());
+				if (!humangenes.containsKey(MGIID)) {
+					humangenes.put(MGIID, new HashSet<String>());
 				}
 				if (!diseaseterms.containsKey(MGIID)) {
 					diseaseterms.put(MGIID, new HashSet<String>());
@@ -153,6 +157,17 @@ public class SecondaryProjectController {
 						mpterms.get(MGIID).add(mp);
 						mptermnames.get(MGIID).add(mpterm);
 
+						MpDTO mpDTO = mpService.getPhenotypes(mp);
+						if(mpDTO!=null) {
+
+							if(mpDTO.getTopLevelMpId() !=null) {
+								highMpterms.get(MGIID).addAll(mpDTO.getTopLevelMpId());
+							}
+
+							if(mpDTO.getTopLevelMpTerm() !=null) {
+								highMptermnames.get(MGIID).addAll(mpDTO.getTopLevelMpTerm());
+							}
+						}
 
 						logger.info("  looking for hp terms for {}", mp);
 						if (getMpToHpTerms.containsKey(mp)) {
@@ -187,7 +202,7 @@ public class SecondaryProjectController {
 
 				logger.info("  looking for human symbols for {}", MGIID);
 				if (genes.get(MGIID) != null && genes.get(MGIID).getHumanGeneSymbol() != null) {
-					humanterms.get(MGIID).addAll(genes.get(MGIID).getHumanGeneSymbol());
+					humangenes.get(MGIID).addAll(genes.get(MGIID).getHumanGeneSymbol());
 					logger.info("   adding human symbols {} for {}", genes.get(MGIID).getHumanGeneSymbol(), MGIID);
 				}
 
@@ -198,16 +213,19 @@ public class SecondaryProjectController {
 
 			}
 
-			resp.add(StringUtils.join(Arrays.asList("MGI ID", "Mouse symbol", "Human symbol", "MP terms", "HP terms", "Disease associations", "MP term names", "HP term names"), "\t"));
+			resp.add(StringUtils.join(Arrays.asList("MGI ID", "Mouse symbol", "MP term IDs", "MP term names", "MP high-level term IDs", "MP high-level term names", "Human Gene symbol", "HP term IDs", "HP term names", "Disease associations"), "\t"));
 			for (String MGIID : accessions) {
-				List line = Arrays.asList(MGIID,
+				List line = Arrays.asList(
+					MGIID,
 					mousesymbols.get(MGIID),
-					StringUtils.join(humanterms.get(MGIID), ","),
 					StringUtils.join(mpterms.get(MGIID), ","),
-					StringUtils.join(hpterms.get(MGIID), ","),
-					StringUtils.join(diseaseterms.get(MGIID), ","),
 					StringUtils.join(mptermnames.get(MGIID), ","),
-					StringUtils.join(hptermnames.get(MGIID), ",")
+					StringUtils.join(highMpterms.get(MGIID), ","),
+					StringUtils.join(highMptermnames.get(MGIID), ","),
+					StringUtils.join(humangenes.get(MGIID), ","),
+					StringUtils.join(hpterms.get(MGIID), ","),
+					StringUtils.join(hptermnames.get(MGIID), ","),
+					StringUtils.join(diseaseterms.get(MGIID), ",")
 				);
 				resp.add(StringUtils.join(line, "\t"));
 			}
