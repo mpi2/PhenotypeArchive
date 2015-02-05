@@ -228,7 +228,7 @@ ga('send', 'pageview');
 			
 			<div class="clear"></div>
 
-			<p class="textright">&copy; 2014 IMPC &middot; International Mouse Phenotyping Consortium</p>
+			<p class="textright">&copy; 2015 IMPC &middot; International Mouse Phenotyping Consortium</p>
 
 			<div id="fn">
 				<ul>

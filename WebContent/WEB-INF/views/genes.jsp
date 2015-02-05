@@ -119,12 +119,6 @@
                 <![endif]-->
             </c:if>
 
-            <style>
-                .pagination ul {
-                    list-style-type: none;
-                }
-            </style>
-
         </jsp:attribute>
 
         <jsp:body>
@@ -315,7 +309,8 @@
                                                             </c:forEach>
 
                                                             <jsp:include page="PhenoFrag.jsp"></jsp:include>
-                                                                <div id="exportIconsDiv"></div>
+                                                            <br/>
+                                                            <div id="exportIconsDiv"></div>
                                                         </c:if>
 
                                                         <!-- if no data to show -->

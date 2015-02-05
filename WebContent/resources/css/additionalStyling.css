@@ -1,5 +1,9 @@
 /* Additional styling written at EBI */
 
+.pagination ul {
+  list-style-type: none;
+}
+
 form.no-style{
 	border:none;
 	padding:none;

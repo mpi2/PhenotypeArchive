@@ -194,13 +194,29 @@ public class ImpcImagesController {
 				qStr = value;
 				//get rid of wierd solr comments etc so more human readable
 				titleString=qStr;
-				titleString=titleString.replace("\"", " ");
-				titleString=titleString.replace("(", " ");
-				titleString=titleString.replace(")", " ");
-				titleString=titleString.replace("_", " ");
 				titleString=titleString.replace("observation_type:image_record AND", " ");
-				//titleString=titleString.replace(":", " "); // so that *:* will not become * *
-			}
+			
+				// also check what is in fq
+				if ( request.getParameterValues("fq") != null ){ 
+					
+					String[] fqStrings = request.getParameterValues("fq");
+					String fqString = fqStrings[0];
+					if (titleString.equals("*:*") && fqString.equals("*:*") ){
+						titleString = "IMPC image dataset";
+					}
+					else if ( titleString.equals("*:*") && !fqString.equals("*:*") ){
+						titleString = fqString;
+					}
+					else {
+						titleString += " AND " + fqString;
+					}
+					
+					titleString=titleString.replace("\"", " ");
+					titleString=titleString.replace("(", " ");
+					titleString=titleString.replace(")", " ");
+					titleString=titleString.replace("_", " ");
+				}
+			}	
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
 		//System.out.println("newQueryString=" + newQueryString);
