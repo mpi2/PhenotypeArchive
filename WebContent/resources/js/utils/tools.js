@@ -2260,7 +2260,10 @@
         var dataType = MPI2.searchAndFacetConfig.facetParams[sFacet].type;
         dataType = count > 1 ? dataType : dataType.replace(/s$/, '');
         var txt = count + ' ' + dataType;
-
+        
+        http://dev.mousephenotype.org/data/impcImages/images?
+        //console.log(oInfos.params);
+        	
         if (sFacet == 'imagesFacet' || sFacet == 'impc_imagesFacet') {
 
             var imgUrl = sFacet == 'imagesFacet' ? baseUrl + "/imagesb?" + oInfos.params 
