@@ -254,6 +254,7 @@
 									<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
 										<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
 									</jsp:include>
+									<br/>
 									<div id="exportIconsDiv"></div>					
 							</c:if>
 							</div>
