@@ -284,6 +284,7 @@
                                             <div class="container span12">
                                                 <br/>	
                                                 <div class="row-fluid" id="phenotypesDiv">	
+                                               
                                                     <div class="container span12">
                                                         <div id="filterParams" >
                                                             <c:forEach var="filterParameters" items="${paramValues.fq}">

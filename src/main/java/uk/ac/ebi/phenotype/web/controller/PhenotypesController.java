@@ -289,13 +289,26 @@ public class PhenotypesController {
         List<PhenotypeCallSummary> phenotypeList;
         try {
             PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
+            PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
+            
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
-            phenotypeList.addAll(phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter).getPhenotypeCallSummaries());
+            phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+            
             Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+            Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
+			
+			for (String key : preQcFacets.keySet()){
+				if (preQcFacets.get(key).keySet().size() > 0){
+					for (String key2: preQcFacets.get(key).keySet()){
+						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
+					}
+				}
+			}            
+            
             // sort facet values so that they will look nicer in the drop-down lists.
             phenoFacets = sortPhenFacets(phenoFacets);
-
             model.addAttribute("phenoFacets", phenoFacets);
+            
         } catch (HibernateException | JSONException e) {
             log.error("ERROR GETTING PHENOTYPE LIST");
             e.printStackTrace();
