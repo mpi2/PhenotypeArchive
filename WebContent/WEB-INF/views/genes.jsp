@@ -119,12 +119,6 @@
                 <![endif]-->
             </c:if>
 
-            <style>
-                .pagination ul {
-                    list-style-type: none;
-                }
-            </style>
-
         </jsp:attribute>
 
         <jsp:body>
