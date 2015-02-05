@@ -62,9 +62,9 @@
                             Now a second filter '<b>mice produced at WTSI</b>' will be added to the filter summary box.<img src='img/prod_center_subfacet.png' /><p>Do the same for '<b>IMPC Mouse Phenotyping Center</b>' subfacet and check the 'WTSI' checkbox. 
                             You shall see a third filter '<b>mice phenotyped at WTSI</b>' in the filter summary box.<img src='img/pheno_center_subfacet.png' /><br>
                             The resulting gene list on the right of the search page will be what you are looking for.<p><img src='img/result1.png' /><p>  
-                            <h6>(2) What are mouse genes from (1) above that have immune system phenotype and have OMIM phenotype annotations?</h6>
-                            With the 3 filters from (1) still in place, click on the 'Phenotypes' main facet to expand its subfacets and check '<b>immune system</b>' subfacet filter. 
-                            Notice that immune system filter is added to the filter summary box.<p><img src='img/immune_system_subfacet.png' /><p>
+                            <h6>(2) What are mouse genes from (1) above that have skeleton phenotype and have OMIM phenotype annotations?</h6>
+                            With the 3 filters from (1) still in place, click on the 'Phenotypes' main facet to expand its subfacets and check '<b>skeleton</b>' subfacet filter. 
+                            Notice that skeleton filter is added to the filter summary box.<p><img src='img/skeleton_subfacet.png' /><p>
                             Then click on the 'Disease' main facet and tick the '<b>OMIM</b>' checkbox from the expanded subfacets to add the 5th filter.
                             The resulting gene list on the right of the search page will be what you are looking for.<img src='img/result2.png' />
                             </div><br>
@@ -112,7 +112,7 @@
 
                             <h4><a name="quick_img_srch" href='#'>Quick Image Search</a></h4>
                             <div>Type a gene, phenotype, assay, or anatomical entity, click on the Images (legacy) or IMPC images facet on the left panel and the results grid will return relevant image pages.
-                                <p>By default, Annotation View will be displayed, where images are grouped by annotations.<p>Eg. search by phenotype "trunk":<br>				
+                                <p>By default, Annotation View will be displayed, where images are grouped by annotations.<p>Eg. search by anatomy "trunk":<br>				
                             </div><br> 
                            
 							<img src='img/quick_img_search_annotView.png' /><p>
