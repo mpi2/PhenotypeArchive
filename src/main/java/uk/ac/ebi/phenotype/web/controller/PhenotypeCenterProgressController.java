@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.ebi.phenotype.service.PhenotypeCenterService;
+import uk.ac.ebi.phenotype.service.ProcedureBean;
 
 import org.springframework.ui.Model;
 
@@ -55,7 +56,7 @@ public class PhenotypeCenterProgressController {
 	        response.setHeader(headerKey, headerValue);
 	 
 	        //just work with post QC for file for Damian and Jules
-	        Map<String,Map<String, List<String>>> centerDataMap=null;
+	        Map<String,Map<String, List<ProcedureBean>>> centerDataMap=null;
 			try {
 				centerDataMap = phenCenterProgress.getCentersProgressInformation();
 			} catch (SolrServerException e) {
@@ -103,8 +104,8 @@ public class PhenotypeCenterProgressController {
 	
 
 	private void processPhenotypeCenterProgress(Model model) {
-		Map<String,Map<String, List<String>>> centerDataMap=null;
-		Map<String,Map<String, List<String>>> preQcCenterDataMap=null;
+		Map<String, Map<String, List<ProcedureBean>>> centerDataMap=null;
+		Map<String, Map<String, List<ProcedureBean>>> preQcCenterDataMap=null;
 		try {
 			centerDataMap = phenCenterProgress.getCentersProgressInformation();
 		} catch (SolrServerException e) {
@@ -133,11 +134,11 @@ public class PhenotypeCenterProgressController {
 	}
 
 	private void getPostOrPreQcData(
-			Map<String, Map<String, List<String>>> centerDataMap,
+			Map<String, Map<String, List<ProcedureBean>>> centerDataMap,
 			Map<String, JSONArray> centerDataJSON) {
 		for(String center:centerDataMap.keySet()){
 			List<Pair> pairsList=new ArrayList<>();
-			Map<String, List<String>> strainsToProcedures=centerDataMap.get(center);
+			Map<String, List<ProcedureBean>> strainsToProcedures=centerDataMap.get(center);
 			for(String strain: strainsToProcedures.keySet()){
 			Pair pair=new Pair();
 			pair.strain=strain;
