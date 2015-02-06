@@ -12,7 +12,8 @@ public class ImageDTO extends ObservationDTO {
 	public static final String FULL_RESOLUTION_FILE_PATH="full_resolution_file_path";
 	private static final String OMERO_ID = "omero_id";
 	private static final String DOWNLOAD_URL = "download_url";
-	private static final String JPEG_URL = "jpeg_url";
+	public static final String JPEG_URL = "jpeg_url";
+	public static final String MARKER_SYMBOL = "marker_symbol";
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
