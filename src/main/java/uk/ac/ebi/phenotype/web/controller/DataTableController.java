@@ -543,7 +543,8 @@ public class DataTableController {
 				
 				//System.out.println("JSON: " + doc.toString());
 				String imgLink = null;
-				if ( doc.getString("jpeg_url") != null ){
+				
+				if ( doc.containsKey("jpeg_url")  ){
 				
 					String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
 					String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
