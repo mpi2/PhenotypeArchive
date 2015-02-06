@@ -1,5 +1,7 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -18,12 +20,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Populate the Genotype-Phenotype core
  */
 public class GenotypePhenotypeIndexer extends AbstractIndexer {
+
+    public final static Set<String> source3iProcedurePrefixes = new HashSet(Arrays.asList(
+        "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
+    ));
 
     private static final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
     private static Connection connection;
@@ -169,8 +174,18 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setAlleleSymbol(r.getString("allele_symbol"));
                 doc.setStrainAccessionId(r.getString("strain_accession_id"));
                 doc.setStrainName(r.getString("strain_name"));
-                doc.setResourceFullname(r.getString("resource_fullname"));
-                doc.setResourceName(r.getString("resource_name"));
+
+                // Procedure prefix is the first two strings of the parameter after splitting on underscore
+                // i.e. IMPC_BWT_001_001 => IMPC_BWT
+                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).stableId.split("_")).subList(0, 2), "_");
+                if (source3iProcedurePrefixes.contains(procedurePrefix)) {
+                    doc.setResourceName("3i");
+                    doc.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+                } else {
+                    doc.setResourceFullname(r.getString("resource_fullname"));
+                    doc.setResourceName(r.getString("resource_name"));
+                }
+
                 doc.setExternalId(r.getString("external_id"));
 
                 doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
