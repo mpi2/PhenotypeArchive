@@ -55,10 +55,14 @@
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
     </bean>
-    
+	
     <bean id="phenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
-		<constructor-arg value="${internalSolrUrl}/experiment" />
-	</bean>
+            <constructor-arg value="${internalSolrUrl}/experiment" />
+    </bean>
+
+    <bean id="preQcPhenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
+            <constructor-arg value="${internalSolrUrl}/preqc" />
+    </bean>
 	
     <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
         <constructor-arg value="${internalSolrUrl}/pipeline" />

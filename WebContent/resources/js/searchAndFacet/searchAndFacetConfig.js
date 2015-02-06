@@ -405,7 +405,7 @@ config.facetParams = {
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
-		 gridFields: 'procedure_name, gene_symbol, gene_accession_id, jpeg_url',
+		 gridFields: 'omero_id,procedure_name, gene_symbol, gene_accession_id, jpeg_url',
 		 gridName: 'impc_imagesGrid',
 		 topLevelName: '',
 		 /*imgViewSwitcherDisplay: 'Show Annotation View',
@@ -418,7 +418,7 @@ config.facetParams = {
 		 showImgView: false,		 
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'IMPC_images',
-		 filterParams: {'fl' : 'procedure_name,gene_symbol,gene_accession_id,jpeg_url'
+		 filterParams: {'fl' : 'omero_id,procedure_name,gene_symbol,gene_accession_id,jpeg_url'
 			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
 			 //'fq' : '*:*'
 		 },	

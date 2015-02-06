@@ -54,20 +54,17 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     public GenotypePhenotypeIndexer() {
     }
 
-    public static final long MIN_EXPECTED_ROWS = 7600;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = gpSolrServer.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(gpSolrServer);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual genotype-phenotype document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " genotype-phenotype documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " genotype-phenotype documents.");
     }
 
     @Override
@@ -234,6 +231,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setIntermediateMpTermDefinition(termDefinitions);
                 }
 
+                documentCount++;
                 gpSolrServer.addBean(doc, 30000);
 
                 count ++;
