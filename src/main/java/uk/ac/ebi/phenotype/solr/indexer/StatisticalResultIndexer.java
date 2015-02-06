@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -56,21 +55,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     public StatisticalResultIndexer() {
         
     }
-    
-    public static final long MIN_EXPECTED_ROWS = 400000;
-    
+
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = statResultCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(statResultCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual statistical-result document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " statistical-result documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " statistical-result documents.");
     }
 
     @Override
@@ -173,6 +169,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseUnidimensionalResult(r);
+                    documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
 
@@ -209,6 +206,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseCategoricalResult(r);
+                    documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
 

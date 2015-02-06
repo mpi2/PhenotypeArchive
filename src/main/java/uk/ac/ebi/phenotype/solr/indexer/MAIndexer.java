@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import javax.sql.DataSource;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
@@ -53,20 +52,17 @@ public class MAIndexer extends AbstractIndexer {
         
     }
 
-    public static final long MIN_EXPECTED_ROWS = 400;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = maCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(maCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual ma document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " ma documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " ma documents.");
     }
     
     @Override
@@ -210,6 +206,7 @@ public class MAIndexer extends AbstractIndexer {
                 maBatch.add(ma);
                 if (maBatch.size() == BATCH_SIZE) {
                     // Update the batch, clear the list
+                    documentCount += maBatch.size();
                     maCore.addBeans(maBatch, 60000);
                     maBatch.clear();
     //                logger.info("Indexed {} beans", count);
@@ -218,6 +215,7 @@ public class MAIndexer extends AbstractIndexer {
 
             // Make sure the last batch is indexed
             if (maBatch.size() > 0) {
+                documentCount += maBatch.size();
                 maCore.addBeans(maBatch, 60000);
                 count += maBatch.size();
             }

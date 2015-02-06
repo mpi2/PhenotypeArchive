@@ -49,20 +49,17 @@ public class DiseaseIndexer extends AbstractIndexer {
 
     }
 
-    public static final long MIN_EXPECTED_ROWS = 6700;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = diseaseCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(diseaseCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual disease document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " disease documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " disease documents.");
     }
 
     @Override
@@ -159,6 +156,7 @@ public class DiseaseIndexer extends AbstractIndexer {
                     disease.setOntologySubset(gene.ONTOLOGY_SUBSET);
 
                 }
+                documentCount++;
                 diseaseCore.addBean(disease, 60000);
 
                 count ++;

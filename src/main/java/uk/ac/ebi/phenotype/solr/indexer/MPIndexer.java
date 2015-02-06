@@ -120,20 +120,17 @@ public class MPIndexer extends AbstractIndexer {
     
     }
 
-    public static final long MIN_EXPECTED_ROWS = 1000;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = mpCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(mpCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual mp document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " mp documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " mp documents.");
     }
 
     @Override
@@ -182,6 +179,7 @@ public class MPIndexer extends AbstractIndexer {
                 logger.debug("{}: Built MP DTO {}", count, termId);
                 count ++;
 
+                documentCount++;
                 mpCore.addBean(mp, 60000);
             }
 

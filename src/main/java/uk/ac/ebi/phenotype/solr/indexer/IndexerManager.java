@@ -295,7 +295,7 @@ public class IndexerManager {
                     buildStagingArea();
                     
                     indexerItem.indexer.run();
-//                    indexerItem.indexer.validateBuild();
+                    indexerItem.indexer.validateBuild();
                     break;
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {
