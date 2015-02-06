@@ -39,14 +39,9 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -125,20 +120,17 @@ public class AlleleIndexer extends AbstractIndexer {
 
     }
 
-    public static final long MIN_EXPECTED_ROWS = 55000;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = alleleCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(alleleCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual allele document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " allele documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " allele documents.");
     }
 
     @Override
@@ -209,6 +201,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 lookupGoData(alleles);
 
                 // Now index the alleles
+                documentCount += alleles.size();
                 indexAlleles(alleles);
 
                 start += BATCH_SIZE;

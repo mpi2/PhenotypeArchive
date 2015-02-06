@@ -543,7 +543,8 @@ public class DataTableController {
 				
 				//System.out.println("JSON: " + doc.toString());
 				String imgLink = null;
-				if ( doc.getString("jpeg_url") != null ){
+				
+				if ( doc.containsKey("jpeg_url")  ){
 				
 					String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
 					String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
@@ -1035,16 +1036,23 @@ public class DataTableController {
 		
 		for (int i = 0; i < dataLen; i++) {
 			JSONObject doc = docs.getJSONObject(i);
-			String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
 			
-			String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+			String link = null;
 			
-			String smallThumbNailPath = thumbnailPath + "/200";
-			String largeThumbNailPath = thumbnailPath + "/800";
-			
-			String img = "<img src='" + smallThumbNailPath + "'/>";					
-			String link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
-			
+			if (doc.containsKey("jpeg_url")){
+				String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+				
+				String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+				
+				String smallThumbNailPath = thumbnailPath + "/200";
+				String largeThumbNailPath = thumbnailPath + "/800";
+				
+				String img = "<img src='" + smallThumbNailPath + "'/>";					
+				link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+			}
+			else {
+				link = "Image not available<br>";
+			}
 			imgPath.add(link);
 		}
 

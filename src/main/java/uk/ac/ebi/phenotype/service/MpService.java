@@ -52,7 +52,7 @@ public class MpService {
 	public MpDTO getPhenotypes(String id) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":" + id)
+			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
 			.setRows(1);
 
 		QueryResponse rsp = solr.query(solrQuery);

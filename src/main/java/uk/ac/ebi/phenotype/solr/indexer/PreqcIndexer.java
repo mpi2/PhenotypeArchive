@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -73,21 +72,17 @@ public class PreqcIndexer extends AbstractIndexer {
     private Connection conn_ontodb = null;
     private String preqcXmlFilename;
 
-
-    public static final long MIN_EXPECTED_ROWS = 7500;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = preqcCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(preqcCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual preqc document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " preqc documents.");
     }
     
     @Override
@@ -233,10 +228,19 @@ public class PreqcIndexer extends AbstractIndexer {
 
                 GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
 
-                o.setResourceName(datasource);
-                if(resourceMap.containsKey(project.toUpperCase())) {
-                    o.setResourceFullname(resourceMap.get(project.toUpperCase()));
+                // Procedure prefix is the first two strings of the parameter after splitting on underscore
+                // i.e. IMPC_BWT_001_001 => IMPC_BWT
+                String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
+                if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
+                    o.setResourceName("3i");
+                    o.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+                } else {
+                    o.setResourceName(datasource);
+                    if(resourceMap.containsKey(project.toUpperCase())) {
+                        o.setResourceFullname(resourceMap.get(project.toUpperCase()));
+                    }
                 }
+
                 o.setProjectName(project);
                 if(projectMap.containsKey(project.toUpperCase())) {
                     o.setProjectFullname(projectMap.get(project.toUpperCase()));
@@ -310,10 +314,12 @@ public class PreqcIndexer extends AbstractIndexer {
                     // use incremental id instead of id field from Harwell
                     o.setId(counter ++);
                     o.setSex(SexType.female.getName());
+                    documentCount++;
                     preqcCore.addBean(o);
 
                     o.setId(counter ++);
                     o.setSex(SexType.male.getName());
+                    documentCount++;
                     preqcCore.addBean(o);
 
                 } else {
@@ -330,6 +336,7 @@ public class PreqcIndexer extends AbstractIndexer {
                     }
 
                     o.setSex(sex.toLowerCase());
+                    documentCount++;
                     preqcCore.addBean(o);
                 }
 

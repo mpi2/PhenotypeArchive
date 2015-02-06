@@ -127,23 +127,23 @@ public class SecondaryProjectController {
 			for (String MGIID : accessions) {
 
 				if (!mpterms.containsKey(MGIID)) {
-					mpterms.put(MGIID, new HashSet<String>());
-					mptermnames.put(MGIID, new HashSet<String>());
-					highMpterms.put(MGIID, new HashSet<String>());
-					highMptermnames.put(MGIID, new HashSet<String>());
+					mpterms.put(MGIID, new TreeSet<String>());
+					mptermnames.put(MGIID, new TreeSet<String>());
+					highMpterms.put(MGIID, new TreeSet<String>());
+					highMptermnames.put(MGIID, new TreeSet<String>());
 				}
 				if (!preqcmpterms.containsKey(MGIID)) {
-					preqcmpterms.put(MGIID, new HashSet<String>());
+					preqcmpterms.put(MGIID, new TreeSet<String>());
 				}
 				if (!hpterms.containsKey(MGIID)) {
-					hpterms.put(MGIID, new HashSet<String>());
-					hptermnames.put(MGIID, new HashSet<String>());
+					hpterms.put(MGIID, new TreeSet<String>());
+					hptermnames.put(MGIID, new TreeSet<String>());
 				}
 				if (!humangenes.containsKey(MGIID)) {
-					humangenes.put(MGIID, new HashSet<String>());
+					humangenes.put(MGIID, new TreeSet<String>());
 				}
 				if (!diseaseterms.containsKey(MGIID)) {
-					diseaseterms.put(MGIID, new HashSet<String>());
+					diseaseterms.put(MGIID, new TreeSet<String>());
 				}
 
 				GeneDTO g = geneService.getGeneById(MGIID);

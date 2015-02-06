@@ -19,7 +19,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Populate the experiment core
@@ -85,21 +84,18 @@ public class SangerImagesIndexer extends AbstractIndexer {
     public SangerImagesIndexer() {
 
     }
-    
-    public static final long MIN_EXPECTED_ROWS = 102000;
-    
+
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = sangerImagesCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(sangerImagesCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual images document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " images documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " images documents.");
     }
 
     @Override
@@ -469,6 +465,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                 }
 
     // xxxxxxxxxxxxx0 seconds between commits
+                documentCount++;
                 sangerImagesCore.addBean(o, 10000);
 
                 count ++;
