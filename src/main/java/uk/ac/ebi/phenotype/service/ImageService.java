@@ -186,7 +186,6 @@ public class ImageService {
 		if (StringUtils.isNotEmpty(parameterStableId)) {
 			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
 		}
-
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
