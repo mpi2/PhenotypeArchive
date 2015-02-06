@@ -211,11 +211,11 @@ public class ImageService {
 		query.addField(ImageDTO.SEX);
 		query.addField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
 		query.addField(ImageDTO.PARAMETER_STABLE_ID);
-		query.addField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);		
-		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-		query.addFacetField(ImageDTO.GENE_ACCESSION_ID);
+		query.addField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);	
+		query.addField(ImageDTO.GENE_ACCESSION_ID);
 		query.setFacet(true);
 		query.setFacetLimit(100);
+		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
 		query.set("group", true);
 		query.set("group.limit", 100000);
 		query.set("group.field", ImageDTO.BIOLOGICAL_SAMPLE_ID);		
