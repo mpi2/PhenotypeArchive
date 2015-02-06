@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -52,6 +51,9 @@ public class PreqcIndexer extends AbstractIndexer {
     private static Map<String, String> procedureSid2NameMapping = new HashMap<>();
     private static Map<String, String> parameterSid2NameMapping = new HashMap<>();
 
+    private static Map<String, String> projectMap = new HashMap<>();
+    private static Map<String, String> resourceMap = new HashMap<>();
+
     private static Map<String, String> mpId2TermMapping = new HashMap<>();
     private static Map<Integer, String> mpNodeId2MpIdMapping = new HashMap<>();
 
@@ -70,21 +72,17 @@ public class PreqcIndexer extends AbstractIndexer {
     private Connection conn_ontodb = null;
     private String preqcXmlFilename;
 
-
-    public static final long MIN_EXPECTED_ROWS = 7500;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = preqcCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(preqcCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual preqc document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " preqc documents.");
     }
     
     @Override
@@ -111,6 +109,7 @@ public class PreqcIndexer extends AbstractIndexer {
             doImpressSid2NameMapping();
             doOntologyMapping();
             populatePostQcData();
+            populateResourceMap();
 
             preqcCore.deleteByQuery("*:*");
 
@@ -230,7 +229,14 @@ public class PreqcIndexer extends AbstractIndexer {
                 GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
 
                 o.setResourceName(datasource);
+                if(resourceMap.containsKey(project.toUpperCase())) {
+                    o.setResourceFullname(resourceMap.get(project.toUpperCase()));
+                }
                 o.setProjectName(project);
+                if(projectMap.containsKey(project.toUpperCase())) {
+                    o.setProjectFullname(projectMap.get(project.toUpperCase()));
+                }
+
                 o.setColonyId(colonyId);
                 o.setExternalId(externalId);
                 o.setStrainAccessionId(strain);
@@ -299,10 +305,12 @@ public class PreqcIndexer extends AbstractIndexer {
                     // use incremental id instead of id field from Harwell
                     o.setId(counter ++);
                     o.setSex(SexType.female.getName());
+                    documentCount++;
                     preqcCore.addBean(o);
 
                     o.setId(counter ++);
                     o.setSex(SexType.male.getName());
+                    documentCount++;
                     preqcCore.addBean(o);
 
                 } else {
@@ -319,6 +327,7 @@ public class PreqcIndexer extends AbstractIndexer {
                     }
 
                     o.setSex(sex.toLowerCase());
+                    documentCount++;
                     preqcCore.addBean(o);
                 }
 
@@ -379,6 +388,28 @@ public class PreqcIndexer extends AbstractIndexer {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    public void populateResourceMap() throws SQLException {
+
+        String projQuery = "SELECT p.name as name, p.fullname as fullname FROM project p";
+        String resQuery = "SELECT db.short_name as name, db.name as fullname FROM external_db db ";
+
+        try (PreparedStatement p = conn_komp2.prepareStatement(projQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            p.setFetchSize(Integer.MIN_VALUE);
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                projectMap.put(r.getString("name").toUpperCase(), r.getString("fullname"));
+            }
+        }
+        try (PreparedStatement p = conn_komp2.prepareStatement(resQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            p.setFetchSize(Integer.MIN_VALUE);
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                resourceMap.put(r.getString("name").toUpperCase(), r.getString("fullname"));
+            }
         }
     }
 

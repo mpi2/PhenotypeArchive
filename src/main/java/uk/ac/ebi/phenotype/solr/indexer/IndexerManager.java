@@ -103,7 +103,6 @@ public class IndexerManager {
     private List<String> cores;
     private Boolean daily;
     private Boolean nodeps;
-    private Boolean deploy;
     
     // These are the args passed to the individual indexers. They should be all the same and should be the same context argument passed to the indexerManager.
     private String[] indexerArgs;
@@ -200,7 +199,6 @@ public class IndexerManager {
     public static final String ALL_ARG = "all";
     public static final String CORES_ARG = "cores";
     public static final String DAILY_ARG = "daily";
-    public static final String DEPLOY_ARG = "deploy";
     public static final String NO_DEPS_ARG = "nodeps";
     
     public class IndexerItem {
@@ -237,10 +235,6 @@ public class IndexerManager {
 
     public Boolean getNodeps() {
         return nodeps;
-    }
-
-    public Boolean getDeploy() {
-        return deploy;
     }
     
     
@@ -295,7 +289,7 @@ public class IndexerManager {
                     buildStagingArea();
                     
                     indexerItem.indexer.run();
-//                    indexerItem.indexer.validateBuild();
+                    indexerItem.indexer.validateBuild();
                     break;
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {
@@ -517,7 +511,6 @@ public class IndexerManager {
         parser.accepts(ALL_ARG);
         parser.accepts(DAILY_ARG);
         parser.accepts(NO_DEPS_ARG);
-        parser.accepts(DEPLOY_ARG);
         
         try {
             // Parse the parameters.

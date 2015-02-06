@@ -542,14 +542,20 @@ public class DataTableController {
 				String annots = "";
 				
 				//System.out.println("JSON: " + doc.toString());
+				String imgLink = null;
+				if ( doc.getString("jpeg_url") != null ){
 				
-				String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-				String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
-				String smallThumbNailPath = thumbnailPath + "/200";  //width in pixel
-				String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
-				String img = "<img src='" + smallThumbNailPath + "'/>";	
-				
-				String imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath+ "'>" + img + "</a>";				
+					String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+					String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+					String smallThumbNailPath = thumbnailPath + "/200";  //width in pixel
+					String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
+					String img = "<img src='" + smallThumbNailPath + "'/>";	
+					
+					imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath+ "'>" + img + "</a>";				
+				}
+				else {
+					imgLink = "Image not available";
+				}
 				
 				try {
 					//ArrayList<String> mp = new ArrayList<String>();
@@ -669,7 +675,7 @@ public class DataTableController {
 			j.put("iTotalRecords", numAnnots);
 			j.put("iTotalDisplayRecords", numAnnots);
 			
-			int end = start+length;
+			int end = start+length > numAnnots ? numAnnots : start+length;
 			
 			for (int i=start; i<end; i=i+1){
 				
@@ -688,9 +694,14 @@ public class DataTableController {
 				query = annot.facet + ":\"" + annotVal + "\"";
 				
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-				String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-				String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
-							
+				String imgSubSetLink = null;
+				if ( imgCount == 0 ){
+					imgSubSetLink = imgCount + " " + unit;
+				}
+				else {
+					String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
+				}		
 				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
 				
 				// image path

@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -81,21 +80,17 @@ public class ObservationIndexer extends AbstractIndexer {
         
     }
 
-    // This should be set to the lowest of: DEV, BETA, and Live.
-    public static final long MIN_EXPECTED_ROWS = 13000000;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = observationSolrServer.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(observationSolrServer);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual observation document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " observation documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " observation documents.");
     }
 
     public static void main(String[] args) throws IndexerException {
@@ -261,6 +256,7 @@ public class ObservationIndexer extends AbstractIndexer {
                     o.setStrainName(b.strainName);
                     o.setPhenotypingCenter(b.phenotypingCenterName);
                     o.setPhenotypingCenterId(b.phenotypingCenterId);
+                    o.setColonyId(b.colonyId);
 
                     // Viability applies to both sexes
                     if (o.getParameterStableId().contains("_VIA_")) {
@@ -413,6 +409,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 }
 
                 // 60 seconds between commits
+                documentCount++;
                 observationSolrServer.addBean(o, 60000);
 
                 count ++;

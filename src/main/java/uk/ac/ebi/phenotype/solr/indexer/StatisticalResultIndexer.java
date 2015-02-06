@@ -20,7 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -56,21 +55,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     public StatisticalResultIndexer() {
         
     }
-    
-    public static final long MIN_EXPECTED_ROWS = 528000;
-    
+
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = statResultCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(statResultCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual statistical-result document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " statistical-result documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " statistical-result documents.");
     }
 
     @Override
@@ -173,6 +169,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseUnidimensionalResult(r);
+                    documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
 
@@ -209,6 +206,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseCategoricalResult(r);
+                    documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
 
@@ -336,14 +334,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         Set<String> categories = new HashSet<>();
         if (StringUtils.isNotEmpty(r.getString("category_a"))) {
-            for (String category : r.getString("category_a").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_a").split("|")));
         }
         if (StringUtils.isNotEmpty(r.getString("category_b"))) {
-            for (String category : r.getString("category_b").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_b").split("|")));
         }
 
         doc.setCategories(new ArrayList<>(categories));
@@ -399,9 +393,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setStrainName(b.strainName);
 
         // Data details
+
+        // Always set a metadata group here to allow for simpler searching for
+        // unique results and to maintain parity with the observation index
+        // where "empty string" metadata group means no required metadata.
         if (StringUtils.isNotEmpty(r.getString("metadata_group"))) {
             doc.setMetadataGroup(r.getString("metadata_group"));
+        } else {
+            doc.setMetadataGroup("");
         }
+
         doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
         doc.setStatisticalMethod(r.getString("statistical_method"));
         doc.setMaleControlCount(r.getInt("male_controls"));

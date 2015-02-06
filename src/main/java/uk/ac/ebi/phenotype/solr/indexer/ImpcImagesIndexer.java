@@ -28,7 +28,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,24 +71,18 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		super();
 	}
 
-	public static final long MIN_EXPECTED_ROWS = 12500;
-
-	@Override
-	public void validateBuild() throws IndexerException {
-		SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-		try {
-			Long numFound = server.query(query).getResults().getNumFound();
-			if (numFound < MIN_EXPECTED_ROWS) {
-				throw new IndexerException("validateBuild(): Expected "
-						+ MIN_EXPECTED_ROWS + " rows but found " + numFound
-						+ " rows.");
-			}
-			logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS
-					+ ". Actual rows: " + numFound);
-		} catch (SolrServerException sse) {
-			throw new IndexerException(sse);
-		}
-	}
+    @Override
+    public void validateBuild() throws IndexerException {
+        Long numFound = getDocumentCount(server);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual impc_images document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " impc_images documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " impc_images documents.");
+    }
 
 	public static void main(String[] args) throws IOException,
 			SolrServerException {
@@ -221,6 +214,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 				}
 				pos += BATCH_SIZE;
+                                documentCount += imageList.size();
 				server.addBeans(imageList);
 				if (pos % 1000 == 0) {
 					System.out.println(" added ImageDTO" + pos + " beans");

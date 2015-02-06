@@ -166,6 +166,7 @@ public class ImpcImagesController {
 		// newParamsMap.remove("start");
 		String newQueryString = "";
 		String qStr = null;
+		String fqStr = null;
 		Enumeration keys = request.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
@@ -191,21 +192,37 @@ public class ImpcImagesController {
 				}
 			}
 			if ( key.equals("q") ){
+				
 				qStr = value;
 				//get rid of wierd solr comments etc so more human readable
 				titleString=qStr;
-				titleString=titleString.replace("\"", " ");
-				titleString=titleString.replace("(", " ");
-				titleString=titleString.replace(")", " ");
-				titleString=titleString.replace("_", " ");
 				titleString=titleString.replace("observation_type:image_record AND", " ");
-				titleString=titleString.replace(":", " ");
-			}
+			
+				// also check what is in fq
+				if ( request.getParameterValues("fq") != null ){ 
+					
+					String[] fqStrings = request.getParameterValues("fq");
+					fqStr = fqStrings[0];
+					if (titleString.equals("*:*") && fqStr.equals("*:*") ){
+						titleString = "IMPC image dataset";
+					}
+					else if ( titleString.equals("*:*") && !fqStr.equals("*:*") ){
+						titleString = fqStr;
+					}
+					else {
+						titleString += " AND " + fqStr;
+					}
+					
+					titleString=titleString.replace("\"", " ");
+					titleString=titleString.replace("(", " ");
+					titleString=titleString.replace(")", " ");
+					titleString=titleString.replace("_", " ");
+				}
+			}	
 		}
+		String qBaseStr = newQueryString;
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
-		//System.out.println("newQueryString=" + newQueryString);
 		QueryResponse imageResponse = imageService.getResponseForSolrQuery(newQueryString);
-
 		if (imageResponse.getResults() != null) {
 			model.addAttribute("images", imageResponse.getResults());
 			Long totalNumberFound = imageResponse.getResults().getNumFound();
@@ -213,6 +230,7 @@ public class ImpcImagesController {
 			model.addAttribute("imageCount", totalNumberFound);
 			//model.addAttribute("q", newQueryString);
 			model.addAttribute("q", qStr);
+			model.addAttribute("qBaseStr", qBaseStr);
 			model.addAttribute("titleString", titleString);
 			// model.addAttribute("filterQueries", filterQueries);
 			// model.addAttribute("filterField", filterField);

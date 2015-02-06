@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Populate the MA core
@@ -61,20 +60,17 @@ public class GeneIndexer extends AbstractIndexer {
 
     }
 
-    public static final long MIN_EXPECTED_ROWS = 55000;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = geneCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(geneCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual gene document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " gene documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " gene documents.");
     }
 
     @Override
@@ -414,6 +410,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTerm())));
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym()))); 
 
+                documentCount++;
                 geneCore.addBean(gene, 60000);
                 count ++;
 

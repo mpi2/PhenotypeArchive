@@ -48,7 +48,60 @@
                                         <li> or a combination of all these fields</li>
                                     </ul>
 
-                                    <h3><a name="user-content-retrieve-all-genotype-phenotype-associations"
+                                    <p>The genotype-phenotype REST API provides the fields described in the table below. Each field may be used for restricting the set of experimental data you wish to receive. The full SOLR select syntax is available for use in querying the REST API. See <a href="http://wiki.apache.org/solr/SolrQuerySyntax">http://wiki.apache.org/solr/SolrQuerySyntax</a> and <a href="http://wiki.apache.org/solr/CommonQueryParameters">http://wiki.apache.org/solr/CommonQueryParameters</a> for a more complete list of query options.</p>
+
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th>Field name</th>
+                                            <th>Datatype</th>
+                                            <th>Description</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr><td>doc_id</td><td>int</td><td>the unique id of the document</td></tr>
+                                        <tr><td>mp_term_id</td><td>string</td><td>the term id of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>mp_term_name</td><td>string</td><td>the term name of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>top_level_mp_term_id</td><td>string</td><td>a list of the top level term ids of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>top_level_mp_term_name</td><td>string</td><td>a list of the top level term names of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>top_level_mp_term_definition</td><td>string</td><td>a list of the top level term definitions of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>top_level_mp_term_synonym</td><td>string</td><td>a list of alternate strings for the top level term name of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>intermediate_mp_term_id</td><td>string</td><td>a list of the intermediate level term ids of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>intermediate_mp_term_name</td><td>text_g</td><td>a list of the intermediate level term names of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>intermediate_mp_term_definition</td><td>string</td><td>a list of the intermediate level term definitions of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>intermediate_mp_term_synonym</td><td>string</td><td>a list of alternate strings for the intermediate level term name of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>marker_symbol</td><td>string</td><td>the associated marker symbol</td></tr>
+                                        <tr><td>marker_accession_id</td><td>string</td><td>the associated marker accession id</td></tr>
+                                        <tr><td>colony_id</td><td>string</td><td>the colony ID</td></tr>
+                                        <tr><td>allele_name</td><td>string</td><td>the name of the allele</td></tr>
+                                        <tr><td>allele_symbol</td><td>string</td><td>the allele symbol</td></tr>
+                                        <tr><td>allele_accession_id</td><td>string</td><td>the allele accession id</td></tr>
+                                        <tr><td>strain_name</td><td>string</td><td>the name of the background strain</td></tr>
+                                        <tr><td>strain_accession_id</td><td>string</td><td>the accession id of the background strain</td></tr>
+                                        <tr><td>phenotyping_center</td><td>string</td><td>the center at which the phenotyping was performed</td></tr>
+                                        <tr><td>project_external_id</td><td>string</td><td>(legacy) the identifier of the project at the phenotyping center at which the work was performed</td></tr>
+                                        <tr><td>project_name</td><td>string</td><td>the shortname of the project for which the phenotyping was performed</td></tr>
+                                        <tr><td>project_fullname</td><td>string</td><td>the full name of the project for which the phenotyping was performed</td></tr>
+                                        <tr><td>resource_name</td><td>string</td><td>the resource for which the phenotyping was performed</td></tr>
+                                        <tr><td>resource_fullname</td><td>string</td><td>the full name of the resource for which the phenotyping was performed</td></tr>
+                                        <tr><td>sex</td><td>string</td><td>the sex of the mutant specimens on which the association was made</td></tr>
+                                        <tr><td>zygosity</td><td>string</td><td>the zygosity of the mutant specimens on which the association was made</td></tr>
+                                        <tr><td>pipeline_name</td><td>string</td><td>the name of the IMPReSS pipeline</td></tr>
+                                        <tr><td>pipeline_stable_id</td><td>string</td><td>the stable id of the IMPReSS pipeline</td></tr>
+                                        <tr><td>pipeline_stable_key</td><td>string</td><td>the stable key of the IMPReSS pipeline</td></tr>
+                                        <tr><td>procedure_name</td><td>string</td><td>the name of the IMPReSS procedure performed</td></tr>
+                                        <tr><td>procedure_stable_id</td><td>string</td><td>the stable id of the IMPReSS procedure performed</td></tr>
+                                        <tr><td>procedure_stable_key</td><td>string</td><td>the stable key of the IMPReSS procedure performed</td></tr>
+                                        <tr><td>parameter_name</td><td>string</td><td>the name of the IMPReSS parameter measured</td></tr>
+                                        <tr><td>parameter_stable_id</td><td>string</td><td>the stable id of the IMPReSS parameter measured</td></tr>
+                                        <tr><td>parameter_stable_key</td><td>string</td><td>the stable key of the IMPReSS parameter measured</td></tr>
+                                        <tr><td>p_value</td><td>doubl</td><td>the statistical significance of the association</td></tr>
+                                        <tr><td>effect_size</td><td>double</td><td>the size of the effect</td></tr>
+                                        <tr><td>external_id</td><td>string</td><td>(legacy) internal id of the association at the phenotyping center</td></tr>
+                                        </tbody>
+                                    </table>
+
+                                        <h3><a name="user-content-retrieve-all-genotype-phenotype-associations"
                                            class="anchor" href="#retrieve-all-genotype-phenotype-associations">
                                             <span class="octicon octicon-link"></span></a>
                                         Retrieve all genotype-phenotype associations
