@@ -186,7 +186,6 @@ public class ImageService {
 		if (StringUtils.isNotEmpty(parameterStableId)) {
 			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
 		}
-
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
@@ -213,6 +212,7 @@ public class ImageService {
 		query.addField(ImageDTO.PARAMETER_STABLE_ID);
 		query.addField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);	
 		query.addField(ImageDTO.GENE_ACCESSION_ID);
+		query.addField(ImageDTO.PHENOTYPING_CENTER);
 		query.setFacet(true);
 		query.setFacetLimit(100);
 		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
@@ -224,7 +224,7 @@ public class ImageService {
 			QueryResponse solrResult = solr.query(query);
 			ArrayList<String> allParameters = new ArrayList<>();
 			String header = ImageDTO.ALLELE_SYMBOL + "," + ImageDTO.ALLELE_SYMBOL + "," + ImageDTO.COLONY_ID + "," + 
-							ImageDTO.BIOLOGICAL_SAMPLE_ID + "," + ImageDTO.ZYGOSITY + "," + ImageDTO.SEX + "," + "image_collection_link";
+							ImageDTO.BIOLOGICAL_SAMPLE_ID + "," + ImageDTO.ZYGOSITY + "," + ImageDTO.SEX + "," + ImageDTO.PHENOTYPING_CENTER;
 			System.out.println(solr.getBaseURL() + "/select?" + query);
 			
 			// Get facets as we need to turn them into columns
@@ -232,6 +232,7 @@ public class ImageService {
 				allParameters.add(facet.getName());
 				header += "," + facet.getName();
 			}
+			header += "image_collection_link";
 			for (Group group : solrResult.getGroupResponse().getValues().get(0).getValues())	{
 
 				String row = "";
@@ -253,7 +254,7 @@ public class ImageService {
 							row += "," + doc.getFieldValue(ImageDTO.ZYGOSITY).toString();
 						}
 						row += "," + doc.getFieldValue(ImageDTO.SEX).toString();
-						row += "," + urlToImagePicker;
+						row += "," + doc.getFieldValue(ImageDTO.PHENOTYPING_CENTER).toString();
 					}
 					if(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME) != null){
 						for (Object obj : doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)){
@@ -271,12 +272,12 @@ public class ImageService {
 						row += ",";
 					}
 				}
-					res.add(row);
+				row += "," + urlToImagePicker;
+				res.add(row);
 			}
 			resToString = header + "\n" + StringUtils.join(res, "\n");
 			 
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return resToString;

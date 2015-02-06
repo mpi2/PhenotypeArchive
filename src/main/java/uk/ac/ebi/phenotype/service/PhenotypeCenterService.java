@@ -91,25 +91,29 @@ public class PhenotypeCenterService {
 	 * @return
 	 * @throws SolrServerException 
 	 */
-	public List<String> getProceduresPerStrainForCenter(String center,
+	public List<ProcedureBean> getProceduresPerStrainForCenter(String center,
 			String strain) throws SolrServerException {
-		List<String> procedures=new ArrayList<>();
+		List<ProcedureBean> procedures=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
 		.setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
 		.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
 		.addFacetField(ObservationDTO.PROCEDURE_NAME)
+		.addFacetField(ObservationDTO.PROCEDURE_STABLE_ID)
 		.setFacetMinCount(1)
 		.setRows(0);
 		if(solr.getBaseURL().endsWith("experiment")){
 			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
 		}
 		QueryResponse response = solr.query(query);
-		//String resp = response.getResponse().toString();
+		String resp = response.getResponse().toString();
 		List<FacetField> fields = response.getFacetFields();
 		//System.out.println("values="+fields.get(0).getValues());
+		int i=0;
 		for(Count values: fields.get(0).getValues()){
-			procedures.add(values.getName());
+			procedures.add(new ProcedureBean(values.getName(), fields.get(1).getValues().get(i).getName()));
+		i++;
 		}
+		
 		//System.out.println("resp="+resp);
 		return procedures;
 	}
@@ -119,17 +123,17 @@ public class PhenotypeCenterService {
 	 * @return
 	 * @throws SolrServerException 
 	 */
-	public Map<String,Map<String, List<String>>> getCentersProgressInformation() throws SolrServerException {
+	public Map<String, Map<String, List<ProcedureBean>>> getCentersProgressInformation() throws SolrServerException {
 		//map of centers to a map of strain to procedures list
-		Map<String,Map<String, List<String>>> centerData=new HashMap<>();
+		Map<String,Map<String, List<ProcedureBean>>> centerData=new HashMap<>();
 		List<String> centers=this.getPhenotypeCenters();
 		for(String center:centers){
 			
 			List<String> strains=this.getStrainsForCenter(center);
-			Map<String,List<String>> strainsToProcedures=new HashMap<>();
+			Map<String,List<ProcedureBean>> strainsToProcedures=new HashMap<>();
 			for(String strain:strains){
 				
-				List<String> procedures=this.getProceduresPerStrainForCenter(center, strain);
+				List<ProcedureBean> procedures=this.getProceduresPerStrainForCenter(center, strain);
 				strainsToProcedures.put(strain, procedures);
 			}
 			centerData.put(center, strainsToProcedures);

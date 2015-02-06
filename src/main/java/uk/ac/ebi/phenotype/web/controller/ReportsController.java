@@ -29,7 +29,7 @@ public class ReportsController {
 		
 		System.out.println("CALLED");
 	    String result = is.getLaczExpressionSpreadsheet();
-	    ControllerUtils.writeAsCSV(result, "impcLaczExpression.csv", response);
+	    ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
 	    
 	};
 	
