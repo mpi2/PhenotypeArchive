@@ -1,8 +1,17 @@
 $(document).ready(function(){						
 	
+	// bubble popup for brief panel documentation
+	$.fn.qTip({
+		'pageName': 'phenotypes',	
+		'tip': 'top right',
+		'corner' : 'right top'
+	});
+
+    initPhenoDataTable();
+	
 	function initPhenoDataTable(){
             var aDataTblCols = [0,1,2,3,4,5,6,7,8];
-            var oDataTable = $('table#phenotypes').dataTable( {
+            $('table#phenotypes').dataTable( {
            // 	$.fn.initDataTable($('table#phenotypes'), {
             	"aoColumns": [
             	              { "sType": "html", "mRender":function( data, type, full ) {
@@ -46,13 +55,6 @@ $(document).ready(function(){
 			$( '#single-chart-div' ).attr("parameter", id);
 		});
 	});	 
-				
-	// bubble popup for brief panel documentation
-	$.fn.qTip({
-		'pageName': 'phenotypes',	
-		'tip': 'top right',
-		'corner' : 'right top'
-	});
 	
 	$( "#show_other_procedures" ).click(function() {
 		$( "#other_procedures" ).toggle( "slow", function() {
@@ -64,7 +66,6 @@ $(document).ready(function(){
 	var selectedFilters = "";
 	var dropdownsList = new Array();
 	// use jquery DataTable for table searching/sorting/pagination
-        initPhenoDataTable();
 	
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
@@ -97,9 +98,9 @@ $(document).ready(function(){
             
             var exportObj = buildExportUrl(conf);                                   // Build the export url, page url, and form strings.
             $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);    // Initialize the url.
-// WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
-// THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
-// RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
+            // WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
+            // THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
+            // RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
             
             $('button.fileIcon').click(function() {
                 var exportObj = buildExportUrl(conf, $(this).text());                       // Build the export url, page url, and form strings.
@@ -108,33 +109,34 @@ $(document).ready(function(){
             }); 
 	}
         
-        function buildExportUrl(conf, fileType) {
-            if (fileType === undefined)
-                fileType = '';
-            var url = baseUrl + '/export';	 
-            var sInputs = '';
-            for ( var k in conf ){
-                    if (k === "params"){
-                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
-                    }
-                    else {
-                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
-                    }
+    function buildExportUrl(conf, fileType) {
+       if (fileType === undefined){
+            fileType = '';
+       }
+       var url = baseUrl + '/export';	 
+       var sInputs = '';
+       for ( var k in conf ){
+            if (k === "params"){
+                 sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
             }
-            sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-            var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");	
-            var exportUrl = url + '?' + $(form).serialize();
+            else {
+                 sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+            }
+       }
+       sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
+       var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");	
+       var exportUrl = url + '?' + $(form).serialize();
             
-            var retVal = new Object();
-            retVal.url = url;
-            retVal.form = form;
-            retVal.exportUrl = exportUrl;
-            return retVal;
-        }
+       var retVal = new Object();
+       retVal.url = url;
+       retVal.form = form;
+       retVal.exportUrl = exportUrl;
+       return retVal;
+   }
 
-	 function _doDataExport(url, form){				
+    function _doDataExport(url, form){				
 		$(form).appendTo('body').submit().remove();
-	 }
+	}
 	function refreshPhenoTable(newUrl){
 		//alert(newUrl);
 		$.ajax({
@@ -156,21 +158,19 @@ $(document).ready(function(){
 	allDropdowns[1] = $('#procedure_name');
 	allDropdowns[2] = $('#marker_symbol');
 	allDropdowns[3] = $('#mp_term_name');
-	// the phenptype dropdown should only be shown on the top level terms pages
-
 	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
 	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
 	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
 	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
-
+	
 	function createDropdown(multipleSel, emptyText,  allDd){
+		console.log("called phen createDropdown "+ multipleSel);
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");
 //				console.log("justChecked="+justChecked);
 //				console.log("checked="+ checkbox.val());
 				var values = [];
-
 				for(var  i=0; i < selector.options.length; i++ ) {
 					if (selector.options[i].selected && (selector.options[i].value != "")) {
 						values .push(selector.options[i].value);
@@ -185,10 +185,11 @@ $(document).ready(function(){
 				}  
 				
 				console.log("values="+values );
-				// add current one and create dropdown object 
+				// add current one and create drop down object 
 				dd1 = new Object();
 				dd1.name = multipleSel.attr('id'); 
 				dd1.array = values; // selected values
+				
 				dropdownsList[0] = dd1;
 				
 				var ddI  = 1; 
@@ -234,6 +235,7 @@ $(document).ready(function(){
 			}
 		} );
 	}
+	
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
 	var previousParams=$("#filterParams").html();
 	

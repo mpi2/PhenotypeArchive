@@ -322,6 +322,15 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 		return result;
 	}
 
+	public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) throws SolrServerException {
+		SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
+			.setRows(Integer.MAX_VALUE);
+
+		return solr.query(query).getBeans(GenotypePhenotypeDTO.class);
+
+	}
+
+
 
 	private SolrDocumentList runQuery(String q)
 	throws SolrServerException {
@@ -492,29 +501,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	throws IOException, URISyntaxException {
 
 		String solrUrl = solr.getBaseURL() + "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accId + "\""
-		// + "&fq=-" + GenotypePhenotypeDTO.RESOURCE_NAME + ":IMPC"
-		+ "&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "";
-		if (queryString.startsWith("&")) {
-			solrUrl += queryString;
-		} else {// add an ampersand parameter splitter if not one as we need
-			// one to add to the already present solr query string
-			solrUrl += "&" + queryString;
-		}
-		solrUrl += "&sort=p_value%20asc";// sort by pValue by default so we get
-											// most sig calls at top of tables
-	//	System.out.println("Solr url in getMPByGeneAccessionAndFilter " + solrUrl);
-		return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
-	}
-
-
-	public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, String queryString)
-	throws IOException, URISyntaxException {
-
-		// http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=(mp_term_id:"MP:0002896"+OR+top_level_mp_term_id:"MP:0002896"+OR+intermediate_mp_term_id:"MP:0002896")&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol&facet.field=mp_term_name&
-		String solrUrl = solr.getBaseURL() + "/select/?q=(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\"+OR+" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id + "\"+OR+" + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\")"
-		// + "&fq=-" + GenotypePhenotypeDTO.RESOURCE_NAME + ":IMPC" +
-		+ "&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "";
-		// if (!filterString.equals("")) {
+		+ "&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet.mincount=1&facet=true&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "";
 		if (queryString.startsWith("&")) {
 			solrUrl += queryString;
 		} else {// add an ampersand parameter splitter if not one as we need
@@ -522,8 +509,22 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 			solrUrl += "&" + queryString;
 		}
 		solrUrl += "&sort=p_value%20asc";
-		// }
-//		System.out.println("solr url for sorting pvalues=" + solrUrl);
+		return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
+	}
+
+
+	public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, String queryString)
+	throws IOException, URISyntaxException {
+
+		String solrUrl = solr.getBaseURL() + "/select/?q=(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\"+OR+" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id + "\"+OR+" + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\")"
+		+ "&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet.mincount=1&facet=true&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "";
+		if (queryString.startsWith("&")) {
+			solrUrl += queryString;
+		} else {// add an ampersand parameter splitter if not one as we need
+			// one to add to the already present solr query string
+			solrUrl += "&" + queryString;
+		}
+		solrUrl += "&sort=p_value%20asc";
 		return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 
 	}
