@@ -41,27 +41,17 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     private Map<String, String> config;
 
-	// The 3i set of procedures that should be labelled as such
-	// in the phenotype row
-	private final static Set<String> source3iProcedurePrefixes = new HashSet(Arrays.asList(
-		"MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
-	));
-
-
 	public Map<String, String> getConfig() {
-
 		return config;
 	}
 
 
 	public void setConfig(Map<String, String> config) {
-
 		this.config = config;
 	}
 
 
 	public static enum PhenotypeRowType {
-
         GENE_PAGE_ROW, PHENOTYPE_PAGE_ROW
     }
 
@@ -99,15 +89,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.setPipeline(pcs.getPipeline());
 		// zygosity representation depends on source of information
         // we need to know what the data source is so we can generate appropriate link on the page
-
-	    // Procedure prefix is the first two strings of the parameter after splitting on underscore
-	    // i.e. IMPC_BWT_001_001 => IMPC_BWT
-	    String procedurePrefix = StringUtils.join(Arrays.asList(pcs.getParameter().getStableId().split("_")).subList(0, 2), "_");
-	    if (source3iProcedurePrefixes.contains(procedurePrefix)) {
-		    this.setDataSourceName("3i");
-	    } else {
-		    this.setDataSourceName(pcs.getDatasource().getName());
-	    }
 
         this.pValue = pcs.getpValue();
         // this should be the fix but EuroPhenome is buggy
