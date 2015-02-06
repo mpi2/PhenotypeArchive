@@ -20,6 +20,7 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.service.GeneService;
 
 /**
@@ -45,6 +47,9 @@ public class IndexerManagerTest {
 
     @Autowired
     protected GeneService geneService;
+    
+    protected String externalDevUrl = "http://ves-ebi-d0:8090/mi/impc/dev/solr";
+    
     public IndexerManagerTest() {
     }
     
@@ -83,7 +88,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_NO_ARGUMENT.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticNoArgs() {
         String testName = "testStaticNoArgs";
         System.out.println("-------------------" + testName + "-------------------");
@@ -106,7 +111,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceNoArgs() {
         String testName = "testInstanceNoArgs";
         System.out.println("-------------------" + testName + "-------------------");
@@ -133,7 +138,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_NO_ARGUMENT.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticEmptyContext() {
         String testName = "testStaticEmptyContext";
         System.out.println("-------------------" + testName + "-------------------");
@@ -157,7 +162,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyContext() {
         String testName = "testInstanceEmptyContext";
         System.out.println("-------------------" + testName + "-------------------");
@@ -184,7 +189,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_NO_ARGUMENT.
       */
      @Test
-@Ignore
+//@Ignore
      public void testStaticNoCoresNodeps() {
         String testName = "testStaticNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -207,7 +212,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceNoCoresNodeps() {
         String testName = "testInstanceNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -235,7 +240,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_INVALID_CORE_NAME.
       */
      @Test
-@Ignore
+//@Ignore
      public void testStaticInvalidCoreName() {
         String testName = "testStaticInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
@@ -258,7 +263,7 @@ public class IndexerManagerTest {
       * Expected results: InvalidCoreNameException.
       */
     @Test
-@Ignore
+//@Ignore
     public void testInstanceInvalidCoreName() {
         String testName = "testInstanceInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
@@ -286,7 +291,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
     @Test
-@Ignore
+//@Ignore
     public void testInstanceNoCores() {
         String testName = "testInstanceNoCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -314,7 +319,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyCoresNoEquals() {
         String testName = "testInstanceEmptyCoresNoEquals";
         System.out.println("-------------------" + testName + "-------------------");
@@ -342,7 +347,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyCores() {
         String testName = "testInstanceEmptyCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -370,7 +375,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyCoresNoEqualsNodepsBeforeCores() {
         String testName = "testInstanceEmptyCoresNoEqualsNodepsBeforeCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -398,7 +403,7 @@ public class IndexerManagerTest {
       * Expected results: MissingRequiredArgumentException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyCoresNodepsBeforeCores() {
         String testName = "testInstanceEmptyCoresNodepsBeforeCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -426,7 +431,7 @@ public class IndexerManagerTest {
       * Expected results: InvalidCoreNameException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyCoresNoEqualsNodepsAfterCores() {
         String testName = "testInstanceEmptyCoresNoEqualsNodepsAfterCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -454,7 +459,7 @@ public class IndexerManagerTest {
       * Expected results: InvalidCoreNameException.
       */
      @Test
-@Ignore
+//@Ignore
     public void testInstanceEmptyCoresNodepsAfterCores() {
         String testName = "testInstanceEmptyCoresNodepsAfterCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -482,7 +487,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_VALIDATION_ERROR.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticAllAndCores() {
         String testName = "testStaticAllAndCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -506,7 +511,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_VALIDATION_ERROR.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticAllAndNodeps() {
         String testName = "testStaticAllAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -530,7 +535,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_VALIDATION_ERROR.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticDailyAndNodeps() {
         String testName = "testStaticDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -554,7 +559,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_VALIDATION_ERROR.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticDailyAndCores() {
         String testName = "testStaticDailyAndCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -578,7 +583,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_VALIDATION_ERROR.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticAllAndDaily() {
         String testName = "testStaticAllAndDaily";
         System.out.println("-------------------" + testName + "-------------------");
@@ -602,7 +607,7 @@ public class IndexerManagerTest {
       * Expected results: STATUS_VALIDATION_ERROR.
       */
      @Test
-@Ignore
+//@Ignore
     public void testStaticAllAndDailyAndNodeps() {
         String testName = "testStaticAllAndDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -638,7 +643,7 @@ public class IndexerManagerTest {
       * Expected results: cores observation to autosuggest ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstCore() {
         String testName = "testInstanceFirstCore";
         System.out.println("-------------------" + testName + "-------------------");
@@ -664,7 +669,7 @@ public class IndexerManagerTest {
       * Expected results: the single observation core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstCoreNodeps() {
         String testName = "testInstanceFirstCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -691,7 +696,7 @@ public class IndexerManagerTest {
       * Expected results: All of the cores from preqc to autosuggest, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstDailyCore() {
         String testName = "testInstanceFirstDailyCore";
         System.out.println("-------------------" + testName + "-------------------");
@@ -729,7 +734,7 @@ public class IndexerManagerTest {
       * Expected results: the single preqc core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceFirstDailyCoreNodeps() {
         String testName = "testInstanceFirstDailyCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -756,7 +761,7 @@ public class IndexerManagerTest {
       * Expected results: the single autosuggest core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceLastCore() {
         String testName = "testInstanceLastCore";
         System.out.println("-------------------" + testName + "-------------------");
@@ -783,7 +788,7 @@ public class IndexerManagerTest {
       * Expected results: the single autosuggest core, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceLastCoreNodeps() {
         String testName = "testInstanceLastCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -809,7 +814,7 @@ public class IndexerManagerTest {
       * Expected results: the specified cores, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceMultipleCores() {
         String testName = "testInstanceMultipleCores";
         System.out.println("-------------------" + testName + "-------------------");
@@ -843,7 +848,7 @@ public class IndexerManagerTest {
       * Expected results: the specified cores, ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceMultipleCoresNodeps() {
         String testName = "testInstanceMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
@@ -877,7 +882,7 @@ public class IndexerManagerTest {
       * Expected results: cores observation to autosuggest ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceAll() {
         String testName = "testInstanceAll";
         System.out.println("-------------------" + testName + "-------------------");
@@ -902,7 +907,7 @@ public class IndexerManagerTest {
       * Expected results: cores preqc to autosuggest ready to run.
       */
      @Test
-@Ignore
+//@Ignore
      public void testInstanceDaily() {
         String testName = "testInstanceDaily";
         System.out.println("-------------------" + testName + "-------------------");
@@ -931,7 +936,7 @@ public class IndexerManagerTest {
     public void testStaticBuildAndDeploy() {
         String testName = "testStaticBuildAndDeploy";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--cores=ma_staging", "--nodeps", "--deploy" };
+        String[] args = { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
          
@@ -958,7 +963,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified core to be built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testStaticBuildSingleCoreNodeps() {
         String testName = "testStaticBuildSingleCoreNodeps";
@@ -982,7 +987,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified core to be built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testInstanceBuildSingleCoreNodeps() {
         String testName = "testInstanceBuildSingleCoreNodeps";
@@ -1018,7 +1023,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: The specified cores to be built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testStaticBuildMultipleCoresNodeps() {
         String testName = "testStaticBuildMultipleCoresNodeps";
@@ -1043,7 +1048,7 @@ public class IndexerManagerTest {
       * 
       * Expected results: All of the specified cores built.
       */
-@Ignore
+//@Ignore
      @Test
      public void testInstanceBuildMultipleCoresNodeps() {
         String testName = "testInstanceBuildMultipleCoresNodeps";
@@ -1073,6 +1078,19 @@ public class IndexerManagerTest {
         }
      }
      
+     @Test
+     public void testGetSolrCoreDocumentCount() throws Exception {
+         String querySegment = "/allele/select?q=*:*&rows=0&wt=json";
+         String query = externalDevUrl + querySegment;
+        JSONObject alleleResults = JSONRestUtil.getResults(query);
+        
+        Integer numFound = (Integer)alleleResults.getJSONObject("response").get("numFound");
+        if (numFound == null)
+            fail("Unable to fetch number of documents.");
+        else if (numFound <= 0)
+            fail("Expected at least 1 document. Document count = " + numFound);
+     }
+     
      /**
       * Build daily cores. NOTE: This test is not meant to be run with the
       * test suite, as it takes a long time to complete. It is here to permit
@@ -1084,8 +1102,8 @@ public class IndexerManagerTest {
 //     public void testStaticBuildDailyCores() {
 //        String testName = "testStaticBuildDailyCores";
 //        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc" };
-//        logger.info("Command line = " + StringUtils.join(args, ","));
+//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,mp,disease", "--nodeps" };
+//        System.out.println("Command line = " + StringUtils.join(args, ","));
 //        int retVal =  IndexerManager.mainReturnsStatus(args);
 //         
 //        switch (retVal) {
@@ -1097,13 +1115,13 @@ public class IndexerManagerTest {
 //        }
 //     }
      
-     /**
-      * Build all cores. NOTE: This test is not meant to be run with the
-      * test suite, as it takes a long time to complete. It is here to permit
-      * building core(s) quickly and easily.
-      * 
-      * Expected results: The specified cores to be built.
-      */
+//     /**
+//      * Build all cores. NOTE: This test is not meant to be run with the
+//      * test suite, as it takes a long time to complete. It is here to permit
+//      * building core(s) quickly and easily.
+//      * 
+//      * Expected results: The specified cores to be built.
+//      */
 //     @Test
 //     public void testStaticBuildCores() {
 //        String testName = "testStaticBuildCores";
