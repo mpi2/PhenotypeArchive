@@ -29,15 +29,7 @@ public class ReportsController {
 		
 		System.out.println("CALLED");
 	    String result = is.getLaczExpressionSpreadsheet();
-
-	    response.setContentType("text/csv;charset=utf-8"); 
-	    response.setHeader("Content-Disposition","attachment; filename=yourData.csv");
-	    OutputStream resOs= response.getOutputStream();  
-	    OutputStream buffOs= new BufferedOutputStream(resOs);   
-	    OutputStreamWriter outputwriter = new OutputStreamWriter(buffOs);  
-        outputwriter.write(result);  
-	    outputwriter.flush();   
-	    outputwriter.close();
+	    ControllerUtils.writeAsCSV(result, "impcLaczExpression.csv", response);
 	    
 	};
 	
