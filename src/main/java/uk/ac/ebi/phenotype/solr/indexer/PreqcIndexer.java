@@ -228,10 +228,19 @@ public class PreqcIndexer extends AbstractIndexer {
 
                 GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
 
-                o.setResourceName(datasource);
-                if(resourceMap.containsKey(project.toUpperCase())) {
-                    o.setResourceFullname(resourceMap.get(project.toUpperCase()));
+                // Procedure prefix is the first two strings of the parameter after splitting on underscore
+                // i.e. IMPC_BWT_001_001 => IMPC_BWT
+                String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
+                if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
+                    o.setResourceName("3i");
+                    o.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+                } else {
+                    o.setResourceName(datasource);
+                    if(resourceMap.containsKey(project.toUpperCase())) {
+                        o.setResourceFullname(resourceMap.get(project.toUpperCase()));
+                    }
                 }
+
                 o.setProjectName(project);
                 if(projectMap.containsKey(project.toUpperCase())) {
                     o.setProjectFullname(projectMap.get(project.toUpperCase()));
