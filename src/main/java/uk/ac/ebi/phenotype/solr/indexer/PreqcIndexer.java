@@ -232,8 +232,11 @@ public class PreqcIndexer extends AbstractIndexer {
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
                 String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
                 if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
-                    o.setResourceName("3i");
-                    o.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+//                    o.setResourceName("3i");
+//                    o.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+                    o.setResourceName(StatisticalResultIndexer.RESOURCE_3I.toUpperCase());
+                    o.setResourceFullname(resourceMap.get(StatisticalResultIndexer.RESOURCE_3I.toUpperCase()));
+
                 } else {
                     o.setResourceName(datasource);
                     if(resourceMap.containsKey(project.toUpperCase())) {
