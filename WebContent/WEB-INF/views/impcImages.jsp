@@ -73,24 +73,24 @@
 				<li class="disabled"><a>Prev</a></li>
 				</c:if>
 				<c:if test="${start ne 0}">
-				<li><a href='${baseUrl}/impcImages/images?start=${start-length}&length=${length}&${q}'>Prev</a></li>
+				<li><a href='${baseUrl}/impcImages/images?start=${start-length}&length=${length}${qBaseStr}'>Prev</a></li>
 				</c:if>
 
 				<c:forEach begin="0" end="${imageCount}" step="${length}" var="i">
 				<li <c:if test="${start eq i}">class="active"</c:if>>
-				<a href='${baseUrl}/impcImages/images?start=<c:if test="${i ne 0}">${i-1}</c:if><c:if test="${i eq 0}">${i}</c:if>&length=${length}&q=${q}'><fmt:formatNumber value="${(i+length)/length}" maxFractionDigits="0" /></a>
+				<a href='${baseUrl}/impcImages/images?start=<c:if test="${i ne 0}">${i-1}</c:if><c:if test="${i eq 0}">${i}</c:if>&length=${length}${qBaseStr}'><fmt:formatNumber value="${(i+length)/length}" maxFractionDigits="0" /></a>
 				</li>
 				</c:forEach>
 
 				<c:if test="${start+length lt imageCount}">
-				<li><a id="next" href='${baseUrl}/impcImages/images?start=${start+length}&length=${length}&q=${q}'>Next</a></li>
+				<li><a id="next" href='${baseUrl}/impcImages/images?start=${start+length}&length=${length}${qBaseStr}'>Next</a></li>
 				</c:if>
 				<c:if test="${start+length gt imageCount}">
 				<li class="disabled"><a>Next</a></li>
 				</c:if>				
 			</ul>
 		</div>
-		<script>$('div#pagination').hide();</script>
+	    <script>$('div#pagination').hide();</script>
 		</c:if>
 </div>
 </div>
