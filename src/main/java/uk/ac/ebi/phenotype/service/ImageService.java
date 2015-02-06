@@ -6,12 +6,15 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
+
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -19,7 +22,13 @@ import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 
 import java.util.*;
 
+import javax.annotation.Resource;
+
+
 public class ImageService {
+	
+	@Resource(name = "globalConfiguration")
+    private Map<String, String> config;
 
 	private final HttpSolrServer solr;
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
@@ -187,6 +196,93 @@ public class ImageService {
 	}
 
 
+	public String getLaczExpressionSpreadsheet(){
+		SolrQuery query = new SolrQuery();
+		ArrayList<String> res = new ArrayList<>();
+		String resToString = "";
+				
+		query.setQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\" AND " + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		query.setRows(1000000);
+		query.addField(ImageDTO.MARKER_SYMBOL);
+		query.addField(ImageDTO.ALLELE_SYMBOL);
+		query.addField(ImageDTO.COLONY_ID);
+		query.addField(ImageDTO.BIOLOGICAL_SAMPLE_ID);
+		query.addField(ImageDTO.ZYGOSITY);
+		query.addField(ImageDTO.SEX);
+		query.addField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
+		query.addField(ImageDTO.PARAMETER_STABLE_ID);
+		query.addField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);	
+		query.addField(ImageDTO.GENE_ACCESSION_ID);
+		query.setFacet(true);
+		query.setFacetLimit(100);
+		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
+		query.set("group", true);
+		query.set("group.limit", 100000);
+		query.set("group.field", ImageDTO.BIOLOGICAL_SAMPLE_ID);		
+		
+		try {
+			QueryResponse solrResult = solr.query(query);
+			ArrayList<String> allParameters = new ArrayList<>();
+			String header = ImageDTO.ALLELE_SYMBOL + "," + ImageDTO.ALLELE_SYMBOL + "," + ImageDTO.COLONY_ID + "," + 
+							ImageDTO.BIOLOGICAL_SAMPLE_ID + "," + ImageDTO.ZYGOSITY + "," + ImageDTO.SEX + "," + "image_collection_link";
+			System.out.println(solr.getBaseURL() + "/select?" + query);
+			
+			// Get facets as we need to turn them into columns
+			for (Count facet : solrResult.getFacetField(ImageDTO.PARAMETER_ASSOCIATION_NAME).getValues()){
+				allParameters.add(facet.getName());
+				header += "," + facet.getName();
+			}
+			for (Group group : solrResult.getGroupResponse().getValues().get(0).getValues())	{
+
+				String row = "";
+				ArrayList<String> params =  new ArrayList<>();
+				ArrayList<String> paramValuess = new ArrayList<>();
+				String urlToImagePicker = config.get("drupalBaseUrl") + "/data/imagePicker/";
+				
+				for (SolrDocument doc : group.getResult()){
+					if (row.equalsIgnoreCase("")){						
+						row += doc.getFieldValues(ImageDTO.MARKER_SYMBOL).iterator().next().toString();
+						urlToImagePicker += doc.getFieldValue(ImageDTO.GENE_ACCESSION_ID) + "/";
+						urlToImagePicker += doc.getFieldValue(ImageDTO.PARAMETER_STABLE_ID);
+						if (doc.getFieldValue(ImageDTO.ALLELE_SYMBOL) != null){
+							row += "," + doc.getFieldValue(ImageDTO.ALLELE_SYMBOL).toString();
+						}
+						row += "," + doc.getFieldValue(ImageDTO.COLONY_ID).toString();
+						row += "," + doc.getFieldValue(ImageDTO.BIOLOGICAL_SAMPLE_ID).toString();
+						if (doc.getFieldValue(ImageDTO.ZYGOSITY) != null){
+							row += "," + doc.getFieldValue(ImageDTO.ZYGOSITY).toString();
+						}
+						row += "," + doc.getFieldValue(ImageDTO.SEX).toString();
+						row += "," + urlToImagePicker;
+					}
+					if(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME) != null){
+						for (Object obj : doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)){
+							paramValuess.add(obj.toString());
+						}
+						for (Object obj : doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME)){
+							params.add(obj.toString());
+						}
+					}
+				}
+				for (String tissue : allParameters){
+					if (params.contains(tissue)){
+						row += "," + paramValuess.get(params.indexOf(tissue));
+					}else {
+						row += ",";
+					}
+				}
+					res.add(row);
+			}
+			resToString = header + "\n" + StringUtils.join(res, "\n");
+			 
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return resToString;
+	}
+	
+	
 	public QueryResponse getControlImagesForProcedure(String metadataGroup, String center, String strain, String procedure_name, String parameter, Date date, int numberOfImagesToRetrieve, SexType sex)
 		throws SolrServerException {
 
@@ -480,3 +576,4 @@ public class ImageService {
 	}
 
 }
+
