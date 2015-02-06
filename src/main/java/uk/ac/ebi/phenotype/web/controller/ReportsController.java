@@ -41,5 +41,10 @@ public class ReportsController {
 	    
 	};
 	
+	@RequestMapping(value="/reports", method = RequestMethod.GET)
+	public String defaultAction(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
+		return "reports";
+	};
+	
 }
 
