@@ -29,6 +29,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private static final Logger logger = LoggerFactory.getLogger(StatisticalResultIndexer.class);
     private static Connection connection;
 
+    public static final String RESOURCE_3I = "3i";
+
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -49,6 +51,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     Map<Integer, ImpressBean> procedureMap = new HashMap<>();
     Map<Integer, ImpressBean> parameterMap = new HashMap<>();
     Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
+    Map<String, ResourceBean> resourceMap = new HashMap<>();
 
     Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 
@@ -92,6 +95,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             logger.info("Populating biological data map");
             populateBiologicalDataMap();
+
+            logger.info("Populating resource map");
+            populateResourceDataMap();
 
         } catch (SQLException e) {
             throw new IndexerException(e);
@@ -354,9 +360,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setDataType(r.getString("data_type"));
 
         // Experiment details
-        doc.setResourceId(r.getInt("resource_id"));
-        doc.setResourceName(r.getString("resource_name"));
-        doc.setResourceFullname(r.getString("resource_fullname"));
+        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).stableId.split("_")).subList(0, 2), "_");
+        if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
+            // Override the resource for the 3i procedures
+            doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
+            doc.setResourceName(resourceMap.get(RESOURCE_3I).shortName);
+            doc.setResourceFullname(resourceMap.get(RESOURCE_3I).name);
+        } else {
+            doc.setResourceId(r.getInt("resource_id"));
+            doc.setResourceName(r.getString("resource_name"));
+            doc.setResourceFullname(r.getString("resource_fullname"));
+        }
+
         doc.setProjectId(r.getInt("project_id"));
         doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
@@ -494,6 +509,48 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             }
         }
         logger.info("Populated biological data map with {} entries", biologicalDataMap.size());
+    }
+
+
+    /**
+     * Add all the relevant data required quickly looking up biological data
+     * associated to a biological sample
+     *
+     * @throws SQLException when a database exception occurs
+     */
+    private void populateResourceDataMap() throws SQLException {
+
+        String query = "SELECT id, name, short_name FROM external_db";
+
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+                ResourceBean b = new ResourceBean();
+                b.id = resultSet.getInt("id");
+                b.name = resultSet.getString("name");
+                b.shortName = resultSet.getString("short_name");
+                resourceMap.put(resultSet.getString("short_name"), b);
+            }
+        }
+        logger.info("Populated resource data map with {} entries\n{}", resourceMap.size(), resourceMap);
+    }
+
+    protected class ResourceBean {
+        public Integer id;
+        public String name;
+        public String shortName;
+
+
+        @Override
+        public String toString() {
+
+            return "ResourceBean{" + "id=" + id +
+                ", name='" + name + '\'' +
+                ", shortName='" + shortName + '\'' +
+                '}';
+        }
     }
 
     /**
