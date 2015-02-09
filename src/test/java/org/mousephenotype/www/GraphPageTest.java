@@ -206,9 +206,9 @@ public class GraphPageTest {
            
                 // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
                 driver.get(target);
-                GeneTable ptGene = new GeneTable(driver, wait, target);
-                ptGene.load();
-                GridMap data = new GridMap(ptGene.getPreAndPostQcList(), target);
+                GeneTable geneTable = new GeneTable(driver, wait, target);
+                geneTable.load();
+                GridMap data = new GridMap(geneTable.getPreAndPostQcList(), target);
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
                     graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
@@ -248,7 +248,7 @@ public class GraphPageTest {
     }
     
     @Test
-@Ignore
+//@Ignore
     public void testUnidimensionalGraph() {
         String testName = "testUnidimensionalGraph";
         
@@ -261,21 +261,29 @@ public class GraphPageTest {
 //@Ignore
     public void testKnownGraphs() {
         String testName = "testKnownGraphs";
+        // Make sure to keep baseUrls in sync with graplUrls. Don't forget to manage d0/d1/d2 appropriately.
         String[] graphUrls = {
             "http://beta.mousephenotype.org/data/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
         };
+        String[] baseUrls = {
+            "http://ves-ebi-d1:8080/mi/impc/beta/phenotype-archive"
+        };
+        
         PageStatus status;
         Date start = new Date();
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
      
+        int i = 0;
         for (String graphUrl : graphUrls) {
+            baseUrl = baseUrls[i];
             System.out.println("testUidimensionalGraph(): testing graph URL: " + graphUrl);
             status = graphTestEngine(graphUrl);
             if (status.hasErrors()) {
                 errorList.add(status.toStringErrorMessages());
             }
+            i++;
         }
             
         if (errorList.isEmpty()) {
