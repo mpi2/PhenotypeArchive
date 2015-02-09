@@ -84,8 +84,14 @@ public class SecondaryProjectController {
 	UnidimensionalChartAndTableProvider chartProvider;
 	
 	@Autowired 
-	SecondaryProjectDAO sp;
+	@Qualifier("idg")
+	SecondaryProjectDAO idg;
 
+
+	@Autowired 
+	@Qualifier("threeI")
+	SecondaryProjectDAO threeI;
+	
 	@Autowired
 	@Qualifier("solrServer")
 	SolrServer phenodigmCore;
@@ -110,7 +116,7 @@ public class SecondaryProjectController {
 		List<String> resp = new ArrayList<>();
 
 		try {
-			Set<String> accessions = sp.getAccessionsBySecondaryProjectId(id);
+			Set<String> accessions = idg.getAccessionsBySecondaryProjectId(id);
 
 			Map<String, List<Map<String, String>>> getMpToHpTerms = IndexerMap.getMpToHpTerms(phenodigmCore);
 			Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
@@ -244,28 +250,48 @@ public class SecondaryProjectController {
 
 
 	@RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
-	public String loadSeondaryProjectPage(@PathVariable String id, Model model,
+	public String loadSecondaryProjectPage(@PathVariable String id, Model model,
 			HttpServletRequest request, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException {
+		
 		System.out.println("calling secondary project id="+id);
-		
 		Set<String> accessions;
-		
-		try {
-			accessions = sp.getAccessionsBySecondaryProjectId(id);
-			model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
-			model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
-			
-			List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
-			String chart = phenomeChartProvider.generatePhenomeChartByGenes(
-					results,
-					null,
-					Constants.SIGNIFICANT_P_VALUE);
-			
-			model.addAttribute("chart", chart);
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.IDG.name())){
+			try {
+				accessions = idg.getAccessionsBySecondaryProjectId(id);
+				model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
+				model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+				
+				List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
+				String chart = phenomeChartProvider.generatePhenomeChartByGenes(
+						results,
+						null,
+						Constants.SIGNIFICANT_P_VALUE);
+				
+				model.addAttribute("chart", chart);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			System.out.println("returning to idg");
+			return "idg";
+		} else if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())) {
+			try {
+				accessions = threeI.getAccessionsBySecondaryProjectId(id);
+//				model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
+//				model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+				
+//				List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
+//				String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
+				
+//				model.addAttribute("chart", chart);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			System.out.println("returning to idg");
+			return "threeI";
 		}
+		
+		
 		return "idg";
 	}
 

@@ -19,11 +19,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
@@ -32,8 +34,10 @@ import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class StatisticalResultService extends BasicService {
@@ -130,6 +134,29 @@ public class StatisticalResultService extends BasicService {
     }
 
 
+    public Set<String> getAccessionsByResourceName(String resourceName){
+    	
+    	Set<String> res = new HashSet<>();
+    	SolrQuery query = new SolrQuery()
+        	.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + resourceName);
+    	query.setFacet(true);
+    	query.addFacetField(StatisticalResultDTO.MARKER_ACCESSION_ID);
+    	query.setFacetLimit(10000000);
+    	query.setFacetMinCount(1);
+    	query.setRows(0);
+    	
+    	QueryResponse response;
+		try {
+			response = solr.query(query);
+			for (Count id: response.getFacetField(StatisticalResultDTO.MARKER_ACCESSION_ID).getValues()){
+				res.add(id.getName());
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	return res;
+    }
+    
     protected UnidimensionalResult translateStatisticalResultToUnidimensionalResult(StatisticalResultDTO result) {
         UnidimensionalResult r = new UnidimensionalResult();
         
