@@ -38,12 +38,13 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.GraphPage;
 import org.mousephenotype.www.testing.model.GraphPageCategorical;
 import org.mousephenotype.www.testing.model.GraphPageUnidimensional;
 import org.mousephenotype.www.testing.model.GridMap;
 import org.mousephenotype.www.testing.model.PageStatus;
-import org.mousephenotype.www.testing.model.PhenotypeTableGene;
+import org.mousephenotype.www.testing.model.GeneTable;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -125,7 +126,7 @@ public class GraphPageTest {
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
     @Before
     public void setup() {
@@ -205,12 +206,12 @@ public class GraphPageTest {
            
                 // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
                 driver.get(target);
-                PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, target);
+                GeneTable ptGene = new GeneTable(driver, wait, target);
                 ptGene.load();
                 GridMap data = new GridMap(ptGene.getPreAndPostQcList(), target);
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
-                    graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
+                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
                             
                     // Select only preQc links.
                     if (TestUtils.isPreQcLink(graphUrl)) {
@@ -247,7 +248,7 @@ public class GraphPageTest {
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testUnidimensionalGraph() {
         String testName = "testUnidimensionalGraph";
         
@@ -350,7 +351,7 @@ public class GraphPageTest {
         String graphUrl = "";
 
         int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " records.");
+        logger.info(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " records.");
 
         // Loop through the gene pages looking for graphs of the requested type. Test each graph.
         int graphCount = 0;
@@ -358,28 +359,30 @@ public class GraphPageTest {
         int i = 0;
         
         for (TestUtils.GraphData graph : graphUrls) {
-//if (i == 0) geneId = "MGI:104874";    // Akt2
-//if (i == 1) geneId = "MGI:3643284";   // Is valid gene for which there is no page.
-//if (i == 1) geneId = "MGI:1924285";
-//if (i == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
-            
+
             try {
 ////////System.out.println("GraphPageTest.graphTestEngine: graphCount = " + graphCount + ". targetCount = " + targetCount);
                 if (graphCount >= targetCount) {
                     break;
                 }
-                target = baseUrl + "/genes/" + graph.getGeneId();
+
+                String geneId = graph.getGeneId();
+//if (i == 0) geneId = "MGI:1316652";
+                target = baseUrl + "/genes/" + geneId;
                 i++;
            
                 // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
-                driver.get(target);
-                PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, target);
-                ptGene.load();
-                GridMap data = ptGene.getData();
+                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+                if ( ! genePage.hasGenesTable())
+                    continue;
+                
+                GeneTable geneTable = new GeneTable(driver, wait, target);
+                geneTable.load();
+                GridMap data = geneTable.getData();
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
-                    Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE));
-                    graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
+                    Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_P_VALUE));
+                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
                     
                     // Skip over preQc links.
                     if (TestUtils.isPreQcLink(graphUrl)) {
