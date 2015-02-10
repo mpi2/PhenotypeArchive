@@ -15,13 +15,9 @@ import org.apache.solr.client.solrj.beans.Field;
 public class HeatMapCell {
     
     private Float floatValue;
-   
-    private String xAxisKey;
-    
-    
+    private String xAxisKey;    
     private String label="";//label to display possibly in the cell
     private String mouseOver="";
-
     private String status="";//use to give a status of a cell e.g. In progress or complete etc
    
 
@@ -63,11 +59,6 @@ public class HeatMapCell {
 
 	public void setFloatValue(Float floatValue) {
 		this.floatValue = floatValue;
-	}
-
-	
-    
-    
-    
+	}    
    
 }

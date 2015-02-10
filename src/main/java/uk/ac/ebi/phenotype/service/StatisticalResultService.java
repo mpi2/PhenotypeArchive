@@ -20,7 +20,10 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
@@ -37,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 @Service
@@ -133,6 +138,41 @@ public class StatisticalResultService extends BasicService {
         return results;
     }
 
+    public Map<String, Set<String>> getAccessionProceduresMap(String resourceName){
+    	
+    	SolrQuery query = new SolrQuery();
+    	Map<String, Set<String>> res =  new HashMap<>(); 
+    	NamedList<List<PivotField>> response;
+    	
+    	if (resourceName == null){
+    		query.setQuery("*:*");
+    	}else {
+    		query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + resourceName);
+    	}
+    	query.setFacet(true);
+    	query.addFacetPivotField(StatisticalResultDTO.MARKER_ACCESSION_ID + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
+    	query.setFacetLimit(-1);
+    	query.setFacetMinCount(1);
+    	query.setRows(0);
+    	
+		try {
+			response = solr.query(query).getFacetPivot();
+			for (PivotField genePivot : response.get(StatisticalResultDTO.MARKER_ACCESSION_ID + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID)){
+				String geneName = genePivot.getValue().toString();
+//				System.out.println("gene name " + geneName);
+				Set<String> procedures = new HashSet<>();
+				for (PivotField f : genePivot.getPivot()){
+					procedures.add(f.getValue().toString());
+//					System.out.println("\tprcedure " + f.getValue().toString());
+				}
+				res.put(geneName, procedures);
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	return res;
+    }
+    
 
     public Set<String> getAccessionsByResourceName(String resourceName){
     	
@@ -247,67 +287,105 @@ public class StatisticalResultService extends BasicService {
         return r;
     }
 
-    
-    // ***************************************************************//
-    // DO WE NEED THIS ANYMORE?
-    // ***************************************************************//
-    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<Parameter> parameters) {
+
+    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, Map<String, Set<String>> map) {
+    	
         GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
+        List<HeatMapCell> results = new ArrayList<HeatMapCell>();
+        Map<String, HeatMapCell> paramPValueMap = new HashMap<>();
+        
         if (gene != null) {
             row.setSymbol(gene.getSymbol());
         } else {
             System.err.println("error no symbol for gene " + accession);
         }
-        List<HeatMapCell> results = new ArrayList<HeatMapCell>();
-        // search by gene and a list of params
-        // or search on gene and then loop through params to add the results if
-        // available order by ascending p value means we can just pick off the
-        // first entry for that param
-        // http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
-
-        Map<String, HeatMapCell> paramMap = new HashMap<>();// map to contain
-                                                            // parameters with
-                                                            // their associated
-                                                            // status or pvalue
-                                                            // as a string
-        for (Parameter param : parameters) {
-            // System.out.println("adding param to paramMap="+paramId);
-            paramMap.put(param.getStableId(), null);
+        
+        for (String procedure : map.get(accession)) {
+        	paramPValueMap.put(procedure, null);
         }
 
         SolrQuery q = new SolrQuery()
-                .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"").setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
+                .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"")
+                .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
                 .setRows(10000);
-        QueryResponse response = null;
 
         try {
-            response = solr.query(q);
-            results = response.getBeans(HeatMapCell.class);
-            for (HeatMapCell cell : results) {
-                // System.out.println(doc.getFieldValues("p_value"));
-
-                String paramStableId = cell.getxAxisKey();
-                // System.out.println("comparing"+cell.getParameterStableId()+"|");
-                if (paramMap.containsKey(cell.getxAxisKey())) {
-                    System.out.println("cell mp Term name=" + cell.getLabel());
-                    System.out.println("cell p value=" + cell.getFloatValue());
-                    System.out.println(cell.getFloatValue() + "found");
-                    paramMap.put(paramStableId, cell);
-                    if (row.getLowestPValue() > cell.getFloatValue()) {
-                        row.setLowestPValue(cell.getFloatValue());
-                    }
-                }
+        	Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
+            for (SolrDocument doc:  solr.query(q).getResults()){
+            	HeatMapCell cell = new HeatMapCell();
+            	if(doc.getFieldValue(StatisticalResultDTO.P_VALUE) < 0.0001){
+            		// significant call
+            	
+            	} else  if > {
+            		// no significant call
+            	}
+            	else // no data
+    			if (map.containsKey(accession)) {
+    				Set<String> mps = map.get(accession);
+    				if (mps != null && !mps.isEmpty()) {
+    					if (mps.contains(xAxisBean.getId())) {
+    						cell.setxAxisKey(xAxisBean.getId());
+    						cell.setLabel("Data Available");
+    						cell.setStatus("Data Available");
+    					} else {
+    						cell.setStatus("No MP");
+    					}
+    				} else {
+    					// System.err.println("mps are null or empty");
+    					cell.setStatus("No MP");
+    				}
+    			} else {
+    				// if no doc found for the gene then no data available
+    				cell.setStatus("No Data Available");
+    			}
+    			xAxisToCellMap.put(xAxisBean.getId(), cell);
             }
-
-            row.setXAxisToCellMap(paramMap);
+            
         } catch (SolrServerException ex) {
             LOG.error(ex.getMessage());
         }
-
         return row;
     }
-    // ***************************************************************//
-    // DO WE NEED THIS ANYMORE?
-    // ***************************************************************//
+    /*
+	 * End of method for PhenotypeCallSummarySolrImpl
+	 */
+	public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<BasicBean> xAxisBeans, Map<String, List<String>> geneToTopLevelMpMap) {
 
+		GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
+		if (gene != null) {
+			row.setSymbol(gene.getSymbol());
+		} else {
+			System.err.println("error no symbol for gene " + accession);
+		}
+
+		Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
+		for (BasicBean xAxisBean : xAxisBeans) {
+			HeatMapCell cell = new HeatMapCell();
+			if (geneToTopLevelMpMap.containsKey(accession)) {
+
+				List<String> mps = geneToTopLevelMpMap.get(accession);
+				// cell.setLabel("No Phenotype Detected");
+				if (mps != null && !mps.isEmpty()) {
+					if (mps.contains(xAxisBean.getId())) {
+						cell.setxAxisKey(xAxisBean.getId());
+						cell.setLabel("Data Available");
+						cell.setStatus("Data Available");
+					} else {
+						cell.setStatus("No MP");
+					}
+				} else {
+					// System.err.println("mps are null or empty");
+					cell.setStatus("No MP");
+				}
+			} else {
+				// if no doc found for the gene then no data available
+				cell.setStatus("No Data Available");
+			}
+			xAxisToCellMap.put(xAxisBean.getId(), cell);
+		}
+		row.setXAxisToCellMap(xAxisToCellMap);
+
+		return row;
+	}
+   
 }

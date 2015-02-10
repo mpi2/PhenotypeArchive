@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.PostQcService;
@@ -67,24 +68,22 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 	throws SolrServerException {
 
 		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
-		List<BasicBean> parameters = getXAxisForHeatMap();
+	
+		System.out.println("-----getGeneHeatMap called");
 
-		try {
-			System.out.println("-----getGeneHeatMap called");
-			
-			Set<String> accessions = getAccessionsBySecondaryProjectId("threeI");
-			System.out.println("Accessions found " + accessions.size());
-			Map<String, String> geneToMouseStatusMap = gs.getProductionStatusForGeneSet(accessions, request);
-			Map<String, List<String>> geneToTopLevelMpMap = gs.getTopLevelMpForGeneSet(accessions);
-			
-			for (String accession : accessions) {
-				GenomicFeature gene = genesDao.getGenomicFeatureByAccession(accession);
-				
-				GeneRowForHeatMap row = gps.getResultsForGeneHeatMap(accession, gene, parameters,
-								geneToTopLevelMpMap);
-				if (geneToMouseStatusMap.containsKey(accession)) {
-					row.setMiceProduced(geneToMouseStatusMap.get(accession));
-					if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
+		Map<String, Set<String>> geneToProcedureMap = srs.getAccessionProceduresMap("MGP");
+		Set<String> accessions = geneToProcedureMap.keySet();
+		System.out.println("Accessions found " + accessions.size());
+		Map<String, String> geneToMouseStatusMap = gs.getProductionStatusForGeneSet(accessions, request);
+
+		for (String accession : accessions) {
+			GenomicFeature gene = genesDao.getGenomicFeatureByAccession(accession);
+
+			GeneRowForHeatMap row = srs.getResultsForGeneHeatMap(accession, gene, geneToProcedureMap);
+			System.out.println(" -- gene " + accession + " -- cell -- " + row);
+			if (geneToMouseStatusMap.containsKey(accession)) {
+				row.setMiceProduced(geneToMouseStatusMap.get(accession));
+				if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
 						for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
 							cell.setStatus("No Data Available");
 						}
@@ -92,14 +91,10 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 				} else {
 					row.setMiceProduced("No");
 				}
-				geneRows.add(row);
-			}
-
-		} catch (SQLException ex) {
-			Logger.getLogger(GeneHeatmapController.class.getName()).log(
-					Level.SEVERE, null, ex);
+				geneRows.add(row);	
 		}
-		Collections.sort(geneRows);
+			
+//		Collections.sort(geneRows);
 		return geneRows;
 	}
 
