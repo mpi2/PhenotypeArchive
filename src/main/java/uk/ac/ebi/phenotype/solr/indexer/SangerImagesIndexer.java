@@ -401,7 +401,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                                             }
                                         }
                                     } else {
-                                        System.err.println("no top level for " + annotation.mp_id);
+                                        logger.warn("No top level for " + annotation.mp_id);
                                     }
                                     if (mpSynMap.containsKey(annotation.mp_id)) {
                                         o.setMpSyns(mpSynMap.get(annotation.mp_id));
