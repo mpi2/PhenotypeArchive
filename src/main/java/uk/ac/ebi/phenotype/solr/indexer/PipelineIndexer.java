@@ -221,19 +221,28 @@ public class PipelineIndexer extends AbstractIndexer {
                                         }
                                         if (mp.getTopLevelMpTermId() != null) {
                                             pipe.addTopLevelMpId(mp.getTopLevelMpTermId());
+                                        } else {
+                                            logger.warn("topLevelMpTermId for mpTerm " + mpTermId + " is null!");
                                         }
-//									
 //									<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
-                                        pipe.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+                                        if (mp.getTopLevelMpTerm() != null) {
+                                            pipe.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+                                        } else {
+                                            logger.warn("topLevelMpTerm for mpTerm " + mpTermId + " is null!");
+                                        }
 //									<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />
                                         if (mp.getTopLevelMpTermSynonym() != null) {
                                             pipe.addTopLevelMpTermSynonym(mp.getTopLevelMpTermSynonym());
                                         }
 //									<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />					
-                                        pipe.addIntermediateMpId(mp.getIntermediateMpId());
+                                        if (mp.getIntermediateMpId() != null) {
+                                            pipe.addIntermediateMpId(mp.getIntermediateMpId());
+                                        }
 
 //									<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
-                                        pipe.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+                                        if (mp.getIntermediateMpTerm() != null) {
+                                            pipe.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+                                        }
                                         //<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />
                                         if (mp.getIntermediateMpTermSynonym() != null) {
                                             pipe.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
@@ -323,6 +332,8 @@ public class PipelineIndexer extends AbstractIndexer {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IndexerException(e);
+        } catch (NullPointerException npe){
+            npe.printStackTrace();
         }
 
         long endTime = System.currentTimeMillis();
