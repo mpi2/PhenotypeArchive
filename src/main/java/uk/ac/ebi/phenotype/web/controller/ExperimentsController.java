@@ -60,6 +60,7 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
 
 @Controller
@@ -81,9 +82,12 @@ public class ExperimentsController {
 	
 	@Autowired
 	SolrIndex solrIndex;
-	
+
 	@Autowired
 	private GeneService geneService;
+	
+	@Autowired
+	private StatisticalResultService srService;
 
 	@Autowired
 	private ObservationService observationService;
@@ -146,16 +150,9 @@ public class ExperimentsController {
 		
 		try {
 			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, procedureStableIds);
-			
 			// get all p-values for this allele/center/pipeline
-			 pvaluesMap = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
-						alleleAccession, 
-						phenotypingCenter, 
-						pipelineStableId,
-						truncatedStableIds);
-			
+			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds);
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

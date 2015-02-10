@@ -39,8 +39,7 @@ import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
  * 
  * @author jwarren
  */
-class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
-		SecondaryProjectDAO {
+class SecondaryProjectIdgImpl extends HibernateDAOImpl implements SecondaryProjectDAO {
 
 	@Autowired
 	private GeneService geneService;
@@ -82,6 +81,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				String result = resultSet.getString(1);
+				System.out.println("result +++ " +  result);
 				accessions.add(result);
 			}
 		}

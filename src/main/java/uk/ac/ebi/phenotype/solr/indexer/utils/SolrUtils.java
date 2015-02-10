@@ -106,7 +106,7 @@ public class SolrUtils {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Exception while trying to extract HttpSolrServer from SolrServer: " + e.getLocalizedMessage());
+            logger.error("Exception while trying to extract HttpSolrServer from SolrServer: " + e.getLocalizedMessage());
         }
         
         return httpSolrServer;
@@ -265,7 +265,7 @@ public class SolrUtils {
             throw new IndexerException(sse);
         }
         total = response.getResults().getNumFound();
-        System.out.println("total alleles="+total);
+        logger.info("total alleles="+total);
         alleleList = response.getBeans(AlleleDTO.class);
         
         logger.debug("Loaded {} alleles", alleleList.size());
@@ -495,12 +495,12 @@ public class SolrUtils {
 			maxIterations = map.size();
 		}
 
-		System.out.println(what);
+		logger.info(what);
 
 		Iterator<Entry<String, List<SangerImageDTO>>> it = map.entrySet().iterator();
 		while ((it.hasNext()) && (maxIterations-- > 0)) {
 			Entry<String, List<SangerImageDTO>> entry = it.next();
-			System.out.println("KEY: " + entry.getKey());
+			logger.info("KEY: " + entry.getKey());
 			List<SangerImageDTO> dtoList = entry.getValue();
 			for (SangerImageDTO dto : dtoList) {
 				printItemList("procedure_name:", dto.getProcedureName());
@@ -522,7 +522,7 @@ public class SolrUtils {
 
 				printItemList("latest_phenotype_status:", dto.getLatestPhenotypeStatus());
 
-				System.out.println("\tlegacy_phenotype_status:\t" + dto.getLegacyPhenotypeStatus());
+				logger.info("\tlegacy_phenotype_status:\t" + dto.getLegacyPhenotypeStatus());
 				printItemList("latest_production_centre:", dto.getLatestProductionCentre());
 				printItemList("latest_phenotyping_centre:", dto.getLatestPhenotypingCentre());
 

@@ -339,7 +339,7 @@ public class AlleleIndexer extends AbstractIndexer {
     			goTermLookup.get(ga.mgiSymbol).add(ga);
             }
             
-            System.out.println(goTermLookup.size());
+            logger.info("goTermLookup size: " + goTermLookup.size());
             logger.info("Populated goTerm lookup, {} records", goTermLookup.size());
         } 
 	    catch (Exception e) {

@@ -17,8 +17,10 @@ package uk.ac.ebi.phenotype.service;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -28,10 +30,12 @@ import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.phenotype.data.imits.StatusConstants;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -682,15 +686,17 @@ public class GeneService {
 	 */
 	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, HttpServletRequest request)
 			throws SolrServerException {
+			
 		Map<String, String> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
-		String query="*:*";
-		solrQuery.setQuery(query);
+		solrQuery.setQuery("*:*");
 		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
 		solrQuery.setRows(100000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS);
-
-		QueryResponse rsp = solr.query(solrQuery);
+		
+		System.out.println("solr is ....   " + solr.getBaseURL() + "/select?" + solrQuery);
+		
+		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 		System.out.println("solr query in basicbean=" + solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		for (SolrDocument doc : res) {
@@ -728,7 +734,7 @@ public class GeneService {
 		solrQuery.setRows(100000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 		System.out.println("solr query in basicbean=" + solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		for (SolrDocument doc : res) {

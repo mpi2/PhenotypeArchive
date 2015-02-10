@@ -131,7 +131,6 @@
 		
 	<script>
 		$(document).ready(function() {
-
 			$.fn.qTip({
 				'pageName' : 'idg',
 				'textAlign' : 'left',
