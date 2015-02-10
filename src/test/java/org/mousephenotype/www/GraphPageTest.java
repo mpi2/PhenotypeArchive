@@ -48,7 +48,7 @@ import org.mousephenotype.www.testing.model.GeneTable;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -173,6 +173,11 @@ public class GraphPageTest {
     @Test
 //@Ignore
     public void testPreQcGraph() {
+        
+        
+// NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
+        
+        
         String testName = "testPreQcGraph";
         
         List<TestUtils.GraphData> graphUrls = TestUtils.getGraphUrls(solrUrl, ObservationType.unidimensional, 1000);
@@ -200,12 +205,25 @@ public class GraphPageTest {
                 if (graphCount >= targetCount) {
                     break;
                 }
-                target = baseUrl + "/genes/" + graph.getGeneId();
+                if (i > 100) {
+                    message = "\t\t[FAILED] - Over 100 gene pages scanned and no preqc graphs found.";
+                    System.out.println(message);
+                    errorList.add(message);
+                    break;
+                }
+                
+                String geneId = graph.getGeneId();
+                
+                target = baseUrl + "/genes/" + geneId;
                 System.out.println("Looking for preQc graphs on gene page URL[" + i + "]:\t" + target);
                 i++;
            
                 // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
                 driver.get(target);
+                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+                if ( ! genePage.hasGenesTable())
+                    continue;
+                
                 GeneTable geneTable = new GeneTable(driver, wait, target);
                 geneTable.load();
                 GridMap data = new GridMap(geneTable.getPreAndPostQcList(), target);
@@ -215,24 +233,25 @@ public class GraphPageTest {
                             
                     // Select only preQc links.
                     if (TestUtils.isPreQcLink(graphUrl)) {
+// NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
+                        graphUrl = graphUrl.replace("dev.mousephenotype.org", "www.mousephenotype.org");
                         System.out.println("\tpreQc graph[ " + graphCount + "] URL: " + graphUrl);
                         // If the graph page doesn't load, log it.
-                        try {
-                            driver.get(graphUrl);
-                            // Make sure there is a div.viz-tools.
-                            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.viz-tools")));
-                            message = "[PASSED]";
-                            System.out.println("\t\t" + message);
-                            successList.add(message);
-                        } catch (Exception e) {
+                        driver.get(graphUrl);
+                        // Make sure there is a div.viz-tools.
+                        List<WebElement> elements = driver.findElements(By.cssSelector("div.viz-tools"));
+                        if (elements.isEmpty()) {
                             message = "\t\t[FAILED]";
                             System.out.println(message);
                             errorList.add(message);
-                        } finally {
-                            graphCount++;
-                            if (graphCount >= targetCount) {
-                                break;
-                            }
+                        } else {
+                            message = "[PASSED]";
+                            System.out.println("\t\t" + message);
+                            successList.add(message);
+                        }
+                        graphCount++;
+                        if (graphCount >= targetCount) {
+                            break;
                         }
                     }
                 }
