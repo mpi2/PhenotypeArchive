@@ -275,6 +275,7 @@ public class IndexerManager {
     }
     
     public void run() throws IndexerException {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.info("Starting IndexerManager. nodeps = " + nodeps + ". Building the following cores (in order):");
         logger.info("\t" + StringUtils.join(cores));
@@ -288,8 +289,11 @@ public class IndexerManager {
                     
                     buildStagingArea();
                     
+                    System.out.println("Starting core " + indexerItem.name + " build at      " + dateFormatter.format(new Date()));
                     indexerItem.indexer.run();
+                    System.out.println("Starting core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()));
                     indexerItem.indexer.validateBuild();
+                    System.out.println("Finished core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()) + "\n");
                     break;
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {

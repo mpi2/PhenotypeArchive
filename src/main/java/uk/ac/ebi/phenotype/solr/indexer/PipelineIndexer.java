@@ -221,19 +221,28 @@ public class PipelineIndexer extends AbstractIndexer {
                                         }
                                         if (mp.getTopLevelMpTermId() != null) {
                                             pipe.addTopLevelMpId(mp.getTopLevelMpTermId());
+                                        } else {
+                                            logger.warn("topLevelMpTermId for mpTerm " + mpTermId + " is null!");
                                         }
-//									
 //									<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
-                                        pipe.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+                                        if (mp.getTopLevelMpTerm() != null) {
+                                            pipe.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+                                        } else {
+                                            logger.warn("topLevelMpTerm for mpTerm " + mpTermId + " is null!");
+                                        }
 //									<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />
                                         if (mp.getTopLevelMpTermSynonym() != null) {
                                             pipe.addTopLevelMpTermSynonym(mp.getTopLevelMpTermSynonym());
                                         }
 //									<field column="top_level_mp_term_synonym" xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str" />					
-                                        pipe.addIntermediateMpId(mp.getIntermediateMpId());
+                                        if (mp.getIntermediateMpId() != null) {
+                                            pipe.addIntermediateMpId(mp.getIntermediateMpId());
+                                        }
 
 //									<field column="intermediate_mp_id" xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
-                                        pipe.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+                                        if (mp.getIntermediateMpTerm() != null) {
+                                            pipe.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+                                        }
                                         //<field column="intermediate_mp_term" xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />
                                         if (mp.getIntermediateMpTermSynonym() != null) {
                                             pipe.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
@@ -314,7 +323,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
             }
 
-            System.out.println("commiting to Pipeline core for last time!");
+            logger.info("commiting to Pipeline core for last time!");
             logger.info("Pipeline commit started.");
             pipelineCore.commit();
             logger.info("Pipeline commit finished.");
@@ -323,10 +332,12 @@ public class PipelineIndexer extends AbstractIndexer {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IndexerException(e);
+        } catch (NullPointerException npe){
+            npe.printStackTrace();
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("time was " + (endTime - startTime) / 1000);
+        logger.info("time was " + (endTime - startTime) / 1000);
 
         logger.info("Pipeline Indexer complete!");
     }
@@ -353,7 +364,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
     private Map<Integer, Map<String, String>> populateParamDbIdToParametersMap() {
 
-        System.out.println("populating PCS pipeline info");
+        logger.info("populating PCS pipeline info");
         Map<Integer, Map<String, String>> localParamDbIdToParameter = new HashMap<>();
         String queryString = "select 'pipeline' as dataType, id, stable_id, name, stable_key from phenotype_parameter";
 
@@ -397,7 +408,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
     private Map<Integer, Set<Integer>> populateParamIdToProcedureIdListMap() {
 
-        System.out.println("populating param To ProcedureId info");
+        logger.info("populating param To ProcedureId info");
         Map<Integer, Set<Integer>> paramToProcedureMap = new HashMap<>();
         String queryString = "select procedure_id, parameter_id from phenotype_procedure_parameter";
 
@@ -428,7 +439,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
     private Map<Integer, ProcedureBean> populateProcedureIdToProcedureMap() {
 
-        System.out.println("populating procedureId to Procedure Map info");
+        logger.info("populating procedureId to Procedure Map info");
         Map<Integer, ProcedureBean> procedureIdToProcedureMap = new HashMap<>();
         String queryString = "select id as pproc_id, stable_id, name, stable_key, concat(name, '___', stable_id) as proc_name_id from phenotype_procedure";
 
@@ -475,7 +486,7 @@ public class PipelineIndexer extends AbstractIndexer {
     // ppipe.db_id=6
     private Map<Integer, PipelineBean> populateProcedureIdToPipelineMap() {
 
-        System.out.println("populating procedureId to  pipeline Map info");
+        logger.info("populating procedureId to  pipeline Map info");
         Map<Integer, PipelineBean> procIdToPipelineMap = new HashMap<>();
         String queryString = "select pproc.id as pproc_id, ppipe.name as pipe_name, ppipe.id as pipe_id, ppipe.stable_id as pipe_stable_id, ppipe.stable_key as pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___', pproc.stable_id) as pipe_proc_sid from phenotype_procedure pproc inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id where ppipe.db_id=6";
 
