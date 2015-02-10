@@ -289,7 +289,7 @@ public class IndexerManager {
                     
                     buildStagingArea();
                     
-                    System.out.println("Starting core " + indexerItem.name + " build at " + dateFormatter.format(new Date()));
+                    System.out.println("Starting core " + indexerItem.name + " build at      " + dateFormatter.format(new Date()));
                     indexerItem.indexer.run();
                     System.out.println("Starting core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()));
                     indexerItem.indexer.validateBuild();
