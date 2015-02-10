@@ -356,8 +356,10 @@ public class PreqcIndexer extends AbstractIndexer {
         }
 
         System.out.println("time: " + (System.currentTimeMillis() - start));
-        logger.warn("found {} unique mps not in ontodb", bad.size());
-        logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
+        if (bad.size() > 0) {
+            logger.warn("found {} unique mps not in ontodb", bad.size());
+            logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
+        }
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {
