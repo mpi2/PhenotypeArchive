@@ -32,6 +32,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class encapsulates the code and data necessary to represent all of the
@@ -59,7 +61,7 @@ public class IndexerMap {
     private static Map<Integer, ImpressBean> parameterMap = null;
     private static Map<Integer, OrganisationBean> organisationMap = null;
 
-
+    private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
 
 
 
@@ -110,7 +112,7 @@ public class IndexerMap {
         if (mpToHpTermsMap == null) {
             mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
         }
-        System.out.println("mpToHpTermsMap size="+mpToHpTermsMap.size());
+        logger.info("mpToHpTermsMap size="+mpToHpTermsMap.size());
         return mpToHpTermsMap;
     }
     

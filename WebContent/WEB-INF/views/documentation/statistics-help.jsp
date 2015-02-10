@@ -70,7 +70,7 @@
                             The package contains:</p>
                             <ul>
 	                            <li>dataset checks and cleaning in preparation for the analysis</li> 
-	                            <li>2 statistical frameworks for phenodeviant identification
+	                            <li>2 statistical frameworks for genotype to phenotype identification
 		                            <ul>
 			                            <li>Fisher's Exact test for Categorical data</li>
 			                            <li>Linear Mixed Model for continuous</li>

@@ -27,15 +27,21 @@ import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +61,11 @@ public class StatisticalResultService extends BasicService {
     
     @Autowired
     OrganisationDAO organisationDAO;
+    
+
+    @Autowired
+	@Qualifier("postqcService")
+    AbstractGenotypePhenotypeService gpService;
     
     @Autowired
     PhenotypePipelineDAO pDAO;
@@ -174,6 +185,89 @@ public class StatisticalResultService extends BasicService {
     }
     
 
+    public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String alleleAccession, String phenotypingCenter,	String pipelineStableId,	List<String> procedureStableIds) 
+	throws NumberFormatException, SolrServerException {
+    	
+    	Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
+    	SolrQuery query = new SolrQuery();
+    	
+		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":" + phenotypingCenter + " AND " 
+    			+ StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND "
+				+ StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+		if (procedureStableIds != null){
+			query.addFilterQuery("(" + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" 
+					+ StringUtils.join(procedureStableIds, " OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + ")");
+		}
+		query.setRows(90000000);
+		query.addField(StatisticalResultDTO.P_VALUE)
+			.addField(StatisticalResultDTO.EFFECT_SIZE)
+			.addField(StatisticalResultDTO.STATUS)
+			.addField(StatisticalResultDTO.STATISTICAL_METHOD)
+			.addField(StatisticalResultDTO.ZYGOSITY)
+			.addField(StatisticalResultDTO.MALE_CONTROL_COUNT)
+			.addField(StatisticalResultDTO.MALE_MUTANT_COUNT)
+			.addField(StatisticalResultDTO.FEMALE_CONTROL_COUNT)
+			.addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT)
+			.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+			.addField(StatisticalResultDTO.METADATA_GROUP);		
+		query.set("sort", StatisticalResultDTO.P_VALUE + " desc");
+		
+		for (SolrDocument doc : solr.query(query).getResults()){
+			String parameterStableId = doc.getFieldValue(StatisticalResultDTO.PARAMETER_STABLE_ID).toString();
+			List<StatisticalResultBean> lb = null;
+			
+			if (results.containsKey(parameterStableId)) {
+				lb = results.get(parameterStableId);
+			} else {
+				lb = new ArrayList<StatisticalResultBean>();
+				results.put(parameterStableId, lb);
+			} 
+			
+			Double effectSize = doc.containsKey(StatisticalResultDTO.EFFECT_SIZE) ? Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.EFFECT_SIZE).toString()) : 1000000000;
+			String status = doc.containsKey(StatisticalResultDTO.STATUS) ? doc.getFieldValue(StatisticalResultDTO.STATUS).toString() : "no status found";
+			
+			lb.add(new StatisticalResultBean(
+						Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()), 
+						effectSize,
+						status,
+						doc.getFieldValue(StatisticalResultDTO.STATISTICAL_METHOD).toString(),
+						"don't know",
+						doc.getFieldValue(StatisticalResultDTO.ZYGOSITY).toString(),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()),
+						doc.getFieldValue(StatisticalResultDTO.METADATA_GROUP).toString()
+				 ));
+		}
+		
+		return results;
+		
+    }
+    
+    
+    public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
+	throws IOException, URISyntaxException {
+    	
+    	System.out.println("DOING PHEN CALL SUMMARY RESULTS FROM SRS");
+		SolrQuery query = new SolrQuery();
+		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter);
+		query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+		query.setFacet(true);
+		query.addFacetField(StatisticalResultDTO.RESOURCE_FULLNAME);
+		query.addFacetField(StatisticalResultDTO.PROCEDURE_NAME );
+		query.addFacetField(StatisticalResultDTO.MARKER_SYMBOL );
+		query.addFacetField(StatisticalResultDTO.MP_TERM_NAME );
+		query.set("sort", "p_value asc");
+		query.setRows(10000000);
+		query.set("wt", "json");
+		query.set("version", "2.2");
+		
+		String solrUrl = solr.getBaseURL() + "/select?" + query;
+		return gpService.createPhenotypeResultFromSolrResponse(solrUrl, false);
+	}
+
+    
     public Set<String> getAccessionsByResourceName(String resourceName){
     	
     	Set<String> res = new HashSet<>();

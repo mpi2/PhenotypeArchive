@@ -36,6 +36,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
@@ -65,6 +66,7 @@ import uk.ac.ebi.phenotype.util.Utils;
 public class TestUtils {
     public final int DEFAULT_COUNT = 10;
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private static final Logger logger = Logger.getLogger("TestUtils");
     
     @Resource(name="testIterationsHash")
     Map<String, String> testIterationsHash;
@@ -544,6 +546,7 @@ public class TestUtils {
         JSONArray docs = null;
         try {
             String url = solrUrl + newQueryString;
+            logger.debug("TestUtils.getGraphUrls(): trying " + url);
             jsonData = JSONRestUtil.getResults(url);
             docs = JSONRestUtil.getDocArray(jsonData);
         } catch (Exception e) {

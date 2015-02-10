@@ -23,7 +23,7 @@ package org.mousephenotype.www.testing.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import static org.mousephenotype.www.testing.model.PhenotypeTableGene.NO_SUPPORTING_DATA;
+import static org.mousephenotype.www.testing.model.GeneTable.NO_SUPPORTING_DATA;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
