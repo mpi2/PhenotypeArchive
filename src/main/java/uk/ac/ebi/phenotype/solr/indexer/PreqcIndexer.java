@@ -118,8 +118,8 @@ public class PreqcIndexer extends AbstractIndexer {
             Element rootElement = document.getDocumentElement();
             NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
 
-            System.out.println("length: " + nodes.getLength());
-            System.out.println("  read document time: " + (System.currentTimeMillis() - start));
+            logger.info("length: " + nodes.getLength());
+            logger.info("  read document time: " + (System.currentTimeMillis() - start));
 
             int counter = 1;
             for (int i = 0; i < nodes.getLength();  ++ i) {
@@ -355,7 +355,7 @@ public class PreqcIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        System.out.println("time: " + (System.currentTimeMillis() - start));
+        logger.info("time: " + (System.currentTimeMillis() - start));
         if (bad.size() > 0) {
             logger.warn("found {} unique mps not in ontodb", bad.size());
             logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
