@@ -288,8 +288,11 @@ public class IndexerManager {
                     
                     buildStagingArea();
                     
+                    System.out.println("Starting build of core " + indexerItem.name + " at " + new Date());
                     indexerItem.indexer.run();
+                    System.out.println("Build finished. Starting validate of core " + indexerItem.name + " at " + new Date());
                     indexerItem.indexer.validateBuild();
+                    System.out.println("Finished validate of core " + indexerItem.name + " at " + new Date());
                     break;
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {

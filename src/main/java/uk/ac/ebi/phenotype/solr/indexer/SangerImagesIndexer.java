@@ -520,7 +520,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                 // termToNodeMap.put(termId, nodeId);
 
             }
-            System.out.println("termIdToMaSynonyms size=" + termIdToMaSynonyms.size());
+            logger.info("termIdToMaSynonyms size=" + termIdToMaSynonyms.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -905,7 +905,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     protected void populateSubType() {
 
-        System.out.println("pupulating subtype");
+        logger.info("populating subtype");
 		// <entity dataSource="komp2ds" name="notnull"
         // query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
         // <entity dataSource="komp2ds" name="subtype2"
@@ -1004,7 +1004,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateMpSynonyms() {
 
-        System.out.println("pupulating MP synonyms");
+        logger.info("populating MP synonyms");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "select * from mp_synonyms";
 
@@ -1109,7 +1109,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 		// SELECT * FROM `mp_node2term` mp, mp_node_top_level tl WHERE
         // mp.node_id=tl.node_id
-        System.out.println("pupulating mpNode2termTopLevel");
+        logger.info("populating mpNode2termTopLevel");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "SELECT * FROM `mp_node2term` mp, mp_node_top_level tl WHERE mp.node_id=tl.node_id";
 
