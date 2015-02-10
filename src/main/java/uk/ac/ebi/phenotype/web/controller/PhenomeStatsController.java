@@ -26,6 +26,7 @@ import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.PostQcService;
+import uk.ac.ebi.phenotype.service.StatisticalResultService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 @Controller
@@ -40,6 +41,10 @@ public class PhenomeStatsController {
 	@Autowired
 	@Qualifier("postqcService")
 	PostQcService genotypePhenotypeService;
+	
+
+	@Autowired
+	StatisticalResultService srService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -56,7 +61,7 @@ public class PhenomeStatsController {
 		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		PhenotypeFacetResult results = genotypePhenotypeService.getPhenotypeFacetResultByPhenotypingCenterAndPipeline(phenotypingCenter, pipelineStableId);
-		
+			
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
 
 		colorCoding.generatePhenotypeCallSummaryColors(

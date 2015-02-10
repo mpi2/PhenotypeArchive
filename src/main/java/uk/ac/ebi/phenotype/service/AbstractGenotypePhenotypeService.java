@@ -596,7 +596,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 	}
 
 
-	private PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc)
+	public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc)
 	throws IOException, URISyntaxException {
 
 		PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
