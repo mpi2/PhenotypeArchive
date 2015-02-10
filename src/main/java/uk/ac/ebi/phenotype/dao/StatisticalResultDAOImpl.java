@@ -77,9 +77,7 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		String procedureJoinQuery = "";
 		String inQuery = "";
 		if (procedureStableIds != null && procedureStableIds.size() > 0) {
-			procedureJoinQuery = 
-					" ";
-					
+			procedureJoinQuery = " ";
 			inQuery = "AND (";
 			int index = 0;
 			for (String stableId: procedureStableIds) {
