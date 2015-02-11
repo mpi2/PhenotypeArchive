@@ -63,9 +63,15 @@
 
 		<!--  orace jdbc driver -->
 		<dependency>
-		  <groupId>com.oracle</groupId>
-		  <artifactId>ojdbc6</artifactId>
-		  <version>11.2.0</version>
+			<groupId>com.oracle</groupId>
+		  	<artifactId>ojdbc6</artifactId>
+		  	<version>11.2.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3.1</version>
 		</dependency>
 		
 
