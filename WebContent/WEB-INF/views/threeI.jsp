@@ -51,9 +51,10 @@
 				
 						<div class="section">
 							<div class=inner>
-									<div class="floatright">
+									<div class="floatleft">
 										<a href="http://www.immunophenotyping.org/"><img src="${baseUrl}/img/3i.png" height="85" width="130"></a>
 									</div>
+									<br/> <br/>
 									<p> The <a href="http://www.immunophenotyping.org/">3i project</a> is building an encyclopaedia of immunological gene functions to advance basic and translational research.	</p>	
 							</div>
 						</div>	<!-- section -->
@@ -74,7 +75,7 @@
 										</tr>
 									</table>
 								</div>
-								<div id="geneHeatmap" style="overflow: hidden; overflow-x: auto;">	</div>
+								<div id="3iHeatmap" style="overflow: hidden; overflow-x: auto;">	</div>
 							</div>
 						</div>
 					</div>
@@ -83,6 +84,24 @@
 	</div>
 </div>
 
+	<script>
+		$(document).ready(function() {
+			$.fn.qTip({
+				'pageName' : '3i',
+				'textAlign' : 'left',
+				'tip' : 'topLeft'
+			}); // bubble popup for brief panel documentation					
+		});
+		var geneHeatmapUrl = "../geneHeatMap?project=threeI";
+		$.ajax({
+			url : geneHeatmapUrl,
+			cache : false
+		}).done(function(html) {
+			$('#3iHeatmap').append(html);
+			//$( '#spinner'+ id ).html('');
+
+		});
+	</script>
 	
 	
 </jsp:body>

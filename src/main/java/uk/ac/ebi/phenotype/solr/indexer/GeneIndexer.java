@@ -101,7 +101,7 @@ public class GeneIndexer extends AbstractIndexer {
 
             int count = 0;
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
-            System.out.println("alleles size=" + alleles.size());
+            logger.info("alleles size=" + alleles.size());
 
             geneCore.deleteByQuery("*:*");
 
@@ -416,7 +416,7 @@ public class GeneIndexer extends AbstractIndexer {
                 count ++;
 
                 if (count % 10000 == 0) {
-                    System.out.println(" added " + count + " beans");
+                    logger.info(" added " + count + " beans");
                 }
             }
 
@@ -429,7 +429,7 @@ public class GeneIndexer extends AbstractIndexer {
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("time was " + (endTime - startTime) / 1000);
+        logger.info("time was " + (endTime - startTime) / 1000);
 
         logger.info("Gene Indexer complete!");
     }
@@ -447,7 +447,7 @@ public class GeneIndexer extends AbstractIndexer {
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
-        System.out.println("mgiAccessionToMP size=" + mgiAccessionToMP.size());
+        logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
     }
 
     private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
@@ -457,7 +457,7 @@ public class GeneIndexer extends AbstractIndexer {
 
     private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {
 
-        System.out.println("populating PCS pipeline info");
+        logger.info("populating PCS pipeline info");
         String queryString = "select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"
                 + " from phenotype_call_summary pcs"
                 + " inner join ontology_term term on term.acc=mp_acc"
