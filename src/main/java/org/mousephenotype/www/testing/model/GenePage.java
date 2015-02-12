@@ -348,6 +348,11 @@ public class GenePage {
         return status;
     }
     
+    public void selectResultCount(Integer resultCount) {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='genes_length']")));
+        select.selectByValue(resultCount.toString());
+    }
+    
     
     // PRIVATE METHODS
     
