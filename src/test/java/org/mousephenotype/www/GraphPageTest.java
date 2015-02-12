@@ -173,15 +173,6 @@ public class GraphPageTest {
     @Test
 //@Ignore
     public void testPreQcGraph() {
-        
-        
-// NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
-        
-        
-        String testName = "testPreQcGraph";
-        
-        List<TestUtils.GraphData> graphUrls = TestUtils.getGraphUrls(solrUrl, ObservationType.unidimensional, 1000);
-
         String target;
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -189,80 +180,77 @@ public class GraphPageTest {
         String message;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
         String graphUrl = "";
+        
+// NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
+        
+        String testName = "testPreQcGraph";
+        String solrServerURL = "http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/preqc";
+        
+        List<String> geneIds = TestUtils.getPreqcIds(solrServerURL, phenotypePipelineDAO, null);
+        
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " preQc graphs.");
 
-        int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " preQc graphs.");
-
+        int i = 0;
         // Loop through the gene pages looking for graphs of the requested type. Test each graph.
         int graphCount = 0;
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        int i = 0;
-        
-        for (TestUtils.GraphData graph : graphUrls) {
-            try {
-                if (graphCount >= targetCount) {
-                    break;
-                }
-                if (i > 100) {
-                    message = "\t\t[FAILED] - Over 100 gene pages scanned and no preqc graphs found.";
-                    System.out.println(message);
-                    errorList.add(message);
-                    break;
-                }
-                
-                String geneId = graph.getGeneId();
-                
-                target = baseUrl + "/genes/" + geneId;
-                System.out.println("Looking for preQc graphs on gene page URL[" + i + "]:\t" + target);
-                i++;
-           
-                // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
-                driver.get(target);
-                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
-                if ( ! genePage.hasGenesTable())
-                    continue;
-                
-                GeneTable geneTable = new GeneTable(driver, wait, target);
-                geneTable.load();
-                GridMap data = new GridMap(geneTable.getPreAndPostQcList(), target);
-                // Start rowIndex at 1 to skip over heading row.
-                for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
-                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
-                            
-                    // Select only preQc links.
-                    if (TestUtils.isPreQcLink(graphUrl)) {
+        for (String geneId : geneIds) {
+            if (graphCount >= targetCount) {
+                break;
+            }
+            if (i > 100) {
+                message = "\t\t[FAILED] - Over 100 gene pages scanned and no preqc graphs found.";
+                System.out.println(message);
+                errorList.add(message);
+                break;
+            }
+            
+            target = baseUrl + "/genes/" + geneId;
+            System.out.println("Looking for preQc graphs on gene page URL[" + i + "]:\t" + target);
+            i++;
+
+            // Get the gene page. If not found on the first page, move on to the next gene page.
+            driver.get(target);
+            GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+            if ( ! genePage.hasGenesTable())
+                continue;
+
+            GeneTable geneTable = new GeneTable(driver, wait, target);
+            geneTable.load();
+            GridMap data = new GridMap(geneTable.getPreAndPostQcList(), target);
+            // Start rowIndex at 1 to skip over heading row.
+            for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
+                graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
+
+                // Select only preQc links.
+                if (TestUtils.isPreQcLink(graphUrl)) {
 // NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
-                        graphUrl = graphUrl.replace("dev.mousephenotype.org", "www.mousephenotype.org");
-                        System.out.println("\tpreQc graph[ " + graphCount + "] URL: " + graphUrl);
-                        // If the graph page doesn't load, log it.
-                        driver.get(graphUrl);
-                        // Make sure there is a div.viz-tools.
-                        List<WebElement> elements = driver.findElements(By.cssSelector("div.viz-tools"));
-                        if (elements.isEmpty()) {
-                            message = "\t\t[FAILED]";
-                            System.out.println(message);
-                            errorList.add(message);
-                        } else {
-                            message = "[PASSED]";
-                            System.out.println("\t\t" + message);
-                            successList.add(message);
-                        }
-                        graphCount++;
-                        if (graphCount >= targetCount) {
-                            break;
-                        }
+                    graphUrl = graphUrl.replace("dev.mousephenotype.org", "www.mousephenotype.org");
+                    System.out.println("\tpreQc graph[ " + graphCount + "] URL: " + graphUrl);
+                    // If the graph page doesn't load, log it.
+                    driver.get(graphUrl);
+                    // Make sure there is a div.viz-tools.
+                    List<WebElement> elements = driver.findElements(By.cssSelector("div.viz-tools"));
+                    if (elements.isEmpty()) {
+                        message = "\t\t[FAILED]";
+                        System.out.println(message);
+                        errorList.add(message);
+                    } else {
+                        message = "[PASSED]";
+                        System.out.println("\t\t" + message);
+                        successList.add(message);
+                    }
+                    graphCount++;
+                    if (graphCount >= targetCount) {
+                        break;
                     }
                 }
-            }  catch (Exception e) {
-                message = "[FAILED] - Graph Page URL: " + graphUrl;
-                System.out.println(message);
-                exceptionList.add(message);
             }
         }
-            
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, graphUrls.size());
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
         System.out.println();
     }
     
