@@ -572,8 +572,6 @@ public class TestUtils {
                 GraphData graphData = new GraphData(geneId, observationType, pValue);
                 graphUrls.add(graphData);
             }
-            
-            
         }
         
         return graphUrls;

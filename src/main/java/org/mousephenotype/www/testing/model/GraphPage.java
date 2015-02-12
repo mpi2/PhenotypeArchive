@@ -298,7 +298,7 @@ public class GraphPage {
             driver.get(target);
             
             // Initialize page component variables read from page.
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@data-exporturl]")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@data-exporturl] | //div[@id='totalChart']")));
             
             WebElement titleElement = null;
             // Sometimes the chart isn't loaded when the 'wait()' ends, so try a few times.
@@ -336,7 +336,9 @@ public class GraphPage {
             this.parameterObject = parameterParser.parameterObject;
             
             // Set the graph type from the parameterDAO.
-            graphType = Utilities.checkType(parameterObject);
+            if (parameterObject != null) {
+                graphType = Utilities.checkType(parameterObject);
+            }
             
 //  System.out.println("title:             '" + this.title + "'");
 //  System.out.println("alleleSymbol:      '" + this.alleleSymbol + "'");
@@ -407,10 +409,17 @@ public class GraphPage {
         public final String parameterStableId;
         
         public ParameterParser() {
-            WebElement parameterElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[@data-parameterstableid]")));
-            parameterName = parameterElement.getText();
-            parameterStableId = parameterElement.getAttribute("data-parameterstableid");
-            parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+            List<WebElement> elements = driver.findElements(By.xpath("//span[@data-parameterstableid]"));
+            if (elements.isEmpty()) {
+                parameterName = null;
+                parameterObject = null;
+                parameterStableId = null;
+            } else {
+                WebElement parameterElement = elements.get(0);
+                parameterName = parameterElement.getText();
+                parameterStableId = parameterElement.getAttribute("data-parameterstableid");
+                parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+            }
         }
     }
     
