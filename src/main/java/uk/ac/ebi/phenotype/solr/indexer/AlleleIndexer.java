@@ -163,8 +163,8 @@ public class AlleleIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
-System.out.println("Started");
-        int start = 0;
+
+    	int start = 0;
         long rows = 0;
         long startTime = new Date().getTime();
 
