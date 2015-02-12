@@ -61,24 +61,24 @@ public class AlleleDTO {
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
 	
-	public static final String GOTERMID = "go_term_id";
-	public static final String GOTERMNAME = "go_term_name";
-	public static final String GOTERMDEF = "go_term_def";
-	public static final String GOTERMEVID = "go_term_evid";
-	public static final String GOTERMDOMAIN = "go_term_domain";
-	public static final String UNIPROTACC = "uniprot_acc";
+	public static final String GO_TERM_ID = "go_term_id";
+	public static final String GO_TERM_NAME = "go_term_name";
+	public static final String GO_TERM_DEF = "go_term_def";
+	public static final String GO_TERM_EVID = "go_term_evid";
+	public static final String GO_TERM_DOMAIN = "go_term_domain";
+	public static final String UNIPROT_ACC = "uniprot_acc";
 	
-	public static final String PFAMAJSON = "pfama_json";
-	public static final String SCDBID = "scdb_id"; // structural classification db id
-	public static final String SCDBLINK = "scdb_link"; 
-	public static final String CLANID = "clan_id"; 
-	public static final String CLANACC = "clan_acc"; 
-	public static final String CLANDESC = "clan_desc"; 
-	public static final String PFAMAID = "pfama_id"; 
-	public static final String PFAMAACC = "pfama_acc"; 
-	public static final String PFAMAGOID = "pfama_go_id"; 
-	public static final String PFAMAGOTERM = "pfama_go_term"; 
-	public static final String PFAMAGOCAT = "pfama_go_cat"; 
+	public static final String PFAMA_JSON = "pfama_json";
+	public static final String SCDB_ID = "scdb_id"; // structural classification db id
+	public static final String SCDB_LINK = "scdb_link"; 
+	public static final String CLAN_ID = "clan_id"; 
+	public static final String CLAN_ACC = "clan_acc"; 
+	public static final String CLAN_DESC = "clan_desc"; 
+	public static final String PFAMA_ID = "pfama_id"; 
+	public static final String PFAMA_ACC = "pfama_acc"; 
+	public static final String PFAMA_GO_ID = "pfama_go_id"; 
+	public static final String PFAMA_GO_TERM = "pfama_go_term"; 
+	public static final String PFAMA_GO_CAT = "pfama_go_cat"; 
 	
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
@@ -199,55 +199,55 @@ public class AlleleDTO {
 	private List<String> phenotypingCentre = new ArrayList<>();
 
 	
-	@Field(GOTERMID)
+	@Field(GO_TERM_ID)
 	private List<String> goTermIds = new ArrayList<>();
 	
-	@Field(GOTERMNAME)
+	@Field(GO_TERM_NAME)
 	private List<String> goTermNames = new ArrayList<>();
 	
-	@Field(GOTERMDEF)
+	@Field(GO_TERM_DEF)
 	private List<String> goTermDefs = new ArrayList<>();
 	
-	@Field(GOTERMEVID)
+	@Field(GO_TERM_EVID)
 	private List<String> goTermEvids = new ArrayList<>();
 	
-	@Field(GOTERMDOMAIN)
+	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
 	
-	@Field(UNIPROTACC)
-	private String uniprotAcc;
+	@Field(UNIPROT_ACC)
+	private List<String> uniprotAccs = new ArrayList<>();
 	
-	@Field(PFAMAJSON)
-	private String pfama_json;
+	@Field(PFAMA_JSON)
+	private List<String> pfama_jsons = new ArrayList<>();
 
-	@Field(SCDBID)
+	@Field(SCDB_ID)
 	private List<String> scdb_ids = new ArrayList<>();
 	
-	@Field(SCDBLINK)
+	@Field(SCDB_LINK)
 	private List<String> scdb_links = new ArrayList<>();
 	
-	@Field(CLANID)
+	@Field(CLAN_ID)
 	private List<String> clan_ids = new ArrayList<>();
 	
-	@Field(CLANACC)
+	@Field(CLAN_ACC)
 	private List<String> clan_accs = new ArrayList<>();
 	
-	@Field(CLANDESC)
+	@Field(CLAN_DESC)
 	private List<String> clan_descs = new ArrayList<>();
 	
-	@Field(PFAMAID)
+	@Field(PFAMA_ID)
 	private List<String> pfama_ids = new ArrayList<>();
 	
-	@Field(PFAMAACC)
+	@Field(PFAMA_ACC)
 	private List<String> pfama_accs = new ArrayList<>();
 	
-	@Field(PFAMAGOID)
+	@Field(PFAMA_GO_ID)
 	private List<String> pfama_go_ids = new ArrayList<>();
 	
-	@Field(PFAMAGOTERM)
+	@Field(PFAMA_GO_TERM)
 	private List<String> pfama_go_terms = new ArrayList<>();
 	
-	@Field(PFAMAGOCAT)
+	@Field(PFAMA_GO_CAT)
 	private List<String> pfama_go_cats = new ArrayList<>();
 	
 	@Field(DISEASE_ID)
@@ -763,32 +763,16 @@ public class AlleleDTO {
 	/**
 	 * @return the uniprotAccs
 	 */
-	public String getUniprotAcc() {
-		return uniprotAcc;
+	public List<String> getUniprotAccs() {
+		return uniprotAccs;
 	}
 	
 	/**
 	 * @param uniprotAccs
 	 *            the uniprotAccs to set
 	 */
-	public void setUniprotAcc(String uniprotAcc) {
-		this.uniprotAcc = uniprotAcc;
-	}
-	
-	/**
-	 * @param pfama_json
-	 *            the pfama_json to get
-	 */
-	public String getPfamaJson() {
-		return pfama_json;
-	}
-	
-	/**
-	 * @param pfama_json
-	 *            the pfama_json to set
-	 */
-	public void setPfamaJson(String pfama_json) {
-		this.pfama_json = pfama_json;
+	public void setUniprotAccs(List<String> uniprotAccs) {
+		this.uniprotAccs = uniprotAccs;
 	}
 	
 	/**
@@ -941,6 +925,21 @@ public class AlleleDTO {
 		this.pfama_go_cats = pfama_go_cats;
 	}
 	
+	/**
+	 * @param pfama_jsons
+	 *            the pfama_jsons to get
+	 */
+	public List<String> getPfamaJsons() {
+		return pfama_jsons;
+	}
+	
+	/**
+	 * @param pfama_jsons
+	 *            the pfama_jsons to set
+	 */
+	public void setPfamaJsons(List<String> pfama_jsons) {
+		this.pfama_jsons = pfama_jsons;
+	}
 	
 	/**
 	 * @return the diseaseId
