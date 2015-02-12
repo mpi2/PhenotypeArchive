@@ -151,6 +151,7 @@ public class GeneIndexer extends AbstractIndexer {
                // gene.getGoTermDefs().addAll(allele.getGoTermDefs());
                 gene.setGoTermEvids(allele.getGoTermEvids());
                 gene.setGoTermDomains(allele.getGoTermDomains());
+                gene.setUniprotAcc(allele.getUniprotAcc());
 
 				//gene.setMpId(allele.getM)
                 // Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene

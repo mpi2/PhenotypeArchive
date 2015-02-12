@@ -111,7 +111,7 @@ public class GeneDTO {
 	public static final String GO_TERM_DEF = "go_term_def";
 	public static final String GO_TERM_EVID = "go_term_evid";
 	public static final String GO_TERM_DOMAIN = "go_term_domain";
-	
+	public static final String UNIPROT_ACC = "uniprot_acc";
 	
 	// <!-- gene level fields -->
 	@Field(IMPC_NOVEL_PREDICTED_IN_LOCUS)
@@ -484,6 +484,10 @@ public class GeneDTO {
 	
 	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
+	
+	@Field(UNIPROT_ACC)
+	private String uniprotAcc;
+	
 	
 	public List<String> getTopLevelMpTermSynonym() {
 
@@ -1581,7 +1585,21 @@ public class GeneDTO {
 		this.goTermDomains = goTermDomains;
 	}
 	
+	/**
+	 * @return the uniprotAccs
+	 */
+	public String getUniprotAcc() {
+		return uniprotAcc;
+	}
 
+	/**
+	 * @param uniprotAccs
+	 *            the uniprotAccs to set
+	 */
+	public void setUniprotAcc(String uniprotAcc) {
+		this.uniprotAcc = uniprotAcc;
+	}
+	
 	
 	@Override
 	public boolean equals(Object o) {

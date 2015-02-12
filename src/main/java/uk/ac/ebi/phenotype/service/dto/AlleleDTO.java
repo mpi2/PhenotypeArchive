@@ -66,6 +66,19 @@ public class AlleleDTO {
 	public static final String GOTERMDEF = "go_term_def";
 	public static final String GOTERMEVID = "go_term_evid";
 	public static final String GOTERMDOMAIN = "go_term_domain";
+	public static final String UNIPROTACC = "uniprot_acc";
+	
+	public static final String PFAMAJSON = "pfama_json";
+	public static final String SCDBID = "scdb_id"; // structural classification db id
+	public static final String SCDBLINK = "scdb_link"; 
+	public static final String CLANID = "clan_id"; 
+	public static final String CLANACC = "clan_acc"; 
+	public static final String CLANDESC = "clan_desc"; 
+	public static final String PFAMAID = "pfama_id"; 
+	public static final String PFAMAACC = "pfama_acc"; 
+	public static final String PFAMAGOID = "pfama_go_id"; 
+	public static final String PFAMAGOTERM = "pfama_go_term"; 
+	public static final String PFAMAGOCAT = "pfama_go_cat"; 
 	
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
@@ -201,6 +214,41 @@ public class AlleleDTO {
 	@Field(GOTERMDOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
 	
+	@Field(UNIPROTACC)
+	private String uniprotAcc;
+	
+	@Field(PFAMAJSON)
+	private String pfama_json;
+
+	@Field(SCDBID)
+	private List<String> scdb_ids = new ArrayList<>();
+	
+	@Field(SCDBLINK)
+	private List<String> scdb_links = new ArrayList<>();
+	
+	@Field(CLANID)
+	private List<String> clan_ids = new ArrayList<>();
+	
+	@Field(CLANACC)
+	private List<String> clan_accs = new ArrayList<>();
+	
+	@Field(CLANDESC)
+	private List<String> clan_descs = new ArrayList<>();
+	
+	@Field(PFAMAID)
+	private List<String> pfama_ids = new ArrayList<>();
+	
+	@Field(PFAMAACC)
+	private List<String> pfama_accs = new ArrayList<>();
+	
+	@Field(PFAMAGOID)
+	private List<String> pfama_go_ids = new ArrayList<>();
+	
+	@Field(PFAMAGOTERM)
+	private List<String> pfama_go_terms = new ArrayList<>();
+	
+	@Field(PFAMAGOCAT)
+	private List<String> pfama_go_cats = new ArrayList<>();
 	
 	@Field(DISEASE_ID)
 	private List<String> diseaseId = new ArrayList<>();
@@ -711,6 +759,188 @@ public class AlleleDTO {
 	public void setGoTermDomains(List<String> goTermDomains) {
 		this.goTermDomains = goTermDomains;
 	}
+	
+	/**
+	 * @return the uniprotAccs
+	 */
+	public String getUniprotAcc() {
+		return uniprotAcc;
+	}
+	
+	/**
+	 * @param uniprotAccs
+	 *            the uniprotAccs to set
+	 */
+	public void setUniprotAcc(String uniprotAcc) {
+		this.uniprotAcc = uniprotAcc;
+	}
+	
+	/**
+	 * @param pfama_json
+	 *            the pfama_json to get
+	 */
+	public String getPfamaJson() {
+		return pfama_json;
+	}
+	
+	/**
+	 * @param pfama_json
+	 *            the pfama_json to set
+	 */
+	public void setPfamaJson(String pfama_json) {
+		this.pfama_json = pfama_json;
+	}
+	
+	/**
+	 * @return the scdb_ids
+	 */
+	public List<String> getScdbIds() {
+		return scdb_ids;
+	}
+	
+	/**
+	 * @param scdb_ids
+	 *            the scdb_ids to set
+	 */
+	public void setScdbIds(List<String> scdb_ids) {
+		this.scdb_ids = scdb_ids;
+	}
+	
+	/**
+	 * @return the scdb_links
+	 */
+	public List<String> getScdbLinks() {
+		return scdb_links;
+	}
+	
+	/**
+	 * @param scdb_links
+	 *            the scdb_links to set
+	 */
+	public void setScdbLinks(List<String> scdb_links) {
+		this.scdb_links = scdb_links;
+	}
+	
+	/**
+	 * @return the clan_ids
+	 */
+	public List<String> getClanIds() {
+		return clan_ids;
+	}
+	
+	/**
+	 * @param clan_ids
+	 *            the clan_ids to set
+	 */
+	public void setClanIds(List<String> clan_ids) {
+		this.clan_ids = clan_ids;
+	}
+	
+	/**
+	 * @return the clan_accs
+	 */
+	public List<String> getClanAccs() {
+		return clan_accs;
+	}
+	
+	/**
+	 * @param clan_accs
+	 *            the clan_accs to set
+	 */
+	public void setClanAccs(List<String> clan_accs) {
+		this.clan_accs = clan_accs;
+	}
+	
+	/**
+	 * @return the clan_descs
+	 */
+	public List<String> getClanDescs() {
+		return clan_descs;
+	}
+	
+	/**
+	 * @param clan_descs
+	 *            the clan_descs to set
+	 */
+	public void setClanDescs(List<String> clan_descs) {
+		this.clan_descs = clan_descs;
+	}
+	
+	/**
+	 * @return the pfama_ids
+	 */
+	public List<String> getPfamaIds() {
+		return pfama_ids;
+	}
+	
+	/**
+	 * @param pfama_ids
+	 *            the pfama_ids to set
+	 */
+	public void setPfamaIds(List<String> pfama_ids) {
+		this.pfama_ids = pfama_ids;
+	}
+	
+	/**
+	 * @return the pfama_accs
+	 */
+	public List<String> getPfamaAccs() {
+		return pfama_accs;
+	}
+	
+	/**
+	 * @param pfama_accs
+	 *            the pfama_accs to set
+	 */
+	public void setPfamaAccs(List<String> pfama_accs) {
+		this.pfama_accs = pfama_accs;
+	}
+	
+	/**
+	 * @return the pfama_go_ids
+	 */
+	public List<String> getPfamaGoIds() {
+		return pfama_go_ids;
+	}
+	
+	/**
+	 * @param pfama_go_ids
+	 *            the pfama_go_ids to set
+	 */
+	public void setPfamaGoIds(List<String> pfama_go_ids) {
+		this.pfama_go_ids = pfama_go_ids;
+	}
+	
+	/**
+	 * @return the pfama_go_terms
+	 */
+	public List<String> getPfamaGoTerms() {
+		return pfama_go_terms;
+	}
+	
+	/**
+	 * @param pfama_go_terms
+	 *            the pfama_go_terms to set
+	 */
+	public void setPfamaGoTerms(List<String> pfama_go_terms) {
+		this.pfama_go_terms = pfama_go_terms;
+	}
+	
+	/**
+	 * @return the pfama_go_cats
+	 */
+	public List<String> getPfamaGoCats() {
+		return pfama_go_cats;
+	}
+	
+	/**
+	 * @param pfama_go_cats
+	 *            the pfama_go_cats to set
+	 */
+	public void setPfamaGoCats(List<String> pfama_go_cats) {
+		this.pfama_go_cats = pfama_go_cats;
+	}
+	
 	
 	/**
 	 * @return the diseaseId
