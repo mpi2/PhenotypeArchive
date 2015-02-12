@@ -69,11 +69,10 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.3.1</version>
+  			<groupId>com.cedarsoftware</groupId>
+			  <artifactId>json-io</artifactId>
+			  <version>2.9.3</version>
 		</dependency>
-		
 
         <!--Phenodigm disease pages dependencies -->
         <dependency>
