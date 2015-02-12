@@ -1615,7 +1615,7 @@ public class GeneDTO {
 	 * @param uniprotAccs
 	 *            the uniprotAccs to set
 	 */
-	public void setUniprotAcc(List<String> uniprotAcc) {
+	public void setUniprotAccs(List<String> uniprotAccs) {
 		this.uniprotAccs = uniprotAccs;
 	}
 	
