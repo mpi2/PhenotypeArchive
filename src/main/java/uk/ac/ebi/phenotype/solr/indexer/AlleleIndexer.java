@@ -15,6 +15,8 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import net.sf.json.JSONSerializer;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -31,6 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
@@ -42,6 +47,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -78,6 +84,13 @@ public class AlleleIndexer extends AbstractIndexer {
 
     // Set of MGI IDs that have GO annotation(s)
     private static Map<String, Set<GoAnnotations>> goTermLookup = new HashMap<>();
+    
+    // Map MGI accession id to longest Uniprot accession
+    private static Map<String, String> mgi2UniprotLookup = new HashMap<>();
+    
+    // Uniprot to pfamA mapping
+	private static Map<String, Set<PfamAnnotations>> uniprotAccPfamAnnotLookup = new HashMap<>();
+	private static Map<String, Set<String>> uniprotAccPfamJsonLookup = new HashMap<>();
 
     static {
         ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
@@ -110,9 +123,13 @@ public class AlleleIndexer extends AbstractIndexer {
     DataSource goaproDataSource;
     
     @Autowired
+    @Qualifier("uniprotDataSource")
+    DataSource uniprotDataSource;
+    
+    @Autowired
     @Qualifier("alleleIndexing")
     private SolrServer alleleCore;
-
+    
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -169,10 +186,19 @@ public class AlleleIndexer extends AbstractIndexer {
             populateLegacyLookup();
             logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
 
-            // GoTerm from Ensembl Biomart: MGI gene id to GO term mapping
+            // GoTerm from GO at EBI: MGI gene id to GO term mapping
             populateGoTermLookup();
             logger.info("Populated go terms lookup, {} records", goTermLookup.size());
 
+            // MGI gene id to Uniprot accession mapping
+            populateMgi2UniprotCanonicalLookup();
+            logger.info("Populated mgi to uniprot lookup, {} records", mgi2UniprotLookup.size());
+            
+            // Uniprot to pfamA mapping
+            populateUniprot2pfamA();
+            logger.info("Populated uniprot to pfamA lookup, {} records", uniprotAccPfamJsonLookup.size());
+           
+            
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
 
@@ -197,9 +223,17 @@ public class AlleleIndexer extends AbstractIndexer {
                 // Look up the disease data
                 lookupDiseaseData(alleles);
 
-                // Look uup the GO Term data
+                // Look up the GO Term data
                 lookupGoData(alleles);
 
+                // Look up gene to Uniprot mapping
+                lookupUniprotAcc(alleles);
+                
+                // Look up uniprot to pfamA mapping
+                // NOTE: this MUST be done after lookupUniprotAcc()
+                lookupUniprotAcc2pfamA(alleles);
+                
+                
                 // Now index the alleles
                 documentCount += alleles.size();
                 indexAlleles(alleles);
@@ -255,6 +289,7 @@ public class AlleleIndexer extends AbstractIndexer {
         public String goTermEvid; 	
         public String goTermDomain;   
 		public String mgiSymbol;
+		//public String uniprotAcc;
 
         @Override
         public boolean equals(Object o) {
@@ -282,6 +317,9 @@ public class AlleleIndexer extends AbstractIndexer {
             if (goTermName != null ?  ! goTermName.equals(that.goTermName) : that.goTermName != null) {
                 return false;
             }
+//            if (uniprotAcc != null ?  ! uniprotAcc.equals(that.uniprotAcc) : that.uniprotAcc != null) {
+//                return false;
+//            }
 
             return true;
         }
@@ -293,9 +331,87 @@ public class AlleleIndexer extends AbstractIndexer {
            // result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
             result = 31 * result + (goTermEvid != null ? goTermEvid.hashCode() : 0);
             result = 31 * result + (goTermDomain != null ? goTermDomain.hashCode() : 0);
+            //result = 31 * result + (uniprotAcc != null ? uniprotAcc.hashCode() : 0);
             return result;
         }
     }
+    
+    public class PfamAnnotations {
+		
+		public String scdbId;
+		public String scdbLink;
+		public String clanId;
+		public String clanAcc;
+		public String clanDesc;
+		public String uniprotAcc;
+		public String uniprotId;
+		public String pfamAacc;
+		public String pfamAId;
+		public String pfamAgoId;
+		public String pfamAgoTerm;
+		public String pfamAgoCat;
+		public String pfamAnnots;
+		
+	   @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            PfamAnnotations that = (PfamAnnotations) o;
+
+            if (scdbId != null ?  ! scdbId.equals(that.scdbId) : that.scdbId != null) {
+                return false;
+            }
+            if (scdbLink != null ?  ! scdbLink.equals(that.scdbLink) : that.scdbLink != null) {
+                return false;
+            }
+            if (clanId != null ?  ! clanId.equals(that.clanId) : that.clanId != null) {
+                return false;
+            }
+            if (clanAcc != null ?  ! clanAcc.equals(that.clanAcc) : that.clanAcc != null) {
+                return false;
+            }
+            if (clanDesc != null ?  ! clanDesc.equals(that.clanDesc) : that.clanDesc != null) {
+                return false;
+            }
+            if (pfamAacc != null ?  ! pfamAacc.equals(that.pfamAacc) : that.pfamAacc != null) {
+                return false;
+            }
+            if (pfamAId != null ?  ! pfamAId.equals(that.pfamAId) : that.pfamAId != null) {
+                return false;
+            }
+            /*if (pfamAgoId != null ?  ! pfamAgoId.equals(that.pfamAgoId) : that.pfamAgoId != null) {
+                return false;
+            }
+            if (pfamAgoTerm != null ?  ! pfamAgoTerm.equals(that.pfamAgoTerm) : that.pfamAgoTerm != null) {
+                return false;
+            }
+            if (pfamAgoCat != null ?  ! pfamAgoCat.equals(that.pfamAgoCat) : that.pfamAgoCat != null) {
+                return false;
+            }*/
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = scdbId != null ? scdbId.hashCode() : 0;
+            result = 31 * result + (scdbLink != null ? scdbLink.hashCode() : 0);
+            result = 31 * result + (clanId != null ? clanId.hashCode() : 0);
+            result = 31 * result + (clanAcc != null ? clanAcc.hashCode() : 0);
+            result = 31 * result + (clanDesc != null ? clanDesc.hashCode() : 0);
+            result = 31 * result + (pfamAacc != null ? pfamAacc.hashCode() : 0);
+            result = 31 * result + (pfamAId != null ? pfamAId.hashCode() : 0);
+            
+            
+            return result;
+        }
+		
+	}
     
     private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
 		
@@ -327,26 +443,171 @@ public class AlleleIndexer extends AbstractIndexer {
             	GoAnnotations ga = new GoAnnotations();
             	
     			ga.mgiSymbol  = resultSet.getString("gene_name");
+    			//ga.uniprotAcc = resultSet.getString("accession");
     			ga.goTermId   = resultSet.getString("go_id");
     			ga.goTermName = resultSet.getString("go_name");
     			ga.goTermEvid = resultSet.getString("go_evidence");
     			ga.goTermDomain = resultSet.getString("go_domain").toString().equals("F") ? "molecular_function" : "biological_process";
-
+    			
             	if ( ! goTermLookup.containsKey(ga.mgiSymbol)) {
             		goTermLookup.put(ga.mgiSymbol, new HashSet<GoAnnotations>());
             	}
             	
     			goTermLookup.get(ga.mgiSymbol).add(ga);
             }
-            
-            logger.info("goTermLookup size: " + goTermLookup.size());
+
             logger.info("Populated goTerm lookup, {} records", goTermLookup.size());
+
         } 
 	    catch (Exception e) {
             e.printStackTrace();
         }
 	}
 
+    private void populateMgi2UniprotCanonicalLookup() throws IOException, SQLException, ClassNotFoundException{
+
+//    	String queryString = "SELECT gene_name, accession "
+//	    		+ "FROM go.uniprot_protein_metadata "
+//	    		+ "WHERE tax_id=10090 "
+//	    		+ "AND entry_type = 'Swiss-Prot'";
+//	    
+//	    Connection connProt = goaproDataSource.getConnection();
+//	    
+//		Map<String, String> mgi2Uniprot = new HashMap<>();
+//	    
+//	    try (PreparedStatement p = connProt.prepareStatement(queryString)) {
+//            ResultSet resultSet = p.executeQuery();
+//
+//            while (resultSet.next()) {
+//            	mgi2UniprotLookup.put(resultSet.getString("gene_name"), resultSet.getString("accession"));
+//            }
+//	    }
+//	    catch(Exception e) {
+//            e.printStackTrace();
+//	    } 
+    	
+    	// first we need to prepare of Map for Ensembl Gene Id -> MGI id 
+		String komp2Qry = "select xref_acc, acc from xref where xref_acc like 'ENSMUSG%'";
+		Map<String, String> ensg2mgi = new HashMap<>();
+		
+		try (PreparedStatement s = connection.prepareStatement(komp2Qry)) {
+            ResultSet resultSet = s.executeQuery();
+
+            while (resultSet.next()) {
+            	ensg2mgi.put(resultSet.getString("xref_acc"), resultSet.getString("acc"));
+            }
+	    }
+	    catch(Exception e) {
+            e.printStackTrace();
+	    } 
+		
+	    String queryString = "SELECT distinct name, accession "
+	    		+ "FROM sptr.GENE_CENTRIC_ENTRY "
+	    		+ "WHERE tax_id = 10090 "
+	    		+ "AND IS_CANONICAL = 1 "
+	    		+ "AND release IN "
+	    		+ " (SELECT max(release) FROM sptr.GENE_CENTRIC_ENTRY where tax_id = 10090 and IS_CANONICAL = 1 ) ";
+	    	
+	    Connection connUniprot = uniprotDataSource.getConnection();
+	    
+	    try (PreparedStatement p = connUniprot.prepareStatement(queryString)) {
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+            	String geneLabel = resultSet.getString("name");
+            	if ( ensg2mgi.containsKey(geneLabel) ){
+            		mgi2UniprotLookup.put(ensg2mgi.get(geneLabel), resultSet.getString("accession"));
+            	}
+            	else {
+            		mgi2UniprotLookup.put(geneLabel, resultSet.getString("accession"));
+            	}
+            }
+	    }
+	    catch(Exception e) {
+            e.printStackTrace();
+	    } 
+    	
+	}
+    
+    private void populateUniprot2pfamA() throws IOException, SQLException, ClassNotFoundException{
+    	
+		 // do batch lookup of uniprot accs on pfam db (pfamA)
+       //mysql -h mysql-pfam-rel -upfamwebro -pSVRRBxmMf2h6 -P4441 pfam_27_0
+       Connection connPfam = DriverManager.getConnection("jdbc:mysql://mysql-pfam-rel:4441/pfam_27_0?" +
+       	                                   "user=pfamwebro&password=SVRRBxmMf2h6");
+
+       String pfamQry = "SELECT lk.db_id, "
+       			+ "lk.db_link, "
+       			+ "c.clan_id, "
+       			+ "c.clan_acc, "
+       			+ "c.clan_description, "
+       			+ "pfamseq_id, "
+       			+ "pfamseq_acc, "
+       			+ "pfamA_acc, "
+       			+ "pfamA_id, "
+       			+ "g.go_id, "
+       			+ "g.term as go_name, "
+       			+ "g.category as go_category "
+       			+ "FROM pfamseq s, "
+       			+ " pfamA a, "
+       			+ " pfamA_reg_full_significant f, "
+       			+ " gene_ontology g, "
+       			+ " clans c, "
+       			+ " clan_membership cm, "
+       			+ " clan_database_links lk "
+       			+ "WHERE f.in_full = 1 "
+       			+ "AND lk.auto_clan = c.auto_clan "
+       			+ "AND c.auto_clan = cm.auto_clan "
+       			+ "AND cm.auto_pfamA = a.auto_pfamA "
+       			+ "AND s.auto_pfamseq = f.auto_pfamseq "
+       			+ "AND f.auto_pfamA = a.auto_pfamA "
+       			+ "AND a.auto_pfamA = g.auto_pfamA "
+       			+ "AND s.ncbi_taxid=10090 "  // mouse proteins only
+       			+ "AND a.type = 'family' ";
+       
+       try (PreparedStatement p2 = connPfam.prepareStatement(pfamQry)) {
+           ResultSet resultSet2 = p2.executeQuery();
+
+           while (resultSet2.next()) {
+           	
+        	PfamAnnotations pa = new PfamAnnotations();
+           	
+           	pa.uniprotAcc = resultSet2.getString("pfamseq_acc");
+           	pa.scdbId = resultSet2.getString("db_id");
+           	pa.scdbLink = resultSet2.getString("db_link");
+           	pa.clanId = resultSet2.getString("clan_id");
+           	pa.clanAcc = resultSet2.getString("clan_acc");
+           	pa.clanDesc = resultSet2.getString("clan_description");
+           	pa.pfamAacc = resultSet2.getString("pfamA_acc");
+           	pa.pfamAId =  resultSet2.getString("pfamA_id");
+           	pa.pfamAgoId = resultSet2.getString("go_id");
+           	pa.pfamAgoTerm = resultSet2.getString("go_name");
+           	pa.pfamAgoCat = resultSet2.getString("go_category");
+           	
+           	GsonBuilder builder = new GsonBuilder();
+           	Gson gson = builder.create();
+           	String pfamJson = gson.toJson(pa);
+	       	
+           	if ( ! uniprotAccPfamAnnotLookup.containsKey(pa.uniprotAcc)) {
+           		uniprotAccPfamAnnotLookup.put(pa.uniprotAcc, new HashSet<PfamAnnotations>());
+           	}
+           	if ( ! uniprotAccPfamJsonLookup.containsKey(pa.uniprotAcc)) {
+           		uniprotAccPfamJsonLookup.put(pa.uniprotAcc, new HashSet<String>());
+           	}
+           	
+           	uniprotAccPfamAnnotLookup.get(pa.uniprotAcc).add(pa);
+           	uniprotAccPfamJsonLookup.get(pa.uniprotAcc).add(pfamJson);
+           }
+           
+           //System.out.println("Found " + uniprotAccPfamJsonLookup.size() + " mouse proteins annotated in pFam");
+           
+       }
+       catch (Exception e) {
+           e.printStackTrace();
+       }
+       
+	}
+    
     private void populateLegacyLookup() throws SolrServerException {
 
         String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
@@ -642,7 +903,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             AlleleDTO dto = alleles.get(id);
 
-            // use GO is populated based on gene symbol
+            // GO is populated based on gene symbol
             if ( ! goTermLookup.containsKey(dto.getMarkerSymbol())) {
                 continue;
             }
@@ -657,6 +918,80 @@ public class AlleleIndexer extends AbstractIndexer {
         }
     }
 
+    private void lookupUniprotAcc(Map<String, AlleleDTO> alleles) {
+    	 logger.debug("Starting Uniprot Acc lookup");
+         for (String id : alleles.keySet()) {
+
+             AlleleDTO dto = alleles.get(id);
+             
+             String gSymbol = dto.getMarkerSymbol();
+             String mgiAcc = dto.getMgiAccessionId();
+             
+             if ( ! mgi2UniprotLookup.containsKey(gSymbol) && ! mgi2UniprotLookup.containsKey(mgiAcc) ) {
+                 continue;
+             }
+             else if ( mgi2UniprotLookup.containsKey(gSymbol)  ){
+            	 dto.setUniprotAcc(mgi2UniprotLookup.get(gSymbol));
+             }
+             else if ( mgi2UniprotLookup.containsKey(mgiAcc) ){
+            	 dto.setUniprotAcc(mgi2UniprotLookup.get(mgiAcc));
+             }
+         }
+    }
+    
+    private void lookupUniprotAcc2pfamA(Map<String, AlleleDTO> alleles) {
+   	 logger.debug("Starting Uniprot to pfamA lookup");
+
+        for (String id : alleles.keySet()) {
+
+            AlleleDTO dto = alleles.get(id);
+            
+            String uniproAcc = dto.getUniprotAcc();
+           
+            if ( ! uniprotAccPfamAnnotLookup.containsKey(uniproAcc) ) {
+                continue;
+            }
+            dto.setPfamaJson(uniprotAccPfamJsonLookup.get(uniproAcc).toString());
+            
+            List<String> scdbIds = new ArrayList<>();
+            List<String> scdbLinks = new ArrayList<>();
+            List<String> clanIds = new ArrayList<>();
+            List<String> clanAccs = new ArrayList<>();
+            List<String> clanDescs = new ArrayList<>();
+            List<String> pfamAIds = new ArrayList<>();
+            List<String> pfamAaccs = new ArrayList<>();
+            List<String> pfamAgoIds = new ArrayList<>();
+            List<String> pfamAgoTerms = new ArrayList<>();
+            List<String> pfamAgoCats = new ArrayList<>();
+    	    
+            for  (PfamAnnotations pa : uniprotAccPfamAnnotLookup.get(dto.getUniprotAcc()) ) {
+            	 scdbIds.add(pa.scdbId);
+            	 scdbLinks.add(pa.scdbLink);
+                 clanIds.add(pa.clanId);
+                 clanAccs.add(pa.clanAcc);
+                 clanDescs.add(pa.clanDesc);
+                 pfamAIds.add(pa.pfamAId);
+                 pfamAaccs.add(pa.pfamAacc);
+                 pfamAgoIds.add(pa.pfamAgoId);
+                 pfamAgoTerms.add(pa.pfamAgoTerm);
+                 pfamAgoCats.add(pa.pfamAgoCat);
+            }
+            
+            // get unique
+            dto.getScdbIds().addAll(new ArrayList<>(new LinkedHashSet<>(scdbIds)));
+            dto.getScdbLinks().addAll(new ArrayList<>(new LinkedHashSet<>(scdbLinks)));
+            dto.getClanIds().addAll(new ArrayList<>(new LinkedHashSet<>(clanIds)));
+            dto.getClanAccs().addAll(new ArrayList<>(new LinkedHashSet<>(clanAccs)));
+            dto.getClanDescs().addAll(new ArrayList<>(new LinkedHashSet<>(clanDescs)));
+            dto.getPfamaIds().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAIds)));
+            dto.getPfamaAccs().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAaccs)));
+            dto.getPfamaGoIds().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAgoIds)));
+            dto.getPfamaGoTerms().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAgoTerms)));
+            dto.getPfamaGoCats().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAgoCats)));
+            
+        }
+    }
+    
     private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
 
         alleleCore.addBeans(alleles.values(), 60000);
