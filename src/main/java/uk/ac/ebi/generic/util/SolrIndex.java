@@ -1186,16 +1186,16 @@ public class SolrIndex {
 		phenoStatuses.add("Phenotyping Started");
 		
 		for ( String status : phenoStatuses ){
-			String phenoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&rows=0";
+			String phenoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:*&rows=0";
 		
 			// either molecular_function or biological_process
-			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
 			
 			// only molecular_function
-			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
 			
 			// only biological_process
-			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
 			
 			Map<String, String> goQueries = new LinkedHashMap<>();
 			goQueries.put("FP", internalBaseSolrUrl + goParamsFP);
