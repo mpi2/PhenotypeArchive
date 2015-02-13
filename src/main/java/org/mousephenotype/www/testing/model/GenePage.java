@@ -23,7 +23,9 @@ package org.mousephenotype.www.testing.model;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -544,18 +546,20 @@ public class GenePage {
     }
     
     /**
-     * Compares the first non-heading row of data from this class's 'genes'
-     * HTML table to the first non-heading row of <code>downloadData</code>. Any
-     * errors are returned in the <code>PageStatus</code> instance.
+     * Validate the page data against the download data. This is a difficult task,
+     * as there is more detail data in the download file that simply doesn't exist
+     * on the page. Metadata splits complicate matters. And, on the page, there is
+     * a single row for male and female; in the download, there are always two such
+     * rows - one for each sex. Then there is the newly added pagination that
+     * does not serve up all of the page data in a single gulp any more.
      * 
-     * NOTE: All flavours of the download stream need some special modifications
-     * for comparison testing:
-     * <ul>
-     * <li>When comparing the graph url, start with the first occurrence of
-     * "/charts'. When testing on localhost, baseUrl is the localhost url, but
-     * the download stream has a dev url (for historical, complicated reasons).</li></ul>
+     * So validation will be simple:
+     * <li>Check that the number of rows in the download file is at least as
+     *     many rows as the number of [non-preqc] sex icons shown on the first page.</li>
+     * <li>Do a set difference between the rows on the first displayed page
+     *     and the rows in the download file. The difference should be empty.</li></ul>
+     * Any errors are returned in the <code>PageStatus</code> instance.
      * 
-     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @return page status instance
      */
     private PageStatus validateDownload() {
@@ -590,58 +594,63 @@ public class GenePage {
     /**
      * Internal validation comparing a loaded <code>pageMap</code> store with a
      * loaded <code>downloadData</code> store
-     * @param pageMap A loaded genes table store
+     * @param pageData A loaded genes table store
      * @param downloadData a loaded download store
      * @return status
      */
-    private PageStatus validateDownload(GridMap pageMap, GridMap downloadData) {
+    private PageStatus validateDownload(GridMap pageData, GridMap downloadData) {
         PageStatus status = new PageStatus();
-        
-        // If the downloadData body has no data, no more validation need be done.
-        if (downloadData.getBody().length == 0)
-            return status;
-        
-        // Check that the genes table page line count equals the download stream line count.
-        // Since the genes table contains a single row for both sexes but the download file
-        // contains a row for every sex, use the genes table's sex count rather than the row count.
-        int sexIconCount = TestUtils.getSexIconCount(pageMap, GeneTable.COL_INDEX_GENES_SEX);
-        int bufferedSexIconCount = (int)Math.round(Math.floor(sexIconCount * 1.5));
-        
-        // If the genes sex count is not equal to the download row count, then:
-        //     If the download line count is > the sex icon count but <= sex icon count + 50%, issue a warning
-        //     else throw an error.
         int downloadDataLineCount = downloadData.getBody().length;
         
-        if (sexIconCount != downloadDataLineCount) {
-            if (downloadDataLineCount > sexIconCount) {
-                if (downloadDataLineCount <= bufferedSexIconCount) {
-                    status.addWarning("WARNING: download data line count (" + downloadDataLineCount + ") is GREATER THAN the page sex icon count (" + sexIconCount + ") but LESS THAN OR EQUAL TO the buffered sex icon count ( " + bufferedSexIconCount + ")");
-                } else {
-                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is GREATER THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
-                }
-            } else {
-                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
-            }
+        // Check that the number of rows in the download file is at least as
+        // many rows as the number of [non-preqc] sex icons shown on the first page.
+        int sexIconCount = TestUtils.getSexIconCount(pageData, GeneTable.COL_INDEX_GENES_SEX,
+                                                               GeneTable.COL_INDEX_GENES_GRAPH);
+        if (downloadDataLineCount < sexIconCount) {
+            status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
+                    sexIconCount + ").");
         }
         
+        // Do a set difference between the rows on the first displayed page
+        // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
-        // If the sex is "both", compare the first pheno row to the first ("female") download row
-        // and the second ("male") download row.
-        String downloadCell = downloadData.getCell(0, DownloadGeneMap.COL_INDEX_SEX).trim();
-        String pageCell = pageMap.getCell(0, GeneTable.COL_INDEX_GENES_SEX).trim();
-        if (pageCell.equals("both")) {
-            if (downloadCell.equals("female")) {
-                errorCount += compareRowData(pageMap, downloadData, 1, 1);      // download data is ordered 'female', then 'male'. Always check in the order "female", then "male".
-                errorCount += compareRowData(pageMap, downloadData, 1, 2);
-            } else {
-                errorCount += compareRowData(pageMap, downloadData, 1, 2);      // download data is ordered 'male', then 'female'. Always check in the order "female", then "male".
-                errorCount += compareRowData(pageMap, downloadData, 1, 1);
-            }
-        } else {
-            errorCount += compareRowData(pageMap, downloadData, 1, 1);
-        }
+        final int[] pageColumns = {
+              GeneTable.COL_INDEX_GENES_ALLELE
+            , GeneTable.COL_INDEX_GENES_ZYGOSITY
+            , GeneTable.COL_INDEX_GENES_PHENOTYPE
+            , GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER
+            , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER
+            , GeneTable.COL_INDEX_GENES_SOURCE
+            , GeneTable.COL_INDEX_GENES_GRAPH
+        };
+        final int[] downloadColumns = {
+              DownloadGeneMap.COL_INDEX_ALLELE
+            , DownloadGeneMap.COL_INDEX_ZYGOSITY
+            , DownloadGeneMap.COL_INDEX_PHENOTYPE
+            , DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER
+            , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER
+            , DownloadGeneMap.COL_INDEX_SOURCE
+            , DownloadGeneMap.COL_INDEX_GRAPH
+        };
         
+        // Create a pair of sets: one from the page, the other from the download.
+        Set pageSet = TestUtils.createSet(pageData, pageColumns);
+        Set downloadSet = TestUtils.createSet(downloadData, downloadColumns);
+        
+        Set difference = TestUtils.cloneStringSet(pageSet);
+        difference.removeAll(downloadSet);
+        if ( ! difference.isEmpty()) {
+            System.out.println("ERROR: The following data was found on the page but not in the download:");
+            Iterator it = difference.iterator();
+            int i = 0;
+            while (it.hasNext()) {
+                String value = (String)it.next();
+                System.out.println("[" + i++ + "]: " + value);
+                errorCount++;
+            }
+        }
+
         if (errorCount > 0) {
             status.addError("Mismatch.");
         }

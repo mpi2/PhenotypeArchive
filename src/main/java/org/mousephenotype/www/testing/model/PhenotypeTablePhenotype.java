@@ -138,20 +138,20 @@ public class PhenotypeTablePhenotype {
         // Loop through all of the tr objects for this page, gathering the data.
         int sourceRowIndex = 1;
 //int rowIndex = 0;
-        for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
+        for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {    
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
             boolean isPreQcLink = false;
             sourceColIndex = 0;
             boolean skipLink = false;
             for (WebElement cell : cells) {
-//System.out.println("tagName = " + cell.getTagName() +  ". text = " + cell.getText());
+//System.out.println("tagName = " + cell.getTagName() +  ". text = " h+ cell.getText());
 //System.out.println("rowIndex = " + rowIndex++);
                 if (sourceColIndex == COL_INDEX_PHENOTYPES_GENE_ALLELE) {
                     String rawAllele = cell.findElement(By.cssSelector("span.smallerAlleleFont")).getText();
                     List<WebElement> alleleElements = cell.findElements(By.cssSelector("sup"));
                     
                     if (alleleElements.isEmpty()) {
-                        value = "";
+                        value = rawAllele;                                      // Some genes don't have allele markers. Save the gene symbol.
                     } else {
                         String sup = cell.findElement(By.cssSelector("sup")).getText();
                         AlleleParser ap = new AlleleParser(rawAllele, sup);

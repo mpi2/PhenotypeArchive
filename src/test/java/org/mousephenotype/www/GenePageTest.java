@@ -667,6 +667,7 @@ public class GenePageTest {
             i++;
             
             target = baseUrl + "/genes/" + geneId;
+//geneId = "MGI:1096574";
             System.out.println("gene[" + i + "] URL: " + target);
             
             try {
