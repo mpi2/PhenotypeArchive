@@ -60,7 +60,7 @@ public class GoTermController {
 	}
 	
 	public String createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
-	
+		
 		StringBuilder builder = new StringBuilder();
 		String legend = "F = molecular function<br>P = biological process<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
 		
@@ -72,19 +72,23 @@ public class GoTermController {
 		evidMap.put("IPI", "Inferred from Physical Interaction");
 		evidMap.put("ISS", "Inferred from Sequence or structural Similarity");
 		evidMap.put("ISO", "Inferred from Sequence Orthology");
+		evidMap.put("ND", "No biological Data available");
 		
 		builder.append(legend);
 		builder.append("<table>");
 		builder.append("<tbody>");
-	
+		
 		for ( String key : stats.keySet() ) {
 		    
+		    String phenoCount = " : " + stats.get(key).get("allPheno").get(key).get(0);
+		    
 		    builder.append("<tr>");
-        	builder.append("<td class='phenoStatus' colspan=4>" + key + "</td>");
+        	builder.append("<td class='phenoStatus' colspan=4>" + key + phenoCount + "</td>");
         	builder.append("</tr>");
 		    
         	for ( String goMode : stats.get(key).keySet() ){
 
+        		//System.out.println("GO MODE: " + goMode);
         		Map<String, List<String>> evidValDomain = new LinkedHashMap<>();
         		
             	Map<String, JSONArray> domainEvid = stats.get(key).get(goMode);
@@ -113,7 +117,7 @@ public class GoTermController {
 				        	builder.append("<td colspan=3>" + evids.get(0) + "</td>");
 				        	builder.append("</tr>");
 				        }
-				        else {
+				        else if ( goMode.equals("w/  GO") ){
 				        	String evidCode = evids.get(i).toString();
 				        	
 				        	List<String> cellVals = new ArrayList<>();
@@ -147,7 +151,7 @@ public class GoTermController {
 		
 		builder.append("</tbody>");
 		String htmlTable = builder.toString();
-		log.info(htmlTable);
+		//log.info(htmlTable);
 	
 		/* table looks similar to this:
 		Phenotyping Complete
