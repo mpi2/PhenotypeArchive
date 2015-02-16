@@ -119,15 +119,16 @@ public class GoTermController {
 				        }
 				        else if ( goMode.equals("w/  GO") ){
 				        	String evidCode = evids.get(i).toString();
-				        	
-				        	List<String> cellVals = new ArrayList<>();
-				        	
-				        	if ( evidValDomain.get(evidCode) != null ){
-				        		cellVals = evidValDomain.get(evidCode);
+				        	if ( evidMap.containsKey(evidCode) ){
+					        	List<String> cellVals = new ArrayList<>();
+					        	
+					        	if ( evidValDomain.get(evidCode) != null ){
+					        		cellVals = evidValDomain.get(evidCode);
+					        	}
+					        	
+					        	cellVals.add("<div class='" + domain + "'>" + evids.get(i+1).toString() + "</div>");
+					        	evidValDomain.put(evidCode, cellVals);
 				        	}
-				        	
-				        	cellVals.add("<div class='" + domain + "'>" + evids.get(i+1).toString() + "</div>");
-				        	evidValDomain.put(evidCode, cellVals);
 				        }
     				}
     			}
