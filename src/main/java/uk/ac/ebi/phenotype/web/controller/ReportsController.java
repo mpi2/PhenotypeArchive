@@ -28,12 +28,18 @@ public class ReportsController {
 	@RequestMapping(value="/getLaczSpreadsheet", method = RequestMethod.GET)
 	public void getFullData(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 		
-		System.out.println("CALLED");
 	    List<String[]> result = is.getLaczExpressionSpreadsheet();
-//	    ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
 	    ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
 	};
 	
+	@RequestMapping(value="/sexualDimorphism", method = RequestMethod.GET)
+	public String getSexualDimorphismReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
+		
+		System.out.println("CALLED sexualDimorphism");
+		
+		return "reports";
+	};
+		
 	@RequestMapping(value="/reports", method = RequestMethod.GET)
 	public String defaultAction(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 		return "reports";

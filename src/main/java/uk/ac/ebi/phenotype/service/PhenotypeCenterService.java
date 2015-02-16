@@ -23,7 +23,7 @@ import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 public class PhenotypeCenterService {
 
 	private final HttpSolrServer solr;
-	private final String datasourceName="IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
+	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
 //	public PhenotypeCenterProgress(){
 //		this("https://www.ebi.ac.uk/mi/impc/solr/experiment");//"http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
 //	}
@@ -60,6 +60,7 @@ public class PhenotypeCenterService {
 		//System.out.println("resp="+resp);
 		return centers;
 	}
+	
 	/**
 	 * get the strains with data for a center
 	 * http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=phenotyping_center:%22UC%20Davis%22&wt=json&indent=true&facet=true&facet.field=strain_accession_id&facet.mincount=1&rows=0
@@ -67,24 +68,44 @@ public class PhenotypeCenterService {
 	 * @throws SolrServerException
 	 */
 	public List<String> getStrainsForCenter(String center)  throws SolrServerException {
+		
 		List<String> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
-		.setQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
+		.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\"")
 		.addFacetField(ObservationDTO.COLONY_ID)
 		.setFacetMinCount(1)
 		.setFacetLimit(-1)
 		.setRows(0);
 		if(solr.getBaseURL().endsWith("experiment")){
-				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
+				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + "\"" + datasourceName + "\"");
 		}
 		QueryResponse response = solr.query(query);
-		//String resp = response.getResponse().toString();
 		List<FacetField> fields = response.getFacetFields();
-		//System.out.println("values="+fields.get(0).getValues());
 		for(Count values: fields.get(0).getValues()){
 			strains.add(values.getName());
 		}
-		//System.out.println("resp="+resp);
+		System.out.println("getStrainsForCenter ---- " + solr.getBaseURL() + "/select?" + query);
+		return strains;
+	}
+	
+	public List<String> getMutantStrainsForCenter(String center)  throws SolrServerException {
+			
+		List<String> strains=new ArrayList<>();
+		SolrQuery query = new SolrQuery()
+		.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\" AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+		.addFacetField(ObservationDTO.COLONY_ID)
+		.setFacetMinCount(1)
+		.setFacetLimit(-1)
+		.setRows(0);
+		if(solr.getBaseURL().endsWith("experiment")){
+				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + "\"" + datasourceName + "\"");
+		}
+		QueryResponse response = solr.query(query);
+		List<FacetField> fields = response.getFacetFields();
+		for(Count values: fields.get(0).getValues()){
+			strains.add(values.getName());
+		}
+		System.out.println("getStrainsForCenter ---- " + solr.getBaseURL() + "/select?" + query);
 		return strains;
 	}
 	
@@ -128,7 +149,7 @@ public class PhenotypeCenterService {
 	public Map<String, List<String>> getProceduresPerCenter() throws SolrServerException{
 		
 		SolrQuery query = new SolrQuery()
-		 .setQuery("*:*")
+		 .setQuery(ObservationDTO.DATASOURCE_NAME + ":IMPC")
 		 .setFacet(true)
 		 .setFacetLimit(-1)
 		 .addFacetPivotField(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID)
@@ -155,7 +176,7 @@ public class PhenotypeCenterService {
 		
 		List<String> procedures=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
-		 .setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
+		 .setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\" AND " + ObservationDTO.DATASOURCE_NAME + ":IMPC")
 		 .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
 		 .addFacetField(ObservationDTO.PROCEDURE_STABLE_ID)
 		 .setFacetLimit(-1)
@@ -219,7 +240,7 @@ public class PhenotypeCenterService {
 		Map<String, List<String>> possibleProceduresPerCenter = getProceduresPerCenter();
 		
 		for(String center: centers){	
-			List<String> strains = getStrainsForCenter(center);
+			List<String> strains = getMutantStrainsForCenter(center);
 			Map<String,List<ProcedureBean>> strainsToProcedures = new HashMap<>();
 						
 			for(String colonyId: strains){
