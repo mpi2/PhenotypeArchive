@@ -212,8 +212,8 @@ public class FileExportController {
     		 *  *******************************************************************/
             @RequestParam(value = "externalDbId", required = true) Integer extDbId,
             @RequestParam(value = "fileType", required = true) String fileType,
-            @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
             @RequestParam(value = "fileName", required = true) String fileName,
+            @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
             @RequestParam(value = "allele", required = false) String[] allele,
             @RequestParam(value = "rowStart", required = false) Integer rowStart,
             @RequestParam(value = "panel", required = false) String panelName,
@@ -234,6 +234,8 @@ public class FileExportController {
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
             @RequestParam(value = "dogoterm", required = false) boolean dogoterm,
+            @RequestParam(value = "goevids", required = false) String goevids,
+            @RequestParam(value = "gene2pfam", required = false) boolean gene2pfam,
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -298,6 +300,10 @@ public class FileExportController {
             else if ( dogoterm ) {
             	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
             	dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm);
+            }
+            else if ( gene2pfam ){            	
+            	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
+            	//dataRows = composeGene2PfamClansDataRows(json, request);
             }
             else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
@@ -1194,7 +1200,7 @@ public class FileExportController {
         //System.out.println(" GOT " + docs.size() + " docs");
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
        
-        
+        List<String> evidsList = new ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));
         List<String> rowData = new ArrayList();
         // column names	
         String fields = "Gene Symbol"
@@ -1207,46 +1213,31 @@ public class FileExportController {
         rowData.add(fields);
         
         for (int i = 0; i < docs.size(); i ++) {
-            List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
-
-            data.add(doc.getString("marker_symbol"));
             String gId = doc.getString("mgi_accession_id");
-            data.add(hostName + baseUrl + gId);
-            
 
             JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
-            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();;
-            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();;
-            JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();;
-            
-            List<String> goTermIds = new ArrayList();
-            for ( int j=0; j< _goTermIds.size(); j++ ) {
-            	goTermIds.add(_goTermIds.get(j).toString());
-            }
-            data.add(goTermIds.size() > 0 ? StringUtils.join(goTermIds, "|") : "no info");
-            
-            List<String> goTermNames = new ArrayList();
-            for ( int j=0; j< _goTermNames.size(); j++ ) {
-            	goTermNames.add(_goTermNames.get(j).toString());
-            }
-            data.add(goTermNames.size() > 0 ? StringUtils.join(goTermNames, "|") : "no info");
-            
-            List<String> goTermEvids = new ArrayList();
+            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
+            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
+            JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
+            String NOINFO = "no info available";
+           
             for ( int j=0; j< _goTermEvids.size(); j++ ) {
-            	goTermEvids.add(_goTermEvids.get(j).toString());
+            	String evid = _goTermEvids.get(j).toString();
+            	if ( evidsList.contains(evid) ){
+            		List<String> data = new ArrayList();
+
+	            	data.add(doc.getString("marker_symbol"));
+	            	data.add(hostName + baseUrl + gId);
+	            	data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
+	            	data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
+	            	data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);
+	            	data.add(_goTermDomains.size() > 0 ? _goTermDomains.get(j).toString() : NOINFO);
+	            	
+	            	rowData.add(StringUtils.join(data, "\t"));
+            	}
             }
-            data.add(goTermEvids.size() > 0 ? StringUtils.join(goTermEvids, "|") : "no info");
-            
-            List<String> goTermDomains = new ArrayList();
-            for ( int j=0; j< _goTermDomains.size(); j++ ) {
-            	goTermDomains.add(_goTermDomains.get(j).toString());
-            }
-            data.add(goTermDomains.size() > 0 ? StringUtils.join(goTermDomains, "|") : "no info");
-            
-            rowData.add(StringUtils.join(data, "\t"));
         }
-        
         return rowData;
     }
 
