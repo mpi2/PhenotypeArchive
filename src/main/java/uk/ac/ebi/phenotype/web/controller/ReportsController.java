@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,9 +29,9 @@ public class ReportsController {
 	public void getFullData(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 		
 		System.out.println("CALLED");
-	    String result = is.getLaczExpressionSpreadsheet();
+	    List<String[]> result = is.getLaczExpressionSpreadsheet();
+//	    ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
 	    ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
-	    
 	};
 	
 	@RequestMapping(value="/reports", method = RequestMethod.GET)
