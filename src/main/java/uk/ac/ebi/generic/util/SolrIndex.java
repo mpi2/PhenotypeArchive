@@ -1071,7 +1071,7 @@ public class SolrIndex {
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
 		String flParam = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,pfama_json";
-		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/allele/select?wt=json&rows=999999";
+		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?wt=json&rows=999999&fq=mp_id:*";
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 		
 		String url = internalBaseSolrUrl + qParam + flParam;
@@ -1185,6 +1185,7 @@ public class SolrIndex {
 		phenoStatuses.add("Phenotyping Complete");
 		phenoStatuses.add("Phenotyping Started");
 		
+		// all queries here take into account of having MP calls
 		for ( String status : phenoStatuses ){
 			String phenoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:*&rows=0";
 		
