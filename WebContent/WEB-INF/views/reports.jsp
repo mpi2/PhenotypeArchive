@@ -21,8 +21,8 @@
 				
 							<div class="section">
 								<div class="inner">
-						
-									<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a>
+									<p>	<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a> </p>
+									<p> <a href="${baseUrl}/centerProgressCsv">Completeness of Procedures by Line and Phenotyping Center</a> </p>
 								</div>
 							</div>
 					</div>

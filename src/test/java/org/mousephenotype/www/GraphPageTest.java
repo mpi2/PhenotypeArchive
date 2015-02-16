@@ -47,6 +47,7 @@ import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.GeneTable;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -208,7 +209,6 @@ public class GraphPageTest {
             }
             
             target = baseUrl + "/genes/" + geneId;
-            System.out.println("Looking for preQc graphs on gene page URL[" + i + "]:\t" + target);
             i++;
 
             // Get the gene page. If not found on the first page, move on to the next gene page.
@@ -228,18 +228,17 @@ public class GraphPageTest {
                 if (TestUtils.isPreQcLink(graphUrl)) {
 // NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
                     graphUrl = graphUrl.replace("dev.mousephenotype.org", "www.mousephenotype.org");
-                    System.out.println("\tpreQc graph[ " + graphCount + "] URL: " + graphUrl);
                     // If the graph page doesn't load, log it.
                     driver.get(graphUrl);
                     // Make sure there is a div.viz-tools.
                     List<WebElement> elements = driver.findElements(By.cssSelector("div.viz-tools"));
                     if (elements.isEmpty()) {
-                        message = "\t\t[FAILED]";
+                        message = "ERROR: Gene Page " + target + ".\n\tpreQc graph[ " + graphCount + "] URL: " + graphUrl + "\n[FAILED]";
                         System.out.println(message);
                         errorList.add(message);
                     } else {
-                        message = "[PASSED]";
-                        System.out.println("\t\t" + message);
+                        message = "[" + graphCount + ": - PASSED]";
+                        System.out.println(message);
                         successList.add(message);
                     }
                     graphCount++;
@@ -285,7 +284,7 @@ public class GraphPageTest {
         int i = 0;
         for (String graphUrl : graphUrls) {
             baseUrl = baseUrls[i];
-            System.out.println("testUidimensionalGraph(): testing graph URL: " + graphUrl);
+            System.out.println(testName + "(): testing graph URL: " + graphUrl);
             status = graphTestEngine(graphUrl);
             if (status.hasErrors()) {
                 errorList.add(status.toStringErrorMessages());
@@ -365,7 +364,7 @@ public class GraphPageTest {
         PageStatus status = new PageStatus();
         String graphUrl = "";
 
-        int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);
+        int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);        
         logger.info(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " records.");
 
         // Loop through the gene pages looking for graphs of the requested type. Test each graph.
@@ -374,15 +373,20 @@ public class GraphPageTest {
         int i = 0;
         
         for (TestUtils.GraphData graph : graphUrls) {
-
             try {
-////////System.out.println("GraphPageTest.graphTestEngine: graphCount = " + graphCount + ". targetCount = " + targetCount);
+                if (i > 100) {
+                    message = "ERROR - Tried more than 100 gene pages with no results. Browser might have died.";
+                    status.addError(message);
+                    System.out.println(message);
+                    errorList.add(message);
+                    break;
+                }
                 if (graphCount >= targetCount) {
                     break;
                 }
 
                 String geneId = graph.getGeneId();
-//if (i == 0) geneId = "MGI:1316652";
+//if (i == 0) geneId = "MGI:1918573";
                 target = baseUrl + "/genes/" + geneId;
                 i++;
            
@@ -411,28 +415,37 @@ public class GraphPageTest {
 //System.out.println("Match!");
                             boolean loadPage = true;
                             GraphPage graphPage;
-                            // If the graph page doesn't load for any reason, just try the next.
                             try {
                                 graphPage = new GraphPage(driver, wait, graphUrl, target, phenotypePipelineDAO, baseUrl, loadPage);
                             } catch (Exception e) {
+                                message = "EXCEPTION: " + e.getLocalizedMessage() + "\n\tGraph Page URL: " + graphUrl + "\n[" + graphCount + "\n[FAILED]";
+                                status.addError(message);
+                                System.out.println(message);
+                                errorList.add(message);
+                                graphCount++;
                                 break;
                             }
                             
                             ObservationType graphType = graphPage.getGraphType();
                             if (graphType == graph.getGraphType()) {
                                 try {
-                                    System.out.println("Gene Page URL: " + target);
                                     switch (graphType) {
                                         case categorical:
                                             GraphPageCategorical graphPageCategorical = graphPage.createGraphPageCategorical();
-                                            System.out.println("Categorical graph target: " + graphPageCategorical.getTarget());
                                             status = graphPageCategorical.validate();
+                                            if (status.hasErrors()) {
+                                                System.out.println("Gene Page URL: " + target);
+                                                System.out.println("Categorical graph target: " + graphPageCategorical.getTarget());
+                                            }
                                             break;
 
                                         case unidimensional:
                                             GraphPageUnidimensional graphPageUnidimensional = graphPage.createGraphPageUnidimensional();
-                                            System.out.println("Unidimensional graph target: " + graphPageUnidimensional.getTarget());
                                             status = graphPageUnidimensional.validate();
+                                            if (status.hasErrors()) {
+                                                System.out.println("Gene Page URL: " + target);
+                                                System.out.println("Unidimensional graph target: " + graphPageUnidimensional.getTarget());
+                                            }
                                             break;
 
                                         default:
@@ -440,7 +453,11 @@ public class GraphPageTest {
                                             System.out.println(message);
                                             throw new Exception(message);
                                     }
+                                } catch (NoSuchWindowException nswe) {
+                                    status.addError("EXCEPTION: GraphPageTest.graphTestEngine(): " + nswe.getLocalizedMessage());
+                                    throw nswe;
                                 } catch (Exception e) {
+                                    logger.error("EXCEPTION: class is " + e.getClass().getCanonicalName());
                                     status.addError("EXCEPTION: GraphPageTest.graphTestEngine(): " + e.getLocalizedMessage());
                                 }
                                 
@@ -448,7 +465,7 @@ public class GraphPageTest {
                                     System.out.println(status.toStringErrorMessages());
                                     errorList.add("[FAILED] - Graph Page URL: " + graphUrl);
                                 } else {
-                                    message = "[PASSED]";
+                                    message = "[" + graphCount + ": - PASSED]";
                                     System.out.println(message);
                                     successList.add(message);
                                 }
@@ -462,9 +479,13 @@ public class GraphPageTest {
                     }
                 }
             }  catch (Exception e) {
-                message = "[FAILED] - Graph Page URL: " + graphUrl;
+                message = "EXCEPTION: " + e.getLocalizedMessage() + "\n\tGraph Page URL: " + graphUrl + "\n[FAILED]";
                 System.out.println(message);
                 exceptionList.add(message);
+                if (e instanceof NoSuchWindowException) {
+                    logger.error("ERROR: Browser window closed. Stopping...");
+                    break;
+                }
                 continue;
             }
         }

@@ -62,19 +62,19 @@
     <dependencies>
 
 		<!--  orace jdbc driver -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-		  	<artifactId>ojdbc6</artifactId>
-		  	<version>11.2.0</version>
-		</dependency>
-		
-		<dependency>
-  			<groupId>com.cedarsoftware</groupId>
-			  <artifactId>json-io</artifactId>
-			  <version>2.9.3</version>
-		</dependency>
-
-        <!--Phenodigm disease pages dependencies -->
+				<dependency>
+					<groupId>com.oracle</groupId>
+				  	<artifactId>ojdbc6</artifactId>
+				  	<version>11.2.0</version>
+				</dependency>
+				
+				<dependency>
+						<groupId>net.sf.opencsv</groupId>
+						<artifactId>opencsv</artifactId>
+						<version>2.3</version>
+				</dependency>
+				
+				<!--Phenodigm disease pages dependencies -->
         <dependency>
             <groupId>uk.ac.sanger</groupId>
             <artifactId>phenodigm2-core</artifactId>

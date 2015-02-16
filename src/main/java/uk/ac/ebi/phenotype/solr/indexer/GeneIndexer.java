@@ -146,12 +146,27 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
                 gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
                 gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
+                
+                // GO stuff
                 gene.setGoTermIds(allele.getGoTermIds());
                 gene.setGoTermNames(allele.getGoTermNames());
                // gene.getGoTermDefs().addAll(allele.getGoTermDefs());
                 gene.setGoTermEvids(allele.getGoTermEvids());
                 gene.setGoTermDomains(allele.getGoTermDomains());
+                
+                // pfam stuff
                 gene.setUniprotAccs(allele.getUniprotAccs());
+                gene.setScdbIds(allele.getScdbIds());
+                gene.setScdbLinks(allele.getScdbLinks());
+                gene.setClanIds(allele.getClanIds());
+                gene.setClanAccs(allele.getClanAccs());
+                gene.setClanDescs(allele.getClanDescs());
+                gene.setPfamaIds(allele.getPfamaIds());
+                gene.setPfamaAccs(allele.getPfamaAccs());
+                gene.setPfamaGoIds(allele.getPfamaGoIds());
+                gene.setPfamaGoTerms(allele.getPfamaGoTerms());
+                gene.setPfamaGoCats(allele.getPfamaGoCats());
+                gene.setPfamaJsons(allele.getPfamaJsons());
 
 				//gene.setMpId(allele.getM)
                 // Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene

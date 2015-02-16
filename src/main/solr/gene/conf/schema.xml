@@ -140,6 +140,7 @@
 
 	<!-- allele level fields of a gene -->
 	<field name="allele_name" type="text" indexed="true" stored="true" multiValued="true"/>
+	<field name="allele_accession_id" type="text" indexed="true" stored="true" multiValued="true"/>
 	<field name="imits_es_cell_status" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="es_cell_status" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="imits_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>

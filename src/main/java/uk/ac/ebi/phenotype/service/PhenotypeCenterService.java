@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.james.mime4j.field.Field;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.util.NamedList;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -91,32 +94,66 @@ public class PhenotypeCenterService {
 	 * @return
 	 * @throws SolrServerException 
 	 */
-	public List<ProcedureBean> getProceduresPerStrainForCenter(String center,
-			String strain) throws SolrServerException {
+	public List<ProcedureBean> getProceduresPerStrainForCenter(String center,String strain) throws SolrServerException {
+		
 		List<ProcedureBean> procedures=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
-		.setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
-		.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
-		.addFacetField(ObservationDTO.PROCEDURE_NAME)
-		.addFacetField(ObservationDTO.PROCEDURE_STABLE_ID)
-		.setFacetMinCount(1)
-		.setRows(0);
+		 .setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
+		 .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
+		 .addFacetField(ObservationDTO.PROCEDURE_NAME)
+		 .addFacetField(ObservationDTO.PROCEDURE_STABLE_ID)
+		 .setFacetMinCount(1)
+		 .setRows(0);
+		
 		if(solr.getBaseURL().endsWith("experiment")){
 			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
 		}
+		
 		QueryResponse response = solr.query(query);
-		String resp = response.getResponse().toString();
-		List<FacetField> fields = response.getFacetFields();
-		//System.out.println("values="+fields.get(0).getValues());
-		int i=0;
-		for(Count values: fields.get(0).getValues()){
-			procedures.add(new ProcedureBean(values.getName(), fields.get(1).getValues().get(i).getName()));
-		i++;
+		List<FacetField> fields = response.getFacetFields();		
+		for(int i=0; i< fields.get(0).getValues().size(); i++){
+			procedures.add(new ProcedureBean(fields.get(0).getValues().get(i).getName(), fields.get(1).getValues().get(i).getName()));
 		}
 		
-		//System.out.println("resp="+resp);
 		return procedures;
 	}
+	
+	
+/*	public Map<String, List<String>> getProceduresPerCenter(){
+		SolrQuery query = new SolrQuery()
+		 .setQuery("*:*")
+		 .setFacet(true)
+		 .addFacetPivotField(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID)
+		 .setFacetMinCount(1)
+		 .setRows(0);
+		
+		QueryResponse response = solr.query(query);
+		NamedList<List<PivotField>> fields = response.getFacetPivot();
+		for( Count field: fields.get(0).getValues()){
+			procedures.add(field.getName());
+		}
+		
+	}
+	*/
+	
+	public List<String> getDoneProcedureIdsPerStrainAndCenter(String center,String strain) throws SolrServerException {
+		
+		List<String> procedures=new ArrayList<>();
+		SolrQuery query = new SolrQuery()
+		 .setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
+		 .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
+		 .addFacetField(ObservationDTO.PROCEDURE_STABLE_ID)
+		 .setFacetMinCount(1)
+		 .setRows(0);
+				
+		QueryResponse response = solr.query(query);
+		List<FacetField> fields = response.getFacetFields();		
+		for( Count field: fields.get(0).getValues()){
+			procedures.add(field.getName());
+		}
+		
+		return procedures;
+	}	
 	
 	/**
 	 * Uses the methods in this service to get center progress information for each center i.e. procedures we have data for on a per strain basis
@@ -124,24 +161,60 @@ public class PhenotypeCenterService {
 	 * @throws SolrServerException 
 	 */
 	public Map<String, Map<String, List<ProcedureBean>>> getCentersProgressInformation() throws SolrServerException {
+		
 		//map of centers to a map of strain to procedures list
-		Map<String,Map<String, List<ProcedureBean>>> centerData=new HashMap<>();
-		List<String> centers=this.getPhenotypeCenters();
-		for(String center:centers){
+		Map<String,Map<String, List<ProcedureBean>>> centerData = new HashMap<>();
+		List<String> centers = this.getPhenotypeCenters();
+		
+		for(String center:centers){	
+			List<String> strains = this.getStrainsForCenter(center);
+			Map<String,List<ProcedureBean>> strainsToProcedures = new HashMap<>();
 			
-			List<String> strains=this.getStrainsForCenter(center);
-			Map<String,List<ProcedureBean>> strainsToProcedures=new HashMap<>();
 			for(String strain:strains){
-				
-				List<ProcedureBean> procedures=this.getProceduresPerStrainForCenter(center, strain);
+				List<ProcedureBean> procedures = this.getProceduresPerStrainForCenter(center, strain);
 				strainsToProcedures.put(strain, procedures);
 			}
 			centerData.put(center, strainsToProcedures);
 		}
 		return centerData;
+	}	
+	
+
+	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException {
+		
+		List<String> centers = getPhenotypeCenters();
+        List<String[]> results = new ArrayList<>();
+        String[] temp = new String[1];
+        List<String> header = new ArrayList<>();
+        header.add("colonyId");
+        header.add("phenotypingCenter");
+        header.add("numberOfDoneProcedures");
+        header.add("doneProcedures");
+		results.add(header.toArray(temp));
+        
+
+		//TODO get possible procedures per center
+//		Map<String, List<String>> proceduresPerCenter = getProceduresPerCenter();			
+		
+		for(String center: centers){	
+			List<String> strains = this.getStrainsForCenter(center);
+			Map<String,List<ProcedureBean>> strainsToProcedures = new HashMap<>();
+			
+			
+			for(String colonyId: strains){
+				List<String> procedures = this.getDoneProcedureIdsPerStrainAndCenter(center, colonyId);
+				List<String> row = new ArrayList<>();
+				row.add(colonyId);
+				row.add(center);
+				// TODO percentage
+				row.add("" + procedures.size()); // #procedures done
+				row.add(procedures.toString()); // procedures done
+				// TODO #missing procedures
+				// TODO missing procedures
+				results.add(row.toArray(temp));
+			}
+		}
+		return results;
 	}
-	
-	
-	
 	
 }

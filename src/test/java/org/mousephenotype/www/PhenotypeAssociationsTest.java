@@ -152,7 +152,7 @@ public class PhenotypeAssociationsTest {
         int expectedMinimumResultCount = -1;
         try {
             GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
-            
+            genePage.selectGenesLength(100);
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
             if ((phenotypeAssociationElements == null) || (phenotypeAssociationElements.isEmpty())) {
@@ -211,7 +211,8 @@ public class PhenotypeAssociationsTest {
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         int i = 0;
         for (String geneId : geneIds) {
-// if (i == 0) geneId = "MGI:104874";
+ if (i == 0) geneId = "MGI:103253";
+ if (i == 1) geneId = "MGI:2142624";
 // if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
             if (i >= targetCount) {
                 break;

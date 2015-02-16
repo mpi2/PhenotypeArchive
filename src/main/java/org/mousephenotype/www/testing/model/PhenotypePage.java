@@ -31,6 +31,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -49,7 +50,7 @@ public class PhenotypePage {
     private final String phenotypeId;
     private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String baseUrl;
-    private final PhenotypeTablePhenotype ptPhenotype;
+    private final PhenotypeTable ptPhenotype;
     
     private boolean hasGraphs;
     private boolean hasImages;
@@ -73,7 +74,7 @@ public class PhenotypePage {
         this.phenotypeId = phenotypeId;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
-        this.ptPhenotype = new PhenotypeTablePhenotype(driver, wait, target);
+        this.ptPhenotype = new PhenotypeTable(driver, wait, target);
         
         load();
     }
@@ -113,7 +114,7 @@ public class PhenotypePage {
             ptPhenotype.load();
             GridMap map = ptPhenotype.getData();
             for (int i = 0; i < map.getBody().length; i++) {
-                urls.add(map.getCell(i, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH));
+                urls.add(map.getCell(i, PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH));
             }
         }
         
@@ -222,34 +223,23 @@ public class PhenotypePage {
             // Validate that there is a 'pheontypes' HTML table by loading it.
             ptPhenotype.load();                                                 // Load all of the phenotypes table pageMap data.
             List<List<String>> preAndPostQcList = ptPhenotype.getPreAndPostQcList();
-            int sexIconCount = 0;
             String cell;
             int i = 0;
             for (List<String> row : preAndPostQcList) {
                 if (i++ == 0)
                     continue;
-                cell = row.get(PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
-                if ((cell.equals("male")) || (cell.equals("female")))
-                    sexIconCount++;
-                else if (cell.equals("both"))
-                    sexIconCount += 2;
 
                 //   Verify p value.
-                cell = row.get(PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE);
+                cell = row.get(PhenotypeTable.COL_INDEX_PHENOTYPES_P_VALUE);
                 if (cell == null) {
                     status.addError("Missing or invalid P Value. URL: " + target);
                 }
 
                 // Validate that the graph link is not missing.
-                cell = row.get(PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH);
+                cell = row.get(PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH);
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
-            }
-
-            // Verify resultsCount on page against the phenotype table's count of Sex icons.
-            if (sexIconCount != resultsCount) {
-                status.addError("Result counts don't match. Result count = " + resultsCount + " but Sex icon count = " + sexIconCount);
             }
 
             // Validate the download links.
@@ -257,6 +247,16 @@ public class PhenotypePage {
         }
         
         return status;
+    }
+    
+    public int getPhenotypesLength() {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='phenotypes_length']")));
+        return Utils.tryParseInt(select.getFirstSelectedOption());
+    }
+    
+    public void selectPhenotypesLength(Integer resultCount) {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='phenotypes_length']")));
+        select.selectByValue(resultCount.toString());
     }
     
     
@@ -377,9 +377,19 @@ public class PhenotypePage {
     }
     
     /**
-     * Compares the first non-heading row of data from this class's 'phenotypes'
-     * HTML table to the first non-heading row of <code>downloadData</code>. Any
-     * errors are returned in the <code>PageStatus</code> instance.
+     * Validate the page data against the download data. This is a difficult task,
+     * as there is more detail data in the download file that simply doesn't exist
+     * on the page. Metadata splits complicate matters. And, on the page, there is
+     * a single row for male and female; in the download, there are always two such
+     * rows - one for each sex. Then there is the newly added pagination that
+     * does not serve up all of the page data in a single gulp any more.
+     * 
+     * So validation will be simple:
+     * <li>Check that the number of rows in the download file is at least as
+     *     many rows as the number of [non-preqc] sex icons shown on the first page.</li>
+     * <li>Do a set difference between the rows on the first displayed page
+     *     and the rows in the download file. The difference should be empty.</li></ul>
+     * Any errors are returned in the <code>PageStatus</code> instance.
      * 
      * @return page status instance
      */
@@ -421,51 +431,29 @@ public class PhenotypePage {
      */
     private PageStatus validateDownload(GridMap pageData, GridMap downloadData) {
         PageStatus status = new PageStatus();
-        
-        // Validate the phenotypes table page line count against the download stream line count.
-        // Since the phenotypes table contains a single row for both sexes but the download file
-        // contains a row for every sex, as well as a row for every metadata split, use the phenotypes table's sex
-        // count rather than the row count.
-        int sexIconCount = TestUtils.getSexIconCount(pageData, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
-        int bufferedSexIconCount = (int)Math.round(Math.floor(sexIconCount * 1.5));
-        
-        // If there is a metadata split, the Phenotypethe page will show only s
-        // For each phenotype, the Phenotype page shows only a single row. This is true if sex is male,
-        // female, or both. This is also true for metadata splits. Because of this, validating the
-        // Phenotype Page row count against the download file is different. Sample scenario:
-        // A given phenotype has both male and female, and there is a metadata split for the female (only).
-        // That means the phenotype page will show 1 row with 2 sex icons. However, the correct download
-        // page will show 3 rows: 1 row for male, 1 row for female, metadata split 1, and 1 row for female,
-        // metadata split 2.
-        // 
-        // To handle this situation, then, if the phenotypes sex count is not equal to the download row count, then:
-        //     If the download line count is > the sex icon count but <= sex icon count + 50%, issue a warning
-        //     else throw an error.
         int downloadDataLineCount = downloadData.getBody().length;
         
-        if (sexIconCount != downloadDataLineCount) {
-            if (downloadDataLineCount > sexIconCount) {
-                if (downloadDataLineCount <= bufferedSexIconCount) {
-                    status.addWarning("WARNING: download data line count (" + downloadDataLineCount + ") is GREATER THAN the page sex icon count (" + sexIconCount + ") but LESS THAN OR EQUAL TO the buffered sex icon count ( " + bufferedSexIconCount + ")");
-                } else {
-                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is GREATER THAN the sex icon count (" +
-                            sexIconCount + ") and greater than the buffered sex icon count (" + bufferedSexIconCount + ")");
-                }
-            } else {
-                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
-            }
+        // Check that the number of rows in the download file is at least as
+        // many rows as the number of [non-preqc] sex icons shown on the first page.
+        int sexIconCount = TestUtils.getSexIconCount(pageData, PhenotypeTable.COL_INDEX_PHENOTYPES_SEX,
+                                                               PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH);
+        if (downloadDataLineCount < sexIconCount) {
+            status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
+                    sexIconCount + ").");
         }
         
+        // Do a set difference between the rows on the first displayed page
+        // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
         final int[] pageColumns = {
-              PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GENE_ALLELE
-            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_ZYGOSITY
-            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPE
-            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER
-            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER
-            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SOURCE
-            , PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH
+              PhenotypeTable.COL_INDEX_PHENOTYPES_GENE_ALLELE
+            , PhenotypeTable.COL_INDEX_PHENOTYPES_ZYGOSITY
+            , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPE
+            , PhenotypeTable.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER
+            , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER
+            , PhenotypeTable.COL_INDEX_PHENOTYPES_SOURCE
+            , PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH
         };
         final int[] downloadColumns = {
               DownloadPhenotypeMap.COL_INDEX_ALLELE

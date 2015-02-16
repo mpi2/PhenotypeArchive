@@ -101,13 +101,22 @@ public class TestUtils {
      * Counts and returns the number of sex icons in <code>table</code>
      * @param table the data store
      * @param sexColumnIndex the zero-relative sex column index in the data store
+     * @param graphColumnIndex if not null, the zero-relative graph column index
+     *                         which will be used to filter out non preqc-rows.
      * @return the number of sex icons in <code>table</code>: for each row,
      * if the sex = "male" or "female", add 1. If the sex = "both", add 2.
      */
-    public static int getSexIconCount(GridMap table, int sexColumnIndex) {
+    public static int getSexIconCount(GridMap table, int sexColumnIndex, Integer graphColumnIndex) {
         int retVal = 0;
         
         for (String[] sA : table.getBody()) {
+            // If this is a preqc row, skip it.
+            if (graphColumnIndex != null) {
+                if (sA[graphColumnIndex].contains("/phenoview/")) {
+                    continue;
+                }
+            }
+            
             if (sA[sexColumnIndex].equalsIgnoreCase("female"))
                 retVal++;
             else if (sA[sexColumnIndex].equalsIgnoreCase("male"))
@@ -572,8 +581,6 @@ public class TestUtils {
                 GraphData graphData = new GraphData(geneId, observationType, pValue);
                 graphUrls.add(graphData);
             }
-            
-            
         }
         
         return graphUrls;
