@@ -72,6 +72,7 @@ public class PhenotypeCenterService {
 		.setQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
 		.addFacetField(ObservationDTO.COLONY_ID)
 		.setFacetMinCount(1)
+		.setFacetLimit(-1)
 		.setRows(0);
 		if(solr.getBaseURL().endsWith("experiment")){
 				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
@@ -129,6 +130,7 @@ public class PhenotypeCenterService {
 		SolrQuery query = new SolrQuery()
 		 .setQuery("*:*")
 		 .setFacet(true)
+		 .setFacetLimit(-1)
 		 .addFacetPivotField(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID)
 		 .setFacetMinCount(1)
 		 .setRows(0);
@@ -156,6 +158,7 @@ public class PhenotypeCenterService {
 		 .setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
 		 .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
 		 .addFacetField(ObservationDTO.PROCEDURE_STABLE_ID)
+		 .setFacetLimit(-1)
 		 .setFacetMinCount(1)
 		 .setRows(0);
 				
@@ -213,8 +216,7 @@ public class PhenotypeCenterService {
         header.add("missingProcedures");
 		results.add(header.toArray(temp));
         
-		// get possible procedures per center
-		Map<String, List<String>> proceduresPerCenter = getProceduresPerCenter();
+		Map<String, List<String>> possibleProceduresPerCenter = getProceduresPerCenter();
 		
 		for(String center: centers){	
 			List<String> strains = getStrainsForCenter(center);
@@ -225,12 +227,12 @@ public class PhenotypeCenterService {
 				List<String> row = new ArrayList<>();
 				row.add(colonyId);
 				row.add(center);
-				Float percentageDone = (float) ((procedures.size() * 100) / (float)proceduresPerCenter.get(center).size()); 
+				Float percentageDone = (float) ((procedures.size() * 100) / (float)possibleProceduresPerCenter.get(center).size()); 
 				row.add(percentageDone.toString());
 				row.add("" + procedures.size()); // #procedures done
 				row.add(procedures.toString()); // procedures done
-				row.add("" + (proceduresPerCenter.get(center).size() - procedures.size()));	// #missing procedures
-				List<String> missing = new ArrayList<>(proceduresPerCenter.get(center));
+				row.add("" + (possibleProceduresPerCenter.get(center).size() - procedures.size()));	// #missing procedures
+				List<String> missing = new ArrayList<>(possibleProceduresPerCenter.get(center));
 				missing.removeAll(procedures); // missing procedures
 				row.add(missing.toString());
 				results.add(row.toArray(temp));
