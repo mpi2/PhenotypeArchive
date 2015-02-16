@@ -25,13 +25,17 @@
 									<p> <a href="${baseUrl}/centerProgressCsv">Procedure Completeness </a> </p>
 									<p> <a href="${baseUrl}/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
 									<p> <a href="${baseUrl}/sexualDimorphismWBodyWeight">Sexual Dimorphism With Body Weight </a> </p>
+									<p> <a href="${baseUrl}/genego">GO annotations to IMPC genes</a> </p>
 								</div>
 							</div>
+							
 					</div>
 				</div>
 			</div>
 		</div>
 		
+		
+		
 	</jsp:body>
-	
+		
 	</t:genericpage>
