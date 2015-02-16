@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.james.mime4j.field.Field;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -118,23 +119,35 @@ public class PhenotypeCenterService {
 		return procedures;
 	}
 	
-	
-/*	public Map<String, List<String>> getProceduresPerCenter(){
+	/**
+	 * @author tudose
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public Map<String, List<String>> getProceduresPerCenter() throws SolrServerException{
+		
 		SolrQuery query = new SolrQuery()
 		 .setQuery("*:*")
 		 .setFacet(true)
 		 .addFacetPivotField(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID)
 		 .setFacetMinCount(1)
 		 .setRows(0);
-		
 		QueryResponse response = solr.query(query);
-		NamedList<List<PivotField>> fields = response.getFacetPivot();
-		for( Count field: fields.get(0).getValues()){
-			procedures.add(field.getName());
-		}
+		Map<String, List<String>> res = new HashMap<>();
+		List<PivotField> fields = response.getFacetPivot().get(ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.PROCEDURE_STABLE_ID);
 		
+		for (PivotField facet: fields){
+			List<String> proceduresList = new ArrayList<>();
+			String center = facet.getValue().toString();
+			List<PivotField> procedures = facet.getPivot();
+			for (PivotField procedure : procedures){
+				proceduresList.add(procedure.getValue().toString());
+			}
+			res.put(center, proceduresList);
+		}
+		return res;
 	}
-	*/
+	
 	
 	public List<String> getDoneProcedureIdsPerStrainAndCenter(String center,String strain) throws SolrServerException {
 		
@@ -179,7 +192,12 @@ public class PhenotypeCenterService {
 		return centerData;
 	}	
 	
-
+	
+	/**
+	 * @author tudose
+	 * @return
+	 * @throws SolrServerException
+	 */
 	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException {
 		
 		List<String> centers = getPhenotypeCenters();
@@ -188,29 +206,33 @@ public class PhenotypeCenterService {
         List<String> header = new ArrayList<>();
         header.add("colonyId");
         header.add("phenotypingCenter");
+        header.add("percenageDone");
         header.add("numberOfDoneProcedures");
         header.add("doneProcedures");
+        header.add("numberOfMissingProcedures");
+        header.add("missingProcedures");
 		results.add(header.toArray(temp));
         
-
-		//TODO get possible procedures per center
-//		Map<String, List<String>> proceduresPerCenter = getProceduresPerCenter();			
+		//get possible procedures per center
+		Map<String, List<String>> proceduresPerCenter = getProceduresPerCenter();			
 		
 		for(String center: centers){	
-			List<String> strains = this.getStrainsForCenter(center);
+			List<String> strains = getStrainsForCenter(center);
 			Map<String,List<ProcedureBean>> strainsToProcedures = new HashMap<>();
-			
-			
+						
 			for(String colonyId: strains){
-				List<String> procedures = this.getDoneProcedureIdsPerStrainAndCenter(center, colonyId);
+				List<String> procedures = getDoneProcedureIdsPerStrainAndCenter(center, colonyId);
 				List<String> row = new ArrayList<>();
 				row.add(colonyId);
 				row.add(center);
-				// TODO percentage
+				Float percentageDone = (float) ((procedures.size() * 100) / proceduresPerCenter.get(center).size()); 
+				row.add(percentageDone.toString());
 				row.add("" + procedures.size()); // #procedures done
 				row.add(procedures.toString()); // procedures done
-				// TODO #missing procedures
-				// TODO missing procedures
+				row.add("" + (proceduresPerCenter.get(center).size() - procedures.size()));	//#missing procedures
+				List<String> missing =  proceduresPerCenter.get(center);
+				missing.removeAll(procedures); // missing procedures
+				row.add(missing.toString());
 				results.add(row.toArray(temp));
 			}
 		}
