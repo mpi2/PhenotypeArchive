@@ -38,9 +38,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -69,6 +71,13 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private static final int BATCH_SIZE = 2500;
 
+    // Fetch all phenotyping completed genes with MP calls from genotype-phenotype core
+    private static Set<String> gpGenesLookup = new HashSet<>();
+    
+    // Fetch all phenotyping started genes with MP calls from preqc core
+    private static Set<String> preqcGenesLookup = new HashSet<>();
+    
+    
     // Map gene MGI ID to sanger allele bean
     private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
 
@@ -539,7 +548,7 @@ public class AlleleIndexer extends AbstractIndexer {
 	    		+ "gene_name is not null "
 	    		+ "and a.is_public = 'Y' "
 	    		+ "and m.tax_id = 10090 "
-	    		+ "and evi.go_evidence in ('EXP', 'IDA', 'IPI', 'IMP', 'IGI', 'ISO', 'ISS', 'ND') "
+	    		//+ "and evi.go_evidence in ('EXP', 'IDA', 'IPI', 'IMP', 'IGI', 'ISO', 'ISS', 'ND') "
 	    		+ "and t.category in ('F', 'P') ";
 	    		//+ "and a.source in ('MGI','GOC')"; 
 	    
@@ -842,6 +851,7 @@ public class AlleleIndexer extends AbstractIndexer {
             dto.setLatestProductionCentre(bean.getLatestProductionCentre());
             dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
             dto.setLatestProjectStatus(bean.getLatestProjectStatus());
+            dto.setAlleleAccessionIds(bean.getMgiAlleleAccessionIds());
 
             String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(bean.getLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
             dto.setLatestProductionStatus(latestEsStatus);
