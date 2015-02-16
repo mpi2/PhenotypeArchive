@@ -294,17 +294,11 @@ public class GenePage {
             // Validate that there is a 'pheontypes' HTML table by loading it.
             geneTable.load();                                                      // Load all of the genes table pageMap data. Use preAndPostQcList.
             List<List<String>> preAndPostQcList = geneTable.getPreAndPostQcList();
-            int sexIconCount = 0;
             String cell;
             int i = 0;
             for (List<String> row : preAndPostQcList) {
                 if (i++ == 0)
                     continue;
-                cell = row.get(GeneTable.COL_INDEX_GENES_SEX);
-                if ((cell.equals("male")) || (cell.equals("female")))
-                    sexIconCount++;
-                else if (cell.equals("both"))
-                    sexIconCount += 2;
 
                 //   Verify p value.
                 cell = row.get(GeneTable.COL_INDEX_GENES_P_VALUE);
@@ -316,11 +310,6 @@ public class GenePage {
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
-            }
-
-            // Verify resultsCount on page against the phenotype table's count of Sex icons.
-            if (sexIconCount != resultsCount) {
-                status.addError("Result counts don't match. Result count = " + resultsCount + " but Sex icon count = " + sexIconCount);
             }
 
             // Validate the download links.
@@ -350,7 +339,12 @@ public class GenePage {
         return status;
     }
     
-    public void selectResultCount(Integer resultCount) {
+    public int getGenesLength() {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='genes_length']")));
+        return Utils.tryParseInt(select.getFirstSelectedOption());
+    }
+    
+    public void selectGenesLength(Integer resultCount) {
         Select select = new Select(driver.findElement(By.xpath("//select[@name='genes_length']")));
         select.selectByValue(resultCount.toString());
     }

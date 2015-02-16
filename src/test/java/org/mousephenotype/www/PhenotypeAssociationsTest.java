@@ -152,7 +152,7 @@ public class PhenotypeAssociationsTest {
         int expectedMinimumResultCount = -1;
         try {
             GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
-            genePage.selectResultCount(100);
+            genePage.selectGenesLength(100);
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
             if ((phenotypeAssociationElements == null) || (phenotypeAssociationElements.isEmpty())) {
