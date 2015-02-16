@@ -152,14 +152,13 @@ public class GeneTable {
             boolean skipLink = false;
             for (WebElement cell : cells) {
                 if (sourceColIndex == COL_INDEX_GENES_ALLELE) {
-                    // If the allele is a link, gather the link info; otherwise, set the allele component to an empty string as there is no link.
-                    List<WebElement> anchorElement = cell.findElements(By.cssSelector("a"));
-                    if (anchorElement.isEmpty()) {
-                        value = "";
+                    String rawAllele = cell.getText();
+                    List<WebElement> supList = cell.findElements(By.cssSelector("sup"));
+                    if (supList.isEmpty()) {
+                        value = rawAllele;
                     } else {
-                        String sup = cell.findElement(By.cssSelector("sup")).getText();
-                        value = cell.findElement(By.cssSelector("a")).getText();
-                        AlleleParser ap = new AlleleParser(value, sup);
+                        String sup = supList.get(0).getText();
+                        AlleleParser ap = new AlleleParser(rawAllele, sup);
                         value = ap.toString();
                     }
                 } else if (sourceColIndex == COL_INDEX_GENES_PHENOTYPE) {

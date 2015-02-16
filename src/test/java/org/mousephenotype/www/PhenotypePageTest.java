@@ -352,14 +352,15 @@ public class PhenotypePageTest {
             System.out.println("phenotype[" + i + "] URL: " + target);
         
             try {
-                PhenotypePage ptPage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
-                String definition = ptPage.getDefinition();
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
+                phenotypePage.selectResultCount(100);
+                String definition = phenotypePage.getDefinition();
                 if (definition.isEmpty()) {
                     System.out.println("ERROR: Expected definition but none was found. URL: " + target);
                     errorCount++;
                 }
                 
-                List<String> synonyms = ptPage.getSynonyms();
+                List<String> synonyms = phenotypePage.getSynonyms();
                 if (synonyms.size() != expectedSynonymCount[i]) {
                     System.out.println("ERROR: Expected " + expectedSynonymCount + " synonyms but found " + synonyms.size() + ". Values:");
                     for (int j = 0; j < synonyms.size(); j++) {
@@ -409,13 +410,14 @@ public class PhenotypePageTest {
             i++;
 
             WebElement mpLinkElement = null;
-//if (i == 1) phenotypeId = "MP:0003491";
-//if (i == 1) phenotypeId = "MP:0005371";
+//if (i == 1) phenotypeId = "MP:0003982";
+//if (i == 2) phenotypeId = "MP:0000180";
             target = baseUrl + "/phenotypes/" + phenotypeId;
             System.out.println("phenotype[" + i + "] URL: " + target);
             
             try {
                 PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, phenotypePipelineDAO, baseUrl);
+                phenotypePage.selectResultCount(100);
                 mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
                 PageStatus status = phenotypePage.validate();
                 if (status.hasErrors()) {

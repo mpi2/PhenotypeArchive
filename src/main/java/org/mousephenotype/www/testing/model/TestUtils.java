@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,13 @@ import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupCommand;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
@@ -46,7 +54,9 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
+import uk.ac.ebi.phenotype.service.PreQcService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -91,13 +101,22 @@ public class TestUtils {
      * Counts and returns the number of sex icons in <code>table</code>
      * @param table the data store
      * @param sexColumnIndex the zero-relative sex column index in the data store
+     * @param graphColumnIndex if not null, the zero-relative graph column index
+     *                         which will be used to filter out non preqc-rows.
      * @return the number of sex icons in <code>table</code>: for each row,
      * if the sex = "male" or "female", add 1. If the sex = "both", add 2.
      */
-    public static int getSexIconCount(GridMap table, int sexColumnIndex) {
+    public static int getSexIconCount(GridMap table, int sexColumnIndex, Integer graphColumnIndex) {
         int retVal = 0;
         
         for (String[] sA : table.getBody()) {
+            // If this is a preqc row, skip it.
+            if (graphColumnIndex != null) {
+                if (sA[graphColumnIndex].contains("/phenoview/")) {
+                    continue;
+                }
+            }
+            
             if (sA[sexColumnIndex].equalsIgnoreCase("female"))
                 retVal++;
             else if (sA[sexColumnIndex].equalsIgnoreCase("male"))
@@ -562,11 +581,68 @@ public class TestUtils {
                 GraphData graphData = new GraphData(geneId, observationType, pValue);
                 graphUrls.add(graphData);
             }
-            
-            
         }
         
         return graphUrls;
+    }
+    
+    /**
+     * Queries the preqc core for <code>count</code> mpIds of phenotype pages that
+     * contain preqc links.
+     * @param solrUrl The solr URL as defined in the pom or the app-config.xml file
+     * @param phenotypePipelineDAO a valid <code>PhenotypePipelineDAO</code> instance
+     * @param count the number of random mpIds to return. A null or 0 value means return all.
+     * @return a list of <code>count</code> strings containing mpIds with preqc links
+     */
+    public static List<String> getPreqcIds(String solrUrl, PhenotypePipelineDAO phenotypePipelineDAO, Integer count) {
+        Set<String> geneIds = new HashSet();
+        if ((count != null) && (count < 1))
+            count = 1000000;           // Null/0 indicates fetch all gene IDs (well, many, at least).
+        
+        try {
+            PreQcService preqcService = new PreQcService(solrUrl, phenotypePipelineDAO);
+            SolrServer server = preqcService.getSolrServer();
+            
+            /*logger.debug*/System.out.println("TestUtils.getPreqcIds(): querying preqc core for " + (count == null ? "all" : count) + " gene ids.");
+
+            SolrQuery solrQuery = new SolrQuery();
+            solrQuery
+                    .setQuery("*:*")
+//                    .setFields("marker_accession_id")
+                    .setRows(Integer.MAX_VALUE)
+                    .add("group", "true")
+                    .add("group.field", "marker_accession_id")
+                    .add("group.limit", "0")
+//                    .add("rows", "0")
+                    ;
+            
+            System.out.println("solrQuery = " + solrQuery.toString());
+            
+            QueryResponse response = server.query(solrQuery);
+            
+            List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
+            for (GroupCommand groupCommand : groupResponse) {
+                List<Group> groups = groupCommand.getValues();
+                for (Group group : groups) {
+                    geneIds.add(group.getGroupValue());
+                    
+                    
+                    SolrDocumentList docs = group.getResult();
+                    Iterator<SolrDocument> it = docs.iterator();
+                    while (it.hasNext()) {
+                        SolrDocument doc = it.next();
+                        String mgiAccessionId = (String)doc.get("marker_accession_id");
+                        geneIds.add(mgiAccessionId);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            String errMsg = "ERROR: " + e.getLocalizedMessage();
+            System.out.println(errMsg);
+            throw new RuntimeException(errMsg, e);
+        }
+        
+        return new ArrayList(geneIds);
     }
     
     public static class GraphData {

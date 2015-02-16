@@ -666,6 +666,9 @@ public class GenePageTest {
             }
             i++;
             
+//if (i == 1) geneId = "MGI:104874";
+//if (i == 2) geneId = "MGI:1096574";
+//if (i == 3) geneId = "MGI:1352464";
             target = baseUrl + "/genes/" + geneId;
             System.out.println("gene[" + i + "] URL: " + target);
             
