@@ -30,7 +30,7 @@ public class ControllerUtils {
 	    response.setHeader("Content-Disposition","attachment; filename="+fileName);
 	    OutputStream resOs= response.getOutputStream();  
 	    OutputStream buffOs= new BufferedOutputStream(resOs);   
-	    CSVWriter writer = new CSVWriter(new OutputStreamWriter(buffOs), '\t');
+	    CSVWriter writer = new CSVWriter(new OutputStreamWriter(buffOs));
 	    writer.writeAll(toWrite);
 		writer.close();
 	               

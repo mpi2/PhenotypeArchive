@@ -5,22 +5,35 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 public class ProcedureBean {
 
 	String stableId;
-	
+
+	String name;
 	
 	public ProcedureBean(String name, String stableId) {
-		// TODO Auto-generated constructor stub
+		setName(name);
+		setStableId(stableId);
 	}
+	
 	public String getStableId() {
 		return stableId;
 	}
+	
 	public void setStableId(String stableId) {
 		this.stableId = stableId;
 	}
+	
 	public String getName() {
 		return name;
 	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
-	String name;
+	
+	@Override
+	public String toString() {
+
+		return "ProcedureBean [stableId=" + stableId + ", name=" + name + "]";
+	}
+	
+	
 }
