@@ -213,8 +213,8 @@ public class PhenotypeCenterService {
         header.add("missingProcedures");
 		results.add(header.toArray(temp));
         
-		//get possible procedures per center
-		Map<String, List<String>> proceduresPerCenter = getProceduresPerCenter();			
+		// get possible procedures per center
+		Map<String, List<String>> proceduresPerCenter = getProceduresPerCenter();
 		
 		for(String center: centers){	
 			List<String> strains = getStrainsForCenter(center);
@@ -225,12 +225,12 @@ public class PhenotypeCenterService {
 				List<String> row = new ArrayList<>();
 				row.add(colonyId);
 				row.add(center);
-				Float percentageDone = (float) ((procedures.size() * 100) / proceduresPerCenter.get(center).size()); 
+				Float percentageDone = (float) ((procedures.size() * 100) / (float)proceduresPerCenter.get(center).size()); 
 				row.add(percentageDone.toString());
 				row.add("" + procedures.size()); // #procedures done
 				row.add(procedures.toString()); // procedures done
-				row.add("" + (proceduresPerCenter.get(center).size() - procedures.size()));	//#missing procedures
-				List<String> missing =  proceduresPerCenter.get(center);
+				row.add("" + (proceduresPerCenter.get(center).size() - procedures.size()));	// #missing procedures
+				List<String> missing = new ArrayList<>(proceduresPerCenter.get(center));
 				missing.removeAll(procedures); // missing procedures
 				row.add(missing.toString());
 				results.add(row.toArray(temp));
