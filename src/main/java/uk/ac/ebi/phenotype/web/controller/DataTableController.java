@@ -78,6 +78,7 @@ public class DataTableController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
+	private String IMG_NOT_FOUND = "Image coming soon<br>";
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -555,7 +556,7 @@ public class DataTableController {
 					imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath+ "'>" + img + "</a>";				
 				}
 				else {
-					imgLink = "Image not available";
+					imgLink = IMG_NOT_FOUND;
 				}
 				
 				try {
@@ -1051,7 +1052,7 @@ public class DataTableController {
 				link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
 			}
 			else {
-				link = "Image not available<br>";
+				link = IMG_NOT_FOUND;
 			}
 			imgPath.add(link);
 		}

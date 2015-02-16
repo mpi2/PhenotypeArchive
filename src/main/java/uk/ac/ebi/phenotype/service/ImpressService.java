@@ -1,15 +1,15 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import uk.ac.ebi.phenotype.service.dto.PipelineDTO;
 
-import uk.ac.ebi.phenotype.service.dto.ImpressDTO;
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * Wrapper around the pipeline core.
@@ -38,16 +38,16 @@ public class ImpressService {
 	}
 
 
-	public Integer getProcedureStableKey(String procedureStableId) {
+	public List<Integer> getProcedureStableKey(String procedureStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
-				.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":\"" + procedureStableId + "\"")
-				.setFields(ImpressDTO.PROCEDURE_STABLE_KEY);
+				.setQuery(PipelineDTO.PROCEDURE_STABLE_ID + ":\"" + procedureStableId + "\"")
+				.setFields(PipelineDTO.PROCEDURE_STABLE_KEY);
 
 			QueryResponse response = solr.query(query);
 //System.out.println("impress in getprocedureStablekey response ="+response);
-			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableKey();
+			return response.getBeans(PipelineDTO.class).get(0).getProcedureStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -57,16 +57,16 @@ public class ImpressService {
 	}
 
 	
-	public Integer getPipelineStableKey(String pipelineStableId) {
+	public List<Integer> getPipelineStableKey(String pipelineStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
-				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
-				.setFields(ImpressDTO.PIPELINE_STABLE_KEY);
+				.setQuery(PipelineDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
+				.setFields(PipelineDTO.PIPELINE_STABLE_KEY);
 
 			QueryResponse response = solr.query(query);
 
-			return response.getBeans(ImpressDTO.class).get(0).getPipelineStableKey();
+			return response.getBeans(PipelineDTO.class).get(0).getPipelineStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -108,9 +108,9 @@ public class ImpressService {
 
 */	
 	public String getPipelineUrlByStableId(String stableId){
-		Integer pipelineKey = getPipelineStableKey(stableId);
-		if (pipelineKey != null){
-			return config.get("drupalBaseUrl") + "/impress/procedures/" + pipelineKey;
+		List<Integer> pipelineKey = getPipelineStableKey(stableId);
+		if (pipelineKey != null && pipelineKey.size()>0){
+			return config.get("drupalBaseUrl") + "/impress/procedures/" + pipelineKey.get(0);
 		}
 		else return "#";
 	}

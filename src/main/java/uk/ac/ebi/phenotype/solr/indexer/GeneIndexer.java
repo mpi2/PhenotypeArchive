@@ -101,7 +101,7 @@ public class GeneIndexer extends AbstractIndexer {
 
             int count = 0;
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
-            System.out.println("alleles size=" + alleles.size());
+            logger.info("alleles size=" + alleles.size());
 
             geneCore.deleteByQuery("*:*");
 
@@ -146,11 +146,27 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
                 gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
                 gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
+                
+                // GO stuff
                 gene.setGoTermIds(allele.getGoTermIds());
                 gene.setGoTermNames(allele.getGoTermNames());
                // gene.getGoTermDefs().addAll(allele.getGoTermDefs());
                 gene.setGoTermEvids(allele.getGoTermEvids());
                 gene.setGoTermDomains(allele.getGoTermDomains());
+                
+                // pfam stuff
+                gene.setUniprotAccs(allele.getUniprotAccs());
+                gene.setScdbIds(allele.getScdbIds());
+                gene.setScdbLinks(allele.getScdbLinks());
+                gene.setClanIds(allele.getClanIds());
+                gene.setClanAccs(allele.getClanAccs());
+                gene.setClanDescs(allele.getClanDescs());
+                gene.setPfamaIds(allele.getPfamaIds());
+                gene.setPfamaAccs(allele.getPfamaAccs());
+                gene.setPfamaGoIds(allele.getPfamaGoIds());
+                gene.setPfamaGoTerms(allele.getPfamaGoTerms());
+                gene.setPfamaGoCats(allele.getPfamaGoCats());
+                gene.setPfamaJsons(allele.getPfamaJsons());
 
 				//gene.setMpId(allele.getM)
                 // Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene
@@ -415,7 +431,7 @@ public class GeneIndexer extends AbstractIndexer {
                 count ++;
 
                 if (count % 10000 == 0) {
-                    System.out.println(" added " + count + " beans");
+                    logger.info(" added " + count + " beans");
                 }
             }
 
@@ -428,7 +444,7 @@ public class GeneIndexer extends AbstractIndexer {
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("time was " + (endTime - startTime) / 1000);
+        logger.info("time was " + (endTime - startTime) / 1000);
 
         logger.info("Gene Indexer complete!");
     }
@@ -446,7 +462,7 @@ public class GeneIndexer extends AbstractIndexer {
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
-        System.out.println("mgiAccessionToMP size=" + mgiAccessionToMP.size());
+        logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
     }
 
     private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
@@ -456,7 +472,7 @@ public class GeneIndexer extends AbstractIndexer {
 
     private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {
 
-        System.out.println("populating PCS pipeline info");
+        logger.info("populating PCS pipeline info");
         String queryString = "select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"
                 + " from phenotype_call_summary pcs"
                 + " inner join ontology_term term on term.acc=mp_acc"

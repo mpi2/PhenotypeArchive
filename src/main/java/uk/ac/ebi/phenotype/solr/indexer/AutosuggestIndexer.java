@@ -179,14 +179,14 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case GeneDTO.MARKER_SYMBOL:
                         mapKey = gene.getMarkerSymbol();
                         if (markerSymbolSet.add(mapKey)) {
-                            a.setMarkerSymbol(gene.getMgiAccessionId());
+                            a.setMarkerSymbol(gene.getMarkerSymbol());
                             beans.add(a);
                         }
                         break;
                     case GeneDTO.MARKER_NAME:
                         mapKey = a.getMarkerName();
                         if (markerNameSet.add(mapKey)) {
-                            a.setMarkerName(gene.getMgiAccessionId());
+                            a.setMarkerName(gene.getMarkerName());
                             beans.add(a);
                         }
                         break;

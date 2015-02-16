@@ -34,6 +34,20 @@
         <property name="password" value="${goapropassword}" />
     </bean>
     
+     <bean id="uniprotDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+        <property name="url" value="${uniproturl}" />
+        <property name="username" value="${uniprotusername}" />
+        <property name="password" value="${uniprotpassword}" />
+    </bean>
+    
+     <bean id="pfamDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+        <property name="url" value="${pfamurl}" />
+        <property name="username" value="${pfamusername}" />
+        <property name="password" value="${pfampassword}" />
+    </bean>
+    
 
     <!-- Weaves in transactional advice around annotated Transactional methods -->
     <tx:annotation-driven transaction-manager="transactionManager" />

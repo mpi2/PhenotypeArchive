@@ -68,6 +68,19 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		
 	}
 	
+	
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+
+		return "StatisticalResultBean [pValue=" + pValue + ", effectSize=" + effectSize + ", status=" + status + ", statisticalMethod=" + statisticalMethod + ", controlSex=" + controlSex + ", zygosity=" + zygosity + ", maleControls=" + maleControls + ", maleMutants=" + maleMutants + ", femaleControls=" + femaleControls + ", femaleMutants=" + femaleMutants + ", metadataGroup=" + metadataGroup + ", colorIndex=" + colorIndex + "]";
+	}
+
+
+
 	/**
 	 * @return the pValue
 	 */

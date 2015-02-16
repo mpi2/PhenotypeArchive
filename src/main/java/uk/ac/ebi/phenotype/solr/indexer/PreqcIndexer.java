@@ -118,8 +118,8 @@ public class PreqcIndexer extends AbstractIndexer {
             Element rootElement = document.getDocumentElement();
             NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
 
-            System.out.println("length: " + nodes.getLength());
-            System.out.println("  read document time: " + (System.currentTimeMillis() - start));
+            logger.info("length: " + nodes.getLength());
+            logger.info("  read document time: " + (System.currentTimeMillis() - start));
 
             int counter = 1;
             for (int i = 0; i < nodes.getLength();  ++ i) {
@@ -232,8 +232,11 @@ public class PreqcIndexer extends AbstractIndexer {
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
                 String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
                 if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
-                    o.setResourceName("3i");
-                    o.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+//                    o.setResourceName("3i");
+//                    o.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+                    o.setResourceName(StatisticalResultIndexer.RESOURCE_3I.toUpperCase());
+                    o.setResourceFullname(resourceMap.get(StatisticalResultIndexer.RESOURCE_3I.toUpperCase()));
+
                 } else {
                     o.setResourceName(datasource);
                     if(resourceMap.containsKey(project.toUpperCase())) {
@@ -352,9 +355,11 @@ public class PreqcIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        System.out.println("time: " + (System.currentTimeMillis() - start));
-        logger.warn("found {} unique mps not in ontodb", bad.size());
-        logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
+        logger.info("time: " + (System.currentTimeMillis() - start));
+        if (bad.size() > 0) {
+            logger.warn("found {} unique mps not in ontodb", bad.size());
+            logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
+        }
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {

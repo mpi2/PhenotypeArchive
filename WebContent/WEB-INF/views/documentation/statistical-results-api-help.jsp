@@ -37,6 +37,8 @@
 
         <p>The statistical-result REST API provides access to the detailed output generated as part of the statistical analysis process.</p>
 
+        <p>The API may be queried using </p>
+
         <p>The statistical-result REST API provides the fields described in the table below. Each field may be used for restricting the set of statistical-results you wish to receive. The full SOLR select syntax is available for use in querying the REST API. See <a href="http://wiki.apache.org/solr/SolrQuerySyntax">http://wiki.apache.org/solr/SolrQuerySyntax</a> and <a href="http://wiki.apache.org/solr/CommonQueryParameters">http://wiki.apache.org/solr/CommonQueryParameters</a> for a more complete list of query options.</p>
 
     <table>
@@ -491,10 +493,15 @@
         <h4>Examples</h4>
 
         <p>NOTE: It may be necessary for spaces and double quotes to be url encoded (space = %20, double quote=%22) for command line usage</p>
-        <p>Coming soon</p>
-        <div class="highlight highlight-bash"><pre>
-</pre>
-        </div>
+
+        <h4>Get all statistical results for gene Car4</h4>
+        <a href="http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&rows=500">http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&rows=500</a>
+
+        <h4>Get all statistical results for gene Car4 is CSV format</h4>
+        <a href="http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&wt=csv">http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&rows=500&wt=csv</a>
+
+        <h4>Get specific fields from statistical results for gene Car4 is CSV format</h4>
+        <a href="http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&wt=csv&fl=parameter_stable_id,parameter_name,female_control_count,female_mutant_count,male_control_count,male_mutant_count,null_test_p_value,statistical_method,allele_name,status,marker_accession_id,marker_symbol,allele_accession_id,allele_symbol,colony_id,metadata_group,zygosity,strain_accession_id,strain_name,classification_tag,genotype_effect_p_value,effect_size,genotype_effect_stderr_estimate">http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&wt=csv&fl=parameter_stable_id,parameter_name,female_control_count,female_mutant_count,male_control_count,male_mutant_count,null_test_p_value,statistical_method,allele_name,status,marker_accession_id,marker_symbol,allele_accession_id,allele_symbol,colony_id,metadata_group,zygosity,strain_accession_id,strain_name,classification_tag,genotype_effect_p_value,effect_size,genotype_effect_stderr_estimate</a>
 
                             
                         </div><%-- end of content div--%>

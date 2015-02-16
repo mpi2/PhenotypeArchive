@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +56,7 @@ import uk.ac.ebi.phenotype.pojo.UnidimensionalObservation;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationDAO {
-	
+
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory
@@ -725,7 +726,20 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
                 code = code.substring(0, code.indexOf(":"));
                 pStatusMap.put("status", code);
 
+            } else if (code.contains("?")) {
+	            String message = code.substring(code.indexOf("?")+1, code.length()).trim();
+	            pStatusMap.put("message", message);
+
+	            code = code.substring(0, code.indexOf("?"));
+	            pStatusMap.put("status", code);
+
             }
+
+	        // Truncate the status code if it's too long
+	        if (pStatusMap.get("status").length()>50) {
+		        pStatusMap.put("status", pStatusMap.get("status").substring(0,45)+"...");
+	        }
+
         }
         
         return pStatusMap;
