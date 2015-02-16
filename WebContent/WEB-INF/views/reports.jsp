@@ -23,13 +23,18 @@
 								<div class="inner">
 									<p>	<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a> </p>
 									<p> <a href="${baseUrl}/centerProgressCsv">Completeness of Procedures by Line and Phenotyping Center</a> </p>
+									<p> <a href="${baseUrl}/genego">GO annotations to IMPC genes</a> </p>
+									
 								</div>
 							</div>
+							
 					</div>
 				</div>
 			</div>
 		</div>
 		
+		
+		
 	</jsp:body>
-	
+		
 	</t:genericpage>
