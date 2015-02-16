@@ -57,11 +57,11 @@
     </bean>
 	
     <bean id="phenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
-            <constructor-arg value="${internalSolrUrl}/experiment" />
+            <constructor-arg value="${solrUrl}/experiment" />
     </bean>
 
     <bean id="preQcPhenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
-            <constructor-arg value="${internalSolrUrl}/preqc" />
+            <constructor-arg value="${solrUrl}/preqc" />
     </bean>
 	
     <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
