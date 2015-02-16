@@ -1238,7 +1238,6 @@ public class FileExportController {
             	}
             }
         }
-        System.out.println(rowData.toString());
         return rowData;
     }
 
