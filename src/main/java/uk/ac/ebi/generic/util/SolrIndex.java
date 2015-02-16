@@ -50,16 +50,6 @@ import org.springframework.stereotype.Service;
 //import com.google.gson.JsonObject;
 //import com.google.gson.stream.JsonReader;
 
-
-
-
-
-
-
-
-
-import com.cedarsoftware.util.io.JsonReader;
-
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
