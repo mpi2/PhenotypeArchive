@@ -112,23 +112,23 @@ public class SearchPageTest {
 
     // These variables define the actual number of iterations for each test that uses them.
     // They use default values defined above but may be overridden on the command line using -Dxxx.
-    private int max_mgi_link_check_count = MAX_MGI_LINK_CHECK_COUNT;
-    private int max_phenotype_test_page_count = MAX_PHENOTYPE_TEST_PAGE_COUNT;
+    private final int max_mgi_link_check_count = MAX_MGI_LINK_CHECK_COUNT;
+    private final int max_phenotype_test_page_count = MAX_PHENOTYPE_TEST_PAGE_COUNT;
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
     
-    private StringBuffer verificationErrors = new StringBuffer();
+    private final StringBuffer verificationErrors = new StringBuffer();
 
-    private ArrayList<String> errLog = new ArrayList<String>();
+    private final ArrayList<String> errLog = new ArrayList();
 
-    private HashMap<String, String> params = new HashMap<String, String>();
-    private List<String> paramList = new ArrayList<String>();
-    private List<String> cores = new ArrayList<String>();
-    private List<String> errorList = new ArrayList();
-    private List<String> exceptionList = new ArrayList();
-    private List<String> successList = new ArrayList();
-    private static List<String> sumErrorList = new ArrayList();
-    private static List<String> sumSuccessList = new ArrayList();
+    private final HashMap<String, String> params = new HashMap();
+    private final List<String> paramList = new ArrayList();
+    private final List<String> cores = new ArrayList();
+    private final List<String> errorList = new ArrayList();
+    private final List<String> exceptionList = new ArrayList();
+    private final List<String> successList = new ArrayList();
+    private final static List<String> sumErrorList = new ArrayList();
+    private final static List<String> sumSuccessList = new ArrayList();
     private static String startTime;
     private static int testCount;
     private WebDriverWait wait;
@@ -147,11 +147,11 @@ public class SearchPageTest {
         driver.manage().timeouts().setScriptTimeout(timeout_in_seconds, TimeUnit.SECONDS);
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
 
-        params.put("gene","fq=marker_type:* -marker_type:\"heritable phenotypic marker\"");
+        params.put("gene","fq=*:*");
         params.put("mp", "fq=top_level_mp_term:*");
         params.put("disease", "fq=*:*");
         params.put("ma", "fq=selected_top_level_ma_term:*");
-        params.put("pipeline", "fq=pipeline_stable_id:*");
+        params.put("impc_images", "fq=*:*");
         params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:*");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
@@ -173,7 +173,7 @@ public class SearchPageTest {
         cores.add("mp");
         cores.add("disease");
         cores.add("ma");
-        cores.add("pipeline");
+        cores.add("impc_images");
         cores.add("images");
     }
 
@@ -574,6 +574,15 @@ public class SearchPageTest {
     
     @Test
 //@Ignore
+    public void testTwist1() throws Exception {
+        String testName = "testTwist1";
+        String searchString = "twist1";
+        
+        downloadTestEngine(testName, searchString);
+    }
+    
+    @Test
+//@Ignore
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
@@ -581,10 +590,10 @@ public class SearchPageTest {
         System.out.println("----- " + testName + " -----");
         String target;
         String message;
-        final String showing_1 = "Showing 1 to 10 of";
-        final String showing_11 = "Showing 11 to 20 of";
+        final String showing_1 = "Showing 1 to ";
+        final String showing_11 = "Showing 11 to ";
         Date start = new Date();
-        String expectedShowing = "";
+        String expectedShowingPhrase = "";
         String actualShowing = "";
         
         successList.clear();
@@ -599,28 +608,30 @@ public class SearchPageTest {
                 searchPage.clickFacetById(core);
                 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
-                expectedShowing = showing_1;
+                expectedShowingPhrase = showing_1;
                 actualShowing = searchPage.getShowing().toString();
-                if ( ! actualShowing.contains(expectedShowing)) {
-                    message = "ERROR: Expected '" + expectedShowing + "' but found '" + actualShowing + "'.";
+                if ( ! actualShowing.contains(expectedShowingPhrase)) {
+                    message = "ERROR: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'.";
                     System.out.println(message);
                     errorList.add(message);
                 }
                 
-                // Wait for facet page to load, then click the page '2' link. The 'showing' string should start with 'Showing 11 to 20 of".
-                searchPage.clickPageButton(PageDirective.SECOND_NUMBERED);
-                expectedShowing = showing_11;
-                actualShowing = searchPage.getShowing().toString();
-                if ( ! actualShowing.contains(expectedShowing)) {
-                    message = "ERROR: Expected '" + expectedShowing + "' but found '" + actualShowing + "'.";
-                    System.out.println(message);
-                    errorList.add(message);
+                if (searchPage.getNumPageButtons() > 3) {                       // Previous, page, Next
+                    // Wait for facet page to load, then click the page '2' link. The 'showing' string should start with 'Showing 11 to 20 of".
+                    searchPage.clickPageButton(PageDirective.SECOND_NUMBERED);
+                    expectedShowingPhrase = showing_11;
+                    actualShowing = searchPage.getShowing().toString();
+                    if ( ! actualShowing.contains(expectedShowingPhrase)) {
+                        message = "ERROR: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'.";
+                        System.out.println(message);
+                        errorList.add(message);
+                    }
                 }
                 
                 if (errorList.isEmpty())
                     successList.add("Success!");
             } catch (Exception e) {
-                message = "EXCEPTION: Expected '" + expectedShowing + "' but found '" + actualShowing + "'. message: " + e.getLocalizedMessage();
+                message = "EXCEPTION: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. message: " + e.getLocalizedMessage();
                 System.out.println(message);
                 exceptionList.add(message);
                 e.printStackTrace();
@@ -933,14 +944,17 @@ public class SearchPageTest {
                 , SearchPage.Facet.DISEASES
                 , SearchPage.Facet.GENES
                 , SearchPage.Facet.IMAGES
+                , SearchPage.Facet.IMPC_IMAGES
                 , SearchPage.Facet.PHENOTYPES
-                , SearchPage.Facet.PROCEDURES
+                  // 17-Feb-2015 - commented out, as Terry & the team said procedures/pipelines are no longer included in the facet list (but may have to later).
+//                , SearchPage.Facet.PROCEDURES
             };
 
             for (SearchPage.Facet facet : facets) {
-                searchPage.clickFacet(facet);
-                searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.FIRST);
+//                searchPage.clickFacet(facet);
+//                searchPage.clickPageButton();
+//searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
+//TestUtils.sleep(1000);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                 status.add(searchPage.validateDownload(facet));
             }

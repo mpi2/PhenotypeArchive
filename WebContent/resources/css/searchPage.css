@@ -118,6 +118,9 @@ ul#facetFilter li.has-sub + .has-sub    { margin-top: 0em; }
 
 
 /* dataTable on search page */
+div.dataTables_length {
+	margin-left: 5px;
+}
 div.dataTables_info, div.dataTables_paginate {
 	display: inline;	
 }

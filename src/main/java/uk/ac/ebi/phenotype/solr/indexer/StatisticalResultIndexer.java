@@ -293,7 +293,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     }
         
-    private Double getFemalePercentageChange(String token) {
+    public static Double getFemalePercentageChange(String token) {
         Double retVal = null;
         
         List<String> sexes = Arrays.asList(token.split(","));
@@ -311,8 +311,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         
         return retVal;
     }
-        
-    private Double getMalePercentageChange(String token) {
+
+    public static Double getMalePercentageChange(String token) {
         Double retVal = null;
         
         List<String> sexes = Arrays.asList(token.split(","));
