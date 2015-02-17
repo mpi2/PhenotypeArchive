@@ -6,7 +6,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,7 +35,10 @@ public class ReportsController {
 	
 	@Autowired
 	SexualDimorphismDAO sdDAO;
-	
+
+    @Resource(name = "globalConfiguration")
+	Map<String, String> config;
+    
 	@RequestMapping(value="/getLaczSpreadsheet", method = RequestMethod.GET)
 	public void getFullData(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 		
@@ -44,7 +49,7 @@ public class ReportsController {
 	@RequestMapping(value="/sexualDimorphism", method = RequestMethod.GET)
 	public void getSexualDimorphismReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
-		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight();
+		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight(config.get("baseUrl"));
 	    ControllerUtils.writeAsCSV(result, "sexual_dimorphism_no_body_weight_IMPC.csv", response);
 	};
 		

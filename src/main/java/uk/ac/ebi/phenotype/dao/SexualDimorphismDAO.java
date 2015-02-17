@@ -5,8 +5,8 @@ import java.util.List;
 
 public interface SexualDimorphismDAO {
 	
-	public List<String[]>  sexualDimorphismReportNoBodyWeight() ;
+	public List<String[]>  sexualDimorphismReportNoBodyWeight(String baseUrl) ;
 	
-	public List<String[]> sexualDimorphismReportWithBodyWeight();
+	public List<String[]> sexualDimorphismReportWithBodyWeight(String baseUrl);
 	
 }

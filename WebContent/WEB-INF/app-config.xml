@@ -51,15 +51,25 @@
 	<!-- phenodigm external solr server via HTTP -->
 	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0" value="${phenodigm.solrserver}" />
-        <property name="soTimeout" value="5000" />
+   	<property name="soTimeout" value="5000" />
 	</bean>
 
-	
-	<!--this is the phenodigm DAO implementation we are looking for... -->
-	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
+    <!-- used for concurrently loading the solr server -->
+  <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+     <constructor-arg index="0" value="${internalSolrUrl}/experiment"/>
+     <constructor-arg index="1" value="100000"/> <!--Queue size-->
+     <constructor-arg index="2" value="5"/> <!--Num threads-->
+  </bean>
 
-	<!-- Weaves in transactional advice around annotated Transactional methods -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
+
+	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+
+	<!-- ======= Service BEANS ======= -->
+
 
 	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />
@@ -72,12 +82,8 @@
 	<bean id="preQcPhenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
 		<constructor-arg value="${internalSolrUrl}/preqc" />
 	</bean>
-
-    <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
-        <constructor-arg ref="sessionFactory" />
-    </bean>
-
-    <bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
+	
+  <bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
 		<constructor-arg value="${internalSolrUrl}/preqc" />
 		<constructor-arg ref="phenotypePipelineDAO" />
 	</bean>
@@ -87,13 +93,13 @@
 		<constructor-arg ref="phenotypePipelineDAO" />
 	</bean>
 
-    <!-- used for concurrently loading the solr server -->
-    <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${internalSolrUrl}/experiment"/>
-        <constructor-arg index="1" value="100000"/> <!--Queue size-->
-        <constructor-arg index="2" value="5"/> <!--Num threads-->
-    </bean>
+	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
+	</bean>
 
+	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
+		<constructor-arg value="${internalSolrUrl}/statistical-result" />
+	</bean>
+	
 	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
 		<constructor-arg value="${internalSolrUrl}/pipeline" />
 	</bean>
@@ -110,28 +116,6 @@
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 
-	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
-
-	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="statisticalResultDAO" class="uk.ac.ebi.phenotype.dao.StatisticalResultDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="releaseDAO" class="uk.ac.ebi.phenotype.dao.AnalyticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
-	</bean>
-
-	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
-		<constructor-arg value="${internalSolrUrl}/statistical-result" />
-	</bean>
-
-
 	<bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
 		<constructor-arg value="${internalSolrUrl}/gene" />
 	</bean>
@@ -144,6 +128,17 @@
 		<constructor-arg value="${internalSolrUrl}/disease" />
 	</bean>
 	
+	
+	<!-- ======= DAO BEANS ======= -->
+	
+	
+	<bean id="statisticalResultDAO" class="uk.ac.ebi.phenotype.dao.StatisticalResultDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="releaseDAO" class="uk.ac.ebi.phenotype.dao.AnalyticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
 	
 	<bean id="sexualDimorphismDAO" class="uk.ac.ebi.phenotype.dao.SexualDimorphismDAOImpl" >
 		<constructor-arg ref="sessionFactory" />
@@ -159,6 +154,17 @@
 	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
+	
+	<!--this is the phenodigm DAO implementation we are looking for... -->
+	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
+
+	<!-- Weaves in transactional advice around annotated Transactional methods -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+
+  <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
+       <constructor-arg ref="sessionFactory" />
+  </bean>
 
 	<bean id="phenSummary" class="uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl">
 	</bean>

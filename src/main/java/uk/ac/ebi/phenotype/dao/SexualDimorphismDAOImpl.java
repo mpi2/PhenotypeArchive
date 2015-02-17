@@ -5,19 +5,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.chart.ChartUtils;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
+
 
 public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements SexualDimorphismDAO {
-	
+    	
 	public SexualDimorphismDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
 	@Transactional(readOnly = true)
-	public List<String[]> sexualDimorphismReportNoBodyWeight() {
+	public List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) {
 		
 		PreparedStatement statement = null;        
         String command = "SELECT  gf.symbol as gene_symbol, gf.acc as gene_acc, allele_acc, allele.symbol as allele_symbol, "
@@ -65,6 +71,7 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
  			header.add("female_genotype_pvalue");
  			header.add("female_genotype_estimate");
  			header.add("female_genotype_stderr");
+ 			header.add("graph");
  			res.add(header.toArray(temp));
      		
      		while (results.next()){
@@ -91,6 +98,9 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
      			row.add(results.getString("female_genotype_pvalue"));
      			row.add(results.getString("female_genotype_estimate"));
      			row.add(results.getString("female_genotype_stderr"));
+     			String chartUrl = ChartUtils.getChartPageUrlPostQc(baseUrl, results.getString("gene_acc"), results.getString("allele_acc"),
+     				ZygosityType.valueOf(results.getString("experimental_zygosity")), results.getString("dependent_variable"), null, null);
+     			row.add(chartUrl);
      			res.add(row.toArray(temp));
      		}
 	        
@@ -102,7 +112,7 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 
 	
 	@Override
-	public List<String[]> sexualDimorphismReportWithBodyWeight() {
+	public List<String[]> sexualDimorphismReportWithBodyWeight(String baseUrl) {
 		
 		return null;
 	}
