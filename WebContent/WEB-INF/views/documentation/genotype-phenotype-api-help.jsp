@@ -95,7 +95,9 @@
                                         <tr><td>parameter_name</td><td>string</td><td>the name of the IMPReSS parameter measured</td></tr>
                                         <tr><td>parameter_stable_id</td><td>string</td><td>the stable id of the IMPReSS parameter measured</td></tr>
                                         <tr><td>parameter_stable_key</td><td>string</td><td>the stable key of the IMPReSS parameter measured</td></tr>
-                                        <tr><td>p_value</td><td>doubl</td><td>the statistical significance of the association</td></tr>
+                                        <tr><td>statistical_method</td><td>string</td><td>the statistical method used to determine the p value</td></tr>
+                                        <tr><td>percentage_change</td><td>string</td><td>for continuous data, a standardized effect measure</td></tr>
+                                        <tr><td>p_value</td><td>double</td><td>the statistical significance of the association</td></tr>
                                         <tr><td>effect_size</td><td>double</td><td>the size of the effect</td></tr>
                                         <tr><td>external_id</td><td>string</td><td>(legacy) internal id of the association at the phenotyping center</td></tr>
                                         </tbody>
