@@ -110,7 +110,7 @@ public class SolrIndex {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public JSONObject getDataTableJson(String query, String core,
+	public JSONObject getQueryJson(String query, String core,
 			String gridSolrParams, String mode, int start, int length,
 			boolean showImgView) throws IOException, URISyntaxException {
 
@@ -244,7 +244,6 @@ public class SolrIndex {
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
 		// OTHER solrCoreNames to be added here
-		
 		return url;
 	}
 
@@ -401,7 +400,7 @@ public class SolrIndex {
 	}
 	
 	public List<AnnotNameValCount> mergeImpcFacets(JSONObject json, String baseUrl) {
-		System.out.println("JSON: "+ json);
+
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 	
 		List<AnnotNameValCount> annots = new ArrayList<>();
@@ -530,7 +529,7 @@ public class SolrIndex {
 			URISyntaxException {
 		
 		log.debug("GETTING CONTENT FROM: " + url);
-		
+		log.info("GETTING CONTENT FROM: " + url);
 		HttpProxy proxy = new HttpProxy();
 		
 		try {
@@ -557,7 +556,7 @@ public class SolrIndex {
 		String content = "";
 
 		log.debug("GETTING CONTENT FROM: " + url);
-//		System.out.println("CHK URL: " + url);
+
 		if (drupalProxy != null) {
 			content = drupalProxy.getContent(new URL(url));
 		} else {
@@ -976,11 +975,8 @@ public class SolrIndex {
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 		
 		String url = internalBaseSolrUrl + qParam + flParam;
-		System.out.println(url);
 		
 		JSONObject json = getResults(url);
-		
-		System.out.println(json);
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -1065,11 +1061,9 @@ public class SolrIndex {
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 		
 		String url = internalBaseSolrUrl + qParam + flParam;
-		System.out.println(url);
 		
 		JSONObject json = getResults(url);
 		
-		System.out.println(json);
 		String table = "";
 		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>PfamA family</th><th>Pfam clan</th><th>Structure</th><th>Evidence</th></tr></thead>";
 		String trs = "";
@@ -1164,11 +1158,11 @@ public class SolrIndex {
 		table = "<table id='gene2pfam'>" + th + "<tbody>" + trs + "</tbody></table>";
 		return table;	
 	}
-	
+	public String getMgiGenesGoPlainTable(HttpServletRequest request) throws IOException, URISyntaxException {
+		return "";
+	}
 	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
-	//public void getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
-		
 		
 		Map<String, Map<String, Map<String, JSONArray>>> statusEvidCount = new LinkedHashMap<>();
 		
@@ -1179,6 +1173,8 @@ public class SolrIndex {
 		for ( String status : phenoStatuses ){
 			String phenoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:*&rows=0";
 		
+			//String allGoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:* AND go_term_id:*&rows=0";
+			
 			// either molecular_function or biological_process
 			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
 			

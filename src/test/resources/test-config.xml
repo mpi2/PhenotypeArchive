@@ -121,6 +121,10 @@
     <bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
         <constructor-arg value="${internalSolrUrl}/disease" />
     </bean>
+    
+    <bean id="sexualDimorphismDAO" class="uk.ac.ebi.phenotype.dao.SexualDimorphismDAOImpl" >
+        <constructor-arg ref="sessionFactory" />
+    </bean>
                 
     <context:component-scan base-package="uk.ac.ebi" />
     <context:component-scan base-package="org.mousephenotype.www" />
