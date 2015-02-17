@@ -54,6 +54,7 @@
         <property name="soTimeout" value="5000" />
 	</bean>
 
+	
 	<!--this is the phenodigm DAO implementation we are looking for... -->
 	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
@@ -141,6 +142,11 @@
 
 	<bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
 		<constructor-arg value="${internalSolrUrl}/disease" />
+	</bean>
+	
+	
+	<bean id="sexualDimorphismDAO" class="uk.ac.ebi.phenotype.dao.SexualDimorphismDAOImpl" >
+		<constructor-arg ref="sessionFactory" />
 	</bean>
 
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
