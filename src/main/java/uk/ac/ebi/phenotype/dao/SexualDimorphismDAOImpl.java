@@ -26,37 +26,14 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 	public List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) {
 		       
         PreparedStatement statement = getSexualDimorphismReportQuery(false);
-        
         List<String[]> res = new ArrayList<>();
         String[] temp = new String[1];
         
         try (Connection connection = getConnection()) {
     			
      		ResultSet results = statement.executeQuery();
-
- 			List <String> header = new ArrayList<>();
- 			header.add("gene_symbol");
- 			header.add("gene_acc");
- 			header.add("allele_symbol");
- 			header.add("allele_acc");
- 			header.add("experimental_zygosity");
- 			header.add("colony_id");
- 			header.add("parameter");
- 			header.add("dependent_variable");
- 			header.add("female_mutants");
- 			header.add("female_contols");
- 			header.add("male_mutants");
- 			header.add("male_contols");
- 			header.add("globalPValue");
- 			header.add("standardEffectSize");
- 			header.add("effect_size_difference");
- 			header.add("male_genotype_pvalue");
- 			header.add("male_genotype_estimate");
- 			header.add("male_genotype_stderr");
- 			header.add("female_genotype_pvalue");
- 			header.add("female_genotype_estimate");
- 			header.add("female_genotype_stderr");
- 			header.add("graph");
+     		List<String> header = getSexualDimorphismHeader();
+ 			
  			res.add(header.toArray(temp));
      		
      		while (results.next()){
@@ -95,12 +72,57 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
         return res;
 	}
 
-	
+
 	@Override
+	@Transactional(readOnly = true)
 	public List<String[]> sexualDimorphismReportWithBodyWeight(String baseUrl) {
-		
-		return null;
+
+		PreparedStatement statement = getSexualDimorphismReportQuery(true);
+		List<String[]> res = new ArrayList<>();
+		String[] temp = new String[1];
+
+		try (Connection connection = getConnection()) {
+
+			ResultSet results = statement.executeQuery();
+			List<String> header = getSexualDimorphismHeader();
+
+			res.add(header.toArray(temp));
+
+			while (results.next()) {
+				List<String> row = new ArrayList<>();
+				row.add(results.getString("gene_symbol"));
+				row.add(results.getString("gene_acc"));
+				row.add(results.getString("allele_symbol"));
+				row.add(results.getString("allele_acc"));
+				row.add(results.getString("experimental_zygosity"));
+				row.add(results.getString("colony_id"));
+				row.add(results.getString("parameter"));
+				row.add(results.getString("dependent_variable"));
+				row.add(results.getString("female_mutants"));
+				row.add(results.getString("female_controls"));
+				row.add(results.getString("male_mutants"));
+				row.add(results.getString("male_controls"));
+				row.add(results.getString("globalPValue"));
+				row.add(results.getString("standardEffectSize"));
+				Float effectSize = Math.abs(results.getFloat("female_genotype_estimate") - results.getFloat("male_genotype_estimate"));
+				row.add(effectSize.toString());
+				row.add(results.getString("male_genotype_pvalue"));
+				row.add(results.getString("male_genotype_estimate"));
+				row.add(results.getString("male_genotype_stderr"));
+				row.add(results.getString("female_genotype_pvalue"));
+				row.add(results.getString("female_genotype_estimate"));
+				row.add(results.getString("female_genotype_stderr"));
+				String chartUrl = "No charts for this type of analysis";
+				row.add(chartUrl);
+				res.add(row.toArray(temp));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
 	}
+	
 	
 	PreparedStatement getSexualDimorphismReportQuery(boolean withBodyWeight){
 		String database;
@@ -137,6 +159,30 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 		return statement;
 	}
 	
-	
-	
+	List <String> getSexualDimorphismHeader(){
+		List <String> header = new ArrayList<>();
+		header.add("gene_symbol");
+		header.add("gene_acc");
+		header.add("allele_symbol");
+		header.add("allele_acc");
+		header.add("experimental_zygosity");
+		header.add("colony_id");
+		header.add("parameter");
+		header.add("dependent_variable");
+		header.add("female_mutants");
+		header.add("female_contols");
+		header.add("male_mutants");
+		header.add("male_contols");
+		header.add("globalPValue");
+		header.add("standardEffectSize");
+		header.add("effect_size_difference");
+		header.add("male_genotype_pvalue");
+		header.add("male_genotype_estimate");
+		header.add("male_genotype_stderr");
+		header.add("female_genotype_pvalue");
+		header.add("female_genotype_estimate");
+		header.add("female_genotype_stderr");
+		header.add("graph");
+		return header;
+	}
 }
