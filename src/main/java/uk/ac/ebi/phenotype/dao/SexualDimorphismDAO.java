@@ -7,6 +7,6 @@ public interface SexualDimorphismDAO {
 	
 	public List<String[]>  sexualDimorphismReportNoBodyWeight() ;
 	
+	public List<String[]> sexualDimorphismReportWithBodyWeight();
 	
-	//TODO get sexualDimorphismReportWithBodyWeight 
 }
