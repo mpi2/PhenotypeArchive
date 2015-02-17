@@ -57,23 +57,26 @@ public class SearchPage {
     private SearchDiseaseTable   diseaseTable;
     private SearchAnatomyTable   anatomyTable;
     private SearchProcedureTable procedureTable;
+    private SearchImpcImageTable impcImageTable;
     private SearchImageTable     imageTable;
     
     // These are the core names.
-    public static final String GENE_CORE       = "gene";
-    public static final String PHENOTYPE_CORE  = "phenotype";
-    public static final String DISEASE_CORE    = "disease";
-    public static final String ANATOMY_CORE    = "anatomy";
-    public static final String PROCEDURES_CORE = "procedures";
-    public static final String IMAGES_CORE     = "images";
+    public static final String GENE_CORE        = "gene";
+    public static final String PHENOTYPE_CORE   = "phenotype";
+    public static final String DISEASE_CORE     = "disease";
+    public static final String ANATOMY_CORE     = "anatomy";
+//    public static final String PROCEDURES_CORE = "procedures";
+    public static final String IMPC_IMAGES_CORE = "impc_images";
+    public static final String IMAGES_CORE      = "images";
     
     // These are the li id attribute names.
-    public static final String GENE_ID       = "gene";
-    public static final String PHENOTYPE_ID  = "mp";
-    public static final String DISEASE_ID    = "disease";
-    public static final String ANATOMY_ID    = "ma";
-    public static final String PROCEDURES_ID = "pipeline";
-    public static final String IMAGES_ID     = "images";
+    public static final String GENE_ID        = "gene";
+    public static final String PHENOTYPE_ID   = "mp";
+    public static final String DISEASE_ID     = "disease";
+    public static final String ANATOMY_ID     = "ma";
+//    public static final String PROCEDURES_ID = "pipeline";
+    public static final String IMPC_IMAGES_ID = "impc_images";
+    public static final String IMAGES_ID      = "images";
     
     private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     
@@ -90,7 +93,8 @@ public class SearchPage {
         PHENOTYPES(PHENOTYPE_CORE),
         DISEASES(DISEASE_CORE),
         ANATOMY(ANATOMY_CORE),
-        PROCEDURES(PROCEDURES_CORE),
+//        PROCEDURES(PROCEDURES_CORE),
+        IMPC_IMAGES(IMPC_IMAGES_CORE),
         IMAGES(IMAGES_CORE);
         
         private final String coreName;
@@ -116,8 +120,12 @@ public class SearchPage {
                     this.facetId = ANATOMY_ID;
                     break;
                     
-                case PROCEDURES_CORE:
-                    this.facetId = PROCEDURES_ID;
+//                case PROCEDURES_CORE:
+//                    this.facetId = PROCEDURES_ID;
+//                    break;
+                    
+                case IMPC_IMAGES_CORE:
+                    this.facetId = IMPC_IMAGES_ID;
                     break;
                     
                 case IMAGES_CORE:
@@ -251,8 +259,12 @@ public class SearchPage {
                         facetFilter = new FacetFilter(Facet.ANATOMY);
                         break;
                         
-                    case "Pipeline":
-                        facetFilter = new FacetFilter(Facet.PROCEDURES);
+//                    case "Pipeline":
+//                        facetFilter = new FacetFilter(Facet.PROCEDURES);
+//                        break;
+                        
+                    case "IMPC Images":
+                        facetFilter = new FacetFilter(Facet.IMAGES);
                         break;
                         
                     case "Images":
@@ -351,10 +363,11 @@ public class SearchPage {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + facetId + "']"))).click();
         
         try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'dataTable')]")));              // Wait for facet to load.
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[contains(@class, 'dataTable')]")));            // Wait for facet to load.
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'dataTables_paginate')]")));    // Wait for page buttons to load.
         } catch (Exception e) {
             System.out.println("SearchPage.clickFacet: wait timed out: " + e.getLocalizedMessage());
+            e.printStackTrace();
         }
         
         return getResultCount();
@@ -610,8 +623,11 @@ public class SearchPage {
             case "ma":
                 return Facet.ANATOMY;
                 
-            case "pipeline":
-                return Facet.PROCEDURES;
+//            case "pipeline":
+//                return Facet.PROCEDURES;
+                
+            case "impc_images":
+                return Facet.IMPC_IMAGES;
                 
             case "images":
                 return Facet.IMAGES;
@@ -645,8 +661,12 @@ public class SearchPage {
                 id = "ma";
                 break;
                 
-            case PROCEDURES:
-                id = "pipeline";
+//            case PROCEDURES:
+//                id = "pipeline";
+//                break;
+                
+            case IMPC_IMAGES:
+                id = "impc_images";
                 break;
                 
             case IMAGES:
@@ -669,6 +689,20 @@ public class SearchPage {
         }
         
         return geneTable;
+    }
+    
+    /**
+     * @return Returns the impc_images table [impc_imagesGrid], if there is one;
+     * or an empty one if there is not
+     */
+    public SearchImpcImageTable getImpcImageTable() {
+        if (hasImpcImageTable()) {
+            if (impcImageTable == null) {
+                impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
+            }
+        }
+        
+        return impcImageTable;
     }
     
     /**
@@ -902,6 +936,20 @@ public class SearchPage {
     
     /**
      * 
+     * @return true if this search page has a impc_imagesGrid HTML table; false
+     * otherwise
+     */
+    public boolean hasImpcImageTable() {
+        try {
+            List<WebElement> elements = driver.findElements(By.xpath("//table[@id='impc_imagesGrid']"));
+            return (elements.size() > 0);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * 
      * @return true if this search page has a imagesGrid HTML table; false
      * otherwise
      */
@@ -1123,9 +1171,10 @@ public class SearchPage {
             case ANATOMY:       return getAnatomyTable();
             case DISEASES:      return getDiseaseTable();
             case GENES:         return getGeneTable();
+            case IMPC_IMAGES:   return getImpcImageTable();
             case IMAGES:        return getImageTable();
             case PHENOTYPES:    return getPhenotypeTable();
-            case PROCEDURES:    return getProcedureTable();
+//            case PROCEDURES:    return getProcedureTable();
         }
         
         throw new RuntimeException("SearchPage.getFacetTable(): Invalid facet " + facet + ".");
