@@ -202,7 +202,7 @@ public class ImageService {
 				
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\" AND " + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
 		query.setRows(1000000);
-		query.addField(ImageDTO.MARKER_SYMBOL);
+		query.addField(ImageDTO.GENE_SYMBOL);
 		query.addField(ImageDTO.ALLELE_SYMBOL);
 		query.addField(ImageDTO.COLONY_ID);
 		query.addField(ImageDTO.BIOLOGICAL_SAMPLE_ID);
@@ -250,19 +250,19 @@ public class ImageService {
 				
 				for (SolrDocument doc : group.getResult()){
 					if (row.size() == 0){						
-						row.add(doc.getFieldValues(ImageDTO.MARKER_SYMBOL).iterator().next().toString());
+						row.add(doc.getFieldValues(ImageDTO.GENE_SYMBOL).iterator().next().toString());
 						urlToImagePicker += doc.getFieldValue(ImageDTO.GENE_ACCESSION_ID) + "/";
 						urlToImagePicker += doc.getFieldValue(ImageDTO.PARAMETER_STABLE_ID);
 						if (doc.getFieldValue(ImageDTO.ALLELE_SYMBOL) != null){
-							row.add( "," + doc.getFieldValue(ImageDTO.ALLELE_SYMBOL).toString());
+							row.add( doc.getFieldValue(ImageDTO.ALLELE_SYMBOL).toString());
 						}
-						row.add( "," + doc.getFieldValue(ImageDTO.COLONY_ID).toString());
-						row.add( "," + doc.getFieldValue(ImageDTO.BIOLOGICAL_SAMPLE_ID).toString());
+						row.add( doc.getFieldValue(ImageDTO.COLONY_ID).toString());
+						row.add( doc.getFieldValue(ImageDTO.BIOLOGICAL_SAMPLE_ID).toString());
 						if (doc.getFieldValue(ImageDTO.ZYGOSITY) != null){
-							row.add("," + doc.getFieldValue(ImageDTO.ZYGOSITY).toString());
+							row.add(doc.getFieldValue(ImageDTO.ZYGOSITY).toString());
 						}
-						row.add( "," + doc.getFieldValue(ImageDTO.SEX).toString());
-						row.add("," + doc.getFieldValue(ImageDTO.PHENOTYPING_CENTER).toString());
+						row.add( doc.getFieldValue(ImageDTO.SEX).toString());
+						row.add( doc.getFieldValue(ImageDTO.PHENOTYPING_CENTER).toString());
 					}
 					if(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME) != null){
 						for (Object obj : doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)){
@@ -275,12 +275,12 @@ public class ImageService {
 				}
 				for (String tissue : allParameters){
 					if (params.contains(tissue)){
-						row.add("," + paramValuess.get(params.indexOf(tissue)));
+						row.add( paramValuess.get(params.indexOf(tissue)));
 					}else {
-						row.add(",");
+						row.add("");
 					}
 				}
-				row.add("," + urlToImagePicker);
+				row.add(urlToImagePicker);
 				res.add(row.toArray(aux));
 			}
 			 

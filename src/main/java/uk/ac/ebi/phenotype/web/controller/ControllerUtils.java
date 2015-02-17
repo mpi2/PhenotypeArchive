@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,9 +32,10 @@ public class ControllerUtils {
 	    response.setHeader("Content-Disposition","attachment; filename="+fileName);
 	    OutputStream resOs= response.getOutputStream();  
 	    OutputStream buffOs= new BufferedOutputStream(resOs);   
-	    CSVWriter writer = new CSVWriter(new OutputStreamWriter(buffOs), '\t');
+	    CSVWriter writer = new CSVWriter(new OutputStreamWriter(buffOs));
 	    writer.writeAll(toWrite);
 		writer.close();
 	               
 	}
+	
 }

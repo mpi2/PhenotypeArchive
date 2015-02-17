@@ -52,6 +52,7 @@ public class AlleleDTO {
 	public static final String LATEST_PRODUCTION_CENTRE = "latest_production_centre";
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
 	public static final String ALLELE_NAME = "allele_name";
+	public static final String ALLELE_ACCESSION_ID = "allele_accession_id";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
 	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
@@ -183,6 +184,8 @@ public class AlleleDTO {
 
 	@Field(ALLELE_NAME)
 	private List<String> alleleName = new ArrayList<>();
+	@Field(ALLELE_ACCESSION_ID)
+	private List<String> alleleAccessionIds = new ArrayList<>();
 	@Field(IMITS_ES_CELL_STATUS)
 	private String imitsEsCellStatus;
 	@Field(ES_CELL_STATUS)
@@ -576,7 +579,24 @@ public class AlleleDTO {
 	public void setAlleleName(List<String> alleleName) {
 		this.alleleName = alleleName;
 	}
+	
+	
+	/**
+	 * @return the alleleAccessionIds
+	 */
+	public List<String> getAlleleAccessionIds() {
+		return alleleAccessionIds;
+	}
 
+	/**
+	 * @param alleleAccessionIds
+	 *            the alleleAccessionIds to set
+	 */
+	public void setAlleleAccessionIds(List<String> alleleAccessionIds) {
+		this.alleleAccessionIds = alleleAccessionIds;
+	}
+	
+	
 	/**
 	 * @return the imitsEsCellStatus
 	 */
@@ -1181,56 +1201,15 @@ public class AlleleDTO {
 	
 	@Override
 	public String toString() {
-
-		return "AlleleDTO{" +
-			"mgiAccessionId='" + mgiAccessionId + '\'' +
-			", dataType='" + dataType + '\'' +
-			", markerType='" + markerType + '\'' +
-			", markerSymbol='" + markerSymbol + '\'' +
-			", markerSynonym=" + markerSynonym +
-			", markerName='" + markerName + '\'' +
-			", humanGeneSymbol=" + humanGeneSymbol +
-			", geneLatestEsCellStatus='" + geneLatestEsCellStatus + '\'' +
-			", latestEsCellStatus='" + latestEsCellStatus + '\'' +
-			", geneLatestMouseStatus='" + geneLatestMouseStatus + '\'' +
-			", latestMouseStatus='" + latestMouseStatus + '\'' +
-			", latestProjectStatus='" + latestProjectStatus + '\'' +
-			", latestProductionStatus='" + latestProductionStatus + '\'' +
-			", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
-			", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
-			", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
-			", legacyPhenotypeStatus='" + legacyPhenotypeStatus + '\'' +
-			", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
-			", gfAcc='" + gfAcc + '\'' +
-			", latestPhenotypingCentre=" + latestPhenotypingCentre +
-			", latestProductionCentre=" + latestProductionCentre +
-			", alleleName=" + alleleName +
-			", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
-			", esCellStatus=" + esCellStatus +
-			", imitsMouseStatus='" + imitsMouseStatus + '\'' +
-			", mouseStatus=" + mouseStatus +
-			", phenotypeStatus=" + phenotypeStatus +
-			", productionCentre=" + productionCentre +
-			", phenotypingCentre=" + phenotypingCentre +
-			", goTermIds=" + goTermIds + 
-			", goTermNames" + goTermNames +
-			", goTermDefs" + goTermDefs +
-			", goTermEvids" + goTermEvids +
-			", goTermDomains" + goTermDomains +
-			", diseaseId=" + diseaseId +
-			", diseaseSource=" + diseaseSource +
-			", diseaseTerm=" + diseaseTerm +
-			", diseaseAlts=" + diseaseAlts +
-			", diseaseClasses=" + diseaseClasses +
-			", humanCurated=" + humanCurated +
-			", mouseCurated=" + mouseCurated +
-			", mgiPredicted=" + mgiPredicted +
-			", impcPredicted=" + impcPredicted +
-			", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
-			", impcPredictedKnownGene=" + impcPredictedKnownGene +
-			", mgiNovelPredictedInLocus=" + mgiNovelPredictedInLocus +
-			", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
-			", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes +
-			'}';
+		return String
+				.format("AlleleDTO [status=%s, type=%s, mgiAccessionId=%s, dataType=%s, markerType=%s, markerSymbol=%s, markerSynonym=%s, markerName=%s, humanGeneSymbol=%s, geneLatestEsCellStatus=%s, latestEsCellStatus=%s, geneLatestMouseStatus=%s, latestMouseStatus=%s, latestProjectStatus=%s, latestProductionStatus=%s, imitsPhenotypeStarted=%s, imitsPhenotypeComplete=%s, latestPhenotypeStatus=%s, imitsPhenotypeStatus=%s, legacyPhenotypeStatus=%s, gfAcc=%s, latestPhenotypingCentre=%s, latestProductionCentre=%s, alleleName=%s, alleleAccessionIds=%s, imitsEsCellStatus=%s, esCellStatus=%s, imitsMouseStatus=%s, mouseStatus=%s, phenotypeStatus=%s, productionCentre=%s, phenotypingCentre=%s, goTermIds=%s, goTermNames=%s, goTermDefs=%s, goTermEvids=%s, goTermDomains=%s, uniprotAccs=%s, pfama_jsons=%s, scdb_ids=%s, scdb_links=%s, clan_ids=%s, clan_accs=%s, clan_descs=%s, pfama_ids=%s, pfama_accs=%s, pfama_go_ids=%s, pfama_go_terms=%s, pfama_go_cats=%s, diseaseId=%s, diseaseSource=%s, diseaseTerm=%s, diseaseAlts=%s, diseaseClasses=%s, humanCurated=%s, mouseCurated=%s, mgiPredicted=%s, impcPredicted=%s, mgiPredictedKnownGene=%s, impcPredictedKnownGene=%s, mgiNovelPredictedInLocus=%s, impcNovelPredictedInLocus=%s, diseaseHumanPhenotypes=%s]",
+						status, type, mgiAccessionId, dataType, markerType, markerSymbol, markerSynonym, markerName, humanGeneSymbol, geneLatestEsCellStatus,
+						latestEsCellStatus, geneLatestMouseStatus, latestMouseStatus, latestProjectStatus, latestProductionStatus, imitsPhenotypeStarted,
+						imitsPhenotypeComplete, latestPhenotypeStatus, imitsPhenotypeStatus, legacyPhenotypeStatus, gfAcc, latestPhenotypingCentre,
+						latestProductionCentre, alleleName, alleleAccessionIds, imitsEsCellStatus, esCellStatus, imitsMouseStatus, mouseStatus,
+						phenotypeStatus, productionCentre, phenotypingCentre, goTermIds, goTermNames, goTermDefs, goTermEvids, goTermDomains, uniprotAccs,
+						pfama_jsons, scdb_ids, scdb_links, clan_ids, clan_accs, clan_descs, pfama_ids, pfama_accs, pfama_go_ids, pfama_go_terms, pfama_go_cats,
+						diseaseId, diseaseSource, diseaseTerm, diseaseAlts, diseaseClasses, humanCurated, mouseCurated, mgiPredicted, impcPredicted,
+						mgiPredictedKnownGene, impcPredictedKnownGene, mgiNovelPredictedInLocus, impcNovelPredictedInLocus, diseaseHumanPhenotypes);
 	}
 }

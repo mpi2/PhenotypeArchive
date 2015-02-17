@@ -25,6 +25,7 @@ import java.util.List;
 public class SangerGeneBean {
 
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
+	public static final String MGI_ALLELE_ACCESSION_ID = "allele_accession_id";
 	public static final String FEATURE_TYPE = "feature_type";
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String LATEST_ES_CELL_STATUS = "latest_es_cell_status";
@@ -38,6 +39,8 @@ public class SangerGeneBean {
 
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;
+	@Field(MGI_ALLELE_ACCESSION_ID)
+	private List<String> mgiAlleleAccessionIds;
 	@Field(FEATURE_TYPE)
 	private String featureType;
 	@Field(MARKER_SYMBOL)
@@ -73,7 +76,23 @@ public class SangerGeneBean {
 	public void setMgiAccessionId(String mgiAccessionId) {
 		this.mgiAccessionId = mgiAccessionId;
 	}
+	
+	/**
+	 * @return the mgiAlleleAccessionIds
+	 */
+	public List<String> getMgiAlleleAccessionIds() {
+		return mgiAlleleAccessionIds;
+	}
 
+	/**
+	 * @param mgiAlleleAccessionId
+	 *            the mgiAlleleAccessionId to set
+	 */
+	public void setMgiAlleleAccessionIds(List<String> mgiAlleleAccessionIds) {
+		this.mgiAlleleAccessionIds = mgiAlleleAccessionIds;
+	}
+
+	
 	/**
 	 * @return the featureType
 	 */

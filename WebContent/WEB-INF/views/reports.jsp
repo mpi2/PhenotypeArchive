@@ -17,19 +17,25 @@
 				<div class="block block-system">
 					<div class="content">
 						<div class="node node-gene">
-							<h1 class="title" id="top">IMPC Release Notes</h1>	 
+							<h1 class="title" id="top">IMPC Data Reports</h1>	 
 				
 							<div class="section">
 								<div class="inner">
-						
-									<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a>
+									<p> <a href="${baseUrl}/genego">GO annotations to IMPC genes</a> </p>
+									<p>	<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a> </p>
+									<p> <a href="${baseUrl}/centerProgressCsv">Procedure Completeness </a> </p>
+									<p> <a href="${baseUrl}/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
+									<p> <a href="${baseUrl}/sexualDimorphismWBodyWeight">Sexual Dimorphism With Body Weight [IN PROGRESS]</a> </p>
 								</div>
 							</div>
+							
 					</div>
 				</div>
 			</div>
 		</div>
 		
+		
+		
 	</jsp:body>
-	
+		
 	</t:genericpage>
