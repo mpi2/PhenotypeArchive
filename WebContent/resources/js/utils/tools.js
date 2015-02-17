@@ -1921,7 +1921,7 @@
         }
 
         oParams.fq = oUrlParams.fq;
-        oParams.rows = 10;
+        //oParams.rows = 10;
 
         //qs(query slop) parameter can be used to add slop to any explicit phrase queries
         //oParams.qs = 100;
@@ -2017,12 +2017,13 @@
 
     $.fn.invokeDataTable = function(oInfos) {
 
+    	console.log(oInfos);
         var oDtable = $('table#' + oInfos.mode).dataTable({
             "bSort": false,
             "bProcessing": true,
             "bServerSide": true,
             //"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
-            "sDom": "<<'#exportSpinner'><'#tableTool'>r>t<<ip>>",
+            "sDom": "<<'#exportSpinner'>l<'#tableTool'>r>t<<ip>>",
             "sPaginationType": "bootstrap",
             "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 
