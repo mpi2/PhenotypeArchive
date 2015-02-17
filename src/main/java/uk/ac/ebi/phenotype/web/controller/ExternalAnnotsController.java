@@ -34,23 +34,52 @@ import uk.ac.ebi.generic.util.SolrIndex;
 
 
 @Controller
-public class GoTermController {
+public class ExternalAnnotsController {
 	
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
 	private SolrIndex solrIndex;
 	
-	@RequestMapping(value = "/gostats", method = RequestMethod.GET)
-	public ResponseEntity<String> statsTable(
+	@RequestMapping(value="/genefam", method=RequestMethod.GET)
+	public String loadAutosuggestSearchFacetPage(
+			@RequestParam(value = "q", required = false) String q,
+			@RequestParam(value = "core", required = false) String core,
+			@RequestParam(value = "fq", required = false) String fq,
+			HttpServletRequest request, 
+			Model model) throws IOException, URISyntaxException {		
+
+		//Map<String, Map<String, Map<String, JSONArray>>> stats = solrIndex.getGO2ImpcGeneAnnotationStats();
+		
+		
+		model.addAttribute("q", q);
+		model.addAttribute("core", core);
+		model.addAttribute("fq", fq);
+		
+		//String dataTableJson = solrIndex.getMgiGenesClansDataTable(request);
+		String dataTableJson = solrIndex.getMgiGenesClansPlainTable(request);
+		model.addAttribute("datatable", dataTableJson);
+		System.out.println(dataTableJson);
+		
+		return "externalAnnots";
+	}
+	
+	
+	@RequestMapping(value = "/genego", method = RequestMethod.GET)
+	//public ResponseEntity<String> statsTable(
+	public String statsTable(
 			//@RequestParam(value = "q", required = false) String solrParams,
-			//@RequestParam(value = "subfacet", required = false) String subfacet,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
 
 		Map<String, Map<String, Map<String, JSONArray>>> stats = solrIndex.getGO2ImpcGeneAnnotationStats();
-		return new ResponseEntity<String>(createTable(stats), createResponseHeaders(), HttpStatus.CREATED);
+		//ResponseEntity<String> goTable = new ResponseEntity<String>(createTable(stats), createResponseHeaders(), HttpStatus.CREATED);
+		List<String> data = createTable(stats);
+		model.addAttribute("legend", data.get(0));
+		model.addAttribute("goTable", data.get(1));
+		
+		return "Go";
 	}
 	
 	private HttpHeaders createResponseHeaders(){
@@ -59,8 +88,8 @@ public class GoTermController {
 		return responseHeaders;
 	}
 	
-	public String createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
-		
+	public List<String> createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
+	
 		StringBuilder builder = new StringBuilder();
 		String legend = "F = molecular function<br>P = biological process<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
 		
@@ -74,12 +103,17 @@ public class GoTermController {
 		evidMap.put("ISO", "Inferred from Sequence Orthology");
 		evidMap.put("ND", "No biological Data available");
 		
-		builder.append(legend);
-		builder.append("<table>");
-		builder.append("<tbody>");
+		List<String> data = new ArrayList<>();
+		data.add(legend);
+		//builder.append(legend);
+		//builder.append("<table>");
+		//builder.append("<tbody>");
 		
 		for ( String key : stats.keySet() ) {
 		    
+			builder.append("<table class='go'>");
+			builder.append("<tbody>");
+			
 		    String phenoCount = " : " + stats.get(key).get("allPheno").get(key).get(0);
 		    
 		    builder.append("<tr>");
@@ -147,11 +181,13 @@ public class GoTermController {
     		     
     			}
         	}
+        	builder.append("</tbody></table>");
 		}
 		
 		
-		builder.append("</tbody>");
+		//builder.append("</tbody></table>");
 		String htmlTable = builder.toString();
+		data.add(htmlTable);
 		//log.info(htmlTable);
 	
 		/* table looks similar to this:
@@ -175,7 +211,7 @@ public class GoTermController {
 		ISS	[267(F/P), 219(F), 244(P)]
 		*/
 		
-		return htmlTable;
+		return data;
 	}
 
 }
