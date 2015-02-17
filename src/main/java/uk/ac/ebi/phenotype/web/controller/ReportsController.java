@@ -43,10 +43,9 @@ public class ReportsController {
 	
 	@RequestMapping(value="/sexualDimorphism", method = RequestMethod.GET)
 	public void getSexualDimorphismReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
-		
-		System.out.println("CALLED sexualDimorphism");		
+			
 		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight();
-	    ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
+	    ControllerUtils.writeAsCSV(result, "sexual_dimorphism_no_body_weight_IMPC.csv", response);
 	};
 		
 	@RequestMapping(value="/reports", method = RequestMethod.GET)
