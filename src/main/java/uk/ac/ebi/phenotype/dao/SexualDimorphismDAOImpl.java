@@ -32,7 +32,7 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
         + " gender_male_ko_pvalue as male_genotype_pvalue, gender_male_ko_estimate as male_genotype_estimate, "
         + " gender_male_ko_stderr_estimate male_genotype_stderr, gender_female_ko_pvalue as female_genotype_pvalue, "
         + " gender_female_ko_estimate as female_genotype_estimate, gender_female_ko_stderr_estimate as female_genotype_stderr"
-        + " FROM logistic_regression.stats_unidimensional_results sur "
+        + " FROM stats_unidimensional_results sur "
         + " INNER JOIN biological_model_allele bma ON bma.biological_model_id = sur.experimental_id"
         + " INNER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id = sur.experimental_id"
         + " INNER JOIN phenotype_parameter pp on pp.id = sur.parameter_id"
@@ -41,6 +41,7 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
         + " WHERE sur.status like \"SUCCESS\" AND classification_tag not in (\"Both genders equally\", \"No significant change\", \"If phenotype is significant - can not classify effect\", \"If phenotype is significant it is for the one sex tested\")"
         + "	AND statistical_method not in (\"Wilcoxon rank sum test with continuity correction\") AND interaction_significance = 1 AND project_id not in (1,8)"
         + " LIMIT 100000;";
+        
         List<String[]> res = new ArrayList<>();
         String[] temp = new String[1];
         
