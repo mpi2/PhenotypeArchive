@@ -22,6 +22,7 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -874,4 +875,5 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
         return data;
     }
+    
 }

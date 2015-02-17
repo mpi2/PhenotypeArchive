@@ -1205,6 +1205,7 @@ public class FileExportController {
         // column names	
         String fields = "Gene Symbol"
         		+ "\tMGI gene link"
+        		+ "\tPhenotyping status"
         		+ "\tGO Term Id"
         		+ "\tGO Term Name"
         		+ "\tGO Term Evidence"
@@ -1215,6 +1216,7 @@ public class FileExportController {
         for (int i = 0; i < docs.size(); i ++) {
             JSONObject doc = docs.getJSONObject(i);
             String gId = doc.getString("mgi_accession_id");
+            String phenoStatus = doc.getString("latest_phenotype_status");
 
             JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
             JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
@@ -1222,20 +1224,48 @@ public class FileExportController {
             JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
             String NOINFO = "no info available";
            
-            for ( int j=0; j< _goTermEvids.size(); j++ ) {
-            	String evid = _goTermEvids.get(j).toString();
-            	if ( evidsList.contains(evid) ){
-            		List<String> data = new ArrayList();
-
-	            	data.add(doc.getString("marker_symbol"));
-	            	data.add(hostName + baseUrl + gId);
-	            	data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
-	            	data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
-	            	data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);
-	            	data.add(_goTermDomains.size() > 0 ? _goTermDomains.get(j).toString() : NOINFO);
+            if ( _goTermIds.size() == 0 ){
+            	List<String> data = new ArrayList();
+            	data.add(doc.getString("marker_symbol"));
+            	data.add(hostName + baseUrl + gId);
+            	data.add(phenoStatus);
+            	data.add(NOINFO);
+            	data.add(NOINFO);
+            	data.add(NOINFO);
+            	data.add(NOINFO);
+            	rowData.add(StringUtils.join(data, "\t"));
+            }
+            else {
+            
+	            for ( int j=0; j< _goTermEvids.size(); j++ ) {
 	            	
-	            	rowData.add(StringUtils.join(data, "\t"));
-            	}
+	            	String evid = _goTermEvids.get(j).toString();
+	            	
+	            	if (evidsList.get(0).equals("All GO") || evidsList.get(0).equals("All dataset") ){
+	            		List<String> data = new ArrayList();
+	            		data.add(doc.getString("marker_symbol"));
+		            	data.add(hostName + baseUrl + gId);
+		            	data.add(phenoStatus);
+		            	data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
+		            	data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
+		            	data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);
+		            	data.add(_goTermDomains.size() > 0 ? _goTermDomains.get(j).toString() : NOINFO);
+		            	rowData.add(StringUtils.join(data, "\t"));
+	            	}
+	            	else { 
+	            		if ( evidsList.contains(evid) ){
+	            			List<String> data = new ArrayList();
+			            	data.add(doc.getString("marker_symbol"));
+			            	data.add(hostName + baseUrl + gId);
+			            	data.add(phenoStatus);
+			            	data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
+			            	data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
+			            	data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);
+			            	data.add(_goTermDomains.size() > 0 ? _goTermDomains.get(j).toString() : NOINFO);
+			            	rowData.add(StringUtils.join(data, "\t"));
+	            		}
+	            	}
+	            }
             }
         }
         return rowData;
