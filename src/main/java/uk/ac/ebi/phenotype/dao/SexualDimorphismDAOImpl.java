@@ -24,30 +24,14 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 
 	@Transactional(readOnly = true)
 	public List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) {
-		
-		PreparedStatement statement = null;        
-        String command = "SELECT  gf.symbol as gene_symbol, gf.acc as gene_acc, allele_acc, allele.symbol as allele_symbol, "
-        + " experimental_zygosity, colony_id, allele_acc, pp.name as parameter, dependent_variable, female_mutants, female_controls, "
-        + " male_mutants, male_controls, null_test_significance as globalPValue, genotype_percentage_change as standardEffectSize, "
-        + " gender_male_ko_pvalue as male_genotype_pvalue, gender_male_ko_estimate as male_genotype_estimate, "
-        + " gender_male_ko_stderr_estimate male_genotype_stderr, gender_female_ko_pvalue as female_genotype_pvalue, "
-        + " gender_female_ko_estimate as female_genotype_estimate, gender_female_ko_stderr_estimate as female_genotype_stderr"
-        + " FROM stats_unidimensional_results sur "
-        + " INNER JOIN biological_model_allele bma ON bma.biological_model_id = sur.experimental_id"
-        + " INNER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id = sur.experimental_id"
-        + " INNER JOIN phenotype_parameter pp on pp.id = sur.parameter_id"
-        + " INNER JOIN allele on allele.acc = bma.allele_acc"
-        + " INNER JOIN genomic_feature gf on gf.acc = bmgf.gf_acc "
-        + " WHERE sur.status like \"SUCCESS\" AND classification_tag not in (\"Both genders equally\", \"No significant change\", \"If phenotype is significant - can not classify effect\", \"If phenotype is significant it is for the one sex tested\")"
-        + "	AND statistical_method not in (\"Wilcoxon rank sum test with continuity correction\") AND interaction_significance = 1 AND project_id not in (1,8)"
-        + " LIMIT 100000;";
+		       
+        PreparedStatement statement = getSexualDimorphismReportQuery(false);
         
         List<String[]> res = new ArrayList<>();
         String[] temp = new String[1];
         
         try (Connection connection = getConnection()) {
     			
-    		statement = connection.prepareStatement(command);
      		ResultSet results = statement.executeQuery();
 
  			List <String> header = new ArrayList<>();
@@ -118,6 +102,40 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 		return null;
 	}
 	
+	PreparedStatement getSexualDimorphismReportQuery(boolean withBodyWeight){
+		String database;
+		PreparedStatement statement = null;
+		
+		if (withBodyWeight){
+			database = "logistic_regression.";
+		}else {
+			database = "";
+		}
+		
+		String command = "SELECT  gf.symbol as gene_symbol, gf.acc as gene_acc, allele_acc, allele.symbol as allele_symbol, "
+        + " experimental_zygosity, colony_id, allele_acc, pp.name as parameter, dependent_variable, female_mutants, female_controls, "
+        + " male_mutants, male_controls, null_test_significance as globalPValue, genotype_percentage_change as standardEffectSize, "
+        + " gender_male_ko_pvalue as male_genotype_pvalue, gender_male_ko_estimate as male_genotype_estimate, "
+        + " gender_male_ko_stderr_estimate male_genotype_stderr, gender_female_ko_pvalue as female_genotype_pvalue, "
+        + " gender_female_ko_estimate as female_genotype_estimate, gender_female_ko_stderr_estimate as female_genotype_stderr"
+        + " FROM " + database + "stats_unidimensional_results sur "
+        + " INNER JOIN " + database + "biological_model_allele bma ON bma.biological_model_id = sur.experimental_id"
+        + " INNER JOIN " + database + "biological_model_genomic_feature bmgf ON bmgf.biological_model_id = sur.experimental_id"
+        + " INNER JOIN " + database + "phenotype_parameter pp on pp.id = sur.parameter_id"
+        + " INNER JOIN " + database + "allele on allele.acc = bma.allele_acc"
+        + " INNER JOIN " + database + "genomic_feature gf on gf.acc = bmgf.gf_acc "
+        + " WHERE sur.status like \"SUCCESS\" AND classification_tag not in (\"Both genders equally\", \"No significant change\", \"If phenotype is significant - can not classify effect\", \"If phenotype is significant it is for the one sex tested\")"
+        + "	AND statistical_method not in (\"Wilcoxon rank sum test with continuity correction\") AND interaction_significance = 1 AND project_id not in (1,8)"
+        + " AND null_test_significance < 0.0001 LIMIT 100000;";
+		
+		try (Connection connection = getConnection()) {
+			statement = connection.prepareStatement(command);
+		} catch(Exception e){
+	        	e.printStackTrace();
+	    }
+		
+		return statement;
+	}
 	
 	
 	
