@@ -264,7 +264,7 @@ public class SearchPage {
 //                        break;
                         
                     case "IMPC Images":
-                        facetFilter = new FacetFilter(Facet.IMAGES);
+                        facetFilter = new FacetFilter(Facet.IMPC_IMAGES);
                         break;
                         
                     case "Images":
