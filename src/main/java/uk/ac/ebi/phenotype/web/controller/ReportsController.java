@@ -49,14 +49,14 @@ public class ReportsController {
 	@RequestMapping(value="/sexualDimorphism", method = RequestMethod.GET)
 	public void getSexualDimorphismReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
-		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight(config.get("baseUrl"));
+		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight(config.get("drupalBaseUrl")+ "/data");
 	    ControllerUtils.writeAsCSV(result, "sexual_dimorphism_no_body_weight_IMPC.csv", response);
 	};
 	
 	@RequestMapping(value="/sexualDimorphismWithBodyWeight", method = RequestMethod.GET)
 	public void getSexualDimorphismWithBodyWeightReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
-		List<String[]> result = sdDAO.sexualDimorphismReportWithBodyWeight(config.get("baseUrl"));
+		List<String[]> result = sdDAO.sexualDimorphismReportWithBodyWeight(config.get("drupalBaseUrl")+ "/data");
 	    ControllerUtils.writeAsCSV(result, "sexual_dimorphism_with_body_weight_IMPC.csv", response);
 	};
 		
