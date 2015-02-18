@@ -160,7 +160,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             "  db.name        AS resource_fullname,\n" +
             "  db.short_name  AS resource_name\n" +
             "FROM phenotype_call_summary s\n" +
-            "  INNER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id\n" +
+            "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id\n" +
             "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id\n" +
             "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id\n" +
             "  INNER JOIN organisation o ON s.organisation_id = o.id\n" +
