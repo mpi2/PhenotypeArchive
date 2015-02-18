@@ -47,6 +47,7 @@ import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
 import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer;
 
 
 
