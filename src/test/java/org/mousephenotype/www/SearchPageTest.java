@@ -435,7 +435,7 @@ public class SearchPageTest {
             for (int i=0; i<size; i++) {
                 int count = i+1;
                 String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
-                
+//geneSymbol1 = "D10Mit24";
                 driver.get(baseUrl + "/search?q="+geneSymbol1);
                 driver.navigate().refresh();
                 System.out.println("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t. URL: " + driver.getCurrentUrl());
@@ -606,6 +606,7 @@ public class SearchPageTest {
             try {
                 SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
                 searchPage.clickFacetById(core);
+//                TestUtils.sleep(2000);
                 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
                 expectedShowingPhrase = showing_1;
@@ -885,8 +886,49 @@ public class SearchPageTest {
             Facet facet = Facet.IMAGES;    
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
-            searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.SECOND_NUMBERED);
+//            searchPage.clickPageButton();
+//searchPage.clickPageButton(SearchPage.PageDirective.LAST);
+//TestUtils.sleep(2000);
+            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+            status.add(searchPage.validateDownload(facet));
+        } catch (Exception e) {
+            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            System.out.println(message);
+            e.printStackTrace();
+            status.addError(message);
+        } finally {
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            } else {
+                successList.add(testName + ": SUCCESS.");
+            }
+
+            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        }
+    }
+    
+    // This test was spawned from testImageFacetImageView() when it came across
+    // a 500 response from the server when the last page was selected.
+    @Test
+//@Ignore
+    public void testImageFacetImageViewLastPage() throws Exception {
+        String testName = "testImageFacetImageView";
+        String searchString = "";
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        try {
+            String target = baseUrl + "/search";
+// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            Facet facet = Facet.IMAGES;    
+            searchPage.clickFacet(facet);
+            searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
+            searchPage.clickPageButton(SearchPage.PageDirective.LAST);
+            TestUtils.sleep(2000);
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
         } catch (Exception e) {
