@@ -15,6 +15,7 @@
  */
 package uk.ac.ebi.phenotype.web.pojo;
 
+import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.pojo.*;
 
 import java.math.BigDecimal;
@@ -189,19 +190,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     public String buildGraphUrl(String baseUrl) {
     	String url= baseUrl;
     	if (!isPreQc){
-			url += "/charts?accession=" + gene.getId().getAccession();
-			url += "&zygosity=" + zygosity;
-			url += "&allele_accession=" + allele.getId().getAccession();
-			if (parameter != null) {
-				url += "&parameter_stable_id=" + parameter.getStableId();
-			}
-
-			if (pipeline != null) {
-				url += "&pipeline_stable_id=" + pipeline.getStableId();
-			}
-			if (phenotypingCenter != null) {
-				url += "&phenotyping_center=" + phenotypingCenter;
-			}
+    		url = ChartUtils.getChartPageUrlPostQc(baseUrl, gene.getId().getAccession(), allele.getId().getAccession(), zygosity, parameter.getStableId(),
+    		pipeline.getStableId(), phenotypingCenter);
         } else {
 		    // Need to use the drupal base url because phenoview is not mapped under the /data url
 		    url = config.get("drupalBaseUrl");

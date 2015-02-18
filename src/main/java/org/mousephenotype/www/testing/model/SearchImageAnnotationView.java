@@ -163,11 +163,8 @@ public class SearchImageAnnotationView {
         // Save the body values.
         List<WebElement> trElements = driver.findElements(By.xpath("//table[@id='imagesGrid']/tbody/tr"));
         if ( ! trElements.isEmpty()) {
-            int index = 0;
             for (WebElement trElement : trElements) {
                 ImageRow bodyRow = new ImageRowFactory(trElement).getImageRow();
-//System.out.println("bodyRowAnnotation[ " + index + " ]: " + bodyRow.toString() + "\n");
-                index++;
                 bodyRows.add(bodyRow);
             }
         }
@@ -204,17 +201,20 @@ public class SearchImageAnnotationView {
             // Example parsings: "Gene: Pus7l (1 image)"                "Pus7l" and "1 image" are links.
             //                   "Procedure: Dysmorphology (1 image)"   "1 image" is the only link.
             String[] line1FirstPart = line1Element.getText().split(":");    // [0]: 'Gene'           [1]: 'Pus7l (1 image)'      or
-                                                                            // [0]: 'Procedure'      [1]: 'Dysmorphology (1 image)'
+                                                                            // [0]: 'Procedure'      [1]: 'Dysmorphology Observation V2 (Mouse GP) 17-02-2009 (1 image)'
             annotationType = line1FirstPart[0].trim();
             
-            String[] line1SecondPart = line1FirstPart[1].split("\\(");      // [0]: 'Pus71 '         [1]: '1 image)'    or
-                                                                            // [0]: 'Dysmorphology ' [1]: '1 image)'
-            annotationTerm = line1SecondPart[0].trim();
-            int spacePos = line1SecondPart[1].indexOf(" ");
-            String sImageCount = line1SecondPart[1].substring(0, spacePos);
+            int lastLParenIndex = line1FirstPart[1].lastIndexOf("(");
+            annotationTerm = line1FirstPart[1].substring(0, lastLParenIndex - 1).trim();
+            
+            String line1SecondPart = line1FirstPart[1].substring(lastLParenIndex);  // [0]: 'Pus71 '         [1]: '1 image)'    or
+            int spacePos = line1SecondPart.indexOf(" ");                            // [0]: 'Dysmorphology Observation V2 (Mouse GP) 17-02-2009 ' [1]: '1 image)'
+            String sImageCount = line1SecondPart.substring(1, spacePos);
+            
             Integer imageCount = Utils.tryParseInt(sImageCount);
             if (imageCount == null) {
-                message = "ERROR: SearchImageAnnotationView.ImageRowDefault.ImageRowDefault(): Couldn't find image count.";
+                
+                message = "ERROR: SearchImageAnnotationView.ImageRowDefault.ImageRowDefault(): Couldn't find image count. URL: " + driver.getCurrentUrl();
                 System.out.println(message);
                 throw new RuntimeException(message);
             }
