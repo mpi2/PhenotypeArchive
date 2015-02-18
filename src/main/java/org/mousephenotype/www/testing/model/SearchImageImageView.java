@@ -90,7 +90,7 @@ public class SearchImageImageView {
             String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
             ImageRow pageRow = bodyRows.get(i);
             
-            // Verify the components. Drive from download file.
+            // Verify the components.
             
             // Column 0: annotationTerm.
             String dnldTermCollection = downloadRow[0];
