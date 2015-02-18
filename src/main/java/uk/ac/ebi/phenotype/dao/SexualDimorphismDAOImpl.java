@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer;
 
 
 public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements SexualDimorphismDAO {
@@ -52,8 +53,7 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
      			row.add(results.getString("male_controls"));
      			row.add(results.getString("globalPValue"));
      			row.add(results.getString("standardEffectSize"));
-     			Float effectSize = Math.abs(results.getFloat("female_genotype_estimate") - results.getFloat("male_genotype_estimate"));
-     			row.add(effectSize.toString());
+				row.add(getEffectDifference(results.getString("standardEffectSize")).toString());
      			row.add(results.getString("male_genotype_pvalue"));
      			row.add(results.getString("male_genotype_estimate"));
      			row.add(results.getString("male_genotype_stderr"));
@@ -104,15 +104,15 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 				row.add(results.getString("male_controls"));
 				row.add(results.getString("globalPValue"));
 				row.add(results.getString("standardEffectSize"));
-				Float effectSize = Math.abs(results.getFloat("female_genotype_estimate") - results.getFloat("male_genotype_estimate"));
-				row.add(effectSize.toString());
+				row.add(getEffectDifference(results.getString("standardEffectSize")).toString());
 				row.add(results.getString("male_genotype_pvalue"));
 				row.add(results.getString("male_genotype_estimate"));
 				row.add(results.getString("male_genotype_stderr"));
 				row.add(results.getString("female_genotype_pvalue"));
 				row.add(results.getString("female_genotype_estimate"));
 				row.add(results.getString("female_genotype_stderr"));
-				String chartUrl = "No charts for this type of analysis";
+     			String chartUrl = ChartUtils.getChartPageUrlPostQc(baseUrl, results.getString("gene_acc"), results.getString("allele_acc"),
+ 					ZygosityType.valueOf(results.getString("experimental_zygosity")), results.getString("dependent_variable"), null, null);
 				row.add(chartUrl);
 				res.add(row.toArray(temp));
 			}
@@ -175,7 +175,7 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 		header.add("male_contols");
 		header.add("globalPValue");
 		header.add("standardEffectSize");
-		header.add("effect_size_difference");
+		header.add("effect_percentage_difference");
 		header.add("male_genotype_pvalue");
 		header.add("male_genotype_estimate");
 		header.add("male_genotype_stderr");
@@ -185,4 +185,12 @@ public class SexualDimorphismDAOImpl  extends HibernateDAOImpl implements Sexual
 		header.add("graph");
 		return header;
 	}
+	
+
+	public Double getEffectDifference(String field){
+		Double female = StatisticalResultIndexer.getFemalePercentageChange(field);
+		Double male = StatisticalResultIndexer.getMalePercentageChange(field);
+		return Math.abs(female-male);
+	}
+	
 }
