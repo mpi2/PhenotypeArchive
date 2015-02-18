@@ -155,18 +155,18 @@ public class SearchPageTest {
         params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:*");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
-        final String geneParams      = "/gene/select?" + commonParam + "&" + params.get("gene");
-        final String mpParams        = "/mp/select?" + commonParam + "&" + params.get("mp");
-        final String diseaseParams   = "/disease/select?" + commonParam + "&" + params.get("disease");
-        final String maParams        = "/ma/select?" + commonParam + "&" + params.get("ma");
-        final String pipelineParams  = "/pipeline/select?" + commonParam + "&" + params.get("pipeline");
-        final String imagesParams    = "/images/select?" + commonParam + "&" + params.get("images");
+        final String geneParams        = "/gene/select?"        + commonParam + "&" + params.get("gene");
+        final String mpParams          = "/mp/select?"          + commonParam + "&" + params.get("mp");
+        final String diseaseParams     = "/disease/select?"     + commonParam + "&" + params.get("disease");
+        final String maParams          = "/ma/select?"          + commonParam + "&" + params.get("ma");
+        final String impc_imagesParams = "/impc_images/select?" + commonParam + "&" + params.get("impc_images");
+        final String imagesParams      = "/images/select?"      + commonParam + "&" + params.get("images");
 
         paramList.add(geneParams);
         paramList.add(mpParams);
         paramList.add(diseaseParams);
         paramList.add(maParams);
-        paramList.add(pipelineParams);
+        paramList.add(impc_imagesParams);
         paramList.add(imagesParams);
 
         cores.add("gene");
@@ -946,8 +946,6 @@ public class SearchPageTest {
                 , SearchPage.Facet.IMAGES
                 , SearchPage.Facet.IMPC_IMAGES
                 , SearchPage.Facet.PHENOTYPES
-                  // 17-Feb-2015 - commented out, as Terry & the team said procedures/pipelines are no longer included in the facet list (but may have to later).
-//                , SearchPage.Facet.PROCEDURES
             };
 
             for (SearchPage.Facet facet : facets) {
@@ -1002,6 +1000,7 @@ public class SearchPageTest {
             message = "FAIL: Unable to get facet count from Solr.";
             status.addError(message);
             System.out.println(message);
+            return status;
         }
 
         System.out.println("facetCountEngine(): Page target URL: " + target);

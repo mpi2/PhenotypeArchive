@@ -93,7 +93,6 @@ public class SearchPage {
         PHENOTYPES(PHENOTYPE_CORE),
         DISEASES(DISEASE_CORE),
         ANATOMY(ANATOMY_CORE),
-//        PROCEDURES(PROCEDURES_CORE),
         IMPC_IMAGES(IMPC_IMAGES_CORE),
         IMAGES(IMAGES_CORE);
         
@@ -119,10 +118,6 @@ public class SearchPage {
                 case ANATOMY_CORE:
                     this.facetId = ANATOMY_ID;
                     break;
-                    
-//                case PROCEDURES_CORE:
-//                    this.facetId = PROCEDURES_ID;
-//                    break;
                     
                 case IMPC_IMAGES_CORE:
                     this.facetId = IMPC_IMAGES_ID;
@@ -259,12 +254,8 @@ public class SearchPage {
                         facetFilter = new FacetFilter(Facet.ANATOMY);
                         break;
                         
-//                    case "Pipeline":
-//                        facetFilter = new FacetFilter(Facet.PROCEDURES);
-//                        break;
-                        
                     case "IMPC Images":
-                        facetFilter = new FacetFilter(Facet.IMAGES);
+                        facetFilter = new FacetFilter(Facet.IMPC_IMAGES);
                         break;
                         
                     case "Images":
@@ -623,9 +614,6 @@ public class SearchPage {
             case "ma":
                 return Facet.ANATOMY;
                 
-//            case "pipeline":
-//                return Facet.PROCEDURES;
-                
             case "impc_images":
                 return Facet.IMPC_IMAGES;
                 
@@ -660,10 +648,6 @@ public class SearchPage {
             case ANATOMY:
                 id = "ma";
                 break;
-                
-//            case PROCEDURES:
-//                id = "pipeline";
-//                break;
                 
             case IMPC_IMAGES:
                 id = "impc_images";
@@ -1174,7 +1158,6 @@ public class SearchPage {
             case IMPC_IMAGES:   return getImpcImageTable();
             case IMAGES:        return getImageTable();
             case PHENOTYPES:    return getPhenotypeTable();
-//            case PROCEDURES:    return getProcedureTable();
         }
         
         throw new RuntimeException("SearchPage.getFacetTable(): Invalid facet " + facet + ".");
