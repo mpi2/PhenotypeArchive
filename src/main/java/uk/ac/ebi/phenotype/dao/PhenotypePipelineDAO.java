@@ -25,8 +25,8 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
@@ -138,6 +138,12 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	
 	public String getCategoryDescription (int parameterId, String category) throws SQLException;
 
+	/**
+	 * @author tudose
+	 * @return <ProcedureStableID, [Set of all MP ids that can be associated]>
+	 * @throws SQLException
+	 */
+	public Map<String, Set<String>> getMpsForParameters() throws SQLException; 
 	
 	
 }

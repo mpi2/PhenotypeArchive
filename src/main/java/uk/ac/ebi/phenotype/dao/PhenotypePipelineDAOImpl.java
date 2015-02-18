@@ -28,8 +28,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Query;
@@ -47,6 +49,7 @@ import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
 import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer;
 
 
 
@@ -339,6 +342,37 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		}
 		return category;
 	}
+	
+	public Map<String, Set<String>> getMpsForParameters() throws SQLException{
+
+		Map<String, Set<String>>  res = new HashMap();
+		String query = "SELECT pProc.stable_id as procedure_stable_id, ontology_acc  FROM phenotype_parameter_lnk_ontology_annotation pploa "
+		+ "INNER JOIN phenotype_parameter pp on pp.id = pploa.parameter_id "
+		+ "INNER JOIN phenotype_parameter_ontology_annotation ppoa on ppoa.id=pploa.annotation_id "
+		+ "INNER JOIN phenotype_procedure_parameter ppp ON ppp.parameter_id=pp.id "
+		+ "INNER JOIN phenotype_procedure pProc ON pProc.id=ppp.procedure_id "
+		+ "ORDER BY pProc.stable_id ASC "
+		+ "LIMIT 100000;";
+		
+		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+			String procedure = "";
+		    ResultSet resultSet = statement.executeQuery();
+		    HashSet<String> mps = new HashSet<String>();
+			while (resultSet.next()) {
+				if (!procedure.equals(resultSet.getString("procedure_stable_id"))){
+					if (!procedure.equals("")){
+						res.put(procedure, new HashSet<String>(mps));
+					}
+					procedure = resultSet.getString("procedure_stable_id");
+					mps = new HashSet<String>();
+				}
+				mps.add(resultSet.getString("ontology_acc"));
+			}
+		}
+		
+		return res;	
+	}
+	
 	
 	public boolean isNumeric(String str)  
 	{  
