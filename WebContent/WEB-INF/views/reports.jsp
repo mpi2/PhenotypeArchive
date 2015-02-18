@@ -25,7 +25,7 @@
 									<p>	<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a> </p>
 									<p> <a href="${baseUrl}/centerProgressCsv">Procedure Completeness </a> </p>
 									<p> <a href="${baseUrl}/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
-									<p> <a href="${baseUrl}/sexualDimorphismWBodyWeight">Sexual Dimorphism With Body Weight [IN PROGRESS]</a> </p>
+									<p> <a href="${baseUrl}/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
 								</div>
 							</div>
 							

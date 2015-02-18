@@ -105,9 +105,6 @@ public class ExternalAnnotsController {
 		
 		List<String> data = new ArrayList<>();
 		data.add(legend);
-		//builder.append(legend);
-		//builder.append("<table>");
-		//builder.append("<tbody>");
 		
 		for ( String key : stats.keySet() ) {
 		    
@@ -130,7 +127,6 @@ public class ExternalAnnotsController {
             	Iterator itd = domainEvid.entrySet().iterator();
         		
     			while (itd.hasNext()) {
-    				
     				
     				Map.Entry pairs2 = (Map.Entry)itd.next();
     				String domain = pairs2.getKey().toString();

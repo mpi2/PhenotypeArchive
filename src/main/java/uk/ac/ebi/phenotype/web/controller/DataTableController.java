@@ -145,7 +145,7 @@ public class DataTableController {
 			showImgView = jParams.getBoolean("showImgView");
 		}
 		//System.out.println("query: "+ query);
-		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 		//System.out.println("JSON: "+ json);
 		
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly);

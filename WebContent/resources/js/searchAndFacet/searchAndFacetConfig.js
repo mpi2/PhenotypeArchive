@@ -204,8 +204,8 @@ config.facetFilterLabel = {
 var commonSolrParams = {					
 		'qf': 'auto_suggest',
 		'defType': 'edismax',
-		'wt': 'json',
-		'rows': 0
+		'wt': 'json'
+		//'rows': 0
 };
 
 config.coreQf = {
