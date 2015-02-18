@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.ui.Model;
 
 @Controller
 public class PhenotypeCenterProgressController {
+	
 	@Resource(name="phenotypeCenterService")
 	@Autowired
 	PhenotypeCenterService phenCenterProgress;
@@ -57,6 +59,8 @@ public class PhenotypeCenterProgressController {
 			List<String[]> centerProceduresPerStrain = phenCenterProgress.getCentersProgressByStrainCsv();
 			ControllerUtils.writeAsCSV(centerProceduresPerStrain, csvFileName, response);
 		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
