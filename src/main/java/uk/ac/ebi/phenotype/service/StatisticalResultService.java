@@ -19,20 +19,32 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.util.NamedList;
+import org.apache.solr.common.SolrDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
-import java.util.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class StatisticalResultService extends BasicService {
@@ -45,6 +57,11 @@ public class StatisticalResultService extends BasicService {
     
     @Autowired
     OrganisationDAO organisationDAO;
+    
+
+    @Autowired
+	@Qualifier("postqcService")
+    AbstractGenotypePhenotypeService gpService;
     
     @Autowired
     PhenotypePipelineDAO pDAO;
@@ -59,59 +76,6 @@ public class StatisticalResultService extends BasicService {
     public StatisticalResultService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
-
-	/**
-	 * Return a list of a triplets of pipeline stable id, phenotyping center and
-	 * allele accession
-	 *
-	 *
-	 * @param genomicFeatureAcc
-	 *            a gene accession
-	 * @return list of triplets
-	 * @throws SolrServerException
-	 */
-	public List<Map<String, String>> getDistinctPipelineAlleleCenterListByGeneAccession(String genomicFeatureAcc)
-		throws SolrServerException {
-
-		List<Map<String, String>> results = new LinkedList();
-		List<String> facetFields = Arrays.asList(StatisticalResultDTO.PIPELINE_STABLE_ID, StatisticalResultDTO.PIPELINE_NAME, StatisticalResultDTO.PHENOTYPING_CENTER, StatisticalResultDTO.ALLELE_ACCESSION_ID, StatisticalResultDTO.ALLELE_SYMBOL);
-
-		SolrQuery query = new SolrQuery()
-			.setQuery("*:*")
-			.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"")
-			.setRows(0)
-			.setFacet(true)
-			.setFacetMinCount(1)
-			.setFacetLimit(-1)
-			.addFacetPivotField(StringUtils.join(facetFields, ","));
-
-		QueryResponse response = solr.query(query);
-
-		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
-
-		if (facetPivot != null && facetPivot.size() > 0) {
-			for (int i = 0; i < facetPivot.size(); i++) {
-
-				String name = facetPivot.getName(i); // in this case only one of
-				// them
-				LOG.debug("facetPivot name" + name);
-				List<PivotField> pivotResult = facetPivot.get(name);
-
-				// iterate on results
-				for (int j = 0; j < pivotResult.size(); j++) {
-
-					// create a HashMap to store a new triplet of data
-
-					PivotField pivotLevel = pivotResult.get(j);
-					List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, false);
-					results.addAll(lmap);
-				}
-
-			}
-		}
-
-		return results;
-	}
 
     /**
      * Get the result for a set of 
@@ -182,6 +146,112 @@ public class StatisticalResultService extends BasicService {
     }
 
 
+    public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String alleleAccession, String phenotypingCenter,	String pipelineStableId,	List<String> procedureStableIds) 
+	throws NumberFormatException, SolrServerException {
+    	
+    	Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
+    	SolrQuery query = new SolrQuery();
+    	
+		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":" + phenotypingCenter + " AND " 
+    			+ StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND "
+				+ StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+		if (procedureStableIds != null){
+			query.addFilterQuery("(" + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" 
+					+ StringUtils.join(procedureStableIds, " OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + ")");
+		}
+		query.setRows(90000000);
+		query.addField(StatisticalResultDTO.P_VALUE)
+			.addField(StatisticalResultDTO.EFFECT_SIZE)
+			.addField(StatisticalResultDTO.STATUS)
+			.addField(StatisticalResultDTO.STATISTICAL_METHOD)
+			.addField(StatisticalResultDTO.ZYGOSITY)
+			.addField(StatisticalResultDTO.MALE_CONTROL_COUNT)
+			.addField(StatisticalResultDTO.MALE_MUTANT_COUNT)
+			.addField(StatisticalResultDTO.FEMALE_CONTROL_COUNT)
+			.addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT)
+			.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+			.addField(StatisticalResultDTO.METADATA_GROUP);		
+		query.set("sort", StatisticalResultDTO.P_VALUE + " desc");
+		
+		for (SolrDocument doc : solr.query(query).getResults()){
+			String parameterStableId = doc.getFieldValue(StatisticalResultDTO.PARAMETER_STABLE_ID).toString();
+			List<StatisticalResultBean> lb = null;
+			
+			if (results.containsKey(parameterStableId)) {
+				lb = results.get(parameterStableId);
+			} else {
+				lb = new ArrayList<StatisticalResultBean>();
+				results.put(parameterStableId, lb);
+			} 
+			
+			Double effectSize = doc.containsKey(StatisticalResultDTO.EFFECT_SIZE) ? Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.EFFECT_SIZE).toString()) : 1000000000;
+			String status = doc.containsKey(StatisticalResultDTO.STATUS) ? doc.getFieldValue(StatisticalResultDTO.STATUS).toString() : "no status found";
+			
+			lb.add(new StatisticalResultBean(
+						Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()), 
+						effectSize,
+						status,
+						doc.getFieldValue(StatisticalResultDTO.STATISTICAL_METHOD).toString(),
+						"don't know",
+						doc.getFieldValue(StatisticalResultDTO.ZYGOSITY).toString(),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()),
+						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()),
+						doc.getFieldValue(StatisticalResultDTO.METADATA_GROUP).toString()
+				 ));
+		}
+		
+		return results;
+		
+    }
+    
+    
+    public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
+	throws IOException, URISyntaxException {
+    	
+    	System.out.println("DOING PHEN CALL SUMMARY RESULTS FROM SRS");
+		SolrQuery query = new SolrQuery();
+		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter);
+		query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+		query.setFacet(true);
+		query.addFacetField(StatisticalResultDTO.RESOURCE_FULLNAME);
+		query.addFacetField(StatisticalResultDTO.PROCEDURE_NAME );
+		query.addFacetField(StatisticalResultDTO.MARKER_SYMBOL );
+		query.addFacetField(StatisticalResultDTO.MP_TERM_NAME );
+		query.set("sort", "p_value asc");
+		query.setRows(10000000);
+		query.set("wt", "json");
+		query.set("version", "2.2");
+		
+		String solrUrl = solr.getBaseURL() + "/select?" + query;
+		return gpService.createPhenotypeResultFromSolrResponse(solrUrl, false);
+	}
+
+    
+    public Set<String> getAccessionsByResourceName(String resourceName){
+    	
+    	Set<String> res = new HashSet<>();
+    	SolrQuery query = new SolrQuery()
+        	.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + resourceName);
+    	query.setFacet(true);
+    	query.addFacetField(StatisticalResultDTO.MARKER_ACCESSION_ID);
+    	query.setFacetLimit(10000000);
+    	query.setFacetMinCount(1);
+    	query.setRows(0);
+    	
+    	QueryResponse response;
+		try {
+			response = solr.query(query);
+			for (Count id: response.getFacetField(StatisticalResultDTO.MARKER_ACCESSION_ID).getValues()){
+				res.add(id.getName());
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	return res;
+    }
+    
     protected UnidimensionalResult translateStatisticalResultToUnidimensionalResult(StatisticalResultDTO result) {
         UnidimensionalResult r = new UnidimensionalResult();
         

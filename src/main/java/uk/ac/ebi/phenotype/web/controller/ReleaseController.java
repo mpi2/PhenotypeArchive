@@ -1,18 +1,5 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,7 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.SignificantType;
@@ -32,6 +18,13 @@ import uk.ac.ebi.phenotype.service.AlleleService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class ReleaseController {
@@ -59,8 +52,8 @@ public class ReleaseController {
 
 		statisticalMethodsShortName.put("Fisher's exact test", "Fisher");
 		statisticalMethodsShortName.put("Wilcoxon rank sum test with continuity correction", "Wilcoxon");
-		statisticalMethodsShortName.put("MM framework, generalized least squares, equation withoutWeight", "MMgls");
-		statisticalMethodsShortName.put("MM framework, linear mixed-effects model, equation withoutWeight", "MMlme");
+		statisticalMethodsShortName.put("Mixed Model framework, generalized least squares, equation withoutWeight", "MMgls");
+		statisticalMethodsShortName.put("Mixed Model framework, linear mixed-effects model, equation withoutWeight", "MMlme");
 		
 	}
 	

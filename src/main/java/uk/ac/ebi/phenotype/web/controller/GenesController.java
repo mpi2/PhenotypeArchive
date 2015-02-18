@@ -51,10 +51,7 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.pojo.*;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.ImageService;
-import uk.ac.ebi.phenotype.service.PreQcService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
+import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -88,6 +85,9 @@ public class GenesController {
 	private ImagesSolrDao imagesSolrDao;
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
+
+	@Autowired
+	ObservationService observationService;
 
 	@Autowired
 	SolrIndex solrIndex;
@@ -129,7 +129,6 @@ public class GenesController {
 
 			while (headers.hasMoreElements()) {
 				String actualHeader = (String) headers.nextElement();
-				System.out.println("Header: " + header + ", Value: " + actualHeader);
 			}
 		}
 
@@ -221,7 +220,7 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-			List<Map<String, String>> dataMapList = statsResultsService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
+			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
@@ -332,13 +331,27 @@ public class GenesController {
 		// sex is collapsed into a single column
 		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
 		PhenotypeFacetResult phenoResult = null;
+		PhenotypeFacetResult preQcResult = null;
+		
 		try {
 
 			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
+			preQcResult = phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
+			
 			phenotypeList = phenoResult.getPhenotypeCallSummaries();
-		//TODO add pre-qc rows
-			phenotypeList.addAll(phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, queryString).getPhenotypeCallSummaries());
+			phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+			Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
+			
+			for (String key : preQcFacets.keySet()){
+				if (preQcFacets.get(key).keySet().size() > 0){
+					for (String key2: preQcFacets.get(key).keySet()){
+						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
+					}
+				}
+			}
+			
 			// sort facets first
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 

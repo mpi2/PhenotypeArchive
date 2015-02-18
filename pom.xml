@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.5</version>
     <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
@@ -61,7 +61,20 @@
 
     <dependencies>
 
-        <!--Phenodigm disease pages dependencies -->
+		<!--  orace jdbc driver -->
+				<dependency>
+					<groupId>com.oracle</groupId>
+				  	<artifactId>ojdbc6</artifactId>
+				  	<version>11.2.0</version>
+				</dependency>
+				
+				<dependency>
+						<groupId>net.sf.opencsv</groupId>
+						<artifactId>opencsv</artifactId>
+						<version>2.3</version>
+				</dependency>
+				
+				<!--Phenodigm disease pages dependencies -->
         <dependency>
             <groupId>uk.ac.sanger</groupId>
             <artifactId>phenodigm2-core</artifactId>

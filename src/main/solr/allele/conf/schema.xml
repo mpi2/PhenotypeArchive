@@ -143,6 +143,7 @@
 
 	<!-- allele level fields of a gene -->
 	<field name="allele_name" type="text" indexed="true" stored="true" multiValued="true"/>
+	<field name="allele_accession_id" type="text" indexed="true" stored="true" multiValued="true"/>
 	<field name="es_cell_status" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="imits_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="mouse_status" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -156,6 +157,21 @@
 	<field name="go_term_def" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_evid" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_domain" type="string" indexed="true" stored="true" multiValued="true"/>
+	
+	<!-- pfam stuff -->
+	<field name="uniprot_acc" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="pfama_json" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="scdb_id" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="scdb_link" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="clan_id" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="clan_acc" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="clan_desc" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="pfama_id" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="pfama_acc" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="pfama_go_id" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="pfama_go_term" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="pfama_go_cat" type="string" indexed="true" stored="true" multiValued="true"/>
+
 	
 	<!--disease fields -->
 	<field name="type" type="string" indexed="true" stored="true"/>	

@@ -39,13 +39,11 @@ import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.AlleleService;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.PreQcService;
+import uk.ac.ebi.phenotype.service.*;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
@@ -79,13 +77,21 @@ public class SecondaryProjectController {
 	@Autowired
 	GeneService geneService;
 
+	@Autowired
+	MpService mpService;
 
 	@Autowired 
 	UnidimensionalChartAndTableProvider chartProvider;
 	
 	@Autowired 
-	SecondaryProjectDAO sp;
+	@Qualifier("idg")
+	SecondaryProjectDAO idg;
 
+
+	@Autowired 
+	@Qualifier("threeI")
+	SecondaryProjectDAO threeI;
+	
 	@Autowired
 	@Qualifier("solrServer")
 	SolrServer phenodigmCore;
@@ -98,17 +104,19 @@ public class SecondaryProjectController {
 		logger.info("Downloading data for secondary project id=" + id);
 
 		Map<String, Set<String>> mpterms = new HashMap<>();
+		Map<String, Set<String>> mptermnames = new HashMap<>();
+		Map<String, Set<String>> highMpterms = new HashMap<>();
+		Map<String, Set<String>> highMptermnames = new HashMap<>();
 		Map<String, Set<String>> preqcmpterms = new HashMap<>();
 		Map<String, Set<String>> hpterms = new HashMap<>();
-		Map<String, Set<String>> mptermnames = new HashMap<>();
 		Map<String, Set<String>> hptermnames = new HashMap<>();
-		Map<String, Set<String>> humanterms = new HashMap<>();
+		Map<String, Set<String>> humangenes = new HashMap<>();
 		Map<String, Set<String>> diseaseterms = new HashMap<>();
 		Map<String, String> mousesymbols = new HashMap<>();
 		List<String> resp = new ArrayList<>();
 
 		try {
-			Set<String> accessions = sp.getAccessionsBySecondaryProjectId(id);
+			Set<String> accessions = idg.getAccessionsBySecondaryProjectId(id);
 
 			Map<String, List<Map<String, String>>> getMpToHpTerms = IndexerMap.getMpToHpTerms(phenodigmCore);
 			Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
@@ -125,21 +133,23 @@ public class SecondaryProjectController {
 			for (String MGIID : accessions) {
 
 				if (!mpterms.containsKey(MGIID)) {
-					mpterms.put(MGIID, new HashSet<String>());
-					mptermnames.put(MGIID, new HashSet<String>());
+					mpterms.put(MGIID, new TreeSet<String>());
+					mptermnames.put(MGIID, new TreeSet<String>());
+					highMpterms.put(MGIID, new TreeSet<String>());
+					highMptermnames.put(MGIID, new TreeSet<String>());
 				}
 				if (!preqcmpterms.containsKey(MGIID)) {
-					preqcmpterms.put(MGIID, new HashSet<String>());
+					preqcmpterms.put(MGIID, new TreeSet<String>());
 				}
 				if (!hpterms.containsKey(MGIID)) {
-					hpterms.put(MGIID, new HashSet<String>());
-					hptermnames.put(MGIID, new HashSet<String>());
+					hpterms.put(MGIID, new TreeSet<String>());
+					hptermnames.put(MGIID, new TreeSet<String>());
 				}
-				if (!humanterms.containsKey(MGIID)) {
-					humanterms.put(MGIID, new HashSet<String>());
+				if (!humangenes.containsKey(MGIID)) {
+					humangenes.put(MGIID, new TreeSet<String>());
 				}
 				if (!diseaseterms.containsKey(MGIID)) {
-					diseaseterms.put(MGIID, new HashSet<String>());
+					diseaseterms.put(MGIID, new TreeSet<String>());
 				}
 
 				GeneDTO g = geneService.getGeneById(MGIID);
@@ -153,6 +163,17 @@ public class SecondaryProjectController {
 						mpterms.get(MGIID).add(mp);
 						mptermnames.get(MGIID).add(mpterm);
 
+						MpDTO mpDTO = mpService.getPhenotypes(mp);
+						if(mpDTO!=null) {
+
+							if(mpDTO.getTopLevelMpId() !=null) {
+								highMpterms.get(MGIID).addAll(mpDTO.getTopLevelMpId());
+							}
+
+							if(mpDTO.getTopLevelMpTerm() !=null) {
+								highMptermnames.get(MGIID).addAll(mpDTO.getTopLevelMpTerm());
+							}
+						}
 
 						logger.info("  looking for hp terms for {}", mp);
 						if (getMpToHpTerms.containsKey(mp)) {
@@ -187,7 +208,7 @@ public class SecondaryProjectController {
 
 				logger.info("  looking for human symbols for {}", MGIID);
 				if (genes.get(MGIID) != null && genes.get(MGIID).getHumanGeneSymbol() != null) {
-					humanterms.get(MGIID).addAll(genes.get(MGIID).getHumanGeneSymbol());
+					humangenes.get(MGIID).addAll(genes.get(MGIID).getHumanGeneSymbol());
 					logger.info("   adding human symbols {} for {}", genes.get(MGIID).getHumanGeneSymbol(), MGIID);
 				}
 
@@ -198,16 +219,19 @@ public class SecondaryProjectController {
 
 			}
 
-			resp.add(StringUtils.join(Arrays.asList("MGI ID", "Mouse symbol", "Human symbol", "MP terms", "HP terms", "Disease associations", "MP term names", "HP term names"), "\t"));
+			resp.add(StringUtils.join(Arrays.asList("MGI ID", "Mouse symbol", "MP term IDs", "MP term names", "MP high-level term IDs", "MP high-level term names", "Human Gene symbol", "HP term IDs", "HP term names", "Disease associations"), "\t"));
 			for (String MGIID : accessions) {
-				List line = Arrays.asList(MGIID,
+				List line = Arrays.asList(
+					MGIID,
 					mousesymbols.get(MGIID),
-					StringUtils.join(humanterms.get(MGIID), ","),
 					StringUtils.join(mpterms.get(MGIID), ","),
-					StringUtils.join(hpterms.get(MGIID), ","),
-					StringUtils.join(diseaseterms.get(MGIID), ","),
 					StringUtils.join(mptermnames.get(MGIID), ","),
-					StringUtils.join(hptermnames.get(MGIID), ",")
+					StringUtils.join(highMpterms.get(MGIID), ","),
+					StringUtils.join(highMptermnames.get(MGIID), ","),
+					StringUtils.join(humangenes.get(MGIID), ","),
+					StringUtils.join(hpterms.get(MGIID), ","),
+					StringUtils.join(hptermnames.get(MGIID), ","),
+					StringUtils.join(diseaseterms.get(MGIID), ",")
 				);
 				resp.add(StringUtils.join(line, "\t"));
 			}
@@ -226,28 +250,48 @@ public class SecondaryProjectController {
 
 
 	@RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
-	public String loadSeondaryProjectPage(@PathVariable String id, Model model,
+	public String loadSecondaryProjectPage(@PathVariable String id, Model model,
 			HttpServletRequest request, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException {
+		
 		System.out.println("calling secondary project id="+id);
-		
 		Set<String> accessions;
-		
-		try {
-			accessions = sp.getAccessionsBySecondaryProjectId(id);
-			model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
-			model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
-			
-			List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
-			String chart = phenomeChartProvider.generatePhenomeChartByGenes(
-					results,
-					null,
-					Constants.SIGNIFICANT_P_VALUE);
-			
-			model.addAttribute("chart", chart);
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.IDG.name())){
+			try {
+				accessions = idg.getAccessionsBySecondaryProjectId(id);
+				model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
+				model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+				
+				List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
+				String chart = phenomeChartProvider.generatePhenomeChartByGenes(
+						results,
+						null,
+						Constants.SIGNIFICANT_P_VALUE);
+				
+				model.addAttribute("chart", chart);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			System.out.println("returning to idg");
+			return "idg";
+		} else if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())) {
+			try {
+				accessions = threeI.getAccessionsBySecondaryProjectId(id);
+//				model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
+//				model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+				
+//				List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
+//				String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
+				
+//				model.addAttribute("chart", chart);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			System.out.println("returning to idg");
+			return "threeI";
 		}
+		
+		
 		return "idg";
 	}
 

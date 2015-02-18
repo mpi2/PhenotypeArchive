@@ -52,6 +52,7 @@ public class AlleleDTO {
 	public static final String LATEST_PRODUCTION_CENTRE = "latest_production_centre";
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
 	public static final String ALLELE_NAME = "allele_name";
+	public static final String ALLELE_ACCESSION_ID = "allele_accession_id";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
 	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
@@ -61,11 +62,24 @@ public class AlleleDTO {
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
 	
-	public static final String GOTERMID = "go_term_id";
-	public static final String GOTERMNAME = "go_term_name";
-	public static final String GOTERMDEF = "go_term_def";
-	public static final String GOTERMEVID = "go_term_evid";
-	public static final String GOTERMDOMAIN = "go_term_domain";
+	public static final String GO_TERM_ID = "go_term_id";
+	public static final String GO_TERM_NAME = "go_term_name";
+	public static final String GO_TERM_DEF = "go_term_def";
+	public static final String GO_TERM_EVID = "go_term_evid";
+	public static final String GO_TERM_DOMAIN = "go_term_domain";
+	public static final String UNIPROT_ACC = "uniprot_acc";
+	
+	public static final String PFAMA_JSON = "pfama_json";
+	public static final String SCDB_ID = "scdb_id"; // structural classification db id
+	public static final String SCDB_LINK = "scdb_link"; 
+	public static final String CLAN_ID = "clan_id"; 
+	public static final String CLAN_ACC = "clan_acc"; 
+	public static final String CLAN_DESC = "clan_desc"; 
+	public static final String PFAMA_ID = "pfama_id"; 
+	public static final String PFAMA_ACC = "pfama_acc"; 
+	public static final String PFAMA_GO_ID = "pfama_go_id"; 
+	public static final String PFAMA_GO_TERM = "pfama_go_term"; 
+	public static final String PFAMA_GO_CAT = "pfama_go_cat"; 
 	
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_SOURCE = "disease_source";
@@ -170,6 +184,8 @@ public class AlleleDTO {
 
 	@Field(ALLELE_NAME)
 	private List<String> alleleName = new ArrayList<>();
+	@Field(ALLELE_ACCESSION_ID)
+	private List<String> alleleAccessionIds = new ArrayList<>();
 	@Field(IMITS_ES_CELL_STATUS)
 	private String imitsEsCellStatus;
 	@Field(ES_CELL_STATUS)
@@ -186,21 +202,56 @@ public class AlleleDTO {
 	private List<String> phenotypingCentre = new ArrayList<>();
 
 	
-	@Field(GOTERMID)
+	@Field(GO_TERM_ID)
 	private List<String> goTermIds = new ArrayList<>();
 	
-	@Field(GOTERMNAME)
+	@Field(GO_TERM_NAME)
 	private List<String> goTermNames = new ArrayList<>();
 	
-	@Field(GOTERMDEF)
+	@Field(GO_TERM_DEF)
 	private List<String> goTermDefs = new ArrayList<>();
 	
-	@Field(GOTERMEVID)
+	@Field(GO_TERM_EVID)
 	private List<String> goTermEvids = new ArrayList<>();
 	
-	@Field(GOTERMDOMAIN)
+	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
 	
+	@Field(UNIPROT_ACC)
+	private List<String> uniprotAccs = new ArrayList<>();
+	
+	@Field(PFAMA_JSON)
+	private List<String> pfama_jsons = new ArrayList<>();
+
+	@Field(SCDB_ID)
+	private List<String> scdb_ids = new ArrayList<>();
+	
+	@Field(SCDB_LINK)
+	private List<String> scdb_links = new ArrayList<>();
+	
+	@Field(CLAN_ID)
+	private List<String> clan_ids = new ArrayList<>();
+	
+	@Field(CLAN_ACC)
+	private List<String> clan_accs = new ArrayList<>();
+	
+	@Field(CLAN_DESC)
+	private List<String> clan_descs = new ArrayList<>();
+	
+	@Field(PFAMA_ID)
+	private List<String> pfama_ids = new ArrayList<>();
+	
+	@Field(PFAMA_ACC)
+	private List<String> pfama_accs = new ArrayList<>();
+	
+	@Field(PFAMA_GO_ID)
+	private List<String> pfama_go_ids = new ArrayList<>();
+	
+	@Field(PFAMA_GO_TERM)
+	private List<String> pfama_go_terms = new ArrayList<>();
+	
+	@Field(PFAMA_GO_CAT)
+	private List<String> pfama_go_cats = new ArrayList<>();
 	
 	@Field(DISEASE_ID)
 	private List<String> diseaseId = new ArrayList<>();
@@ -528,7 +579,24 @@ public class AlleleDTO {
 	public void setAlleleName(List<String> alleleName) {
 		this.alleleName = alleleName;
 	}
+	
+	
+	/**
+	 * @return the alleleAccessionIds
+	 */
+	public List<String> getAlleleAccessionIds() {
+		return alleleAccessionIds;
+	}
 
+	/**
+	 * @param alleleAccessionIds
+	 *            the alleleAccessionIds to set
+	 */
+	public void setAlleleAccessionIds(List<String> alleleAccessionIds) {
+		this.alleleAccessionIds = alleleAccessionIds;
+	}
+	
+	
 	/**
 	 * @return the imitsEsCellStatus
 	 */
@@ -710,6 +778,187 @@ public class AlleleDTO {
 	 */
 	public void setGoTermDomains(List<String> goTermDomains) {
 		this.goTermDomains = goTermDomains;
+	}
+	
+	/**
+	 * @return the uniprotAccs
+	 */
+	public List<String> getUniprotAccs() {
+		return uniprotAccs;
+	}
+	
+	/**
+	 * @param uniprotAccs
+	 *            the uniprotAccs to set
+	 */
+	public void setUniprotAccs(List<String> uniprotAccs) {
+		this.uniprotAccs = uniprotAccs;
+	}
+	
+	/**
+	 * @return the scdb_ids
+	 */
+	public List<String> getScdbIds() {
+		return scdb_ids;
+	}
+	
+	/**
+	 * @param scdb_ids
+	 *            the scdb_ids to set
+	 */
+	public void setScdbIds(List<String> scdb_ids) {
+		this.scdb_ids = scdb_ids;
+	}
+	
+	/**
+	 * @return the scdb_links
+	 */
+	public List<String> getScdbLinks() {
+		return scdb_links;
+	}
+	
+	/**
+	 * @param scdb_links
+	 *            the scdb_links to set
+	 */
+	public void setScdbLinks(List<String> scdb_links) {
+		this.scdb_links = scdb_links;
+	}
+	
+	/**
+	 * @return the clan_ids
+	 */
+	public List<String> getClanIds() {
+		return clan_ids;
+	}
+	
+	/**
+	 * @param clan_ids
+	 *            the clan_ids to set
+	 */
+	public void setClanIds(List<String> clan_ids) {
+		this.clan_ids = clan_ids;
+	}
+	
+	/**
+	 * @return the clan_accs
+	 */
+	public List<String> getClanAccs() {
+		return clan_accs;
+	}
+	
+	/**
+	 * @param clan_accs
+	 *            the clan_accs to set
+	 */
+	public void setClanAccs(List<String> clan_accs) {
+		this.clan_accs = clan_accs;
+	}
+	
+	/**
+	 * @return the clan_descs
+	 */
+	public List<String> getClanDescs() {
+		return clan_descs;
+	}
+	
+	/**
+	 * @param clan_descs
+	 *            the clan_descs to set
+	 */
+	public void setClanDescs(List<String> clan_descs) {
+		this.clan_descs = clan_descs;
+	}
+	
+	/**
+	 * @return the pfama_ids
+	 */
+	public List<String> getPfamaIds() {
+		return pfama_ids;
+	}
+	
+	/**
+	 * @param pfama_ids
+	 *            the pfama_ids to set
+	 */
+	public void setPfamaIds(List<String> pfama_ids) {
+		this.pfama_ids = pfama_ids;
+	}
+	
+	/**
+	 * @return the pfama_accs
+	 */
+	public List<String> getPfamaAccs() {
+		return pfama_accs;
+	}
+	
+	/**
+	 * @param pfama_accs
+	 *            the pfama_accs to set
+	 */
+	public void setPfamaAccs(List<String> pfama_accs) {
+		this.pfama_accs = pfama_accs;
+	}
+	
+	/**
+	 * @return the pfama_go_ids
+	 */
+	public List<String> getPfamaGoIds() {
+		return pfama_go_ids;
+	}
+	
+	/**
+	 * @param pfama_go_ids
+	 *            the pfama_go_ids to set
+	 */
+	public void setPfamaGoIds(List<String> pfama_go_ids) {
+		this.pfama_go_ids = pfama_go_ids;
+	}
+	
+	/**
+	 * @return the pfama_go_terms
+	 */
+	public List<String> getPfamaGoTerms() {
+		return pfama_go_terms;
+	}
+	
+	/**
+	 * @param pfama_go_terms
+	 *            the pfama_go_terms to set
+	 */
+	public void setPfamaGoTerms(List<String> pfama_go_terms) {
+		this.pfama_go_terms = pfama_go_terms;
+	}
+	
+	/**
+	 * @return the pfama_go_cats
+	 */
+	public List<String> getPfamaGoCats() {
+		return pfama_go_cats;
+	}
+	
+	/**
+	 * @param pfama_go_cats
+	 *            the pfama_go_cats to set
+	 */
+	public void setPfamaGoCats(List<String> pfama_go_cats) {
+		this.pfama_go_cats = pfama_go_cats;
+	}
+	
+	/**
+	 * @param pfama_jsons
+	 *            the pfama_jsons to get
+	 */
+	public List<String> getPfamaJsons() {
+		return pfama_jsons;
+	}
+	
+	/**
+	 * @param pfama_jsons
+	 *            the pfama_jsons to set
+	 */
+	public void setPfamaJsons(List<String> pfama_jsons) {
+		this.pfama_jsons = pfama_jsons;
 	}
 	
 	/**
@@ -952,56 +1201,15 @@ public class AlleleDTO {
 	
 	@Override
 	public String toString() {
-
-		return "AlleleDTO{" +
-			"mgiAccessionId='" + mgiAccessionId + '\'' +
-			", dataType='" + dataType + '\'' +
-			", markerType='" + markerType + '\'' +
-			", markerSymbol='" + markerSymbol + '\'' +
-			", markerSynonym=" + markerSynonym +
-			", markerName='" + markerName + '\'' +
-			", humanGeneSymbol=" + humanGeneSymbol +
-			", geneLatestEsCellStatus='" + geneLatestEsCellStatus + '\'' +
-			", latestEsCellStatus='" + latestEsCellStatus + '\'' +
-			", geneLatestMouseStatus='" + geneLatestMouseStatus + '\'' +
-			", latestMouseStatus='" + latestMouseStatus + '\'' +
-			", latestProjectStatus='" + latestProjectStatus + '\'' +
-			", latestProductionStatus='" + latestProductionStatus + '\'' +
-			", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
-			", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
-			", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
-			", legacyPhenotypeStatus='" + legacyPhenotypeStatus + '\'' +
-			", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
-			", gfAcc='" + gfAcc + '\'' +
-			", latestPhenotypingCentre=" + latestPhenotypingCentre +
-			", latestProductionCentre=" + latestProductionCentre +
-			", alleleName=" + alleleName +
-			", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
-			", esCellStatus=" + esCellStatus +
-			", imitsMouseStatus='" + imitsMouseStatus + '\'' +
-			", mouseStatus=" + mouseStatus +
-			", phenotypeStatus=" + phenotypeStatus +
-			", productionCentre=" + productionCentre +
-			", phenotypingCentre=" + phenotypingCentre +
-			", goTermIds=" + goTermIds + 
-			", goTermNames" + goTermNames +
-			", goTermDefs" + goTermDefs +
-			", goTermEvids" + goTermEvids +
-			", goTermDomains" + goTermDomains +
-			", diseaseId=" + diseaseId +
-			", diseaseSource=" + diseaseSource +
-			", diseaseTerm=" + diseaseTerm +
-			", diseaseAlts=" + diseaseAlts +
-			", diseaseClasses=" + diseaseClasses +
-			", humanCurated=" + humanCurated +
-			", mouseCurated=" + mouseCurated +
-			", mgiPredicted=" + mgiPredicted +
-			", impcPredicted=" + impcPredicted +
-			", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
-			", impcPredictedKnownGene=" + impcPredictedKnownGene +
-			", mgiNovelPredictedInLocus=" + mgiNovelPredictedInLocus +
-			", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
-			", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes +
-			'}';
+		return String
+				.format("AlleleDTO [status=%s, type=%s, mgiAccessionId=%s, dataType=%s, markerType=%s, markerSymbol=%s, markerSynonym=%s, markerName=%s, humanGeneSymbol=%s, geneLatestEsCellStatus=%s, latestEsCellStatus=%s, geneLatestMouseStatus=%s, latestMouseStatus=%s, latestProjectStatus=%s, latestProductionStatus=%s, imitsPhenotypeStarted=%s, imitsPhenotypeComplete=%s, latestPhenotypeStatus=%s, imitsPhenotypeStatus=%s, legacyPhenotypeStatus=%s, gfAcc=%s, latestPhenotypingCentre=%s, latestProductionCentre=%s, alleleName=%s, alleleAccessionIds=%s, imitsEsCellStatus=%s, esCellStatus=%s, imitsMouseStatus=%s, mouseStatus=%s, phenotypeStatus=%s, productionCentre=%s, phenotypingCentre=%s, goTermIds=%s, goTermNames=%s, goTermDefs=%s, goTermEvids=%s, goTermDomains=%s, uniprotAccs=%s, pfama_jsons=%s, scdb_ids=%s, scdb_links=%s, clan_ids=%s, clan_accs=%s, clan_descs=%s, pfama_ids=%s, pfama_accs=%s, pfama_go_ids=%s, pfama_go_terms=%s, pfama_go_cats=%s, diseaseId=%s, diseaseSource=%s, diseaseTerm=%s, diseaseAlts=%s, diseaseClasses=%s, humanCurated=%s, mouseCurated=%s, mgiPredicted=%s, impcPredicted=%s, mgiPredictedKnownGene=%s, impcPredictedKnownGene=%s, mgiNovelPredictedInLocus=%s, impcNovelPredictedInLocus=%s, diseaseHumanPhenotypes=%s]",
+						status, type, mgiAccessionId, dataType, markerType, markerSymbol, markerSynonym, markerName, humanGeneSymbol, geneLatestEsCellStatus,
+						latestEsCellStatus, geneLatestMouseStatus, latestMouseStatus, latestProjectStatus, latestProductionStatus, imitsPhenotypeStarted,
+						imitsPhenotypeComplete, latestPhenotypeStatus, imitsPhenotypeStatus, legacyPhenotypeStatus, gfAcc, latestPhenotypingCentre,
+						latestProductionCentre, alleleName, alleleAccessionIds, imitsEsCellStatus, esCellStatus, imitsMouseStatus, mouseStatus,
+						phenotypeStatus, productionCentre, phenotypingCentre, goTermIds, goTermNames, goTermDefs, goTermEvids, goTermDomains, uniprotAccs,
+						pfama_jsons, scdb_ids, scdb_links, clan_ids, clan_accs, clan_descs, pfama_ids, pfama_accs, pfama_go_ids, pfama_go_terms, pfama_go_cats,
+						diseaseId, diseaseSource, diseaseTerm, diseaseAlts, diseaseClasses, humanCurated, mouseCurated, mgiPredicted, impcPredicted,
+						mgiPredictedKnownGene, impcPredictedKnownGene, mgiNovelPredictedInLocus, impcNovelPredictedInLocus, diseaseHumanPhenotypes);
 	}
 }

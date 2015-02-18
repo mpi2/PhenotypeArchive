@@ -22,6 +22,7 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -132,7 +133,6 @@ public interface ObservationDAO extends HibernateDAO {
      * @throws SQLException 
      */
     public List<String[]> getMissingOntologyTerms() throws SQLException;
-    
-    
+    	
         
 }

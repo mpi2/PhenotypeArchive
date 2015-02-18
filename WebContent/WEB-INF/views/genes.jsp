@@ -284,6 +284,7 @@
                                             <div class="container span12">
                                                 <br/>	
                                                 <div class="row-fluid" id="phenotypesDiv">	
+                                               
                                                     <div class="container span12">
                                                         <div id="filterParams" >
                                                             <c:forEach var="filterParameters" items="${paramValues.fq}">
@@ -309,7 +310,8 @@
                                                             </c:forEach>
 
                                                             <jsp:include page="PhenoFrag.jsp"></jsp:include>
-                                                                <div id="exportIconsDiv"></div>
+                                                            <br/>
+                                                            <div id="exportIconsDiv"></div>
                                                         </c:if>
 
                                                         <!-- if no data to show -->
@@ -521,11 +523,13 @@
                         paging: false,
                         info: false,
                         searching: false,
-                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']]
+                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                            "sPaginationType": "bootstrap"
                     }},
                     {id: '#predicted_diseases_table', 
                         tableConf: {
-                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']]
+                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                            "sPaginationType": "bootstrap"
                     }}
                 ];
                 

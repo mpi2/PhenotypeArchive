@@ -38,7 +38,7 @@
         </property>
     </bean>
     
-     <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+    <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${internalSolrUrl}/experiment"/>
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
@@ -54,6 +54,14 @@
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
+    </bean>
+	
+    <bean id="phenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
+        <constructor-arg value="${internalSolrUrl}/experiment" />
+    </bean>
+
+    <bean id="preQcPhenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
+        <constructor-arg value="${internalSolrUrl}/preqc" />
     </bean>
 	
     <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
@@ -113,6 +121,10 @@
     <bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
         <constructor-arg value="${internalSolrUrl}/disease" />
     </bean>
+    
+    <bean id="sexualDimorphismDAO" class="uk.ac.ebi.phenotype.dao.SexualDimorphismDAOImpl" >
+        <constructor-arg ref="sessionFactory" />
+    </bean>
                 
     <context:component-scan base-package="uk.ac.ebi" />
     <context:component-scan base-package="org.mousephenotype.www" />
@@ -138,7 +150,10 @@
         <constructor-arg ref="genotypePhenotypeService"/>
         <constructor-arg ref="phenotypePipelineDAO"/> -->
 		
-    </bean>	
+    </bean>
+
+    <bean id="threeI" class="uk.ac.ebi.phenotype.dao.SecondaryProject3iImpl">
+    </bean>
     <bean id="observationDAO" class="uk.ac.ebi.phenotype.dao.ObservationDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>

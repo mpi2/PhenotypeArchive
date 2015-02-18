@@ -1,225 +1,262 @@
 package uk.ac.ebi.phenotype.service.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.solr.client.solrj.beans.Field;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class PipelineDTO {
 
-	private static final String MAPPED_PROCEDIURE_NAME = "mapped_procedure_name";
-	@Field(ObservationDTO.PARAMETER_ID)
+	public static final String PIPELINE_ID = ObservationDTO.PIPELINE_ID;
+	public static final String PIPELINE_STABLE_ID = ObservationDTO.PIPELINE_STABLE_ID;
+	public static final String PIPELINE_STABLE_KEY = "pipeline_stable_key";
+	public static final String PIPELINE_NAME = ObservationDTO.PIPELINE_NAME;
+
+	public static final String PROCEDURE_ID = ObservationDTO.PROCEDURE_ID;
+	public static final String PROCEDURE_STABLE_ID = ObservationDTO.PROCEDURE_STABLE_ID;
+	public static final String PROCEDURE_STABLE_KEY = "procedure_stable_key";
+	public static final String PROCEDURE_NAME = ObservationDTO.PROCEDURE_NAME;
+	public static final String PROCEDURE_NAME_ID = "proc_name_id";
+
+	public static final String PROCEDURE_PARAMETER_STABLE_ID = "proc_param_stable_id";
+	public static final String PROCEDURE_PARAMETER_NAME = "proc_param_name";
+
+	public static final String PARAMETER_ID = ObservationDTO.PARAMETER_ID;
+	public static final String PARAMETER_STABLE_ID = ObservationDTO.PARAMETER_STABLE_ID;
+	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
+	public static final String PARAMETER_NAME = ObservationDTO.PARAMETER_NAME;
+
+	private static final String MAPPED_PROCEDURE_NAME = "mapped_procedure_name";
+
+	private static final String PIPE_PROC_SID = "pipe_proc_sid";
+	private static final String ID_ID_ID = "ididid";
+
+	public static final String MGI_ACCESSION_ID = GeneDTO.MGI_ACCESSION_ID;
+	public static final String MARKER_TYPE = GeneDTO.MARKER_TYPE;
+	public static final String MARKER_SYMBOL = GeneDTO.MARKER_SYMBOL;
+	public static final String MARKER_SYNONYM = GeneDTO.MARKER_SYNONYM;
+	public static final String MARKER_NAME = GeneDTO.MARKER_NAME;
+	public static final String HUMAN_GENE_SYMBOL = GeneDTO.HUMAN_GENE_SYMBOL;
+	public static final String STATUS = GeneDTO.STATUS;
+	public static final String IMITS_PHENOTYPE_STARTED = GeneDTO.IMITS_PHENOTYPE_STARTED;
+	public static final String IMITS_PHENOTYPE_COMPLETE = GeneDTO.IMITS_PHENOTYPE_COMPLETE;
+	public static final String IMITS_PHENOTYPE_STATUS = GeneDTO.IMITS_PHENOTYPE_STATUS;
+	public static final String LATEST_PRODUCTION_CENTRE = GeneDTO.LATEST_PRODUCTION_CENTRE;
+	public static final String LATEST_PHENOTYPING_CENTRE = GeneDTO.LATEST_PHENOTYPING_CENTRE;
+	public static final String LATEST_PHENOTYPE_STATUS = GeneDTO.LATEST_PHENOTYPE_STATUS;
+	public static final String LEGACY_PHENOTYPE_STATUS = GeneDTO.LEGACY_PHENOTYPE_STATUS;
+	public static final String ALLELE_NAME = GeneDTO.ALLELE_NAME;
+
+	public static final String MP_ID = MpDTO.MP_ID;
+	public static final String MP_TERM = MpDTO.MP_TERM;
+	public static final String MP_TERM_SYNONYM = MpDTO.MP_TERM_SYNONYM;
+	public static final String ONTOLOGY_SUBSET = MpDTO.ONTOLOGY_SUBSET;
+	public static final String TOP_LEVEL_MP_ID = MpDTO.TOP_LEVEL_MP_ID;
+	public static final String TOP_LEVEL_MP_TERM = MpDTO.TOP_LEVEL_MP_TERM;
+	public static final String TOP_LEVEL_MP_TERM_SYNONYM = MpDTO.TOP_LEVEL_MP_TERM_SYNONYM;
+	public static final String INTERMEDIATE_MP_ID = MpDTO.INTERMEDIATE_MP_ID;
+	public static final String INTERMEDIATE_MP_TERM = MpDTO.INTERMEDIATE_MP_TERM;
+	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
+	public static final String CHILD_MP_ID = MpDTO.CHILD_MP_ID;
+	public static final String CHILD_MP_TERM = MpDTO.CHILD_MP_TERM;
+	public static final String CHILD_MP_TERM_SYNONYM = MpDTO.CHILD_MP_TERM_SYNONYM;
+	public static final String HP_ID = MpDTO.HP_ID;
+	public static final String HP_TERM = MpDTO.HP_TERM;
+	public static final String INFERRED_MA_ID = MpDTO.INFERRED_MA_ID;
+	public static final String INFERRED_MA_TERM_SYNONYM = MpDTO.INFERRED_MA_TERM_SYNONYM;
+	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
+	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
+	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
+	public static final String INFERRED_CHILD_MA_ID = MpDTO.INFERRED_CHILD_MA_ID;
+	public static final String INFERRED_CHILD_MA_TERM = MpDTO.INFERRED_CHILD_MA_TERM;
+	public static final String INFERRED_CHILD_MA_TERM_SYNONYM = MpDTO.INFERRED_CHILD_MA_TERM_SYNONYM;
+
+	//
+	// IMPReSS fields
+	//
+
+	@Field(PARAMETER_ID)
 	private int parameterId;
-	// "parameter_id": 9,
-	// "dataType": "pipeline",
-	@Field(ObservationDTO.PARAMETER_STABLE_ID)
+
+	@Field(PARAMETER_STABLE_ID)
 	private String parameterStableId;
-	// "parameter_stable_id": "IMPC_HOU_001_001",
-	// @Field(ObservationDTO.par)
-	// private int parameterStableKey;
-	// "parameter_stable_key": 4181,
-	@Field(ObservationDTO.PARAMETER_NAME)
+
+	@Field(PARAMETER_NAME)
 	private String parameterName;
 
-	// "parameter_name": "Submitter ID",
-	@Field(ObservationDTO.PROCEDURE_ID)
+	@Field(PROCEDURE_ID)
 	private List<Integer> procedureId;
-	// "procedure_id": 2,
-	@Field(ObservationDTO.PROCEDURE_STABLE_ID)
+
+	@Field(PROCEDURE_STABLE_ID)
 	private List<String> procedureStableId;
-	// "procedure_stable_id": "IMPC_HOU_001",
-	// @Field()
-	// private int procedureStableKey;
-	// "procedure_stable_key": 173,
-	@Field(ObservationDTO.PROCEDURE_NAME)
+
+	@Field(PROCEDURE_NAME)
 	private List<String> procedureName;
-	// "procedure_name": "Housing and Husbandry",
-	// "proc_name_id": "Housing and Husbandry___IMPC_HOU_001",
-	@Field(MAPPED_PROCEDIURE_NAME)
+
+	@Field(MAPPED_PROCEDURE_NAME)
 	private List<String> mappedProcedureName;
-	// "mapped_procedure_name": "Housing%20and%20Husbandry",
-	// "proc_param_name": "Housing and Husbandry___Submitter ID",
-	// "proc_param_stable_id": "IMPC_HOU_001___IMPC_HOU_001_001",
-	@Field(ObservationDTO.PIPELINE_NAME)
-	private List<String> pipelineName;
-	// "pipeline_name": "IMPC Pipeline",
-	@Field("pipe_proc_sid")
-	private List<String> pipeProcId;
 
-	@Field("pipeline_stable_key")
-	private List<Integer> pipelineStableKey;
-
-	@Field("procedure_stable_key")
-	private List<Integer> procedureStableKey;
-
-	@Field("proc_name_id")
-	private List<String> procedureNameId;
-
-	// "pipe_proc_sid": "IMPC Pipeline___Housing and Husbandry___IMPC_HOU_001",
-	@Field(ObservationDTO.PIPELINE_ID)
+	@Field(PIPELINE_ID)
 	private int pipelineId;
-	// "pipeline_id": 1,
-	// @Field()
-	// private int pipelineStableKey;
-	// "pipeline_stable_key": 7,
-	@Field(ObservationDTO.PIPELINE_STABLE_ID)
+
+	@Field(PIPELINE_STABLE_ID)
 	private List<String> pipelineStableId;
 
-	@Field("proc_param_stable_id")
+	@Field(PIPELINE_STABLE_KEY)
+	private List<Integer> pipelineStableKey;
+
+	@Field(PIPELINE_NAME)
+	private List<String> pipelineName;
+
+	@Field(PIPE_PROC_SID)
+	private List<String> pipeProcId;
+
+	@Field(PROCEDURE_STABLE_KEY)
+	private List<Integer> procedureStableKey;
+
+	@Field(PROCEDURE_NAME_ID)
+	private List<String> procedureNameId;
+
+	@Field(PROCEDURE_PARAMETER_STABLE_ID)
 	private List<String> procedureParamStableId;
 
-	@Field("proc_param_name")
+	@Field(PROCEDURE_PARAMETER_NAME)
 	private List<String> procedureParamName;
-	// "pipeline_stable_id": "IMPC_001",
-	// "ididid": "9_2_1",
-	@Field("parameter_stable_key")
+
+	@Field(PARAMETER_STABLE_KEY)
 	private String parameterStableKey;
-	@Field("ididid")
+
+	@Field(ID_ID_ID)
 	private List<String> ididid;
 
-	@Field(GeneDTO.MGI_ACCESSION_ID)
-	private List<String> mgiAccession;
-	@Field(GeneDTO.MARKER_TYPE)
-	private List<String> markerType;
-	@Field(GeneDTO.MARKER_SYMBOL)
-	private List<String> markerSymbol;
-	@Field(GeneDTO.MARKER_SYNONYM)
-	private List<String> markerSynonyms;
-	@Field(GeneDTO.MARKER_NAME)
-	private List<String> markerName;
-	@Field(GeneDTO.HUMAN_GENE_SYMBOL)
-	private List<String> humanGeneSymbol;
-	@Field(GeneDTO.STATUS)
-	private List<String> status;// status name from Bill Skarnes and used at EBI
-								// -->
+	//
+	// Gene fields
+	//
 
-	@Field(GeneDTO.IMITS_PHENOTYPE_STARTED)
+	@Field(MGI_ACCESSION_ID)
+	private List<String> mgiAccession;
+
+	@Field(MARKER_TYPE)
+	private List<String> markerType;
+
+	@Field(MARKER_SYMBOL)
+	private List<String> markerSymbol;
+
+	@Field(MARKER_SYNONYM)
+	private List<String> markerSynonyms;
+
+	@Field(MARKER_NAME)
+	private List<String> markerName;
+
+	@Field(HUMAN_GENE_SYMBOL)
+	private List<String> humanGeneSymbol;
+
+	// status name from Bill Skarnes and used at EBI
+	@Field(STATUS)
+	private List<String> status;
+
+	@Field(IMITS_PHENOTYPE_STARTED)
 	private List<String> imitsPhenotypeStarted;
 
-	@Field(GeneDTO.IMITS_PHENOTYPE_COMPLETE)
+	@Field(IMITS_PHENOTYPE_COMPLETE)
 	private List<String> imitsPhenotypeComplete;
-	@Field(GeneDTO.IMITS_PHENOTYPE_STATUS)
+
+	@Field(IMITS_PHENOTYPE_STATUS)
 	private List<String> imitsPhenotypeStatus;
-	@Field(GeneDTO.LATEST_PRODUCTION_CENTRE)
+
+	@Field(LATEST_PRODUCTION_CENTRE)
 	private List<String> latestProductionCentre;
-	@Field(GeneDTO.LATEST_PHENOTYPING_CENTRE)
+
+	@Field(LATEST_PHENOTYPING_CENTRE)
 	private List<String> latestPhenotypingCentre;
-	@Field(GeneDTO.LATEST_PHENOTYPE_STATUS)
+
+	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypingStatus;
-	@Field(GeneDTO.LEGACY_PHENOTYPE_STATUS)
+
+	@Field(LEGACY_PHENOTYPE_STATUS)
 	private List<String> legacyPhenotypingStatus;
-	@Field(GeneDTO.ALLELE_NAME)
+
+	@Field(ALLELE_NAME)
 	private List<String> alleleName;
 
-	// <field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />
-	@Field(MpDTO.MP_ID)
-	private List<String> mpId;
-	// <field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']"
-	// />
-	@Field(MpDTO.MP_TERM)
-	private List<String> mpTerm;
-	// <field column="mp_definition"
-	// xpath="/response/result/doc/str[@name='mp_definition']" />
-	
-	// <field column="mp_term_synonym"
-	// xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />
-	@Field(MpDTO.MP_TERM_SYNONYM)
-	private List<String> mpTermSynonym;
-	// <field column="ontology_subset"
-	// xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
-	@Field(MpDTO.ONTOLOGY_SUBSET)
-	private List<String> ontologySubset;
-	// <field column="top_level_mp_id"
-	// xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
-	@Field(MpDTO.TOP_LEVEL_MP_ID)
-	private List<String> topLevelMpId;
-	// <field column="top_level_mp_term"
-	// xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />
-	@Field(MpDTO.TOP_LEVEL_MP_TERM)
-	private List<String> topLevelMpTerm;
-	// <field column="top_level_mp_term_synonym"
-	// xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str"
-	// />
-	@Field(MpDTO.TOP_LEVEL_MP_TERM_SYNONYM)
-	private List<String> topLevelMpTermSynonym;
 	//
-	// <field column="intermediate_mp_id"
-	// xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str" />
-	@Field(MpDTO.INTERMEDIATE_MP_ID)
-	private List<String> intermediateMpId;
-	// <field column="intermediate_mp_term"
-	// xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str" />
-	@Field(MpDTO.INTERMEDIATE_MP_TERM)
-	private List<String> intermediateMpTerm;
-	// <field column="intermediate_mp_term_synonym"
-	// xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str"
-	// />
+	// MP fields
+	//
 
-	@Field(MpDTO.INTERMEDIATE_MP_TERM_SYNONYM)
+	@Field(MP_ID)
+	private List<String> mpId;
+
+	@Field(MP_TERM)
+	private List<String> mpTerm;
+
+	@Field(MP_TERM_SYNONYM)
+	private List<String> mpTermSynonym;
+
+	@Field(ONTOLOGY_SUBSET)
+	private List<String> ontologySubset;
+
+	@Field(TOP_LEVEL_MP_ID)
+	private List<String> topLevelMpId;
+
+	@Field(TOP_LEVEL_MP_TERM)
+	private List<String> topLevelMpTerm;
+
+	@Field(TOP_LEVEL_MP_TERM_SYNONYM)
+	private List<String> topLevelMpTermSynonym;
+
+	@Field(INTERMEDIATE_MP_ID)
+	private List<String> intermediateMpId;
+
+	@Field(INTERMEDIATE_MP_TERM)
+	private List<String> intermediateMpTerm;
+
+	@Field(INTERMEDIATE_MP_TERM_SYNONYM)
 	private List<String> intermediateMpTermSynonym;
-	// <field column="child_mp_id"
-	// xpath="/response/result/doc/arr[@name='child_mp_id']/str" />
-	@Field(MpDTO.CHILD_MP_ID)
+
+	@Field(CHILD_MP_ID)
 	private List<String> childMpId;
-	// <field column="child_mp_term"
-	// xpath="/response/result/doc/arr[@name='child_mp_term']/str" />
-	@Field(MpDTO.CHILD_MP_TERM)
+
+	@Field(CHILD_MP_TERM)
 	private List<String> childMpTerm;
-	// <field column="child_mp_term_synonym"
-	// xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str" />
-	@Field(MpDTO.CHILD_MP_TERM_SYNONYM)
+
+	@Field(CHILD_MP_TERM_SYNONYM)
 	private List<String> childMpTermSynonym;
-	//
-	// <field column="hp_id" xpath="/response/result/doc/arr[@name='hp_id']/str"
-	// />
-	@Field(MpDTO.HP_ID)
+
+	@Field(HP_ID)
 	private List<String> hpId;
-	// <field column="hp_term"
-	// xpath="/response/result/doc/arr[@name='hp_term']/str" />
-	@Field(MpDTO.HP_TERM)
+
+	@Field(HP_TERM)
 	private List<String> hpTerm;
-	// <!-- MA: inferred from MP -->
-	// <field column="inferred_ma_id"
-	// xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />
-	@Field(MpDTO.INFERRED_MA_ID)
+
+	@Field(INFERRED_MA_ID)
 	private List<String> inferredMaId;
-	// <field column="inferred_ma_term"
-	// xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
-	@Field(MpDTO.INFERRED_CHILD_MA_TERM)
+
+	@Field(INFERRED_CHILD_MA_TERM)
 	private List<String> inferredMaTerm;
-	// <field column="inferred_ma_term_synonym"
-	// xpath="/response/result/doc/arr[@name='inferred_ma_term_synonym']/str" />
-	@Field(MpDTO.INFERRED_MA_TERM_SYNONYM)
+
+	@Field(INFERRED_MA_TERM_SYNONYM)
 	private List<String> inferredMaTermSynonym;
-	//
-	// <field column="inferred_selected_top_level_ma_id"
-	// xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str"
-	// />
-	@Field(MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID)
+
+	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> selectedTopLevelMaId;
-	// <field column="inferred_selected_top_level_ma_term"
-	// xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str"
-	// />
-	@Field(MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM)
+
+	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM)
 	private List<String> inferredSelectedTopLevelMaTerm;
-	// <field column="inferred_selected_top_level_ma_term_synonym"
-	// xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term_synonym']/str"
-	// />
-	@Field(MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
+
+	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String> inferredSelectedToLevelMaTermSynonym;
-	// <field column="inferred_child_ma_id"
-	// xpath="/response/result/doc/arr[@name='inferred_child_ma_id']/str" />
-	@Field(MpDTO.INFERRED_CHILD_MA_ID)
+
+	@Field(INFERRED_CHILD_MA_ID)
 	private List<String> inferredChildMaId;
-	// <field column="inferred_child_ma_term"
-	// xpath="/response/result/doc/arr[@name='inferred_child_ma_term']/str" />
-	@Field(MpDTO.INFERRED_CHILD_MA_TERM)
+
+	@Field(INFERRED_CHILD_MA_TERM)
 	private List<String> inferredChildMaTerm;
-	// <field column="inferred_child_ma_term_synonym"
-	// xpath="/response/result/doc/arr[@name='inferred_child_ma_term_synonym']/str"
-	// />
-	@Field(MpDTO.INFERRED_CHILD_MA_TERM_SYNONYM)
+
+	@Field(INFERRED_CHILD_MA_TERM_SYNONYM)
 	private List<String> inferredChildMaTermSynonym;
+
+	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> inferredSelectedTopLevelMaId;
 
 
@@ -889,12 +926,6 @@ public class PipelineDTO {
 	}
 
 
-	public static String getMappedProcediureName() {
-
-		return MAPPED_PROCEDIURE_NAME;
-	}
-
-
 	public List<String> getMgiAccession() {
 
 		return mgiAccession;
@@ -1136,7 +1167,7 @@ public class PipelineDTO {
 	public void addAlleleName(List<String> alleleName) {
 
 		if (this.alleleName == null) {
-			this.alleleName = new ArrayList<String>();
+			this.alleleName = new ArrayList<>();
 		}
 		this.alleleName.addAll(alleleName);
 
@@ -1146,7 +1177,7 @@ public class PipelineDTO {
 	public void addMpId(String mpTermId) {
 
 		if (this.mpId == null) {
-			this.mpId = new ArrayList<String>();
+			this.mpId = new ArrayList<>();
 		}
 		this.mpId.add(mpTermId);
 
@@ -1156,7 +1187,7 @@ public class PipelineDTO {
 	public void addMpTerm(String mpTerm) {
 
 		if (this.mpTerm == null) {
-			this.mpTerm = new ArrayList<String>();
+			this.mpTerm = new ArrayList<>();
 		}
 		this.mpTerm.add(mpTerm);
 
@@ -1166,107 +1197,111 @@ public class PipelineDTO {
 	public void addMpTermSynonym(List<String> mpTermSynonym) {
 
 		if (this.mpTermSynonym == null) {
-			this.mpTermSynonym = new ArrayList<String>();
+			this.mpTermSynonym = new ArrayList<>();
 		}
 		this.mpTermSynonym.addAll(mpTermSynonym);
+		this.mpTermSynonym = new ArrayList<>(new HashSet<>(this.mpTermSynonym));
 	}
 
 
 	public void addOntologySubset(List<String> ontologySubset) {
 
 		if (this.ontologySubset == null) {
-			this.ontologySubset = new ArrayList<String>();
+			this.ontologySubset = new ArrayList<>();
 		}
 		this.ontologySubset.addAll(ontologySubset);
+		this.ontologySubset = new ArrayList<>(new HashSet<>(this.ontologySubset));
 	}
 
 
 	public void addTopLevelMpId(List<String> topLevelMpTermId) {
 		if (this.topLevelMpId == null) {
-			this.topLevelMpId = new ArrayList<String>();
+			this.topLevelMpId = new ArrayList<>();
 		}
 		this.topLevelMpId.addAll(topLevelMpTermId);
-		
+		this.topLevelMpId = new ArrayList<>(new HashSet<>(this.topLevelMpId));
 	}
 
 
 	public void addTopLevelMpTerm(List<String> topLevelMpTerm) {
 		if (this.topLevelMpTerm == null) {
-			this.topLevelMpTerm = new ArrayList<String>();
+			this.topLevelMpTerm = new ArrayList<>();
 		}
 		this.topLevelMpTerm.addAll(topLevelMpTerm);
+		this.topLevelMpTerm = new ArrayList<>(new HashSet<>(this.topLevelMpTerm));
 	}
 
 
 	public void addTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
 		if (this.topLevelMpTermSynonym == null) {
-			this.topLevelMpTermSynonym = new ArrayList<String>();
+			this.topLevelMpTermSynonym = new ArrayList<>();
 		}
 		this.topLevelMpTermSynonym.addAll(topLevelMpTermSynonym);
-		
+		this.topLevelMpTermSynonym = new ArrayList<>(new HashSet<>(this.topLevelMpTermSynonym));
 	}
 
 
 	public void addIntermediateMpId(List<String> intermediateMpId) {
 		if (this.intermediateMpId == null) {
-			this.intermediateMpId = new ArrayList<String>();
+			this.intermediateMpId = new ArrayList<>();
 		}
 		this.intermediateMpId.addAll(intermediateMpId);
-		
+		this.intermediateMpId = new ArrayList<>(new HashSet<>(this.intermediateMpId));
 	}
 
 
 	public void addIntermediateMpTerm(List<String> intermediateMpTerm) {
 		if (this.intermediateMpTerm == null) {
-			this.intermediateMpTerm = new ArrayList<String>();
+			this.intermediateMpTerm = new ArrayList<>();
 		}
 		this.intermediateMpTerm.addAll(intermediateMpTerm);
+		this.intermediateMpTerm = new ArrayList<>(new HashSet<>(this.intermediateMpTerm));
 	}
 
 
 	public void addIntermediateMpTermSynonym(List<String> intermediateMpTermSynonym) {
 
 		if (this.intermediateMpTermSynonym == null) {
-			this.intermediateMpTermSynonym = new ArrayList<String>();
+			this.intermediateMpTermSynonym = new ArrayList<>();
 		}
 		this.intermediateMpTermSynonym.addAll(intermediateMpTermSynonym);
-		
+		this.intermediateMpTermSynonym = new ArrayList<>(new HashSet<>(this.intermediateMpTermSynonym));
 	}
 
 
 	public void addChildMpId(List<String> childMpId) {
 
 		if (this.childMpId == null) {
-			this.childMpId = new ArrayList<String>();
+			this.childMpId = new ArrayList<>();
 		}
 		this.childMpId.addAll(childMpId);
-		
-		
+		this.childMpId = new ArrayList<>(new HashSet<>(this.childMpId));
 	}
 
 
 	public void addChildMpTerm(List<String> childMpTerm) {
 
 		if (this.childMpTerm == null) {
-			this.childMpTerm = new ArrayList<String>();
+			this.childMpTerm = new ArrayList<>();
 		}
 		this.childMpTerm.addAll(childMpTerm);
-		
+		this.childMpTerm = new ArrayList<>(new HashSet<>(this.childMpTerm));
 	}
 
 
 	public void addChildMpTermSynonym(List<String> childMpTermSynonym) {
 
 		if (this.childMpTermSynonym == null) {
-			this.childMpTermSynonym = new ArrayList<String>();
+			this.childMpTermSynonym = new ArrayList<>();
 		}
 		this.childMpTermSynonym.addAll(childMpTermSynonym);
+		this.childMpTermSynonym = new ArrayList<>(new HashSet<>(this.childMpTermSynonym));
 	}
 
 
 	public void addHpId(List<String> hpId) {
 		if (this.hpId == null) {
-			this.hpId = new ArrayList<String>();
+			this.hpId = new ArrayList<>();
 		}
 		this.hpId.addAll(hpId);
 	}
@@ -1275,7 +1310,7 @@ public class PipelineDTO {
 	public void addHpTerm(List<String> hpTerm) {
 
 		if (this.hpTerm == null) {
-			this.hpTerm = new ArrayList<String>();
+			this.hpTerm = new ArrayList<>();
 		}
 		this.hpTerm.addAll(hpTerm);
 		
@@ -1285,7 +1320,7 @@ public class PipelineDTO {
 	public void addInferredMaId(List<String> inferredChildMaId) {
 
 		if (this.inferredChildMaId == null) {
-			this.inferredChildMaId = new ArrayList<String>();
+			this.inferredChildMaId = new ArrayList<>();
 		}
 		this.inferredChildMaId.addAll(inferredChildMaId);
 		
@@ -1295,7 +1330,7 @@ public class PipelineDTO {
 	public void addInferredMaTerm(List<String> inferredChildMaTerm) {
 
 		if (this.inferredChildMaTerm == null) {
-			this.inferredChildMaTerm = new ArrayList<String>();
+			this.inferredChildMaTerm = new ArrayList<>();
 		}
 		this.inferredChildMaTerm.addAll(inferredChildMaTerm);
 		
@@ -1305,7 +1340,7 @@ public class PipelineDTO {
 	public void addInferredMaTermSynonym(List<String> inferredChildMaTermSynonym) {
 
 		if (this.inferredChildMaTermSynonym == null) {
-			this.inferredChildMaTermSynonym = new ArrayList<String>();
+			this.inferredChildMaTermSynonym = new ArrayList<>();
 		}
 		this.inferredChildMaTermSynonym.addAll(inferredChildMaTermSynonym);
 		
@@ -1316,7 +1351,7 @@ public class PipelineDTO {
 	public void addInferredSelectedTopLevelMaId(List<String> inferredSelectedTopLevelMaId) {
 
 		if (this.inferredSelectedTopLevelMaId == null) {
-			this.inferredSelectedTopLevelMaId = new ArrayList<String>();
+			this.inferredSelectedTopLevelMaId = new ArrayList<>();
 		}
 		this.inferredSelectedTopLevelMaId.addAll(inferredSelectedTopLevelMaId);
 		
@@ -1327,7 +1362,7 @@ public class PipelineDTO {
 	public void addInferredSelectedTopLevelMaTerm(List<String> inferredSelectedTopLevelMaTerm) {
 
 		if (this.inferredSelectedTopLevelMaTerm == null) {
-			this.inferredSelectedTopLevelMaTerm = new ArrayList<String>();
+			this.inferredSelectedTopLevelMaTerm = new ArrayList<>();
 		}
 		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
 		
@@ -1337,9 +1372,9 @@ public class PipelineDTO {
 	public void addInferredSelectedToLevelMaTermSynonym(List<String> inferredSelectedTopLevelMaTermSynonym) {
 
 		if (this.inferredSelectedToLevelMaTermSynonym== null) {
-			this.inferredSelectedTopLevelMaTerm = new ArrayList<String>();
+			this.inferredSelectedToLevelMaTermSynonym = new ArrayList<>();
 		}
-		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
+		this.inferredSelectedToLevelMaTermSynonym.addAll(inferredSelectedTopLevelMaTermSynonym);
 		
 	}
 
@@ -1347,7 +1382,7 @@ public class PipelineDTO {
 	public void addInferredChildMaId(List<String> inferredChildMaId) {
 
 		if (this.inferredChildMaId== null) {
-			this.inferredChildMaId = new ArrayList<String>();
+			this.inferredChildMaId = new ArrayList<>();
 		}
 		this.inferredChildMaId.addAll(inferredChildMaId);
 		
@@ -1357,7 +1392,7 @@ public class PipelineDTO {
 	public void addInferredChildMaTerm(List<String> inferredChildMaTerm) {
 
 		if (this.inferredChildMaTerm== null) {
-			this.inferredChildMaTerm = new ArrayList<String>();
+			this.inferredChildMaTerm = new ArrayList<>();
 		}
 		this.inferredChildMaTerm.addAll(inferredChildMaTerm);
 		
@@ -1366,7 +1401,7 @@ public class PipelineDTO {
 
 	public void addInferredChildMaTermSynonyms(List<String> inferredChildMaTermSynonym) {
 		if (this.inferredChildMaTermSynonym== null) {
-			this.inferredChildMaTermSynonym = new ArrayList<String>();
+			this.inferredChildMaTermSynonym = new ArrayList<>();
 		}
 		this.inferredChildMaTermSynonym.addAll(inferredChildMaTermSynonym);
 		
@@ -1376,7 +1411,7 @@ public class PipelineDTO {
 	public void addPipelineName(String pipelineName) {
 
 		if (this.pipelineName== null) {
-			this.pipelineName = new ArrayList<String>();
+			this.pipelineName = new ArrayList<>();
 		}
 		this.pipelineName.add(pipelineName);
 		
@@ -1386,7 +1421,7 @@ public class PipelineDTO {
 	public void addPipelineStableId(String pipelineStableId) {
 
 		if (this.pipelineStableId== null) {
-			this.pipelineStableId = new ArrayList<String>();
+			this.pipelineStableId = new ArrayList<>();
 		}
 		this.pipelineStableId.add(pipelineStableId);
 		
@@ -1395,7 +1430,7 @@ public class PipelineDTO {
 
 	public void addPipelineStableKey(Integer pipelineStableKey) {
 		if (this.pipelineStableKey== null) {
-			this.pipelineStableKey = new ArrayList<Integer>();
+			this.pipelineStableKey = new ArrayList<>();
 		}
 		this.pipelineStableKey.add(pipelineStableKey);
 		
@@ -1405,7 +1440,7 @@ public class PipelineDTO {
 	public void addPipeProcId(String pipeProcId) {
 
 		if (this.pipeProcId== null) {
-			this.pipeProcId = new ArrayList<String>();
+			this.pipeProcId = new ArrayList<>();
 		}
 		this.pipeProcId.add(pipeProcId);
 		
@@ -1415,7 +1450,7 @@ public class PipelineDTO {
 	public void addIdIdId(String ididid) {
 
 		if (this.ididid== null) {
-			this.ididid = new ArrayList<String>();
+			this.ididid = new ArrayList<>();
 		}
 		this.ididid.add(ididid);
 		

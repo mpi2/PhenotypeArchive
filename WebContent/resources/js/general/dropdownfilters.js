@@ -11,33 +11,36 @@ $(document).ready(function(){
 
 	var selectedFilters = "";
 	var dropdownsList = new Array();
-        initGenePhenotypesTable();
+    initGenePhenotypesTable();
 	/* var oDataTable = $('table#phenotypes').dataTable();
 						oDataTable.fnDestroy();  */
 	// use jquery DataTable for table searching/sorting/pagination
-        function initGenePhenotypesTable(){
-	var aDataTblCols = [0,1,2,3,4,5,6,7,8];
-	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-		"aoColumns": [
-		              { "sType": "html", "mRender":function( data, type, full ) {
-		            	  return (type === "filter") ? $(data).text() : data;
-		              }},
-		              { "sType": "html", "mRender":function( data, type, full ) {
-		            	  return (type === "filter") ? $(data).text() : data;
-		              }},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "html"},
-                      { "sType": "allnumeric"},
-		              { "sType": "string", "bSortable" : false }
-
-		              ],
-                              "aaSorting": [[ 7, 'asc' ]],//sort on pValue first
-		              "bDestroy": true,
-		              "bFilter":false
-	});
+    function initGenePhenotypesTable(){
+		var aDataTblCols = [0,1,2,3,4,5,6,7,8];
+		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
+	    $('table#genes').dataTable( {
+			"aoColumns": [
+			              { "sType": "html", "mRender":function( data, type, full ) {
+			            	  return (type === "filter") ? $(data).text() : data;
+			              }},
+			              { "sType": "html", "mRender":function( data, type, full ) {
+			            	  return (type === "filter") ? $(data).text() : data;
+			              }},
+			              { "sType": "string"},
+			              { "sType": "string"},
+			              { "sType": "string"},
+			              { "sType": "string"},
+			              { "sType": "html"},
+	                      { "sType": "allnumeric"},
+			              { "sType": "string", "bSortable" : false }
+	
+			              ],
+		    "aaSorting": [[ 7, 'asc' ]],//sort on pValue first
+			"bDestroy": true,
+			"bFilter":false,
+			"bPaginate":true,
+	        "sPaginationType": "bootstrap"
+		});
     }
 
 	// Sort the individual table containing p-values
@@ -113,9 +116,9 @@ $(document).ready(function(){
             
             var exportObj = buildExportUrl(conf);                                   // Build the export url, page url, and form strings.
             $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);    // Initialize the url.
-// WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
-// THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
-// RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
+            // WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
+            // THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
+            // RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
             
             $('button.fileIcon').click(function() {
                 var exportObj = buildExportUrl(conf, $(this).text());                       // Build the export url, page url, and form strings.
@@ -157,7 +160,7 @@ $(document).ready(function(){
 			url: newUrl,
 			cache: false
 		}).done(function( html ) {
-			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
+			$("#genes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
 			initGenePhenotypesTable();
 			//alert('calling new table in genes.jsp');
 		});
@@ -174,6 +177,7 @@ $(document).ready(function(){
 	createDropdown(allDropdowns[1], "Source: All", allDropdowns);
 
 	function createDropdown(multipleSel, emptyText,  allDd){
+		console.log("called createDropdown "+ multipleSel);
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");
@@ -194,7 +198,7 @@ $(document).ready(function(){
 				}  
 				
 				console.log("values="+values );
-				// add current one and create dropdown object 
+				// add current one and create drop down object 
 				dd1 = new Object();
 				dd1.name = multipleSel.attr('id'); 
 				dd1.array = values; // selected values

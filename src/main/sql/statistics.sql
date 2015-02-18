@@ -6,9 +6,9 @@ CREATE TABLE stats_categorical_results (
 
   id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   control_id                 INT(10) UNSIGNED,
-  control_sex                ENUM('female', 'hermaphrodite', 'male', 'not_applicable'),
+  control_sex                ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both'),
   experimental_id            INT(10) UNSIGNED,
-  experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable'),
+  experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both'),
   experimental_zygosity      ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
   external_db_id             INT(10),
   project_id                 INT(10) UNSIGNED,
@@ -25,7 +25,7 @@ CREATE TABLE stats_categorical_results (
   male_mutants               INT(10) UNSIGNED,
   female_controls            INT(10) UNSIGNED,
   female_mutants             INT(10) UNSIGNED,
-  metadata_group             VARCHAR(50) DEFAULT '',
+  metadata_group             VARCHAR(50)               DEFAULT '',
   statistical_method         VARCHAR(50),
   status                     VARCHAR(200),
   category_a                 TEXT,
@@ -72,7 +72,7 @@ CREATE TABLE stats_unidimensional_results (
   male_mutants                     INT(10) UNSIGNED,
   female_controls                  INT(10) UNSIGNED,
   female_mutants                   INT(10) UNSIGNED,
-  metadata_group                   VARCHAR(50) DEFAULT '',
+  metadata_group                   VARCHAR(50)               DEFAULT '',
   statistical_method               VARCHAR(200),
   status                           VARCHAR(200),
   batch_significance               BOOLEAN,
@@ -154,7 +154,6 @@ CREATE TABLE statistical_result_phenotype_call_summary (
   ENGINE =MyISAM;
 
 
-
 DROP TABLE IF EXISTS statistical_result;
 CREATE TABLE statistical_result (
 
@@ -185,12 +184,15 @@ CREATE TABLE statistical_result (
   status                           VARCHAR(200),
   type                             VARCHAR(200),
   classification_tag               VARCHAR(200),
-  male_p_value                     DOUBLE,
+  male_pvalue                      DOUBLE,
   male_effect_size                 DOUBLE,
-  female_p_value                   DOUBLE,
+  male_stderr                      DOUBLE,
+  female_pvalue                    DOUBLE,
   female_effect_size               DOUBLE,
-  both_p_value                     DOUBLE,
-  both_effect_size                 DOUBLE,
+  female_stderr                    DOUBLE,
+  pvalue                           DOUBLE,
+  effect_size                      DOUBLE,
+  stderr                           DOUBLE,
 
   PRIMARY KEY (id),
   KEY organisation_idx (organisation_id),
@@ -221,26 +223,26 @@ DROP TABLE IF EXISTS statistical_result_phenstat;
 CREATE TABLE statistical_result_phenstat (
 
   id                               INT(10) UNSIGNED NOT NULL,
-  interaction_significance         BOOLEAN,
   batch_significance               BOOLEAN,
+  interaction_significance         BOOLEAN,
   variance_significance            BOOLEAN,
-  genotype_pvalue                  DOUBLE,
-  genotype_estimate                DOUBLE,
-  genotype_stderr_estimate         DOUBLE,
-  gender_male_pvalue               DOUBLE,
-  gender_male_estimate             DOUBLE,
-  gender_male_stderr_estimate      DOUBLE,
-  gender_female_pvalue             DOUBLE,
-  gender_female_estimate           DOUBLE,
-  gender_female_stderr_estimate    DOUBLE,
+  genotype_contribution_pvalue     DOUBLE,
   genotype_effect_pvalue           DOUBLE,
+  genotype_parameter_estimate      DOUBLE,
+  genotype_stderr_estimate         DOUBLE,
   genotype_percentage_change       VARCHAR(200),
+  gender_effect_pvalue             DOUBLE,
   gender_parameter_estimate        DOUBLE,
   gender_stderr_estimate           DOUBLE,
-  gender_effect_pvalue             DOUBLE,
+  gender_male_effect_pvalue        DOUBLE,
+  gender_male_parameter_estimate   DOUBLE,
+  gender_male_stderr_estimate      DOUBLE,
+  gender_female_effect_pvalue      DOUBLE,
+  gender_female_parameter_estimate DOUBLE,
+  gender_female_stderr_estimate    DOUBLE,
+  weight_effect_pvalue             DOUBLE,
   weight_parameter_estimate        DOUBLE,
   weight_stderr_estimate           DOUBLE,
-  weight_effect_pvalue             DOUBLE,
   group1_genotype                  VARCHAR(200),
   group1_residuals_normality_test  DOUBLE,
   group2_genotype                  VARCHAR(200),
@@ -263,9 +265,9 @@ CREATE TABLE statistical_result_phenstat (
 DROP TABLE IF EXISTS statistical_result_fisher_exact;
 CREATE TABLE statistical_result_fisher_exact (
 
-  id                         INT(10) UNSIGNED NOT NULL,
-  category_a                 TEXT,
-  category_b                 TEXT,
+  id         INT(10) UNSIGNED NOT NULL,
+  category_a TEXT,
+  category_b TEXT,
 
   PRIMARY KEY (id),
   FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
@@ -275,12 +277,11 @@ CREATE TABLE statistical_result_fisher_exact (
   ENGINE =MyISAM;
 
 
-
 DROP TABLE IF EXISTS statistical_result_manual;
 CREATE TABLE statistical_result_manual (
 
-  id                               INT(10) UNSIGNED NOT NULL,
-  method       VARCHAR(200),
+  id     INT(10) UNSIGNED NOT NULL,
+  method VARCHAR(200),
 
   PRIMARY KEY (id),
   FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)

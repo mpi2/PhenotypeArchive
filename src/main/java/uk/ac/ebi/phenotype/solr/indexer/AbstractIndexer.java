@@ -15,9 +15,9 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.io.File;
 import joptsimple.OptionException;
 import org.slf4j.Logger;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -29,6 +29,9 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 
 /**
  * @author Matt Pearce
@@ -37,10 +40,15 @@ public abstract class AbstractIndexer {
 
     static final String CONTEXT_ARG = "context";
 
-    static final String KOMP2_DATASOURCE_BEAN = "komp2DataSource";
-    static final String ONTODB_DATASOURCE_BEAN = "ontodbDataSource";
+    protected static final String KOMP2_DATASOURCE_BEAN = "komp2DataSource";
+    protected static final String ONTODB_DATASOURCE_BEAN = "ontodbDataSource";
+    protected static final int MINIMUM_DOCUMENT_COUNT = 100;
 
     protected ApplicationContext applicationContext;
+    
+    // This is used to track the number of documents that were requested to be added by the core.addBeans() call.
+    // It is used for later validation by querying the core after the build.
+    protected int documentCount = 0;
 
     protected abstract Logger getLogger();
 
@@ -48,6 +56,18 @@ public abstract class AbstractIndexer {
 
     public abstract void validateBuild() throws IndexerException;
 
+    public long getDocumentCount(SolrServer solrServer) throws IndexerException {
+        Long numFound = 0L;
+        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
+        try {
+            numFound = solrServer.query(query).getResults().getNumFound();
+        } catch (SolrServerException sse) {
+            throw new IndexerException(sse);
+        }
+        
+        return numFound;
+    }
+    
     public void initialise(String[] args) throws IndexerException {
         getLogger().info("args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
@@ -88,22 +108,23 @@ public abstract class AbstractIndexer {
     }
 
     protected ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext applicationContext;
+        ApplicationContext appContext;
 
-        try {
+        // Try context as a file resource.
+        File file = new File(context);
+        if (file.exists()) {
             // Try context as a file resource
-            getLogger().info("Trying to load context from file system...");
-            applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-            getLogger().info("Context loaded from file system");
-        } catch (BeansException e) {
-            getLogger().info("Unable to load the context file: {}", e.getMessage());
-
+            getLogger().info("Trying to load context from file system file {} ...", context);
+            appContext = new FileSystemXmlApplicationContext("file:" + context);
+        } else {
             // Try context as a class path resource
-            applicationContext = new ClassPathXmlApplicationContext(context);
-            getLogger().info("Using classpath app-config file: {}", context);
+            getLogger().info("Trying to load context from classpath file: {}... ", context);
+            appContext = new ClassPathXmlApplicationContext(context);
         }
-
-        return applicationContext;
+            
+        getLogger().info("Context loaded");
+        
+        return appContext;
     }
 
     protected void initialiseHibernateSession(ApplicationContext applicationContext) {

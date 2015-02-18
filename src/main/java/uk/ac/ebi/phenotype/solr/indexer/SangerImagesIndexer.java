@@ -19,7 +19,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Populate the experiment core
@@ -85,21 +84,18 @@ public class SangerImagesIndexer extends AbstractIndexer {
     public SangerImagesIndexer() {
 
     }
-    
-    public static final long MIN_EXPECTED_ROWS = 102000;
-    
+
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = sangerImagesCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(sangerImagesCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual images document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " images documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " images documents.");
     }
 
     @Override
@@ -316,8 +312,13 @@ public class SangerImagesIndexer extends AbstractIndexer {
                             List<String> topLevelMpTermSynonym = new ArrayList<>();
                             for (Annotation annotation : annotations) {
                                 annotationTermIds.add(annotation.annotationTermId);
-                                annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
+                                //if ma term
+                                
+                                //if mp term
+                                
+                                
                                 if (annotation.ma_id != null) {
+                                	annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
                                     ma_ids.add(annotation.ma_id);
                                     ma_terms.add(annotation.ma_term);
 
@@ -347,6 +348,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                                     }
                                 }
                                 if (annotation.mp_id != null) {
+                                	annotationTermNames.add(annotation.mp_term);
                                     mp_ids.add(annotation.mp_id);
                                     mp_terms.add(annotation.mp_term);
 
@@ -399,7 +401,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                                             }
                                         }
                                     } else {
-                                        System.err.println("no top level for " + annotation.mp_id);
+                                        logger.warn("No top level for " + annotation.mp_id);
                                     }
                                     if (mpSynMap.containsKey(annotation.mp_id)) {
                                         o.setMpSyns(mpSynMap.get(annotation.mp_id));
@@ -463,12 +465,13 @@ public class SangerImagesIndexer extends AbstractIndexer {
                 }
 
     // xxxxxxxxxxxxx0 seconds between commits
+                documentCount++;
                 sangerImagesCore.addBean(o, 10000);
 
                 count ++;
 
                 if (count % 10000 == 0) {
-                    System.out.println(" added " + count + " beans");
+                    logger.info(" added " + count + " beans");
                 }
 
             }
@@ -493,7 +496,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
         // <field column="syn_name" name="ma_term_synonym" />
         //
         // </entity>
-        System.out.println("populating MA synonyms");
+        logger.info("populating MA synonyms");
 		// use annotationTermName from ontodb not from Sanger image
         // annotation(risk of out of date)
         String query = "select * from ma_synonyms";
@@ -517,7 +520,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                 // termToNodeMap.put(termId, nodeId);
 
             }
-            System.out.println("termIdToMaSynonyms size=" + termIdToMaSynonyms.size());
+            logger.info("termIdToMaSynonyms size=" + termIdToMaSynonyms.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -566,7 +569,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateMAs() {
 
-        System.out.println("populating MAs");
+        logger.info("populating MAs");
         String query = "select ma_term_infos.term_id, ma_term_infos.name, ma_node2term.node_id, ma_node2term.term_id from ma_term_infos, ma_node2term where ma_term_infos.term_id=ma_node2term.term_id";
 
         try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
@@ -594,7 +597,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 		// select * from IMPC_MOUSE_ALLELE_MV where
         // MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
-        System.out.println("populating MouseMv");
+        logger.info("populating MouseMv");
         String query = "select MOUSE_ID, AGE_IN_WEEKS, ALLELE, GENOTYPE, GENDER, COLONY_ID from IMPC_MOUSE_ALLELE_MV";// where
         // MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
         // image
@@ -636,7 +639,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 		// select * from IMPC_MOUSE_ALLELE_MV where
         // MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}
-        System.out.println("populating alleleMpi");
+        logger.info("populating alleleMpi");
         String query = "select * from `allele`";// where
         // MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
         // image record.foreignkeyid to
@@ -667,7 +670,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateGenomicFeature2() {
 
-        System.out.println("populating genomicFeature2");
+        logger.info("populating genomicFeature2");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
         // query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
         // <field column="symbol" name="symbol" />
@@ -707,7 +710,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
         // IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and
         // IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID;# AND
         // IMA_IMAGE_RECORD.ID=${ima_image_record.ID}
-        System.out.println("populating experiments");
+        logger.info("populating experiments");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
         // query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
         // <field column="symbol" name="symbol" />
@@ -746,7 +749,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
     protected void populateSynonyms() {
 
         // select * from synonym
-        System.out.println("populating synonyms");
+        logger.info("populating synonyms");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
         // query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
         // <field column="symbol" name="symbol" />
@@ -775,7 +778,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
                 }
 
             }
-            System.out.println("synonyms size=" + synonyms.size());
+            logger.info("synonyms size=" + synonyms.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -785,7 +788,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
     private void populateTAGS() {
 
         // select * from IMA_IMAGE_TAG
-        System.out.println("populating TAGS");
+        logger.info("populating TAGS");
 		// <entity dataSource="komp2ds" name="genomic_feature2"
         // query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
         // <field column="symbol" name="symbol" />
@@ -835,7 +838,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
         // <field column="TERM_ID" name="maTermId" />
         // <field column="TERM_NAME" name="ma_term" />
         // <field column="TERM_ID" name="ma_id" />
-        System.out.println("populating Annotations");
+        logger.info("populating Annotations");
         String query = "select * from ANN_ANNOTATION";// where TERM_ID like
         // 'MA%'";// where
         // FOREIGN_KEY_ID=${tag.ID}
@@ -902,7 +905,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     protected void populateSubType() {
 
-        System.out.println("pupulating subtype");
+        logger.info("populating subtype");
 		// <entity dataSource="komp2ds" name="notnull"
         // query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
         // <entity dataSource="komp2ds" name="subtype2"
@@ -1001,7 +1004,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateMpSynonyms() {
 
-        System.out.println("pupulating MP synonyms");
+        logger.info("populating MP synonyms");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "select * from mp_synonyms";
 
@@ -1029,7 +1032,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateMaNodeToTerms() {
 
-        System.out.println("pupulating ma_node2term");
+        logger.info("populating ma_node2term");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "select * from ma_node2term";
 
@@ -1057,7 +1060,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
     public void populateMaNodeToTopLevel() {
 
-        System.out.println("pupulating ma_node2term");
+        logger.info("populating ma_node2topLevel");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "select distinct m.node_id, ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
 
@@ -1106,7 +1109,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 		// SELECT * FROM `mp_node2term` mp, mp_node_top_level tl WHERE
         // mp.node_id=tl.node_id
-        System.out.println("pupulating mpNode2termTopLevel");
+        logger.info("populating mpNode2termTopLevel");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "SELECT * FROM `mp_node2term` mp, mp_node_top_level tl WHERE mp.node_id=tl.node_id";
 
@@ -1135,7 +1138,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 		// SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM
         // `mp_node2term` mp , `mp_term_infos` inf WHERE inf.term_id=mp.term_id
-        System.out.println("populating mpTermInfo");
+        logger.info("populating mpTermInfo");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM `mp_node2term` mp , `mp_term_infos` inf WHERE  inf.term_id=mp.term_id";
 
@@ -1272,7 +1275,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
     private void populateMpToHpTermsMap()
             throws IndexerException {
 
-        System.out.println("populating Mp To Hp Term map");
+        logger.info("populating Mp To Hp Term map");
         mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmServer);
     }
 
@@ -1280,7 +1283,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 		// select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt
         // where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
-        System.out.println("populating mpTermToNode");
+        logger.info("populating mpTermToNode");
         // <field column="syn_name" name="mp_term_synonym" />
         String query = "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
 

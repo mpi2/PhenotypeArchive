@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
@@ -63,5 +64,24 @@ public class ChartUtils {
 			String decimalAdjustedMean = df.format(number);
 			Float decFloat=new Float(decimalAdjustedMean);
 			return decFloat;
+		}
+		
+		public static String getChartPageUrlPostQc( String baseUrl, String geneAcc, String alleleAcc, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter){
+			String url= baseUrl;
+	    	url += "/charts?accession=" + geneAcc;
+	    	url += "&allele_accession=" + alleleAcc;
+	    	if (zygosity != null){
+	    		url += "&zygosity=" + zygosity.name();
+	    	}
+			if (parameterStableId != null) {
+				url += "&parameter_stable_id=" + parameterStableId;
+			}
+			if (pipelineStableId != null) {
+				url += "&pipeline_stable_id=" + pipelineStableId;
+			}
+			if (phenotypingCenter != null) {
+				url += "&phenotyping_center=" + phenotypingCenter;
+			}
+	        return url;
 		}
 }

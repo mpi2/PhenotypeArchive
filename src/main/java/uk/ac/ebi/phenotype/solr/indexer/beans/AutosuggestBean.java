@@ -12,6 +12,7 @@ public class AutosuggestBean {
 
 	public static final String DOCTYPE = "docType";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
+	public static final String MGI_ALLELE_ACCESSION_ID = "allele_accession_id";
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_NAME = "marker_name";
 	public static final String MARKER_SYNONYM = "marker_synonym";
@@ -55,6 +56,9 @@ public class AutosuggestBean {
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionID;
 
+	@Field(MGI_ALLELE_ACCESSION_ID)
+	private List<String> mgiAlleleAccessionIds;
+	
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
 
@@ -178,12 +182,21 @@ public class AutosuggestBean {
 		return mgiAccessionID;
 	}
 
-
 	public void setMgiAccessionID(String mgiAccessionID) {
 
 		this.mgiAccessionID = mgiAccessionID;
 	}
 
+	public List<String> getMgiAlleleAccessionIds() {
+
+		return mgiAlleleAccessionIds;
+	}
+
+	public void setMgiAlleleAccessionIds(List<String> mgiAlleleAccessionIds) {
+
+		this.mgiAlleleAccessionIds = mgiAlleleAccessionIds;
+	}
+	
 
 	public String getMarkerSymbol() {
 
@@ -651,6 +664,8 @@ public class AutosuggestBean {
 			return false;
 		if (mgiAccessionID != null ? !mgiAccessionID.equals(that.mgiAccessionID) : that.mgiAccessionID != null)
 			return false;
+		if (mgiAlleleAccessionIds != null ? !mgiAlleleAccessionIds.equals(that.mgiAlleleAccessionIds) : that.mgiAlleleAccessionIds != null)
+			return false;
 		if (mpID != null ? !mpID.equals(that.mpID) : that.mpID != null) return false;
 		if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
 		if (mpTermSynonym != null ? !mpTermSynonym.equals(that.mpTermSynonym) : that.mpTermSynonym != null)
@@ -676,6 +691,7 @@ public class AutosuggestBean {
 
 		int result = docType != null ? docType.hashCode() : 0;
 		result = 31 * result + (mgiAccessionID != null ? mgiAccessionID.hashCode() : 0);
+		result = 31 * result + (mgiAlleleAccessionIds != null ? mgiAlleleAccessionIds.hashCode() : 0);
 		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
 		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);

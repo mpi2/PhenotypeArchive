@@ -1,11 +1,13 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
@@ -18,12 +20,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Populate the Genotype-Phenotype core
  */
 public class GenotypePhenotypeIndexer extends AbstractIndexer {
+
+    public final static Set<String> source3iProcedurePrefixes = new HashSet(Arrays.asList(
+        "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
+    ));
 
     private static final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
     private static Connection connection;
@@ -49,20 +54,17 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     public GenotypePhenotypeIndexer() {
     }
 
-    public static final long MIN_EXPECTED_ROWS = 7600;
-
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = gpSolrServer.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(gpSolrServer);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual genotype-phenotype document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " genotype-phenotype documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " genotype-phenotype documents.");
     }
 
     @Override
@@ -126,21 +128,49 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         gpSolrServer.deleteByQuery("*:*");
 
-        String query = "SELECT s.id as id, o.name as phenotyping_center, s.external_id, s.parameter_id as parameter_id, "
-                + "s.procedure_id as procedure_id, s.pipeline_id as pipeline_id, s.gf_acc as marker_accession_id, gf.symbol as marker_symbol, "
-                + "s.allele_acc as allele_accession_id, al.name as allele_name, al.symbol as allele_symbol, s.strain_acc as strain_accession_id, "
-                + "st.name as strain_name, s.sex as sex, s.zygosity as zygosity, p.name as project_name, p.fullname as project_fullname, "
-                + "s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, s.colony_id, "
-                + "db.name as resource_fullname, db.short_name as resource_name "
-                + "FROM phenotype_call_summary s "
-                + "INNER JOIN organisation o ON s.organisation_id = o.id "
-                + "INNER JOIN project p ON s.project_id = p.id "
-                + "INNER JOIN ontology_term ot ON ot.acc = s.mp_acc "
-                + "INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc "
-                + "LEFT OUTER JOIN strain st ON s.strain_acc = st.acc "
-                + "LEFT OUTER JOIN allele al ON s.allele_acc = al.acc "
-                + "INNER JOIN external_db db ON s.external_db_id = db.id "
-                + "WHERE 0.0001 >= s.p_value";
+        String query = "SELECT\n" +
+            "  s.id           AS id,\n" +
+            "  CASE\n" +
+            "  WHEN sur.statistical_method IS NOT NULL THEN sur.statistical_method\n" +
+            "  WHEN scr.statistical_method IS NOT NULL THEN scr.statistical_method\n" +
+            "  ELSE \"Unknown\"\n" +
+            "  END            AS statistical_method,\n" +
+            "  sur.genotype_percentage_change,\n" +
+            "  o.name         AS phenotyping_center,\n" +
+            "  s.external_id,\n" +
+            "  s.parameter_id AS parameter_id,\n" +
+            "  s.procedure_id AS procedure_id,\n" +
+            "  s.pipeline_id  AS pipeline_id,\n" +
+            "  s.gf_acc       AS marker_accession_id,\n" +
+            "  gf.symbol      AS marker_symbol,\n" +
+            "  s.allele_acc   AS allele_accession_id,\n" +
+            "  al.name        AS allele_name,\n" +
+            "  al.symbol      AS allele_symbol,\n" +
+            "  s.strain_acc   AS strain_accession_id,\n" +
+            "  st.name        AS strain_name,\n" +
+            "  s.sex          AS sex,\n" +
+            "  s.zygosity     AS zygosity,\n" +
+            "  p.name         AS project_name,\n" +
+            "  p.fullname     AS project_fullname,\n" +
+            "  s.mp_acc       AS mp_term_id,\n" +
+            "  ot.name        AS mp_term_name,\n" +
+            "  s.p_value      AS p_value,\n" +
+            "  s.effect_size  AS effect_size,\n" +
+            "  s.colony_id,\n" +
+            "  db.name        AS resource_fullname,\n" +
+            "  db.short_name  AS resource_name\n" +
+            "FROM phenotype_call_summary s\n" +
+            "  INNER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id\n" +
+            "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id\n" +
+            "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id\n" +
+            "  INNER JOIN organisation o ON s.organisation_id = o.id\n" +
+            "  INNER JOIN project p ON s.project_id = p.id\n" +
+            "  INNER JOIN ontology_term ot ON ot.acc = s.mp_acc\n" +
+            "  INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc\n" +
+            "  LEFT OUTER JOIN strain st ON s.strain_acc = st.acc\n" +
+            "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc\n" +
+            "  INNER JOIN external_db db ON s.external_db_id = db.id\n" +
+            "WHERE 0.0001 >= s.p_value\n";
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -159,6 +189,24 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setProjectFullname(r.getString("project_fullname"));
                 doc.setMpTermId(r.getString("mp_term_id"));
                 doc.setMpTermName(r.getString("mp_term_name"));
+
+                String percentageChangeDb = r.getString("genotype_percentage_change");
+                if ( ! r.wasNull()) {
+
+                    // Default female, override if male
+                    Double percentageChange = StatisticalResultIndexer.getFemalePercentageChange(percentageChangeDb);
+
+                    if (doc.getSex().equals(SexType.male.getName())) {
+                        percentageChange = StatisticalResultIndexer.getMalePercentageChange(percentageChangeDb);
+                    }
+
+                    if (percentageChange != null) {
+                        doc.setPercentageChange(percentageChange.toString() + "%");
+                    }
+
+                }
+
+                doc.setStatisticalMethod(r.getString("statistical_method"));
                 doc.setP_value(r.getDouble("p_value"));
                 doc.setEffect_size(r.getDouble("effect_size"));
                 doc.setMarkerAccessionId(r.getString("marker_accession_id"));
@@ -169,8 +217,18 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setAlleleSymbol(r.getString("allele_symbol"));
                 doc.setStrainAccessionId(r.getString("strain_accession_id"));
                 doc.setStrainName(r.getString("strain_name"));
-                doc.setResourceFullname(r.getString("resource_fullname"));
-                doc.setResourceName(r.getString("resource_name"));
+
+                // Procedure prefix is the first two strings of the parameter after splitting on underscore
+                // i.e. IMPC_BWT_001_001 => IMPC_BWT
+                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).stableId.split("_")).subList(0, 2), "_");
+                if (source3iProcedurePrefixes.contains(procedurePrefix)) {
+                    doc.setResourceName("3i");
+                    doc.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
+                } else {
+                    doc.setResourceFullname(r.getString("resource_fullname"));
+                    doc.setResourceName(r.getString("resource_name"));
+                }
+
                 doc.setExternalId(r.getString("external_id"));
 
                 doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
@@ -219,6 +277,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setIntermediateMpTermDefinition(termDefinitions);
                 }
 
+                documentCount++;
                 gpSolrServer.addBean(doc, 30000);
 
                 count ++;

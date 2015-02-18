@@ -1,8 +1,8 @@
 package uk.ac.ebi.phenotype.service.dto;
 
-import java.util.List;
-
 import org.apache.solr.client.solrj.beans.Field;
+
+import java.util.List;
 
 public class GenotypePhenotypeDTO {
 
@@ -43,6 +43,8 @@ public class GenotypePhenotypeDTO {
 	public static final String PARAMETER_NAME = "parameter_name";
 	public static final String PARAMETER_STABLE_ID = "parameter_stable_id";
 	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
+	public static final String STATISTICAL_METHOD = "statistical_method";
+	public static final String PERCENTAGE_CHANGE = "percentage_change";
 	public static final String P_VALUE = "p_value";
 	public static final String EFFECT_SIZE = "effect_size";
 	public static final String EXTERNAL_ID = "external_id";
@@ -154,6 +156,12 @@ public class GenotypePhenotypeDTO {
 
 	@Field(PARAMETER_STABLE_KEY)
 	String parameterStableKey;
+
+	@Field(STATISTICAL_METHOD)
+	String statisticalMethod;
+
+	@Field(PERCENTAGE_CHANGE)
+	String percentageChange;
 
 	@Field(P_VALUE)
 	Double p_value;
@@ -596,7 +604,31 @@ public class GenotypePhenotypeDTO {
 		this.parameterStableKey = parameterStableKey;
 	}
 
-	
+
+	public String getStatisticalMethod() {
+
+		return statisticalMethod;
+	}
+
+
+	public void setStatisticalMethod(String statisticalMethod) {
+
+		this.statisticalMethod = statisticalMethod;
+	}
+
+
+	public String getPercentageChange() {
+
+		return percentageChange;
+	}
+
+
+	public void setPercentageChange(String percentageChange) {
+
+		this.percentageChange = percentageChange;
+	}
+
+
 	public Double getP_value() {
 	
 		return p_value;
@@ -634,178 +666,129 @@ public class GenotypePhenotypeDTO {
 
 
 	@Override
-	public int hashCode() {
+	public boolean equals(Object o) {
 
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((alleleAccessionId == null) ? 0 : alleleAccessionId.hashCode());
-		result = prime * result + ((alleleName == null) ? 0 : alleleName.hashCode());
-		result = prime * result + ((alleleSymbol == null) ? 0 : alleleSymbol.hashCode());
-		result = prime * result + ((colonyId == null) ? 0 : colonyId.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((effect_size == null) ? 0 : effect_size.hashCode());
-		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
-		result = prime * result + ((intermediateMpTermDefinition == null) ? 0 : intermediateMpTermDefinition.hashCode());
-		result = prime * result + ((intermediateMpTermId == null) ? 0 : intermediateMpTermId.hashCode());
-		result = prime * result + ((intermediateMpTermName == null) ? 0 : intermediateMpTermName.hashCode());
-		result = prime * result + ((intermediateMpTermSynonym == null) ? 0 : intermediateMpTermSynonym.hashCode());
-		result = prime * result + ((markerAccessionId == null) ? 0 : markerAccessionId.hashCode());
-		result = prime * result + ((markerSymbol == null) ? 0 : markerSymbol.hashCode());
-		result = prime * result + ((mpTermId == null) ? 0 : mpTermId.hashCode());
-		result = prime * result + ((mpTermName == null) ? 0 : mpTermName.hashCode());
-		result = prime * result + ((p_value == null) ? 0 : p_value.hashCode());
-		result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
-		result = prime * result + ((parameterStableId == null) ? 0 : parameterStableId.hashCode());
-		result = prime * result + ((parameterStableKey == null) ? 0 : parameterStableKey.hashCode());
-		result = prime * result + ((phenotypingCenter == null) ? 0 : phenotypingCenter.hashCode());
-		result = prime * result + ((pipelineName == null) ? 0 : pipelineName.hashCode());
-		result = prime * result + ((pipelineStableId == null) ? 0 : pipelineStableId.hashCode());
-		result = prime * result + ((pipelineStableKey == null) ? 0 : pipelineStableKey.hashCode());
-		result = prime * result + ((procedureName == null) ? 0 : procedureName.hashCode());
-		result = prime * result + ((procedureStableId == null) ? 0 : procedureStableId.hashCode());
-		result = prime * result + ((procedureStableKey == null) ? 0 : procedureStableKey.hashCode());
-		result = prime * result + ((projectExternalId == null) ? 0 : projectExternalId.hashCode());
-		result = prime * result + ((projectFullname == null) ? 0 : projectFullname.hashCode());
-		result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
-		result = prime * result + ((resourceFullname == null) ? 0 : resourceFullname.hashCode());
-		result = prime * result + ((resourceName == null) ? 0 : resourceName.hashCode());
-		result = prime * result + ((sex == null) ? 0 : sex.hashCode());
-		result = prime * result + ((strainAccessionId == null) ? 0 : strainAccessionId.hashCode());
-		result = prime * result + ((strainName == null) ? 0 : strainName.hashCode());
-		result = prime * result + ((topLevelMpTermDefinition == null) ? 0 : topLevelMpTermDefinition.hashCode());
-		result = prime * result + ((topLevelMpTermId == null) ? 0 : topLevelMpTermId.hashCode());
-		result = prime * result + ((topLevelMpTermName == null) ? 0 : topLevelMpTermName.hashCode());
-		result = prime * result + ((topLevelMpTermSynonym == null) ? 0 : topLevelMpTermSynonym.hashCode());
-		result = prime * result + ((zygosity == null) ? 0 : zygosity.hashCode());
-		return result;
+		if (this == o) return true;
+		if (!(o instanceof GenotypePhenotypeDTO)) return false;
+
+		GenotypePhenotypeDTO that = (GenotypePhenotypeDTO) o;
+
+		if (alleleAccessionId != null ? !alleleAccessionId.equals(that.alleleAccessionId) : that.alleleAccessionId != null)
+			return false;
+		if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) return false;
+		if (alleleSymbol != null ? !alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) return false;
+		if (colonyId != null ? !colonyId.equals(that.colonyId) : that.colonyId != null) return false;
+		if (effect_size != null ? !effect_size.equals(that.effect_size) : that.effect_size != null) return false;
+		if (externalId != null ? !externalId.equals(that.externalId) : that.externalId != null) return false;
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
+		if (intermediateMpTermDefinition != null ? !intermediateMpTermDefinition.equals(that.intermediateMpTermDefinition) : that.intermediateMpTermDefinition != null)
+			return false;
+		if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null)
+			return false;
+		if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null)
+			return false;
+		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null)
+			return false;
+		if (markerAccessionId != null ? !markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null)
+			return false;
+		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
+		if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) return false;
+		if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) return false;
+		if (p_value != null ? !p_value.equals(that.p_value) : that.p_value != null) return false;
+		if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null)
+			return false;
+		if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null)
+			return false;
+		if (parameterStableKey != null ? !parameterStableKey.equals(that.parameterStableKey) : that.parameterStableKey != null)
+			return false;
+		if (percentageChange != null ? !percentageChange.equals(that.percentageChange) : that.percentageChange != null)
+			return false;
+		if (phenotypingCenter != null ? !phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null)
+			return false;
+		if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
+		if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null)
+			return false;
+		if (pipelineStableKey != null ? !pipelineStableKey.equals(that.pipelineStableKey) : that.pipelineStableKey != null)
+			return false;
+		if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null)
+			return false;
+		if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null)
+			return false;
+		if (procedureStableKey != null ? !procedureStableKey.equals(that.procedureStableKey) : that.procedureStableKey != null)
+			return false;
+		if (projectExternalId != null ? !projectExternalId.equals(that.projectExternalId) : that.projectExternalId != null)
+			return false;
+		if (projectFullname != null ? !projectFullname.equals(that.projectFullname) : that.projectFullname != null)
+			return false;
+		if (projectName != null ? !projectName.equals(that.projectName) : that.projectName != null) return false;
+		if (resourceFullname != null ? !resourceFullname.equals(that.resourceFullname) : that.resourceFullname != null)
+			return false;
+		if (resourceName != null ? !resourceName.equals(that.resourceName) : that.resourceName != null) return false;
+		if (sex != null ? !sex.equals(that.sex) : that.sex != null) return false;
+		if (statisticalMethod != null ? !statisticalMethod.equals(that.statisticalMethod) : that.statisticalMethod != null)
+			return false;
+		if (strainAccessionId != null ? !strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null)
+			return false;
+		if (strainName != null ? !strainName.equals(that.strainName) : that.strainName != null) return false;
+		if (topLevelMpTermDefinition != null ? !topLevelMpTermDefinition.equals(that.topLevelMpTermDefinition) : that.topLevelMpTermDefinition != null)
+			return false;
+		if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
+			return false;
+		if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
+			return false;
+		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null)
+			return false;
+		if (zygosity != null ? !zygosity.equals(that.zygosity) : that.zygosity != null) return false;
+
+		return true;
 	}
 
 
 	@Override
-	public boolean equals(Object obj) {
+	public int hashCode() {
 
-		if (this == obj) { return true; }
-		if (obj == null) { return false; }
-		if (getClass() != obj.getClass()) { return false; }
-		GenotypePhenotypeDTO other = (GenotypePhenotypeDTO) obj;
-		if (alleleAccessionId == null) {
-			if (other.alleleAccessionId != null) { return false; }
-		} else if (!alleleAccessionId.equals(other.alleleAccessionId)) { return false; }
-		if (alleleName == null) {
-			if (other.alleleName != null) { return false; }
-		} else if (!alleleName.equals(other.alleleName)) { return false; }
-		if (alleleSymbol == null) {
-			if (other.alleleSymbol != null) { return false; }
-		} else if (!alleleSymbol.equals(other.alleleSymbol)) { return false; }
-		if (colonyId == null) {
-			if (other.colonyId != null) { return false; }
-		} else if (!colonyId.equals(other.colonyId)) { return false; }
-		if (id == null) {
-			if (other.id != null) { return false; }
-		} else if (!id.equals(other.id)) { return false; }
-		if (effect_size == null) {
-			if (other.effect_size != null) { return false; }
-		} else if (!effect_size.equals(other.effect_size)) { return false; }
-		if (externalId == null) {
-			if (other.externalId != null) { return false; }
-		} else if (!externalId.equals(other.externalId)) { return false; }
-		if (intermediateMpTermDefinition == null) {
-			if (other.intermediateMpTermDefinition != null) { return false; }
-		} else if (!intermediateMpTermDefinition.equals(other.intermediateMpTermDefinition)) { return false; }
-		if (intermediateMpTermId == null) {
-			if (other.intermediateMpTermId != null) { return false; }
-		} else if (!intermediateMpTermId.equals(other.intermediateMpTermId)) { return false; }
-		if (intermediateMpTermName == null) {
-			if (other.intermediateMpTermName != null) { return false; }
-		} else if (!intermediateMpTermName.equals(other.intermediateMpTermName)) { return false; }
-		if (intermediateMpTermSynonym == null) {
-			if (other.intermediateMpTermSynonym != null) { return false; }
-		} else if (!intermediateMpTermSynonym.equals(other.intermediateMpTermSynonym)) { return false; }
-		if (markerAccessionId == null) {
-			if (other.markerAccessionId != null) { return false; }
-		} else if (!markerAccessionId.equals(other.markerAccessionId)) { return false; }
-		if (markerSymbol == null) {
-			if (other.markerSymbol != null) { return false; }
-		} else if (!markerSymbol.equals(other.markerSymbol)) { return false; }
-		if (mpTermId == null) {
-			if (other.mpTermId != null) { return false; }
-		} else if (!mpTermId.equals(other.mpTermId)) { return false; }
-		if (mpTermName == null) {
-			if (other.mpTermName != null) { return false; }
-		} else if (!mpTermName.equals(other.mpTermName)) { return false; }
-		if (p_value == null) {
-			if (other.p_value != null) { return false; }
-		} else if (!p_value.equals(other.p_value)) { return false; }
-		if (parameterName == null) {
-			if (other.parameterName != null) { return false; }
-		} else if (!parameterName.equals(other.parameterName)) { return false; }
-		if (parameterStableId == null) {
-			if (other.parameterStableId != null) { return false; }
-		} else if (!parameterStableId.equals(other.parameterStableId)) { return false; }
-		if (parameterStableKey == null) {
-			if (other.parameterStableKey != null) { return false; }
-		} else if (!parameterStableKey.equals(other.parameterStableKey)) { return false; }
-		if (phenotypingCenter == null) {
-			if (other.phenotypingCenter != null) { return false; }
-		} else if (!phenotypingCenter.equals(other.phenotypingCenter)) { return false; }
-		if (pipelineName == null) {
-			if (other.pipelineName != null) { return false; }
-		} else if (!pipelineName.equals(other.pipelineName)) { return false; }
-		if (pipelineStableId == null) {
-			if (other.pipelineStableId != null) { return false; }
-		} else if (!pipelineStableId.equals(other.pipelineStableId)) { return false; }
-		if (pipelineStableKey == null) {
-			if (other.pipelineStableKey != null) { return false; }
-		} else if (!pipelineStableKey.equals(other.pipelineStableKey)) { return false; }
-		if (procedureName == null) {
-			if (other.procedureName != null) { return false; }
-		} else if (!procedureName.equals(other.procedureName)) { return false; }
-		if (procedureStableId == null) {
-			if (other.procedureStableId != null) { return false; }
-		} else if (!procedureStableId.equals(other.procedureStableId)) { return false; }
-		if (procedureStableKey == null) {
-			if (other.procedureStableKey != null) { return false; }
-		} else if (!procedureStableKey.equals(other.procedureStableKey)) { return false; }
-		if (projectExternalId == null) {
-			if (other.projectExternalId != null) { return false; }
-		} else if (!projectExternalId.equals(other.projectExternalId)) { return false; }
-		if (projectFullname == null) {
-			if (other.projectFullname != null) { return false; }
-		} else if (!projectFullname.equals(other.projectFullname)) { return false; }
-		if (projectName == null) {
-			if (other.projectName != null) { return false; }
-		} else if (!projectName.equals(other.projectName)) { return false; }
-		if (resourceFullname == null) {
-			if (other.resourceFullname != null) { return false; }
-		} else if (!resourceFullname.equals(other.resourceFullname)) { return false; }
-		if (resourceName == null) {
-			if (other.resourceName != null) { return false; }
-		} else if (!resourceName.equals(other.resourceName)) { return false; }
-		if (sex == null) {
-			if (other.sex != null) { return false; }
-		} else if (!sex.equals(other.sex)) { return false; }
-		if (strainAccessionId == null) {
-			if (other.strainAccessionId != null) { return false; }
-		} else if (!strainAccessionId.equals(other.strainAccessionId)) { return false; }
-		if (strainName == null) {
-			if (other.strainName != null) { return false; }
-		} else if (!strainName.equals(other.strainName)) { return false; }
-		if (topLevelMpTermDefinition == null) {
-			if (other.topLevelMpTermDefinition != null) { return false; }
-		} else if (!topLevelMpTermDefinition.equals(other.topLevelMpTermDefinition)) { return false; }
-		if (topLevelMpTermId == null) {
-			if (other.topLevelMpTermId != null) { return false; }
-		} else if (!topLevelMpTermId.equals(other.topLevelMpTermId)) { return false; }
-		if (topLevelMpTermName == null) {
-			if (other.topLevelMpTermName != null) { return false; }
-		} else if (!topLevelMpTermName.equals(other.topLevelMpTermName)) { return false; }
-		if (topLevelMpTermSynonym == null) {
-			if (other.topLevelMpTermSynonym != null) { return false; }
-		} else if (!topLevelMpTermSynonym.equals(other.topLevelMpTermSynonym)) { return false; }
-		if (zygosity == null) {
-			if (other.zygosity != null) { return false; }
-		} else if (!zygosity.equals(other.zygosity)) { return false; }
-		return true;
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
+		result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermName != null ? topLevelMpTermName.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermDefinition != null ? topLevelMpTermDefinition.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermId != null ? intermediateMpTermId.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermName != null ? intermediateMpTermName.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermDefinition != null ? intermediateMpTermDefinition.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
+		result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
+		result = 31 * result + (alleleAccessionId != null ? alleleAccessionId.hashCode() : 0);
+		result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
+		result = 31 * result + (strainAccessionId != null ? strainAccessionId.hashCode() : 0);
+		result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
+		result = 31 * result + (projectExternalId != null ? projectExternalId.hashCode() : 0);
+		result = 31 * result + (projectName != null ? projectName.hashCode() : 0);
+		result = 31 * result + (projectFullname != null ? projectFullname.hashCode() : 0);
+		result = 31 * result + (resourceName != null ? resourceName.hashCode() : 0);
+		result = 31 * result + (resourceFullname != null ? resourceFullname.hashCode() : 0);
+		result = 31 * result + (sex != null ? sex.hashCode() : 0);
+		result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
+		result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+		result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
+		result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
+		result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
+		result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
+		result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
+		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
+		result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
+		result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
+		result = 31 * result + (statisticalMethod != null ? statisticalMethod.hashCode() : 0);
+		result = 31 * result + (percentageChange != null ? percentageChange.hashCode() : 0);
+		result = 31 * result + (p_value != null ? p_value.hashCode() : 0);
+		result = 31 * result + (effect_size != null ? effect_size.hashCode() : 0);
+		result = 31 * result + (externalId != null ? externalId.hashCode() : 0);
+		return result;
 	}
 
 

@@ -20,7 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.solr.client.solrj.SolrQuery;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -29,6 +28,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     private static final Logger logger = LoggerFactory.getLogger(StatisticalResultIndexer.class);
     private static Connection connection;
+
+    public static final String RESOURCE_3I = "3i";
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -50,27 +51,25 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     Map<Integer, ImpressBean> procedureMap = new HashMap<>();
     Map<Integer, ImpressBean> parameterMap = new HashMap<>();
     Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
+    Map<String, ResourceBean> resourceMap = new HashMap<>();
 
     Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 
     public StatisticalResultIndexer() {
         
     }
-    
-    public static final long MIN_EXPECTED_ROWS = 528000;
-    
+
     @Override
     public void validateBuild() throws IndexerException {
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-        try {
-            Long numFound = statResultCore.query(query).getResults().getNumFound();
-            if (numFound < MIN_EXPECTED_ROWS) {
-                throw new IndexerException("validateBuild(): Expected " + MIN_EXPECTED_ROWS + " rows but found " + numFound + " rows.");
-            }
-            logger.info("MIN_EXPECTED_ROWS: " + MIN_EXPECTED_ROWS + ". Actual rows: " + numFound);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        Long numFound = getDocumentCount(statResultCore);
+        
+        if (numFound <= MINIMUM_DOCUMENT_COUNT)
+            throw new IndexerException(new ValidationException("Actual statistical-result document count is " + numFound + "."));
+        
+        if (numFound != documentCount)
+            logger.warn("WARNING: Added " + documentCount + " statistical-result documents but SOLR reports " + numFound + " documents.");
+        else
+            logger.info("validateBuild(): Indexed " + documentCount + " statistical-result documents.");
     }
 
     @Override
@@ -96,6 +95,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             logger.info("Populating biological data map");
             populateBiologicalDataMap();
+
+            logger.info("Populating resource map");
+            populateResourceDataMap();
 
         } catch (SQLException e) {
             throw new IndexerException(e);
@@ -173,6 +175,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseUnidimensionalResult(r);
+                    documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
 
@@ -209,6 +212,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseCategoricalResult(r);
+                    documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
 
@@ -232,7 +236,27 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
         doc.setNullTestPValue(r.getDouble("null_test_significance"));
-        doc.setpValue(r.getDouble("null_test_significance"));
+
+        // If PhenStat did not run, then the result will have a NULL for the null_test_significance field
+        // In that case, fall back to Wilcoxon test
+        Double pv = r.getDouble("null_test_significance");
+        if ( pv==null && doc.getStatus().equals("Success") && doc.getStatisticalMethod()!= null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
+
+            // Wilcoxon test.  Choose the most significant pvalue from the sexes
+            pv = 1.0;
+            Double fPv = r.getDouble("gender_female_ko_pvalue");
+            if( ! r.wasNull() && fPv < pv) {
+                pv = fPv;
+            }
+
+            Double mPv = r.getDouble("gender_male_ko_pvalue");
+            if( ! r.wasNull() && mPv < pv) {
+                pv = mPv;
+            }
+
+        }
+
+        doc.setpValue(pv);
 
         doc.setGroup1Genotype(r.getString("gp1_genotype"));
         doc.setGroup1ResidualsNormalityTest(r.getDouble("gp1_residuals_normality_test"));
@@ -289,7 +313,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     }
         
-    private Double getFemalePercentageChange(String token) {
+    public static Double getFemalePercentageChange(String token) {
         Double retVal = null;
         
         List<String> sexes = Arrays.asList(token.split(","));
@@ -307,8 +331,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         
         return retVal;
     }
-        
-    private Double getMalePercentageChange(String token) {
+
+    public static Double getMalePercentageChange(String token) {
         Double retVal = null;
         
         List<String> sexes = Arrays.asList(token.split(","));
@@ -336,14 +360,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         Set<String> categories = new HashSet<>();
         if (StringUtils.isNotEmpty(r.getString("category_a"))) {
-            for (String category : r.getString("category_a").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_a").split("|")));
         }
         if (StringUtils.isNotEmpty(r.getString("category_b"))) {
-            for (String category : r.getString("category_b").split("|")) {
-                categories.add(category);
-            }
+            categories.addAll(Arrays.asList(r.getString("category_b").split("|")));
         }
 
         doc.setCategories(new ArrayList<>(categories));
@@ -360,9 +380,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setDataType(r.getString("data_type"));
 
         // Experiment details
-        doc.setResourceId(r.getInt("resource_id"));
-        doc.setResourceName(r.getString("resource_name"));
-        doc.setResourceFullname(r.getString("resource_fullname"));
+        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).stableId.split("_")).subList(0, 2), "_");
+        if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
+            // Override the resource for the 3i procedures
+            doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
+            doc.setResourceName(resourceMap.get(RESOURCE_3I).shortName);
+            doc.setResourceFullname(resourceMap.get(RESOURCE_3I).name);
+        } else {
+            doc.setResourceId(r.getInt("resource_id"));
+            doc.setResourceName(r.getString("resource_name"));
+            doc.setResourceFullname(r.getString("resource_fullname"));
+        }
+
         doc.setProjectId(r.getInt("project_id"));
         doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
@@ -399,9 +428,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setStrainName(b.strainName);
 
         // Data details
+
+        // Always set a metadata group here to allow for simpler searching for
+        // unique results and to maintain parity with the observation index
+        // where "empty string" metadata group means no required metadata.
         if (StringUtils.isNotEmpty(r.getString("metadata_group"))) {
             doc.setMetadataGroup(r.getString("metadata_group"));
+        } else {
+            doc.setMetadataGroup("");
         }
+
         doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
         doc.setStatisticalMethod(r.getString("statistical_method"));
         doc.setMaleControlCount(r.getInt("male_controls"));
@@ -493,6 +529,48 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             }
         }
         logger.info("Populated biological data map with {} entries", biologicalDataMap.size());
+    }
+
+
+    /**
+     * Add all the relevant data required quickly looking up biological data
+     * associated to a biological sample
+     *
+     * @throws SQLException when a database exception occurs
+     */
+    private void populateResourceDataMap() throws SQLException {
+
+        String query = "SELECT id, name, short_name FROM external_db";
+
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+                ResourceBean b = new ResourceBean();
+                b.id = resultSet.getInt("id");
+                b.name = resultSet.getString("name");
+                b.shortName = resultSet.getString("short_name");
+                resourceMap.put(resultSet.getString("short_name"), b);
+            }
+        }
+        logger.info("Populated resource data map with {} entries\n{}", resourceMap.size(), resourceMap);
+    }
+
+    protected class ResourceBean {
+        public Integer id;
+        public String name;
+        public String shortName;
+
+
+        @Override
+        public String toString() {
+
+            return "ResourceBean{" + "id=" + id +
+                ", name='" + name + '\'' +
+                ", shortName='" + shortName + '\'' +
+                '}';
+        }
     }
 
     /**

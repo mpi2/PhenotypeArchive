@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.phenotype.dao.SecondaryProject3iImpl;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
@@ -28,10 +29,10 @@ public class GeneHeatmapController {
     @Qualifier("idg")  
 	private SecondaryProjectDAO idgSecondaryProjectDAO; 
     
-//    @Autowired
-//    @Qualifier("3I")  
-//	private SecondaryProjectDAO threeISecondaryProjectDAO;  
-    
+    @Autowired
+    @Qualifier("threeI")  
+	private SecondaryProject3iImpl threeISecondaryProjectDAO; 
+        
 
 	/**
          * 
@@ -43,27 +44,30 @@ public class GeneHeatmapController {
 	 * @throws SolrServerException 
          */
 	@RequestMapping("/geneHeatMap")
-	public String getHeatmapJS(@RequestParam(required = false, value = "project") String project,
+	public String getHeatmapJS(@RequestParam(required = true, value = "project") String project,
                 Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) throws SolrServerException{
-		System.out.println("calling heatmap controller method");
-		SecondaryProjectDAO secondaryProjectDAO=this.getSecondaryProjectDao(project);
-             List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
-             List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
-            model.addAttribute("geneRows", geneRows);
-            model.addAttribute("xAxisBeans", xAxisBeans);
-             return "geneHeatMap";
+                HttpServletRequest request,
+                RedirectAttributes attributes) throws SolrServerException{
+		
+		System.out.println("calling heatmap controller method for " + project);
+	
+		SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
+		List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
+	    List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
+	    model.addAttribute("geneRows", geneRows);
+	    model.addAttribute("xAxisBeans", xAxisBeans);
+			
+        return "geneHeatMap";
 	}
 
 
 	private SecondaryProjectDAO getSecondaryProjectDao(String project) {
-		if(project.equalsIgnoreCase("idg")){
+		if(project.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.IDG.name())){
 			return idgSecondaryProjectDAO;
 		}
-//		if(project.equalsIgnoreCase("3I")){
-//			return threeISecondaryProjectDAO;
-//		}
+		if(project.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())){
+			return threeISecondaryProjectDAO;
+		}
 		return null;
 	}
 

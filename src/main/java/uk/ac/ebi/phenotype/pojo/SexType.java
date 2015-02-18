@@ -26,7 +26,8 @@ public enum SexType {
 	female,
 	hermaphrodite,
 	male,
-	not_applicable;
+	not_applicable,
+	both;
 
 
 	public String getName(){

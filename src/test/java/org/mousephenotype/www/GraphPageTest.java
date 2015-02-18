@@ -38,16 +38,18 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.GraphPage;
 import org.mousephenotype.www.testing.model.GraphPageCategorical;
 import org.mousephenotype.www.testing.model.GraphPageUnidimensional;
 import org.mousephenotype.www.testing.model.GridMap;
 import org.mousephenotype.www.testing.model.PageStatus;
-import org.mousephenotype.www.testing.model.PhenotypeTableGene;
+import org.mousephenotype.www.testing.model.GeneTable;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -125,7 +127,7 @@ public class GraphPageTest {
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
     @Before
     public void setup() {
@@ -172,10 +174,6 @@ public class GraphPageTest {
     @Test
 //@Ignore
     public void testPreQcGraph() {
-        String testName = "testPreQcGraph";
-        
-        List<TestUtils.GraphData> graphUrls = TestUtils.getGraphUrls(solrUrl, ObservationType.unidimensional, 1000);
-
         String target;
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -183,66 +181,75 @@ public class GraphPageTest {
         String message;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
         String graphUrl = "";
+        
+// NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
+        
+        String testName = "testPreQcGraph";
+        String solrServerURL = "http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/preqc";
+        
+        List<String> geneIds = TestUtils.getPreqcIds(solrServerURL, phenotypePipelineDAO, null);
+        
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " preQc graphs.");
 
-        int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " preQc graphs.");
-
+        int i = 0;
         // Loop through the gene pages looking for graphs of the requested type. Test each graph.
         int graphCount = 0;
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        int i = 0;
-        
-        for (TestUtils.GraphData graph : graphUrls) {
-            try {
-                if (graphCount >= targetCount) {
-                    break;
-                }
-                target = baseUrl + "/genes/" + graph.getGeneId();
-                System.out.println("Looking for preQc graphs on gene page URL[" + i + "]:\t" + target);
-                i++;
-           
-                // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
-                driver.get(target);
-                PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, target);
-                ptGene.load();
-                GridMap data = new GridMap(ptGene.getPreAndPostQcList(), target);
-                // Start rowIndex at 1 to skip over heading row.
-                for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
-                    graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
-                            
-                    // Select only preQc links.
-                    if (TestUtils.isPreQcLink(graphUrl)) {
-                        System.out.println("\tpreQc graph[ " + graphCount + "] URL: " + graphUrl);
-                        // If the graph page doesn't load, log it.
-                        try {
-                            driver.get(graphUrl);
-                            // Make sure there is a div.viz-tools.
-                            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.viz-tools")));
-                            message = "[PASSED]";
-                            System.out.println("\t\t" + message);
-                            successList.add(message);
-                        } catch (Exception e) {
-                            message = "\t\t[FAILED]";
-                            System.out.println(message);
-                            errorList.add(message);
-                        } finally {
-                            graphCount++;
-                            if (graphCount >= targetCount) {
-                                break;
-                            }
-                        }
+        for (String geneId : geneIds) {
+            if (graphCount >= targetCount) {
+                break;
+            }
+            if (i > 100) {
+                message = "\t\t[FAILED] - Over 100 gene pages scanned and no preqc graphs found.";
+                System.out.println(message);
+                errorList.add(message);
+                break;
+            }
+            
+            target = baseUrl + "/genes/" + geneId;
+            i++;
+
+            // Get the gene page. If not found on the first page, move on to the next gene page.
+            driver.get(target);
+            GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+            if ( ! genePage.hasGenesTable())
+                continue;
+
+            GeneTable geneTable = new GeneTable(driver, wait, target);
+            geneTable.load();
+            GridMap data = new GridMap(geneTable.getPreAndPostQcList(), target);
+            // Start rowIndex at 1 to skip over heading row.
+            for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
+                graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
+
+                // Select only preQc links.
+                if (TestUtils.isPreQcLink(graphUrl)) {
+// NOTE: THIS TEST HITS WWW.MOUSEPHENOTYPE.ORG, NOT DEV.MOUSEPHENOTYPE.ORG.
+                    graphUrl = graphUrl.replace("dev.mousephenotype.org", "www.mousephenotype.org");
+                    // If the graph page doesn't load, log it.
+                    driver.get(graphUrl);
+                    // Make sure there is a div.viz-tools.
+                    List<WebElement> elements = driver.findElements(By.cssSelector("div.viz-tools"));
+                    if (elements.isEmpty()) {
+                        message = "ERROR: Gene Page " + target + ".\n\tpreQc graph[ " + graphCount + "] URL: " + graphUrl + "\n[FAILED]";
+                        System.out.println(message);
+                        errorList.add(message);
+                    } else {
+                        message = "[" + graphCount + ": - PASSED]";
+                        System.out.println(message);
+                        successList.add(message);
+                    }
+                    graphCount++;
+                    if (graphCount >= targetCount) {
+                        break;
                     }
                 }
-            }  catch (Exception e) {
-                message = "[FAILED] - Graph Page URL: " + graphUrl;
-                System.out.println(message);
-                exceptionList.add(message);
             }
         }
-            
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, graphUrls.size());
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
         System.out.println();
     }
     
@@ -260,21 +267,29 @@ public class GraphPageTest {
 //@Ignore
     public void testKnownGraphs() {
         String testName = "testKnownGraphs";
+        // Make sure to keep baseUrls in sync with graplUrls. Don't forget to manage d0/d1/d2 appropriately.
         String[] graphUrls = {
             "http://beta.mousephenotype.org/data/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
         };
+        String[] baseUrls = {
+            "http://ves-ebi-d1:8080/mi/impc/beta/phenotype-archive"
+        };
+        
         PageStatus status;
         Date start = new Date();
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
      
+        int i = 0;
         for (String graphUrl : graphUrls) {
-            System.out.println("testUidimensionalGraph(): testing graph URL: " + graphUrl);
+            baseUrl = baseUrls[i];
+            System.out.println(testName + "(): testing graph URL: " + graphUrl);
             status = graphTestEngine(graphUrl);
             if (status.hasErrors()) {
                 errorList.add(status.toStringErrorMessages());
             }
+            i++;
         }
             
         if (errorList.isEmpty()) {
@@ -349,8 +364,8 @@ public class GraphPageTest {
         PageStatus status = new PageStatus();
         String graphUrl = "";
 
-        int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " records.");
+        int targetCount = testUtils.getTargetCount(testName, graphUrls, 10);        
+        logger.info(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + graphUrls.size() + " records.");
 
         // Loop through the gene pages looking for graphs of the requested type. Test each graph.
         int graphCount = 0;
@@ -358,28 +373,35 @@ public class GraphPageTest {
         int i = 0;
         
         for (TestUtils.GraphData graph : graphUrls) {
-//if (i == 0) geneId = "MGI:104874";    // Akt2
-//if (i == 1) geneId = "MGI:3643284";   // Is valid gene for which there is no page.
-//if (i == 1) geneId = "MGI:1924285";
-//if (i == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
-            
             try {
-////////System.out.println("GraphPageTest.graphTestEngine: graphCount = " + graphCount + ". targetCount = " + targetCount);
+                if (i > 100) {
+                    message = "ERROR - Tried more than 100 gene pages with no results. Browser might have died.";
+                    status.addError(message);
+                    System.out.println(message);
+                    errorList.add(message);
+                    break;
+                }
                 if (graphCount >= targetCount) {
                     break;
                 }
-                target = baseUrl + "/genes/" + graph.getGeneId();
+
+                String geneId = graph.getGeneId();
+//if (i == 0) geneId = "MGI:1918573";
+                target = baseUrl + "/genes/" + geneId;
                 i++;
            
                 // Get the gene page. If not found within the first 20 graphs, move on to the next gene page (so test doesn't get delayed loading pages with lots of graphs).
-                driver.get(target);
-                PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, target);
-                ptGene.load();
-                GridMap data = ptGene.getData();
+                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+                if ( ! genePage.hasGenesTable())
+                    continue;
+                
+                GeneTable geneTable = new GeneTable(driver, wait, target);
+                geneTable.load();
+                GridMap data = geneTable.getData();
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
-                    Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE));
-                    graphUrl = data.getCell(rowIndex, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH);
+                    Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_P_VALUE));
+                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
                     
                     // Skip over preQc links.
                     if (TestUtils.isPreQcLink(graphUrl)) {
@@ -393,28 +415,37 @@ public class GraphPageTest {
 //System.out.println("Match!");
                             boolean loadPage = true;
                             GraphPage graphPage;
-                            // If the graph page doesn't load for any reason, just try the next.
                             try {
                                 graphPage = new GraphPage(driver, wait, graphUrl, target, phenotypePipelineDAO, baseUrl, loadPage);
                             } catch (Exception e) {
+                                message = "EXCEPTION: " + e.getLocalizedMessage() + "\n\tGraph Page URL: " + graphUrl + "\n[" + graphCount + "\n[FAILED]";
+                                status.addError(message);
+                                System.out.println(message);
+                                errorList.add(message);
+                                graphCount++;
                                 break;
                             }
                             
                             ObservationType graphType = graphPage.getGraphType();
                             if (graphType == graph.getGraphType()) {
                                 try {
-                                    System.out.println("Gene Page URL: " + target);
                                     switch (graphType) {
                                         case categorical:
                                             GraphPageCategorical graphPageCategorical = graphPage.createGraphPageCategorical();
-                                            System.out.println("Categorical graph target: " + graphPageCategorical.getTarget());
                                             status = graphPageCategorical.validate();
+                                            if (status.hasErrors()) {
+                                                System.out.println("Gene Page URL: " + target);
+                                                System.out.println("Categorical graph target: " + graphPageCategorical.getTarget());
+                                            }
                                             break;
 
                                         case unidimensional:
                                             GraphPageUnidimensional graphPageUnidimensional = graphPage.createGraphPageUnidimensional();
-                                            System.out.println("Unidimensional graph target: " + graphPageUnidimensional.getTarget());
                                             status = graphPageUnidimensional.validate();
+                                            if (status.hasErrors()) {
+                                                System.out.println("Gene Page URL: " + target);
+                                                System.out.println("Unidimensional graph target: " + graphPageUnidimensional.getTarget());
+                                            }
                                             break;
 
                                         default:
@@ -422,7 +453,11 @@ public class GraphPageTest {
                                             System.out.println(message);
                                             throw new Exception(message);
                                     }
+                                } catch (NoSuchWindowException nswe) {
+                                    status.addError("EXCEPTION: GraphPageTest.graphTestEngine(): " + nswe.getLocalizedMessage());
+                                    throw nswe;
                                 } catch (Exception e) {
+                                    logger.error("EXCEPTION: class is " + e.getClass().getCanonicalName());
                                     status.addError("EXCEPTION: GraphPageTest.graphTestEngine(): " + e.getLocalizedMessage());
                                 }
                                 
@@ -430,7 +465,7 @@ public class GraphPageTest {
                                     System.out.println(status.toStringErrorMessages());
                                     errorList.add("[FAILED] - Graph Page URL: " + graphUrl);
                                 } else {
-                                    message = "[PASSED]";
+                                    message = "[" + graphCount + ": - PASSED]";
                                     System.out.println(message);
                                     successList.add(message);
                                 }
@@ -444,9 +479,13 @@ public class GraphPageTest {
                     }
                 }
             }  catch (Exception e) {
-                message = "[FAILED] - Graph Page URL: " + graphUrl;
+                message = "EXCEPTION: " + e.getLocalizedMessage() + "\n\tGraph Page URL: " + graphUrl + "\n[FAILED]";
                 System.out.println(message);
                 exceptionList.add(message);
+                if (e instanceof NoSuchWindowException) {
+                    logger.error("ERROR: Browser window closed. Stopping...");
+                    break;
+                }
                 continue;
             }
         }

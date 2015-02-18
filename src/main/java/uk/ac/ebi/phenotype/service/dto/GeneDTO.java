@@ -9,6 +9,7 @@ public class GeneDTO {
 
 	public static final String DATA_TYPE = "dataType";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
+	
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
 	public static final String MARKER_NAME = "marker_name";
@@ -28,6 +29,7 @@ public class GeneDTO {
 	public static final String HAS_QC = "hasQc";
 	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
 	public static final String ALLELE_NAME = "allele_name";
+	public static final String ALLELE_ACCESSION_ID = "allele_accession_id";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
 	public static final String IMITS_MOUSE_STATUS = "imits_mouse_status";
@@ -111,6 +113,20 @@ public class GeneDTO {
 	public static final String GO_TERM_DEF = "go_term_def";
 	public static final String GO_TERM_EVID = "go_term_evid";
 	public static final String GO_TERM_DOMAIN = "go_term_domain";
+	public static final String UNIPROT_ACC = "uniprot_acc";
+	
+	public static final String PFAMA_JSON = "pfama_json";
+	public static final String SCDB_ID = "scdb_id"; // structural classification db id
+	public static final String SCDB_LINK = "scdb_link"; 
+	public static final String CLAN_ID = "clan_id"; 
+	public static final String CLAN_ACC = "clan_acc"; 
+	public static final String CLAN_DESC = "clan_desc"; 
+	public static final String PFAMA_ID = "pfama_id"; 
+	public static final String PFAMA_ACC = "pfama_acc"; 
+	public static final String PFAMA_GO_ID = "pfama_go_id"; 
+	public static final String PFAMA_GO_TERM = "pfama_go_term"; 
+	public static final String PFAMA_GO_CAT = "pfama_go_cat"; 
+	
 	
 	
 	// <!-- gene level fields -->
@@ -124,71 +140,43 @@ public class GeneDTO {
 	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String>selectedTopLevelMaTermSynonym;
 	
-	
-	
-	
 	public List<String> getSelectedTopLevelMaTermSynonym() {
 	
 		return selectedTopLevelMaTermSynonym;
 	}
 
-
-
-
-
-	
 	public void setSelectedTopLevelMaTermSynonym(List<String> selectedTopLevelMaTermSynonym) {
 	
 		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
 	}
-
-
-
-
 
 	public List<String> getSelectedTopLevelMaId() {
 	
 		return selectedTopLevelMaId;
 	}
 
-
-
-
-	
 	public void setSelectedTopLevelMaId(List<String> selectedTopLevelMaId) {
 	
 		this.selectedTopLevelMaId = selectedTopLevelMaId;
 	}
-
-
-
 
 	public List<Boolean> getImpcNovelPredictedInLocus() {
 	
 		return impcNovelPredictedInLocus;
 	}
 
-
-
-	
 	public void setImpcNovelPredictedInLocus(List<Boolean> impcNovelPredictedInLocus) {
 	
 		this.impcNovelPredictedInLocus = impcNovelPredictedInLocus;
 	}
 
-
 	@Field(MGI_PREDICTED_KNOWN_GENE)
 	private List<Boolean>mgiPredictedKnownGene;
-	
-	
-
 	
 	public List<Boolean> getMgiPredictedKnownGene() {
 	
 		return mgiPredictedKnownGene;
 	}
-
-
 	
 	public void setMgiPredictedKnonwGene(List<Boolean> mgiPredictedKnonwGene) {
 	
@@ -263,6 +251,9 @@ public class GeneDTO {
 	@Field(ALLELE_NAME)
 	List<String> alleleName;
 
+	@Field(ALLELE_ACCESSION_ID)
+	private List<String> alleleAccessionIds = new ArrayList<>();
+	
 	@Field(IMITS_ES_CELL_STATUS)
 	String imitsEsCellStatus;
 
@@ -484,6 +475,43 @@ public class GeneDTO {
 	
 	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
+	
+	@Field(UNIPROT_ACC)
+	private List<String> uniprotAccs = new ArrayList<>();
+	
+	@Field(PFAMA_JSON)
+	private List<String> pfama_jsons = new ArrayList<>();
+
+	@Field(SCDB_ID)
+	private List<String> scdb_ids = new ArrayList<>();
+	
+	@Field(SCDB_LINK)
+	private List<String> scdb_links = new ArrayList<>();
+	
+	@Field(CLAN_ID)
+	private List<String> clan_ids = new ArrayList<>();
+	
+	@Field(CLAN_ACC)
+	private List<String> clan_accs = new ArrayList<>();
+	
+	@Field(CLAN_DESC)
+	private List<String> clan_descs = new ArrayList<>();
+	
+	@Field(PFAMA_ID)
+	private List<String> pfama_ids = new ArrayList<>();
+	
+	@Field(PFAMA_ACC)
+	private List<String> pfama_accs = new ArrayList<>();
+	
+	@Field(PFAMA_GO_ID)
+	private List<String> pfama_go_ids = new ArrayList<>();
+	
+	@Field(PFAMA_GO_TERM)
+	private List<String> pfama_go_terms = new ArrayList<>();
+	
+	@Field(PFAMA_GO_CAT)
+	private List<String> pfama_go_cats = new ArrayList<>();
+	
 	
 	public List<String> getTopLevelMpTermSynonym() {
 
@@ -785,6 +813,22 @@ public class GeneDTO {
 	}
 
 
+	/**
+	 * @return the alleleAccessionIds
+	 */
+	public List<String> getAlleleAccessionIds() {
+		return alleleAccessionIds;
+	}
+
+	/**
+	 * @param alleleAccessionIds
+	 *            the alleleAccessionIds to set
+	 */
+	public void setAlleleAccessionIds(List<String> alleleAccessionIds) {
+		this.alleleAccessionIds = alleleAccessionIds;
+	}
+	
+	
 	public String getImitsEsCellStatus() {
 
 		return imitsEsCellStatus;
@@ -1581,7 +1625,187 @@ public class GeneDTO {
 		this.goTermDomains = goTermDomains;
 	}
 	
+	/**
+	 * @return the uniprotAccs
+	 */
+	public List<String> getUniprotAccs() {
+		return uniprotAccs;
+	}
 
+	/**
+	 * @param uniprotAccs
+	 *            the uniprotAccs to set
+	 */
+	public void setUniprotAccs(List<String> uniprotAccs) {
+		this.uniprotAccs = uniprotAccs;
+	}
+	
+	/**
+	 * @return the scdb_ids
+	 */
+	public List<String> getScdbIds() {
+		return scdb_ids;
+	}
+	
+	/**
+	 * @param scdb_ids
+	 *            the scdb_ids to set
+	 */
+	public void setScdbIds(List<String> scdb_ids) {
+		this.scdb_ids = scdb_ids;
+	}
+	
+	/**
+	 * @return the scdb_links
+	 */
+	public List<String> getScdbLinks() {
+		return scdb_links;
+	}
+	
+	/**
+	 * @param scdb_links
+	 *            the scdb_links to set
+	 */
+	public void setScdbLinks(List<String> scdb_links) {
+		this.scdb_links = scdb_links;
+	}
+	
+	/**
+	 * @return the clan_ids
+	 */
+	public List<String> getClanIds() {
+		return clan_ids;
+	}
+	
+	/**
+	 * @param clan_ids
+	 *            the clan_ids to set
+	 */
+	public void setClanIds(List<String> clan_ids) {
+		this.clan_ids = clan_ids;
+	}
+	
+	/**
+	 * @return the clan_accs
+	 */
+	public List<String> getClanAccs() {
+		return clan_accs;
+	}
+	
+	/**
+	 * @param clan_accs
+	 *            the clan_accs to set
+	 */
+	public void setClanAccs(List<String> clan_accs) {
+		this.clan_accs = clan_accs;
+	}
+	
+	/**
+	 * @return the clan_descs
+	 */
+	public List<String> getClanDescs() {
+		return clan_descs;
+	}
+	
+	/**
+	 * @param clan_descs
+	 *            the clan_descs to set
+	 */
+	public void setClanDescs(List<String> clan_descs) {
+		this.clan_descs = clan_descs;
+	}
+	
+	/**
+	 * @return the pfama_ids
+	 */
+	public List<String> getPfamaIds() {
+		return pfama_ids;
+	}
+	
+	/**
+	 * @param pfama_ids
+	 *            the pfama_ids to set
+	 */
+	public void setPfamaIds(List<String> pfama_ids) {
+		this.pfama_ids = pfama_ids;
+	}
+	
+	/**
+	 * @return the pfama_accs
+	 */
+	public List<String> getPfamaAccs() {
+		return pfama_accs;
+	}
+	
+	/**
+	 * @param pfama_accs
+	 *            the pfama_accs to set
+	 */
+	public void setPfamaAccs(List<String> pfama_accs) {
+		this.pfama_accs = pfama_accs;
+	}
+	
+	/**
+	 * @return the pfama_go_ids
+	 */
+	public List<String> getPfamaGoIds() {
+		return pfama_go_ids;
+	}
+	
+	/**
+	 * @param pfama_go_ids
+	 *            the pfama_go_ids to set
+	 */
+	public void setPfamaGoIds(List<String> pfama_go_ids) {
+		this.pfama_go_ids = pfama_go_ids;
+	}
+	
+	/**
+	 * @return the pfama_go_terms
+	 */
+	public List<String> getPfamaGoTerms() {
+		return pfama_go_terms;
+	}
+	
+	/**
+	 * @param pfama_go_terms
+	 *            the pfama_go_terms to set
+	 */
+	public void setPfamaGoTerms(List<String> pfama_go_terms) {
+		this.pfama_go_terms = pfama_go_terms;
+	}
+	
+	/**
+	 * @return the pfama_go_cats
+	 */
+	public List<String> getPfamaGoCats() {
+		return pfama_go_cats;
+	}
+	
+	/**
+	 * @param pfama_go_cats
+	 *            the pfama_go_cats to set
+	 */
+	public void setPfamaGoCats(List<String> pfama_go_cats) {
+		this.pfama_go_cats = pfama_go_cats;
+	}
+	
+	/**
+	 * @param pfama_jsons
+	 *            the pfama_jsons to get
+	 */
+	public List<String> getPfamaJsons() {
+		return pfama_jsons;
+	}
+	
+	/**
+	 * @param pfama_jsons
+	 *            the pfama_jsons to set
+	 */
+	public void setPfamaJsons(List<String> pfama_jsons) {
+		this.pfama_jsons = pfama_jsons;
+	}
+	
 	
 	@Override
 	public boolean equals(Object o) {
@@ -1816,89 +2040,22 @@ public class GeneDTO {
 
 	@Override
 	public String toString() {
-
-		return "GeneDTO{" +
-			"impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
-			", selectedTopLevelMaId=" + selectedTopLevelMaId +
-			", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
-			", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
-			", dataType='" + dataType + '\'' +
-			", mgiAccessionId='" + mgiAccessionId + '\'' +
-			", markerSymbol='" + markerSymbol + '\'' +
-			", humanGeneSymbol=" + humanGeneSymbol +
-			", markerName='" + markerName + '\'' +
-			", markerSynonym=" + markerSynonym +
-			", markerType='" + markerType + '\'' +
-			", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
-			", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
-			", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
-			", status='" + status + '\'' +
-			", latestEsCellStatus='" + latestEsCellStatus + '\'' +
-			", latestMouseStatus='" + latestMouseStatus + '\'' +
-			", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
-			", latestProjectStatus='" + latestProjectStatus + '\'' +
-			", latestProductionCentre=" + latestProductionCentre +
-			", latestPhenotypingCentre=" + latestPhenotypingCentre +
-			", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes +
-			", hasQc=" + hasQc +
-			", legacy_phenotype_status=" + legacy_phenotype_status +
-			", alleleName=" + alleleName +
-			", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
-			", esCellStatus=" + esCellStatus +
-			", imitsMouseStatus='" + imitsMouseStatus + '\'' +
-			", mouseStatus=" + mouseStatus +
-			", phenotypeStatus=" + phenotypeStatus +
-			", productionCentre=" + productionCentre +
-			", phenotypingCentre=" + phenotypingCentre +
-			", p_value=" + p_value +
-			", mpId=" + mpId +
-			", mpTerm=" + mpTerm +
-			", mpTermDefinition=" + mpTermDefinition +
-			", childMpId=" + childMpId +
-			", childMpTerm=" + childMpTerm +
-			", childMpTermSynonym=" + childMpTermSynonym +
-			", topLevelMpId=" + topLevelMpId +
-			", topLevelMpTerm=" + topLevelMpTerm +
-			", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
-			", topLevelMpDefinition=" + topLevelMpDefinition +
-			", intermediateMpId=" + intermediateMpId +
-			", intermediateMpTerm=" + intermediateMpTerm +
-			", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
-			", ontologySubset=" + ontologySubset +
-			", inferredMaId=" + inferredMaId +
-			", inferredMaTerm=" + inferredMaTerm +
-			", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId +
-			", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
-			", type=" + type +
-			", diseaseId=" + diseaseId +
-			", diseaseSource=" + diseaseSource +
-			", diseaseTerm=" + diseaseTerm +
-			", diseaseAlts=" + diseaseAlts +
-			", diseaseClasses=" + diseaseClasses +
-			", humanCurated=" + humanCurated +
-			", mouseCurated=" + mouseCurated +
-			", mgiPredicted=" + mgiPredicted +
-			", impcPredicted=" + impcPredicted +
-			", mgiPredictedInLocus=" + mgiPredictedInLocus +
-			", impcPredictedInLocus=" + impcPredictedInLocus +
-			", pipelineName=" + pipelineName +
-			", pipelineStableId=" + pipelineStableId +
-			", procedureName=" + procedureName +
-			", procedureStableId=" + procedureStableId +
-			", parameterName=" + parameterName +
-			", parameterStableId=" + parameterStableId +
-			", procParamName=" + procParamName +
-			", procParamStableId=" + procParamStableId +
-			", expName=" + expName +
-			", subtype=" + subtype +
-			", annotatedHigherLevelMpTermName=" + annotatedHigherLevelMpTermName +
-			", text=" + text +
-			", autoSuggest=" + autoSuggest +
-			", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
-			", goTermIds=" + goTermIds + 
-			", goTermNames" + goTermNames +
-			", goTermDefs" + goTermDefs +
-			", goTermEvids" + goTermEvids +
-			'}';
+		return String
+				.format("GeneDTO [impcNovelPredictedInLocus=%s, selectedTopLevelMaId=%s, selectedTopLevelMaTermSynonym=%s, mgiPredictedKnownGene=%s, dataType=%s, mgiAccessionId=%s, markerSymbol=%s, humanGeneSymbol=%s, markerName=%s, markerSynonym=%s, markerType=%s, imitsPhenotypeStarted=%s, imitsPhenotypeComplete=%s, imitsPhenotypeStatus=%s, status=%s, latestEsCellStatus=%s, latestMouseStatus=%s, latestPhenotypeStatus=%s, latestProjectStatus=%s, latestProductionCentre=%s, latestPhenotypingCentre=%s, diseaseHumanPhenotypes=%s, hasQc=%s, legacy_phenotype_status=%s, alleleName=%s, alleleAccessionIds=%s, imitsEsCellStatus=%s, esCellStatus=%s, imitsMouseStatus=%s, mouseStatus=%s, phenotypeStatus=%s, productionCentre=%s, phenotypingCentre=%s, p_value=%s, mpId=%s, mpTerm=%s, mpTermSynonym=%s, mpTermDefinition=%s, maId=%s, maTerm=%s, maTermSynonym=%s, maTermDefinition=%s, hpId=%s, hpTerm=%s, childMpId=%s, childMpTerm=%s, childMpTermSynonym=%s, topLevelMpId=%s, topLevelMpTerm=%s, topLevelMpTermSynonym=%s, topLevelMpDefinition=%s, intermediateMpId=%s, intermediateMpTerm=%s, intermediateMpTermSynonym=%s, ontologySubset=%s, inferredMaId=%s, inferredMaTerm=%s, inferredMaTermSynonym=%s, inferredSelectedTopLevelMaId=%s, inferredSelectedTopLevelMaTerm=%s, inferredSelectedTopLevelMaTermSynonym=%s, inferredChildMaId=%s, inferredChildMaTerm=%s, inferredChildMaTermSynonym=%s, type=%s, diseaseId=%s, diseaseSource=%s, diseaseTerm=%s, diseaseAlts=%s, diseaseClasses=%s, humanCurated=%s, mouseCurated=%s, mgiPredicted=%s, impcPredicted=%s, mgiPredictedInLocus=%s, impcPredictedInLocus=%s, pipelineName=%s, pipelineStableId=%s, procedureName=%s, procedureStableId=%s, parameterName=%s, parameterStableId=%s, procParamName=%s, procParamStableId=%s, expName=%s, subtype=%s, annotatedHigherLevelMpTermName=%s, text=%s, autoSuggest=%s, selectedTopLevelMaTerm=%s, goTermIds=%s, goTermNames=%s, goTermDefs=%s, goTermEvids=%s, goTermDomains=%s, uniprotAccs=%s, pfama_jsons=%s, scdb_ids=%s, scdb_links=%s, clan_ids=%s, clan_accs=%s, clan_descs=%s, pfama_ids=%s, pfama_accs=%s, pfama_go_ids=%s, pfama_go_terms=%s, pfama_go_cats=%s]",
+						impcNovelPredictedInLocus, selectedTopLevelMaId, selectedTopLevelMaTermSynonym, mgiPredictedKnownGene, dataType, mgiAccessionId,
+						markerSymbol, humanGeneSymbol, markerName, markerSynonym, markerType, imitsPhenotypeStarted, imitsPhenotypeComplete,
+						imitsPhenotypeStatus, status, latestEsCellStatus, latestMouseStatus, latestPhenotypeStatus, latestProjectStatus,
+						latestProductionCentre, latestPhenotypingCentre, diseaseHumanPhenotypes, hasQc, legacy_phenotype_status, alleleName,
+						alleleAccessionIds, imitsEsCellStatus, esCellStatus, imitsMouseStatus, mouseStatus, phenotypeStatus, productionCentre,
+						phenotypingCentre, p_value, mpId, mpTerm, mpTermSynonym, mpTermDefinition, maId, maTerm, maTermSynonym, maTermDefinition, hpId, hpTerm,
+						childMpId, childMpTerm, childMpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, topLevelMpDefinition,
+						intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, ontologySubset, inferredMaId, inferredMaTerm, inferredMaTermSynonym,
+						inferredSelectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaTermSynonym, inferredChildMaId,
+						inferredChildMaTerm, inferredChildMaTermSynonym, type, diseaseId, diseaseSource, diseaseTerm, diseaseAlts, diseaseClasses,
+						humanCurated, mouseCurated, mgiPredicted, impcPredicted, mgiPredictedInLocus, impcPredictedInLocus, pipelineName, pipelineStableId,
+						procedureName, procedureStableId, parameterName, parameterStableId, procParamName, procParamStableId, expName, subtype,
+						annotatedHigherLevelMpTermName, text, autoSuggest, selectedTopLevelMaTerm, goTermIds, goTermNames, goTermDefs, goTermEvids,
+						goTermDomains, uniprotAccs, pfama_jsons, scdb_ids, scdb_links, clan_ids, clan_accs, clan_descs, pfama_ids, pfama_accs, pfama_go_ids,
+						pfama_go_terms, pfama_go_cats);
 	}
 }

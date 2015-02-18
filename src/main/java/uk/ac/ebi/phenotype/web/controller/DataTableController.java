@@ -78,6 +78,7 @@ public class DataTableController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
+	private String IMG_NOT_FOUND = "Image coming soon<br>";
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -120,7 +121,7 @@ public class DataTableController {
 		String fqOri = "";
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
-		System.out.println("paramstr: " + solrParamStr);
+		
 		boolean legacyOnly = jParams.getBoolean("legacyOnly");
 		
 		// Get the query string
@@ -144,7 +145,7 @@ public class DataTableController {
 			showImgView = jParams.getBoolean("showImgView");
 		}
 		//System.out.println("query: "+ query);
-		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 		//System.out.println("JSON: "+ json);
 		
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly);
@@ -542,14 +543,21 @@ public class DataTableController {
 				String annots = "";
 				
 				//System.out.println("JSON: " + doc.toString());
+				String imgLink = null;
 				
-				String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-				String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
-				String smallThumbNailPath = thumbnailPath + "/200";  //width in pixel
-				String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
-				String img = "<img src='" + smallThumbNailPath + "'/>";	
+				if ( doc.containsKey("jpeg_url")  ){
 				
-				String imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath+ "'>" + img + "</a>";				
+					String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+					String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+					String smallThumbNailPath = thumbnailPath + "/200";  //width in pixel
+					String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
+					String img = "<img src='" + smallThumbNailPath + "'/>";	
+					
+					imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath+ "'>" + img + "</a>";				
+				}
+				else {
+					imgLink = IMG_NOT_FOUND;
+				}
 				
 				try {
 					//ArrayList<String> mp = new ArrayList<String>();
@@ -669,7 +677,7 @@ public class DataTableController {
 			j.put("iTotalRecords", numAnnots);
 			j.put("iTotalDisplayRecords", numAnnots);
 			
-			int end = start+length;
+			int end = start+length > numAnnots ? numAnnots : start+length;
 			
 			for (int i=start; i<end; i=i+1){
 				
@@ -688,9 +696,14 @@ public class DataTableController {
 				query = annot.facet + ":\"" + annotVal + "\"";
 				
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-				String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-				String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
-							
+				String imgSubSetLink = null;
+				if ( imgCount == 0 ){
+					imgSubSetLink = imgCount + " " + unit;
+				}
+				else {
+					String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
+				}		
 				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
 				
 				// image path
@@ -1014,7 +1027,7 @@ public class DataTableController {
 				+ "&" + fqStr
 				+ "&rows=" + maxNum;
 	
-		System.out.println("QUERYURL: "+queryUrl );
+		//System.out.println("QUERYURL: "+queryUrl );
 		List<String> imgPath = new ArrayList<String>();
 	
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
@@ -1024,16 +1037,23 @@ public class DataTableController {
 		
 		for (int i = 0; i < dataLen; i++) {
 			JSONObject doc = docs.getJSONObject(i);
-			String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
 			
-			String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+			String link = null;
 			
-			String smallThumbNailPath = thumbnailPath + "/200";
-			String largeThumbNailPath = thumbnailPath + "/800";
-			
-			String img = "<img src='" + smallThumbNailPath + "'/>";					
-			String link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
-			
+			if (doc.containsKey("jpeg_url")){
+				String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+				
+				String thumbnailPath = fullSizePath.replace("render_image","render_thumbnail");
+				
+				String smallThumbNailPath = thumbnailPath + "/200";
+				String largeThumbNailPath = thumbnailPath + "/800";
+				
+				String img = "<img src='" + smallThumbNailPath + "'/>";					
+				link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+			}
+			else {
+				link = IMG_NOT_FOUND;
+			}
 			imgPath.add(link);
 		}
 

@@ -75,6 +75,8 @@ import uk.ac.ebi.phenotype.util.Utils;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class PhenotypePageTest {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     
     @Autowired
 	@Qualifier("postqcService")
@@ -169,13 +171,18 @@ public class PhenotypePageTest {
             if (i >= targetCount) {
                 break;
             }
+            
+            // This one has historically been known to fail, so it is included here for testing. Failure indicates a data problem on the Mark Griffiths end.
+            if (i == 0)
+                phenotypeId = "MP:0013020";
+            
             i++;
             
             WebElement phenotypeLink;
             boolean found = false;
             
             target = baseUrl + "/phenotypes/" + phenotypeId;
-            System.out.println("phenotype[" + i + "] URL: " + target);
+            logger.info("phenotype[" + i + "] URL: " + target);
             
             try {
                 driver.get(target);
@@ -190,7 +197,14 @@ public class PhenotypePageTest {
             try {
                 phenotypeLink.click();
                 String idString = "[" + phenotypeId + "]";
-                found = driver.findElement(By.cssSelector("div[id='templateBodyInsert']")).getText().contains(idString);
+                List<WebElement> elements = driver.findElements(By.cssSelector("div[id='templateBodyInsert']"));
+                if (elements.isEmpty()) {
+                    message = "Expected valid MGI page for " + phenotypeId + "(" + target + ").";
+                    logger.error(message);
+                    errorList.add(message);
+                } else {
+                    found = elements.get(0).getText().contains(idString);
+                }
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);
@@ -352,14 +366,15 @@ public class PhenotypePageTest {
             System.out.println("phenotype[" + i + "] URL: " + target);
         
             try {
-                PhenotypePage ptPage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
-                String definition = ptPage.getDefinition();
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
+                phenotypePage.selectPhenotypesLength(100);
+                String definition = phenotypePage.getDefinition();
                 if (definition.isEmpty()) {
                     System.out.println("ERROR: Expected definition but none was found. URL: " + target);
                     errorCount++;
                 }
                 
-                List<String> synonyms = ptPage.getSynonyms();
+                List<String> synonyms = phenotypePage.getSynonyms();
                 if (synonyms.size() != expectedSynonymCount[i]) {
                     System.out.println("ERROR: Expected " + expectedSynonymCount + " synonyms but found " + synonyms.size() + ". Values:");
                     for (int j = 0; j < synonyms.size(); j++) {
@@ -406,21 +421,26 @@ public class PhenotypePageTest {
             if (i >= targetCount) {
                 break;
             }
-            i++;
 
             WebElement mpLinkElement = null;
-//if (i == 1) phenotypeId = "MP:0003491";
-//if (i == 1) phenotypeId = "MP:0005371";
             target = baseUrl + "/phenotypes/" + phenotypeId;
             System.out.println("phenotype[" + i + "] URL: " + target);
             
             try {
                 PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, phenotypePipelineDAO, baseUrl);
-                mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
-                PageStatus status = phenotypePage.validate();
-                if (status.hasErrors()) {
-                    System.out.println(status.toStringErrorMessages());
-                    errorCount++;
+                if (phenotypePage.hasPhenotypesTable()) {
+                    phenotypePage.selectPhenotypesLength(100);
+                    mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
+                    PageStatus status = phenotypePage.validate();
+                    if (status.hasErrors()) {
+                        System.out.println(status.toStringErrorMessages());
+                        errorCount++;
+                    }
+                } else {
+                    // Genes that are Phenotype Started but not yet Complete have a placeholder and note that they will be available soon.
+                    // Thus, it is not an error if the PhenotypesTable doesn't exist.
+                    System.out.println("\tNo PhenotypesTable. Skipping this page ...");
+                    continue;
                 }
             } catch (Exception e) {
                 System.out.println("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
@@ -438,6 +458,7 @@ public class PhenotypePageTest {
                 successList.add("SUCCESS: MP_TERM_ID " + phenotypeId + ". URL: " + target);
             }
             
+            i++;
             TestUtils.sleep(100);
         }
         
