@@ -111,7 +111,6 @@ public class GenesController {
 	 */
 	@RequestMapping("/genes")
 	public String rootForward() {
-
 		return "redirect:/search";
 	}
 
@@ -651,29 +650,23 @@ public class GenesController {
 		return "genomeBrowser";
 	}
 
-
-	@RequestMapping("/genesAllele/{acc}")
-	public String genesAllele(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
-
-		List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
-
-   //             log.info("#### genesAllele...");
-
-		model.addAttribute("alleleProducts", constructs);
-		return "genesAllele";
-	}
-
-	@RequestMapping("/genesAllele2/{acc}")
+        
+        @RequestMapping("/genesAllele2/{acc}")
 	public String genesAllele2(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
 
-		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo2(acc);
-        
+		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo(acc);
+                Map<String, Object> creProducts = null;
+                
+                if (constructs2 != null){
+                    creProducts = constructs2.get(constructs2.size()-1);
+                    constructs2.remove(constructs2.size()-1);
+                }
     //            log.info("#### genesAllele2...");
    //             log.info("#### genesAllele2: constructs2: " + constructs2);
                 
 		model.addAttribute("alleleProducts2", constructs2);
+                model.addAttribute("alleleProductsCre2", creProducts);
                 
                 String debug = request.getParameter("debug");
     //            log.info("#### genesAllele2: debug: " + debug);        
