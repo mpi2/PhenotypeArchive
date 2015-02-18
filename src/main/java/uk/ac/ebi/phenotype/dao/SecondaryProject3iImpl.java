@@ -71,7 +71,7 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 	
 		System.out.println("-----getGeneHeatMap called");
 
-		Map<String, Set<String>> geneToProcedureMap = srs.getAccessionProceduresMap("MGP");
+		Map<String, Set<String>> geneToProcedureMap = srs.getAccessionProceduresMap("3i");
 		Set<String> accessions = geneToProcedureMap.keySet();
 		System.out.println("Accessions found " + accessions.size());
 		Map<String, String> geneToMouseStatusMap = gs.getProductionStatusForGeneSet(accessions, request);
@@ -79,8 +79,7 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 		for (String accession : accessions) {
 			GenomicFeature gene = genesDao.getGenomicFeatureByAccession(accession);
 
-			GeneRowForHeatMap row = srs.getResultsForGeneHeatMap(accession, gene, geneToProcedureMap);
-			System.out.println(" -- gene " + accession + " -- cell -- " + row);
+			GeneRowForHeatMap row = srs.getResultsForGeneHeatMap(accession, gene, geneToProcedureMap, "3i");
 			if (geneToMouseStatusMap.containsKey(accession)) {
 				row.setMiceProduced(geneToMouseStatusMap.get(accession));
 				if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
@@ -93,9 +92,7 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 				}
 				geneRows.add(row);	
 		}
-			
-//		Collections.sort(geneRows);
-		return geneRows;
+					return geneRows;
 	}
 
 

@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.dao.SecondaryProject3iImpl;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.service.StatisticalResultService;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
@@ -32,6 +33,9 @@ public class GeneHeatmapController {
     @Autowired
     @Qualifier("threeI")  
 	private SecondaryProject3iImpl threeISecondaryProjectDAO; 
+    
+    @Autowired
+    StatisticalResultService srService;
         
 
 	/**
@@ -57,6 +61,21 @@ public class GeneHeatmapController {
 	    model.addAttribute("geneRows", geneRows);
 	    model.addAttribute("xAxisBeans", xAxisBeans);
 			
+        return "geneHeatMap";
+	}
+	
+	@RequestMapping("/geneHeatMap3i")
+	public String getHeatmapJS3i( Model model, HttpServletRequest request, RedirectAttributes attributes) 
+	throws SolrServerException{
+		
+		String project="threeI";
+		System.out.println("calling getHeatmapJS3i controller method ");
+		SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
+		List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
+	    List<BasicBean> xAxisBeans = srService.getProceduresForDataSource("3i");
+	    model.addAttribute("geneRows", geneRows);
+	    model.addAttribute("xAxisBeans", xAxisBeans);
+		System.out.println("RIGHT ONE");	
         return "geneHeatMap";
 	}
 

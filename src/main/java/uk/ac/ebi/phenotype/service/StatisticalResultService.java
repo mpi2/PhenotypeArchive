@@ -382,10 +382,9 @@ public class StatisticalResultService extends BasicService {
     }
 
 
-    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, Map<String, Set<String>> map) {
+    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, Map<String, Set<String>> map, String resourceName) {
     	
         GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
-        List<HeatMapCell> results = new ArrayList<HeatMapCell>();
         Map<String, HeatMapCell> paramPValueMap = new HashMap<>();
         
         if (gene != null) {
@@ -400,39 +399,22 @@ public class StatisticalResultService extends BasicService {
 
         SolrQuery q = new SolrQuery()
                 .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"")
+                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
                 .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
                 .setRows(10000);
 
         try {
-        	Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
             for (SolrDocument doc:  solr.query(q).getResults()){
             	HeatMapCell cell = new HeatMapCell();
-            	if(doc.getFieldValue(StatisticalResultDTO.P_VALUE) < 0.0001){
-            		// significant call
-            	
-            	} else  if > {
-            		// no significant call
+            	if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
+            		cell.setStatus("Significant call");
+            	} else  if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
+        			cell.setStatus("Data analysed, no significant call");
             	}
-            	else // no data
-    			if (map.containsKey(accession)) {
-    				Set<String> mps = map.get(accession);
-    				if (mps != null && !mps.isEmpty()) {
-    					if (mps.contains(xAxisBean.getId())) {
-    						cell.setxAxisKey(xAxisBean.getId());
-    						cell.setLabel("Data Available");
-    						cell.setStatus("Data Available");
-    					} else {
-    						cell.setStatus("No MP");
-    					}
-    				} else {
-    					// System.err.println("mps are null or empty");
-    					cell.setStatus("No MP");
-    				}
-    			} else {
-    				// if no doc found for the gene then no data available
-    				cell.setStatus("No Data Available");
-    			}
-    			xAxisToCellMap.put(xAxisBean.getId(), cell);
+            	else {
+        			cell.setStatus("Could not  analyse");
+            	}
+            	paramPValueMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
             }
             
         } catch (SolrServerException ex) {
@@ -440,6 +422,32 @@ public class StatisticalResultService extends BasicService {
         }
         return row;
     }
+    
+    
+    public List<BasicBean> getProceduresForDataSource(String resourceName){
+    	
+    	List<BasicBean> res = new ArrayList();
+    	SolrQuery q = new SolrQuery()
+          	.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
+          	.setFacet(true)
+          	.addFacetField(StatisticalResultDTO.PROCEDURE_NAME)
+          	.setFacetLimit(-1)
+          	.setFacetMinCount(1)
+          	.setRows(10000);
+    	
+    	try {
+            for (SolrDocument doc:  solr.query(q).getResults()){
+            	BasicBean bb = new BasicBean();
+            	bb.setName(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
+            	res.add(bb);
+            }
+        } catch (SolrServerException ex) {
+            LOG.error(ex.getMessage());
+        }
+    	return res;
+    }
+     
+    
     /*
 	 * End of method for PhenotypeCallSummarySolrImpl
 	 */

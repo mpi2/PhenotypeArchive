@@ -92,7 +92,7 @@
 				'tip' : 'topLeft'
 			}); // bubble popup for brief panel documentation					
 		});
-		var geneHeatmapUrl = "../geneHeatMap?project=threeI";
+		var geneHeatmapUrl = "../geneHeatMap3i?project=threeI";
 		$.ajax({
 			url : geneHeatmapUrl,
 			cache : false
