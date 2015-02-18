@@ -362,7 +362,6 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				if (!procedure.equals(resultSet.getString("procedure_stable_id"))){
 					if (!procedure.equals("")){
 						res.put(procedure, new HashSet<String>(mps));
-						System.out.println("---" + procedure + "  " + mps.size());
 					}
 					procedure = resultSet.getString("procedure_stable_id");
 					mps = new HashSet<String>();
