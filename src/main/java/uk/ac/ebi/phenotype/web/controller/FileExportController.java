@@ -1197,7 +1197,7 @@ public class FileExportController {
     private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-        //System.out.println(" GOT " + docs.size() + " docs");
+        System.out.println(" GOT " + docs.size() + " docs");
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
        
         List<String> evidsList = new ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));
@@ -1224,6 +1224,14 @@ public class FileExportController {
             JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
             String NOINFO = "no info available";
            
+            Set<String> uniqEvids = new HashSet<>();
+            if ( evidsList.get(0).equals("ND") ){
+            	for(int g = 0; g < _goTermEvids.size(); g++){
+            		uniqEvids.add(_goTermEvids.get(g).toString());
+            	}
+            }
+            
+            // NO GO
             if ( _goTermIds.size() == 0 ){
             	List<String> data = new ArrayList();
             	data.add(doc.getString("marker_symbol"));
@@ -1253,7 +1261,11 @@ public class FileExportController {
 		            	rowData.add(StringUtils.join(data, "\t"));
 	            	}
 	            	else { 
-	            		if ( evidsList.contains(evid) ){
+	            		if ( evidsList.size() == 1 && evidsList.get(0).equals("ND") && uniqEvids.size() > 1 ){
+            				// surpress ND if there is other evidences for same gene
+            				continue;
+	            		}
+	            		else if ( evidsList.contains(evid) ){
 	            			List<String> data = new ArrayList();
 			            	data.add(doc.getString("marker_symbol"));
 			            	data.add(hostName + baseUrl + gId);
