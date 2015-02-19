@@ -67,6 +67,7 @@ public class AlleleDTO {
 	public static final String GO_TERM_DEF = "go_term_def";
 	public static final String GO_TERM_EVID = "go_term_evid";
 	public static final String GO_TERM_DOMAIN = "go_term_domain";
+	public static final String EVID_CODE_RANK = "evidCodeRank";
 	public static final String UNIPROT_ACC = "uniprot_acc";
 	
 	public static final String PFAMA_JSON = "pfama_json";
@@ -216,6 +217,9 @@ public class AlleleDTO {
 	
 	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
+	
+	@Field(EVID_CODE_RANK)
+	private Integer evidCodeRank;
 	
 	@Field(UNIPROT_ACC)
 	private List<String> uniprotAccs = new ArrayList<>();
@@ -778,6 +782,21 @@ public class AlleleDTO {
 	 */
 	public void setGoTermDomains(List<String> goTermDomains) {
 		this.goTermDomains = goTermDomains;
+	}
+	
+	/**
+	 * @return the evidCodeRank
+	 */
+	public Integer getEvidCodeRank() {
+		return evidCodeRank;
+	}
+	
+	/**
+	 * @param evidCodeRank
+	 *            the evidCodeRank to set
+	 */
+	public void setEvidCodeRank(Integer evidCodeRank) {
+		this.evidCodeRank = evidCodeRank;
 	}
 	
 	/**
