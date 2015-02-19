@@ -18,7 +18,6 @@ package uk.ac.ebi.generic.util;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
@@ -50,9 +48,7 @@ public class SolrIndex2 {
     private static final String NOT_COMPLETE = "placeholder";
     private static final String ALLELE_NAME_FIELD = "allele_name_str";
     private static final String ALLELE_TYPE_FIELD = "allele_type";
-//    private static final String ALLELE2_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8983";
-    private static final String ALLELE2_CORE_URL = "http://deskpro101887.internal.sanger.ac.uk:8983";
-    private static final String IMITS_SOLR_CORE_URL = "http://deskpro101887.internal.sanger.ac.uk:8983";
+    private static final String IMITS_SOLR_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8983";
     
     private static final Map<String, String> phraseMap;
 
