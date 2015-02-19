@@ -1,10 +1,13 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.james.mime4j.field.Field;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -15,18 +18,26 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 @Service
 public class PhenotypeCenterService {
 
+	@Autowired
+	PhenotypePipelineDAO ppDao;
+	
 	private final HttpSolrServer solr;
 	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
+		
 //	public PhenotypeCenterProgress(){
 //		this("https://www.ebi.ac.uk/mi/impc/solr/experiment");//"http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
 //	}
+	
 	public PhenotypeCenterService(String baseSolrUrl){
 		solr = new HttpSolrServer(baseSolrUrl);
 		
@@ -221,8 +232,9 @@ public class PhenotypeCenterService {
 	 * @author tudose
 	 * @return
 	 * @throws SolrServerException
+	 * @throws SQLException 
 	 */
-	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException {
+	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException, SQLException {
 		
 		List<String> centers = getPhenotypeCenters();
         List<String[]> results = new ArrayList<>();
@@ -233,15 +245,16 @@ public class PhenotypeCenterService {
         header.add("percenageDone");
         header.add("numberOfDoneProcedures");
         header.add("doneProcedures");
+        header.add("mpsTestedFor");
         header.add("numberOfMissingProcedures");
         header.add("missingProcedures");
+        header.add("mpsNotTestedFor");
 		results.add(header.toArray(temp));
-        
+		Map<String, Set<String>> mpsPerProcedure = ppDao.getMpsForParameters();        
 		Map<String, List<String>> possibleProceduresPerCenter = getProceduresPerCenter();
 		
 		for(String center: centers){	
 			List<String> strains = getMutantStrainsForCenter(center);
-			Map<String,List<ProcedureBean>> strainsToProcedures = new HashMap<>();
 						
 			for(String colonyId: strains){
 				List<String> procedures = getDoneProcedureIdsPerStrainAndCenter(center, colonyId);
@@ -252,14 +265,30 @@ public class PhenotypeCenterService {
 				row.add(percentageDone.toString());
 				row.add("" + procedures.size()); // #procedures done
 				row.add(procedures.toString()); // procedures done
+				Set<String> mpsTestedFor = getMpsForProcedureSet(procedures, mpsPerProcedure);
+				row.add(mpsTestedFor.toString()); //mpsTestedFor
 				row.add("" + (possibleProceduresPerCenter.get(center).size() - procedures.size()));	// #missing procedures
 				List<String> missing = new ArrayList<>(possibleProceduresPerCenter.get(center));
 				missing.removeAll(procedures); // missing procedures
 				row.add(missing.toString());
+				Set<String> mpsNotTestedFor = getMpsForProcedureSet(missing, mpsPerProcedure);
+				mpsNotTestedFor.removeAll(mpsTestedFor);
+				row.add(mpsNotTestedFor.toString());
 				results.add(row.toArray(temp));
 			}
 		}
 		return results;
+	}
+	
+	private Set<String> getMpsForProcedureSet(List<String> procedures, Map<String, Set<String>> mpsPerProcedure){
+		
+		HashSet<String> res = new HashSet<>();
+		for (String procedure: procedures){
+			if (mpsPerProcedure.get(procedure) != null){
+				res.addAll(mpsPerProcedure.get(procedure));
+			}
+		}
+		return res;
 	}
 	
 }

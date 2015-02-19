@@ -128,49 +128,23 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         gpSolrServer.deleteByQuery("*:*");
 
-        String query = "SELECT\n" +
-            "  s.id           AS id,\n" +
-            "  CASE\n" +
-            "  WHEN sur.statistical_method IS NOT NULL THEN sur.statistical_method\n" +
-            "  WHEN scr.statistical_method IS NOT NULL THEN scr.statistical_method\n" +
-            "  ELSE \"Unknown\"\n" +
-            "  END            AS statistical_method,\n" +
-            "  sur.genotype_percentage_change,\n" +
-            "  o.name         AS phenotyping_center,\n" +
-            "  s.external_id,\n" +
-            "  s.parameter_id AS parameter_id,\n" +
-            "  s.procedure_id AS procedure_id,\n" +
-            "  s.pipeline_id  AS pipeline_id,\n" +
-            "  s.gf_acc       AS marker_accession_id,\n" +
-            "  gf.symbol      AS marker_symbol,\n" +
-            "  s.allele_acc   AS allele_accession_id,\n" +
-            "  al.name        AS allele_name,\n" +
-            "  al.symbol      AS allele_symbol,\n" +
-            "  s.strain_acc   AS strain_accession_id,\n" +
-            "  st.name        AS strain_name,\n" +
-            "  s.sex          AS sex,\n" +
-            "  s.zygosity     AS zygosity,\n" +
-            "  p.name         AS project_name,\n" +
-            "  p.fullname     AS project_fullname,\n" +
-            "  s.mp_acc       AS mp_term_id,\n" +
-            "  ot.name        AS mp_term_name,\n" +
-            "  s.p_value      AS p_value,\n" +
-            "  s.effect_size  AS effect_size,\n" +
-            "  s.colony_id,\n" +
-            "  db.name        AS resource_fullname,\n" +
-            "  db.short_name  AS resource_name\n" +
-            "FROM phenotype_call_summary s\n" +
-            "  INNER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id\n" +
-            "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id\n" +
-            "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id\n" +
-            "  INNER JOIN organisation o ON s.organisation_id = o.id\n" +
-            "  INNER JOIN project p ON s.project_id = p.id\n" +
-            "  INNER JOIN ontology_term ot ON ot.acc = s.mp_acc\n" +
-            "  INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc\n" +
-            "  LEFT OUTER JOIN strain st ON s.strain_acc = st.acc\n" +
-            "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc\n" +
-            "  INNER JOIN external_db db ON s.external_db_id = db.id\n" +
-            "WHERE 0.0001 >= s.p_value\n";
+        String query = "SELECT s.id AS id, CASE WHEN sur.statistical_method IS NOT NULL THEN sur.statistical_method WHEN scr.statistical_method IS NOT NULL THEN scr.statistical_method ELSE 'Unknown' END AS statistical_method, " +
+            "  sur.genotype_percentage_change, o.name AS phenotyping_center, s.external_id, s.parameter_id AS parameter_id, s.procedure_id AS procedure_id, s.pipeline_id AS pipeline_id, s.gf_acc AS marker_accession_id, " +
+            "  gf.symbol AS marker_symbol, s.allele_acc AS allele_accession_id, al.name AS allele_name, al.symbol AS allele_symbol, s.strain_acc AS strain_accession_id, st.name AS strain_name, " +
+            "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS mp_term_id, ot.name AS mp_term_name, s.p_value AS p_value, s.effect_size AS effect_size, " +
+            "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name " +
+            "FROM phenotype_call_summary s " +
+            "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id " +
+            "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id " +
+            "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id " +
+            "  INNER JOIN organisation o ON s.organisation_id = o.id " +
+            "  INNER JOIN project p ON s.project_id = p.id " +
+            "  INNER JOIN ontology_term ot ON ot.acc = s.mp_acc " +
+            "  INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc " +
+            "  LEFT OUTER JOIN strain st ON s.strain_acc = st.acc " +
+            "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
+            "  INNER JOIN external_db db ON s.external_db_id = db.id " +
+            "WHERE 0.0001 >= s.p_value" ;
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
