@@ -27,11 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
@@ -39,12 +37,7 @@ import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class StatisticalResultService extends BasicService {
@@ -159,7 +152,7 @@ public class StatisticalResultService extends BasicService {
 			query.addFilterQuery("(" + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" 
 					+ StringUtils.join(procedureStableIds, " OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + ")");
 		}
-		query.setRows(90000000);
+		query.setRows(Integer.MAX_VALUE);
 		query.addField(StatisticalResultDTO.P_VALUE)
 			.addField(StatisticalResultDTO.EFFECT_SIZE)
 			.addField(StatisticalResultDTO.STATUS)
@@ -171,8 +164,8 @@ public class StatisticalResultService extends BasicService {
 			.addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT)
 			.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
 			.addField(StatisticalResultDTO.METADATA_GROUP);		
-		query.set("sort", StatisticalResultDTO.P_VALUE + " desc");
-		
+		query.set("sort", StatisticalResultDTO.P_VALUE + " asc");
+
 		for (SolrDocument doc : solr.query(query).getResults()){
 			String parameterStableId = doc.getFieldValue(StatisticalResultDTO.PARAMETER_STABLE_ID).toString();
 			List<StatisticalResultBean> lb = null;
