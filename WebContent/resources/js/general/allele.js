@@ -22,50 +22,12 @@ jQuery(document).ready(	function() {
           return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
         }
 
-//code for setting ENU links on Gene Page
-
-        var debug = getURLParameter('debug');
-        var debugp = "";
-
-
-        if(debug && debug === "true") {
-
-            debugp = "?debug=true";
-
-            $.ajax({
-                    url: '../genesAllele/' + gene_id + debugp,
-                    timeout: 2000,
-                    success: function (response) {
-                            $('#allele').html(response);
-
-                    }
-                    ,error: function(x, t, m) {
-                  //  if(t==="timeout") {
-                    //log error to gene page so we know this is down not just 0.
-                            var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
-                    $('#allele').html(errorMsg);
-                }
-            });
-
-        }
-        else {
-            $('#order').hide();
-        }
-
-        //console.log("####  url:" + '../genesAllele2/' + gene_id + debugp);
-        //console.log("####  baseUrl:" + baseUrl);
-        //console.log("####  url:" + baseUrl + '/genesAllele2/' + gene_id + debugp);
-
         try {
             $.ajax({
-                    //url: '../genesAllele2/' + gene_id + debugp,
-                    url: baseUrl + '/genesAllele2/' + gene_id + debugp,
+                    url: baseUrl + '/genesAllele2/' + gene_id,
 
                     timeout: 2000,
                     success: function (response) {
-
-                      //  console.log("genesAllele2:");
-                      //  console.log(response);
 
                         $('#allele2').html(response);
                     }
@@ -84,16 +46,15 @@ jQuery(document).ready(	function() {
             var name = $(this).data("name");
             var alleleType = $(this).data("alleletype");
 
-            //var url = '../../qc_data/' + alleleType + '/' + type + '/' + name + "?simple=true";
-            var url = baseUrl + '/alleles/qc_data/' + alleleType + '/' + type + '/' + name + "?simple=true";
+            var bare_str = "";
+            if (bare === "true"){ bare_str = "&bare=" + bare;}
+            var url = baseUrl + '/alleles/qc_data/' + type + '/' + name + "?simple=true" + bare_str; 
 
-            if(! alleleType || ! type || ! name) {
-                //console.log("#### ignore: " + url);
+            if( ! type || ! name) {
+
                 $(this).html('<p>Not found!</p>');
                 return;
             }
-
-            //console.log("#### 2. url: " + url);
 
         	$.ajax({
 		    url: url,

@@ -12,10 +12,12 @@
   <table id="es_cell_table">
     <thead>
       <tr>
-        <th>ES Cell Clone</th>
-        <th>Targeting Vector</th>
-        <th>QC Data</th>
-        <th>ES Cell strain / Parental Cell Line</th>
+        <th style="text-align: center;">ES Cell Clone</th>
+        <th style="text-align: center;">ES Cell strain</th>
+        <th style="text-align: center;">Parental Cell Line</th>
+        <th style="text-align: center;">IKMC Project</th>
+        <th style="text-align: center;">QC Data</th>
+        <th style="text-align: center;">Targeting Vector</th>
         <th>Order</th>
       </tr>
     </thead>
@@ -48,13 +50,16 @@
 
 
 
-        <td>${es_cell['es_cell_clone']}</td>
-        <td>${es_cell['targeting_vector']}</td>
+        <td style="text-align: center;">${es_cell['es_cell_clone']}</td>
+        <td style="text-align: center;">${es_cell['es_cell_strain']}</td>
+        <td style="text-align: center;">${es_cell['parental_cell_line']}</td>
+        <td style="text-align: center;">${es_cell['ikmc_project_id']}</td>
+        
         <td>           
             
 <c:choose>
     <c:when test='${not empty es_cell["qc_data_url"]}'>
-            <a class="hasTooltip" href="${baseUrl}/${es_cell['qc_data_url']}">QC data</a>
+            <a class="hasTooltip" href="${baseUrl}/${es_cell['qc_data_url']}<c:if test="${bare == true}">?bare=true</c:if>">QC data</a>
 </c:when>
 <c:otherwise>
             <a class="hasTooltip" href="#">QC data</a>
@@ -68,12 +73,11 @@
                 <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>                    
             </div>
             <c:if test="${not empty es_cell['qc_about']}">
-                (&nbsp;<a target="_blank" href="${es_cell['qc_about']}">about</a>&nbsp;)
+                <a target="_blank" href="${es_cell['qc_about']}">(&nbsp;about&nbsp;)</a>
             </c:if>
             
         </td>
-
-        <td style="text-align: center;">${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
+        <td style="text-align: center;">${es_cell['associated_product_vector_name']}</td>
 
                 <td>
                     <c:forEach var="order" items="${es_cell['orders']}" varStatus="ordersx">

@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/mutagenesis.css"/>
 
 </jsp:attribute>
-
+<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&fq=*:*&facet=gene">Genes</a> &raquo; <a href = "${baseUrl}/genes/${acc}">${acc}</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}" >Alleles</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}/${allele_name}" >${allele_name}</a> &raquo; Mutagensis Factor</jsp:attribute>
 <jsp:body>
 
         

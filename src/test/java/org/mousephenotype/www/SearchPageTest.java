@@ -912,7 +912,7 @@ public class SearchPageTest {
     @Test
 //@Ignore
     public void testImageFacetImageViewLastPage() throws Exception {
-        String testName = "testImageFacetImageView";
+        String testName = "testImageFacetImageViewLastPage";
         String searchString = "";
         Date start = new Date();
         PageStatus status = new PageStatus();
