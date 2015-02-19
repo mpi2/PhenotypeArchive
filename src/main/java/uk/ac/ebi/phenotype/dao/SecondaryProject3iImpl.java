@@ -57,7 +57,7 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 	throws SQLException {
 
 		if (projectId.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())){
-			return srs.getAccessionsByResourceName("MGP");
+			return srs.getAccessionsByResourceName("3i");
 		}
 		return null;
 	}
@@ -68,18 +68,15 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 	throws SolrServerException {
 
 		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
-	
-		System.out.println("-----getGeneHeatMap called");
-
 		Map<String, Set<String>> geneToProcedureMap = srs.getAccessionProceduresMap("3i");
 		Set<String> accessions = geneToProcedureMap.keySet();
-		System.out.println("Accessions found " + accessions.size());
 		Map<String, String> geneToMouseStatusMap = gs.getProductionStatusForGeneSet(accessions, request);
 
 		for (String accession : accessions) {
+			
 			GenomicFeature gene = genesDao.getGenomicFeatureByAccession(accession);
-
 			GeneRowForHeatMap row = srs.getResultsForGeneHeatMap(accession, gene, geneToProcedureMap, "3i");
+			
 			if (geneToMouseStatusMap.containsKey(accession)) {
 				row.setMiceProduced(geneToMouseStatusMap.get(accession));
 				if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
@@ -92,7 +89,7 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 				}
 				geneRows.add(row);	
 		}
-					return geneRows;
+		return geneRows;
 	}
 
 

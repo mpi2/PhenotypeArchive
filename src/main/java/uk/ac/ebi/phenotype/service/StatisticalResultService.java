@@ -20,6 +20,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupCommand;
+import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -148,6 +151,7 @@ public class StatisticalResultService extends BasicService {
         
         return results;
     }
+    
 
     public Map<String, Set<String>> getAccessionProceduresMap(String resourceName){
     	
@@ -170,11 +174,9 @@ public class StatisticalResultService extends BasicService {
 			response = solr.query(query).getFacetPivot();
 			for (PivotField genePivot : response.get(StatisticalResultDTO.MARKER_ACCESSION_ID + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID)){
 				String geneName = genePivot.getValue().toString();
-//				System.out.println("gene name " + geneName);
 				Set<String> procedures = new HashSet<>();
 				for (PivotField f : genePivot.getPivot()){
 					procedures.add(f.getValue().toString());
-//					System.out.println("\tprcedure " + f.getValue().toString());
 				}
 				res.put(geneName, procedures);
 			}
@@ -401,22 +403,30 @@ public class StatisticalResultService extends BasicService {
                 .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"")
                 .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
                 .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
-                .setRows(10000);
-
+                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+                .addField(StatisticalResultDTO.STATUS)
+                .addField(StatisticalResultDTO.P_VALUE)
+                .setRows(10000000);
+        q.add("group", "true");
+        q.add("group.field", StatisticalResultDTO.PROCEDURE_STABLE_ID);
+        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
+        
         try {
-            for (SolrDocument doc:  solr.query(q).getResults()){
+        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+            for (Group group:  groups.getValues()){
             	HeatMapCell cell = new HeatMapCell();
+            	SolrDocument doc = group.getResult().get(0);
+            	cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
             	if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
             		cell.setStatus("Significant call");
-            	} else  if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
-        			cell.setStatus("Data analysed, no significant call");
-            	}
-            	else {
-        			cell.setStatus("Could not  analyse");
-            	}
+            	} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
+            			cell.setStatus("Data analysed, no significant call");
+            		} else {
+            			cell.setStatus("Could not analyse");
+            		}
             	paramPValueMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
             }
-            
+            row.setXAxisToCellMap(paramPValueMap);
         } catch (SolrServerException ex) {
             LOG.error(ex.getMessage());
         }
@@ -424,21 +434,29 @@ public class StatisticalResultService extends BasicService {
     }
     
     
+  
+    
+    
     public List<BasicBean> getProceduresForDataSource(String resourceName){
     	
     	List<BasicBean> res = new ArrayList();
     	SolrQuery q = new SolrQuery()
           	.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
-          	.setFacet(true)
-          	.addFacetField(StatisticalResultDTO.PROCEDURE_NAME)
-          	.setFacetLimit(-1)
-          	.setFacetMinCount(1)
           	.setRows(10000);
+    	q.add("group", "true");
+    	q.add("group.field", StatisticalResultDTO.PROCEDURE_NAME);
+    	q.add("group.rows","1");
+        q.add("fl", StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
+    	
+    	System.out.println("Procedure query " + solr.getBaseURL() + "/select?" + q);
     	
     	try {
-            for (SolrDocument doc:  solr.query(q).getResults()){
+    		GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+            for (Group group: groups.getValues()){
             	BasicBean bb = new BasicBean();
+            	SolrDocument doc = group.getResult().get(0);
             	bb.setName(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
+            	bb.setId(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
             	res.add(bb);
             }
         } catch (SolrServerException ex) {

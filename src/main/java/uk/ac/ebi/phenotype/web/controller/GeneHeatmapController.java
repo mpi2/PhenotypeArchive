@@ -55,30 +55,26 @@ public class GeneHeatmapController {
 		
 		System.out.println("calling heatmap controller method for " + project);
 	
-		SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
-		List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
-	    List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
-	    model.addAttribute("geneRows", geneRows);
-	    model.addAttribute("xAxisBeans", xAxisBeans);
+		if (project.equalsIgnoreCase("idg")){
+			SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
+			List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
+		    List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
+		    model.addAttribute("geneRows", geneRows);
+		    model.addAttribute("xAxisBeans", xAxisBeans);
+		}else  if (project.equalsIgnoreCase("3i") || project.equalsIgnoreCase("threeI")){
+			project="threeI";
+			SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
+			List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
+		    List<BasicBean> xAxisBeans = srService.getProceduresForDataSource("3i");
+		    model.addAttribute("geneRows", geneRows);
+		    model.addAttribute("xAxisBeans", xAxisBeans);
+			System.out.println("3i and xAxisBeans.size (procedures) = " + xAxisBeans.size());
+		}
 			
         return "geneHeatMap";
 	}
 	
-	@RequestMapping("/geneHeatMap3i")
-	public String getHeatmapJS3i( Model model, HttpServletRequest request, RedirectAttributes attributes) 
-	throws SolrServerException{
-		
-		String project="threeI";
-		System.out.println("calling getHeatmapJS3i controller method ");
-		SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
-		List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
-	    List<BasicBean> xAxisBeans = srService.getProceduresForDataSource("3i");
-	    model.addAttribute("geneRows", geneRows);
-	    model.addAttribute("xAxisBeans", xAxisBeans);
-		System.out.println("RIGHT ONE");	
-        return "geneHeatMap";
-	}
-
+	
 
 	private SecondaryProjectDAO getSecondaryProjectDao(String project) {
 		if(project.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.IDG.name())){

@@ -277,17 +277,10 @@ public class SecondaryProjectController {
 		} else if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())) {
 			try {
 				accessions = threeI.getAccessionsBySecondaryProjectId(id);
-//				model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
-//				model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
-				
-//				List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
-//				String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
-				
-//				model.addAttribute("chart", chart);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			System.out.println("returning to idg");
+			System.out.println("returning to threeI");
 			return "threeI";
 		}
 		
