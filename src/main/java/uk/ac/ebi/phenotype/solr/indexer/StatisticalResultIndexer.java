@@ -240,7 +240,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         // If PhenStat did not run, then the result will have a NULL for the null_test_significance field
         // In that case, fall back to Wilcoxon test
         Double pv = r.getDouble("null_test_significance");
-        if ( pv==null && doc.getStatus().equals("Success") && doc.getStatisticalMethod()!= null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
+        if ( r.wasNull() ) {
+            pv = 1.0;
+        }
+
+        if ( pv==1.0 && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
 
             // Wilcoxon test.  Choose the most significant pvalue from the sexes
             pv = 1.0;
