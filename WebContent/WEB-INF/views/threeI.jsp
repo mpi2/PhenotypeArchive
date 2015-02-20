@@ -65,13 +65,14 @@
 								<div id="legend">
 									<table>
 										<tr>
-											<td>Key:</td>
-											<td>Phenotype Detected:</td>
+											<td>Deviance Significant:</td>
 											<td style="background-color: rgb(191, 75, 50)"></td>
-											<td>No Phenotype Detected:</td>
-											<td style="background-color: rgb(119, 119, 119)"></td>
-											<td>No Data Available:</td>
+											<td>Data analysed, no significant call:</td>
+											<td style="background-color: rgb(247, 157, 70)"></td>
+											<td>Could not analyse:</td>
 											<td style="background-color: rgb(0, 0, 0)"></td>
+											<td>No data:</td>
+											<td style="background-color: rgb(119, 119, 119)"></td>
 										</tr>
 									</table>
 								</div>
@@ -92,7 +93,7 @@
 				'tip' : 'topLeft'
 			}); // bubble popup for brief panel documentation					
 		});
-		var geneHeatmapUrl = "../geneHeatMap?project=threeI";
+		var geneHeatmapUrl = "../threeIMap?project=threeI";
 		$.ajax({
 			url : geneHeatmapUrl,
 			cache : false
