@@ -61,20 +61,25 @@ public class GeneHeatmapController {
 		    List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
 		    model.addAttribute("geneRows", geneRows);
 		    model.addAttribute("xAxisBeans", xAxisBeans);
-		}else  if (project.equalsIgnoreCase("3i") || project.equalsIgnoreCase("threeI")){
-			project="threeI";
-			SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
-			List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
-		    List<BasicBean> xAxisBeans = srService.getProceduresForDataSource("3i");
-		    model.addAttribute("geneRows", geneRows);
-		    model.addAttribute("xAxisBeans", xAxisBeans);
-			System.out.println("3i and xAxisBeans.size (procedures) = " + xAxisBeans.size());
 		}
-			
         return "geneHeatMap";
 	}
-	
-	
+	@RequestMapping("/threeIMap")
+	public String getThreeIMap(Model model, HttpServletRequest request, RedirectAttributes attributes) 
+	throws SolrServerException{
+		
+		System.out.println("calling heatmap controller method for 3i");
+		String project="threeI";
+		Long time = System.currentTimeMillis();
+	    List<BasicBean> xAxisBeans = srService.getProceduresForDataSource("3i"); //procedures
+		SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
+		List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
+	    model.addAttribute("geneRows", geneRows);
+	    model.addAttribute("xAxisBeans", xAxisBeans);
+		System.out.println("3i and xAxisBeans.size (procedures) = " + xAxisBeans.size());
+		System.out.println("Getting the data took " + (System.currentTimeMillis() - time) + "ms");
+	    return "threeIMap";
+	}
 
 	private SecondaryProjectDAO getSecondaryProjectDao(String project) {
 		if(project.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.IDG.name())){

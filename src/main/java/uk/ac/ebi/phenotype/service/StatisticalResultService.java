@@ -433,7 +433,63 @@ public class StatisticalResultService extends BasicService {
         return row;
     }
     
-    
+    public List<GeneRowForHeatMap> getSecondaryProjectMapForResource(String resourceName) {
+    	
+    	List<GeneRowForHeatMap> res = new ArrayList<>();    	
+        HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
+        List<BasicBean> procedures = getProceduresForDataSource(resourceName);
+        
+        for (BasicBean procedure : procedures){
+	        SolrQuery q = new SolrQuery()
+	        .setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
+	        .addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedure.getId())
+	        .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
+	        .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+	        .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+	        .addField(StatisticalResultDTO.MARKER_SYMBOL)
+	        .addField(StatisticalResultDTO.STATUS)
+	        .addField(StatisticalResultDTO.P_VALUE)
+	        .setRows(10000000);
+	        q.add("group", "true");
+	        q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
+	        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
+	
+	        try {
+	        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+		        		        	
+		        for (Group group:  groups.getValues()){
+		        	GeneRowForHeatMap row;
+		            HeatMapCell cell = new HeatMapCell();
+		            SolrDocument doc = group.getResult().get(0);
+		        	String geneAcc = doc.get(StatisticalResultDTO.MARKER_ACCESSION_ID).toString();
+		            Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
+		            
+		        	if (geneRowMap.containsKey(geneAcc)){
+		        		row = geneRowMap.get(geneAcc);
+		        		xAxisToCellMap = row.getXAxisToCellMap();
+		        	} else {
+		        		row = new GeneRowForHeatMap(geneAcc);
+		        		row.setSymbol(doc.get(StatisticalResultDTO.MARKER_SYMBOL).toString());
+			        	xAxisToCellMap.put(procedure.getId(), null);
+		        	}
+		            cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
+		            if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
+		            	cell.setStatus("Significant call");
+		            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
+		            		cell.setStatus("Data analysed, no significant call");
+		            } else {
+		            	cell.setStatus("Analysis failed");
+		            }
+		            xAxisToCellMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
+			        row.setXAxisToCellMap(xAxisToCellMap);
+			        geneRowMap.put(geneAcc, row);
+		            }
+		        } catch (SolrServerException ex) {
+		            LOG.error(ex.getMessage());
+		        }
+        }
+        return new ArrayList(geneRowMap.values());
+    }
   
     
     

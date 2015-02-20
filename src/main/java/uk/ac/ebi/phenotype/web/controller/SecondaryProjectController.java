@@ -275,11 +275,7 @@ public class SecondaryProjectController {
 			System.out.println("returning to idg");
 			return "idg";
 		} else if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())) {
-			try {
-				accessions = threeI.getAccessionsBySecondaryProjectId(id);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			
 			System.out.println("returning to threeI");
 			return "threeI";
 		}

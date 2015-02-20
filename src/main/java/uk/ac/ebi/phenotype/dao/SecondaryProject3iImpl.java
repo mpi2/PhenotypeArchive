@@ -67,29 +67,19 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request)
 	throws SolrServerException {
 
-		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
+/*		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
 		Map<String, Set<String>> geneToProcedureMap = srs.getAccessionProceduresMap("3i");
 		Set<String> accessions = geneToProcedureMap.keySet();
-		Map<String, String> geneToMouseStatusMap = gs.getProductionStatusForGeneSet(accessions, request);
 
-		for (String accession : accessions) {
-			
+		for (String accession : accessions) {			
 			GenomicFeature gene = genesDao.getGenomicFeatureByAccession(accession);
 			GeneRowForHeatMap row = srs.getResultsForGeneHeatMap(accession, gene, geneToProcedureMap, "3i");
-			
-			if (geneToMouseStatusMap.containsKey(accession)) {
-				row.setMiceProduced(geneToMouseStatusMap.get(accession));
-				if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
-						for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
-							cell.setStatus("No Data Available");
-						}
-					}
-				} else {
-					row.setMiceProduced("No");
-				}
-				geneRows.add(row);	
+			geneRows.add(row);	
 		}
 		return geneRows;
+*/
+	
+		return  srs.getSecondaryProjectMapForResource("3i");
 	}
 
 
