@@ -153,6 +153,7 @@ public class GeneIndexer extends AbstractIndexer {
                // gene.getGoTermDefs().addAll(allele.getGoTermDefs());
                 gene.setGoTermEvids(allele.getGoTermEvids());
                 gene.setGoTermDomains(allele.getGoTermDomains());
+                gene.setEvidCodeRank(allele.getEvidCodeRank());
                 
                 // pfam stuff
                 gene.setUniprotAccs(allele.getUniprotAccs());

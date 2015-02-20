@@ -5,7 +5,7 @@
 <t:genericpage>
 
     	<jsp:attribute name="title">Allele details </jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search?q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
+        <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&fq=*:*&facet=gene">Genes</a> &raquo; <a href = "${baseUrl}/genes/${acc}">${acc}</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}" >Alleles</a> &raquo; ${allele_name}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">    
 
@@ -24,6 +24,7 @@
             return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
         };
     </script>
+    
     <!--<![endif]-->
     <!--[if lt IE 9]>
     <script>
@@ -42,6 +43,16 @@
 
     </c:if>
 
+    <script>
+        $('.status').each(function() {
+            $(this).qtip({
+                style: {classes: 'qtipimpc flat'},
+                position: {my: 'top center', at: 'bottom center'},
+                content: {text: $(this).attr('oldtitle')}
+            });
+        });
+    </script>
+    
 	</jsp:attribute>
 
 
@@ -63,6 +74,7 @@
 
 
 		<script type="text/javascript">var gene_id = '${acc}';</script>
+                <script type="text/javascript">var bare = '${bare}';</script>
 		<style>
 		#svgHolder div div {z-index:100;}
 		</style>
@@ -83,7 +95,9 @@
 
 	<jsp:body>
 
-<h1 class="title" id="top">${title}</h1>
+<h1 class="title" id="top">${title}        
+    <span style="font-size: 40%;">See <a href="${baseUrl}/alleles/${acc}<c:if test="${bare == true}">?bare=true</c:if>">all alleles</a> for ${summary['marker_symbol']}</span>
+</h1>
 
 </br>
 

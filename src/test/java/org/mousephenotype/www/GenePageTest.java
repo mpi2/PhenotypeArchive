@@ -421,7 +421,6 @@ public class GenePageTest {
         sectionErrorCount = 0;
         String[] sectionTitlesArray = {"Gene: Akt2",
                                        "Phenotype associations for Akt2",
-                                       "Pre-QC phenotype heatmap",
                                        "Phenotype Associated Images",
                                        "Expression",
                                        "Disease Models associated by gene orthology",

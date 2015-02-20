@@ -71,6 +71,8 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private static final int BATCH_SIZE = 2500;
 
+    private int assignedEvidCodeRank = 1; // default
+    
     // Fetch all phenotyping completed genes with MP calls from genotype-phenotype core
     private static Set<String> gpGenesLookup = new HashSet<>();
     
@@ -182,7 +184,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             initializeSolrCores();
 
-            SolrQuery query = new SolrQuery("mgi_accession_id:*");
+            SolrQuery query = new SolrQuery("mgi_accession_id:MGI*");  
             query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
             query.setRows(BATCH_SIZE);
 
@@ -999,14 +1001,39 @@ public class AlleleIndexer extends AbstractIndexer {
         }
         logger.debug("Finished disease data lookup");
     }
-
+    
+    private Integer assignCodeRank(int currRank){
+    	// set for highest evidCodeRank
+    	assignedEvidCodeRank = currRank > assignedEvidCodeRank ? currRank : assignedEvidCodeRank;
+    	return assignedEvidCodeRank;
+    }
+    
     private void lookupGoData(Map<String, AlleleDTO> alleles) {
         logger.debug("Starting GO data lookup");
 
+        //GO evidence code ranking mapping
+        Map<String,Integer> codeRank = new HashMap<>();
+        // experimental 
+        codeRank.put("EXP", 4);codeRank.put("IDA", 4);codeRank.put("IPI", 4);codeRank.put("IMP", 4);
+        codeRank.put("IGI", 4);codeRank.put("IEP", 4);codeRank.put("TAS", 4);
+        
+        // curated computational
+        codeRank.put("ISS", 3);codeRank.put("ISO", 3);codeRank.put("ISA", 3);codeRank.put("ISM", 3);
+        codeRank.put("IGC", 3);codeRank.put("IBA", 3);codeRank.put("IBD", 3);codeRank.put("IKR", 3);
+        codeRank.put("IRD", 3);codeRank.put("RCA", 3);codeRank.put("IC", 3);codeRank.put("NAS", 3);
+        
+        // automated electronic
+        codeRank.put("IEA", 2);
+        
+        // no biological data available
+        codeRank.put("ND", 1);
+        
         for (String id : alleles.keySet()) {
 
             AlleleDTO dto = alleles.get(id);
-
+           
+            assignedEvidCodeRank = 1; // reset
+            
             // GO is populated based on gene symbol
             if ( ! goTermLookup.containsKey(dto.getMarkerSymbol())) {
                 continue;
@@ -1018,6 +1045,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 //dto.getGoTermDefs().add(ga.goTermDef);
                 dto.getGoTermEvids().add(ga.goTermEvid);
                 dto.getGoTermDomains().add(ga.goTermDomain);
+                dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
             }
         }
     }
