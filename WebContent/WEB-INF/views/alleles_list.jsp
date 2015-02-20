@@ -27,6 +27,11 @@
         </p>
         
         <table>
+        <th>MGI Allele Name</th>
+        <th>Type</th>
+        <th>IKMC Project</th>
+        <th colspan="3">Available Products</th>
+        <th>Allele Map</th>
         <c:forEach var="item" items="${list_alleles}" varStatus="listx">
             <tr>
                 <td>
