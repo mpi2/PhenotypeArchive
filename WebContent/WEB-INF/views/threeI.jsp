@@ -74,11 +74,11 @@
 												<div class="table_legend_key">Data analysed, no significant call</div>
 											</td>
 											<td> 
-												<div class="table_legend_color" style="background-color: rgb(0, 0, 0)"></div> 
+												<div class="table_legend_color" style="background-color: rgb(119, 119, 119)"></div> 
 												<div class="table_legend_key">Could not analyse</div>
 											</td>
 											<td> 
-												<div class="table_legend_color" style="background-color: rgb(119, 119, 119)"></div> 
+												<div class="table_legend_color" style="background-color: rgb(230, 242, 246)"></div> 
 												<div class="table_legend_key">No data</div>
 											</td>
 										</tr>
