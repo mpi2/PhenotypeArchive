@@ -229,7 +229,12 @@ public class SolrIndex {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("DISEASE PARAMS: " + url);
-		} else if (mode.equals("ikmcAlleleGrid")) {
+		}
+		else if (mode.equals("gene2go")) {
+			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
+					+ iDisplayStart + "&rows=" + iDisplayLength;
+		}
+		else if (mode.equals("ikmcAlleleGrid")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json";
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
@@ -909,9 +914,78 @@ public class SolrIndex {
 		table = "<table id='gene2pfam'>" + th + "<tbody>" + trs + "</tbody></table>";
 		return table;	
 	}
-	public String getMgiGenesGoPlainTable(HttpServletRequest request) throws IOException, URISyntaxException {
-		return "";
+	
+	public String getGO2ImpcGeneAnnotationTable(HttpServletRequest request) throws IOException, URISyntaxException {
+		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
+		String flStr = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_domain,go_term_name";
+		String queryParams = "q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\" OR (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=10&fq=mp_id:*";
+
+		String table = "";
+		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>GO Id</th><th>GO Evidence</th><th>GO name</th><th>GO domain</th></tr></thead>";
+		String trs = "";
+		System.out.println(internalBaseSolrUrl + queryParams + flStr);
+		JSONObject json = getResults(internalBaseSolrUrl + queryParams + flStr);
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+		System.out.println("rows: " + docs.size());
+		for (int i = 0; i < docs.size(); i++) {
+
+			JSONObject doc = docs.getJSONObject(i);
+				
+			String mgiId = doc.getString("mgi_accession_id");
+			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
+			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
+			
+			String phenoStatus = doc.getString("latest_phenotype_status");		
+			
+			if ( doc.containsKey("go_term_id") ){
+				
+				JSONArray goTermIds = doc.getJSONArray("go_term_id");
+				JSONArray goTermEvids = doc.getJSONArray("go_term_evid");
+				JSONArray goTermNames = doc.getJSONArray("go_term_name");
+				JSONArray goTermDomains = doc.getJSONArray("go_term_domain");
+				
+	            String goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
+	           
+				for ( int p=0; p<goTermIds.size(); p++ ){
+					
+					List<String> rowData = new ArrayList<String>();
+					rowData.add("<td>" + marker + "</td>");
+					rowData.add("<td>" + phenoStatus + "</td>");
+					
+					String goId = goTermIds.get(p).toString(); 
+					String goUrl = goBaseUrl + goId;
+					String goLink = "<a href='" + goUrl + "'>" + goId + "</a>";
+					rowData.add("<td>" + goLink + "</td>");
+					
+					String goEvid = goTermEvids.get(p).toString(); 
+					rowData.add("<td>" + goEvid + "</td>");
+					
+					String goName = goTermNames.get(p).toString(); 
+					rowData.add("<td>" + goName + "</td>");
+					
+					String goDomain = goTermDomains.get(p).toString(); 
+					rowData.add("<td>" + goDomain + "</td>");
+					trs += "<tr>" + StringUtils.join(rowData, "") + "</tr>";
+				}
+			}
+			else {
+				List<String> rowData = new ArrayList<String>();
+				rowData.add("<td>" + marker + "</td>");
+				rowData.add("<td>" + phenoStatus + "</td>");
+				rowData.add("<td>not available</td>");
+				rowData.add("<td>not available</td>");
+				rowData.add("<td>not available</td>");
+				rowData.add("<td>not available</td>");
+				trs += "<tr>" + StringUtils.join(rowData, "") + "</tr>";
+			}
+		}
+		
+		table = "<table id='gene2go'>" + th + "<tbody>" + trs + "</tbody></table>";
+		System.out.println(table);
+		return table;	
+	
 	}
+
 	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
 		
