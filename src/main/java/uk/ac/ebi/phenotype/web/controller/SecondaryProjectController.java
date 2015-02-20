@@ -250,9 +250,8 @@ public class SecondaryProjectController {
 
 
 	@RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
-	public String loadSecondaryProjectPage(@PathVariable String id, Model model,
-			HttpServletRequest request, RedirectAttributes attributes)
-			throws SolrServerException, IOException, URISyntaxException {
+	public String loadSecondaryProjectPage(@PathVariable String id, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws SolrServerException, IOException, URISyntaxException {
 		
 		System.out.println("calling secondary project id="+id);
 		Set<String> accessions;
@@ -261,13 +260,8 @@ public class SecondaryProjectController {
 				accessions = idg.getAccessionsBySecondaryProjectId(id);
 				model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
 				model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
-				
 				List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
-				String chart = phenomeChartProvider.generatePhenomeChartByGenes(
-						results,
-						null,
-						Constants.SIGNIFICANT_P_VALUE);
-				
+				String chart = phenomeChartProvider.generatePhenomeChartByGenes( results, null, Constants.SIGNIFICANT_P_VALUE);
 				model.addAttribute("chart", chart);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -275,7 +269,6 @@ public class SecondaryProjectController {
 			System.out.println("returning to idg");
 			return "idg";
 		} else if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())) {
-			
 			System.out.println("returning to threeI");
 			return "threeI";
 		}
@@ -283,8 +276,5 @@ public class SecondaryProjectController {
 		
 		return "idg";
 	}
-
-
-
 
 }
