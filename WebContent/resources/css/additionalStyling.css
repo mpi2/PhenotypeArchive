@@ -1,5 +1,15 @@
 /* Additional styling written at EBI */
 
+div.table_legend_color {
+	float: left;
+	margin-left: 1rem;
+	width: 2rem;
+	height: 2rem;
+}
+div.table_legend_key{
+	display: block;
+	padding-right: 1rem;
+}
 .pagination ul {
   list-style-type: none;
 }

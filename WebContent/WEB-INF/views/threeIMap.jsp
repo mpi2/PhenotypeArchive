@@ -34,9 +34,9 @@
           <td  
            	<c:choose>
            	 	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Significant call'}">style="background-color:rgb(191, 75, 50)"</c:when>
-             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Analysis failed'}">style="background-color: rgb(0, 0, 0)"</c:when>
+             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Analysis failed'}">style="background-color: rgb(119, 119, 119)"</c:when>
              	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Data analysed, no significant call'}">style="background-color: rgb(247, 157, 70)"</c:when>
-           		<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq null }">style="background-color: rgb(119, 119, 119)"</c:when>
+           		<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq null }">style="background-color: rgb(230, 242, 246)"</c:when>
             </c:choose>
             title="${xAxisBean.name}"></td>
         </c:forEach>
