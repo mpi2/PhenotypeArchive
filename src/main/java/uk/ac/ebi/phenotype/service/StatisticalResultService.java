@@ -145,7 +145,7 @@ public class StatisticalResultService extends BasicService {
     	Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
     	SolrQuery query = new SolrQuery();
     	
-		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":" + phenotypingCenter + " AND " 
+		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\" AND "
     			+ StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND "
 				+ StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
 		if (procedureStableIds != null){
