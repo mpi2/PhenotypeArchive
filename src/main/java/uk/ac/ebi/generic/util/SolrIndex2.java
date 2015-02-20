@@ -265,7 +265,8 @@ public class SolrIndex2 {
                 HashMap<String, Object> otherAlleleHash = new HashMap<>();
                 Map<String, Object> allele = getMouseData(jsonObject2);
                 String alleleIndex = allele.get("allele_name").toString();
-                if (alleleIndex.equals(allele_name) || alleleIndex.equals("None")) {continue;}
+                String available_mouse = allele.get("production_completed").toString();
+                if (alleleIndex.equals(allele_name) || alleleIndex.equals("None") || available_mouse != "true") {continue;}
                 
                  if (! otherAlleleWithMice.containsKey(alleleIndex)){
                      List<String> colony_list = new ArrayList<>();
@@ -305,7 +306,8 @@ public class SolrIndex2 {
                 HashMap<String, Object> otherAlleleHash = new HashMap<>();
                 Map<String, Object> allele = getEsCellData(jsonObject2);
                 String alleleIndex = allele.get("allele_name").toString();
-                if (alleleIndex.equals(allele_name) || alleleIndex.equals("None")) {continue;}
+                String available_cells = allele.get("production_completed").toString();
+                if (alleleIndex.equals(allele_name) || alleleIndex.equals("None") || available_cells != "true") {continue;}
                 
                  if (! otherAlleleWithEscells.containsKey(alleleIndex)){        
                      List<String> es_cell_list = new ArrayList<>();

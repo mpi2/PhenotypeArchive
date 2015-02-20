@@ -35,7 +35,7 @@
                     <td></td>
                     <td></td>
                     <td>
-                        <c:if test="${not empty other_available_alleles_with_mice && other_available_alleles_with_mice[allele]['mice_available'] == 'true'}">
+                        <c:if test="${not empty other_available_alleles_with_mice}">
                             <c:if test="${not empty summary['status_mice']['orders'] || not empty summary['status_mice']['contacts']}">These alleles are available as mice</br></c:if>
                             <c:if test="${empty summary['status_mice']['orders'] && empty summary['status_mice']['contacts']}">But these alleles are available as mice</br></c:if>
                             <c:forEach var="allele" items="${other_available_alleles_with_mice.keySet()}" varStatus="status">
@@ -70,7 +70,7 @@
                     <td></td>
                     <td></td>
                     <td>
-                        <c:if test="${not empty other_available_alleles_with_es_cells && other_available_alleles_with_es_cells[allele]['es_cells_available'] == 'true' }">
+                        <c:if test="${not empty other_available_alleles_with_es_cells}">
                             <c:if test="${not empty summary['status_es_cells']['orders'] || not empty summary['status_es_cells']['contacts']}">These alleles are also available as ES Cells</br></c:if>
                             <c:if test="${empty summary['status_es_cells']['orders'] && empty summary['status_es_cells']['contacts']}">But these alleles are available as ES Cells</br></c:if>
                             <c:forEach var="allele" items="${other_available_alleles_with_es_cells.keySet()}" varStatus="status">
