@@ -106,7 +106,10 @@ public class OverviewChartsController {
 				controlSet.setName("Control");
 				CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", OVERVIEW_STRAINS, centerToFilter, sex);
 				mutantSet.setName("Mutant");
-				chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, procedureName).get(0);
+				List<ChartData> chart = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, procedureName);
+				if (chart.size() > 0){
+					chartRes = chart.get(0);
+				}
 			}
 			
 			else if ( Utilities.checkType(p).equals(ObservationType.time_series) ){

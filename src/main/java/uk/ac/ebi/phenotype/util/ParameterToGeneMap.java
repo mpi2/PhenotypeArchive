@@ -27,6 +27,11 @@ public class ParameterToGeneMap {
     Map<String, ArrayList<String>> maleParamToGene = null;
     Map<String, ArrayList<String>> femaleParamToGene = null;
 
+
+	public ParameterToGeneMap(){
+	}
+    
+    
     private void fillMaps() {
         System.out.println("Initializing ParameterToGeneMap. This will take a while...");
         // for all parameters
@@ -40,60 +45,6 @@ public class ParameterToGeneMap {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-    }
-
-    public Map<String, ArrayList<String>> getMaleMap() {
-        //if (maleParamToGene == null) {
-            fillMaps();
-        //}
-        return null;
-    }
-
-	public ParameterToGeneMap(ObservationService os){
-		fillMaps(os);
-	}
-	
-	public ParameterToGeneMap(){
-	}
-	
-	private void fillMaps(ObservationService observationService){
-		System.out.println("Initializing ParameterToGeneMap. This will take a while...");
-		// for all parameters
-		try {
-			maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
-			femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public Set<String> getTestedGenes( List<String> parameters, SexType sex, ObservationService os){
-		HashSet<String> res = new HashSet<>();
-		if (sex == null || sex.equals(SexType.female) ){
-			for (String p : parameters){
-				if (femaleParamToGene.containsKey(p)){
-					res.addAll(femaleParamToGene.get(p));
-				}
-			}
-		}
-		if (sex == null || sex.equals(SexType.male) ) {
-			for (String p : parameters){
-				if (maleParamToGene.containsKey(p)){
-					res.addAll(maleParamToGene.get(p));
-				}
-			}
-		}
-		return res; 
-	}
-    public Map<String, ArrayList<String>> getFemaleMap() {
-        if (femaleParamToGene == null) {
-            fillMaps();
-        }
-        return femaleParamToGene;
     }
 
     public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
