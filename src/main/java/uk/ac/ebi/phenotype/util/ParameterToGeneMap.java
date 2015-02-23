@@ -12,11 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
 public class ParameterToGeneMap {
 
     @Autowired
     ObservationService observationService;
+    
+    @Autowired
+    StatisticalResultService srService;
 
     /**
      * Links each parameter to the genes that have it measured (in at least one
@@ -36,8 +40,8 @@ public class ParameterToGeneMap {
         System.out.println("Initializing ParameterToGeneMap. This will take a while...");
         // for all parameters
         try {
-            maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
-            femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
+            maleParamToGene = srService.getParameterToGeneMap(SexType.male);
+            femaleParamToGene = srService.getParameterToGeneMap(SexType.female);
         } catch (SolrServerException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -50,7 +54,6 @@ public class ParameterToGeneMap {
     public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
         HashSet<String> res = new HashSet<>();
         if (femaleParamToGene == null || maleParamToGene == null) {
-        	System.out.println("CALL FILL MAPS FROM getTestedGenes");
             fillMaps();
         }
         if (sex == null || sex.equals(SexType.female)) {

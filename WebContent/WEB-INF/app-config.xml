@@ -112,10 +112,6 @@
 		<constructor-arg value="${internalSolrUrl}/allele" />
 	</bean>
 
-	<bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-		<constructor-arg value="${internalSolrUrl}/experiment" />
-	</bean>
-
 	<bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
 		<constructor-arg value="${internalSolrUrl}/gene" />
 	</bean>

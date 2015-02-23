@@ -32,10 +32,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
@@ -49,6 +52,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.Set;
 
 @Service
@@ -562,4 +568,46 @@ public class StatisticalResultService extends BasicService {
 		return row;
 	}
    
+
+	/**
+	 * This map is needed for the summary on phenotype pages (the percentages &
+	 * pie chart). It takes a long time to load so it does it asynchronously.
+	 * 
+	 * @param sex
+	 * @return Map < String parameterStableId , ArrayList<String
+	 *         geneMgiIdWithParameterXMeasured>>
+	 * @throws SolrServerException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @author tudose
+	 */
+	public Map<String, ArrayList<String>> getParameterToGeneMap(SexType sex)
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
+		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
+		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+		
+		QueryResponse response = solr.query(q);
+		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> genes = new ArrayList<>();
+			for (PivotField gene : pivot.getPivot()){
+				genes.add(gene.getValue().toString());
+			}
+			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+		}
+		
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+		return res;
+	}
+
+	
 }
