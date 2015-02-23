@@ -475,10 +475,7 @@ public class PhenotypesController {
         int nominator = 0;
 
         List<String> parameters = new ArrayList<>(getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
-        // males & females	
         nominator = gpService.getGenesBy(phenotype_id, null).size();
-
-// 		total = os.getTestedGenes(null, parameters).size();
         total = os.getTestedGenesByParameterSex(parameters, null).size();
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
@@ -491,23 +488,19 @@ public class PhenotypesController {
         List<String> genesBothPhenotype;
 
         if (display) {
-            //females only
             for (Group g : gpService.getGenesBy(phenotype_id, "female")) {
                 genesFemalePhenotype.add((String) g.getGroupValue());
             }
             nominator = genesFemalePhenotype.size();
-//			total = os.getTestedGenes("female", parameters).size();
             total = os.getTestedGenesByParameterSex(parameters, SexType.female).size();
             pgs.setFemalePercentage(100 * (float) nominator / (float) total);
             pgs.setFemaleGenesAssociated(nominator);
             pgs.setFemaleGenesTested(total);
 
-            //males only
             for (Group g : gpService.getGenesBy(phenotype_id, "male")) {
                 genesMalePhenotype.add(g.getGroupValue());
             }
             nominator = genesMalePhenotype.size();
-//			total = os.getTestedGenes("male", parameters).size();
             total = os.getTestedGenesByParameterSex(parameters, SexType.male).size();
             pgs.setMalePercentage(100 * (float) nominator / (float) total);
             pgs.setMaleGenesAssociated(nominator);
@@ -516,16 +509,13 @@ public class PhenotypesController {
 
         genesBothPhenotype = new ArrayList(genesFemalePhenotype);
         genesBothPhenotype.retainAll(genesMalePhenotype);
-        // We want genes with phenotype ONLY in females (not in males too
         genesFemalePhenotype.removeAll(genesBothPhenotype);
-        // same for males
         genesMalePhenotype.removeAll(genesBothPhenotype);
         pgs.setBothNumber(genesBothPhenotype.size());
         pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
         pgs.setMaleOnlyNumber(genesMalePhenotype.size());
         pgs.fillPieChartCode();
 
-//		System.out.println(">Parameters \n " + parameters);
         return pgs;
     }
 

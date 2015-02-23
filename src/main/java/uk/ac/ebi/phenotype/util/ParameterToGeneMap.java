@@ -50,6 +50,7 @@ public class ParameterToGeneMap {
     public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
         HashSet<String> res = new HashSet<>();
         if (femaleParamToGene == null || maleParamToGene == null) {
+        	System.out.println("CALL FILL MAPS FROM getTestedGenes");
             fillMaps();
         }
         if (sex == null || sex.equals(SexType.female)) {
