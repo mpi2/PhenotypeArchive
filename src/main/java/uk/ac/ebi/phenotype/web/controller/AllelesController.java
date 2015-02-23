@@ -122,10 +122,11 @@ public class AllelesController {
                     continue;
                 }
                 
-                if( item.get("es_cell_status") == null ) {
+                if( item.get("mouse_status") != null && ! item.get("mouse_status").equals("")) {
+                    log.info("#### alleles1..." + item.get("mouse_status"));
                     list1.add(item);
                 }
-                if (item.get("es_cell_status").equals("ES Cell Targeting Confirmed")) {
+                else if (item.get("es_cell_status").equals("ES Cell Targeting Confirmed")) {
                     list2.add(item);
                 }
                 else {

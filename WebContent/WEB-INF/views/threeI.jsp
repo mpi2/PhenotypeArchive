@@ -65,13 +65,22 @@
 								<div id="legend">
 									<table>
 										<tr>
-											<td>Key:</td>
-											<td>Phenotype Detected:</td>
-											<td style="background-color: rgb(191, 75, 50)"></td>
-											<td>No Phenotype Detected:</td>
-											<td style="background-color: rgb(119, 119, 119)"></td>
-											<td>No Data Available:</td>
-											<td style="background-color: rgb(0, 0, 0)"></td>
+											<td> 
+												<div class="table_legend_color" style="background-color: rgb(191, 75, 50)"></div> 
+												<div class="table_legend_key">Deviance Significant</div>
+											</td>
+											<td> 
+												<div class="table_legend_color" style="background-color: rgb(247, 157, 70)"></div> 
+												<div class="table_legend_key">Data analysed, no significant call</div>
+											</td>
+											<td> 
+												<div class="table_legend_color" style="background-color: rgb(119, 119, 119)"></div> 
+												<div class="table_legend_key">Could not analyse</div>
+											</td>
+											<td> 
+												<div class="table_legend_color" style="background-color: rgb(230, 242, 246)"></div> 
+												<div class="table_legend_key">No data</div>
+											</td>
 										</tr>
 									</table>
 								</div>
@@ -92,7 +101,7 @@
 				'tip' : 'topLeft'
 			}); // bubble popup for brief panel documentation					
 		});
-		var geneHeatmapUrl = "../geneHeatMap?project=threeI";
+		var geneHeatmapUrl = "../threeIMap?project=threeI";
 		$.ajax({
 			url : geneHeatmapUrl,
 			cache : false

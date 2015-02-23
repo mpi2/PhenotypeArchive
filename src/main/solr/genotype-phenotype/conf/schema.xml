@@ -133,22 +133,22 @@
 
 	<field name="pipeline_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="pipeline_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="false" />
+    <field name="pipeline_stable_key" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 	<field name="procedure_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="procedure_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="false" />
+    <field name="procedure_stable_key" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 	<field name="parameter_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="parameter_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="false" />
+    <field name="parameter_stable_key" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
-    <field name="statistical_method" type="string" indexed="false" stored="true" required="false" multiValued="false" />
-    <field name="percentage_change" type="string" indexed="false" stored="true" required="false" multiValued="false" />
+    <field name="statistical_method" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="percentage_change" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
     <field name="p_value" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="effect_size" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="external_id" type="string" indexed="false" stored="true" required="false" multiValued="false" />
+    <field name="external_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 
    

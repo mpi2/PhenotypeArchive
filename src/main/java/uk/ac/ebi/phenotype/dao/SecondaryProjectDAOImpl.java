@@ -124,8 +124,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements SecondaryProje
 					row.setMiceProduced(geneToMouseStatusMap.get(accession));
 					//System.out.println("Mice produced=|"+row.getMiceProduced()+"|");
 					if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
-						for (HeatMapCell cell : row.getXAxisToCellMap()
-								.values()) {
+						for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
 							// set all the cells to No Data Available
 							cell.setStatus("No Data Available");
 						}

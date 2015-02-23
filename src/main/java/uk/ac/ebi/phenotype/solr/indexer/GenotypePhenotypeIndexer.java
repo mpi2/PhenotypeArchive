@@ -131,7 +131,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         String query = "SELECT s.id AS id, CASE WHEN sur.statistical_method IS NOT NULL THEN sur.statistical_method WHEN scr.statistical_method IS NOT NULL THEN scr.statistical_method ELSE 'Unknown' END AS statistical_method, " +
             "  sur.genotype_percentage_change, o.name AS phenotyping_center, s.external_id, s.parameter_id AS parameter_id, s.procedure_id AS procedure_id, s.pipeline_id AS pipeline_id, s.gf_acc AS marker_accession_id, " +
             "  gf.symbol AS marker_symbol, s.allele_acc AS allele_accession_id, al.name AS allele_name, al.symbol AS allele_symbol, s.strain_acc AS strain_accession_id, st.name AS strain_name, " +
-            "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS mp_term_id, ot.name AS mp_term_name, s.p_value AS p_value, s.effect_size AS effect_size, " +
+            "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS mp_term_id, ot.name AS mp_term_name, " +
+            "  CASE WHEN s.p_value IS NOT NULL THEN s.p_value WHEN s.sex='female' THEN sur.gender_female_ko_pvalue WHEN s.sex='male' THEN sur.gender_male_ko_pvalue END AS p_value, " +
+            "  s.effect_size AS effect_size, " +
             "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name " +
             "FROM phenotype_call_summary s " +
             "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id " +
@@ -144,7 +146,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             "  LEFT OUTER JOIN strain st ON s.strain_acc = st.acc " +
             "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
             "  INNER JOIN external_db db ON s.external_db_id = db.id " +
-            "WHERE 0.0001 >= s.p_value" ;
+            "WHERE (0.0001 >= s.p_value " +
+            "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
+            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001))" ;
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 

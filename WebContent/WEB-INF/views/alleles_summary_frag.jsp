@@ -36,8 +36,8 @@
                     <td></td>
                     <td>
                         <c:if test="${not empty other_available_alleles_with_mice}">
-                            <c:if test="${not empty summary['status_mice']['orders'] || not empty summary['status_mice']['contacts']}">These alleles also have mouse production</br></c:if>
-                            <c:if test="${empty summary['status_mice']['orders'] && empty summary['status_mice']['contacts']}">But these alleles have mouse production</br></c:if>
+                            <c:if test="${not empty summary['status_mice']['orders'] || not empty summary['status_mice']['contacts']}">These alleles are available as mice</br></c:if>
+                            <c:if test="${empty summary['status_mice']['orders'] && empty summary['status_mice']['contacts']}">But these alleles are available as mice</br></c:if>
                             <c:forEach var="allele" items="${other_available_alleles_with_mice.keySet()}" varStatus="status">
                                 <a href="${baseUrl}/alleles/${acc}/${other_available_alleles_with_mice[allele]['allele_name']}<c:if test="${bare == true}">?bare=true</c:if>" class="<c:if test="${other_available_alleles_with_mice[allele]['mice_available'] == 'true' }">status done"</c:if> <c:if test="${other_available_alleles_with_mice[allele]['mice_available'] == 'false' }">status inprogress"</c:if> oldtitle="${other_available_alleles_with_mice[allele]['allele_name']}"><span>${other_available_alleles_with_mice[allele]['allele_name_suffix']}</span></a>
                             </c:forEach>
@@ -71,8 +71,8 @@
                     <td></td>
                     <td>
                         <c:if test="${not empty other_available_alleles_with_es_cells}">
-                            <c:if test="${not empty summary['status_es_cells']['orders'] || not empty summary['status_es_cells']['contacts']}">These alleles also have cell production</br></c:if>
-                            <c:if test="${empty summary['status_es_cells']['orders'] && empty summary['status_es_cells']['contacts']}">But these alleles have cell production</br></c:if>
+                            <c:if test="${not empty summary['status_es_cells']['orders'] || not empty summary['status_es_cells']['contacts']}">These alleles are also available as ES Cells</br></c:if>
+                            <c:if test="${empty summary['status_es_cells']['orders'] && empty summary['status_es_cells']['contacts']}">But these alleles are available as ES Cells</br></c:if>
                             <c:forEach var="allele" items="${other_available_alleles_with_es_cells.keySet()}" varStatus="status">
                             <a href="${baseUrl}/alleles/${acc}/${other_available_alleles_with_es_cells[allele]['allele_name']}<c:if test="${bare == true}">?bare=true</c:if>" class="<c:if test="${other_available_alleles_with_es_cells[allele]['es_cells_available'] == 'true' }">status done"</c:if> <c:if test="${other_available_alleles_with_es_cells[allele]['es_cells_available'] == 'false' }">status inprogress"</c:if> oldtitle="${other_available_alleles_with_es_cells[allele]['allele_name']}"><span>${other_available_alleles_with_es_cells[allele]['allele_name_suffix']}</span></a>
                             </c:forEach>
