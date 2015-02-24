@@ -113,7 +113,8 @@ public class Tools {
 		
 		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
 		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration. 
-
+		
+		target = target.replaceAll("<(.+)>", "<sup>$1</sup>");
 		String result = target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
 		return result;
 	}

@@ -21,7 +21,7 @@
 				
 							<div class="section">
 								<div class="inner">
-									<p> <a href="${baseUrl}/genego">GO annotations to IMPC genes</a> </p>
+									<p> <a href="${baseUrl}/gene2go">GO annotations to IMPC genes</a> </p>
 									<p>	<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a> </p>
 									<p> <a href="${baseUrl}/centerProgressCsv">Procedure Completeness </a> </p>
 									<p> <a href="${baseUrl}/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
