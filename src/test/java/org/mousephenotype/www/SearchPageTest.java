@@ -105,7 +105,7 @@ public class SearchPageTest {
     private PhenotypePipelineDAO phenotypePipelineDAO;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     
     // These constants define the default number of iterations for each that uses them. -1 means iterate over all.
     private final int MAX_MGI_LINK_CHECK_COUNT = 5;                             // -1 means test all links.
@@ -319,7 +319,7 @@ public class SearchPageTest {
         successList.clear();
         errorList.clear();
         String target = baseUrl + "/search";
-        log.debug("target Page URL: " + target);
+        logger.debug("target Page URL: " + target);
         SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
         
         // For each core:
@@ -335,7 +335,7 @@ public class SearchPageTest {
             int iterationErrorCount = 0;
             Facet facet = searchPage.getFacetByCoreName(core);
             searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
-            log.debug("opening facet " + facet);
+            logger.debug("opening facet " + facet);
             
             WebElement firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
             firstSubfacetElement.click();                                       // Select the first subfacet.
@@ -345,7 +345,7 @@ public class SearchPageTest {
                 iterationErrorCount++;
                 message = "Failed to check input filter for " + facet + " facet.";
                 errorList.add(message);
-                log.error(message);
+                logger.error(message);
             }
             
             // Check that there is a filter matching the selected facet above the Genes facet.
@@ -363,7 +363,7 @@ public class SearchPageTest {
                 iterationErrorCount++;
                 message = "ERROR: Couldn't find subfacet '" + facetText + "' in facet " + facet;
                 errorList.add(message);
-                log.error(message);
+                logger.error(message);
             }
             
             searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
@@ -378,7 +378,7 @@ public class SearchPageTest {
                 iterationErrorCount++;
                 message = "Failed to uncheck input filter for " + facet + " facet.";
                 errorList.add(message);
-                log.error(message);
+                logger.error(message);
             }
             
             // Check that there are no filters.
@@ -386,11 +386,11 @@ public class SearchPageTest {
                 iterationErrorCount++;
                 message = "ERROR: Expected filters to be cleared, but there were filters in place for facet " + facet;
                 errorList.add(message);
-                log.error(message);
+                logger.error(message);
             }
             
             if (iterationErrorCount == 0) {
-                log.info("   " + core + " OK");
+                logger.info("   " + core + " OK");
                 successList.add(core);
             }
             
@@ -428,6 +428,7 @@ public class SearchPageTest {
         System.out.println("TESTING " + nbRows + " random gene symbols");
 
         String target = baseUrl + "/search#fq=*:*&facet=gene";
+        logger.info("URL: " + target);
         String queryString = solrUrl + "/gene/select?q=*:*&start=" + startIndex + "&rows=" + nbRows + "&fl=marker_symbol&wt=json&indent=true";
         
         JSONObject geneResults = JSONRestUtil.getResults(queryString);
@@ -441,7 +442,7 @@ public class SearchPageTest {
                 
                 SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
                 searchPage.submitSearch(geneSymbol1);
-                TestUtils.sleep(3000);                                          // Sleep for a bit to allow autocomplete to catch up.
+                TestUtils.sleep(4000);                                          // Sleep for a bit to allow autocomplete to catch up.
 
                 List<WebElement> elems = driver.findElements(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm"));
                 String geneSymbol2 = null;
