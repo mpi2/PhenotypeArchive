@@ -53,17 +53,13 @@ public class ExternalAnnotsController {
 			HttpServletRequest request, 
 			Model model) throws IOException, URISyntaxException {		
 
-		//Map<String, Map<String, Map<String, JSONArray>>> stats = solrIndex.getGO2ImpcGeneAnnotationStats();
-		
-		
-		model.addAttribute("q", q);
-		model.addAttribute("core", core);
-		model.addAttribute("fq", fq);
+//		model.addAttribute("q", q);
+//		model.addAttribute("core", core);
+//		model.addAttribute("fq", fq);
 		
 		//String dataTableJson = solrIndex.getMgiGenesClansDataTable(request);
 		String dataTableJson = solrIndex.getMgiGenesClansPlainTable(request);
 		model.addAttribute("datatable", dataTableJson);
-		System.out.println(dataTableJson);
 		
 		return "gene2pfam";
 	}
@@ -133,7 +129,7 @@ public class ExternalAnnotsController {
 		    
         	for ( String goMode : stats.get(key).keySet() ){
 
-        		System.out.println("GO MODE: " + goMode);
+        		//System.out.println("GO MODE: " + goMode);
         		Map<String, List<String>> evidValDomain = new LinkedHashMap<>();
         		
             	Map<String, JSONArray> domainEvid = stats.get(key).get(goMode);
@@ -145,7 +141,7 @@ public class ExternalAnnotsController {
     				Map.Entry pairs2 = (Map.Entry)itd.next();
     				String domain = pairs2.getKey().toString();
     	        
-    		        log.info(pairs2.getKey() + " = " + pairs2.getValue());
+    		        //log.info(pairs2.getKey() + " = " + pairs2.getValue());
     		        JSONArray evids = (JSONArray) pairs2.getValue();
     		        itd.remove(); // avoids a ConcurrentModificationException
     			
@@ -213,32 +209,8 @@ public class ExternalAnnotsController {
         	builder.append("</tbody></table>");
 		}
 		
-		
-		//builder.append("</tbody></table>");
 		String htmlTable = builder.toString();
 		data.add(htmlTable);
-		//log.info(htmlTable);
-	
-		/* table looks similar to this:
-		Phenotyping Complete
-		w/o GO	171
-		EXP	[0(F/P), 0(F), 0(P)]
-		IDA	[189(F/P), 162(F), 162(P)]
-		IGI	[45(F/P), 34(F), 45(P)]
-		IMP	[119(F/P), 92(F), 119(P)]
-		IPI	[131(F/P), 131(F), 104(P)]
-		ISO	[25(F/P), 20(F), 22(P)]
-		ISS	[119(F/P), 101(F), 106(P)]
-		Phenotyping Started
-		w/o GO	307
-		EXP	[1(F/P), 1(F), 1(P)]
-		IDA	[425(F/P), 347(F), 381(P)]
-		IGI	[109(F/P), 89(F), 109(P)]
-		IMP	[282(F/P), 207(F), 281(P)]
-		IPI	[254(F/P), 254(F), 204(P)]
-		ISO	[62(F/P), 54(F), 52(P)]
-		ISS	[267(F/P), 219(F), 244(P)]
-		*/
 		
 		return data;
 	}
