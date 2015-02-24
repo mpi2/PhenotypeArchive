@@ -117,8 +117,7 @@
         <script type='text/javascript'>
        
        		$(document).ready(function(){
-       			//var baseUrl = '//dev.mousephenotype.org/data';
-       	      	var baseUrl = 'http://localhost:8080/phenotype-archive';
+       			var baseUrl = '//dev.mousephenotype.org/data';
 
        	      	var conf = {
 					externalDbId: 1,
