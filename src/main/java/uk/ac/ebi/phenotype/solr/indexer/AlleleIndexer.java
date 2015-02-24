@@ -550,8 +550,8 @@ public class AlleleIndexer extends AbstractIndexer {
 				+ "s.is_public = 'Y' "
 				+ "and m.tax_id = 10090 "
 				+ "and m.gene_name is not null "
-				+ "and t.category in ('F', 'P') "
-				+ "and a.qualifier not like 'NOT%'";
+				+ "and t.category in ('F', 'P') ";
+				
 	    
 	    Connection conn = goaproDataSource.getConnection();
 
