@@ -9,6 +9,7 @@ public class GeneDTO {
 
 	public static final String DATA_TYPE = "dataType";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
+	
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
 	public static final String MARKER_NAME = "marker_name";
@@ -28,6 +29,7 @@ public class GeneDTO {
 	public static final String HAS_QC = "hasQc";
 	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
 	public static final String ALLELE_NAME = "allele_name";
+	public static final String ALLELE_ACCESSION_ID = "allele_accession_id";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
 	public static final String IMITS_MOUSE_STATUS = "imits_mouse_status";
@@ -111,6 +113,7 @@ public class GeneDTO {
 	public static final String GO_TERM_DEF = "go_term_def";
 	public static final String GO_TERM_EVID = "go_term_evid";
 	public static final String GO_TERM_DOMAIN = "go_term_domain";
+	public static final String EVID_CODE_RANK = "evidCodeRank";
 	public static final String UNIPROT_ACC = "uniprot_acc";
 	
 	public static final String PFAMA_JSON = "pfama_json";
@@ -249,6 +252,9 @@ public class GeneDTO {
 	@Field(ALLELE_NAME)
 	List<String> alleleName;
 
+	@Field(ALLELE_ACCESSION_ID)
+	private List<String> alleleAccessionIds = new ArrayList<>();
+	
 	@Field(IMITS_ES_CELL_STATUS)
 	String imitsEsCellStatus;
 
@@ -470,6 +476,9 @@ public class GeneDTO {
 	
 	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
+	
+	@Field(EVID_CODE_RANK)
+	private Integer evidCodeRank;
 	
 	@Field(UNIPROT_ACC)
 	private List<String> uniprotAccs = new ArrayList<>();
@@ -808,6 +817,22 @@ public class GeneDTO {
 	}
 
 
+	/**
+	 * @return the alleleAccessionIds
+	 */
+	public List<String> getAlleleAccessionIds() {
+		return alleleAccessionIds;
+	}
+
+	/**
+	 * @param alleleAccessionIds
+	 *            the alleleAccessionIds to set
+	 */
+	public void setAlleleAccessionIds(List<String> alleleAccessionIds) {
+		this.alleleAccessionIds = alleleAccessionIds;
+	}
+	
+	
 	public String getImitsEsCellStatus() {
 
 		return imitsEsCellStatus;
@@ -1604,6 +1629,23 @@ public class GeneDTO {
 		this.goTermDomains = goTermDomains;
 	}
 	
+	
+	/**
+	 * @return the evidCodeRank
+	 */
+	public Integer getEvidCodeRank() {
+		return evidCodeRank;
+	}
+	
+	/**
+	 * @param evidCodeRank
+	 *            the evidCodeRank to set
+	 */
+	public void setEvidCodeRank(Integer evidCodeRank) {
+		this.evidCodeRank = evidCodeRank;
+	}
+	
+	
 	/**
 	 * @return the uniprotAccs
 	 */
@@ -2019,89 +2061,22 @@ public class GeneDTO {
 
 	@Override
 	public String toString() {
-
-		return "GeneDTO{" +
-			"impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
-			", selectedTopLevelMaId=" + selectedTopLevelMaId +
-			", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
-			", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
-			", dataType='" + dataType + '\'' +
-			", mgiAccessionId='" + mgiAccessionId + '\'' +
-			", markerSymbol='" + markerSymbol + '\'' +
-			", humanGeneSymbol=" + humanGeneSymbol +
-			", markerName='" + markerName + '\'' +
-			", markerSynonym=" + markerSynonym +
-			", markerType='" + markerType + '\'' +
-			", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
-			", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
-			", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
-			", status='" + status + '\'' +
-			", latestEsCellStatus='" + latestEsCellStatus + '\'' +
-			", latestMouseStatus='" + latestMouseStatus + '\'' +
-			", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
-			", latestProjectStatus='" + latestProjectStatus + '\'' +
-			", latestProductionCentre=" + latestProductionCentre +
-			", latestPhenotypingCentre=" + latestPhenotypingCentre +
-			", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes +
-			", hasQc=" + hasQc +
-			", legacy_phenotype_status=" + legacy_phenotype_status +
-			", alleleName=" + alleleName +
-			", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
-			", esCellStatus=" + esCellStatus +
-			", imitsMouseStatus='" + imitsMouseStatus + '\'' +
-			", mouseStatus=" + mouseStatus +
-			", phenotypeStatus=" + phenotypeStatus +
-			", productionCentre=" + productionCentre +
-			", phenotypingCentre=" + phenotypingCentre +
-			", p_value=" + p_value +
-			", mpId=" + mpId +
-			", mpTerm=" + mpTerm +
-			", mpTermDefinition=" + mpTermDefinition +
-			", childMpId=" + childMpId +
-			", childMpTerm=" + childMpTerm +
-			", childMpTermSynonym=" + childMpTermSynonym +
-			", topLevelMpId=" + topLevelMpId +
-			", topLevelMpTerm=" + topLevelMpTerm +
-			", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
-			", topLevelMpDefinition=" + topLevelMpDefinition +
-			", intermediateMpId=" + intermediateMpId +
-			", intermediateMpTerm=" + intermediateMpTerm +
-			", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
-			", ontologySubset=" + ontologySubset +
-			", inferredMaId=" + inferredMaId +
-			", inferredMaTerm=" + inferredMaTerm +
-			", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId +
-			", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
-			", type=" + type +
-			", diseaseId=" + diseaseId +
-			", diseaseSource=" + diseaseSource +
-			", diseaseTerm=" + diseaseTerm +
-			", diseaseAlts=" + diseaseAlts +
-			", diseaseClasses=" + diseaseClasses +
-			", humanCurated=" + humanCurated +
-			", mouseCurated=" + mouseCurated +
-			", mgiPredicted=" + mgiPredicted +
-			", impcPredicted=" + impcPredicted +
-			", mgiPredictedInLocus=" + mgiPredictedInLocus +
-			", impcPredictedInLocus=" + impcPredictedInLocus +
-			", pipelineName=" + pipelineName +
-			", pipelineStableId=" + pipelineStableId +
-			", procedureName=" + procedureName +
-			", procedureStableId=" + procedureStableId +
-			", parameterName=" + parameterName +
-			", parameterStableId=" + parameterStableId +
-			", procParamName=" + procParamName +
-			", procParamStableId=" + procParamStableId +
-			", expName=" + expName +
-			", subtype=" + subtype +
-			", annotatedHigherLevelMpTermName=" + annotatedHigherLevelMpTermName +
-			", text=" + text +
-			", autoSuggest=" + autoSuggest +
-			", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
-			", goTermIds=" + goTermIds + 
-			", goTermNames" + goTermNames +
-			", goTermDefs" + goTermDefs +
-			", goTermEvids" + goTermEvids +
-			'}';
+		return String
+				.format("GeneDTO [impcNovelPredictedInLocus=%s, selectedTopLevelMaId=%s, selectedTopLevelMaTermSynonym=%s, mgiPredictedKnownGene=%s, dataType=%s, mgiAccessionId=%s, markerSymbol=%s, humanGeneSymbol=%s, markerName=%s, markerSynonym=%s, markerType=%s, imitsPhenotypeStarted=%s, imitsPhenotypeComplete=%s, imitsPhenotypeStatus=%s, status=%s, latestEsCellStatus=%s, latestMouseStatus=%s, latestPhenotypeStatus=%s, latestProjectStatus=%s, latestProductionCentre=%s, latestPhenotypingCentre=%s, diseaseHumanPhenotypes=%s, hasQc=%s, legacy_phenotype_status=%s, alleleName=%s, alleleAccessionIds=%s, imitsEsCellStatus=%s, esCellStatus=%s, imitsMouseStatus=%s, mouseStatus=%s, phenotypeStatus=%s, productionCentre=%s, phenotypingCentre=%s, p_value=%s, mpId=%s, mpTerm=%s, mpTermSynonym=%s, mpTermDefinition=%s, maId=%s, maTerm=%s, maTermSynonym=%s, maTermDefinition=%s, hpId=%s, hpTerm=%s, childMpId=%s, childMpTerm=%s, childMpTermSynonym=%s, topLevelMpId=%s, topLevelMpTerm=%s, topLevelMpTermSynonym=%s, topLevelMpDefinition=%s, intermediateMpId=%s, intermediateMpTerm=%s, intermediateMpTermSynonym=%s, ontologySubset=%s, inferredMaId=%s, inferredMaTerm=%s, inferredMaTermSynonym=%s, inferredSelectedTopLevelMaId=%s, inferredSelectedTopLevelMaTerm=%s, inferredSelectedTopLevelMaTermSynonym=%s, inferredChildMaId=%s, inferredChildMaTerm=%s, inferredChildMaTermSynonym=%s, type=%s, diseaseId=%s, diseaseSource=%s, diseaseTerm=%s, diseaseAlts=%s, diseaseClasses=%s, humanCurated=%s, mouseCurated=%s, mgiPredicted=%s, impcPredicted=%s, mgiPredictedInLocus=%s, impcPredictedInLocus=%s, pipelineName=%s, pipelineStableId=%s, procedureName=%s, procedureStableId=%s, parameterName=%s, parameterStableId=%s, procParamName=%s, procParamStableId=%s, expName=%s, subtype=%s, annotatedHigherLevelMpTermName=%s, text=%s, autoSuggest=%s, selectedTopLevelMaTerm=%s, goTermIds=%s, goTermNames=%s, goTermDefs=%s, goTermEvids=%s, goTermDomains=%s, uniprotAccs=%s, pfama_jsons=%s, scdb_ids=%s, scdb_links=%s, clan_ids=%s, clan_accs=%s, clan_descs=%s, pfama_ids=%s, pfama_accs=%s, pfama_go_ids=%s, pfama_go_terms=%s, pfama_go_cats=%s]",
+						impcNovelPredictedInLocus, selectedTopLevelMaId, selectedTopLevelMaTermSynonym, mgiPredictedKnownGene, dataType, mgiAccessionId,
+						markerSymbol, humanGeneSymbol, markerName, markerSynonym, markerType, imitsPhenotypeStarted, imitsPhenotypeComplete,
+						imitsPhenotypeStatus, status, latestEsCellStatus, latestMouseStatus, latestPhenotypeStatus, latestProjectStatus,
+						latestProductionCentre, latestPhenotypingCentre, diseaseHumanPhenotypes, hasQc, legacy_phenotype_status, alleleName,
+						alleleAccessionIds, imitsEsCellStatus, esCellStatus, imitsMouseStatus, mouseStatus, phenotypeStatus, productionCentre,
+						phenotypingCentre, p_value, mpId, mpTerm, mpTermSynonym, mpTermDefinition, maId, maTerm, maTermSynonym, maTermDefinition, hpId, hpTerm,
+						childMpId, childMpTerm, childMpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, topLevelMpDefinition,
+						intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, ontologySubset, inferredMaId, inferredMaTerm, inferredMaTermSynonym,
+						inferredSelectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaTermSynonym, inferredChildMaId,
+						inferredChildMaTerm, inferredChildMaTermSynonym, type, diseaseId, diseaseSource, diseaseTerm, diseaseAlts, diseaseClasses,
+						humanCurated, mouseCurated, mgiPredicted, impcPredicted, mgiPredictedInLocus, impcPredictedInLocus, pipelineName, pipelineStableId,
+						procedureName, procedureStableId, parameterName, parameterStableId, procParamName, procParamStableId, expName, subtype,
+						annotatedHigherLevelMpTermName, text, autoSuggest, selectedTopLevelMaTerm, goTermIds, goTermNames, goTermDefs, goTermEvids,
+						goTermDomains, uniprotAccs, pfama_jsons, scdb_ids, scdb_links, clan_ids, clan_accs, clan_descs, pfama_ids, pfama_accs, pfama_go_ids,
+						pfama_go_terms, pfama_go_cats);
 	}
 }

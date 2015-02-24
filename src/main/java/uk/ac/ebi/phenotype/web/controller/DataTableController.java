@@ -108,12 +108,13 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
-		//System.out.println("solr params: " + solrParams);
+		System.out.println("solr params: " + solrParams);
+		System.out.println("start: "+ iDisplayStart);
+		System.out.println("length: "+ iDisplayLength);
 		
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);		
 				
 		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");	
-	
 		// use this for pattern matching later, instead of the modified complexphrase q string	
 		String queryOri = jParams.getString("qOri");
 
@@ -123,6 +124,7 @@ public class DataTableController {
 		String solrParamStr = jParams.getString("params");
 		
 		boolean legacyOnly = jParams.getBoolean("legacyOnly");
+		String evidRank = jParams.containsKey("evidRank") ? jParams.getString("evidRank") : "";
 		
 		// Get the query string
 		String[] pairs = solrParamStr.split("&");		
@@ -144,11 +146,11 @@ public class DataTableController {
 		if (jParams.containsKey("showImgView")) {
 			showImgView = jParams.getBoolean("showImgView");
 		}
-		//System.out.println("query: "+ query);
-		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		//System.out.println("JSON: "+ json);
+		System.out.println("query: "+ query);
+		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+		System.out.println("JSON: "+ json);
 		
-		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly);
+		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 		
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -168,7 +170,7 @@ public class DataTableController {
 		return responseHeaders;
 	}
 
-	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName, boolean legacyOnly) throws IOException, URISyntaxException {
+	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName, boolean legacyOnly, String evidRank) throws IOException, URISyntaxException {
 
 		String jsonStr = null;
 		if (mode.equals("geneGrid")) {
@@ -192,9 +194,100 @@ public class DataTableController {
 		else if (mode.equals("diseaseGrid")) {
 			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName, start);
 		}
+		else if (mode.equals("gene2go")) {
+			jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
+		}
 		return jsonStr;
 	}
 
+	public String parseJsonforGoDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, String evidRank){	
+		
+		String hostName = request.getAttribute("mappedHostname").toString();
+		String baseUrl =  request.getAttribute("baseUrl").toString();
+		 
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+		int totalDocs = json.getJSONObject("response").getInt("numFound");
+				
+		log.debug("TOTAL GENE2GO: " + totalDocs);
+		log.info("TOTAL GENE2GO: " + totalDocs);
+		
+        JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+		
+		j.put("iTotalRecords", totalDocs);
+		j.put("iTotalDisplayRecords", totalDocs);
+		
+		 //GO evidence code ranking mapping
+        Map<String,String> codeRank = new HashMap<>();
+        // experimental 
+        codeRank.put("EXP", "4");codeRank.put("IDA", "4");codeRank.put("IPI", "4");codeRank.put("IMP", "4");
+        codeRank.put("IGI", "4");codeRank.put("IEP", "4");codeRank.put("TAS", "4");
+        
+        // curated computational
+        codeRank.put("ISS", "3");codeRank.put("ISO", "3");codeRank.put("ISA", "3");codeRank.put("ISM", "3");
+        codeRank.put("IGC", "3");codeRank.put("IBA", "3");codeRank.put("IBD", "3");codeRank.put("IKR", "3");
+        codeRank.put("IRD", "3");codeRank.put("RCA", "3");codeRank.put("IC", "3");codeRank.put("NAS", "3");
+        
+        // automated electronic
+        codeRank.put("IEA", "2");
+        
+        // no biological data available
+        codeRank.put("ND", "1");
+		
+		for (int i = 0; i < docs.size(); i ++) {
+			
+            JSONObject doc = docs.getJSONObject(i);
+            String marker_symbol = doc.getString("marker_symbol");
+            String gId = doc.getString("mgi_accession_id");
+            String glink = "<a href='" + hostName + baseUrl + "/" + gId + "'>" + marker_symbol +"</a>";
+            
+            String phenoStatus = doc.getString("latest_phenotype_status");
+
+            JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
+            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
+            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
+            JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
+            String NOINFO = "no info available";
+   
+            String goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GTerm?id="; 
+            //System.out.println("doc "+ i + " has "+ _goTermEvids.size() + " GO annots");
+            
+            // NO GO
+            if ( _goTermIds.size() == 0 ){
+            	
+            	List<String> rowData = new ArrayList();
+            	rowData.add(glink);
+            	rowData.add(phenoStatus);
+            	rowData.add(NOINFO);
+            	rowData.add(NOINFO);
+            	rowData.add(NOINFO);
+            	rowData.add(NOINFO);
+            	j.getJSONArray("aaData").add(rowData);
+            }
+            else {
+            
+	            for ( int k=0; k< _goTermEvids.size(); k++ ) {
+	            	
+	            	String evid = _goTermEvids.get(k).toString();
+	            	
+	            	if ( codeRank.get(evid).equals(evidRank) ){
+	            		
+		            	List<String> rowData = new ArrayList();
+	            		rowData.add(glink);
+	                	rowData.add(phenoStatus);
+	            		rowData.add(_goTermIds.size() > 0 ? "<a target='_blank' href='" + goBaseUrl + _goTermIds.get(k).toString() + "'>" + _goTermIds.get(k).toString()  + "</a>" : NOINFO);
+	            		rowData.add(_goTermEvids.size() > 0 ? _goTermEvids.get(k).toString() : NOINFO);
+	            		rowData.add(_goTermNames.size() > 0 ? _goTermNames.get(k).toString() : NOINFO);
+	            		rowData.add(_goTermDomains.size() > 0 ? _goTermDomains.get(k).toString() : NOINFO);
+	            		j.getJSONArray("aaData").add(rowData);
+	            		
+	            	}
+	            }
+            }
+		}
+			
+		return j.toString();	
+	}
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, boolean legacyOnly){	
 		
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);

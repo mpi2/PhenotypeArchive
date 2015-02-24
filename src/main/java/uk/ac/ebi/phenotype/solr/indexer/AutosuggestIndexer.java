@@ -59,6 +59,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     
     // gene
     Set<String> mgiAccessionIdSet = new HashSet();
+    Set<String> mgiAlleleAccessionIdSet = new HashSet();
     Set<String> markerSymbolSet = new HashSet();
     Set<String> markerNameSet = new HashSet();
     Set<String> markerSynonymSet = new HashSet();
@@ -152,7 +153,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     private void populateGeneAutosuggestTerms() throws SolrServerException, IOException {
 
-        List<String> geneFields = Arrays.asList(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL);
+        List<String> geneFields = Arrays.asList(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.ALLELE_ACCESSION_ID);
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -208,6 +209,18 @@ public class AutosuggestIndexer extends AbstractIndexer {
                             for (String s : gene.getHumanGeneSymbol()) {
                                 mapKey = s;
                                 if (humanGeneSymbolSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setHumanGeneSymbol(s);
+                                    asyn.setDocType("gene");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                    case GeneDTO.ALLELE_ACCESSION_ID:
+                        if (gene.getAlleleAccessionIds() != null) {
+                            for (String s : gene.getAlleleAccessionIds()) {
+                                mapKey = s;
+                                if (mgiAlleleAccessionIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setHumanGeneSymbol(s);
                                     asyn.setDocType("gene");

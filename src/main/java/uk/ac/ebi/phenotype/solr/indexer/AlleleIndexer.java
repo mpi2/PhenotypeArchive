@@ -38,9 +38,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -69,6 +71,15 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private static final int BATCH_SIZE = 2500;
 
+    private int assignedEvidCodeRank = 1; // default
+    
+    // Fetch all phenotyping completed genes with MP calls from genotype-phenotype core
+    private static Set<String> gpGenesLookup = new HashSet<>();
+    
+    // Fetch all phenotyping started genes with MP calls from preqc core
+    private static Set<String> preqcGenesLookup = new HashSet<>();
+    
+    
     // Map gene MGI ID to sanger allele bean
     private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
 
@@ -173,7 +184,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             initializeSolrCores();
 
-            SolrQuery query = new SolrQuery("mgi_accession_id:*");
+            SolrQuery query = new SolrQuery("mgi_accession_id:MGI*");  
             query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
             query.setRows(BATCH_SIZE);
 
@@ -524,24 +535,23 @@ public class AlleleIndexer extends AbstractIndexer {
 	}
     
     private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
-		
+
 	    String queryString = "select distinct m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
-	    		+ "from go.eco2evidence evi "
-	    		+ "join "
-	    		+ "go.v_manual_annotations a on (evi.eco_id = a.eco_id) "
-	    		+ "join " 
-	    		+ "go.terms t on (t.go_id = a.go_id) "
-	    		+ "join "  
-	    		+ "go.uniprot_protein_metadata m on (m.accession = a.canonical_id) "  
-	    		+ "join "
-	    		+ "go.terms t on (t.go_id = a.go_id) "
-	    		+ "where "
-	    		+ "gene_name is not null "
-	    		+ "and a.is_public = 'Y' "
-	    		+ "and m.tax_id = 10090 "
-	    		+ "and evi.go_evidence in ('EXP', 'IDA', 'IPI', 'IMP', 'IGI', 'ISO', 'ISS', 'ND') "
-	    		+ "and t.category in ('F', 'P') ";
-	    		//+ "and a.source in ('MGI','GOC')"; 
+				+ "from go.annotations a "
+				+ "join "
+				+ "go.cv_sources s on (s.code = a.source) "
+				+ "join "
+				+ "go.eco2evidence evi on (evi.eco_id = a.eco_id) "
+				+ "join "
+				+ "go.terms t on (t.go_id = a.go_id) "
+				+ "join "
+				+ "go.uniprot_protein_metadata m on (m.accession = a.canonical_id) "
+				+ "where "
+				+ "s.is_public = 'Y' "
+				+ "and m.tax_id = 10090 "
+				+ "and m.gene_name is not null "
+				+ "and t.category in ('F', 'P') ";
+	    
 	    
 	    Connection conn = goaproDataSource.getConnection();
 
@@ -842,6 +852,7 @@ public class AlleleIndexer extends AbstractIndexer {
             dto.setLatestProductionCentre(bean.getLatestProductionCentre());
             dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
             dto.setLatestProjectStatus(bean.getLatestProjectStatus());
+            dto.setAlleleAccessionIds(bean.getMgiAlleleAccessionIds());
 
             String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(bean.getLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
             dto.setLatestProductionStatus(latestEsStatus);
@@ -989,14 +1000,39 @@ public class AlleleIndexer extends AbstractIndexer {
         }
         logger.debug("Finished disease data lookup");
     }
-
+    
+    private Integer assignCodeRank(int currRank){
+    	// set for highest evidCodeRank
+    	assignedEvidCodeRank = currRank > assignedEvidCodeRank ? currRank : assignedEvidCodeRank;
+    	return assignedEvidCodeRank;
+    }
+    
     private void lookupGoData(Map<String, AlleleDTO> alleles) {
         logger.debug("Starting GO data lookup");
 
+        //GO evidence code ranking mapping
+        Map<String,Integer> codeRank = new HashMap<>();
+        // experimental 
+        codeRank.put("EXP", 4);codeRank.put("IDA", 4);codeRank.put("IPI", 4);codeRank.put("IMP", 4);
+        codeRank.put("IGI", 4);codeRank.put("IEP", 4);codeRank.put("TAS", 4);
+        
+        // curated computational
+        codeRank.put("ISS", 3);codeRank.put("ISO", 3);codeRank.put("ISA", 3);codeRank.put("ISM", 3);
+        codeRank.put("IGC", 3);codeRank.put("IBA", 3);codeRank.put("IBD", 3);codeRank.put("IKR", 3);
+        codeRank.put("IRD", 3);codeRank.put("RCA", 3);codeRank.put("IC", 3);codeRank.put("NAS", 3);
+        
+        // automated electronic
+        codeRank.put("IEA", 2);
+        
+        // no biological data available
+        codeRank.put("ND", 1);
+        
         for (String id : alleles.keySet()) {
 
             AlleleDTO dto = alleles.get(id);
-
+           
+            assignedEvidCodeRank = 1; // reset
+            
             // GO is populated based on gene symbol
             if ( ! goTermLookup.containsKey(dto.getMarkerSymbol())) {
                 continue;
@@ -1008,6 +1044,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 //dto.getGoTermDefs().add(ga.goTermDef);
                 dto.getGoTermEvids().add(ga.goTermEvid);
                 dto.getGoTermDomains().add(ga.goTermDomain);
+                dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
             }
         }
     }

@@ -14,14 +14,16 @@ import org.apache.solr.client.solrj.beans.Field;
  */
 public class HeatMapCell {
     
+
+	public static final String THREE_I_COULD_NOT_ANALYSE = "Could not analyse";
+	public static final String THREE_I_NO_DATA = "No data";
+	public static final String THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT = "Data analysed, no significant call";
+	public static final String THREE_I_DEVIANCE_SIGNIFICANT = "Deviance Significant";
+		
     private Float floatValue;
-   
-    private String xAxisKey;
-    
-    
+    private String xAxisKey;    
     private String label="";//label to display possibly in the cell
     private String mouseOver="";
-
     private String status="";//use to give a status of a cell e.g. In progress or complete etc
    
 
@@ -65,9 +67,13 @@ public class HeatMapCell {
 		this.floatValue = floatValue;
 	}
 
-	
-    
-    
-    
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+
+		return "HeatMapCell [floatValue=" + floatValue + ", xAxisKey=" + xAxisKey + ", label=" + label + ", mouseOver=" + mouseOver + ", status=" + status + "]";
+	}    
    
 }

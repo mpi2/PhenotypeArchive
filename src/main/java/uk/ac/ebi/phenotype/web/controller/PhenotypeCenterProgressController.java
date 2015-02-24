@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.ui.Model;
 
 @Controller
 public class PhenotypeCenterProgressController {
+	
 	@Resource(name="phenotypeCenterService")
 	@Autowired
 	PhenotypeCenterService phenCenterProgress;
@@ -40,67 +42,28 @@ public class PhenotypeCenterProgressController {
 		return "centerProgress";
 	}
 	
+	
+	/**
+	 *
+	 * @param response
+	 * @param model
+	 * @throws IOException
+	 * @author tudose
+	 */
 	@RequestMapping("/centerProgressCsv")
 	@ResponseBody
 	public void showPhenotypeCenterProgressCsv(HttpServletResponse response, Model model) throws IOException  {
-		
-		
-	        String csvFileName = "PhenotypeCenterProgress.csv";
-	 
-	        response.setContentType("text/csv");
-	 
-	        // creates mock data
-	        String headerKey = "Content-Disposition";
-	        String headerValue = String.format("attachment; filename=\"%s\"",
-	                csvFileName);
-	        response.setHeader(headerKey, headerValue);
-	 
-	        //just work with post QC for file for Damian and Jules
-	        Map<String,Map<String, List<ProcedureBean>>> centerDataMap=null;
-			try {
-				centerDataMap = phenCenterProgress.getCentersProgressInformation();
-			} catch (SolrServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Map<String,JSONArray> centerDataJSON=new HashMap<>();
-			getPostOrPreQcData(centerDataMap, centerDataJSON);
 			
-//	        Book book1 = new Book("Effective Java", "Java Best Practices",
-//	                "Joshua Bloch", "Addision-Wesley", "0321356683", "05/08/2008",
-//	                38);
-//	 
-//	        Book book2 = new Book("Head First Java", "Java for Beginners",
-//	                "Kathy Sierra & Bert Bates", "O'Reilly Media", "0321356683",
-//	                "02/09/2005", 30);
-//	 
-//	        Book book3 = new Book("Thinking in Java", "Java Core In-depth",
-//	                "Bruce Eckel", "Prentice Hall", "0131872486", "02/26/2006", 45);
-//	 
-//	        Book book4 = new Book("Java Generics and Collections",
-//	                "Comprehensive guide to generics and collections",
-//	                "Naftalin & Philip Wadler", "O'Reilly Media", "0596527756",
-//	                "10/24/2006", 27);
-//	 
-//	        List<Book> listBooks = Arrays.asList(book1, book2, book3, book4);
-//	 
-	        // uses the Super CSV API to generate CSV data from the model data
-//	        ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(),
-//	                CsvPreference.STANDARD_PREFERENCE);
-//	 
-	        String[] header = { "Title", "Description", "Author", "Publisher",
-	                "isbn", "PublishedDate", "Price" };
-	        response.getWriter().append(centerDataJSON.toString());
-//	        csvWriter.writeHeader(header);
-	 
-//	        for (Book aBook : listBooks) {
-//	            csvWriter.write(aBook, header);
-//	        }
-	 
-	        response.flushBuffer();
-	        
-	    }
-		//return "centerProgressCsv";
+	    String csvFileName = "PhenotypeCenterProgress.csv";
+	 	try {
+			List<String[]> centerProceduresPerStrain = phenCenterProgress.getCentersProgressByStrainCsv();
+			ControllerUtils.writeAsCSV(centerProceduresPerStrain, csvFileName, response);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 
 	private void processPhenotypeCenterProgress(Model model) {
@@ -109,7 +72,6 @@ public class PhenotypeCenterProgressController {
 		try {
 			centerDataMap = phenCenterProgress.getCentersProgressInformation();
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -117,7 +79,6 @@ public class PhenotypeCenterProgressController {
 		try {
 			preQcCenterDataMap = preqQcPhenCenterProgress.getCentersProgressInformation();
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -133,26 +94,26 @@ public class PhenotypeCenterProgressController {
 		model.addAttribute("preQcCenterDataMap", preQcCenterDataMap);
 	}
 
-	private void getPostOrPreQcData(
-			Map<String, Map<String, List<ProcedureBean>>> centerDataMap,
-			Map<String, JSONArray> centerDataJSON) {
+	private void getPostOrPreQcData(Map<String, Map<String, List<ProcedureBean>>> centerDataMap, Map<String, JSONArray> centerDataJSON) {
+		
 		for(String center:centerDataMap.keySet()){
 			List<Pair> pairsList=new ArrayList<>();
 			Map<String, List<ProcedureBean>> strainsToProcedures=centerDataMap.get(center);
+			
 			for(String strain: strainsToProcedures.keySet()){
-			Pair pair=new Pair();
-			pair.strain=strain;
-			pair.number=strainsToProcedures.get(strain).size();
-			pairsList.add(pair);
+				Pair pair=new Pair();
+				pair.strain=strain;
+				pair.number=strainsToProcedures.get(strain).size();
+				pairsList.add(pair);
 			}
 			Collections.sort(pairsList);
-		
 			JSONArray centerContainer=new JSONArray();
+			
 			for(Pair pair: pairsList){
 				JSONArray jsonPair=new JSONArray();
 				jsonPair.put(pair.strain);
 				jsonPair.put( pair.number);
-			centerContainer.put(jsonPair);
+				centerContainer.put(jsonPair);
 			}
 			System.out.println("center="+center+" data="+centerContainer);
 			centerDataJSON.put(center, centerContainer);

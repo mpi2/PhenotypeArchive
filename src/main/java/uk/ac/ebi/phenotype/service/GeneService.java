@@ -694,7 +694,7 @@ public class GeneService {
 		solrQuery.setRows(100000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS);
 		
-		System.out.println("solr is ....   " + solr.getBaseURL() + "/select?" + solrQuery);
+		System.out.println("getProductionStatusForGeneSet solr url " + solr.getBaseURL() + "/select?" + solrQuery);
 		
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 		System.out.println("solr query in basicbean=" + solrQuery);
@@ -717,6 +717,7 @@ public class GeneService {
 		}
 		return geneToStatusMap;
 	}
+	
 	
 	/**
 	 * Get the mouse top level mp associations for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes

@@ -10,6 +10,7 @@
     <h3>Summary</h3>
     <div style="font-size: 110%; font-weight: bold;">
         <p>${summary['allele_description']}</p>
+        
         <c:if test="${not empty summary['statuses']}">
         <table>
             <c:if test="${not empty summary['status_mice']}">
@@ -30,6 +31,17 @@
                         <a class="btn btn-lg" href="${summary['status_mice']['details'][0]}"> <i class="fa  fa-info "></i> DETAILS </a>
                     </c:if>                        
                  
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <c:if test="${not empty other_available_alleles_with_mice}">
+                            <c:if test="${not empty summary['status_mice']['orders'] || not empty summary['status_mice']['contacts']}">These alleles are available as mice</br></c:if>
+                            <c:if test="${empty summary['status_mice']['orders'] && empty summary['status_mice']['contacts']}">But these alleles are available as mice</br></c:if>
+                            <c:forEach var="allele" items="${other_available_alleles_with_mice.keySet()}" varStatus="status">
+                                <a href="${baseUrl}/alleles/${acc}/${other_available_alleles_with_mice[allele]['allele_name']}<c:if test="${bare == true}">?bare=true</c:if>" class="<c:if test="${other_available_alleles_with_mice[allele]['mice_available'] == 'true' }">status done"</c:if> <c:if test="${other_available_alleles_with_mice[allele]['mice_available'] == 'false' }">status inprogress"</c:if> oldtitle="${other_available_alleles_with_mice[allele]['allele_name']}"><span>${other_available_alleles_with_mice[allele]['allele_name_suffix']}</span></a>
+                            </c:forEach>
+                        </c:if>
                     </td>
 
                 </tr>
@@ -55,7 +67,17 @@
                     </c:if>                        
 
                     </td>
-
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <c:if test="${not empty other_available_alleles_with_es_cells}">
+                            <c:if test="${not empty summary['status_es_cells']['orders'] || not empty summary['status_es_cells']['contacts']}">These alleles are also available as ES Cells</br></c:if>
+                            <c:if test="${empty summary['status_es_cells']['orders'] && empty summary['status_es_cells']['contacts']}">But these alleles are available as ES Cells</br></c:if>
+                            <c:forEach var="allele" items="${other_available_alleles_with_es_cells.keySet()}" varStatus="status">
+                            <a href="${baseUrl}/alleles/${acc}/${other_available_alleles_with_es_cells[allele]['allele_name']}<c:if test="${bare == true}">?bare=true</c:if>" class="<c:if test="${other_available_alleles_with_es_cells[allele]['es_cells_available'] == 'true' }">status done"</c:if> <c:if test="${other_available_alleles_with_es_cells[allele]['es_cells_available'] == 'false' }">status inprogress"</c:if> oldtitle="${other_available_alleles_with_es_cells[allele]['allele_name']}"><span>${other_available_alleles_with_es_cells[allele]['allele_name_suffix']}</span></a>
+                            </c:forEach>
+                        </c:if>
+                    </td>
                 </tr>
 
             </c:if>
@@ -68,9 +90,8 @@
 
 
 
-
-	<div class="section">
-		<div class="inner">
+    <div class="section">
+        <div class="inner">
 
         <c:if test="${not empty summary['map_image']}">
 			<h3>Allele Map</h3>
@@ -82,110 +103,45 @@
 
                         
                         
-                        <style>
-                            .wrap_table  { display: block; }
-                            .wrap_table  td {display: inline-block; }
-                        </style>
+        <style>
+                .wrap_table  { display: block; }
+                .wrap_table  td {display: inline-block; }
+        </style>
                         
                         
-        <c:if test="${not empty summary['buttons']}">
-
         <table class="wrap_table">
                 <tr>
-            
-                <c:forEach var="button" items="${summary['button_gear']}" varStatus="buttonx">
-
-                    <c:if test="${not empty button['url']}">
-                    
-                    <td data-count="${buttonx.count}">
-                        <a class="btn" href="${button['url']}"><i class="fa fa-info"></i> ${button['name']} </a>
+                <c:if test="${not empty summary['genbank']}">
+                    <td data-count="1">
+                            <a class="btn" href="${summary['genbank']}"><i class="fa fa-info"></i> Genbank File </a>
                     </td>
-
-                    </c:if>
-                    
-                </c:forEach>
-
+                </c:if>
+                <c:if test="${not empty summary['mutagenesis_url']}">
+                    <td data-count="2">
+                            <a class="btn" href="${summary['mutagenesis_url']}"><i class="fa fa-info"></i> Mutagenesis Prediction </a>
+                    </td>
+                </c:if>
+                <c:if test="${not empty summary['southern_tool']}">
+                    <td data-count="3">
+                            <a class="btn" href="${summary['southern_tool']}"><i class="fa fa-info"></i> Southern Tool </a>
+                    </td>
+                </c:if>
+                <c:if test="${not empty summary['ensembl_url']}">
+                    <td data-count="4">
+                            <a class="btn" href="${summary['ensembl_url']}"><i class="fa fa-info"></i> Ensembl </a>
+                    </td>
+                </c:if>
+                <c:if test="${not empty summary['genotype_primers']}">
+                    <td data-count="5">
+                            <a class="btn" href="${summary['genotype_primers']}"><i class="fa fa-info"></i> Genotyping Primers </a>
+                    </td>
+                </c:if>                
                 </tr>
 
         </table >
 
-        </c:if>
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-        <c:if test="${not empty summary['buttons_xxx']}">
-        <table >
-            <tr>
-            <td>
-                <span>
-                <c:if test="${not empty summary['genbank']}">
-                    <a class="btn" href="${summary['genbank']}"><i class="fa fa-info"></i> Genbank file</a>
-                </c:if>
-                </span>
-            </td>
 
-            <td>
-                <c:if test="${not empty summary['mutagenesis_url']}">
-                    <a class="btn" href="${summary['mutagenesis_url']}"> <i class="fa fa-info"></i> Mutagenesis Prediction </a>
-                </c:if>
-            </td>
-
-            <td>
-                <c:if test="${not empty summary['southern_tool']}">
-                    <a class="btn" href="${summary['southern_tool']}"> <i class="fa fa-info"></i> Southern Tool </a>
-                </c:if>
-            </td>
-            </tr>
-            <tr>
-            <td>
-                <c:if test="${not empty summary['lrpcr_genotyping_primers']}">
-                    <a class="btn" href="${summary['lrpcr_genotyping_primers']}"> <i class="fa fa-info"></i> LRPCR Genotyping Primers </a>
-                </c:if>
-            </td>
-            <td>
-
-            <c:if test="${not empty summary['browsers']}">
-                <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
-                    <a class="btn" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
-                </c:forEach>
-            </c:if>
-                    </td>
-                    
-                    
-                    
-            <td>
-                
-                <c:if test="${not empty summary['loa_assays']}">
-                    <c:if test="${not empty summary['loa_assays']['upstream']}">
-                        <a class="btn" href="${summary['loa_assays']['upstream']}"> <i class="fa fa-info"></i> LOA (upstream) </a> &nbsp;
-                    </c:if>
-
-                    <c:if test="${not empty summary['loa_assays']['downstream']}">
-                        <a class="btn" href="${summary['loa_assays']['downstream']}"> <i class="fa fa-info"></i> LOA (downstream) </a> &nbsp;
-                    </c:if>
-
-                    <c:if test="${not empty summary['loa_assays']['critical']}">
-                        <a class="btn" href="${summary['loa_assays']['critical']}"> <i class="fa fa-info"></i> LOA (critical) </a>
-                    </c:if>
-                </c:if>
-
-            </td>
-
-            </tr>
-        </table>
-        </c:if>
-
-
-            <c:if test="${false}">
+        <c:if test="${false}">
         <table>
             <tr>
             <c:if test="${not empty summary['tools']}">
@@ -200,10 +156,11 @@
             </c:if>
             </tr>
         </table>
-            </c:if>
+        </c:if>
 
-		</div>
-	</div>
-                </div>
+        </div>
+  
+    </div> 
+</div>
 
 </c:if>

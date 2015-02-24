@@ -83,6 +83,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
 <link rel="stylesheet" href="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.css">
+<link rel="stylesheet" href="${baseUrl}/js/vendor/DataTables-1.10.4/extensions/TableTools/css/dataTables.tableTools.min.css">
 
 
 <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
@@ -219,7 +220,7 @@ ga('send', 'pageview');
 
 			<div id="vnavi">
 				<ul>
-					<li><a href="${drupalBaseUrl}/data/release">Release: <c:out value="2.0" escapeXml="false" /></a></li>
+					<li><a href="${drupalBaseUrl}/data/release">Release: <c:out value="3.0" escapeXml="false" /></a></li>
 					<li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">FTP</a></li>
 					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
 					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>

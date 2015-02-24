@@ -21,7 +21,6 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -68,7 +67,6 @@ public class SearchDiseaseTable extends SearchFacetTable {
     @Override
     public PageStatus validateDownload(String[][] downloadData) {
         PageStatus status = new PageStatus();
-        HashMap<String, String[]> downloadHash = new HashMap();
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
             return status;
@@ -79,10 +77,14 @@ public class SearchDiseaseTable extends SearchFacetTable {
           , "Disease id link"
           , "Disease name"
           , "Source"
-          , "Curated genes in human"
-          , "Curated genes in mouse (MGI)"
-          , "Candidate genes by phenotype (IMPC)"
-          , "Candidate genes by phenotype (MGI)"
+          , "Curated genes from human (OMIM, Orphanet)"
+          , "Curated genes from mouse (MGI)"
+          , "Curated genes from human data with IMPC prediction"
+          , "Curated genes from human data with MGI prediction"
+          , "Candidate genes by phenotype - IMPC data"
+          , "Candidate genes by phenotype - Novel IMPC prediction in linkage locus"
+          , "Candidate genes by phenotype - MGI data"
+          , "Candidate genes by phenotype - Novel MGI prediction in linkage locus"
         };
         SearchFacetTable.validateDownloadHeading("DISEASE", status, expectedHeadingList, downloadData[0]);
 
@@ -101,17 +103,40 @@ public class SearchDiseaseTable extends SearchFacetTable {
             if ( ! pageRow.source.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_SOURCE]))
                 status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value source = '" + pageRow.source + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_SOURCE]);
             
-            if ( ! pageRow.hasCuratedGenesInHuman.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN]))
-                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInHuman = '" + pageRow.hasCuratedGenesInHuman + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN]);
-            
-            if ( ! pageRow.hasCuratedGenesInMice.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_MICE]))
-                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInMice = '" + pageRow.hasCuratedGenesInMice + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_MICE]);
-            
-            if ( ! pageRow.hasCandidateGenesByPhenotypeIMPC.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC]))
-                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeIMPC = '" + pageRow.hasCandidateGenesByPhenotypeIMPC + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC]);
-            
-            if ( ! pageRow.hasCandidateGenesByPhenotypeMGI.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI]))
-                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeMGI = '" + pageRow.hasCandidateGenesByPhenotypeMGI + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI]);
+            // Validate Curated and Candidate genes.
+            if (pageRow.hasCuratedGenesInHuman) {
+                if ((downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN_IMPC].equals("true"))
+                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN_MGI].equals("true"))
+                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN_OMIM].equals("true")))
+                {
+                    // Do nothing.
+                } else {
+                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInHuman = true but download row is false.");
+                }
+            }
+            if (pageRow.hasCuratedGenesInMice) {
+                if ( ! downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_MOUSE_MGI].equals("true")) {
+                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInMice = true but download row is false.");
+                }
+            }
+            if (pageRow.hasCandidateGenesByPhenotypeIMPC) {
+                if ((downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC].equals("true"))
+                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC_LOCUS].equals("true")))
+                {
+                    // Do nothing.
+                } else {
+                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeIMPC = true but download row is false.");
+                }
+            }
+            if (pageRow.hasCandidateGenesByPhenotypeMGI) {
+                if ((downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI].equals("true"))
+                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI_LOCUS].equals("true")))
+                {
+                    // Do nothing.
+                } else {
+                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeMGI = true but download row is false.");
+                }
+            }
         }
 
         return status;
@@ -138,35 +163,33 @@ public class SearchDiseaseTable extends SearchFacetTable {
                 element = bodyRowElementList.get(2);                                                                            // Get 'Curated Genes' element.
                 List<WebElement> elementList = element.findElements(By.cssSelector("span"));
                 if (elementList.isEmpty()) {                                                                                    // There are no curated genes...
-                    diseaseRow.hasCuratedGenesInHuman = "false";                                                                //    No human curated genes...
-                    diseaseRow.hasCuratedGenesInMice = "false";                                                                 //    No mice curated genes...
+                    diseaseRow.hasCuratedGenesInHuman = false;                                                                  //    No human curated genes...
+                    diseaseRow.hasCuratedGenesInMice = false;                                                                   //    No mice curated genes...
                 } else {
                     if (elementList.size() == 2) {
-                        diseaseRow.hasCuratedGenesInHuman = "true";                                                             // Human curated genes found.
-                        diseaseRow.hasCuratedGenesInMice = "true";                                                              // Mice curated genes found.
+                        diseaseRow.hasCuratedGenesInHuman = true;                                                               // Human curated genes found.
+                        diseaseRow.hasCuratedGenesInMice = true;                                                                // Mice curated genes found.
                     } else {
-                        diseaseRow.hasCuratedGenesInHuman = (elementList.get(0).getText().equals("human") ? "true" : "false");  // human curated genes [only] found.
-                        diseaseRow.hasCuratedGenesInMice = (elementList.get(0).getText().equals("mice")  ? "true" : "false");   // mice curated genes [only] found.
+                        diseaseRow.hasCuratedGenesInHuman = (elementList.get(0).getText().equals("human"));                     // human curated genes [only] found.
+                        diseaseRow.hasCuratedGenesInMice = (elementList.get(0).getText().equals("mice"));                       // mice curated genes [only] found.
                     }
                 }
                 
-                element = bodyRowElementList.get(3);                                                                                        // Get 'Candidate Genes' element.
+                element = bodyRowElementList.get(3);                                                                            // Get 'Candidate Genes' element.
                 elementList = element.findElements(By.cssSelector("span"));
-                if (elementList.isEmpty()) {                                                                                                // There are no candidate genes...
-                    diseaseRow.hasCandidateGenesByPhenotypeMGI = "false";                                                                   //    No MGI candidate genes...
-                    diseaseRow.hasCandidateGenesByPhenotypeIMPC = "false";                                                                  //    No IMPC candidate genes...
+                if (elementList.isEmpty()) {                                                                                    // There are no candidate genes...
+                    diseaseRow.hasCandidateGenesByPhenotypeMGI = false;                                                         //    No MGI candidate genes...
+                    diseaseRow.hasCandidateGenesByPhenotypeIMPC = false;                                                        //    No IMPC candidate genes...
                 } else {
                     if (elementList.size() == 2) {
-                        diseaseRow.hasCandidateGenesByPhenotypeMGI = "true";                                                                // MGI candidate genes found.
-                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = "true";                                                               // IMPC candidate genes found.
+                        diseaseRow.hasCandidateGenesByPhenotypeMGI = true;                                                      // MGI candidate genes found.
+                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = true;                                                     // IMPC candidate genes found.
                     } else {
-                        diseaseRow.hasCandidateGenesByPhenotypeMGI = (elementList.get(0).getText().equals("MGI") ? "true" : "false");      // MGI candidate genes [only] found.
-                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = (elementList.get(0).getText().equals("IMPC")  ? "true" : "false");     // IMPC candidate genes [only] found.
+                        diseaseRow.hasCandidateGenesByPhenotypeMGI = (elementList.get(0).getText().equals("MGI"));              // MGI candidate genes [only] found.
+                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = (elementList.get(0).getText().equals("IMPC"));            // IMPC candidate genes [only] found.
                     }
                 }
                 
-                
-//System.out.println("diseaseRow[ " + index + " ]: " + diseaseRow.toString());
                 bodyRows.add(diseaseRow);
             }
         }
@@ -181,10 +204,10 @@ public class SearchDiseaseTable extends SearchFacetTable {
         private String diseaseIdLink = "";
         private String diseaseName = "";
         private String source = "";
-        private String hasCuratedGenesInHuman = "";
-        private String hasCuratedGenesInMice = "";
-        private String hasCandidateGenesByPhenotypeIMPC = "";
-        private String hasCandidateGenesByPhenotypeMGI = "";
+        private boolean hasCuratedGenesInHuman = false;
+        private boolean hasCuratedGenesInMice = false;
+        private boolean hasCandidateGenesByPhenotypeIMPC = false;
+        private boolean hasCandidateGenesByPhenotypeMGI = false;
     }
 
 }

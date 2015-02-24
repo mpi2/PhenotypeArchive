@@ -50,6 +50,7 @@ import org.springframework.stereotype.Service;
 //import com.google.gson.JsonObject;
 //import com.google.gson.stream.JsonReader;
 
+
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -110,7 +111,7 @@ public class SolrIndex {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public JSONObject getDataTableJson(String query, String core,
+	public JSONObject getQueryJson(String query, String core,
 			String gridSolrParams, String mode, int start, int length,
 			boolean showImgView) throws IOException, URISyntaxException {
 
@@ -229,7 +230,12 @@ public class SolrIndex {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("DISEASE PARAMS: " + url);
-		} else if (mode.equals("ikmcAlleleGrid")) {
+		}
+		else if (mode.equals("gene2go")) {
+			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
+					+ iDisplayStart + "&rows=" + iDisplayLength;
+		}
+		else if (mode.equals("ikmcAlleleGrid")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json";
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
@@ -244,7 +250,6 @@ public class SolrIndex {
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
 		// OTHER solrCoreNames to be added here
-		
 		return url;
 	}
 
@@ -401,7 +406,7 @@ public class SolrIndex {
 	}
 	
 	public List<AnnotNameValCount> mergeImpcFacets(JSONObject json, String baseUrl) {
-		System.out.println("JSON: "+ json);
+
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 	
 		List<AnnotNameValCount> annots = new ArrayList<>();
@@ -530,7 +535,7 @@ public class SolrIndex {
 			URISyntaxException {
 		
 		log.debug("GETTING CONTENT FROM: " + url);
-		
+		log.info("GETTING CONTENT FROM: " + url);
 		HttpProxy proxy = new HttpProxy();
 		
 		try {
@@ -557,7 +562,7 @@ public class SolrIndex {
 		String content = "";
 
 		log.debug("GETTING CONTENT FROM: " + url);
-//		System.out.println("CHK URL: " + url);
+
 		if (drupalProxy != null) {
 			content = drupalProxy.getContent(new URL(url));
 		} else {
@@ -587,255 +592,6 @@ public class SolrIndex {
 		return getResults(url);
 	}
         
-        
-        public List<Map<String, String>> getGeneAlleleInfo(String accession)
-			throws IOException, URISyntaxException {
-            
-		String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
-				+ accession.replace(":", "\\:")
-                                + " AND product_type:Mouse"
-				+ "&start=0&rows=100&hl=true&wt=json";
-
-		log.info("url for geneAllele=" + url);
-                
-                JSONObject jsonObject = getResults(url);
-                int numberFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
-		
-		JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
-
-		if (docs.size() < 1) {
-			log.info("No Mice returned for the query!");
-		}
-                
-        List<String> mouseConstructs = new ArrayList<String>();
-        List<Map<String, String>> esCellConstructs = new ArrayList<Map<String, String>>();
-        List<Map<String, String>> nonTargetedEsCellConstructs = new ArrayList<Map<String, String>>();
-        List<Map<String, String>> geneConstructs = new ArrayList<Map<String, String>>();
-        List<Map<String, String>> constructs = new ArrayList<Map<String, String>>();
-
-        try {
-        	for (int i = 0; i < numberFound ; i++) {
-        		Map<String, String> construct = new HashMap<String, String>();
-        		constructs.add(geneAlleleConstruct(docs, i));
-                mouseConstructs.add(docs.getJSONObject(i).getString("allele_name"));
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-                
-		String esCellUrl = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
-				+ accession.replace(":", "\\:")
-                                + " AND product_type:ES Cell"
-				+ "&start=0&rows=100&hl=true&wt=json";
-
-		log.info("url for geneAllele=" + esCellUrl);
-                
-        JSONObject esCellJsonObject = getResults(esCellUrl);
-        int esCellNumberFound = Integer.parseInt(esCellJsonObject.getJSONObject("response").getString("numFound"));
-		
-		JSONArray esCellDocs = esCellJsonObject.getJSONObject("response").getJSONArray("docs");
-
-		if (esCellDocs.size() < 1) {
-			log.info("No EsCells returned for the query!");
-		}
-                
-        try {
-            for (int i = 0; i < esCellNumberFound ; i++) {
-                    
-                if (!mouseConstructs.contains(esCellDocs.getJSONObject(i).getString("allele_name"))){
-                    if (esCellDocs.getJSONObject(i).getString("allele_type").equals("Targeted Non Conditional")) {
-                            nonTargetedEsCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
-                    }
-                    else {
-                            esCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
-                    }
-                }
-				
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-                
-        String geneUrl = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
-				+ accession.replace(":", "\\:")
-                                + " AND type:gene"
-				+ "&start=0&rows=100&hl=true&wt=json";
-
-		log.info("url for geneAllele=" + geneUrl);
-                
-        JSONObject geneJsonObject = getResults(geneUrl);
-        int geneNumberFound = Integer.parseInt(geneJsonObject.getJSONObject("response").getString("numFound"));
-		
-		JSONArray geneDocs = geneJsonObject.getJSONObject("response").getJSONArray("docs");
-
-		if (geneDocs.size() < 1) {
-			log.info("No gene info returned for the query!");
-		}
-                
-		try {
-            for (int i = 0; i < geneNumberFound ; i++) {
-                if (geneDocs.getJSONObject(i).has("vector_project_ids") && geneDocs.getJSONObject(i).getString("vector_project_ids").length() > 0){
-                    geneConstructs.add(geneAlleleConstruct(geneDocs, i));
-                }
-            }
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-                
-                
-        constructs.addAll(esCellConstructs);
-        if (constructs.size() < 1){
-              constructs.addAll(nonTargetedEsCellConstructs);
-        }
-        constructs.addAll(geneConstructs);
-        return constructs;
-        }
-        
-        private String getGeneAlleleUrlTest(String type, JSONObject jsonObject2) {
-            String mgi_accession_id = jsonObject2.getString("mgi_accession_id");
-            String url = "";
-            if(mgi_accession_id != null && mgi_accession_id.length() > 0) {
-                url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?indent=on&version=2.2&q=" +
-                        "mgi_accession_id:" + mgi_accession_id.replace(":", "\\:") + " type:" + type +
-                        "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=";
-            }
-            log.info("#### getGeneAlleleUrlTest: url: " + url);
-            return url;
-        }
-        
-    private Map<String, String> geneAlleleConstruct(JSONArray docs, int i) {
-    	Map<String, String> construct = new HashMap<String, String>();
-        String markerSymbol = "";
-        String product = "";
-        String alleleType = "";
-        String type = "";
-        String strainOfOrigin = "";
-        String mgiAlleleName = "";
-        String alleleMap = "";
-        String alleleGenbankFile = "";
-        String ikmcProjectId = "";
-        String orderFromNames = "";
-        String orderFromUrls = "";
-        String orderHtml = "";
-        String vectorProjectIds = "";
-        String vectorProjectHtml = "";
-        String mgi_accession_id = "";
-        String mgiAlleleNameStrip = "";
-                            
-		if (docs.getJSONObject(i).has("mgi_accession_id")) {
-            mgi_accession_id = docs.getJSONObject(i).getString("mgi_accession_id");
-		}
-		if (docs.getJSONObject(i).has("marker_symbol")) {
-            markerSymbol = docs.getJSONObject(i).getString("marker_symbol");
-		}
-		if (docs.getJSONObject(i).has("product_type")) {
-            product = docs.getJSONObject(i).getString("product_type");
-		}
-        if (docs.getJSONObject(i).has("type")) {
-            type = docs.getJSONObject(i).getString("type");
-		}
-		if (docs.getJSONObject(i).has("allele_type")) {
-			alleleType = docs.getJSONObject(i).getString("allele_type");
-            if (alleleType.equals("Conditional Ready")){
-                alleleType = "Knockout First, Reporter-tagged insertion with conditional potential";
-            }
-            else if (alleleType.equals("Deletion")){
-                alleleType = "Reporter-Tagged Deletion";
-            }
-		}
-		if (docs.getJSONObject(i).has("strain")) {
-			strainOfOrigin = docs.getJSONObject(i).getString("strain");
-		}
-		if (docs.getJSONObject(i).has("allele_name")) {
-			mgiAlleleName = docs.getJSONObject(i).getString("allele_name");
-            mgiAlleleNameStrip = mgiAlleleName.replaceAll(markerSymbol, "");
-            mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<sup\\>", "");
-            mgiAlleleNameStrip = mgiAlleleNameStrip.replaceAll("\\<\\/sup\\>", "");
-		}
-        if (docs.getJSONObject(i).has("allele_image_url")) {
-            alleleMap = docs.getJSONObject(i).getString("allele_image_url");
-		}
-        if (docs.getJSONObject(i).has("genbank_file_url")) {
-            alleleGenbankFile = docs.getJSONObject(i).getString("genbank_file_url");
-		}
-        if (docs.getJSONObject(i).has("project_ids")) {
-            JSONArray projectArray = docs.getJSONObject(i).getJSONArray("project_ids");
-            if (projectArray.size() > 0){
-                ikmcProjectId = projectArray.getString(0);
-            }
-		}
-                    
-        boolean allele_has_issue = false;
-        if (docs.getJSONObject(i).has("allele_has_issue")) {
-            String has_issue = docs.getJSONObject(i).getString("allele_has_issue");
-            allele_has_issue = has_issue.equals("true");
-		}
-		log.error("#### geneAlleleConstruct: allele_has_issue: " + allele_has_issue);                        
-                    
-        if (docs.getJSONObject(i).has("order_from_names")) {
-            orderFromNames = docs.getJSONObject(i).getString("order_from_names");
-		}
-        if (docs.getJSONObject(i).has("order_from_urls")) {
-            orderFromUrls = docs.getJSONObject(i).getString("order_from_urls");
-		}
-                    
-        String orderFromUrl = "";
-        if(allele_has_issue) {
-            String allele_id = docs.getJSONObject(i).has("allele_id") ? docs.getJSONObject(i).get("allele_id").toString() : null;
-            String id = docs.getJSONObject(i).has("id") ? docs.getJSONObject(i).get("id").toString() : null;
-            String product_type = docs.getJSONObject(i).has("product_type") ? docs.getJSONObject(i).get("product_type").toString() : null;
-            String host = "https://www.mousephenotype.org/imits";
-            //host = "localhost:3000";
-            String url = host + "/targ_rep/alleles/" + allele_id + "/show-issue?doc_id=" + id + "&product_type=" + product_type + "&core=allele";
-            orderFromUrl = url;
-        }                        
-		log.error("#### geneAlleleConstruct: orderFromUrl: " + orderFromUrl);                        
-                    
-        if (docs.getJSONObject(i).has("order_from_urls") && docs.getJSONObject(i).has("order_from_names")) {
-            JSONArray orderUrlsArray = docs.getJSONObject(i).getJSONArray("order_from_urls");
-            JSONArray orderNamesArray = docs.getJSONObject(i).getJSONArray("order_from_names");
-            for (int j = 0; j < orderNamesArray.size() ; j++){
-                if(!orderFromUrl.isEmpty()) {
-                    orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderFromUrl + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
-                }
-                else {
-                    orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderUrlsArray.getString(j) + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
-                }
-            }
-        }
-        if (docs.getJSONObject(i).has("vector_project_ids")) {
-            vectorProjectIds = docs.getJSONObject(i).getString("vector_project_ids");
-		}                        
-        if (docs.getJSONObject(i).has("vector_project_ids")) {
-            JSONArray vectorProjectsArray = docs.getJSONObject(i).getJSONArray("vector_project_ids");
-            for (int k = 0; k < vectorProjectsArray.size() ; k++){
-                    vectorProjectHtml += "<a href=http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + vectorProjectsArray.getString(k) + ">" + vectorProjectsArray.getString(k) + "</a> ";
-            }
-		}                         
-                    
-        construct.put("mgi_accession_id", mgi_accession_id);
-        construct.put("markerSymbol", markerSymbol);
-        construct.put("product", product);
-        construct.put("product_url", getGeneAlleleUrlTest(type, docs.getJSONObject(i)));
-        construct.put("alleleType", alleleType);
-        construct.put("type", type);
-        construct.put("strainOfOrigin", strainOfOrigin);
-        construct.put("mgiAlleleName", mgiAlleleName);
-        construct.put("mgiAlleleNameStrip", mgiAlleleNameStrip);
-        construct.put("alleleMap", alleleMap);
-        construct.put("alleleGenbankFile", alleleGenbankFile);
-        construct.put("ikmcProjectId", ikmcProjectId);
-        construct.put("orderFromNames", orderFromNames);
-        construct.put("orderFromUrls", orderFromUrls);
-        construct.put("orderHtml", orderHtml);
-        construct.put("vectorProjectIds", vectorProjectIds);    
-        construct.put("vectorProjectHtml", vectorProjectHtml); 
-        return construct;
-    }
-
 	public JSONObject getImageInfo(int imageId) throws SolrServerException,
 			IOException, URISyntaxException {
 
@@ -976,11 +732,8 @@ public class SolrIndex {
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 		
 		String url = internalBaseSolrUrl + qParam + flParam;
-		System.out.println(url);
 		
 		JSONObject json = getResults(url);
-		
-		System.out.println(json);
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -1061,15 +814,13 @@ public class SolrIndex {
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
 		String flParam = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,pfama_json";
-		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/allele/select?wt=json&rows=999999";
+		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?wt=json&rows=999999&fq=mp_id:*";
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 		
 		String url = internalBaseSolrUrl + qParam + flParam;
-		System.out.println(url);
-		
+		System.out.println("URL: "+ url);
 		JSONObject json = getResults(url);
 		
-		System.out.println(json);
 		String table = "";
 		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>PfamA family</th><th>Pfam clan</th><th>Structure</th><th>Evidence</th></tr></thead>";
 		String trs = "";
@@ -1165,27 +916,103 @@ public class SolrIndex {
 		return table;	
 	}
 	
-	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
-	//public void getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
+	public String getGO2ImpcGeneAnnotationTable(HttpServletRequest request) throws IOException, URISyntaxException {
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
+		String flStr = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_domain,go_term_name";
+		String queryParams = "q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\" OR (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=10&fq=mp_id:*";
+
+		String table = "";
+		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>GO Id</th><th>GO Evidence</th><th>GO name</th><th>GO domain</th></tr></thead>";
+		String trs = "";
+		System.out.println(internalBaseSolrUrl + queryParams + flStr);
+		JSONObject json = getResults(internalBaseSolrUrl + queryParams + flStr);
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+		System.out.println("rows: " + docs.size());
+		for (int i = 0; i < docs.size(); i++) {
+
+			JSONObject doc = docs.getJSONObject(i);
+				
+			String mgiId = doc.getString("mgi_accession_id");
+			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
+			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
+			
+			String phenoStatus = doc.getString("latest_phenotype_status");		
+			
+			if ( doc.containsKey("go_term_id") ){
+				
+				JSONArray goTermIds = doc.getJSONArray("go_term_id");
+				JSONArray goTermEvids = doc.getJSONArray("go_term_evid");
+				JSONArray goTermNames = doc.getJSONArray("go_term_name");
+				JSONArray goTermDomains = doc.getJSONArray("go_term_domain");
+				
+	            String goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
+	           
+				for ( int p=0; p<goTermIds.size(); p++ ){
+					
+					List<String> rowData = new ArrayList<String>();
+					rowData.add("<td>" + marker + "</td>");
+					rowData.add("<td>" + phenoStatus + "</td>");
+					
+					String goId = goTermIds.get(p).toString(); 
+					String goUrl = goBaseUrl + goId;
+					String goLink = "<a href='" + goUrl + "'>" + goId + "</a>";
+					rowData.add("<td>" + goLink + "</td>");
+					
+					String goEvid = goTermEvids.get(p).toString(); 
+					rowData.add("<td>" + goEvid + "</td>");
+					
+					String goName = goTermNames.get(p).toString(); 
+					rowData.add("<td>" + goName + "</td>");
+					
+					String goDomain = goTermDomains.get(p).toString(); 
+					rowData.add("<td>" + goDomain + "</td>");
+					trs += "<tr>" + StringUtils.join(rowData, "") + "</tr>";
+				}
+			}
+			else {
+				List<String> rowData = new ArrayList<String>();
+				rowData.add("<td>" + marker + "</td>");
+				rowData.add("<td>" + phenoStatus + "</td>");
+				rowData.add("<td>not available</td>");
+				rowData.add("<td>not available</td>");
+				rowData.add("<td>not available</td>");
+				rowData.add("<td>not available</td>");
+				trs += "<tr>" + StringUtils.join(rowData, "") + "</tr>";
+			}
+		}
 		
+		table = "<table id='gene2go'>" + th + "<tbody>" + trs + "</tbody></table>";
+		System.out.println(table);
+		return table;	
+	
+	}
+	
+	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
+		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
 		
 		Map<String, Map<String, Map<String, JSONArray>>> statusEvidCount = new LinkedHashMap<>();
 		
 		phenoStatuses.add("Phenotyping Complete");
 		phenoStatuses.add("Phenotyping Started");
 		
+		// all queries here take into account of having MP calls
 		for ( String status : phenoStatuses ){
 			String phenoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:*&rows=0";
 		
+			//String allGoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:* AND go_term_id:*&rows=0";
+			
 			// either molecular_function or biological_process
-			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			//String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
 			
 			// only molecular_function
-			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			//String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
 			
 			// only biological_process
-			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			//String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
+			
 			
 			Map<String, String> goQueries = new LinkedHashMap<>();
 			goQueries.put("FP", internalBaseSolrUrl + goParamsFP);
@@ -1195,7 +1022,7 @@ public class SolrIndex {
 			Map<String, String> phenoQueries = new LinkedHashMap<>();
 			phenoQueries.put(status,  internalBaseSolrUrl + phenoParams);
 			
-			String noGoParams = "q=latest_phenotype_status:\"" + status + "\" AND -go_term_id:*&wt=json&rows=0";
+			String noGoParams = "q=latest_phenotype_status:\"" + status + "\" AND -go_term_id:*&fq=mp_id:*&wt=json&rows=0";
 			Map<String, String> noGoQueries = new LinkedHashMap<>();
 			noGoQueries.put("none", internalBaseSolrUrl + noGoParams);
 			
@@ -1232,7 +1059,7 @@ public class SolrIndex {
 			        //System.out.println(annot + " QUERY: " + query);
 			        
 			        if ( annot.equals(hasGo) ){ 
-			        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("go_term_evid");
+			        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("evidCodeRank");
 			        	jlist.put(domain, jfacet);
 			        	annotCounts.put(annot, jlist);
 			        }

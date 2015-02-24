@@ -8,10 +8,10 @@
         <thead>
                 <tr>
                         <th>Product</th>
-                        <th style="width:15%">Type</th>
+                        <th style="width:15%">Allele</th>
                         <th>Strain of Origin</th>
                         <th>MGI Allele Name</th>
-                        <th>Allele Description</th>
+                        <th>Description</th>
                         <th>Product Details</th>
                         <th style="width:20%">Order / Contact</th>
                 </tr>
@@ -47,11 +47,17 @@
                                 </c:otherwise>
                             </c:choose>
                             
-                            
-                            <td>${alleleProduct["mgi_allele_name"]}</td>
+                            <c:choose>
+                                <c:when test="${empty alleleProduct['mgi_allele_name']}">
+                                    <td style="text-align:center">&horbar;</td>
+                                </c:when>
+                                <c:otherwise>                                    
+                                    <td>${alleleProduct["mgi_allele_name"]}</td>
+                                </c:otherwise>
+                            </c:choose>
                             <td>
-                                <c:if test="${not empty alleleProduct['allele_image']}">
-                                        <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['allele_image']}?simple=true.jpg">
+                                <c:if test="${not empty alleleProduct['allele_simple_image']}">
+                                        <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['allele_simple_image']}.jpg">
                                                 <i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
                                 </c:if>
                                 
@@ -59,14 +65,8 @@
                                         <div style="padding:3px;"><a href="${alleleProduct['genbank_file']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                 </c:if>
                             </td>
-                            <td style="text-align:center">
-
-                                <c:if test="${not empty alleleProduct['ikmc_project_id'] and not empty debug}">
-                                <a title="project page" href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmc_project_id']}"><i class="fa fa-clipboard"></i></a>
-                                </c:if>
-
-                                <a title="allele project page" href="${baseUrl}/${alleleProduct['url_new']}"><i class="fa fa-clipboard fa-2x"></i></a>
-
+                            <td style="padding-left: 20px;">
+                                <a title="allele project page" href="${baseUrl}/${alleleProduct['product_url']}"><i class="fa fa-clipboard fa-2x"></i></a>
                             </td>
                             <td>
 
@@ -94,3 +94,11 @@
     <div><p>No products are available for this gene.</p></div>
 </c:otherwise>
 </c:choose>
+ 
+<c:choose>
+    <c:when test="${alleleProductsCre2.get('cre_exists').equals('true')}">
+        <div><a href="http://www.creline.org/eucommtools#${alleleProductsCre2.get('mgi_acc')}" target="_blank">Cre Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>       
+    </c:when>
+</c:choose>
+    
+    

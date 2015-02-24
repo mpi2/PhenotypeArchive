@@ -1,13 +1,13 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
@@ -128,21 +128,27 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         gpSolrServer.deleteByQuery("*:*");
 
-        String query = "SELECT s.id as id, o.name as phenotyping_center, s.external_id, s.parameter_id as parameter_id, "
-                + "s.procedure_id as procedure_id, s.pipeline_id as pipeline_id, s.gf_acc as marker_accession_id, gf.symbol as marker_symbol, "
-                + "s.allele_acc as allele_accession_id, al.name as allele_name, al.symbol as allele_symbol, s.strain_acc as strain_accession_id, "
-                + "st.name as strain_name, s.sex as sex, s.zygosity as zygosity, p.name as project_name, p.fullname as project_fullname, "
-                + "s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, s.colony_id, "
-                + "db.name as resource_fullname, db.short_name as resource_name "
-                + "FROM phenotype_call_summary s "
-                + "INNER JOIN organisation o ON s.organisation_id = o.id "
-                + "INNER JOIN project p ON s.project_id = p.id "
-                + "INNER JOIN ontology_term ot ON ot.acc = s.mp_acc "
-                + "INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc "
-                + "LEFT OUTER JOIN strain st ON s.strain_acc = st.acc "
-                + "LEFT OUTER JOIN allele al ON s.allele_acc = al.acc "
-                + "INNER JOIN external_db db ON s.external_db_id = db.id "
-                + "WHERE 0.0001 >= s.p_value";
+        String query = "SELECT s.id AS id, CASE WHEN sur.statistical_method IS NOT NULL THEN sur.statistical_method WHEN scr.statistical_method IS NOT NULL THEN scr.statistical_method ELSE 'Unknown' END AS statistical_method, " +
+            "  sur.genotype_percentage_change, o.name AS phenotyping_center, s.external_id, s.parameter_id AS parameter_id, s.procedure_id AS procedure_id, s.pipeline_id AS pipeline_id, s.gf_acc AS marker_accession_id, " +
+            "  gf.symbol AS marker_symbol, s.allele_acc AS allele_accession_id, al.name AS allele_name, al.symbol AS allele_symbol, s.strain_acc AS strain_accession_id, st.name AS strain_name, " +
+            "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS mp_term_id, ot.name AS mp_term_name, " +
+            "  CASE WHEN s.p_value IS NOT NULL THEN s.p_value WHEN s.sex='female' THEN sur.gender_female_ko_pvalue WHEN s.sex='male' THEN sur.gender_male_ko_pvalue END AS p_value, " +
+            "  s.effect_size AS effect_size, " +
+            "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name " +
+            "FROM phenotype_call_summary s " +
+            "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id " +
+            "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id " +
+            "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id " +
+            "  INNER JOIN organisation o ON s.organisation_id = o.id " +
+            "  INNER JOIN project p ON s.project_id = p.id " +
+            "  INNER JOIN ontology_term ot ON ot.acc = s.mp_acc " +
+            "  INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc " +
+            "  LEFT OUTER JOIN strain st ON s.strain_acc = st.acc " +
+            "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
+            "  INNER JOIN external_db db ON s.external_db_id = db.id " +
+            "WHERE (0.0001 >= s.p_value " +
+            "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
+            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001))" ;
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -161,6 +167,24 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setProjectFullname(r.getString("project_fullname"));
                 doc.setMpTermId(r.getString("mp_term_id"));
                 doc.setMpTermName(r.getString("mp_term_name"));
+
+                String percentageChangeDb = r.getString("genotype_percentage_change");
+                if ( ! r.wasNull()) {
+
+                    // Default female, override if male
+                    Double percentageChange = StatisticalResultIndexer.getFemalePercentageChange(percentageChangeDb);
+
+                    if (doc.getSex().equals(SexType.male.getName())) {
+                        percentageChange = StatisticalResultIndexer.getMalePercentageChange(percentageChangeDb);
+                    }
+
+                    if (percentageChange != null) {
+                        doc.setPercentageChange(percentageChange.toString() + "%");
+                    }
+
+                }
+
+                doc.setStatisticalMethod(r.getString("statistical_method"));
                 doc.setP_value(r.getDouble("p_value"));
                 doc.setEffect_size(r.getDouble("effect_size"));
                 doc.setMarkerAccessionId(r.getString("marker_accession_id"));

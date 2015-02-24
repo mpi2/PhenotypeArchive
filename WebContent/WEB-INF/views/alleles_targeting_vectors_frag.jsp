@@ -17,12 +17,13 @@
     <thead>
       <tr>
 
-        <th>Design Oligos</th>
-        <th>Targeting Vector</th>
-        <th>Cassette</th>
-        <th>Backbone</th>
-        <th>Genbank File</th>
-        <th>Allele Image</th>
+        <th style="text-align: center;">Design Oligos</th>
+        <th style="text-align: center;">Targeting Vector</th>
+        <th style="text-align: center;">Cassette</th>
+        <th style="text-align: center;">Backbone</th>
+        <th style="text-align: center;">IKMC Project</th>
+        <th style="text-align: center;">Genbank File</th>
+        <th style="text-align: center;">Vector Map</th>
         <th>Order</th>
 
       </tr>
@@ -62,14 +63,15 @@
             </span>
             </td>
 
-        <td>${targeting_vector['targeting_vector']}</td>
-        <td>${targeting_vector['cassette']}</td>
-        <td>${targeting_vector['backbone']}</td>
+        <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
+        <td style="text-align: center;">${targeting_vector['cassette']}</td>
+        <td style="text-align: center;">${targeting_vector['backbone']}</td>
+        <td style="text-align: center;">${targeting_vector['ikmc_project_id']}</td>
 
         <td style="text-align: center;">
             <span>
-                <c:if test="${not empty targeting_vector['genbank_file_url']}">
-                    <a href="${targeting_vector['genbank_file_url']}">
+                <c:if test="${not empty targeting_vector['genbank_file']}">
+                    <a href="${targeting_vector['genbank_file']}">
                         <i class="fa fa-file-text fa-lg"></i>
                     </a>
                 </c:if>

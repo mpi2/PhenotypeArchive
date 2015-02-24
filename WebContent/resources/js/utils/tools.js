@@ -1921,7 +1921,7 @@
         }
 
         oParams.fq = oUrlParams.fq;
-        oParams.rows = 10;
+        //oParams.rows = 10;
 
         //qs(query slop) parameter can be used to add slop to any explicit phrase queries
         //oParams.qs = 100;
@@ -2016,13 +2016,13 @@
     };
 
     $.fn.invokeDataTable = function(oInfos) {
-
+    	
         var oDtable = $('table#' + oInfos.mode).dataTable({
             "bSort": false,
             "bProcessing": true,
             "bServerSide": true,
             //"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
-            "sDom": "<<'#exportSpinner'><'#tableTool'>r>t<<ip>>",
+            "sDom": "<<'#exportSpinner'>l<'#tableTool'>r>tip",
             "sPaginationType": "bootstrap",
             "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 
@@ -2747,12 +2747,26 @@ $.fn.dataTableExt.oApi.fnPagingInfo = function(oSettings) {
         "iTotalPages": Math.ceil(oSettings.fnRecordsDisplay() / oSettings._iDisplayLength)
     };
 }
-
+/* API method to get paging information */
+$.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
+{
+    return {
+        "iStart":         oSettings._iDisplayStart,
+        "iEnd":           oSettings.fnDisplayEnd(),
+        "iLength":        oSettings._iDisplayLength,
+        "iTotal":         oSettings.fnRecordsTotal(),
+        "iFilteredTotal": oSettings.fnRecordsDisplay(),
+        "iPage":          Math.ceil( oSettings._iDisplayStart / oSettings._iDisplayLength ),
+        "iTotalPages":    Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
+    };
+}
 /* Bootstrap style pagination control */
 $.extend($.fn.dataTableExt.oPagination, {
     "bootstrap": {
+    	"firstCount" : 0,
         "fnInit": function(oSettings, nPaging, fnDraw) {
             var oLang = oSettings.oLanguage.oPaginate;
+            
             var fnClickHandler = function(e) {
                 e.preventDefault();
                 if (oSettings.oApi._fnPageChange(oSettings, e.data.action)) {
@@ -2760,23 +2774,28 @@ $.extend($.fn.dataTableExt.oPagination, {
                 }
             };
 
-            $(nPaging).addClass('pagination pagination-small').append(
+            $(nPaging).addClass('pagination').append(
                     '<ul>' +
-                    '<li class="prev disabled"><a href="#">&larr; ' + oLang.sPrevious + '</a></li>' +
-                    '<li class="next disabled"><a href="#">' + oLang.sNext + ' &rarr; </a></li>' +
+                        '<li class="prev disabled"><a href="#">&larr; ' + oLang.sFirst + '</a></li>' +
+                        '<li class="prev disabled"><a href="#">&larr; '+oLang.sPrevious+'</a></li>'+
+                        '<li class="next disabled"><a href="#">' + oLang.sNext + ' &rarr; </a></li>' +
+                        '<li class="next disabled"><a href="#">' + oLang.sLast + ' &rarr; </a></li>' +
                     '</ul>'
-                    );
-            var els = $('a', nPaging);
-
-            $(els[0]).bind('click.DT', {action: "previous"}, fnClickHandler);
-            $(els[1]).bind('click.DT', {action: "next"}, fnClickHandler);
+                );
+                var els = $('a', nPaging);
+                $(els[0]).bind('click.DT', { action: "first" }, fnClickHandler);
+                $(els[1]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
+                $(els[2]).bind('click.DT', { action: "next" }, fnClickHandler);
+                $(els[3]).bind('click.DT', { action: "last" }, fnClickHandler);
         },
         "fnUpdate": function(oSettings, fnDraw) {
+        	
             var iListLength = 5;
             var oPaging = oSettings.oInstance.fnPagingInfo();
             var an = oSettings.aanFeatures.p;
             var i, j, sClass, iStart, iEnd, iHalf = Math.floor(iListLength / 2);
 
+            
             if (oPaging.iTotalPages < iListLength) {
                 iStart = 1;
                 iEnd = oPaging.iTotalPages;
@@ -2793,7 +2812,7 @@ $.extend($.fn.dataTableExt.oPagination, {
                 iStart = oPaging.iPage - iHalf + 1;
                 iEnd = iStart + iListLength - 1;
             }
-
+          
             for (i = 0, iLen = an.length; i < iLen; i++) {
 
                 // Remove the middle elements
@@ -2819,25 +2838,27 @@ $.extend($.fn.dataTableExt.oPagination, {
                                     fnDraw(oSettings);
                                 });
 
-                        if (count == 5) {
+                        if (count == iListLength) {
+                        	
                             $("<li><span class='ellipse'>...</span></li>")
-                                    .insertBefore($('li:last', an[i])[0]);
+                               	.insertBefore($('li:last', an[i])[0]);
 
                             $('<li><a href="#">' + oPaging.iTotalPages + '</a></li>')
-                                    .insertBefore($('li:last', an[i])[0]).bind('click', function(e) {
-                                e.preventDefault();
-                                oSettings._iDisplayStart = (parseInt($('a', this).text(), 10) - 1) * oPaging.iLength;
-                                fnDraw(oSettings)
-                            });
+                               	.insertBefore($('li:last', an[i])[0])
+                               	.bind('click', function(e) {
+                               		e.preventDefault();
+                               		oSettings._iDisplayStart = (parseInt($('a', this).text(), 10) - 1) * oPaging.iLength;
+                               		fnDraw(oSettings);
+                               	});
                         }
                     }
 
-                    if (count <= 5 && j == oPaging.iTotalPages) {
+                    if (count <= iListLength && j == oPaging.iTotalPages) {
                         $('<li ' + sClass + '><a href="#">' + oPaging.iTotalPages + '</a></li>')
                                 .insertBefore($('li:last', an[i])[0]).bind('click', function(e) {
                             e.preventDefault();
                             oSettings._iDisplayStart = (parseInt($('a', this).text(), 10) - 1) * oPaging.iLength;
-                            fnDraw(oSettings)
+                            fnDraw(oSettings);
                         });
                     }
                 }

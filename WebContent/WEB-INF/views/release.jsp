@@ -98,30 +98,25 @@
 				<div class="section">
 				
 			    <h2 class="title" id="new-features">Highlights</h2>
-				   
-					<div class="inner">	 
-						<div id="phenotypesDiv">	
+
+					<div class="inner">
+						<div id="phenotypesDiv">
 							<div class="container span12">
-							<h3>New lines added, some taken away</h3>
-							<p>In data release 2.0, we now have 535 mouse lines with phenotype data that has passed quality control. This positive step demonstrates the majority of IMPC centers are now able to generate, capture, export, passed quality control (QC), and distribute high-throughput data for hundreds of new mouse lines. Going forward, we anticipate bi-monthly data releases.</p>
-							
-							<p>In review of our processes, we noticed some lines passed QC in the previous data release that should not have. We have reverted the statuses of these lines to a pre-QC state, meaning they our visible on the portal but not being distributed via the API. The majority if not all of these lines should be available in the next data release.</p>
-							
-							<h3>Pre-QC vs Post-QC</h3>
-							<p>In striking a balance between making data available to the public as soon as possible versus ensuring data is of the highest quality, the data coordination center (DCC) provides both "Pre-QC" and "Post-QC" data.</p>
-							
-							<p>Pre-QC data is defined as phenotype data that has been uploaded to the DCC and has passed automated checks but has not been signed off by a data wrangler.  Reasons for not signing off include not enough animals being tested, not all mandatory procedures have had data uploaded, or a known issue has been reported to a phenotyping center and is waiting to be resolved. Lines with pre-QC data can be found by filtering on "phenotype started" under  "Gene" -> "IMPC phenotype status" on the search page.</p>
-							
-							<p>Post-QC data is defined as phenotype data for a mouse line that has been signed off by a data wrangler. This means a mouse line has had enough animals tested for the core procedures and has passed quality control. In this phase of the project, we have restricted the number of core procedures that data is needed for as certain data types are more difficult to upload than others. Lines with Post-QC data can be found by filtering on "phenotype complete" under  "Gene" -> "IMPC phenotype status" on the search page.</p>
-							
-							<p>In this latest release, we present both pre and post QC data on the portal. Both sets of data are analysed using the same statistical analysis package. Phenotype associations made from Pre-QC data have orange graph links while post-QC data have blue links. Only phenotype associations made from post-QC data are available in the API and pushed to third parties.</p>
-							
-							<h3> Statistical Analysis</h3>
-							<p>The same statistical analysis package version used in our last data release is used for this release, Version: 1.2.0. We anticipate use PhenStat 2.0 in our next data release.</p> 
-			
+
+								<h3>Data release 3.0</h3>
+
+								<p>In data release 3.0, we now have 1,456 mouse lines with phenotype data that has
+									passed quality control. This is a marked increase since data release 2.0 and
+									demonstrates the acceleration of data generation for the IMPC effort.</p>
+
+								<h3>Statistical Analysis</h3>
+
+								<p>The statistical analysis package used in data release 2.0 (PhenStat) has been updated
+									to Version: 2.0.1.</p>
+
+							</div>
+							<div class="clear"></div>
 						</div>
-						<div class="clear"></div>
-					</div>
 					</div>
 				</div><!-- end of section -->
 								

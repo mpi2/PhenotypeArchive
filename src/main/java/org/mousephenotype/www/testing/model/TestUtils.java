@@ -177,7 +177,7 @@ public class TestUtils {
     
     /**
      * Compares <code>pageValue</code> and <code>downloadValue</code> and, if
-     * <code>pageValue is not empty, returns true if <code>pageValue</code>
+     * <code>pageValue</code> is not empty, returns true if <code>pageValue</code>
      * equals <code>downloadValue</code>. If <code>pageValue</code> is empty,
      * compares against the string 'No information available', returning true
      * if true; false otherwise.
@@ -186,17 +186,63 @@ public class TestUtils {
      * @return 
      */
     public static boolean pageEqualsDownload(String pageValue, String downloadValue) {
-        if (pageValue.trim().isEmpty()) {
-            if ( ! downloadValue.equals(SearchFacetTable.NO_INFO_AVAILABLE)) {
-                return false;
+        return isEqual(pageValue, downloadValue, "\\|", true);
+    }
+
+    /**
+     * Compares two strings, each delimited by <code>delimiter</code> by count
+     * and value: if each has the same number of delimited segments, and each
+     * delimited segment's value is equal, returns true. If <code>
+     * ignoreNoInfoAvailable</code> is true, any string values equaling 
+     * 'No information available' are first removed from each string before the
+     * comparison is performed.
+     * NOTE: null/empty strings are treated equally and, if both are either null
+     * or empty, return true.
+     * 
+     * @param string1 the first string operand
+     * @param string2 the second string operand
+     * @param delimiter string segment delimiter
+     * @param ignoreNoInfoAvailable if true, the string 'No information available'
+     *        is first removed from both strings.
+     * @return true if each string's segments are equal; false otherwise
+     */
+    public static boolean isEqual(String string1, String string2, String delimiter, boolean ignoreNoInfoAvailable) {
+        boolean retVal;
+        Set<String> string1Set = new HashSet();
+        Set<String> string2Set = new HashSet();
+        
+        if (string1 == null)
+            string1 = "";
+        if (string2 == null)
+            string2 = "";
+        
+        String[] parts = string1.split(delimiter);
+        for (String part : parts) {
+            if ((ignoreNoInfoAvailable) && (part.equals(SearchFacetTable.NO_INFO_AVAILABLE))) {
+                // Do nothing. This is the 'No information available' string, which the caller has asked us not to include.
+            } else {
+                string1Set.add(part);
             }
-        } else if ( ! pageValue.equals(downloadValue)) {
-            return false;
+        }
+        parts = string2.split(delimiter);
+        for (String part : parts) {
+            if ((ignoreNoInfoAvailable) && (part.equals(SearchFacetTable.NO_INFO_AVAILABLE))) {
+                // Do nothing. This is the 'No information available' string, which the caller has asked us not to include.
+            } else {
+                string2Set.add(part);
+            }
         }
         
-        return true;
+        if (string1Set.size() == string2Set.size()) {
+            string1Set.removeAll(string2Set);
+            retVal = string1Set.isEmpty();
+        } else {
+            retVal = false;
+        }
+        
+        return retVal;
     }
-    
+
     /**
      * Searches <code>list</code> for <code>searchToken</code>
      * @param list the list to search

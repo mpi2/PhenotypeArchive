@@ -236,7 +236,31 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
         doc.setNullTestPValue(r.getDouble("null_test_significance"));
-        doc.setpValue(r.getDouble("null_test_significance"));
+
+        // If PhenStat did not run, then the result will have a NULL for the null_test_significance field
+        // In that case, fall back to Wilcoxon test
+        Double pv = r.getDouble("null_test_significance");
+        if ( r.wasNull() ) {
+            pv = 1.0;
+        }
+
+        if ( pv==1.0 && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
+
+            // Wilcoxon test.  Choose the most significant pvalue from the sexes
+            pv = 1.0;
+            Double fPv = r.getDouble("gender_female_ko_pvalue");
+            if( ! r.wasNull() && fPv < pv) {
+                pv = fPv;
+            }
+
+            Double mPv = r.getDouble("gender_male_ko_pvalue");
+            if( ! r.wasNull() && mPv < pv) {
+                pv = mPv;
+            }
+
+        }
+
+        doc.setpValue(pv);
 
         doc.setGroup1Genotype(r.getString("gp1_genotype"));
         doc.setGroup1ResidualsNormalityTest(r.getDouble("gp1_residuals_normality_test"));
@@ -293,7 +317,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     }
         
-    private Double getFemalePercentageChange(String token) {
+    public static Double getFemalePercentageChange(String token) {
         Double retVal = null;
         
         List<String> sexes = Arrays.asList(token.split(","));
@@ -311,8 +335,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         
         return retVal;
     }
-        
-    private Double getMalePercentageChange(String token) {
+
+    public static Double getMalePercentageChange(String token) {
         Double retVal = null;
         
         List<String> sexes = Arrays.asList(token.split(","));

@@ -291,8 +291,7 @@ public class GenePage {
         
         // If there is a 'genes' HTML table, validate it.
         if (hasGenesTable) {
-            // Validate that there is a 'pheontypes' HTML table by loading it.
-            geneTable.load();                                                      // Load all of the genes table pageMap data. Use preAndPostQcList.
+            geneTable.load();                                                   // Load all of the genes table pageMap data. Use preAndPostQcList.
             List<List<String>> preAndPostQcList = geneTable.getPreAndPostQcList();
             String cell;
             int i = 0;

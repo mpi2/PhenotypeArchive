@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.service;
 
 import net.sf.json.JSONArray;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
@@ -64,9 +66,6 @@ public class ObservationService extends BasicService {
 
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
-
-	@Autowired
-	ParameterMapService pmapService;
 
 	@Autowired
 	ParameterToGeneMap ptgm;
@@ -1237,51 +1236,6 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	}
 
 
-	/**
-	 * This map is needed for the summary on phenotype pages (the percentages &
-	 * pie chart). It takes a long time to load so it does it asynchronously.
-	 * 
-	 * @param sex
-	 * @return Map < String parameterStableId , ArrayList<String
-	 *         geneMgiIdWithParameterXMeasured>>
-	 * @throws SolrServerException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @author tudose
-	 */
-	public Map<String, ArrayList<String>> getParameterToGeneMap(SexType sex)
-	throws SolrServerException, InterruptedException, ExecutionException {
-
-		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>();
-		Map<String, Future<ArrayList<String>>> temp = new ConcurrentHashMap<>();
-		Long time = System.currentTimeMillis();
-
-		// Solr call
-		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name()).setRows(1);
-		q.setFilterQueries( ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
-		q.set("facet.field", ObservationDTO.PARAMETER_STABLE_ID);
-
-		q.set("facet", true);
-		q.set("facet.limit", -1); // we want all facets
-		QueryResponse response = solr.query(q);
-		System.out.println(" Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
-
-		// get all parameters we have data for
-		for (Count parameter : response.getFacetField(ObservationDTO.PARAMETER_STABLE_ID).getValues()) {
-			// fill genes for each of them
-			if (parameter.getCount() > 0) {
-				temp.put(parameter.getName(), pmapService.getAllGenesWithMeasuresForParameter(parameter.getName(), sex));
-			}
-		}
-
-		for (String param : temp.keySet()) {
-			res.put(param, temp.get(param).get());
-		}
-
-		System.out.println("Done in " + (System.currentTimeMillis() - time));
-		return res;
-	}
-
 
 	public ObservationType getObservationTypeForParameterStableId(String paramStableId)
 	throws SolrServerException {
@@ -1513,6 +1467,5 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		
 		return null;
 	}
-	
 	
 }

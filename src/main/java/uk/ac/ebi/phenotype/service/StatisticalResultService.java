@@ -20,8 +20,12 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupCommand;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +33,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
@@ -40,10 +47,13 @@ import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.Set;
 
 @Service
@@ -144,7 +154,41 @@ public class StatisticalResultService extends BasicService {
         
         return results;
     }
+    
 
+    public Map<String, Set<String>> getAccessionProceduresMap(String resourceName){
+    	
+    	SolrQuery query = new SolrQuery();
+    	Map<String, Set<String>> res =  new HashMap<>(); 
+    	NamedList<List<PivotField>> response;
+    	
+    	if (resourceName == null){
+    		query.setQuery("*:*");
+    	}else {
+    		query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + resourceName);
+    	}
+    	query.setFacet(true);
+    	query.addFacetPivotField(StatisticalResultDTO.MARKER_ACCESSION_ID + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
+    	query.setFacetLimit(-1);
+    	query.setFacetMinCount(1);
+    	query.setRows(0);
+    	
+		try {
+			response = solr.query(query).getFacetPivot();
+			for (PivotField genePivot : response.get(StatisticalResultDTO.MARKER_ACCESSION_ID + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID)){
+				String geneName = genePivot.getValue().toString();
+				Set<String> procedures = new HashSet<>();
+				for (PivotField f : genePivot.getPivot()){
+					procedures.add(f.getValue().toString());
+				}
+				res.put(geneName, procedures);
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	return res;
+    }
+    
 
     public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String alleleAccession, String phenotypingCenter,	String pipelineStableId,	List<String> procedureStableIds) 
 	throws NumberFormatException, SolrServerException {
@@ -152,14 +196,14 @@ public class StatisticalResultService extends BasicService {
     	Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
     	SolrQuery query = new SolrQuery();
     	
-		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":" + phenotypingCenter + " AND " 
+		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\" AND "
     			+ StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND "
 				+ StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
 		if (procedureStableIds != null){
 			query.addFilterQuery("(" + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" 
 					+ StringUtils.join(procedureStableIds, " OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + ")");
 		}
-		query.setRows(90000000);
+		query.setRows(Integer.MAX_VALUE);
 		query.addField(StatisticalResultDTO.P_VALUE)
 			.addField(StatisticalResultDTO.EFFECT_SIZE)
 			.addField(StatisticalResultDTO.STATUS)
@@ -171,8 +215,8 @@ public class StatisticalResultService extends BasicService {
 			.addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT)
 			.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
 			.addField(StatisticalResultDTO.METADATA_GROUP);		
-		query.set("sort", StatisticalResultDTO.P_VALUE + " desc");
-		
+		query.set("sort", StatisticalResultDTO.P_VALUE + " asc");
+
 		for (SolrDocument doc : solr.query(query).getResults()){
 			String parameterStableId = doc.getFieldValue(StatisticalResultDTO.PARAMETER_STABLE_ID).toString();
 			List<StatisticalResultBean> lb = null;
@@ -342,67 +386,229 @@ public class StatisticalResultService extends BasicService {
         return r;
     }
 
-    
-    // ***************************************************************//
-    // DO WE NEED THIS ANYMORE?
-    // ***************************************************************//
-    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<Parameter> parameters) {
+
+    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, Map<String, Set<String>> map, String resourceName) {
+    	
         GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
+        Map<String, HeatMapCell> paramPValueMap = new HashMap<>();
+        
         if (gene != null) {
             row.setSymbol(gene.getSymbol());
         } else {
             System.err.println("error no symbol for gene " + accession);
         }
-        List<HeatMapCell> results = new ArrayList<HeatMapCell>();
-        // search by gene and a list of params
-        // or search on gene and then loop through params to add the results if
-        // available order by ascending p value means we can just pick off the
-        // first entry for that param
-        // http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
-
-        Map<String, HeatMapCell> paramMap = new HashMap<>();// map to contain
-                                                            // parameters with
-                                                            // their associated
-                                                            // status or pvalue
-                                                            // as a string
-        for (Parameter param : parameters) {
-            // System.out.println("adding param to paramMap="+paramId);
-            paramMap.put(param.getStableId(), null);
+        
+        for (String procedure : map.get(accession)) {
+        	paramPValueMap.put(procedure, null);
         }
 
         SolrQuery q = new SolrQuery()
-                .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"").setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
-                .setRows(10000);
-        QueryResponse response = null;
-
+                .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"")
+                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
+                .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
+                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+                .addField(StatisticalResultDTO.STATUS)
+                .addField(StatisticalResultDTO.P_VALUE)
+                .setRows(10000000);
+        q.add("group", "true");
+        q.add("group.field", StatisticalResultDTO.PROCEDURE_STABLE_ID);
+        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
+        
         try {
-            response = solr.query(q);
-            results = response.getBeans(HeatMapCell.class);
-            for (HeatMapCell cell : results) {
-                // System.out.println(doc.getFieldValues("p_value"));
-
-                String paramStableId = cell.getxAxisKey();
-                // System.out.println("comparing"+cell.getParameterStableId()+"|");
-                if (paramMap.containsKey(cell.getxAxisKey())) {
-                    System.out.println("cell mp Term name=" + cell.getLabel());
-                    System.out.println("cell p value=" + cell.getFloatValue());
-                    System.out.println(cell.getFloatValue() + "found");
-                    paramMap.put(paramStableId, cell);
-                    if (row.getLowestPValue() > cell.getFloatValue()) {
-                        row.setLowestPValue(cell.getFloatValue());
-                    }
-                }
+        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+            for (Group group:  groups.getValues()){
+            	HeatMapCell cell = new HeatMapCell();
+            	SolrDocument doc = group.getResult().get(0);
+            	cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
+            	if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
+            		cell.setStatus("Significant call");
+            	} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
+            			cell.setStatus("Data analysed, no significant call");
+            		} else {
+            			cell.setStatus("Could not analyse");
+            		}
+            	paramPValueMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
             }
-
-            row.setXAxisToCellMap(paramMap);
+            row.setXAxisToCellMap(paramPValueMap);
         } catch (SolrServerException ex) {
             LOG.error(ex.getMessage());
         }
-
         return row;
     }
-    // ***************************************************************//
-    // DO WE NEED THIS ANYMORE?
-    // ***************************************************************//
+    
+    public List<GeneRowForHeatMap> getSecondaryProjectMapForResource(String resourceName) {
+    	
+    	List<GeneRowForHeatMap> res = new ArrayList<>();    	
+        HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
+        List<BasicBean> procedures = getProceduresForDataSource(resourceName);
+        
+        for (BasicBean procedure : procedures){
+	        SolrQuery q = new SolrQuery()
+	        .setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
+	        .addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedure.getId())
+	        .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
+	        .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+	        .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+	        .addField(StatisticalResultDTO.MARKER_SYMBOL)
+	        .addField(StatisticalResultDTO.STATUS)
+	        .addField(StatisticalResultDTO.P_VALUE)
+	        .setRows(10000000);
+	        q.add("group", "true");
+	        q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
+	        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
+	
+	        try {
+	        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+		        		        	
+		        for (Group group:  groups.getValues()){
+		        	GeneRowForHeatMap row;
+		            HeatMapCell cell = new HeatMapCell();
+		            SolrDocument doc = group.getResult().get(0);
+		        	String geneAcc = doc.get(StatisticalResultDTO.MARKER_ACCESSION_ID).toString();
+		            Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
+		            
+		        	if (geneRowMap.containsKey(geneAcc)){
+		        		row = geneRowMap.get(geneAcc);
+		        		xAxisToCellMap = row.getXAxisToCellMap();
+		        	} else {
+		        		row = new GeneRowForHeatMap(geneAcc);
+		        		row.setSymbol(doc.get(StatisticalResultDTO.MARKER_SYMBOL).toString());
+			        	xAxisToCellMap.put(procedure.getId(), null);
+		        	}
+		            cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
+		            if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
+		            	cell.setStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
+		            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
+		            		cell.setStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
+		            } else {
+		            	cell.setStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
+		            }
+		            xAxisToCellMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
+			        row.setXAxisToCellMap(xAxisToCellMap);
+			        geneRowMap.put(geneAcc, row);
+		            }
+		        } catch (SolrServerException ex) {
+		            LOG.error(ex.getMessage());
+		        }
+        }
+        
+        res = new ArrayList<>(geneRowMap.values());
+        Collections.sort(res, new GeneRowForHeatMap3IComparator());
+     
+        return res;
+    }
+  
+    
+    public List<BasicBean> getProceduresForDataSource(String resourceName){
+    	
+    	List<BasicBean> res = new ArrayList();
+    	SolrQuery q = new SolrQuery()
+          	.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
+          	.setRows(10000);
+    	q.add("group", "true");
+    	q.add("group.field", StatisticalResultDTO.PROCEDURE_NAME);
+    	q.add("group.rows","1");
+        q.add("fl", StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
+    	
+    	System.out.println("Procedure query " + solr.getBaseURL() + "/select?" + q);
+    	
+    	try {
+    		GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+            for (Group group: groups.getValues()){
+            	BasicBean bb = new BasicBean();
+            	SolrDocument doc = group.getResult().get(0);
+            	bb.setName(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
+            	bb.setId(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
+            	res.add(bb);
+            }
+        } catch (SolrServerException ex) {
+            LOG.error(ex.getMessage());
+        }
+    	return res;
+    }
+     
+    
+    /*
+	 * End of method for PhenotypeCallSummarySolrImpl
+	 */
+	public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<BasicBean> xAxisBeans, Map<String, List<String>> geneToTopLevelMpMap) {
+
+		GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
+		if (gene != null) {
+			row.setSymbol(gene.getSymbol());
+		} else {
+			System.err.println("error no symbol for gene " + accession);
+		}
+
+		Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
+		for (BasicBean xAxisBean : xAxisBeans) {
+			HeatMapCell cell = new HeatMapCell();
+			if (geneToTopLevelMpMap.containsKey(accession)) {
+
+				List<String> mps = geneToTopLevelMpMap.get(accession);
+				// cell.setLabel("No Phenotype Detected");
+				if (mps != null && !mps.isEmpty()) {
+					if (mps.contains(xAxisBean.getId())) {
+						cell.setxAxisKey(xAxisBean.getId());
+						cell.setLabel("Data Available");
+						cell.setStatus("Data Available");
+					} else {
+						cell.setStatus("No MP");
+					}
+				} else {
+					// System.err.println("mps are null or empty");
+					cell.setStatus("No MP");
+				}
+			} else {
+				// if no doc found for the gene then no data available
+				cell.setStatus("No Data Available");
+			}
+			xAxisToCellMap.put(xAxisBean.getId(), cell);
+		}
+		row.setXAxisToCellMap(xAxisToCellMap);
+
+		return row;
+	}
+   
+
+	/**
+	 * This map is needed for the summary on phenotype pages (the percentages &
+	 * pie chart). It takes a long time to load so it does it asynchronously.
+	 * 
+	 * @param sex
+	 * @return Map < String parameterStableId , ArrayList<String
+	 *         geneMgiIdWithParameterXMeasured>>
+	 * @throws SolrServerException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @author tudose
+	 */
+	public Map<String, ArrayList<String>> getParameterToGeneMap(SexType sex)
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
+		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
+		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+		
+		QueryResponse response = solr.query(q);
+		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> genes = new ArrayList<>();
+			for (PivotField gene : pivot.getPivot()){
+				genes.add(gene.getValue().toString());
+			}
+			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+		}
+		
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+		return res;
+	}
 
 }

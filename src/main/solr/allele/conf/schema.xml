@@ -143,6 +143,7 @@
 
 	<!-- allele level fields of a gene -->
 	<field name="allele_name" type="text" indexed="true" stored="true" multiValued="true"/>
+	<field name="allele_accession_id" type="text" indexed="true" stored="true" multiValued="true"/>
 	<field name="es_cell_status" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="imits_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="mouse_status" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -156,6 +157,15 @@
 	<field name="go_term_def" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_evid" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_domain" type="string" indexed="true" stored="true" multiValued="true"/>
+	
+	<!-- A gene can have multiple GO terms. Use the evidence code ranking (evidCodeRank) to decide which GO evidence categories a gene should be assigned for 
+	     Ie, each gene gets only one rank. Currently, there are 4 ranks:
+	     1: experimental
+	     2: computational
+	     3:
+	     4: no biological data available
+	-->
+	<field name="evidCodeRank" type="int" indexed="true" stored="true" multiValued="false"/>
 	
 	<!-- pfam stuff -->
 	<field name="uniprot_acc" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -216,6 +226,8 @@
 	<copyField source="go_term_id" dest="auto_suggest"/>
 	<copyField source="go_term_name" dest="auto_suggest"/>
 	<copyField source="latest_production_status" dest="status"/> 
+	
+	
 	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 
