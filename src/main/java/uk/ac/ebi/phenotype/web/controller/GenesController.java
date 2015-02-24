@@ -247,10 +247,8 @@ public class GenesController {
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
-			if(!new Boolean((String) request.getAttribute("liveSite"))){
 			getImpcImages(acc, model);
-			}
-
+			
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
 			log.info("images solr not available");
@@ -286,7 +284,7 @@ public class GenesController {
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
-		
+		System.out.println("model="+model);
 	}
 
 
