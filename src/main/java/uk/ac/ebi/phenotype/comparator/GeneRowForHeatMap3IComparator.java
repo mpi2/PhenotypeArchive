@@ -28,7 +28,7 @@ public class GeneRowForHeatMap3IComparator implements Comparator<GeneRowForHeatM
 				score += 2;
 			}
 			else if (cell.getStatus().equalsIgnoreCase(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT)){
-				score += 2;
+				score += 20;
 			}
 		}
 		return score;

@@ -499,7 +499,6 @@ public class StatisticalResultService extends BasicService {
     }
   
     
-    
     public List<BasicBean> getProceduresForDataSource(String resourceName){
     	
     	List<BasicBean> res = new ArrayList();
