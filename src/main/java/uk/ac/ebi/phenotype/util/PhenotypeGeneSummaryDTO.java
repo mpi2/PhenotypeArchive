@@ -148,6 +148,14 @@ public class PhenotypeGeneSummaryDTO {
 		
 		return chart;
 	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+
+		return "PhenotypeGeneSummaryDTO [display=" + display + ", malePercentage=" + malePercentage + ", femalePercentage=" + femalePercentage + ", totalPercentage=" + totalPercentage + ", maleGenesTested=" + maleGenesTested + ", femaleGenesTested=" + femaleGenesTested + ", totalGenesTested=" + totalGenesTested + ", maleGenesAssociated=" + maleGenesAssociated + ", femaleGenesAssociated=" + femaleGenesAssociated + ", totalGenesAssociated=" + totalGenesAssociated + ", femaleOnlyNumber=" + femaleOnlyNumber + ", maleOnlyNumber=" + maleOnlyNumber + ", bothNumber=" + bothNumber + "]";
+	}
 	
 	
 }

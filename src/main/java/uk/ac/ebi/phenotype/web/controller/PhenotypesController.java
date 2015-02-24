@@ -49,6 +49,7 @@ import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.PreQcService;
+import uk.ac.ebi.phenotype.service.StatisticalResultService;
 import uk.ac.ebi.phenotype.util.ParameterComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
@@ -87,6 +88,8 @@ public class PhenotypesController {
     private SolrIndex solrIndex;
     @Autowired
     private ExperimentService experimentService;
+    @Autowired
+    private StatisticalResultService srService;
     @Autowired
 	@Qualifier("postqcService")
     PostQcService gpService;
@@ -476,7 +479,9 @@ public class PhenotypesController {
 
         List<String> parameters = new ArrayList<>(getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
         nominator = gpService.getGenesBy(phenotype_id, null).size();
-        total = os.getTestedGenesByParameterSex(parameters, null).size();
+        total = srService.getTestedGenes(parameters, null).size();
+        System.out.println("--NOMIATOR: " + nominator);
+        System.out.println("--TOTAL: " + total);
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
         pgs.setTotalGenesTested(total);
@@ -492,7 +497,7 @@ public class PhenotypesController {
                 genesFemalePhenotype.add((String) g.getGroupValue());
             }
             nominator = genesFemalePhenotype.size();
-            total = os.getTestedGenesByParameterSex(parameters, SexType.female).size();
+            total = srService.getTestedGenes(parameters, SexType.female).size();
             pgs.setFemalePercentage(100 * (float) nominator / (float) total);
             pgs.setFemaleGenesAssociated(nominator);
             pgs.setFemaleGenesTested(total);
@@ -501,7 +506,7 @@ public class PhenotypesController {
                 genesMalePhenotype.add(g.getGroupValue());
             }
             nominator = genesMalePhenotype.size();
-            total = os.getTestedGenesByParameterSex(parameters, SexType.male).size();
+            total = srService.getTestedGenes(parameters, SexType.male).size();
             pgs.setMalePercentage(100 * (float) nominator / (float) total);
             pgs.setMaleGenesAssociated(nominator);
             pgs.setMaleGenesTested(total);
@@ -515,7 +520,9 @@ public class PhenotypesController {
         pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
         pgs.setMaleOnlyNumber(genesMalePhenotype.size());
         pgs.fillPieChartCode();
-
+        
+        System.out.println("PERCENTAGES " + pgs);
+        
         return pgs;
     }
 

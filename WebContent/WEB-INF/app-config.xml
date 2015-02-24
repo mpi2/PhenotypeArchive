@@ -61,8 +61,6 @@
      <constructor-arg index="2" value="5"/> <!--Num threads-->
   </bean>
 
-	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
-
 	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
