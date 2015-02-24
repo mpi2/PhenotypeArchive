@@ -604,7 +604,7 @@ public class SearchPageTest {
             try {
                 SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
                 searchPage.clickFacetById(core);
-//                TestUtils.sleep(2000);
+                TestUtils.sleep(2000);
                 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
                 expectedShowingPhrase = showing_1;
