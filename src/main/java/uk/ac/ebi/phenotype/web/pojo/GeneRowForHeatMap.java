@@ -16,7 +16,7 @@ import uk.ac.ebi.phenotype.service.*;
  * @author jwarren
  */
 public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
-
+	
     private String accession="";
     private String symbol="";
     private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
@@ -75,7 +75,6 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 		int compareNumberOfMps =  0;
 		Collection<HeatMapCell> compareValues = compareRow.getXAxisToCellMap().values();
 		for(HeatMapCell cell:compareValues){
-			System.out.println("cell -- " + cell);
 			if(cell.getStatus().equals("Data Available")){
 				compareNumberOfMps++;
 			}

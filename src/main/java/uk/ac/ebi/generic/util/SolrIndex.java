@@ -50,6 +50,7 @@ import org.springframework.stereotype.Service;
 //import com.google.gson.JsonObject;
 //import com.google.gson.stream.JsonReader;
 
+
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -817,7 +818,6 @@ public class SolrIndex {
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 		
 		String url = internalBaseSolrUrl + qParam + flParam;
-		
 		JSONObject json = getResults(url);
 		
 		String table = "";
@@ -923,7 +923,8 @@ public class SolrIndex {
 		String table = "";
 		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>GO Id</th><th>GO Evidence</th><th>GO name</th><th>GO domain</th></tr></thead>";
 		String trs = "";
-		System.out.println(internalBaseSolrUrl + queryParams + flStr);
+		//System.out.println(internalBaseSolrUrl + queryParams + flStr);
+		
 		JSONObject json = getResults(internalBaseSolrUrl + queryParams + flStr);
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		System.out.println("rows: " + docs.size());
@@ -985,7 +986,7 @@ public class SolrIndex {
 		return table;	
 	
 	}
-
+	
 	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
 		
@@ -1001,13 +1002,17 @@ public class SolrIndex {
 			//String allGoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:* AND go_term_id:*&rows=0";
 			
 			// either molecular_function or biological_process
-			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			//String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
 			
 			// only molecular_function
-			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			//String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
 			
 			// only biological_process
-			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			//String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
+			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
+			
 			
 			Map<String, String> goQueries = new LinkedHashMap<>();
 			goQueries.put("FP", internalBaseSolrUrl + goParamsFP);
@@ -1017,7 +1022,7 @@ public class SolrIndex {
 			Map<String, String> phenoQueries = new LinkedHashMap<>();
 			phenoQueries.put(status,  internalBaseSolrUrl + phenoParams);
 			
-			String noGoParams = "q=latest_phenotype_status:\"" + status + "\" AND -go_term_id:*&wt=json&rows=0";
+			String noGoParams = "q=latest_phenotype_status:\"" + status + "\" AND -go_term_id:*&fq=mp_id:*&wt=json&rows=0";
 			Map<String, String> noGoQueries = new LinkedHashMap<>();
 			noGoQueries.put("none", internalBaseSolrUrl + noGoParams);
 			
@@ -1054,7 +1059,7 @@ public class SolrIndex {
 			        //System.out.println(annot + " QUERY: " + query);
 			        
 			        if ( annot.equals(hasGo) ){ 
-			        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("go_term_evid");
+			        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("evidCodeRank");
 			        	jlist.put(domain, jfacet);
 			        	annotCounts.put(annot, jlist);
 			        }

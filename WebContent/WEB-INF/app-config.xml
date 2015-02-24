@@ -61,8 +61,6 @@
      <constructor-arg index="2" value="5"/> <!--Num threads-->
   </bean>
 
-	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
-
 	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
@@ -110,10 +108,6 @@
 
 	<bean id="alleleService" class="uk.ac.ebi.phenotype.service.AlleleService">
 		<constructor-arg value="${internalSolrUrl}/allele" />
-	</bean>
-
-	<bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 
 	<bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">

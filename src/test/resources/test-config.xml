@@ -67,12 +67,6 @@
     <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
         <constructor-arg value="${internalSolrUrl}/pipeline" />
     </bean>
-
-    <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
-        <constructor-arg value="${internalSolrUrl}/experiment" />
-    </bean>
-
-    <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap"  />
  
     <bean id="releaseDAO" class="uk.ac.ebi.phenotype.dao.AnalyticsDAOImpl">
         <constructor-arg ref="sessionFactory" />

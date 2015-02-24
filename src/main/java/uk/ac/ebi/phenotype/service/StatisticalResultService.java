@@ -22,7 +22,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
-import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -32,10 +31,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
@@ -44,11 +47,13 @@ import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.Set;
 
 @Service
@@ -77,6 +82,10 @@ public class StatisticalResultService extends BasicService {
     private HttpSolrServer solr;
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
+
+    Map<String, ArrayList<String>> maleParamToGene = null;
+    Map<String, ArrayList<String>> femaleParamToGene = null;
+
 
     public StatisticalResultService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
@@ -472,11 +481,11 @@ public class StatisticalResultService extends BasicService {
 		        	}
 		            cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
 		            if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
-		            	cell.setStatus("Significant call");
+		            	cell.setStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
 		            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
-		            		cell.setStatus("Data analysed, no significant call");
+		            		cell.setStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
 		            } else {
-		            	cell.setStatus("Analysis failed");
+		            	cell.setStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
 		            }
 		            xAxisToCellMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
 			        row.setXAxisToCellMap(xAxisToCellMap);
@@ -486,10 +495,13 @@ public class StatisticalResultService extends BasicService {
 		            LOG.error(ex.getMessage());
 		        }
         }
-        return new ArrayList(geneRowMap.values());
+        
+        res = new ArrayList<>(geneRowMap.values());
+        Collections.sort(res, new GeneRowForHeatMap3IComparator());
+     
+        return res;
     }
   
-    
     
     public List<BasicBean> getProceduresForDataSource(String resourceName){
     	
@@ -562,4 +574,108 @@ public class StatisticalResultService extends BasicService {
 		return row;
 	}
    
+
+	/**
+	 * This map is needed for the summary on phenotype pages (the percentages &
+	 * pie chart). It takes a long time to load so it does it asynchronously.
+	 * 
+	 * @param sex
+	 * @return Map < String parameterStableId , ArrayList<String
+	 *         geneMgiIdWithParameterXMeasured>>
+	 * @throws SolrServerException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @author tudose
+	 */
+	public Map<String, ArrayList<String>> getParameterToGeneMap(SexType sex)
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
+		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
+		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+		
+		QueryResponse response = solr.query(q);
+		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> genes = new ArrayList<>();
+			for (PivotField gene : pivot.getPivot()){
+				genes.add(gene.getValue().toString());
+			}
+			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+		}
+		
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+		return res;
+	}
+
+	public void addGenesForBothSexes()
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
+		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
+		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+		
+		QueryResponse response = solr.query(q);
+		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> genes = new ArrayList<>();
+			for (PivotField gene : pivot.getPivot()){
+				genes.add(gene.getValue().toString());
+			}
+			maleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+			femaleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+		}
+
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+	}
+
+	private void fillMaps() {
+        System.out.println("Initializing ParameterToGeneMap. This will take a while...");
+        try {
+    		femaleParamToGene = getParameterToGeneMap(SexType.female);
+    		maleParamToGene = getParameterToGeneMap(SexType.male);
+    		addGenesForBothSexes();	
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
+        HashSet<String> res = new HashSet<>();
+        if (femaleParamToGene == null || maleParamToGene == null) {
+            fillMaps();
+        }
+        if (sex == null || sex.equals(SexType.female)) {
+            for (String p : parameters) {
+                if (femaleParamToGene.containsKey(p)) {
+                    res.addAll(femaleParamToGene.get(p));
+                }
+            }
+        }
+        if (sex == null || sex.equals(SexType.male)) {
+            for (String p : parameters) {
+                if (maleParamToGene.containsKey(p)) {
+                    res.addAll(maleParamToGene.get(p));
+                }
+            }
+        }
+        return res;
+    }
 }

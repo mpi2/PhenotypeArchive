@@ -535,24 +535,23 @@ public class AlleleIndexer extends AbstractIndexer {
 	}
     
     private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
-		
+
 	    String queryString = "select distinct m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
-	    		+ "from go.eco2evidence evi "
-	    		+ "join "
-	    		+ "go.v_manual_annotations a on (evi.eco_id = a.eco_id) "
-	    		+ "join " 
-	    		+ "go.terms t on (t.go_id = a.go_id) "
-	    		+ "join "  
-	    		+ "go.uniprot_protein_metadata m on (m.accession = a.canonical_id) "  
-	    		+ "join "
-	    		+ "go.terms t on (t.go_id = a.go_id) "
-	    		+ "where "
-	    		+ "gene_name is not null "
-	    		+ "and a.is_public = 'Y' "
-	    		+ "and m.tax_id = 10090 "
-	    		//+ "and evi.go_evidence in ('EXP', 'IDA', 'IPI', 'IMP', 'IGI', 'ISO', 'ISS', 'ND') "
-	    		+ "and t.category in ('F', 'P') ";
-	    		//+ "and a.source in ('MGI','GOC')"; 
+				+ "from go.annotations a "
+				+ "join "
+				+ "go.cv_sources s on (s.code = a.source) "
+				+ "join "
+				+ "go.eco2evidence evi on (evi.eco_id = a.eco_id) "
+				+ "join "
+				+ "go.terms t on (t.go_id = a.go_id) "
+				+ "join "
+				+ "go.uniprot_protein_metadata m on (m.accession = a.canonical_id) "
+				+ "where "
+				+ "s.is_public = 'Y' "
+				+ "and m.tax_id = 10090 "
+				+ "and m.gene_name is not null "
+				+ "and t.category in ('F', 'P') ";
+	    
 	    
 	    Connection conn = goaproDataSource.getConnection();
 
