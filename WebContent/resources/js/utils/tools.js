@@ -2016,7 +2016,7 @@
     };
 
     $.fn.invokeDataTable = function(oInfos) {
-
+    	
         var oDtable = $('table#' + oInfos.mode).dataTable({
             "bSort": false,
             "bProcessing": true,
