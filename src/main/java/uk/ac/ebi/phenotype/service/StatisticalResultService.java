@@ -33,7 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -47,6 +49,7 @@ import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -478,11 +481,11 @@ public class StatisticalResultService extends BasicService {
 		        	}
 		            cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
 		            if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
-		            	cell.setStatus("Significant call");
+		            	cell.setStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
 		            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
-		            		cell.setStatus("Data analysed, no significant call");
+		            		cell.setStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
 		            } else {
-		            	cell.setStatus("Analysis failed");
+		            	cell.setStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
 		            }
 		            xAxisToCellMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
 			        row.setXAxisToCellMap(xAxisToCellMap);
@@ -492,7 +495,11 @@ public class StatisticalResultService extends BasicService {
 		            LOG.error(ex.getMessage());
 		        }
         }
-        return new ArrayList(geneRowMap.values());
+        
+        res = new ArrayList<>(geneRowMap.values());
+        Collections.sort(res, new GeneRowForHeatMap3IComparator());
+     
+        return res;
     }
   
     
@@ -609,5 +616,4 @@ public class StatisticalResultService extends BasicService {
 		return res;
 	}
 
-	
 }

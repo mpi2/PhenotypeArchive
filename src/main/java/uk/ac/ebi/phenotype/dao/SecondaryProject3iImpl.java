@@ -67,18 +67,6 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request)
 	throws SolrServerException {
 
-/*		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
-		Map<String, Set<String>> geneToProcedureMap = srs.getAccessionProceduresMap("3i");
-		Set<String> accessions = geneToProcedureMap.keySet();
-
-		for (String accession : accessions) {			
-			GenomicFeature gene = genesDao.getGenomicFeatureByAccession(accession);
-			GeneRowForHeatMap row = srs.getResultsForGeneHeatMap(accession, gene, geneToProcedureMap, "3i");
-			geneRows.add(row);	
-		}
-		return geneRows;
-*/
-	
 		return  srs.getSecondaryProjectMapForResource("3i");
 	}
 

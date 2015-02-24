@@ -1,5 +1,16 @@
 /* Additional styling written at EBI */
 
+.hitMap td{
+	border-bottom: #efefef 1px solid;
+	border-top: #efefef 1px solid;
+	border-left:#efefef 2px solid;
+	}
+
+.hitMap{
+	table-layout:fixed;
+	width: 100%;
+}
+
 div.table_legend_color {
 	float: left;
 	margin-left: 1rem;

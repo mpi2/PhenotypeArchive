@@ -76,8 +76,7 @@ public class GeneHeatmapController {
 		List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
 	    model.addAttribute("geneRows", geneRows);
 	    model.addAttribute("xAxisBeans", xAxisBeans);
-		System.out.println("3i and xAxisBeans.size (procedures) = " + xAxisBeans.size());
-		System.out.println("Getting the data took " + (System.currentTimeMillis() - time) + "ms");
+		System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
 	    return "threeIMap";
 	}
 
