@@ -480,8 +480,6 @@ public class PhenotypesController {
         List<String> parameters = new ArrayList<>(getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
         nominator = gpService.getGenesBy(phenotype_id, null).size();
         total = srService.getTestedGenes(parameters, null).size();
-        System.out.println("--NOMIATOR: " + nominator);
-        System.out.println("--TOTAL: " + total);
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
         pgs.setTotalGenesTested(total);
@@ -520,8 +518,6 @@ public class PhenotypesController {
         pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
         pgs.setMaleOnlyNumber(genesMalePhenotype.size());
         pgs.fillPieChartCode();
-        
-        System.out.println("PERCENTAGES " + pgs);
         
         return pgs;
     }

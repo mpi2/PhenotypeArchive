@@ -648,7 +648,6 @@ public class StatisticalResultService extends BasicService {
     		femaleParamToGene = getParameterToGeneMap(SexType.female);
     		maleParamToGene = getParameterToGeneMap(SexType.male);
     		addGenesForBothSexes();	
-    		System.out.println("When I get back Male / female size " + maleParamToGene.size() + " / " + femaleParamToGene.size());	
         } catch (SolrServerException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -661,12 +660,10 @@ public class StatisticalResultService extends BasicService {
     public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
         HashSet<String> res = new HashSet<>();
         if (femaleParamToGene == null || maleParamToGene == null) {
-        	System.out.println("----filling maps");
             fillMaps();
         }
         if (sex == null || sex.equals(SexType.female)) {
             for (String p : parameters) {
-            	System.out.println("---" + femaleParamToGene.containsKey(p) + " " + p);
                 if (femaleParamToGene.containsKey(p)) {
                     res.addAll(femaleParamToGene.get(p));
                 }
