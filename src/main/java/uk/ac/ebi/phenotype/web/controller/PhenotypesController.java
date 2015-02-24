@@ -519,8 +519,6 @@ public class PhenotypesController {
         pgs.setMaleOnlyNumber(genesMalePhenotype.size());
         pgs.fillPieChartCode();
         
-        System.out.println("PERCENTAGES " + pgs);
-        
         return pgs;
     }
 

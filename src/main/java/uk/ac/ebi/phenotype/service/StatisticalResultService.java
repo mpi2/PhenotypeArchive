@@ -648,7 +648,6 @@ public class StatisticalResultService extends BasicService {
     		femaleParamToGene = getParameterToGeneMap(SexType.female);
     		maleParamToGene = getParameterToGeneMap(SexType.male);
     		addGenesForBothSexes();	
-    		System.out.println("When I get back Male / female size " + maleParamToGene.size() + " / " + femaleParamToGene.size());	
         } catch (SolrServerException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
