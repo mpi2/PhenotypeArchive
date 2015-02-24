@@ -35,13 +35,11 @@
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 
           <td  
            	<c:choose>
-           	 	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Significant call'}">style="background-color:rgb(191, 75, 50)"</c:when>
-             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Could not analyse'}">style="background-color: rgb(0, 0, 0)"</c:when>
-             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Data analysed, no significant call'}">style="background-color: rgb(119, 119, 119)"</c:when>
-             	
-          	 	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Data Available'}">style="background-color:rgb(191, 75, 50)"</c:when>
-             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'No Data Available'}">style="background-color: rgb(0, 0, 0)"</c:when>
-             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'No MP'}">style="background-color: rgb(119, 119, 119)"</c:when>
+            	
+             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Data Available'}">style="background-color:rgb(191, 75, 50)"</c:when>
+             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'No MP'}">style="background-color: rgb(247, 157, 70)"</c:when>
+           		<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'No Data Available' }">style="background-color: rgb(230, 242, 246)"</c:when>
+     
             </c:choose>
             title="${xAxisBean.name}"></td>
         </c:forEach>

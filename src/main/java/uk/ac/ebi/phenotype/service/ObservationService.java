@@ -48,7 +48,6 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
@@ -66,9 +65,6 @@ public class ObservationService extends BasicService {
 
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
-
-	@Autowired
-	ParameterToGeneMap ptgm;
 
 	private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
 	private final HttpSolrServer solr;
@@ -1428,13 +1424,6 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 
 		return results;
 	}
-
-
-	public Set<String> getTestedGenesByParameterSex(List<String> parameters, SexType sex) {
-
-		return ptgm.getTestedGenes(parameters, sex);
-	}
-
 
 	public List<ObservationDTO> getAllImageRecordObservations()
 	throws SolrServerException {

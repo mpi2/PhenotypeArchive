@@ -83,6 +83,10 @@ public class StatisticalResultService extends BasicService {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
 
+    Map<String, ArrayList<String>> maleParamToGene = null;
+    Map<String, ArrayList<String>> femaleParamToGene = null;
+
+
     public StatisticalResultService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
@@ -611,4 +615,67 @@ public class StatisticalResultService extends BasicService {
 		return res;
 	}
 
+	public void addGenesForBothSexes()
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
+		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
+		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+		
+		QueryResponse response = solr.query(q);
+		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> genes = new ArrayList<>();
+			for (PivotField gene : pivot.getPivot()){
+				genes.add(gene.getValue().toString());
+			}
+			maleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+			femaleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+		}
+
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+	}
+
+	private void fillMaps() {
+        System.out.println("Initializing ParameterToGeneMap. This will take a while...");
+        try {
+    		femaleParamToGene = getParameterToGeneMap(SexType.female);
+    		maleParamToGene = getParameterToGeneMap(SexType.male);
+    		addGenesForBothSexes();	
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
+        HashSet<String> res = new HashSet<>();
+        if (femaleParamToGene == null || maleParamToGene == null) {
+            fillMaps();
+        }
+        if (sex == null || sex.equals(SexType.female)) {
+            for (String p : parameters) {
+                if (femaleParamToGene.containsKey(p)) {
+                    res.addAll(femaleParamToGene.get(p));
+                }
+            }
+        }
+        if (sex == null || sex.equals(SexType.male)) {
+            for (String p : parameters) {
+                if (maleParamToGene.containsKey(p)) {
+                    res.addAll(maleParamToGene.get(p));
+                }
+            }
+        }
+        return res;
+    }
 }
