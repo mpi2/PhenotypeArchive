@@ -442,7 +442,7 @@ public class SearchPageTest {
                 
                 SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
                 searchPage.submitSearch(geneSymbol1);
-                TestUtils.sleep(4000);                                          // Sleep for a bit to allow autocomplete to catch up.
+                TestUtils.sleep(5000);                                          // Sleep for a bit to allow autocomplete to catch up.
 
                 List<WebElement> elems = driver.findElements(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm"));
                 String geneSymbol2 = null;
@@ -455,12 +455,12 @@ public class SearchPageTest {
                 }
                 
                 if ( geneSymbol1.equals(geneSymbol2) ){
-                    System.out.println("[" + i + "] (OK): '" + geneSymbol1 + "'");
+                    logger.info("[" + i + "] (OK): '" + geneSymbol1 + "'");
                     successList.add(geneSymbol1);
                 }
                 else {
-                    message = "ERROR: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found.";
-                    System.out.println(message);
+                    message = "[" + i + "] (FAIL): Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found.";
+                    logger.info(message);
                     errorList.add(message);
                 }
             }
@@ -473,7 +473,7 @@ public class SearchPageTest {
         else {
             System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
             sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
-            TestUtils.printEpilogue(testName, start, errorList, null, successList, 1,  1);
+            TestUtils.printEpilogue(testName, start, errorList, null, successList, nbRows,  1);
             fail("There were " + sumErrorList.size() + " errors.");
             
         }

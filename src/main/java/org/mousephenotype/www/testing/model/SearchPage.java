@@ -56,7 +56,6 @@ public class SearchPage {
     private SearchPhenotypeTable phenotypeTable;
     private SearchDiseaseTable   diseaseTable;
     private SearchAnatomyTable   anatomyTable;
-    private SearchProcedureTable procedureTable;
     private SearchImpcImageTable impcImageTable;
     private SearchImageTable     imageTable;
     
@@ -65,7 +64,6 @@ public class SearchPage {
     public static final String PHENOTYPE_CORE   = "phenotype";
     public static final String DISEASE_CORE     = "disease";
     public static final String ANATOMY_CORE     = "anatomy";
-//    public static final String PROCEDURES_CORE = "procedures";
     public static final String IMPC_IMAGES_CORE = "impc_images";
     public static final String IMAGES_CORE      = "images";
     
@@ -74,7 +72,6 @@ public class SearchPage {
     public static final String PHENOTYPE_ID   = "mp";
     public static final String DISEASE_ID     = "disease";
     public static final String ANATOMY_ID     = "ma";
-//    public static final String PROCEDURES_ID = "pipeline";
     public static final String IMPC_IMAGES_ID = "impc_images";
     public static final String IMAGES_ID      = "images";
     
@@ -813,20 +810,6 @@ public class SearchPage {
     }
     
     /**
-     * @return Returns the pipeline table [pipelineGrid], if there is one; or an
-     * empty one if there is not
-     */
-    public SearchProcedureTable getProcedureTable() {
-        if (hasProcedureTable()) {
-            if (procedureTable == null) {
-                procedureTable = new SearchProcedureTable(driver, timeoutInSeconds);
-            }
-        }
-        
-        return procedureTable;
-    }
-    
-    /**
      * @return The result count. This has the side effect of waiting for the
      * page to finish loading.
      */
@@ -838,7 +821,7 @@ public class SearchPage {
             int i = 0;
             while ((element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")))).getText().isEmpty()) {
                 System.out.println("WAITING[" + i + "]");
-                TestUtils.sleep(100);
+                TestUtils.sleep(500);
                 i++;
                 if (i > 20)
                     return -1;
@@ -954,20 +937,6 @@ public class SearchPage {
     public boolean hasPhenotypeTable() {
         try {
             List<WebElement> elements = driver.findElements(By.xpath("//table[@id='mpGrid']"));
-            return (elements.size() > 0);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
-    /**
-     * 
-     * @return true if this search page has a pipelineGrid HTML table; false
-     * otherwise
-     */
-    public boolean hasProcedureTable() {
-        try {
-            List<WebElement> elements = driver.findElements(By.xpath("//table[@id='pipelineGrid']"));
             return (elements.size() > 0);
         } catch (Exception e) {
             return false;
