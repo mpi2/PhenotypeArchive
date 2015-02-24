@@ -1198,7 +1198,7 @@ public class FileExportController {
     private List<String> composeGene2PfamClansDataRows(JSONObject json, HttpServletRequest request) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-        System.out.println(" GOT " + docs.size() + " docs");
+        //System.out.println(" GOT " + docs.size() + " docs");
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
        
        
@@ -1264,7 +1264,7 @@ public class FileExportController {
     private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-        System.out.println(" GOT " + docs.size() + " docs");
+        //System.out.println(" GOT " + docs.size() + " docs");
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
        
         List<String> evidsList = new ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));
@@ -1349,7 +1349,7 @@ public class FileExportController {
     private List<String> composeGene2GoAnnotationDataRows2(JSONObject json, HttpServletRequest request, boolean hasgoterm) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-        System.out.println(" GOT " + docs.size() + " docs");
+        //System.out.println(" GOT " + docs.size() + " docs");
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
        
         List<String> evidsList = new ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));

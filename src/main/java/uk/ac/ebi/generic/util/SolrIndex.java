@@ -818,7 +818,6 @@ public class SolrIndex {
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 		
 		String url = internalBaseSolrUrl + qParam + flParam;
-		System.out.println("URL: "+ url);
 		JSONObject json = getResults(url);
 		
 		String table = "";
@@ -924,7 +923,8 @@ public class SolrIndex {
 		String table = "";
 		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>GO Id</th><th>GO Evidence</th><th>GO name</th><th>GO domain</th></tr></thead>";
 		String trs = "";
-		System.out.println(internalBaseSolrUrl + queryParams + flStr);
+		//System.out.println(internalBaseSolrUrl + queryParams + flStr);
+		
 		JSONObject json = getResults(internalBaseSolrUrl + queryParams + flStr);
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		System.out.println("rows: " + docs.size());
