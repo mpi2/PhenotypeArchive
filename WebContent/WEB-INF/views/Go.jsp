@@ -151,7 +151,12 @@
        		     		"nd":           "q=" + commonQ + " AND evidCodeRank:1&fl=" + commonFl + "&rows=" + rows + restParam, 
        		      	};
        		       	
-       		       	var sExp = $("input[name=go]:checked", '#export').val() 
+       		       	var sExp = $("input[name=go]:checked", '#export').val();
+       		       	if ( typeof sExp == 'undefined' ){
+       		       		alert('Sorry, you need to choose one of the radio buttons to export data.');
+       		       		return false;
+       		       	}
+       		       	
        		     	conf.params = qryMap[sExp];
        		     	conf.gridFields = commonFl;
        		       	
@@ -163,6 +168,7 @@
 					}
 					
 					var form = "<form action='" + exportUrl + "' method=get>" + sInputs + "</form>";
+					
 					$(form).appendTo('body').submit().remove();
        	               
        	       	});
