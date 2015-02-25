@@ -48,6 +48,7 @@
 			background-color: #F0F0F0;
 			border: 1px solid gray;;
     		border-radius: 10px;
+    		font-size: 12px;
 		}
 		div#export input {
 			font-size: 11px !important;
@@ -61,6 +62,9 @@
 		}
 		div#view {
 			margin-top: 30px; float: right; font-size: 11px; padding-right: 10px;
+		}
+		p.gocat {
+			padding: 5px 0 0px 5px; font-weight: bold; 
 		}
 		
 	</style>
@@ -85,11 +89,15 @@
 							   	   	<div style="clear: both"></div>
 										
 										<div id='export'>
-										  	<input type="radio" value="nogo" name="go">Genes w/o GO<br>
+										  	<input type="radio" value="nogo" name="go" class='go'>Genes w/o GO<br>
+										  
+										  	<p class='gocat'>Gene w/ GO in evidence categories:</p>
+										  	
 											<input type="radio" value="experimental" name="go">Experimental<br>
 											<input type="radio" value="curatedcomp" name="go">Curated computational<br>
 											<input type="radio" value="automated" name="go">Automated electronic<br>
 											<input type="radio" value="nd" name="go">No biological data available<br>
+											<input type="radio" value="all" name="go">All evidence categories<br>
 											
 											<p id='butts'>Export as:<button class="tsv fa fa-download gridDump gridDump">TSV</button> or<button class="xls fa fa-download gridDump gridDump">XLS</button></p> 
 										</div>
@@ -117,8 +125,9 @@
         <script type='text/javascript'>
        
        		$(document).ready(function(){
-       			var baseUrl = '//dev.mousephenotype.org/data';
-
+       			//var baseUrl = '//dev.mousephenotype.org/data';
+       			//var baseUrl = 'http://localhost:8080/phenotype-archive';
+       			var baseUrl = "${baseUrl}";
        	      	var conf = {
 					externalDbId: 1,
 					fileType:'',
@@ -149,7 +158,9 @@
        		           	"curatedcomp":  "q=" + commonQ + " AND evidCodeRank:3&fl=" + commonFl + "&rows=" + rows + restParam, 
        		     		"automated":    "q=" + commonQ + " AND evidCodeRank:2&fl=" + commonFl + "&rows=" + rows + restParam, 
        		     		"nd":           "q=" + commonQ + " AND evidCodeRank:1&fl=" + commonFl + "&rows=" + rows + restParam, 
-       		      	};
+       		      		"all":          "q=" + commonQ + " AND evidCodeRank:*&fl=" + commonFl + "&rows=" + rows + restParam, 
+       		      		
+       		       	};
        		       	
        		       	var sExp = $("input[name=go]:checked", '#export').val();
        		       	if ( typeof sExp == 'undefined' ){
