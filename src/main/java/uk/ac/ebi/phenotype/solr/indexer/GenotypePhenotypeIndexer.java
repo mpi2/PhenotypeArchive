@@ -186,16 +186,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 doc.setStatisticalMethod(r.getString("statistical_method"));
                 doc.setP_value(r.getDouble("p_value"));
-
-                if (doc.getStatisticalMethod().startsWith("Wilcox")) {
-                    // Use the absolute value of the location difference as the effect size for
-                    // wilcoxon results
-                    doc.setEffect_size(Math.abs(r.getDouble("effect_size")));
-                } else {
-                    // Otherwise use the effet size as reported
-                    doc.setEffect_size(r.getDouble("effect_size"));
-                }
-
+                doc.setEffect_size(r.getDouble("effect_size"));
                 doc.setMarkerAccessionId(r.getString("marker_accession_id"));
                 doc.setMarkerSymbol(r.getString("marker_symbol"));
                 doc.setColonyId(r.getString("colony_id"));
