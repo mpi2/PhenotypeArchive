@@ -152,16 +152,15 @@ public class SolrIndex {
 		}
 
 		//String newgridSolrParams = gridSolrParams + "&rows=" + length
-		gridSolrParams = gridSolrParams.replace("rows=10", "rows="+length);
-		String newgridSolrParams = gridSolrParams 		
-				+ "&start=" + start + "&fl=" + gridFields;
-
+		//gridSolrParams = gridSolrParams.replace("rows=10", "rows="+length);
+		//String newgridSolrParams = gridSolrParams 		
+			//	+ "&start=" + start + "&fl=" + gridFields;
+		
 		//String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
 				//length, false);
-		String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
+		String url = composeSolrUrl(core, "", "", gridSolrParams, start,
 				length, showImgView);
 		log.debug("Export data URL: " + url);
-		
 		return getResults(url);
 	}
 
@@ -191,7 +190,7 @@ public class SolrIndex {
 		
 		String internalSolrUrl = config.get("internalSolrUrl");
 		String url = internalSolrUrl + "/" + core + "/select?";
-						
+					
 //		System.out.println(("BASEURL: " + url));
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
@@ -199,7 +198,7 @@ public class SolrIndex {
 		} else if (mode.equals("geneGrid")) {			
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
-//			System.out.println("GENE PARAMS: " + url);
+			//System.out.println("GENE PARAMS: " + url);
 		} else if (mode.equals("pipelineGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
@@ -240,7 +239,7 @@ public class SolrIndex {
 			url += "&start=0&rows=0&wt=json";
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
 		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) { // download search page result
-			url += gridSolrParams;
+			url += gridSolrParams + "&start=" + iDisplayStart + "&rows=" + iDisplayLength;
 			if (core.equals("images") && !showImgView) {				
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
@@ -927,7 +926,7 @@ public class SolrIndex {
 		
 		JSONObject json = getResults(internalBaseSolrUrl + queryParams + flStr);
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		System.out.println("rows: " + docs.size());
+
 		for (int i = 0; i < docs.size(); i++) {
 
 			JSONObject doc = docs.getJSONObject(i);
@@ -982,7 +981,7 @@ public class SolrIndex {
 		}
 		
 		table = "<table id='gene2go'>" + th + "<tbody>" + trs + "</tbody></table>";
-		System.out.println(table);
+		
 		return table;	
 	
 	}

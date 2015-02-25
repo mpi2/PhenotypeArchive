@@ -316,7 +316,7 @@ public class GeneService {
 				// blue es cell status				
 				status = doc.getString(field);
 				if ( status.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "#order" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
+						esCellStatus = "<a class='status done' href='" + geneUrl + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
 									 + " <span>ES Cells</span>"
 									 + "</a>";
 						
