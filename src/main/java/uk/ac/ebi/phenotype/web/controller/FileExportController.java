@@ -216,6 +216,7 @@ public class FileExportController {
             @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
             @RequestParam(value = "allele", required = false) String[] allele,
             @RequestParam(value = "rowStart", required = false) Integer rowStart,
+            @RequestParam(value = "length", required = false) Integer length,
             @RequestParam(value = "panel", required = false) String panelName,
             @RequestParam(value = "mpId", required = false) String mpId,
             @RequestParam(value = "mpTerm", required = false) String mpTerm,
@@ -262,8 +263,7 @@ public class FileExportController {
         Workbook wb = null;
         List<String> dataRows = new ArrayList();
         // Default to exporting 10 rows
-        Integer length = 10;
-
+        length = length != null ? length : 10;
         
         panelName = panelName == null ? "" : panelName;
 
@@ -299,7 +299,6 @@ public class FileExportController {
             }
             else if ( dogoterm ) {
             	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
-            	System.out.println("JSON: "+ json);
             	dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm);
             }
             else if ( gene2pfam ){            	
@@ -531,7 +530,6 @@ public class FileExportController {
             for (int i = 0; i < docs.size(); i ++) {
                 List<String> data = new ArrayList();
                 JSONObject doc = docs.getJSONObject(i);
-                System.out.println("this doc: "+ doc.toString());
                 //String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
                 String[] fields = {"annotationTermId", "expName", "symbol_gene"};
                 for (String fld : fields) {
@@ -595,18 +593,15 @@ public class FileExportController {
                     } 
                     else {
                     	if ( fld.equals("annotationTermId") ){
-                    		System.out.println("1"  + fld);
 	                        data.add(NO_INFO_MSG);
 	                        data.add(NO_INFO_MSG);
 	                        data.add(NO_INFO_MSG);
                     	}
                     	else if ( fld.equals("symbol_gene") ){
-                    		System.out.println("2"  + fld);
                     		data.add(NO_INFO_MSG);
  	                        data.add(NO_INFO_MSG);
                     	}
                     	else {
-                    		System.out.println("3"  + fld);
                     		data.add(NO_INFO_MSG);
                     	}
                     }
@@ -757,8 +752,6 @@ public class FileExportController {
  				
             //int numFacets = sumFacets.size();
 			int numFacets = annots.size();
-			System.out.println("check number: "+ numFacets);
-			System.out.println("selected start: "+iDisplayStart);
             /*int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
             int remainder = (numFacets / 2) % iDisplayLength;
             int start = iDisplayStart * 2;  // 2 elements(name, count), hence multiply by 2
@@ -992,7 +985,6 @@ public class FileExportController {
     private List<String> composeGeneDataTableRows(JSONObject json, HttpServletRequest request, boolean legacyOnly) {
 
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-
         List<String> rowData = new ArrayList();
 
         rowData.add("Gene symbol\tHuman ortholog\tGene id\tGene name\tGene synonym\tProduction status\tPhenotype status\tPhenotype status link"); // column names		
@@ -1276,6 +1268,7 @@ public class FileExportController {
         		+ "\tGO Term Id"
         		+ "\tGO Term Name"
         		+ "\tGO Term Evidence"
+        		+ "\tGO evidence Category"
         		+ "\tGO Term Domain";
         
         rowData.add(fields);
@@ -1294,6 +1287,13 @@ public class FileExportController {
         // automated electronic
         codeRank.put("IEA", "2");
         
+        // goevid category mapping
+        Map<String,String> evidCat = new HashMap<>();
+        evidCat.put("1", "No biological data available");
+        evidCat.put("2", "Automated electronic");
+        evidCat.put("3", "Curated computational");
+        evidCat.put("4", "Experimental");
+        
         // no biological data available
         codeRank.put("ND", "1");
         
@@ -1311,6 +1311,7 @@ public class FileExportController {
             	data.add(doc.getString("marker_symbol"));
             	data.add(hostName + baseUrl + gId);
             	data.add(phenoStatus);
+            	data.add(NOINFO);
             	data.add(NOINFO);
             	data.add(NOINFO);
             	data.add(NOINFO);
@@ -1337,6 +1338,7 @@ public class FileExportController {
 		            	data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
 		            	data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
 		            	data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);
+		            	data.add(evidCat.get(evidCodeRank));
 		            	data.add(_goTermDomains.size() > 0 ? _goTermDomains.get(j).toString() : NOINFO);
 		            	rowData.add(StringUtils.join(data, "\t"));
 	            	}
