@@ -237,6 +237,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         StatisticalResultDTO doc = parseResultCommonFields(r);
         doc.setNullTestPValue(r.getDouble("null_test_significance"));
 
+        // Default sex effect is for PhenStat results
+        doc.setFemaleKoParameterEstimate(r.getDouble("gender_female_ko_estimate"));
+        doc.setMaleKoParameterEstimate(r.getDouble("gender_male_ko_estimate"));
+
         // If PhenStat did not run, then the result will have a NULL for the null_test_significance field
         // In that case, fall back to Wilcoxon test
         Double pv = r.getDouble("null_test_significance");
@@ -256,6 +260,17 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             Double mPv = r.getDouble("gender_male_ko_pvalue");
             if( ! r.wasNull() && mPv < pv) {
                 pv = mPv;
+            }
+
+            // For wilcoxon results, invert the location difference measure
+            Double fEff = r.getDouble("gender_female_ko_estimate");
+            if(fEff != null) {
+                doc.setFemaleKoParameterEstimate(-1 * fEff);
+            }
+
+            Double mEff = r.getDouble("gender_male_ko_estimate");
+            if(mEff != null) {
+                doc.setMaleKoParameterEstimate(-1 * mEff);
             }
 
         }
@@ -301,11 +316,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setInterceptEstimateStderrEstimate(r.getDouble("intercept_stderr_estimate"));
         doc.setInteractionEffectPValue(r.getDouble("interaction_effect_pvalue"));
 
-        doc.setFemaleKoParameterEstimate(r.getDouble("gender_female_ko_estimate"));
+
         doc.setFemaleKoEffectStderrEstimate(r.getDouble("gender_female_ko_stderr_estimate"));
         doc.setFemaleKoEffectPValue(r.getDouble("gender_female_ko_pvalue"));
 
-        doc.setMaleKoParameterEstimate(r.getDouble("gender_male_ko_estimate"));
         doc.setMaleKoEffectStderrEstimate(r.getDouble("gender_male_ko_stderr_estimate"));
         doc.setMaleKoEffectPValue(r.getDouble("gender_male_ko_pvalue"));
 
