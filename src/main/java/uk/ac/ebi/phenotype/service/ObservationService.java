@@ -16,6 +16,8 @@
 package uk.ac.ebi.phenotype.service;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -983,15 +985,13 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 	 */
 
 	public Set<String> getCenters(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample)
-	throws SolrServerException { // this method should work for all types of
-									// data.
+	throws SolrServerException { 
 
 		Set<String> centers = new HashSet<String>();
-
 		SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
-
 		String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
 
+		q += " AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control";
 		if (genes != null && genes.size() > 0) {
 			q += " AND (";
 			q += (genes.size() > 1) ? ObservationDTO.GENE_ACCESSION_ID + ":\"" + StringUtils.join(genes.toArray(), "\" OR " + ObservationDTO.GENE_ACCESSION_ID + ":\"") + "\"" : ObservationDTO.GENE_ACCESSION_ID + ":\"" + genes.get(0) + "\"";
@@ -999,33 +999,66 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		}
 
 		query.setQuery(q);
-		query.setRows(-1);
-		// query.set("sort", ExperimentField.DATA_POINT + " asc");
+		query.setRows(100000000);
 		query.setFields(ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.DATA_POINT);
 		query.set("group", true);
 		query.set("group.field", ObservationDTO.PHENOTYPING_CENTER);
-
-		// System.out.println("------HEERE-----\n"+query);
 
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		for (Group gr : groups) {
 			centers.add((String) gr.getGroupValue());
 		}
-		// System.out.println("CENTERS: " + centers);
 		return centers;
 	}
 
 
+	
+	public double getMeanPValue(Parameter p, ArrayList<String> strains, String biologicalSample, String[] center, SexType sex) throws SolrServerException{
+
+		System.out.println("GETTING THE MEAN");
+		SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
+		String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
+		double mean = 0;
+				
+		if (center != null && center.length > 0) {
+			q += " AND (";
+			q += (center.length > 1) ? ObservationDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"" : ObservationDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"";
+			q += ")";
+		}
+
+		if (sex != null) {
+			q += " AND " + ObservationDTO.SEX + ":\"" + sex.getName() + "\"";
+		}
+
+		query.setQuery(q);
+		query.setRows(0);
+		query.set("stats", true);
+		query.set("stats.field", ObservationDTO.DATA_POINT);
+		query.set("omitHeader", true);
+		query.set("wt", "json");
+		
+		try {
+			JSONObject response = JSONRestUtil.getResults(solr.getBaseURL() + "/select?" + query);
+			mean = response.getJSONObject("stats").getJSONObject("stats_fields").getJSONObject("data_point").getDouble("mean");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		return mean;
+	}
+	
 	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample, String[] center, String[] sex)
 	throws SolrServerException {
 
 		String urlParams = "";
-
 		SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
-
 		String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
 		if (strains.size() > 0) {
-			urlParams += urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
+			urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
 		}
 
 		if (center != null && center.length > 0) {
@@ -1037,26 +1070,16 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 
 		if (sex != null && sex.length == 1) {
 			q += " AND " + ObservationDTO.SEX + ":\"" + sex[0] + "\"";
-			// Commenting out sex param as graphs don't seem to work with it any
-			// more (tables don't load properly) - July 4th, 2014
-			// urlParams += "&gender=" + sex[0];
 		}
 
 		query.setQuery(q);
-		query.setRows(-1);
+		query.setRows(10000000);
 		query.set("sort", ObservationDTO.DATA_POINT + " asc");
 		query.setFields(ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.DATA_POINT, ObservationDTO.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ObservationDTO.COLONY_ID);
-		query.set("group.limit", 300); // how many docs in a group. Since we do
-										// unidimensional data, we won't have
-										// morw than 300 measures for one animal
-										// & one parameter
-		// per group
-
-		// System.out.println("--- unidimensional : " + solr.getBaseURL() +
-		// "/select?" + query);
-
+		query.set("group.limit", 100000); 						
+		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		double[] meansArray = new double[groups.size()];
@@ -1074,6 +1097,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 			genesArray[i] = (String) resDocs.get(0).get(ObservationDTO.GENE_ACCESSION_ID);
 			geneSymbolArray[i] = (String) resDocs.get(0).get(ObservationDTO.GENE_SYMBOL);
 			meansArray[i] = sum / total;
+					
 			i++;
 		}
 
@@ -1119,8 +1143,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&accession=" + genesArray[j]);
 						}
 					}
-				} else { // treat as control because they don't have this
-							// phenotype association
+				} else { // treat as control because they don't have this phenotype association
 					String genesString = controlGenes.get(binIndex);
 					if (!genesString.contains(geneSymbolArray[j])) {
 						if (genesString.equalsIgnoreCase("")) {
@@ -1212,12 +1235,8 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		query.setQuery(q);
 		query.set("group.field", ObservationDTO.CATEGORY);
 		query.set("group", true);
-		query.setRows(100); // shouldn't have more then 10 categories for one
-							// parameter!!
-
-		// System.out.println("-- get categories: " + solr.getBaseURL() +
-		// "/select?" + query);
-
+		query.setRows(100); 
+		
 		List<String> categories = new ArrayList<String>();
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		for (Group gr : groups) {
@@ -1282,14 +1301,8 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 			if (sex != null) {
 				q.addFilterQuery(ObservationDTO.SEX + ":" + sex);
 			}
-			//
-			// System.out.println("Solr url for getTestedGenes " +
-			// solr.getBaseURL() + "/select?" + q);
-			// I need to add the genes to a hash in case some come up multiple
-			// times from different parameters
 			List<Group> groups = solr.query(q).getGroupResponse().getValues().get(0).getValues();
 			for (Group gr : groups) {
-				// System.out.println(gr.getGroupValue());
 				genes.add((String) gr.getGroupValue());
 			}
 		}

@@ -421,12 +421,12 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 	
+	
 	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter, String procedureName) {
 
-		// http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		if (map == null) { return new ChartData(); }
 		String title = parameter.getName();
-		String subtitle = procedureName;// parameter.getStableId();
+		String subtitle = procedureName;
 		String xLabel = parameter.getUnit();
 		ArrayList<Double> control = map.getControlMutatns();
 		ArrayList<Double> mutant = map.getPhenMutants();
@@ -472,10 +472,7 @@ public class UnidimensionalChartAndTableProvider {
 			if (val < min) min = val;
 		for (double val : control)
 			if (val < min) min = val;
-		// http://www.highcharts.com/demo/line-ajax
-		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/plotoptions/series-point-events-click-column/
-		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
-
+	
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of lines";
 		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
@@ -518,8 +515,6 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	private static List<UnidimensionalStatsObject> produceUnidimensionalStatsData(Parameter parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
 
-		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
-		// logger.debug("experiment="+experiment);
 		List<? extends StatisticalResult> results = experiment.getResults();
 		logger.debug("result=" + results);
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
@@ -534,7 +529,6 @@ public class UnidimensionalChartAndTableProvider {
 			statsObjects.add(wtStatsObject);
 
 			// set up the mutant stats data
-
 			for (ZygosityType zType : experiment.getZygosities()) {
 				UnidimensionalStatsObject tempStatsObject = new UnidimensionalStatsObject();
 
@@ -543,7 +537,6 @@ public class UnidimensionalChartAndTableProvider {
 
 				for (StatisticalResult result : results) {
 					UnidimensionalResult unidimensionalResult = (UnidimensionalResult) result;
-					// System.out.println("sex is "+sexType+" | result sex type="+result.getSexType()+"pValue="+unidimensionalResult.getpValue()+"result zyg="+unidimensionalResult.getZygosityType()+"  ztype="+zType);
 					if (result.getZygosityType().equals(zType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}
@@ -553,49 +546,8 @@ public class UnidimensionalChartAndTableProvider {
 				tempStatsObject.setAllele(symbol);
 				tempStatsObject.setGeneticBackground(geneticBackground);
 				statsObjects.add(tempStatsObject);
-
-				// sample size for unidimensional controls is both male and
-				// female
-				// so ok under unidimensional but scatter shows time_series as
-				// well
-				// so in the scatter we should show number of male or female
-				// if use ilincas new code for experiments this wont' be an
-				// issue.
-
 			}
-
-			// set the mean and standard dev for the stats objects just set up
-			// above using the row in the table row
-			// int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
-			// int row = 0;
-			// for (List<Float> listOfFloats : genderAndRawDataMap.get(sexType))
-			// {
-			// // Get a DescriptiveStatistics instance
-			// DescriptiveStatistics stats = new DescriptiveStatistics();
-			// UnidimensionalStatsObject statsObject = statsObjects.get(row);
-			// // Add the data from the array
-			// for (Float point : listOfFloats) {
-			// stats.addValue(point);
-			// }
-			// if (listOfFloats.size() > 0) {
-			// Float mean = ChartUtils.getDecimalAdjustedFloat(
-			// new Float(stats.getMean()), decimalPlaces);
-			// //System.out.println("mean=" + mean);
-			// Float sd = ChartUtils.getDecimalAdjustedFloat(
-			// new Float(stats.getStandardDeviation()), decimalPlaces);
-			// statsObject.setMean(mean);
-			// statsObject.setSd(sd);
-			// }
-			// // sample size for unidimensional controls is both male and
-			// female
-			// // so ok under unidimensional but scatter shows time_series as
-			// well
-			// // so in the scatter we should show number of male or female
-			// // if use ilincas new code for experiments this wont' be an
-			// issue.
-			// row++;
-			// }
-		}// end of sexType
+		}
 		return statsObjects;
 	}
 
