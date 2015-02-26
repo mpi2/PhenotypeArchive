@@ -79,6 +79,8 @@ public class DataTableController {
 	private Map<String, String> config;
 	
 	private String IMG_NOT_FOUND = "Image coming soon<br>";
+	private String NO_INFO_MSG = "No information available";
+	
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -473,7 +475,9 @@ public class DataTableController {
 					
 					if ( hpTerms.size() > 1 ){
 						for ( SimpleOntoTerm term : hpTerms ){
-							mappedHpTerms += "<li>" + term.getTermName() + "</li>";
+							if ( !term.getTermName().equals("") ){
+								mappedHpTerms += "<li>" + term.getTermName() + "</li>";
+							}
 						}
 						mappedHpTerms = "<ul class='hpTerms'>" + mappedHpTerms + "</ul>";
 					}

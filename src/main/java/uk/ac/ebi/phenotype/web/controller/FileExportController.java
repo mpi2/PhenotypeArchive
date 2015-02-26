@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
+import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.pojo.*;
@@ -58,6 +59,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+
 
 import uk.ac.ebi.phenotype.service.MpService;
 
@@ -346,7 +348,7 @@ public class FileExportController {
                     // Remove the title row (row 0) from the list and assign it to
                     // the string array for the spreadsheet
                     titles = dataRows.remove(0).split("\t");
-                    tableData = composeXlsTableData(dataRows);
+                    tableData = Tools.composeXlsTableData(dataRows);
                 }
                 
                 wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
@@ -373,24 +375,6 @@ public class FileExportController {
             }
         }
         return facetCount;
-    }
-
-    public String[][] composeXlsTableData(List<String> rows) {
-
-        int rowNum = rows.size();// - 1; // omit title row
-        int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
-        String[][] tableData = new String[rowNum][colNum];
-
-        // add one to omit title row
-        for (int i = 0; i < rowNum; i ++) {
-
-            String[] colVals = rows.get(i).split("\t");
-            for (int j = 0; j < colVals.length; j ++) {
-                tableData[i][j] = colVals[j];
-            }
-        }
-
-        return tableData;
     }
 
     public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException {
@@ -912,7 +896,8 @@ public class FileExportController {
             
             	for(SimpleOntoTerm term : hpTerms ){
             		ids.add(term.getTermId());
-            		terms.add(term.getTermName());
+            		System.out.println("TERM: " + term.getTermName());
+            		terms.add(term.getTermName().equals("") ? NO_INFO_MSG : term.getTermName() );
             	}
             	
                 data.add(StringUtils.join(terms, "|"));
@@ -1303,7 +1288,7 @@ public class FileExportController {
         
             JSONObject doc = docs.getJSONObject(i);
             String gId = doc.getString("mgi_accession_id");
-            String phenoStatus = doc.getString("latest_phenotype_status");
+            String phenoStatus = doc.containsKey("latest_phenotype_status") ? doc.getString("latest_phenotype_status") : NOINFO;
 
             if ( !doc.containsKey("evidCodeRank") ){
             	
