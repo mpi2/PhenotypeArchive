@@ -50,15 +50,18 @@ public class SearchImageImageView {
     
     /**
      * Creates a new <code>SearchImageTable</code> instance.
+     * 
+     * @param byTableTr The Selenium <code>By</code> describing the target
+     * table's tr row collection
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
-    public SearchImageImageView(WebDriver driver, int timeoutInSeconds) {
+    public SearchImageImageView(By byTableTr, WebDriver driver, int timeoutInSeconds) {
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
         
-        parseBodyRows();
+        parseBodyRows(byTableTr);
     }
     
     /**
@@ -179,10 +182,12 @@ public class SearchImageImageView {
      * Parse all of the Image tr rows.
      * 
      * annotationTerms, annotationIds, annotationIdLinks, procedures, geneSymbols, geneSymbolLinks, imageLink
+     * @param byTableTr The Selenium <code>By</code> describing the target
+     * table's tr row collection
      */
-    private void parseBodyRows() {
+    private void parseBodyRows(By byTableTr) {
         // Save the body values.
-        List<WebElement> trElements = driver.findElements(By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+        List<WebElement> trElements = driver.findElements(byTableTr);
         if ( ! trElements.isEmpty()) {
             int index = 0;
             for (WebElement bodyRowElements : trElements) {

@@ -75,7 +75,7 @@ public class SearchPage {
     public static final String IMPC_IMAGES_ID = "impc_images";
     public static final String IMAGES_ID      = "images";
     
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     
     public enum DownloadType {
         PAGINATED_TSV,
@@ -524,7 +524,7 @@ public class SearchPage {
         try {
             autosuggestBlock = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul#ui-id-1")));
         } catch (Exception e) {
-            log.info("SearchPage.getAutosuggest(): no results for search string '" + searchString + "'");
+            logger.info("SearchPage.getAutosuggest(): no results for search string '" + searchString + "'");
             return results;
         }
         
@@ -1006,6 +1006,70 @@ public class SearchPage {
         }
         
         return status;
+    }
+    
+    /**
+     * Return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     *
+     * @return the number of entries currently showing in the 'entries'
+     * drop-down box.
+     */
+    public int getNumEntries() {
+        int numEntries;
+        if (hasAnatomyTable()) {
+            numEntries = getAnatomyTable().getNumEntries();
+            logger.info("AnatomyTable has " + numEntries + " entries.");
+            return getAnatomyTable().getNumEntries();
+        } else if (hasDiseaseTable()) {
+            numEntries = getDiseaseTable().getNumEntries();
+            logger.info("DiseaseTable has " + numEntries + " entries.");
+            return getDiseaseTable().getNumEntries();
+        } else if (hasGeneTable()) {
+            numEntries = getGeneTable().getNumEntries();
+            logger.info("GeneTable has " + numEntries + " entries.");
+            return getGeneTable().getNumEntries();
+        } else if (hasImageTable()) {
+            numEntries = getImageTable().getNumEntries();
+            logger.info("ImageTable has " + numEntries + " entries.");
+            return getImageTable().getNumEntries();
+        } else if (hasImpcImageTable()) {
+            numEntries = getImpcImageTable().getNumEntries();
+            logger.info("ImpcImageTable has " + numEntries + " entries.");
+            return getImpcImageTable().getNumEntries();
+        } else if (hasPhenotypeTable()) {
+            numEntries = getPhenotypeTable().getNumEntries();
+            logger.info("PhenotypeTable has " + numEntries + " entries.");
+            return getPhenotypeTable().getNumEntries();
+        } else {
+            throw new RuntimeException("No facet table found.");
+        }
+    }
+    /**
+     * Set the number of entries in the 'entries' drop-down box.
+     * 
+     * @param entriesSelect The new value for the number of entries to show.
+     */
+    public void setNumEntries(SearchFacetTable.EntriesSelect entriesSelect) {
+        if (hasAnatomyTable()) {
+            logger.info("Setting AnatomyTable entries to " + entriesSelect.getValue() + ".");
+            getAnatomyTable().setNumEntries(entriesSelect);
+        } else if (hasDiseaseTable()) {
+            logger.info("Setting DiseaseTable entries to " + entriesSelect.getValue() + ".");
+            getDiseaseTable().setNumEntries(entriesSelect);
+        } else if (hasGeneTable()) {
+            logger.info("Setting GeneTable entries to " + entriesSelect.getValue() + ".");
+            getGeneTable().setNumEntries(entriesSelect);
+        } else if (hasImageTable()) {
+            logger.info("Setting ImageTable entries to " + entriesSelect.getValue() + ".");
+            getImageTable().setNumEntries(entriesSelect);
+        } else if (hasImpcImageTable()) {
+            logger.info("Setting ImpcImageTable entries to " + entriesSelect.getValue() + ".");
+            getImpcImageTable().setNumEntries(entriesSelect);
+        } else if (hasPhenotypeTable()) {
+            logger.info("Setting PhenotypeTable entries to " + entriesSelect.getValue() + ".");
+            getPhenotypeTable().setNumEntries(entriesSelect);
+        }
     }
     
     

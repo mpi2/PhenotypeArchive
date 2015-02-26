@@ -21,12 +21,16 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -37,15 +41,18 @@ import org.openqa.selenium.interactions.Actions;
  */
 public class SearchGeneTable extends SearchFacetTable {
     
-    public static final int COL_INDEX_GENE_ID           = 0;
-    public static final int COL_INDEX_GENE_SYMBOL       = 1;
-    public static final int COL_INDEX_HUMAN_ORTHOLOG    = 2;
-    public static final int COL_INDEX_GENE_NAME         = 3;
-    public static final int COL_INDEX_GENE_SYNONYM      = 4;
-    public static final int COL_INDEX_PRODUCTION_STATUS = 5;
-    public static final int COL_INDEX_PHENOTYPE_STATUS  = 6;
+    public static final int COL_INDEX_GENE_ID               = 0;
+    public static final int COL_INDEX_GENE_SYMBOL           = 1;
+    public static final int COL_INDEX_HUMAN_ORTHOLOG        = 2;
+    public static final int COL_INDEX_GENE_NAME             = 3;
+    public static final int COL_INDEX_GENE_SYNONYM          = 4;
+    public static final int COL_INDEX_PRODUCTION_STATUS     = 5;
+    public static final int COL_INDEX_PRODUCTION_HOVER_TEXT = 6;
+    public static final int COL_INDEX_PHENOTYPE_STATUS      = 7;
+    public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPE_STATUS;        // Should always point to the last (highest-numbered) index.
     
     private final List<GeneRow> bodyRows = new ArrayList();
+    private final GridMap pageData;
     
     /**
      * Creates a new <code>SearchGeneTable</code> instance.
@@ -56,149 +63,122 @@ public class SearchGeneTable extends SearchFacetTable {
     public SearchGeneTable(WebDriver driver, int timeoutInSeconds) {
         super(driver, "//table[@id='geneGrid']", timeoutInSeconds);
         
-        parseBodyRows();
+        pageData = load();
+    }
+    
+    /**
+     * Return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     *
+     * @return the number of entries currently showing in the 'entries'
+     * drop-down box.
+     */
+    @Override
+    public int getNumEntries() {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='geneGrid_length']")));
+        try {
+            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
+        } catch (NullPointerException npe) {
+            return 0;
+        }
+    }
+    
+    /**
+     * Set the number of entries in the 'entries' drop-down box.
+     * 
+     * @param entriesSelect The new value for the number of entries to show.
+     */
+    @Override
+    public void setNumEntries(EntriesSelect entriesSelect) {
+        String xpathValue = "//select[@name='geneGrid_length']";
+        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
+        select.selectByValue(Integer.toString(entriesSelect.getValue()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
     }
     
     /**
      * Validates download data against this <code>SearchDiseaseTable</code>
      * instance.
      * 
-     * @param downloadData The download data used for comparison
+     * @param downloadDataArray The download data used for comparison
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadData) {
+    public PageStatus validateDownload(String[][] downloadDataArray) {
         PageStatus status = new PageStatus();
-        HashMap<String, String[]> downloadHash = new HashMap();
-        
-        if ((bodyRows.isEmpty()) || (downloadData.length == 0))
-            return status;
-            
-        // Validate the pageHeading.
-        String[] expectedHeadingList = {
-            "Gene symbol"
-          , "Human ortholog"
-          , "Gene id"
-          , "Gene name"
-          , "Gene synonym"
-          , "Production status"
-          , "Phenotype status"
-          , "Phenotype status link"
-        };
-        SearchFacetTable.validateDownloadHeading("GENE", status, expectedHeadingList, downloadData[0]);
-        for (int i = 0; i < bodyRows.size(); i++) {
-            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
-            GeneRow pageRow = bodyRows.get(i);
-
-            // Verify the components.
-            
-            // geneId.
-            if ( ! pageRow.geneId.equals(downloadRow[DownloadSearchMapGenes.COL_INDEX_GENE_ID]))
-                status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneId + " page value geneId = '" + pageRow.geneId + "' doesn't match download value '" + downloadRow[DownloadSearchMapGenes.COL_INDEX_GENE_ID] + "'.");
-
-            // geneName.
-            String downloadValue = downloadRow[DownloadSearchMapGenes.COL_INDEX_GENE_NAME].trim();
-            if (pageRow.geneName.isEmpty()) {
-                if ( ! downloadValue.equals(NO_INFO_AVAILABLE)) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " page value geneName is empty. Expected download cell to contain '" + NO_INFO_AVAILABLE + "' but found '" + downloadValue + "'.");
-                }
-            } else {
-                if ( ! pageRow.geneName.equals(downloadValue)) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " page value geneName = '" + pageRow.geneName + "' doesn't match download value '" + downloadValue + "'.");
-                }
-            }
-            
-            // humanOrtholog collection.
-            HashMap<String, String> downloadHumanOrthologHash = new HashMap();
-            String rawHumanOrthologString = downloadRow[DownloadSearchMapGenes.COL_INDEX_HUMAN_ORTHOLOG];
-            if ((rawHumanOrthologString != null) && ( ! rawHumanOrthologString.isEmpty())) {
-                String[] downloadHumanOrthologs = rawHumanOrthologString.split("\\|");
-                for (String downloadHumanOrtholog : downloadHumanOrthologs) {
-                    downloadHumanOrthologHash.put(downloadHumanOrtholog.trim(), downloadHumanOrtholog.trim());
-                }
-            }
-            // If page human ortholog is empty, validate that download is empty too.
-            if (pageRow.humanOrthologs.isEmpty()) {
-                downloadValue = downloadHumanOrthologHash.get(NO_INFO_AVAILABLE);
-                if ((downloadValue == null) || ( ! downloadHumanOrthologHash.get(NO_INFO_AVAILABLE).equals(NO_INFO_AVAILABLE))) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " page has no human orthologs but download has " + downloadHumanOrthologHash.size() + ".");
-                }
-            }
-            for (String pageHumanOrtholog : pageRow.humanOrthologs) {
-                String downloadHumanOrtholog = downloadHumanOrthologHash.get(pageHumanOrtholog);
-                if (downloadHumanOrtholog == null) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " page value humanOrtholog = '" + pageHumanOrtholog + "' was not found in the download file.");
-                }
-                downloadHumanOrthologHash.remove(downloadHumanOrtholog);
-            }
-            
-            // synonyms collection.
-            HashMap<String, String> downloadSynonymHash = new HashMap();
-            String rawSynonymString = downloadRow[DownloadSearchMapGenes.COL_INDEX_SYNONYM];
-            if ((rawSynonymString != null) && ( ! rawSynonymString.isEmpty())) {
-                String[] downloadSynonyms = rawSynonymString.split("\\|");
-                for (String downloadSynonym : downloadSynonyms) {
-                    downloadSynonymHash.put(downloadSynonym.trim(), downloadSynonym.trim());
-                }
-            }
-            // If page synonyms is empty, validate that download is empty too.
-            if (pageRow.synonyms.isEmpty()) {
-                downloadValue = downloadSynonymHash.get(NO_INFO_AVAILABLE);
-                if ((downloadValue == null) || ( ! downloadSynonymHash.get(NO_INFO_AVAILABLE).equals(NO_INFO_AVAILABLE))) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " page has no synonyms but download has " + downloadSynonymHash.size() + ".");
-                }
-            }
-            for (String pageSynonym : pageRow.synonyms) {
-                String downloadSynonym = downloadSynonymHash.get(pageSynonym);
-                if (downloadSynonym == null) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " page value synonym = '" + pageSynonym + "' was not found in the download file.");
-                }
-                downloadSynonymHash.remove(downloadSynonym);
-            }
-            
-            // productionStatus collection.
-            // If page productionStatus is empty, validate that download is empty too.
-            downloadValue = downloadRow[DownloadSearchMapGenes.COL_INDEX_PRODUCTION_STATUS].trim();
-            if (pageRow.productionStatus.isEmpty()) {
-                if ( ! downloadValue.equals(NO_ES_CELLS_PRODUCED)) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol
-                            + " page has no es cells produced but download string is '" + downloadValue + "'.");
-                }
-            } else {
-                for (PhenotypeArchiveStatus pageProductionStatus : pageRow.productionStatus) {
-                    // Verify that the download productionStatus string contains the pageProductionStatus name.
-                    if ( ! downloadValue.toLowerCase().contains(pageProductionStatus.mpName.toLowerCase())) {
-                        status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " download value productionStatus = '" + downloadValue + "' doesn't contain page value '" +  pageProductionStatus.mpName + "'.");
-                    }
-                }
-            }
-            
-            // phenotypeStatus.     Verify that the download phenotypeStatus string contains the pagePhenotypStatus name. phenotypeStatus may be null.
-            downloadValue = downloadRow[DownloadSearchMapGenes.COL_INDEX_PHENOTYPE_STATUS].trim();
-            if (pageRow.phenotypeStatus == null) {
-                if ( ! downloadValue.equals(NO_INFO_AVAILABLE)) {
-                    status.addError("GENE MISMATCH: phenotypeStatus is empty so expected download to be '" + NO_INFO_AVAILABLE + "' but was '" + downloadValue + "'");
-                }
-            } else {
-                if ( ! downloadValue.toLowerCase().contains(pageRow.phenotypeStatus.mpName.toLowerCase())) {
-                    status.addError("GENE MISMATCH: Gene symbol " + pageRow.geneSymbol + " download value phenotypeStatus = '" + downloadValue + "' doesn't contain page value '" +  pageRow.phenotypeStatus.mpName + "'.");
-                }
-            }
+        List<List<String>> downloadDataList = new ArrayList();
+        for (String[] row : downloadDataArray) {
+            List rowList = Arrays.asList(row);
+            downloadDataList.add(rowList);
         }
+        
+        GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
+        
+        // Do a set difference between the rows on the first displayed page
+        // and the rows in the download file. The difference should be empty.
+        int errorCount = 0;
 
-        return status;
+        final int[] pageColumns = {
+              COL_INDEX_GENE_ID
+            , COL_INDEX_GENE_NAME
+            , COL_INDEX_GENE_SYMBOL
+            , COL_INDEX_HUMAN_ORTHOLOG
+        };
+        final int[] downloadColumns = {
+              DownloadSearchMapGenes.COL_INDEX_GENE_ID
+            , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
+            , DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL
+            , DownloadSearchMapGenes.COL_INDEX_HUMAN_ORTHOLOG
+        };
+        
+        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
     
     
     // PRIVATE METHODS
     
     
-    // geneId, geneSymbol, humanOrtholog, geneName, synonyms(List), productionStatus(List), phenotypeStatus
-    private void parseBodyRows() {
+    /**
+     * Pulls all rows of data and column access variables from the search page's
+     * 'geneGrid' HTML table.
+     *
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the search page's 'geneGrid' HTML table.
+     */
+    private GridMap load() {
+        return load(null);
+    }
+
+    /**
+     * Pulls <code>numRows</code> rows of search page gene facet data and column
+     * access variables from the search page's 'geneGrid' HTML table.
+     *
+     * @param numRows the number of <code>GridMap</code> table rows to return,
+     * including the heading row. To specify all rows, set <code>numRows</code>
+     * to null.
+     * @return <code>numRows</code> rows of search page gene facet data and
+     * column access variables from the search page's 'geneGrid' HTML table.
+     */
+    private GridMap load(Integer numRows) {
+        if (numRows == null)
+            numRows = computeTableRowCount();
+        
+        String[][] pageArray;
+        
+        // Wait for page.
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#geneGrid")));
+        int numCols = COL_INDEX_LAST + 1;
+        
+        pageArray = new String[numRows][numCols];                               // Allocate space for the data.
+        for (int i = 0; i < numCols; i++) {
+            pageArray[0][i] = "Column_" + i;                                    // Set the headings.
+        }
+        
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
-            int index = 0;
+            int sourceRowIndex = 1;
+            
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 GeneRow geneRow = new GeneRow();
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
@@ -206,31 +186,34 @@ public class SearchGeneTable extends SearchFacetTable {
                 String href = titleDivElement.getAttribute("href");
                 int pos = href.lastIndexOf("/");
                 geneRow.geneId = href.substring(pos + 1).trim();                                                    // geneId.
+                pageArray[sourceRowIndex][COL_INDEX_GENE_ID] = geneRow.geneId;
                 geneRow.geneSymbol = titleDivElement.findElement(By.cssSelector("span.gSymbol")).getText().trim();  // geneSymbol.
+                pageArray[sourceRowIndex][COL_INDEX_GENE_SYMBOL] = geneRow.geneSymbol;
                 
                 WebElement geneColElement = bodyRowElementList.get(0).findElement(By.cssSelector("div.geneCol"));
                 GeneDetails geneDetails = new GeneDetails(geneColElement);
                 geneRow.geneName = geneDetails.name;                                                                // geneName.
+                pageArray[sourceRowIndex][COL_INDEX_GENE_NAME] = geneRow.geneName;
                 geneRow.humanOrthologs = geneDetails.humanOrthologs;                                                // humanOrtholog list.
-                geneRow.synonyms = geneDetails.synonyms;                                                            // synonym list.
+                pageArray[sourceRowIndex][COL_INDEX_HUMAN_ORTHOLOG] = StringUtils.join(geneRow.humanOrthologs, "|");
                 
-                List<WebElement> anchorElements = bodyRowElementList.get(1).findElements(By.cssSelector("a"));
-                for (WebElement anchorElement : anchorElements) {
-                    geneRow.productionStatus.add(new PhenotypeArchiveStatus(anchorElement));                          // productionStatus list.
-                }
-                
-                anchorElements = bodyRowElementList.get(2).findElements(By.cssSelector("a"));
-                if ( ! anchorElements.isEmpty()) {
-                    geneRow.phenotypeStatus = new PhenotypeArchiveStatus(anchorElements.get(0));
-                    geneRow.phenotypeStatusLink = 
-                            bodyRowElementList.get(2).findElement(By.cssSelector("a")).getAttribute("href");        // phenotypeStatusLink.
-                }
-                
-//System.out.println("geneRow[ " + index + " ]: " + geneRow.toString());
-                index++;
+                sourceRowIndex++;
                 bodyRows.add(geneRow);
             }
         }
+        
+        return new GridMap(pageArray, driver.getCurrentUrl());
+    }
+    
+    /**
+     *
+     * @return the number of rows in the "geneGrid" table. Always include 1
+     * extra for the heading.
+     */
+    private int computeTableRowCount() {
+        // Wait for page.
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='geneGrid']/tbody/tr")));
+        return elements.size() + 1;
     }
     
     
@@ -245,7 +228,6 @@ public class SearchGeneTable extends SearchFacetTable {
     private class GeneDetails {
         private String name = "";
         private List<String> humanOrthologs = new ArrayList();
-        private List<String> synonyms = new ArrayList();
         
         public GeneDetails(WebElement geneColElement) {        
             
@@ -273,22 +255,6 @@ public class SearchGeneTable extends SearchFacetTable {
                         }
                     }
                 }
-                
-                List<WebElement> synonymElements = geneColElement.findElements(By.cssSelector("div.subinfo ul.synonym li"));
-                if ( ! synonymElements.isEmpty()) {
-                    for (WebElement synonymElement : synonymElements) {
-                        synonyms.add(synonymElement.getText());
-                    }
-                } else {
-                    String[] rawSynonymStrings = geneColElement.findElement(By.cssSelector("div.subinfo")).getText().split("\n");
-                    for (String synonymString : rawSynonymStrings) {
-                        String[] synonymParts = synonymString.split(":");
-                        if (synonymParts[0].trim().equals("synonym")) {
-                            synonyms.add(synonymParts[1].trim());
-                            break;
-                        }
-                    }
-                }
 
                 String subinfoDivText = geneColElement.getText();
                 String[] subinfoDivLines = subinfoDivText.split("\n");
@@ -305,6 +271,7 @@ public class SearchGeneTable extends SearchFacetTable {
                  }
             } catch (Exception e) {
                 System.out.println("EXCEPTION: SearchGeneTable.GeneDetails.GeneDetails() while waiting to hover. Error message: " + e.getLocalizedMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -388,6 +355,7 @@ public class SearchGeneTable extends SearchFacetTable {
     private class PhenotypeArchiveStatus {
         private String mpName;
         private PhenotypeArchiveStatusClass mpClass;
+        private String mpHoverText;
         
         /**
          * This constructor takes a <code>WebElement</code> instance pointing to
@@ -403,11 +371,14 @@ public class SearchGeneTable extends SearchFacetTable {
         public PhenotypeArchiveStatus(WebElement anchorElement) {
             mpName = null;
             mpClass = null;
+            mpHoverText = null;
+            
             
             try {
                 if (anchorElement != null) {
                     mpName = anchorElement.findElement(By.cssSelector("span")).getText();
                     mpClass = PhenotypeArchiveStatusClass.valueOf(anchorElement.getAttribute("class").split(" ")[1]);
+                    mpHoverText = anchorElement.getAttribute("oldtitle");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

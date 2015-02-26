@@ -24,6 +24,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -41,6 +42,9 @@ public class SearchImpcImageTable extends SearchFacetTable {
     public static final String SHOW_ANNOTATION_VIEW = "Show Annotation View";
     public static final String SHOW_IMAGE_VIEW      = "Show Image View";
     
+    // The Selenium 'By' instance describing the target table's tr row collection
+    private static final By    byTableTr            = By.xpath("//table[@id='impc_imagesGrid']/tbody/tr");
+    
     /**
      * Creates a new <code>SearchIMPCImageTable</code> instance.
      * @param driver A <code>WebDriver</code> instance pointing to the search
@@ -50,7 +54,7 @@ public class SearchImpcImageTable extends SearchFacetTable {
     public SearchImpcImageTable(WebDriver driver, int timeoutInSeconds) {
         super(driver, "//table[@id='impc_imagesGrid']", timeoutInSeconds);
         
-        searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds);
+        searchImageAnnotationView = new SearchImageAnnotationView(byTableTr, driver, timeoutInSeconds);
     }
     
     public enum ImageFacetView {
@@ -95,17 +99,47 @@ public class SearchImpcImageTable extends SearchFacetTable {
     public void updateImageTableAfterChange() {
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
-                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds);
+                searchImageAnnotationView = new SearchImageAnnotationView(byTableTr, driver, timeoutInSeconds);
                 searchImageImageView = null;
                 break;
 
             case IMAGE_VIEW:
                 searchImageAnnotationView = null;
-                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds);
+                searchImageImageView = new SearchImageImageView(byTableTr, driver, timeoutInSeconds);
                 break;
         }
         
         setTable(driver.findElement(By.xpath(tableXpath)));
+    }
+
+    /**
+     * Return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     *
+     * @return the number of entries currently showing in the 'entries'
+     * drop-down box.
+     */
+    @Override
+    public int getNumEntries() {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='impc_imagesGrid_length']")));
+        try {
+            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
+        } catch (NullPointerException npe) {
+            return 0;
+        }
+    }
+    
+    /**
+     * Set the number of entries in the 'entries' drop-down box.
+     * 
+     * @param entriesSelect The new value for the number of entries to show.
+     */
+    @Override
+    public void setNumEntries(EntriesSelect entriesSelect) {
+        String xpathValue = "//select[@name='impc_imagesGrid_length']";
+        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
+        select.selectByValue(Integer.toString(entriesSelect.getValue()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
     }
     
     @Override

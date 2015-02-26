@@ -27,6 +27,7 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -290,10 +292,25 @@ public class TestUtils {
      * @return a new deep-copy instance of input
      */
     public static Set cloneStringSet(Set<String> input) {
+        return cloneStringSet(input, false);
+    }
+    
+    /**
+     * Clones an existing set, lowercasing each string if directed.
+     * @param input set to be cloned
+     * @param setToLowercase if true, each string is set to lowercase; otherwise
+     *        each string is left untouched.
+     * @return a new deep-copy instance of input
+     */
+    public static Set cloneStringSet(Set<String> input, boolean setToLowercase) {
         HashSet resultSet = new HashSet();
         
         for (String s : input) {
-            resultSet.add(s);
+            if (setToLowercase) {
+               resultSet.add(s.toLowerCase());
+            } else {
+               resultSet.add(s);
+            }
         }
         
         return resultSet;
@@ -307,7 +324,7 @@ public class TestUtils {
      * Example: input.body[][] = "a", "b", "c", "d", "e"
      *                           "f", "g", "h", "i", "j"
      * 
-     * colIndexes = 2, 4, 5
+     * colIndexes = 1, 3, 4
      * 
      * produces a set that looks like:  "b_d_e_"
      *                                  "g_i_j_"
@@ -462,6 +479,30 @@ public class TestUtils {
     }
     
     /**
+     * Patches any non-heading <code>input</code> string values that are empty
+     * with the string 'No information available', returning a new <code>
+     * GridMap</code> instance identical to the input, with empty strings replaced
+     * as described.
+     *
+     * @param input the <code>GridMap</code> to be scanned and patched
+     * @return a copy of the input <code>GridMap</code>, with empty strings
+     * replaced with 'No information available'.
+     */
+    public static GridMap patchEmptyFields(GridMap input) {
+        String[][] dataOut = new String[input.getData().length][input.getData()[0].length];
+        String[][] dataIn = input.getData();
+        dataOut[0] = input.getHeading();                                           // Copy heading to output object.
+        for (int rowIndex = 1; rowIndex < dataOut.length; rowIndex++) {
+            String[] row = dataIn[rowIndex];
+            for (int colIndex = 0; colIndex < row.length; colIndex++) {
+                dataOut[rowIndex][colIndex] = ((row[colIndex] == null) || (row[colIndex].isEmpty()) ? "No information available" : row[colIndex]);
+            }
+        }
+        
+        return new GridMap(dataOut, input.getTarget());
+    }
+    
+    /**
      * The baseUrl for testing typically looks like:
      *     "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive".
      * Typical urls (e.g. graph urls) look like:
@@ -592,6 +633,74 @@ public class TestUtils {
     public static void sleep(Integer threadWaitInMs) {
         if ((threadWaitInMs != null) && (threadWaitInMs > 0))
             try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
+    }
+    
+    /**
+     * Sorts <code>delimitedString</code> alphabetically, first splitting the
+     * string into separate segments, delimited by <code>delimiter</code>.
+     * 
+     * @param delimitedString the delimited string to sort
+     * @param delimiter the delimiter
+     * 
+     * @return the sorted string
+     */
+    public static String sortDelimitedArray(String delimitedString, String delimiter) {
+        if (( delimitedString == null) || (delimitedString.isEmpty()))
+            return delimitedString;
+        
+        String[] partsArray = delimitedString.split(Pattern.quote(delimiter));
+        List<String> partsList = Arrays.asList(partsArray);
+        Collections.sort(partsList);
+        
+        String retVal = "";
+        for (String part : partsList) {
+            if ( ! retVal.isEmpty()) {
+                retVal += delimiter;
+            }
+            retVal += part;
+        }
+            
+//        logger.debug("retVal: '" + retVal + "'");
+        
+        return retVal;
+    }
+    
+    /**
+     * Sorts the delimited cells in the specified columns of each row in <code>delimitedArray</code> alphabetically
+     * For example, given:
+     *      [0]           [1]           [2]
+     *      "abc"         "f|e|d"       "ghi"
+     *      "l|k|j"       "klm"         "o|p|n"
+     * 
+     * and a 'columns' specification of [1, 2], the resulting returned array will be:
+     *      [0]           [1]           [2]
+     *      "abc"         "d|e|f"       "ghi"
+     *      "l|k|j"       "klm"         "n|o|p"
+     *                    
+     * @param delimitedArray the input data set
+     * @param delimiter the delimiter
+     * @param columns the list of columns to sort
+     * 
+     * @return the sorted list
+     */
+    public static String[][] sortDelimitedArray(String[][] delimitedArray, String delimiter, List<Integer> columns) {
+        if ((delimitedArray == null) || (delimitedArray.length == 0))
+            return delimitedArray;
+            
+        String[][] retVal = new String[delimitedArray.length][delimitedArray[0].length];
+        for (int rowIndex = 0; rowIndex < delimitedArray.length; rowIndex++) {
+            String[] row = delimitedArray[rowIndex];
+            for (int colIndex = 0; colIndex < row.length; colIndex++) {
+                String cell = row[colIndex];
+                if (columns.contains(colIndex)) {
+                    retVal[rowIndex][colIndex] = sortDelimitedArray(cell, delimiter);
+                } else {
+                    retVal[rowIndex][colIndex] = cell;
+                }
+            }
+        }
+        
+        return retVal;
     }
     
     /**

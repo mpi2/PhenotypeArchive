@@ -45,15 +45,18 @@ public class SearchImageAnnotationView {
     
     /**
      * Creates a new <code>SearchImageTable</code> instance.
+     * 
+     * @param byTableTr The Selenium <code>By</code> describing the target
+     * table's tr row collection
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
-    public SearchImageAnnotationView(WebDriver driver, int timeoutInSeconds) {
+    public SearchImageAnnotationView(By byTableTr, WebDriver driver, int timeoutInSeconds) {
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
         
-        parseBodyRows();
+        parseBodyRows(byTableTr);
     }
 
     /**
@@ -156,12 +159,16 @@ public class SearchImageAnnotationView {
     
     /**
      * Parse all of the Annotation tr rows.
-     * 
-     * annotationType, annotationTerm, annotationId, annotationIdLink, relatedImageCount, imagesLink
+     *
+     * annotationType, annotationTerm, annotationId, annotationIdLink,
+     * relatedImageCount, imagesLink
+     *
+     * @param byTableTr The Selenium <code>By</code> describing the target
+     * table's tr row collection
      */
-    private void parseBodyRows() {
+    private void parseBodyRows(By byTableTr) {
         // Save the body values.
-        List<WebElement> trElements = driver.findElements(By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+        List<WebElement> trElements = driver.findElements(byTableTr);
         if ( ! trElements.isEmpty()) {
             for (WebElement trElement : trElements) {
                 ImageRow bodyRow = new ImageRowFactory(trElement).getImageRow();
