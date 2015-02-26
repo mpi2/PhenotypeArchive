@@ -21,12 +21,16 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -37,10 +41,17 @@ import org.openqa.selenium.interactions.Actions;
  */
 public class SearchPhenotypeTable extends SearchFacetTable {
     
-    public static final int COL_INDEX_PHENOTYPE  = 0;
-    public static final int COL_INDEX_DEFINITION = 1;
+    public static final int COL_INDEX_COMP_MAPPED_HP_TERMS = 0;
+    public static final int COL_INDEX_DEFINITION           = 1;
+    public static final int COL_INDEX_PHENOTYPE_ID         = 2;
+    public static final int COL_INDEX_PHENOTYPE_TERM       = 3;
+    public static final int COL_INDEX_PHENOTYPE_ID_LINK    = 4;
+    public static final int COL_INDEX_SYNONYMS             = 5;
+    public static final int COL_INDEX_TOP_LEVEL_MP_TERM    = 6;
+    public static final int COL_INDEX_LAST = COL_INDEX_TOP_LEVEL_MP_TERM;       // Should always point to the last (highest-numbered) index.
     
     private final List<PhenotypeRow> bodyRows = new ArrayList();
+    private final GridMap pageData;
     
     /**
      * Creates a new <code>SearchPhenotypeTable</code> instance.
@@ -51,140 +62,126 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     public SearchPhenotypeTable(WebDriver driver, int timeoutInSeconds) {
         super(driver, "//table[@id='mpGrid']", timeoutInSeconds);
         
-        parseBodyRows();
+        pageData = load();
+    }
+
+    
+    /**
+     * Return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     *
+     * @return the number of entries currently showing in the 'entries'
+     * drop-down box.
+     */
+    @Override
+    public int getNumEntries() {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='mpGrid_length']")));
+        try {
+            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
+        } catch (NullPointerException npe) {
+            return 0;
+        }
+    }
+    
+    /**
+     * Set the number of entries in the 'entries' drop-down box.
+     * 
+     * @param entriesSelect The new value for the number of entries to show.
+     */
+    @Override
+    public void setNumEntries(EntriesSelect entriesSelect) {
+        String xpathValue = "//select[@name='mpGrid_length']";
+        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
+        select.selectByValue(Integer.toString(entriesSelect.getValue()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
     }
     
     /**
      * Validates download data against this <code>SearchPhenotypeTable</code>
      * instance.
      * 
-     * @param downloadData The download data used for comparison
+     * @param downloadDataArray The download data used for comparison
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadData) {
-        PageStatus status = new PageStatus();
-        HashMap<String, String[]> downloadHash = new HashMap();
-        
-        if ((bodyRows.isEmpty()) || (downloadData.length == 0))
-            return status;
-            
-        // Validate the pageHeading.
-        String[] expectedHeadingList = {
-            "Mammalian phenotype term"
-          , "Mammalian phenotype id"
-          , "Mammalian phenotype id link"
-          , "Mammalian phenotype definition"
-          , "Mammalian phenotype synonym"
-          , "Mammalian phenotype top level term"
-          , "Computationally mapped human phenotype terms"
-          , "Computationally mapped human phenotype term Ids"
+    public PageStatus validateDownload(String[][] downloadDataArray) {
+        final int[] pageColumns = {
+              COL_INDEX_PHENOTYPE_TERM
+            , COL_INDEX_PHENOTYPE_ID
+            , COL_INDEX_DEFINITION
+            , COL_INDEX_PHENOTYPE_ID_LINK
+            , COL_INDEX_SYNONYMS
+            , COL_INDEX_COMP_MAPPED_HP_TERMS
         };
-        validateDownloadHeading("PHENOTYPE", status, expectedHeadingList, downloadData[0]);
+        final int[] downloadColumns = {
+              DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_TERM
+            , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID
+            , DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION
+            , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID_LINK
+            , DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
+            , DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS
+        };
+        final Integer[] sortColumns = {
+              DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
+            , DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS
+        };
         
-        // This validation gets called with paged data (e.g. only the rows showing in the displayed page)
-        // and with all data (the data for all of the pages). As such, the only effective way to validate
-        // it is to stuff the download data elements into a hash, then loop through the pageData rows
-        // querying the downloadData hash for each value (then removing that value from the hash to handle duplicates).
-        for (int i = 1; i < downloadData.length; i++) {
-            // Copy all but the pageHeading into the hash.
-            String[] row = downloadData[i];
-            downloadHash.put(row[DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_TERM], row);
-        }
-// int i = 0;
-        for (PhenotypeRow pageRow : bodyRows) {
-// System.out.println("[" + i++ + "]: phenotypeTerm: " + pageRow.phenotypeTerm);
-            String[] downloadRow = downloadHash.get(pageRow.phenotypeTerm);
-            if (downloadRow == null) {
-                status.addError("PHENOTYPE MISMATCH: page value phenotypeTerm = '" + pageRow.phenotypeTerm + "' was not found in the download file.");
-                continue;
-            }
-            downloadHash.remove(pageRow.phenotypeTerm);                         // Remove the pageRow from the download hash.
-            
-            // Verify the components.
-            
-            // phenotypeId.
-            if ( ! pageRow.phenotypeId.equals(downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID]))
-                status.addError("PHENOTYPE MISMATCH: Phenotype id '" + pageRow.phenotypeTerm + "' page value phenotypeId = '" + pageRow.phenotypeId + "' doesn't match download value '" + downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID] + "'.");
-
-            // phenotypeLink.
-            if ( ! pageRow.phenotypeIdLink.equals(downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID_LINK]))
-                status.addError("PHENOTYPE MISMATCH: Phenotype id '" + pageRow.phenotypeTerm + "' page value phenotypeLink = '" + pageRow.phenotypeIdLink + "' doesn't match download value '" + downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID] + "'.");
-
-            // definition.
-            String downloadValue = downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION].trim();
-            if (pageRow.definition.isEmpty()) {
-                if ( ! downloadValue.equals(NO_INFO_AVAILABLE)) {
-                    status.addError("PHENOTYPE MISMATCH: phenotypeTerm '" + pageRow.phenotypeTerm + "' page value definition is empty. Expected download cell to contain '" + NO_INFO_AVAILABLE + "' but found '" + downloadValue + "'.");
-                }
-            } else {
-                if ( ! pageRow.definition.equals(downloadValue)) {
-                    status.addError("PHENOTYPE MISMATCH: phenotypeTerm '" + pageRow.phenotypeTerm + "' page value = '" + pageRow.definition + "' doesn't match download value '" + downloadValue + "'.");
-                }
-            }
-
-            // synonyms collection.
-            HashMap<String, String> downloadSynonymHash = new HashMap();
-            String rawSynonymString = downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS];
-            if ((rawSynonymString != null) && ( ! rawSynonymString.isEmpty())) {
-                String[] downloadSynonyms = rawSynonymString.split("\\|");
-                for (String downloadSynonym : downloadSynonyms) {
-                    downloadSynonymHash.put(downloadSynonym.trim(), downloadSynonym.trim());
-                }
-            }
-            // If page synonyms is empty, validate that download is empty too.
-            if (pageRow.synonyms.isEmpty()) {
-                downloadValue = downloadSynonymHash.get(NO_INFO_AVAILABLE);
-                if ((downloadValue == null) || ( ! downloadSynonymHash.get(NO_INFO_AVAILABLE).equals(NO_INFO_AVAILABLE))) {
-                    status.addError("PHENOTYPE MISMATCH: phenotypeTerm '" + pageRow.phenotypeTerm + "' page has no synonyms but download has " + downloadSynonymHash.size() + ".");
-                }
-            }
-            for (String pageSynonym : pageRow.synonyms) {
-                String downloadSynonym = downloadSynonymHash.get(pageSynonym);
-                if (downloadSynonym == null) {
-                    status.addError("PHENOTYPE MISMATCH: phenotypeTerm '" + pageRow.phenotypeTerm + "' page value synonym = '" + pageSynonym + "' was not found in the download file.");
-                }
-                downloadSynonymHash.remove(downloadSynonym);
-            }
-
-            // HP Terms collection.
-            HashMap<String, String> downloadHPTermHash = new HashMap();
-            String rawHPTermString = downloadRow[DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS];
-            if ((rawHPTermString != null) && ( ! rawHPTermString.isEmpty())) {
-                String[] downloadHPTerms = rawHPTermString.split("\\|");
-                for (String downloadHPTerm : downloadHPTerms) {
-                    downloadHPTermHash.put(downloadHPTerm.trim(), downloadHPTerm.trim());
-                }
-            }
-            // If page HPTerms are empty, validate that download is empty too.
-            if (pageRow.hpTerms.isEmpty()) {
-                downloadValue = downloadHPTermHash.get(NO_INFO_AVAILABLE);
-                if ((downloadValue == null) || ( ! downloadHPTermHash.get(NO_INFO_AVAILABLE).equals(NO_INFO_AVAILABLE))) {
-                    status.addError("PHENOTYPE MISMATCH: HP Term '" + pageRow.phenotypeTerm + "' page has no hp terms but download has " + downloadHPTermHash.size() + ".");
-                }
-            }
-            for (String downloadHPTerm : pageRow.hpTerms) {
-                String downloadSynonym = downloadHPTermHash.get(downloadHPTerm);
-                if (downloadSynonym == null) {
-                    status.addError("PHENOTYPE MISMATCH: phenotypeTerm '" + pageRow.phenotypeTerm + "' page value hp term = '" + downloadHPTerm + "' was not found in the download file.");
-                }
-                downloadHPTermHash.remove(downloadSynonym);
-            }
-        }
-
-        return status;
+        downloadDataArray = TestUtils.sortDelimitedArray(downloadDataArray, "|", Arrays.asList(sortColumns));
+        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
     
     
     // PRIVATE METHODS
     
     
-    // phenotypeTerm, phenotypeId, phenotypeLink, synonyms(List)
-    private void parseBodyRows() {
+    /**
+     * Pulls all rows of data and column access variables from the search page's
+     * 'mpGrid' HTML table.
+     *
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the search page's 'mpGrid' HTML table.
+     */
+    private GridMap load() {
+        return load(null);
+    }
+
+    /**
+     * Pulls <code>numRows</code> rows of search page gene facet data and column
+     * access variables from the search page's 'mpGrid' HTML table.
+     *
+     * @param numRows the number of <code>GridMap</code> table rows to return,
+     * including the heading row. To specify all rows, set <code>numRows</code>
+     * to null.
+     * @return <code>numRows</code> rows of search page gene facet data and
+     * column access variables from the search page's 'mpGrid' HTML table.
+     */
+    private GridMap load(Integer numRows) {
+        if (numRows == null)
+            numRows = computeTableRowCount();
+        
+        String[][] pageArray;
+        
+        // Wait for page.
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#mpGrid")));
+        int numCols = COL_INDEX_LAST + 1;
+        
+        pageArray = new String[numRows][numCols];                               // Allocate space for the data.
+        for (int i = 0; i < numCols; i++) {
+            pageArray[0][i] = "Column_" + i;                                    // Set the headings.
+        }
+        
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
-            int index = 0;
+            int sourceRowIndex = 1;
+            
+            pageArray[sourceRowIndex][COL_INDEX_COMP_MAPPED_HP_TERMS] = "";
+            pageArray[sourceRowIndex][COL_INDEX_DEFINITION] = "";
+            pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_ID] = "";
+            pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_TERM] = "";
+            pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_ID_LINK] = "";
+            pageArray[sourceRowIndex][COL_INDEX_SYNONYMS] = "";
+            
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 PhenotypeRow phenotypeRow = new PhenotypeRow();
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
@@ -192,23 +189,44 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 List<WebElement> titleDivElements = bodyRowElementList.get(0).findElements(By.cssSelector("div.mpCol div.title a"));
                 WebElement titleDivElement = (titleDivElements.isEmpty() ? bodyRowElementList.get(0).findElement(By.cssSelector("a")) : titleDivElements.get(0));
                 phenotypeRow.phenotypeIdLink = titleDivElement.getAttribute("href");                                    // phenotypeIdLink.
+                pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_ID_LINK] = phenotypeRow.phenotypeIdLink;
+                
                 int pos = phenotypeRow.phenotypeIdLink.lastIndexOf("/");
                 phenotypeRow.phenotypeId = phenotypeRow.phenotypeIdLink.substring(pos + 1).trim();                      // phenotypeId.
+                pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_ID] = phenotypeRow.phenotypeId;
+                
                 phenotypeRow.phenotypeTerm = titleDivElement.getText().trim();                                          // phenotypeTerm.
+                pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_TERM] = phenotypeRow.phenotypeTerm;
                 
                 List<WebElement> mpColElements = bodyRowElementList.get(0).findElements(By.cssSelector("div.mpCol"));
                 if ( ! mpColElements.isEmpty()) {
                     PhenotypeDetails phenotypeDetails = new PhenotypeDetails(mpColElements.get(0));
                     phenotypeRow.synonyms = phenotypeDetails.synonyms;                                                  // synonym list.
+                    pageArray[sourceRowIndex][COL_INDEX_SYNONYMS] = phenotypeRow.toStringSynonyms();
+                    
                     phenotypeRow.hpTerms  = phenotypeDetails.hpTerms;                                                   // hp terms.
+                    pageArray[sourceRowIndex][COL_INDEX_COMP_MAPPED_HP_TERMS] = phenotypeRow.toStringHpTerms();
                 }
                 phenotypeRow.definition = bodyRowElementList.get(1).getText();                                          // definition.
+                pageArray[sourceRowIndex][COL_INDEX_DEFINITION] = phenotypeRow.definition;
                 
-//System.out.println("phenotypeRow[ " + index + " ]: " + phenotypeRow.toString());
-                index++;
+                sourceRowIndex++;
                 bodyRows.add(phenotypeRow);
             }
         }
+        
+        return new GridMap(pageArray, driver.getCurrentUrl());
+    }
+    
+    /**
+     *
+     * @return the number of rows in the "geneGrid" table. Always include 1
+     * extra for the heading.
+     */
+    private int computeTableRowCount() {
+        // Wait for page.
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='mpGrid']/tbody/tr")));
+        return elements.size() + 1;
     }
     
     
@@ -221,8 +239,8 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      * phenotype term. There should be a phenotype term and 0 or more synonyms.
      */
     private class PhenotypeDetails {
-        private List<String> synonyms = new ArrayList();
-        private List<String> hpTerms  = new ArrayList();
+        public final List<String> synonyms = new ArrayList();
+        public final List<String> hpTerms  = new ArrayList();
         
         public PhenotypeDetails(WebElement mpColElement) {        
             
@@ -278,6 +296,37 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 System.out.println("EXCEPTION: SearchPhenotypeTable.PhenotypeDetails.PhenotypeDetails() while waiting to hover. Error message: " + e.getLocalizedMessage());
             }
         }
+        
+        @Override
+        public String toString() {
+            return "'  synonyms: '"      + toStringSynonyms() + "'"
+                 + "'  hpTerms:  '"      + toStringHpTerms() + "'"
+                    ;
+        }
+        
+        public String toStringSynonyms() {
+            String retVal = "";
+            Collections.sort(synonyms);
+            for (int i = 0; i < synonyms.size(); i++) {
+                if (i > 0)
+                    retVal += "|";
+                retVal += synonyms.get(i);
+            }
+            
+            return retVal;
+        }
+        
+        public String toStringHpTerms() {
+            String retVal = "";
+            Collections.sort(hpTerms);
+            for (int i = 0; i < hpTerms.size(); i++) {
+                if (i > 0)
+                    retVal += "|";
+                retVal += hpTerms.get(i);
+            }
+            
+            return retVal;
+        }
     }
     
     private class PhenotypeRow {
@@ -301,10 +350,10 @@ public class SearchPhenotypeTable extends SearchFacetTable {
         
         public String toStringSynonyms() {
             String retVal = "";
-            
+            Collections.sort(synonyms);
             for (int i = 0; i < synonyms.size(); i++) {
                 if (i > 0)
-                    retVal += ", ";
+                    retVal += "|";
                 retVal += synonyms.get(i);
             }
             
@@ -313,10 +362,10 @@ public class SearchPhenotypeTable extends SearchFacetTable {
         
         public String toStringHpTerms() {
             String retVal = "";
-            
+            Collections.sort(hpTerms);
             for (int i = 0; i < hpTerms.size(); i++) {
                 if (i > 0)
-                    retVal += ", ";
+                    retVal += "|";
                 retVal += hpTerms.get(i);
             }
             
