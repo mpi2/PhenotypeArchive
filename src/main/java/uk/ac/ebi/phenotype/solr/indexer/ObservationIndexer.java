@@ -490,17 +490,21 @@ public class ObservationIndexer extends AbstractIndexer {
      */
     public void populateLineBiologicalDataMap() throws SQLException {
 
-        String query = "SELECT e.id as experiment_id, e.colony_id, e.biological_model_id, "
-                + "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, "
-                + "strain.acc as strain_acc, strain.name as strain_name, "
-                + "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=e.biological_model_id) as allele_accession, "
-                + "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=e.biological_model_id)  as allele_symbol, "
-                + "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=e.biological_model_id) as acc, "
-                + "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=e.biological_model_id)  as symbol "
-                + "FROM experiment e "
-                + "INNER JOIN organisation org ON e.organisation_id=org.id "
-                + "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=e.biological_model_id "
-                + "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc";
+        String query = "SELECT e.id as experiment_id, e.colony_id, e.id, bm.id as biological_model_id, " +
+            "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, " +
+            "strain.acc as strain_acc, strain.name as strain_name, " +
+            "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bm.id) as allele_accession, " +
+            "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id)  as allele_symbol, " +
+            "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bm.id) as acc, " +
+            "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)  as symbol " +
+            "FROM experiment e " +
+            "INNER JOIN biological_model bm ON bm.id=(SELECT DISTINCT biological_model_id FROM live_sample ls " +
+            "  INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
+            "  INNER JOIN biological_model biom ON biom.id=bms.biological_model_id " +
+            "  WHERE biom.allelic_composition !='' AND ls.colony_id=e.colony_id LIMIT 1)" +
+            "INNER JOIN organisation org ON e.organisation_id=org.id " +
+            "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=bm.id " +
+            "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc" ;
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 

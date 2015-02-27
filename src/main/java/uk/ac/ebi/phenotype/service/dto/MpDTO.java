@@ -60,6 +60,7 @@ public class MpDTO {
 	public static final String SIBLING_MP_DEFINITION = "sibling_mp_definition";
 	public static final String P_VALUE = "p_value";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
+	public static final String GENE_COUNT = "gene_count";
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_ACCESSION_ID = "marker_accession_id";
 	public static final String PREQC_GENE_ID = "preqc_gene_id";
@@ -286,6 +287,9 @@ public class MpDTO {
 	@Field(MGI_ACCESSION_ID)
 	private List<String> mgiAccessionId;
 
+	@Field(GENE_COUNT)
+	private Integer gene_count;
+	
 	@Field(MARKER_SYMBOL)
 	private List<String> markerSymbol;
 
@@ -1096,7 +1100,17 @@ public class MpDTO {
 		this.mgiAccessionId = mgiAccessionId;
 	}
 
+	public Integer getGeneCount() {
 
+		return gene_count;
+	}
+	
+	public void setGeneCount(List<String> mgiAccessionId) {
+
+		this.gene_count = mgiAccessionId.size();
+	}
+
+	
 	public List<String> getMarkerSymbol() {
 
 		return markerSymbol;
