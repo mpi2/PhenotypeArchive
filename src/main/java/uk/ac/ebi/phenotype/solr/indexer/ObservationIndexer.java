@@ -164,7 +164,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
         int count = 0;
 
-//        observationSolrServer.deleteByQuery("*:*");
+        observationSolrServer.deleteByQuery("*:*");
 
         String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
                 + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
@@ -410,7 +410,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
                 // 60 seconds between commits
                 documentCount++;
-//                observationSolrServer.addBean(o, 60000);
+                observationSolrServer.addBean(o, 60000);
 
                 count ++;
 
@@ -418,14 +418,10 @@ public class ObservationIndexer extends AbstractIndexer {
                     logger.info(" added " + count + " beans");
                 }
 
-                if (count % 500000 == 0) {
-                    break;
-                }
-
-                }
+            }
 
             // Final commit to save the rest of the docs
-//            observationSolrServer.commit();
+            observationSolrServer.commit();
 
         } catch (Exception e) {
             logger.error("Big error {}", e.getMessage(), e);
