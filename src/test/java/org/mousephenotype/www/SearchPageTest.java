@@ -37,6 +37,7 @@ import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.PageStatus;
@@ -1050,13 +1051,15 @@ public class SearchPageTest {
             };
 
             for (SearchPage.Facet facet : facets) {
-                searchPage.clickFacet(facet);
-                searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
-//TestUtils.sleep(5000);
-                searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
-                System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 
-                status.add(searchPage.validateDownload(facet));
+                if (searchPage.getFacetCount(facet) > 0) {
+                    searchPage.clickFacet(facet);
+                    searchPage.clickPageButton();
+    //searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
+    //TestUtils.sleep(5000);
+                    searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
+                    System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 
+                    status.add(searchPage.validateDownload(facet));
+                }
             }
         } catch (Exception e) {
             String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
