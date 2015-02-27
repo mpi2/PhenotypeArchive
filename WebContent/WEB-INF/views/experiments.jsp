@@ -120,7 +120,14 @@
 															<td>${pValueItem.femaleMutants}f</td>
 														</c:when>
 														<c:otherwise>
-															<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
+															<c:choose>
+																<c:when test="${pValueItem.femaleMutants >= 0}">
+																	<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
+																</c:when>
+																<c:otherwise>
+																	<td title="Not applicable">NA</td>
+																</c:otherwise>
+															</c:choose>
 														</c:otherwise>
 													</c:choose>
 													<!-- Statistical Method -->
