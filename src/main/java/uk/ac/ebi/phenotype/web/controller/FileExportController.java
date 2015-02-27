@@ -1022,15 +1022,37 @@ public class FileExportController {
 
             // phenotyping status
             String phStatus = geneService.getPhenotypingStatus(doc, request, toExport, legacyOnly);
-           
+          
             if ( phStatus.isEmpty() ){
             	data.add(NO_INFO_MSG); 
             	data.add(NO_INFO_MSG); // link column
             }
+            else if ( phStatus.contains("___") ){
+            	// multiple phenotyping statusses, eg, complete and legacy
+            	String[] phStatuses = phStatus.split("___");
+            	
+            	List<String> labelList = new ArrayList<>();
+            	List<String> urlList = new ArrayList<>();
+            	
+            	for( int c=0; c < phStatuses.length; c++ ){
+            		String[] parts = phStatuses[c].split("\\|");
+    				if (parts.length != 2  ){
+    					System.out.println("fileExport: '" + phStatuses[c] + "' --- Expeced length 2 but got " + parts.length  );
+    				}
+    				else {
+    					String url   = parts[0].replace("https", "http");
+    					String label = parts[1];
+    					labelList.add(label);
+    					urlList.add(url);
+    				}
+            	}
+            	data.add(StringUtils.join(labelList, "|"));
+            	data.add(StringUtils.join(urlList, "|")); 
+            }
             else if ( phStatus.startsWith("http://") || phStatus.startsWith("https://") ){
 				
 				String[] parts = phStatus.split("\\|");
-				if ( parts.length != 2  ){
+				if (parts.length != 2  ){
 					System.out.println("fileExport: '" + phStatus+ "' --- Expeced length 2 but got " + parts.length  );
 				}
 				else {

@@ -110,9 +110,7 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
-		System.out.println("solr params: " + solrParams);
-		System.out.println("start: "+ iDisplayStart);
-		System.out.println("length: "+ iDisplayLength);
+		//System.out.println("solr params: " + solrParams);
 		
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);		
 				
@@ -148,9 +146,7 @@ public class DataTableController {
 		if (jParams.containsKey("showImgView")) {
 			showImgView = jParams.getBoolean("showImgView");
 		}
-		System.out.println("query: "+ query);
 		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		System.out.println("JSON: "+ json);
 		
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 		
@@ -211,7 +207,6 @@ public class DataTableController {
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 				
 		log.debug("TOTAL GENE2GO: " + totalDocs);
-		log.info("TOTAL GENE2GO: " + totalDocs);
 		
         JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
@@ -310,7 +305,6 @@ public class DataTableController {
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
-				
 			String geneInfo = concateGeneInfo(doc, json, qryStr, request);
 			rowData.add(geneInfo);
 			
