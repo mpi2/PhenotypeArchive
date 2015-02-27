@@ -105,19 +105,6 @@ public class SearchGeneTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        PageStatus status = new PageStatus();
-        List<List<String>> downloadDataList = new ArrayList();
-        for (String[] row : downloadDataArray) {
-            List rowList = Arrays.asList(row);
-            downloadDataList.add(rowList);
-        }
-        
-        GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
-        
-        // Do a set difference between the rows on the first displayed page
-        // and the rows in the download file. The difference should be empty.
-        int errorCount = 0;
-
         final int[] pageColumns = {
               COL_INDEX_GENE_ID
             , COL_INDEX_GENE_NAME

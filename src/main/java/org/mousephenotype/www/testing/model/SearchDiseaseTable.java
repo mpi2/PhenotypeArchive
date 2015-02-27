@@ -119,56 +119,6 @@ public class SearchDiseaseTable extends SearchFacetTable {
     // PRIVATE METHODS
     
     
-    private void parseBodyRows() {
-        // Save the body values.
-        List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
-        if ( ! bodyRowElementsList.isEmpty()) {
-            for (WebElement bodyRowElements : bodyRowElementsList) {                                    // diseaseId, diseaseName, source, curatedHuman, curatedMice, candidateIMPC, candidateMGI
-                DiseaseRow diseaseRow = new DiseaseRow();
-                List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
-                WebElement element = bodyRowElementList.get(0).findElement(By.cssSelector("a"));        // Get 'Disease' element.
-                diseaseRow.diseaseIdLink = element.getAttribute("href");
-                int pos = diseaseRow.diseaseIdLink.lastIndexOf("/");
-                diseaseRow.diseaseId = diseaseRow.diseaseIdLink.substring(pos + 1);                     // Add diseaseId   to row element 0 from 'Disease' element.
-                diseaseRow.diseaseName = element.getText();                                             // Add diseaseName to row element 1 from 'Disease' element.
-                diseaseRow.source = bodyRowElementList.get(1).getText();                                // Add source      to row element 2 from 'Source' element.
-                
-                element = bodyRowElementList.get(2);                                                                            // Get 'Curated Genes' element.
-                List<WebElement> elementList = element.findElements(By.cssSelector("span"));
-                if (elementList.isEmpty()) {                                                                                    // There are no curated genes...
-                    diseaseRow.hasCuratedGenesInHuman = false;                                                                  //    No human curated genes...
-                    diseaseRow.hasCuratedGenesInMice = false;                                                                   //    No mice curated genes...
-                } else {
-                    if (elementList.size() == 2) {
-                        diseaseRow.hasCuratedGenesInHuman = true;                                                               // Human curated genes found.
-                        diseaseRow.hasCuratedGenesInMice = true;                                                                // Mice curated genes found.
-                    } else {
-                        diseaseRow.hasCuratedGenesInHuman = (elementList.get(0).getText().equals("human"));                     // human curated genes [only] found.
-                        diseaseRow.hasCuratedGenesInMice = (elementList.get(0).getText().equals("mice"));                       // mice curated genes [only] found.
-                    }
-                }
-                
-                element = bodyRowElementList.get(3);                                                                            // Get 'Candidate Genes' element.
-                elementList = element.findElements(By.cssSelector("span"));
-                if (elementList.isEmpty()) {                                                                                    // There are no candidate genes...
-                    diseaseRow.hasCandidateGenesByPhenotypeMGI = false;                                                         //    No MGI candidate genes...
-                    diseaseRow.hasCandidateGenesByPhenotypeIMPC = false;                                                        //    No IMPC candidate genes...
-                } else {
-                    if (elementList.size() == 2) {
-                        diseaseRow.hasCandidateGenesByPhenotypeMGI = true;                                                      // MGI candidate genes found.
-                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = true;                                                     // IMPC candidate genes found.
-                    } else {
-                        diseaseRow.hasCandidateGenesByPhenotypeMGI = (elementList.get(0).getText().equals("MGI"));              // MGI candidate genes [only] found.
-                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = (elementList.get(0).getText().equals("IMPC"));            // IMPC candidate genes [only] found.
-                    }
-                }
-                
-                bodyRows.add(diseaseRow);
-            }
-        }
-    }
-    
-    
     /**
      * Pulls all rows of data and column access variables from the search page's
      * 'diseaseGrid' HTML table.
