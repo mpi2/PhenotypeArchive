@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
@@ -49,7 +50,9 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
@@ -1469,5 +1472,73 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		
 		return null;
 	}
+	
+	public Map<String, List<StatisticalResultBean>> getObservationsForFERAndVIA(String alleleAccession, String phenotypingCenter, String pipelineStableId) 
+		throws NumberFormatException, SolrServerException {
+	    	
+	    	Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
+	    	SolrQuery query = new SolrQuery();
+	    	
+			query.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\" AND "
+	    			+ ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND "
+					+ ObservationDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+			query.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_FER_* OR " + ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_*");
+			query.setRows(1);
+			query.setFacet(true);
+			query.setFacetMinCount(1);
+			query.setFacetLimit(-1);
+			query.addFacetPivotField(ObservationDTO.PARAMETER_STABLE_ID + "," + ObservationDTO.ZYGOSITY);
+			
+			QueryResponse response = solr.query(query);
+			Map<String, List<String>> res = new HashMap<>();
+			List<PivotField> fields = response.getFacetPivot().get(ObservationDTO.PARAMETER_STABLE_ID + "," + ObservationDTO.ZYGOSITY);
+			
+			for (PivotField facet: fields){
+				String parameterStableId = facet.getValue().toString();
+				List<PivotField> zygositites = facet.getPivot();
+				for (PivotField zygosityFacet : zygositites){
+					String zygosity = zygosityFacet.getValue().toString();
+					List<StatisticalResultBean> lb = null;
+					
+					if (results.containsKey(parameterStableId)) {
+						lb = results.get(parameterStableId);
+					} else {
+						lb = new ArrayList<StatisticalResultBean>();
+						results.put(parameterStableId, lb);
+					} 
+
+					Double effectSize = Double.NaN;
+					Double pValue = Double.NaN;
+					String status = "No status found";
+					String statMethod = "Not analysed";
+					String metadata = "Metadata is not used anyway";
+					Integer maleControl = -1;
+					Integer femaleControl = -1;
+					Integer maleMutant = -1;
+					Integer femaleMutant = -1;					
+					
+					lb.add(new StatisticalResultBean(
+								pValue, 
+								effectSize,
+								status,
+								statMethod,
+								"don't know",
+								zygosity,
+								maleControl,
+								maleMutant,
+								femaleControl,
+								femaleMutant,
+								metadata
+						 ));
+					
+				}
+			}
+			
+				
+			
+			
+			return results;
+			
+	    }
 	
 }

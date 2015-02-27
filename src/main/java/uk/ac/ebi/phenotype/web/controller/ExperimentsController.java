@@ -120,7 +120,7 @@ public class ExperimentsController {
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		
 		// retrieve the Allele from the database
-		
+		System.out.println(":::: In genes, ExperimentsController ");
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
 		
 		if (allele == null) {
@@ -130,7 +130,7 @@ public class ExperimentsController {
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
 		
 		List<Map<String,String>> mapList =  null;
-		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
+		HashMap<String, List<StatisticalResultBean>> pvaluesMap = null;
 		
 		// check whether there is a procedure id, and if so if it's truncated or not
 		// The reason is a procedure can have multiple versions.
@@ -150,8 +150,12 @@ public class ExperimentsController {
 		
 		try {
 			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, procedureStableIds);
+			System.out.println("MAP LIST " + mapList);
 			// get all p-values for this allele/center/pipeline
-			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds);
+			pvaluesMap = new HashMap<>();
+			pvaluesMap.putAll(observationService.getObservationsForFERAndVIA(alleleAccession,phenotypingCenter,pipelineStableId));
+			pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds));
+			System.out.println("PVALUE MAP " + pvaluesMap);
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
@@ -178,6 +182,9 @@ public class ExperimentsController {
 		model.addAttribute("allele", allele);
 		model.addAttribute("pipeline", pipeline);
 		model.addAttribute("request", request);
+		
+		
+		
 		
 		return "experiments";
 	}
