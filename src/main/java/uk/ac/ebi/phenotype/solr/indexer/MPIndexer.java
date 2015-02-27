@@ -174,6 +174,11 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp);
+                
+                // make sure this is done after addPhenotype1(mp);
+                // this sets the number of genes annotated to this MP
+                mp.setGeneCount(mp.getMgiAccessionId());  
+                
                 addPhenotype2(mp);
 
                 logger.debug("{}: Built MP DTO {}", count, termId);
