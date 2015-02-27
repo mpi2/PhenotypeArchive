@@ -164,7 +164,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
         int count = 0;
 
-        observationSolrServer.deleteByQuery("*:*");
+//        observationSolrServer.deleteByQuery("*:*");
 
         String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
                 + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
@@ -410,7 +410,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
                 // 60 seconds between commits
                 documentCount++;
-                observationSolrServer.addBean(o, 60000);
+//                observationSolrServer.addBean(o, 60000);
 
                 count ++;
 
@@ -418,10 +418,14 @@ public class ObservationIndexer extends AbstractIndexer {
                     logger.info(" added " + count + " beans");
                 }
 
-            }
+                if (count % 500000 == 0) {
+                    break;
+                }
+
+                }
 
             // Final commit to save the rest of the docs
-            observationSolrServer.commit();
+//            observationSolrServer.commit();
 
         } catch (Exception e) {
             logger.error("Big error {}", e.getMessage(), e);
@@ -490,7 +494,7 @@ public class ObservationIndexer extends AbstractIndexer {
      */
     public void populateLineBiologicalDataMap() throws SQLException {
 
-        String query = "SELECT e.id as experiment_id, e.colony_id, e.id, bm.id, " +
+        String query = "SELECT e.id as experiment_id, e.colony_id, e.id, bm.id as biological_model_id, " +
             "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, " +
             "strain.acc as strain_acc, strain.name as strain_name, " +
             "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bm.id) as allele_accession, " +
@@ -503,8 +507,8 @@ public class ObservationIndexer extends AbstractIndexer {
             "  INNER JOIN biological_model biom ON biom.id=bms.biological_model_id " +
             "  WHERE biom.allelic_composition !='' AND ls.colony_id=e.colony_id LIMIT 1)" +
             "INNER JOIN organisation org ON e.organisation_id=org.id " +
-            "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=e.biological_model_id " +
-            "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc";
+            "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=bm.id " +
+            "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc" ;
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
