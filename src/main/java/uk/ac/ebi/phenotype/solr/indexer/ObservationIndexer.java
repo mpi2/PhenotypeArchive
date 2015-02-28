@@ -535,6 +535,7 @@ public class ObservationIndexer extends AbstractIndexer {
                             " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
                             " INNER JOIN biological_model bm ON bm.id=bms.biological_model_id " +
                             " INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=bm.id " +
+                            " INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc " +
                             " WHERE bm.allelic_composition !='' AND ls.colony_id = ? LIMIT 1 " ;
                     try (PreparedStatement p2 = connection.prepareStatement(query2)) {
                         p2.setString(1, resultSet.getString("colony_id"));
