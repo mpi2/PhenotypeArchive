@@ -530,6 +530,7 @@ public class ObservationIndexer extends AbstractIndexer {
                             " (select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) as allele_symbol, " +
                             " (select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bm.id) as acc, " +
                             " (select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)  as symbol " +
+                            " strain.acc as strain_acc, strain.name as strain_name " +
                             " FROM live_sample ls " +
                             " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id " +
                             " INNER JOIN biological_model bm ON bm.id=bms.biological_model_id " +
