@@ -687,6 +687,7 @@ public class IndexerManager {
         // Print out the exceptions.
         if (ie.getLocalizedMessage() != null) {
             logger.error(ie.getLocalizedMessage());
+            logger.error("Exception is: ", ie);
         }
         int i = 0;
         Throwable t = ie.getCause();
@@ -698,6 +699,7 @@ public class IndexerManager {
                 errMsg.append("<null>");
             }
             logger.error(errMsg.toString());
+            logger.error("Exception is: ", ie);
             i++;
             t = t.getCause();
         }
