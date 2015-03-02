@@ -504,6 +504,11 @@ public class DataTableController {
 			}
 			rowData.add(mpDef);	
 			
+			// number of genes annotated to this MP
+			StringBuilder sb = new StringBuilder();
+			sb.append("");
+			rowData.add(sb.append(doc.getInt("gene_count")).toString());
+			
 			// register of interest
 			if (registerInterest.loggedIn()) {
 				if (registerInterest.alreadyInterested(mpId)) {
@@ -747,15 +752,22 @@ public class DataTableController {
 		}
 		else {			
 			// annotation view: images group by annotationTerm per row
-			
 			String fqStr = fqOri;	
-			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
-			String defaultQStr = "q=observation_type:image_record";
+			
+			String defaultQStr = "observation_type:image_record&qf=auto_suggest&defType=edismax";
+			
+			if ( query != ""){
+				defaultQStr = "q=" + query + " AND " + defaultQStr;
+			}
+			else {
+				defaultQStr = "q=" + defaultQStr;
+			}
+			
 			String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			
 			if ( !fqOri.contains("fq=*:*") ){
 				fqStr = fqStr.replace("&fq=","");
-				defaultQStr = defaultQStr + " AND " + fqStr; 
+				//defaultQStr = defaultQStr + " AND " + fqStr; 
 				defaultFqStr = defaultFqStr + " AND " + fqStr;
 			}
 			
@@ -792,7 +804,16 @@ public class DataTableController {
 					imgSubSetLink = imgCount + " " + unit;
 				}
 				else {
-					String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					String currFqStr = null;
+					if ( displayAnnotName.equals("Gene") ){
+						currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+					}
+					else if ( displayAnnotName.equals("Procedure") ){
+						currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+					}
+					
+					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					String thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
 					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 				}		
 				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
@@ -832,7 +853,6 @@ public class DataTableController {
 				JSONObject doc = docs.getJSONObject(i);					
 				String annots = "";
 				
-				System.out.println("JSON: " + doc.toString());
 				String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
 				String img = "<img src='" +  imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";				
 				String fullSizePath = largeThumbNailPath.replace("tn_large", "full");								
@@ -935,7 +955,6 @@ public class DataTableController {
 			}
 			
 			String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
-			System.out.println("IMAGE PARAMs: "+ solrParams);
 			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			
@@ -1025,7 +1044,7 @@ public class DataTableController {
 
 			// disease link			
 			JSONObject doc = docs.getJSONObject(i);
-			System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
+			//System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
 			String diseaseId = doc.getString("disease_id");
 			String diseaseTerm = doc.getString("disease_term");
 			String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";			
