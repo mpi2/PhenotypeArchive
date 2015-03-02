@@ -1107,7 +1107,7 @@ public class MpDTO {
 	
 	public void setGeneCount(List<String> mgiAccessionId) {
 
-		this.gene_count = mgiAccessionId.size();
+		this.gene_count = mgiAccessionId != null ? mgiAccessionId.size() : 0;
 	}
 
 	
