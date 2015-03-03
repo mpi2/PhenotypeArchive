@@ -26,6 +26,7 @@
 									<p> <a href="${baseUrl}/centerProgressCsv">Procedure Completeness </a> </p>
 									<p> <a href="${baseUrl}/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
 									<p> <a href="${baseUrl}/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
+									<p> <a href="${baseUrl}/mpCallDistribution">Distribution of phenotype hits</a> </p>
 								</div>
 							</div>
 							
