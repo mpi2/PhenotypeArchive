@@ -136,12 +136,18 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         return res;
     }
 
-    public List<Group> getGenesBy(String mpId, String sex)
+    public List<Group> getGenesBy(String mpId, String sex, boolean onlyB6N)
             throws SolrServerException {
 
         // males only
-        SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND ("
-                + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(10000);
+        SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + 
+        	GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + 
+        	GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")");
+        if (onlyB6N){
+        	q.setFilterQueries("(" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + 
+        	GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")");
+        }
+        q.setRows(10000000);
         q.set("group.field", "" + GenotypePhenotypeDTO.MARKER_SYMBOL);
         q.set("group", true);
         q.set("group.limit", 0);
