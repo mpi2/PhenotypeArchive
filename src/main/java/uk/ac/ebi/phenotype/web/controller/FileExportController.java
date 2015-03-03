@@ -60,7 +60,6 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 
-
 import uk.ac.ebi.phenotype.service.MpService;
 
 @Controller
@@ -356,7 +355,7 @@ public class FileExportController {
                 try {
                     wb.write(output);
                 } catch (IOException ioe) {
-                    log.error("Error: " + ioe.getMessage());
+                    log.error("ExcelWorkBook Error: " + ioe.getMessage());
                 }
             }
         } catch (Exception e) {
@@ -514,6 +513,8 @@ public class FileExportController {
             for (int i = 0; i < docs.size(); i ++) {
                 List<String> data = new ArrayList();
                 JSONObject doc = docs.getJSONObject(i);
+                
+                System.out.println(doc.toString());
                 //String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
                 String[] fields = {"annotationTermId", "expName", "symbol_gene"};
                 for (String fld : fields) {
@@ -524,21 +525,23 @@ public class FileExportController {
                     		
                     		// annotaton term with prefix
                     		List<String> termLists = new ArrayList();
-                    		JSONArray termList = doc.getJSONArray("annotationTermName");
-                            
+                    		JSONArray termList = doc.containsKey("annotationTermName") ? 
+                    				doc.getJSONArray("annotationTermName") :
+                    					new JSONArray();
+                    				
                             // annotation id links
                             List<String> link_lists = new ArrayList();
                             
                             JSONArray list = doc.getJSONArray(fld); // annotationTermId
 	                    	for (int l = 0; l < list.size(); l++) {
 	                    		String value = list.getString(l);
-	                    		String termVal = termList.getString(l);
+	                    		String termVal = termList.size() == 0 ?NO_INFO_MSG : termList.getString(l);
 	                    		
 	                    		if ( value.startsWith("MP:") ){
 	                    			link_lists.add(hostName + mpBaseUrl + value);
 	                    			termLists.add("MP:"+termVal);
 	                    		}
-	                    		else {
+	                    		if ( value.startsWith("MA:") ){
 	                    			link_lists.add(hostName + maBaseUrl + value);
 	                    			termLists.add("MA:"+termVal);
 	                    		}
@@ -546,9 +549,9 @@ public class FileExportController {
 	                         	lists.add(value);
 	                        }
 	                    	
-	                    	data.add(StringUtils.join(termLists, "|"));
-	                        data.add(StringUtils.join(lists, "|"));
-	                        data.add(StringUtils.join(link_lists, "|"));
+	                    	data.add( termLists.size() == 0 ? NO_INFO_MSG : StringUtils.join(termLists, "|") );  // term names
+	                        data.add( lists.size() == 0 ? NO_INFO_MSG : StringUtils.join(lists, "|") );      // term ids
+	                        data.add( link_lists.size() == 0 ? NO_INFO_MSG : StringUtils.join(link_lists, "|") ); // term id links
                     	}
                     	else if ( fld.equals("symbol_gene") ){
                     		// gene symbol and its link
@@ -703,7 +706,7 @@ public class FileExportController {
 					}
 				}
 		
-				data.add(doc.getString("jpeg_url"));
+				data.add(doc.containsKey("jpeg_url") ? doc.getString("jpeg_url") : NO_INFO_MSG);
 				rowData.add(StringUtils.join(data, "\t"));
 			}
         } 
@@ -717,16 +720,38 @@ public class FileExportController {
             //rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
             rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
              
-            String fqStr = query;	
-			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
-			String defaultQStr = "q=observation_type:image_record";
+//            String fqStr = query;	
+//			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
+//			String defaultQStr = "q=observation_type:image_record";
+//			String defaultFqStr = "fq=(biological_sample_group:experimental)";
+//			//System.out.println("fqStr: " + fqStr);
+//			
+//			
+//			if ( !query.contains("fq=*:*") ){
+//				fqStr = fqStr.replace("&fq=","");
+//				defaultQStr = defaultQStr + " AND " + fqStr; 
+//				defaultFqStr = defaultFqStr + " AND " + fqStr;
+//			}
+			
+			String fqStr = query;	
+			
+			String defaultQStr = "observation_type:image_record&qf=auto_suggest&defType=edismax";
+			
+			if ( query != ""){
+				defaultQStr = "q=" + query + " AND " + defaultQStr;
+			}
+			else {
+				defaultQStr = "q=" + defaultQStr;
+			}
+			
 			String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			
-			if ( !query.contains("fq=*:*") ){
+			if ( !fqStr.contains("fq=*:*") ){
 				fqStr = fqStr.replace("&fq=","");
-				defaultQStr = defaultQStr + " AND " + fqStr; 
+				//defaultQStr = defaultQStr + " AND " + fqStr; 
 				defaultFqStr = defaultFqStr + " AND " + fqStr;
 			}
+			
 			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			 
@@ -780,8 +805,18 @@ public class FileExportController {
 				
 				query = annot.facet + ":\"" + annotVal + "\"";
 				
+				String currFqStr = null;
+				if ( displayAnnotName.equals("Gene") ){
+					currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+				}
+				else if ( displayAnnotName.equals("Procedure") ){
+					currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+				}
+				
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-				String thisImgUrl = "http:" + mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+				//String thisImgUrl = "http:" + mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+				
+				String thisImgUrl = mediaBaseUrl + "?" + defaultQStr + '&' + currFqStr;
 				//String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + thisImgUrl + "</a>";
 				String imgSubSetLink = thisImgUrl;
 				
@@ -849,7 +884,7 @@ public class FileExportController {
         String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";	
         
         List<String> rowData = new ArrayList();
-        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids"); // column names	
+        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids\tPostqc call(s)"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -907,6 +942,12 @@ public class FileExportController {
                 data.add(NO_INFO_MSG);
                 data.add(NO_INFO_MSG);
             }
+            
+            // number of genes annotated to this MP
+			StringBuilder sb = new StringBuilder();
+			sb.append("");
+			data.add(sb.append(doc.getInt("postqc_calls")).toString());
+         			
             
             rowData.add(StringUtils.join(data, "\t"));
         }

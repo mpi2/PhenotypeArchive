@@ -36,4 +36,5 @@ public class DownloadSearchMapPhenotypes {
     public final static int COL_INDEX_TOP_LEVEL_MP_TERM       = 5;
     public final static int COL_INDEX_COMP_MAPPED_HP_TERMS    = 6;
     public final static int COL_INDEX_COMP_MAPPED_HP_TERM_IDS = 7;
+    public final static int COL_INDEX_PHENOTYPING_CALLS       = 8;
 }

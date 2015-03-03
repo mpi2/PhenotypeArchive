@@ -92,7 +92,7 @@
 										  	<input type="radio" value="nogo" name="go" class='go'>Genes w/o GO<br>
 										  
 										  	<p class='gocat'>Gene w/ GO in evidence categories:</p>
-										  	
+										  	<input type="checkbox" value="collapse" name="collapse">Collapse on evidence categories<br>
 											<input type="radio" value="experimental" name="go">Experimental<br>
 											<input type="radio" value="curatedcomp" name="go">Curated computational<br>
 											<input type="radio" value="automated" name="go">Automated electronic<br>
@@ -140,10 +140,11 @@
 					dogoterm: true
        		  	};
 
-				var commonQ = '(latest_phenotype_status:"Phenotyping Started" OR latest_phenotype_status:"Phenotyping Complete")';
-				var commonFl =  "evidCodeRank,latest_phenotype_status,mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name";
-				var rows = 999999;
-				var restParam = "&sort=marker_symbol asc&wt=json&fq=mp_id:*";
+				///var commonQ = '(latest_phenotype_status:"Phenotyping Started" OR latest_phenotype_status:"Phenotyping Complete")';
+				var commonQ = 'latest_phenotype_status:*';
+				var rows = 9999999;
+				//var restParam = "&sort=marker_symbol asc&wt=json&fq=mp_id:*";
+				var restParam = "&sort=marker_symbol asc&wt=json";
 				var exportUrl = baseUrl + '/export';      
 
        	      	// submit form dynamically
@@ -152,6 +153,12 @@
        		      	conf.fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
        		       	conf.fileName = 'go_dump';// + conf.fileType;
 
+       		     	
+       		     	var	commonFl = $("input[name=collapse]").is(':checked') 
+       		     				? "evidCodeRank,mgi_accession_id,marker_symbol"
+       		     				: "evidCodeRank,latest_phenotype_status,mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name";
+    		       	
+       		       	console.log(commonFl)
        		       	var qryMap = {
        		        	"nogo" :        "q=" + commonQ + " AND -go_term_id:*&fl=mgi_accession_id,marker_symbol&rows=" + rows + restParam,
        		           	"experimental": "q=" + commonQ + " AND evidCodeRank:4&fl=" + commonFl + "&rows=" + rows + restParam, 
@@ -163,12 +170,15 @@
        		       	};
        		       	
        		       	var sExp = $("input[name=go]:checked", '#export').val();
+       		     	conf.params = qryMap[sExp];
+       		       	console.log(conf.params);
+       		       	
        		       	if ( typeof sExp == 'undefined' ){
        		       		alert('Sorry, you need to choose one of the radio buttons to export data.');
        		       		return false;
        		       	}
        		       	
-       		     	conf.params = qryMap[sExp];
+       		     	
        		     	conf.gridFields = commonFl;
        		       	
 					var sInputs = '';

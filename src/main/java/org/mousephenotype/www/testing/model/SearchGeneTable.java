@@ -21,7 +21,6 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
@@ -105,13 +104,13 @@ public class SearchGeneTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               COL_INDEX_GENE_ID
             , COL_INDEX_GENE_NAME
             , COL_INDEX_GENE_SYMBOL
             , COL_INDEX_HUMAN_ORTHOLOG
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadSearchMapGenes.COL_INDEX_GENE_ID
             , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
             , DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL

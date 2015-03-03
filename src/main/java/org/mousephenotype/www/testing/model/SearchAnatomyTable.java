@@ -98,11 +98,11 @@ public class SearchAnatomyTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               COL_INDEX_ANATOMY_ID
             , COL_INDEX_ANATOMY_TERM
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID
             , DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM
         };

@@ -21,11 +21,12 @@
 				
 							<div class="section">
 								<div class="inner">
-									<p> <a href="${baseUrl}/gene2go">GO annotations to IMPC genes</a> </p>
-									<p>	<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a> </p>
-									<p> <a href="${baseUrl}/centerProgressCsv">Procedure Completeness </a> </p>
-									<p> <a href="${baseUrl}/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
-									<p> <a href="${baseUrl}/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
+									<p> <a href="${baseUrl}/reports/gene2go">GO annotations to IMPC genes</a> </p>
+									<p>	<a href="${baseUrl}/reports/getLaczSpreadsheet">LacZ Expression</a> </p>
+									<p> <a href="${baseUrl}/reports/centerProgressCsv">Procedure Completeness </a> </p>
+									<p> <a href="${baseUrl}/reports/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
+									<p> <a href="${baseUrl}/reports/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
+									<p> <a href="${baseUrl}/reports/mpCallDistribution">Distribution of phenotype hits</a> </p>
 								</div>
 							</div>
 							

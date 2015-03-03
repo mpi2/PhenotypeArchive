@@ -222,7 +222,7 @@ public class GraphPageTest {
             GridMap data = new GridMap(geneTable.getPreAndPostQcList(), target);
             // Start rowIndex at 1 to skip over heading row.
             for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
-                graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
+                graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH_LINK);
 
                 // Select only preQc links.
                 if (TestUtils.isPreQcLink(graphUrl)) {
@@ -401,7 +401,7 @@ public class GraphPageTest {
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
                     Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_P_VALUE));
-                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
+                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH_LINK);
                     
                     // Skip over preQc links.
                     if (TestUtils.isPreQcLink(graphUrl)) {

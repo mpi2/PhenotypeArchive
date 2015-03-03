@@ -128,12 +128,12 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					int omeroId = iBean.omeroId;
 					imageDTO.setOmeroId(omeroId);
 
-/*					if (omeroId == 0) {
+					if (omeroId == 0) {
 						// Skip records that do not have an omero_id
 						logger.error("Skipping record for image record {} -- missing omero_id", fullResFilePath);
 						continue;
 					}
-*/
+
 					// need to add a full path to image in omero as part of api
 					// e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
 					if (omeroId != 0 && downloadFilePath != null) {

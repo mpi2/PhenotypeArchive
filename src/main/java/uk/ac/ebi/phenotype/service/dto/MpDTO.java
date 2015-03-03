@@ -3,6 +3,8 @@ package uk.ac.ebi.phenotype.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 /**
@@ -60,6 +62,7 @@ public class MpDTO {
 	public static final String SIBLING_MP_DEFINITION = "sibling_mp_definition";
 	public static final String P_VALUE = "p_value";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
+	public static final String POSTQC_CALLS = "postqc_calls";
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_ACCESSION_ID = "marker_accession_id";
 	public static final String PREQC_GENE_ID = "preqc_gene_id";
@@ -286,6 +289,9 @@ public class MpDTO {
 	@Field(MGI_ACCESSION_ID)
 	private List<String> mgiAccessionId;
 
+	@Field(POSTQC_CALLS)
+	private Integer postqcCalls;
+	
 	@Field(MARKER_SYMBOL)
 	private List<String> markerSymbol;
 
@@ -1096,7 +1102,17 @@ public class MpDTO {
 		this.mgiAccessionId = mgiAccessionId;
 	}
 
+	public Integer getPostqcCalls() {
 
+		return postqcCalls;
+	}
+	
+	public void setPostqcCalls(Integer mpCalls) {
+		
+		this.postqcCalls = mpCalls;
+	}
+
+	
 	public List<String> getMarkerSymbol() {
 
 		return markerSymbol;

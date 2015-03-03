@@ -15,8 +15,12 @@
  */
 package uk.ac.ebi.generic.util;
 
+import java.net.URLEncoder;
 import java.util.List;
 
+
+
+import org.apache.commons.httpclient.util.URIUtil;
 // XSSF
 import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -86,7 +90,14 @@ public class ExcelWorkBook {
     			// make hyperlink in cell
     			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
     				
+    				//need to encode URI for this version of ExcelWorkBook
+    				cellStr = URIUtil.encodePath(cellStr,"UTF-8");
+    				
+    				cellStr = cellStr.replace("%3F","?");  // so that url link would work
+    				
+    				//System.out.println("cellStr: " + cellStr);
     				XSSFHyperlink url_link = (XSSFHyperlink)createHelper.createHyperlink(Hyperlink.LINK_URL);
+    				
     				url_link.setAddress(cellStr);
     				
                     cell.setCellValue(cellStr);         

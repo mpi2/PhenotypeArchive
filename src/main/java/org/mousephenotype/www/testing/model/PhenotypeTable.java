@@ -54,7 +54,7 @@ public class PhenotypeTable {
     public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER  =  5;
     public static final int COL_INDEX_PHENOTYPES_SOURCE              =  6;
     public static final int COL_INDEX_PHENOTYPES_P_VALUE             =  7;
-    public static final int COL_INDEX_PHENOTYPES_GRAPH               =  8;
+    public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK          =  8;
     
     public static final String COL_PHENOTYPES_GENE_ALLELE         = "Gene / Allele";
     public static final String COL_PHENOTYPES_ZYGOSITY            = "Zygosity";
@@ -166,7 +166,7 @@ public class PhenotypeTable {
                     } else {
                         value = sex.get(0).getAttribute("alt").toLowerCase();
                     }
-                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_GRAPH) {                    // Extract the graph url from the <a> anchor and decode it.
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
                     // NOTE: Graph links are disabled if there is no supporting data.
                     List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
                     value = "";

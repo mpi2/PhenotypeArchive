@@ -48,7 +48,8 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     public static final int COL_INDEX_PHENOTYPE_ID_LINK    = 4;
     public static final int COL_INDEX_SYNONYMS             = 5;
     public static final int COL_INDEX_TOP_LEVEL_MP_TERM    = 6;
-    public static final int COL_INDEX_LAST = COL_INDEX_TOP_LEVEL_MP_TERM;       // Should always point to the last (highest-numbered) index.
+    public static final int COL_INDEX_PHENOTYPING_CALLS    = 7;
+    public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPING_CALLS;       // Should always point to the last (highest-numbered) index.
     
     private final List<PhenotypeRow> bodyRows = new ArrayList();
     private final GridMap pageData;
@@ -105,21 +106,23 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               COL_INDEX_PHENOTYPE_TERM
             , COL_INDEX_PHENOTYPE_ID
             , COL_INDEX_DEFINITION
             , COL_INDEX_PHENOTYPE_ID_LINK
             , COL_INDEX_SYNONYMS
             , COL_INDEX_COMP_MAPPED_HP_TERMS
+            , COL_INDEX_PHENOTYPING_CALLS
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_TERM
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID
             , DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID_LINK
             , DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
             , DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS
+            , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPING_CALLS
         };
         final Integer[] sortColumns = {
               DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
@@ -181,6 +184,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_TERM] = "";
             pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_ID_LINK] = "";
             pageArray[sourceRowIndex][COL_INDEX_SYNONYMS] = "";
+            pageArray[sourceRowIndex][COL_INDEX_PHENOTYPING_CALLS] = "";
             
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 PhenotypeRow phenotypeRow = new PhenotypeRow();
@@ -209,6 +213,10 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 }
                 phenotypeRow.definition = bodyRowElementList.get(1).getText();                                          // definition.
                 pageArray[sourceRowIndex][COL_INDEX_DEFINITION] = phenotypeRow.definition;
+                
+                Integer iCalls = Utils.tryParseInt(bodyRowElementList.get(2).getText());
+                phenotypeRow.phenotypeCalls = (iCalls == null ? 0 : iCalls);
+                pageArray[sourceRowIndex][COL_INDEX_PHENOTYPING_CALLS] = Integer.toString(phenotypeRow.phenotypeCalls);
                 
                 sourceRowIndex++;
                 bodyRows.add(phenotypeRow);
@@ -331,20 +339,22 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     
     private class PhenotypeRow {
         private String phenotypeTerm   = "";
-        private String phenotypeId    = "";
+        private String phenotypeId     = "";
         private String phenotypeIdLink = "";
         private String definition      = "";
+        private int    phenotypeCalls  = 0;
         private List<String> synonyms   = new ArrayList();
         private List<String> hpTerms   = new ArrayList();
         
         @Override
         public String toString() {
-            return "phenotypeTerm: '"    + phenotypeTerm
-                 + "'  phenotypeId: '"   + phenotypeId
-                 + "'  phenotypeLink: '" + phenotypeIdLink
-                 + "'  definition: '"    + definition
-                 + "'  synonyms: '"      + toStringSynonyms() + "'"
-                 + "'  hpTerms: '"       + toStringHpTerms() + "'"
+            return "phenotypeTerm: '"     + phenotypeTerm
+                 + "'  phenotypeId: '"    + phenotypeId
+                 + "'  phenotypeLink: '"  + phenotypeIdLink
+                 + "'  definition: '"     + definition
+                 + "'  phenotypeCalls: '" + phenotypeCalls
+                 + "'  synonyms: '"       + toStringSynonyms() + "'"
+                 + "'  hpTerms: '"        + toStringHpTerms() + "'"
                     ;
         }
         

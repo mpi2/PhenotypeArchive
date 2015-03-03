@@ -372,10 +372,15 @@
                                     <div class="inner">
 
 
-                                        <div class="accordion-group">
+                                        <div id="impc-images-heading" class="accordion-group">
                                             <div class="accordion-heading">
-                                                <%--  ${entry.name} (${entry.count}) --%>
-                                                ${fn:length(impcImageFacets)} Image Parameters
+                                                <%--  ${entry.name} (${entry.count}) --%>  
+                                                <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
+
+                                                        <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
+                                                            ${doc.parameter_name}(${entry.count})
+                                                         </c:forEach>
+                                                    </c:forEach><!-- solrFacets end -->
                                             </div>
                                             <div class="accordion-body">
                                                 <ul>

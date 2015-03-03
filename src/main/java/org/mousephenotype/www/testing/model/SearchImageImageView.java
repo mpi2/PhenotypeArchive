@@ -96,7 +96,7 @@ public class SearchImageImageView {
             // Verify the components.
             
             // Column 0: annotationTerm.
-            String dnldTermCollection = downloadRow[0];
+            String dnldTermCollection = downloadRow[DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_TERMS];
             String pageTermCollection = "";
             if (pageRow.maTerm != null)
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toString(), "|");
@@ -108,7 +108,7 @@ public class SearchImageImageView {
             }
             
             // Column 1: annotationId.
-            dnldTermCollection = downloadRow[1];
+            dnldTermCollection = downloadRow[DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_IDS];
             pageTermCollection = "";
             if (pageRow.maTerm != null)
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringIds(), "|");
@@ -120,7 +120,8 @@ public class SearchImageImageView {
             }
             
             // Column 2: annotationIdLink. SPECIAL CASE: REMAP PROTOCOL FOR BOTH FROM HTTPS TO HTTP SO COMPARISON DOESN'T FAIL BECAUSE OF THE DIFFERENCE.
-            dnldTermCollection = downloadRow[2].replace("https", "http");
+            dnldTermCollection = downloadRow[DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_ID_LINKS].replace("https", "http");
+            dnldTermCollection = TestUtils.urlDecode(dnldTermCollection);       // Decode the url.
             pageTermCollection = "";
             if (pageRow.maTerm != null)
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.maTerm.toStringLinks(), "|").replace("https", "http");
@@ -132,7 +133,7 @@ public class SearchImageImageView {
             }
             
             // Column 3: procedure.
-            dnldTermCollection = downloadRow[3];
+            dnldTermCollection = downloadRow[DownloadSearchMapImagesImageView.COL_INDEX_PROCEDURES];
             pageTermCollection = "";
             if (pageRow.procedureTerm != null)
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.procedureTerm.toStringTerms(), "|");
@@ -142,7 +143,7 @@ public class SearchImageImageView {
             }
             
             // Column 4: genesymbol.
-            dnldTermCollection = downloadRow[4];
+            dnldTermCollection = downloadRow[DownloadSearchMapImagesImageView.COL_INDEX_GENE_SYMBOLS];
             pageTermCollection = "";
             if (pageRow.geneTerm != null)
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.geneTerm.toStringTerms(), "|");
@@ -152,7 +153,8 @@ public class SearchImageImageView {
             }
             
             // Column 5: geneSymbolLink.
-            dnldTermCollection = downloadRow[5];
+            dnldTermCollection = downloadRow[DownloadSearchMapImagesImageView.COL_INDEX_GENE_SYMBOL_LINKS];
+            dnldTermCollection = TestUtils.urlDecode(dnldTermCollection);       // Decode the url.
             pageTermCollection = "";
             if (pageRow.geneTerm != null)
                 pageTermCollection = TestUtils.addTo(pageTermCollection, pageRow.geneTerm.toStringLinks(), "|");
@@ -162,7 +164,8 @@ public class SearchImageImageView {
             }
             
             // Column 6: imageLink.
-            dnldTermCollection = downloadRow[6];
+            dnldTermCollection = downloadRow[DownloadSearchMapImagesImageView.COL_INDEX_IMAGE_LINK];
+            dnldTermCollection = TestUtils.urlDecode(dnldTermCollection);       // Decode the url.
             if (pageRow.imageLink != null)
                 pageTermCollection = pageRow.imageLink.replaceFirst("https", "http");   // Replace any page value 'https' with 'http'
             if ( ! TestUtils.pageEqualsDownload(pageTermCollection, dnldTermCollection)) {

@@ -35,7 +35,19 @@ public class ControllerUtils {
 	    CSVWriter writer = new CSVWriter(new OutputStreamWriter(buffOs));
 	    writer.writeAll(toWrite);
 		writer.close();
-	               
+	}
+	
+	public static void writeAsCSVMultipleTables(List<List<String[]>> toWrite, String fileName, HttpServletResponse response) throws IOException{
+	    response.setContentType("text/csv;charset=utf-8"); 
+	    response.setHeader("Content-Disposition","attachment; filename="+fileName);
+	    OutputStream resOs= response.getOutputStream();  
+	    OutputStream buffOs= new BufferedOutputStream(resOs);   
+	    CSVWriter writer = new CSVWriter(new OutputStreamWriter(buffOs));
+	    for (List<String[]> table : toWrite){
+	    	writer.writeAll(table);
+	    	writer.writeNext(new String[0]);
+	    }
+		writer.close();
 	}
 	
 }

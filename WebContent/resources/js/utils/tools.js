@@ -1949,6 +1949,9 @@
         if (oUrlParams.widgetName == 'geneFacet') {
             oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
         }
+        if (oUrlParams.widgetName == 'mpFacet') {
+            oUrlParams.params += '&sort:gene_count desc';
+        }
 
         if (facetDivId == 'imagesFacet' || facetDivId == 'impc_imagesFacet') {
             //oInfos.showImgView = true;	// don't want to show imgView as default

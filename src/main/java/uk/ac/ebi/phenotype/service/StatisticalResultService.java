@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
@@ -52,6 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.Set;
@@ -90,7 +93,122 @@ public class StatisticalResultService extends BasicService {
     public StatisticalResultService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
+    
 
+    public Map<String, ArrayList<String>> getDistributionOfLinesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.COLONY_ID;
+		SolrQuery q = new SolrQuery();
+		
+		if (resourceName != null){
+            q.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + StatisticalResultDTO.RESOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }
+
+        if (pValueThreshold != null){
+        	q.setFilterQueries(StatisticalResultDTO.P_VALUE + ":[0 TO " + pValueThreshold + "]");
+        } 
+        
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setFacetMinCount(1);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+
+		System.out.println("Solr url for getDistributionOfLinesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
+		QueryResponse response = solr.query(q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> colonies = new ArrayList<>();
+			for (PivotField colony : pivot.getPivot()){
+				colonies.add(colony.getValue().toString());
+			}
+			res.put(pivot.getValue().toString(), new ArrayList<String>(colonies));
+		}
+		
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+		return res;
+	}
+   
+    public Map<String, ArrayList<String>> getDistributionOfGenesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
+		SolrQuery q = new SolrQuery();
+		
+		if (resourceName != null){
+            q.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + StatisticalResultDTO.RESOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }
+
+        if (pValueThreshold != null){
+        	q.setFilterQueries(StatisticalResultDTO.P_VALUE + ":[0 TO " + pValueThreshold + "]");
+        } 
+        
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+
+		System.out.println("Solr url for getDistributionOfGenesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
+		QueryResponse response = solr.query(q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> genes = new ArrayList<>();
+			for (PivotField gene : pivot.getPivot()){
+				genes.add(gene.getValue().toString());
+			}
+			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+		}
+		
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+		return res;
+	}
+    
+    /**
+     * @param zygosity - optional (pass null if not needed)
+     * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
+     * @author tudose
+     */
+    public TreeMap<String, Long> getDistributionOfAnnotationsByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold) {
+
+        SolrQuery query = new SolrQuery();
+        
+        if (resourceName != null){
+            query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + StatisticalResultDTO.RESOURCE_NAME + ":"));
+        }else {
+            query.setQuery("*:*");
+        }
+
+        if (pValueThreshold != null){
+        	query.setFilterQueries(StatisticalResultDTO.P_VALUE + ":[0 TO " + pValueThreshold + "]");
+        } 
+        	
+        query.setFacet(true);
+        query.setFacetLimit(-1);
+        query.setFacetMinCount(1);
+        query.setRows(0);
+        query.addFacetField(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
+
+        try {
+            QueryResponse response = solr.query(query);
+            TreeMap<String, Long> res = new TreeMap<>();
+            res.putAll(getFacets(response).get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME));
+            return res;
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    
     /**
      * Get the result for a set of 
      *  allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex
@@ -594,14 +712,15 @@ public class StatisticalResultService extends BasicService {
 		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
-		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" +
+			StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);
 		q.set("facet.limit", -1); 
-		
-		QueryResponse response = solr.query(q);
+
 		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		QueryResponse response = solr.query(q);
 		
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			ArrayList<String> genes = new ArrayList<>();
@@ -678,4 +797,21 @@ public class StatisticalResultService extends BasicService {
         }
         return res;
     }
+    
+    public List<Group> getGenesBy(String mpId, String sex)
+    throws SolrServerException {
+    	
+		SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
+				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID 
+				+ ":\"" + mpId + "\")").setRows(10000);
+		q.set("group.field", "" + StatisticalResultDTO.MARKER_SYMBOL);
+		q.set("group", true);
+		q.set("group.limit", 0);
+		
+		if (sex != null) {
+		    q.addFilterQuery(GenotypePhenotypeDTO.SEX + ":" + sex);
+		}
+		QueryResponse results = solr.query(q);
+		return results.getGroupResponse().getValues().get(0).getValues();
+	}
 }

@@ -480,6 +480,29 @@ public class SolrIndex2 {
         return construct;
     }
     
+    public Map<String, Object> getGeneByIkmcProjectId(String pipeline, String ikmc_project_id)
+            throws IOException, URISyntaxException {
+
+        String url;
+        String target = "type:gene AND ikmc_project:" + ikmc_project_id;
+
+        String search_url = "/select?q="
+                + target
+                + "&start=0&rows=1&hl=true&wt=json";
+
+        url = searchAlleleCore(pipeline, search_url);
+        log.info(url);
+        JSONObject jsonObject = getResults(url);
+                
+        JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+        
+        if (docs.size() < 1) {
+            log.info("#### No rows returned for the query!");
+            return null;
+        }
+        
+        return getGeneData(docs.getJSONObject(0));
+    }
     
     private String getAllProductsUrl(String accession, String allele_name) {
         log.info("#### getAllProductsUrl");
