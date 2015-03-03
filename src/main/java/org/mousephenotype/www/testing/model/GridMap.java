@@ -21,7 +21,10 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -77,6 +80,72 @@ public class GridMap {
         
         this.target = target;
     }
+    
+    /**
+     * Creates a set from <code>input</code> using <code>colIndexes</code>, using
+     * the underscore character as a column delimiter. Each value is first trimmed,
+     * then lowercased.
+     * 
+     * Example: input.body[][] = "a", "b", "c", "d", "e"
+     *                           "f", "g", "h", "i", "j"
+     * 
+     * colIndexes = 1, 3, 4
+     * 
+     * produces a set that looks like:  "b_d_e_"
+     *                                  "g_i_j_"
+     * @param colIndexes indexes of columns to be copied
+     * @return a set containing the concatenated values.
+     */
+    public Set<String> createSet(Integer[] colIndexes) {
+        return TestUtils.createSet(this, colIndexes);
+    }
+    
+    public GridMap urlDecode(List<Integer> colIndexes) {
+        if ((data == null) || data.length == 0) {
+            return this;
+        }
+        
+        String[][] localData = new String[data.length][data[0].length];
+        for (int rowIndex = 0; rowIndex < localData.length; rowIndex++) {
+            String[] row = data[rowIndex];
+            for (int colIndex = 0; colIndex < row.length; colIndex++) {
+                String cell = row[colIndex];
+                if (colIndexes.contains(colIndex)) {
+                    cell = TestUtils.urlDecode(cell);
+                }
+                localData[rowIndex][colIndex] = cell;
+            }
+        }
+        
+        GridMap retVal = new GridMap(localData, target);
+        
+        return retVal;
+    }
+    
+    /**
+     * Decodes <code>url</code>, into UTF-8, making it suitable to use as a link.
+     * Invalid url strings are ignored and the original string is returned.
+     * @param url the url to decode
+     * @param colIndexes indexes of columns to be copied
+     * @return the decoded url
+     */
+    public static Set<String> urlDecode(Set<String> url, String[] colIndexes) {
+        Set<String> retVal = new HashSet();
+        try {
+            Iterator<String> it = url.iterator();
+            while (it.hasNext()) {
+                retVal.add(TestUtils.urlDecode(it.next()));
+            }
+        } catch (Exception e) {
+            System.out.println("Decoding of value '" + (url == null ? "<null>" : url) + "' failed: " + e.getLocalizedMessage());
+        }
+        
+        return retVal;
+    }
+    
+    
+    // GETTERS AND SETTERS
+    
     
     public String[][] getData() {
         return data;

@@ -157,7 +157,7 @@ public class GenePage {
                 geneTable.load();
                 GridMap map = geneTable.getData();
                 for (int i = 0; i < map.getBody().length; i++) {
-                    urls.add(map.getCell(i, GeneTable.COL_INDEX_GENES_GRAPH));
+                    urls.add(map.getCell(i, GeneTable.COL_INDEX_GENES_GRAPH_LINK));
                 }
             }
         }
@@ -305,7 +305,7 @@ public class GenePage {
                     status.addError("Missing or invalid P Value. URL: " + target);
                 }
 
-                cell = row.get(GeneTable.COL_INDEX_GENES_GRAPH);
+                cell = row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK);
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
@@ -442,9 +442,9 @@ public class GenePage {
 
         // When testing using http, the download link compare fails because the page url uses http
         // but the download graph link uses https. Ignore the protocol (but not the hostname).
-        pageCell = TestUtils.removeProtocol(pageMap.getCell(1, GeneTable.COL_INDEX_GENES_GRAPH).trim());
+        pageCell = TestUtils.removeProtocol(pageMap.getCell(1, GeneTable.COL_INDEX_GENES_GRAPH_LINK).trim());
         
-        downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH).trim());
+        downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH_LINK).trim());
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
@@ -598,7 +598,7 @@ public class GenePage {
         // Check that the number of rows in the download file is at least as
         // many rows as the number of [non-preqc] sex icons shown on the first page.
         int sexIconCount = TestUtils.getSexIconCount(pageData, GeneTable.COL_INDEX_GENES_SEX,
-                                                               GeneTable.COL_INDEX_GENES_GRAPH);
+                                                               GeneTable.COL_INDEX_GENES_GRAPH_LINK);
         if (downloadDataLineCount < sexIconCount) {
             status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
                     sexIconCount + ").");
@@ -608,28 +608,31 @@ public class GenePage {
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               GeneTable.COL_INDEX_GENES_ALLELE
             , GeneTable.COL_INDEX_GENES_ZYGOSITY
             , GeneTable.COL_INDEX_GENES_PHENOTYPE
             , GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER
             , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER
             , GeneTable.COL_INDEX_GENES_SOURCE
-            , GeneTable.COL_INDEX_GENES_GRAPH
+            , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadGeneMap.COL_INDEX_ALLELE
             , DownloadGeneMap.COL_INDEX_ZYGOSITY
             , DownloadGeneMap.COL_INDEX_PHENOTYPE
             , DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER
             , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER
             , DownloadGeneMap.COL_INDEX_SOURCE
-            , DownloadGeneMap.COL_INDEX_GRAPH
+            , DownloadGeneMap.COL_INDEX_GRAPH_LINK
+        };
+        final Integer[] decodeColumns = {
+            DownloadGeneMap.COL_INDEX_GRAPH_LINK
         };
         
         // Create a pair of sets: one from the page, the other from the download.
-        Set pageSet = TestUtils.createSet(pageData, pageColumns);
-        Set downloadSet = TestUtils.createSet(downloadData, downloadColumns);
+        Set<String> pageSet = TestUtils.createSet(pageData, pageColumns);
+        Set<String> downloadSet = downloadData.urlDecode(Arrays.asList(decodeColumns)).createSet(downloadColumns);
         
         Set difference = TestUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
