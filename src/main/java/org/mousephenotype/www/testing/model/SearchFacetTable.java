@@ -20,7 +20,11 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -64,6 +68,37 @@ public abstract class SearchFacetTable {
         this.tableXpath = tableXpath;
         setTable(driver.findElement(By.xpath(tableXpath)));
     }
+    
+    public enum EntriesSelect {
+        _10(10),
+        _25(25),
+        _50(50),
+        _100(100);
+        
+        private final int value;
+        
+        private EntriesSelect(final int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
+    }
+    /**
+     * Return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     * 
+     * @return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     */
+    public abstract int getNumEntries();
+    /**
+     * Set the number of entries in the 'entries' drop-down box.
+     * 
+     * @param entriesSelect The new value for the number of entries to show.
+     */
+    public abstract void setNumEntries(EntriesSelect entriesSelect);
     
     /**
      * Click the toolbox (the download link that shows/hides the download popup)
@@ -171,5 +206,56 @@ public abstract class SearchFacetTable {
                         + expectedHeadingList[i] + "' but actual heading was '" + actualHeadingList[i] + "'.");
             }
         }
+    }
+    
+    // PROTECTED METHODS
+    
+
+    /**
+     * Validates download data against this search table instance.
+     * 
+     * @param pageData The page data used for comparison
+     * @param pageColumns The page columns used in the comparison
+     * @param downloadDataArray The download data used for comparison
+     * @param downloadColumns The download columns used in the comparison
+     * @param downloadUrl The download stream URL
+     * @return validation status
+     */
+    protected PageStatus validateDownloadInternal(GridMap pageData, int[] pageColumns, String[][] downloadDataArray,  int[] downloadColumns, String downloadUrl) {
+        PageStatus status = new PageStatus();
+        List<List<String>> downloadDataList = new ArrayList();
+        for (String[] row : downloadDataArray) {
+            List rowList = Arrays.asList(row);
+            downloadDataList.add(rowList);
+        }
+        
+        GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
+        
+        // Do a set difference between the rows on the first displayed page
+        // and the rows in the download file. The difference should be empty.
+        int errorCount = 0;
+        
+        // Create a pair of sets: one from the page, the other from the download.
+        GridMap patchedPageData = TestUtils.patchEmptyFields(pageData);
+        Set pageSet = TestUtils.createSet(patchedPageData, pageColumns);
+        Set downloadSet = TestUtils.createSet(downloadData, downloadColumns);
+        Set difference = TestUtils.cloneStringSet(pageSet);
+        difference.removeAll(downloadSet);
+        if ( ! difference.isEmpty()) {
+            System.out.println("ERROR: The following data was found on the page but not in the download:");
+            Iterator it = difference.iterator();
+            int i = 0;
+            while (it.hasNext()) {
+                String value = (String)it.next();
+                System.out.println("[" + i++ + "]: " + value);
+                errorCount++;
+            }
+        }
+
+        if (errorCount > 0) {
+            status.addError("Mismatch.");
+        }
+        
+        return status;
     }
 }

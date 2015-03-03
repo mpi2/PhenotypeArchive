@@ -15,6 +15,27 @@
  */
 package uk.ac.ebi.generic.util;
 
+import java.net.URLEncoder;
+import java.util.List;
+
+
+
+import org.apache.commons.httpclient.util.URIUtil;
+// XSSF
+import org.apache.poi.common.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
+import org.apache.poi.xssf.usermodel.XSSFPrintSetup;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+
+/*
+// HSSF
 import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -22,6 +43,7 @@ import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+*/
 
 /**
 * Creating spreadsheet using Apache POI.
@@ -30,8 +52,69 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 public class ExcelWorkBook {
 
-	Workbook wb = null;
+	XSSFWorkbook wb = null;
+	// use XSSF as HSSF excel(2003) cannot handle > 65536 rows 
+	public ExcelWorkBook(String[] titles, Object[][] tableData, String sheetTitle) throws Exception {
+		
+		this.wb = new XSSFWorkbook(); 
+		CreationHelper createHelper = wb.getCreationHelper();
+
+		// create a new sheet
+		XSSFSheet sheet = wb.createSheet(sheetTitle);
+		XSSFPrintSetup printSetup = sheet.getPrintSetup();
+		printSetup.setLandscape(true);
+		sheet.setFitToPage(true);
+		sheet.setHorizontallyCenter(true);
+		   
+		//header row
+		XSSFRow headerRow = sheet.createRow(0);
+		//headerRow.setHeightInPoints(40);
+		   
+		XSSFCell headerCell;
+		for (int j = 0; j < titles.length; j++) {
+			headerCell = headerRow.createCell(j);
+			headerCell.setCellValue(titles[j]);
+        	//headerCell.setCellStyle(styles.get("header"));
+		}
+		   
+		// data rows
+	    // Create a row and put some cells in it. Rows are 0 based.
+	    // Then set value for that created cell
+    	for (int k=0; k<tableData.length; k++) {
+    		XSSFRow row = sheet.createRow(k+1);  // data starts from row 1	 		
+    		for (int l = 0; l < tableData[k].length; l++) {  
+    			XSSFCell cell = row.createCell(l);   
+    			
+    			String cellStr = tableData[k][l].toString();
+    			
+    			// make hyperlink in cell
+    			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
+    				
+    				//need to encode URI for this version of ExcelWorkBook
+    				cellStr = URIUtil.encodePath(cellStr,"UTF-8");
+    				
+    				cellStr = cellStr.replace("%3F","?");  // so that url link would work
+    				
+    				//System.out.println("cellStr: " + cellStr);
+    				XSSFHyperlink url_link = (XSSFHyperlink)createHelper.createHyperlink(Hyperlink.LINK_URL);
+    				
+    				url_link.setAddress(cellStr);
+    				
+                    cell.setCellValue(cellStr);         
+                    cell.setHyperlink(url_link);
+                   
+    			}
+    			else {
+    				cell.setCellValue(cellStr);  
+    			}
+    			
+    			//System.out.println((String)tableData[k][l]);
+    		}
+    		
+    	}    
+	}
 	
+	/*
 	public ExcelWorkBook(String[] titles, Object[][] tableData, String sheetTitle) throws Exception {
         
 		// create new workbook
@@ -81,8 +164,8 @@ public class ExcelWorkBook {
     		}
     	}    
 	}
-
-	public Workbook fetchWorkBook() {
+*/
+	public XSSFWorkbook fetchWorkBook() {
 		return this.wb;
 	}	
 }

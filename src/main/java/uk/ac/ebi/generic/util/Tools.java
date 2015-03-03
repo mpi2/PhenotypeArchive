@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -118,4 +119,22 @@ public class Tools {
 		String result = target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
 		return result;
 	}
+	
+	public static String[][] composeXlsTableData(List<String> rows) {
+
+        int rowNum = rows.size();// - 1; // omit title row
+        int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
+        String[][] tableData = new String[rowNum][colNum];
+
+        // add one to omit title row
+        for (int i = 0; i < rowNum; i ++) {
+
+            String[] colVals = rows.get(i).split("\t");
+            for (int j = 0; j < colVals.length; j ++) {
+                tableData[i][j] = colVals[j];
+            }
+        }
+
+        return tableData;
+    }
 }

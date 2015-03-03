@@ -224,6 +224,7 @@ public class GeneService {
 		final String statusField = GeneDTO.LATEST_PHENOTYPE_STATUS ;
 		String phenotypeStatusHTMLRepresentation = "";
 		String webStatus = "";
+		List<String> statusList = new ArrayList<>();
 		
 		try {	
 		
@@ -246,20 +247,41 @@ public class GeneService {
 					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 				}	
 			}
-			else if ( doc.containsKey(statusField) && !doc.getString(statusField).isEmpty() ) {
-				String val = doc.getString(statusField);
+			else {
 				
-				if ( val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || 
-					 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ) {
-					webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
+				if ( doc.containsKey(statusField) && !doc.getString(statusField).isEmpty() ) {
+			
+					String val = doc.getString(statusField);
 					
-					if ( toExport ){
-						phenotypeStatusHTMLRepresentation = hostName + geneUrl+ "#section-associations" + "|" + webStatus;
-					}
-					else {
-						phenotypeStatusHTMLRepresentation = "<a class='status done' href='" + geneUrl + "#section-associations'><span>"+webStatus+"</span></a>";
+					if ( val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || 
+						 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE)  ||
+						 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) ){
+						
+						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
+						
+						if ( toExport ){
+							statusList.add(hostName + geneUrl+ "#section-associations" + "|" + webStatus);
+						}
+						else {
+							phenotypeStatusHTMLRepresentation += "<a class='status done' href='" + geneUrl + "#section-associations'><span>"+webStatus+"</span></a>";
+						}
 					}
 				}
+				if (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) {
+					webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
+					// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
+					
+					if ( toExport ){
+						statusList.add(hostName + geneUrl+ "#section-associations" + "|" + webStatus);
+					}
+					else {
+						phenotypeStatusHTMLRepresentation += "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+					}			
+
+					//System.out.println(phenotypeStatusHTMLRepresentation);
+				}	
+				
+				
 			}
 	
 			/*
@@ -269,7 +291,7 @@ public class GeneService {
 			 *    core. 
 			 */
 			//else if (doc.containsKey(GeneDTO.HAS_QC)) {	
-			else if (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) {
+			/*else if (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) {
 				webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
 				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
 				
@@ -281,7 +303,7 @@ public class GeneService {
 				}			
 
 				//System.out.println(phenotypeStatusHTMLRepresentation);
-			}	
+			}	*/
 			
 		}		
 		catch (Exception e) {
@@ -289,7 +311,11 @@ public class GeneService {
 			log.error(e.getLocalizedMessage());
 		}
 			
+		if ( toExport ){
+			return StringUtils.join(statusList, "___");
+		}
 		return phenotypeStatusHTMLRepresentation;
+		
 	}
 	
 	/**
@@ -316,7 +342,7 @@ public class GeneService {
 				// blue es cell status				
 				status = doc.getString(field);
 				if ( status.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "#order" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
+						esCellStatus = "<a class='status done' href='" + geneUrl + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
 									 + " <span>ES Cells</span>"
 									 + "</a>";
 						

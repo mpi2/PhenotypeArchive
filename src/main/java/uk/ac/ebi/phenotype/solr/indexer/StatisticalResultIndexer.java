@@ -56,16 +56,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 
     public StatisticalResultIndexer() {
-        
+
     }
 
     @Override
     public void validateBuild() throws IndexerException {
         Long numFound = getDocumentCount(statResultCore);
-        
+
         if (numFound <= MINIMUM_DOCUMENT_COUNT)
             throw new IndexerException(new ValidationException("Actual statistical-result document count is " + numFound + "."));
-        
+
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " statistical-result documents but SOLR reports " + numFound + " documents.");
         else
@@ -272,20 +272,20 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setInteractionSignificant(r.getBoolean("interaction_significance"));
 
         doc.setGenotypeEffectParameterEstimate(r.getDouble("genotype_parameter_estimate"));
-        
+
         String percentageChange = r.getString("genotype_percentage_change");
         if ( ! r.wasNull()) {
             Double femalePercentageChange = getFemalePercentageChange(percentageChange);
             if (femalePercentageChange != null) {
                 doc.setFemalePercentageChange(femalePercentageChange.toString() + "%");
             }
-            
+
             Double malePercentageChange = getMalePercentageChange(percentageChange);
             if (malePercentageChange != null) {
                 doc.setMalePercentageChange(malePercentageChange.toString() + "%");
             }
         }
-        
+
         doc.setGenotypeEffectStderrEstimate(r.getDouble("genotype_stderr_estimate"));
         doc.setGenotypeEffectPValue(r.getDouble("genotype_effect_pvalue"));
 
@@ -316,10 +316,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         return doc;
 
     }
-        
+
     public static Double getFemalePercentageChange(String token) {
         Double retVal = null;
-        
+
         List<String> sexes = Arrays.asList(token.split(","));
         for (String sex : sexes) {
             if (sex.contains("Female")) {
@@ -332,13 +332,13 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 break;
             }
         }
-        
+
         return retVal;
     }
 
     public static Double getMalePercentageChange(String token) {
         Double retVal = null;
-        
+
         List<String> sexes = Arrays.asList(token.split(","));
         for (String sex : sexes) {
             if (sex.contains("Male")) {
@@ -351,7 +351,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 break;
             }
         }
-        
+
         return retVal;
     }
 
@@ -364,10 +364,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         Set<String> categories = new HashSet<>();
         if (StringUtils.isNotEmpty(r.getString("category_a"))) {
-            categories.addAll(Arrays.asList(r.getString("category_a").split("|")));
+            categories.addAll(Arrays.asList(r.getString("category_a").split("\\|")));
         }
         if (StringUtils.isNotEmpty(r.getString("category_b"))) {
-            categories.addAll(Arrays.asList(r.getString("category_b").split("|")));
+            categories.addAll(Arrays.asList(r.getString("category_b").split("\\|")));
         }
 
         doc.setCategories(new ArrayList<>(categories));

@@ -79,6 +79,8 @@ public class DataTableController {
 	private Map<String, String> config;
 	
 	private String IMG_NOT_FOUND = "Image coming soon<br>";
+	private String NO_INFO_MSG = "No information available";
+	
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -108,9 +110,7 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
-		System.out.println("solr params: " + solrParams);
-		System.out.println("start: "+ iDisplayStart);
-		System.out.println("length: "+ iDisplayLength);
+		//System.out.println("solr params: " + solrParams);
 		
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);		
 				
@@ -146,9 +146,7 @@ public class DataTableController {
 		if (jParams.containsKey("showImgView")) {
 			showImgView = jParams.getBoolean("showImgView");
 		}
-		System.out.println("query: "+ query);
 		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		System.out.println("JSON: "+ json);
 		
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 		
@@ -209,7 +207,6 @@ public class DataTableController {
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 				
 		log.debug("TOTAL GENE2GO: " + totalDocs);
-		log.info("TOTAL GENE2GO: " + totalDocs);
 		
         JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
@@ -308,7 +305,6 @@ public class DataTableController {
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
-				
 			String geneInfo = concateGeneInfo(doc, json, qryStr, request);
 			rowData.add(geneInfo);
 			
@@ -473,7 +469,9 @@ public class DataTableController {
 					
 					if ( hpTerms.size() > 1 ){
 						for ( SimpleOntoTerm term : hpTerms ){
-							mappedHpTerms += "<li>" + term.getTermName() + "</li>";
+							if ( !term.getTermName().equals("") ){
+								mappedHpTerms += "<li>" + term.getTermName() + "</li>";
+							}
 						}
 						mappedHpTerms = "<ul class='hpTerms'>" + mappedHpTerms + "</ul>";
 					}
@@ -505,6 +503,11 @@ public class DataTableController {
 			    //e.printStackTrace();
 			}
 			rowData.add(mpDef);	
+			
+			// number of genes annotated to this MP
+			StringBuilder sb = new StringBuilder();
+			sb.append("");
+			rowData.add(sb.append(doc.getInt("gene_count")).toString());
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {
@@ -749,15 +752,22 @@ public class DataTableController {
 		}
 		else {			
 			// annotation view: images group by annotationTerm per row
-			
 			String fqStr = fqOri;	
-			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
-			String defaultQStr = "q=observation_type:image_record";
+			
+			String defaultQStr = "observation_type:image_record&qf=auto_suggest&defType=edismax";
+			
+			if ( query != ""){
+				defaultQStr = "q=" + query + " AND " + defaultQStr;
+			}
+			else {
+				defaultQStr = "q=" + defaultQStr;
+			}
+			
 			String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			
 			if ( !fqOri.contains("fq=*:*") ){
 				fqStr = fqStr.replace("&fq=","");
-				defaultQStr = defaultQStr + " AND " + fqStr; 
+				//defaultQStr = defaultQStr + " AND " + fqStr; 
 				defaultFqStr = defaultFqStr + " AND " + fqStr;
 			}
 			
@@ -794,7 +804,16 @@ public class DataTableController {
 					imgSubSetLink = imgCount + " " + unit;
 				}
 				else {
-					String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					String currFqStr = null;
+					if ( displayAnnotName.equals("Gene") ){
+						currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+					}
+					else if ( displayAnnotName.equals("Procedure") ){
+						currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+					}
+					
+					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					String thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
 					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 				}		
 				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
@@ -834,7 +853,6 @@ public class DataTableController {
 				JSONObject doc = docs.getJSONObject(i);					
 				String annots = "";
 				
-				System.out.println("JSON: " + doc.toString());
 				String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
 				String img = "<img src='" +  imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";				
 				String fullSizePath = largeThumbNailPath.replace("tn_large", "full");								
@@ -937,7 +955,6 @@ public class DataTableController {
 			}
 			
 			String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
-			System.out.println("IMAGE PARAMs: "+ solrParams);
 			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			
@@ -1027,7 +1044,7 @@ public class DataTableController {
 
 			// disease link			
 			JSONObject doc = docs.getJSONObject(i);
-			System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
+			//System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
 			String diseaseId = doc.getString("disease_id");
 			String diseaseTerm = doc.getString("disease_term");
 			String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";			

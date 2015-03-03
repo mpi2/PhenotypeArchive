@@ -1949,6 +1949,9 @@
         if (oUrlParams.widgetName == 'geneFacet') {
             oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
         }
+        if (oUrlParams.widgetName == 'mpFacet') {
+            oUrlParams.params += '&sort:gene_count desc';
+        }
 
         if (facetDivId == 'imagesFacet' || facetDivId == 'impc_imagesFacet') {
             //oInfos.showImgView = true;	// don't want to show imgView as default
@@ -2323,9 +2326,14 @@
                     $('div#toolBox').css({'top': '-30px', 'left': '65px'});
                 }
                 var solrCoreName = oInfos.widgetName.replace('Facet', '');
+                
+                // work out solr query start and row length dynamically
                 var iActivePage = $('div.dataTables_paginate li.active a').text();
-
-                var iRowStart = iActivePage == 1 ? 0 : iActivePage * 10 - 10;
+                var oCurrDt = $('table.dataTable').dataTable();  // find the dataTable object
+                var oSettings = oCurrDt.fnSettings();
+                var iLength = oSettings._iDisplayLength;
+                var iRowStart = iActivePage == 1 ? 0 : iActivePage * iLength - iLength;
+               
                 var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imgView' ? true : false;
 
                 $('button.gridDump').unbind('click');
@@ -2334,6 +2342,7 @@
                 		legacyOnly: oInfos.legacyOnly,
                         externalDbId: 5,
                         rowStart: iRowStart,
+                        length: iLength,
                         solrCoreName: solrCoreName,
                         params: oInfos.params,
                         showImgView: showImgView,

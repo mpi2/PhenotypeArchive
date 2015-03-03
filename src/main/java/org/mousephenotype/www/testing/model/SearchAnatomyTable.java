@@ -21,13 +21,14 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -41,9 +42,11 @@ public class SearchAnatomyTable extends SearchFacetTable {
     public static final int COL_INDEX_ANATOMY_TERM     = 0;
     public static final int COL_INDEX_ANATOMY_ID       = 1;
     public static final int COL_INDEX_ANATOMY_SYNONYMS = 2;
+    public static final int COL_INDEX_LAST = COL_INDEX_ANATOMY_SYNONYMS;        // Should always point to the last (highest-numbered) index.
     
     private final List<AnatomyRow> bodyRows = new ArrayList();
-    
+    private final GridMap pageData;
+
     /**
      * Creates a new <code>SearchAnatomyTable</code> instance.
      * @param driver A <code>WebDriver</code> instance pointing to the search
@@ -53,103 +56,137 @@ public class SearchAnatomyTable extends SearchFacetTable {
     public SearchAnatomyTable(WebDriver driver, int timeoutInSeconds) {
         super(driver, "//table[@id='maGrid']", timeoutInSeconds);
         
-        parseBodyRows();
+        pageData = load();
+    }
+    
+    /**
+     * Return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     *
+     * @return the number of entries currently showing in the 'entries'
+     * drop-down box.
+     */
+    @Override
+    public int getNumEntries() {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='maGrid_length']")));
+        try {
+            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
+        } catch (NullPointerException npe) {
+            return 0;
+        }
+    }
+    
+    /**
+     * Set the number of entries in the 'entries' drop-down box.
+     * 
+     * @param entriesSelect The new value for the number of entries to show.
+     */
+    @Override
+    public void setNumEntries(EntriesSelect entriesSelect) {
+        String xpathValue = "//select[@name='maGrid_length']";
+        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
+        select.selectByValue(Integer.toString(entriesSelect.getValue()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
     }
     
     /**
      * Validates download data against this <code>SearchAnatomyTable</code>
      * instance.
      * 
-     * @param downloadData The download data used for comparison
+     * @param downloadDataArray The download data used for comparison
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadData) {
-        String message;
-        PageStatus status = new PageStatus();
-        HashMap<String, String[]> downloadHash = new HashMap();
-        
-        if ((bodyRows.isEmpty()) || (downloadData.length == 0))
-            return status;
-            
-        // Validate the pageHeading.
-        String[] expectedHeadingList = {
-            "Mouse adult gross anatomy term"
-          , "Mouse adult gross anatomy id"
-          , "Mouse adult gross anatomy id link"
-          , "Mouse adult gross anatomy synonym"
+    public PageStatus validateDownload(String[][] downloadDataArray) {
+        final int[] pageColumns = {
+              COL_INDEX_ANATOMY_ID
+            , COL_INDEX_ANATOMY_TERM
         };
-        SearchFacetTable.validateDownloadHeading("ANATOMY", status, expectedHeadingList, downloadData[0]);
-
-        for (int i = 0; i < bodyRows.size(); i++) {
-            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
-            AnatomyRow pageRow = bodyRows.get(i);
-
-            // Verify the components.
-            
-            // anatomyId.
-            if ( ! pageRow.anatomyId.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID])) {
-                message = "ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyId = '" + pageRow.anatomyId + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID] + "'.";
-                status.addError(message);
-                System.out.println(message);
-            }            
-            // anatomyIdLink.
-            if ( ! pageRow.anatomyIdLink.equals(downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK])) {
-                message = "ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value anatomyIdLink = '" + pageRow.anatomyIdLink + "' doesn't match download value '" + downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK] + "'.";
-                status.addError(message);
-                System.out.println(message);
-            }
-            
-            // synonyms collection.
-            HashMap<String, String> downloadSynonymHash = new HashMap();
-            String rawSynonymString = downloadRow[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_SYNONYMS];
-            if ((rawSynonymString != null) && ( ! rawSynonymString.isEmpty())) {
-                String[] downloadSynonyms = rawSynonymString.split(",");
-                for (String downloadSynonym : downloadSynonyms) {
-                    downloadSynonymHash.put(downloadSynonym.trim(), downloadSynonym.trim());
-                }
-            }
-            for (String pageSynonym : pageRow.synonyms) {
-                String downloadSynonym = downloadSynonymHash.get(pageSynonym);
-                if (downloadSynonym == null) {
-                    message = "ANATOMY MISMATCH for term " + pageRow.anatomyTerm + ": page value synonym = '" + pageSynonym + "' was not found in the download file.";
-                    status.addError(message);
-                    System.out.println(message);
-                }
-                downloadSynonymHash.remove(downloadSynonym);
-            }
-            
-        }
-
-        return status;
+        final int[] downloadColumns = {
+              DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID
+            , DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM
+        };
+        
+        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
     
     
     // PRIVATE METHODS
     
     
-    private void parseBodyRows() {
+    /**
+     * Pulls all rows of data and column access variables from the search page's
+     * 'maGrid' HTML table.
+     *
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the search page's 'maGrid' HTML table.
+     */
+    private GridMap load() {
+        return load(null);
+    }
+
+    /**
+     * Pulls <code>numRows</code> rows of search page gene facet data and column
+     * access variables from the search page's 'maGrid' HTML table.
+     *
+     * @param numRows the number of <code>GridMap</code> table rows to return,
+     * including the heading row. To specify all rows, set <code>numRows</code>
+     * to null.
+     * @return <code>numRows</code> rows of search page gene facet data and
+     * column access variables from the search page's 'maGrid' HTML table.
+     */
+    private GridMap load(Integer numRows) {
+        if (numRows == null)
+            numRows = computeTableRowCount();
+        
+        String[][] pageArray;
+        
+        // Wait for page.
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#maGrid")));
+        int numCols = COL_INDEX_LAST + 1;
+        
+        pageArray = new String[numRows][numCols];                               // Allocate space for the data.
+        for (int i = 0; i < numCols; i++) {
+            pageArray[0][i] = "Column_" + i;                                    // Set the headings.
+        }
+        
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
+            int sourceRowIndex = 1;
+            
+            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID] = "";                                   // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_TERM] = "";                                 // Insure there is always a non-null value.
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 AnatomyRow anatomyRow = new AnatomyRow();
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
                 WebElement element = bodyRowElementList.get(0).findElement(By.cssSelector("a"));
                 anatomyRow.anatomyIdLink = element.getAttribute("href");
                 int pos = anatomyRow.anatomyIdLink.lastIndexOf("/");
-                anatomyRow.anatomyId = anatomyRow.anatomyIdLink.substring(pos + 1); 
-                anatomyRow.anatomyTerm = element.getText();
-                // Synonyms are optional.
-                List<WebElement> synonymElements = element.findElements(By.cssSelector("div.maCol > div.subinfo"));
-                if ( ! synonymElements.isEmpty()) {
-                    String[] synonyms = synonymElements.get(0).getText().replace("&nbsp;", "").split(",");
-                    Collections.addAll(anatomyRow.synonyms, synonyms);
-                }
                 
+                anatomyRow.anatomyId = anatomyRow.anatomyIdLink.substring(pos + 1);                 // anatomyId.
+                pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID] = anatomyRow.anatomyId;
+                
+                anatomyRow.anatomyTerm = element.getText();                                         // anatomyTerm.
+                pageArray[sourceRowIndex][COL_INDEX_ANATOMY_TERM] = anatomyRow.anatomyTerm;
+                
+                sourceRowIndex++;
                 bodyRows.add(anatomyRow);
             }
         }
+        
+        return new GridMap(pageArray, driver.getCurrentUrl());
+    }
+    
+    /**
+     *
+     * @return the number of rows in the "geneGrid" table. Always include 1
+     * extra for the heading.
+     */
+    private int computeTableRowCount() {
+        // Wait for page.
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='maGrid']/tbody/tr")));
+        return elements.size() + 1;
     }
     
     
@@ -162,61 +199,61 @@ public class SearchAnatomyTable extends SearchFacetTable {
         private String anatomyTerm = "";
         private List<String> synonyms = new ArrayList();
     
-    // NOTE: We don't need these (as sorting the arrays does not solve the problem). However, I'm leaving these in
-    //       because they are a good example of how to sort String[][] objects.
-    // o1 and o2 are of type String[].
-    private class PageComparator implements Comparator<String[]> {
+        // NOTE: We don't need these (as sorting the arrays does not solve the problem). However, I'm leaving these in
+        //       because they are a good example of how to sort String[][] objects.
+        // o1 and o2 are of type String[].
+        private class PageComparator implements Comparator<String[]> {
 
-        @Override
-        public int compare(String[] o1, String[] o2) {
-            if ((o1 == null) && (o2 == null))
-                return 0;
-            if (o1 == null)
-                return -1;
-            if (o2 == null)
-                return 1;
-            
-            // We're only interested in the COL_INDEX_ANATOMY_TERM column.
-            String op1 = ((String[])o1)[COL_INDEX_ANATOMY_TERM];
-            String op2 = ((String[])o2)[COL_INDEX_ANATOMY_TERM];
-            
-            if ((op1 == null) && (op2 == null))
-                return 0;
-            if (op1 == null)
-                return -1;
-            if (op2 == null)
-                return 1;
-            
-            return op1.compareTo(op2);
+            @Override
+            public int compare(String[] o1, String[] o2) {
+                if ((o1 == null) && (o2 == null))
+                    return 0;
+                if (o1 == null)
+                    return -1;
+                if (o2 == null)
+                    return 1;
+
+                // We're only interested in the COL_INDEX_ANATOMY_TERM column.
+                String op1 = ((String[])o1)[COL_INDEX_ANATOMY_TERM];
+                String op2 = ((String[])o2)[COL_INDEX_ANATOMY_TERM];
+
+                if ((op1 == null) && (op2 == null))
+                    return 0;
+                if (op1 == null)
+                    return -1;
+                if (op2 == null)
+                    return 1;
+
+                return op1.compareTo(op2);
+            }
         }
-    }
-    
-    // o1 and o2 are of type String[].
-    private class DownloadComparator implements Comparator<String[]> {
-        
-        @Override
-        public int compare(String[] o1, String[] o2) {
-            if ((o1 == null) && (o2 == null))
-                return 0;
-            if (o1 == null)
-                return -1;
-            if (o2 == null)
-                return 1;
-            
-            // We're only interested in the DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM column.
-            String op1 = ((String[])o1)[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM];
-            String op2 = ((String[])o2)[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM];
-            
-            if ((op1 == null) && (op2 == null))
-                return 0;
-            if (op1 == null)
-                return -1;
-            if (op2 == null)
-                return 1;
-            
-            return op1.compareTo(op2);
+
+        // o1 and o2 are of type String[].
+        private class DownloadComparator implements Comparator<String[]> {
+
+            @Override
+            public int compare(String[] o1, String[] o2) {
+                if ((o1 == null) && (o2 == null))
+                    return 0;
+                if (o1 == null)
+                    return -1;
+                if (o2 == null)
+                    return 1;
+
+                // We're only interested in the DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM column.
+                String op1 = ((String[])o1)[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM];
+                String op2 = ((String[])o2)[DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM];
+
+                if ((op1 == null) && (op2 == null))
+                    return 0;
+                if (op1 == null)
+                    return -1;
+                if (op2 == null)
+                    return 1;
+
+                return op1.compareTo(op2);
+            }
         }
-    }
     }
 
 }

@@ -1078,9 +1078,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		query.setFields(ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.DATA_POINT, ObservationDTO.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ObservationDTO.COLONY_ID);
-		query.set("group.limit", 100000); 			
-		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
-			
+		query.set("group.limit", 100000); 						
 		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();

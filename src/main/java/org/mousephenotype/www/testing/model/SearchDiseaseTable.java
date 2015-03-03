@@ -25,6 +25,9 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -42,8 +45,10 @@ public class SearchDiseaseTable extends SearchFacetTable {
     public static final int COL_INDEX_CURATED_MICE    = 4;
     public static final int COL_INDEX_CANDIDATE_IMPC  = 5;
     public static final int COL_INDEX_CANDIDATE_MGI   = 6;
+    public static final int COL_INDEX_LAST = COL_INDEX_CANDIDATE_MGI;           // Should always point to the last (highest-numbered) index.
     
     private final List<DiseaseRow> bodyRows = new ArrayList();
+    private final GridMap pageData;
     
     /**
      * Creates a new <code>SearchDiseaseTable</code> instance.
@@ -54,145 +59,143 @@ public class SearchDiseaseTable extends SearchFacetTable {
     public SearchDiseaseTable(WebDriver driver, int timeoutInSeconds) {
         super(driver, "//table[@id='diseaseGrid']", timeoutInSeconds);
         
-        parseBodyRows();
+        pageData = load();
     }
     
     /**
-     * Validates download data against this <code>SearchDiseaseTable</code>
+     * Return the number of entries currently showing in the 'entries' drop-down
+     * box.
+     *
+     * @return the number of entries currently showing in the 'entries'
+     * drop-down box.
+     */
+    @Override
+    public int getNumEntries() {
+        Select select = new Select(driver.findElement(By.xpath("//select[@name='diseaseGrid_length']")));
+        try {
+            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
+        } catch (NullPointerException npe) {
+            return 0;
+        }
+    }
+    
+    /**
+     * Set the number of entries in the 'entries' drop-down box.
+     * 
+     * @param entriesSelect The new value for the number of entries to show.
+     */
+    @Override
+    public void setNumEntries(EntriesSelect entriesSelect) {
+        String xpathValue = "//select[@name='diseaseGrid_length']";
+        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
+        select.selectByValue(Integer.toString(entriesSelect.getValue()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
+    }
+    
+    /**
+     * Validates download data against this <code>SearchAnatomyTable</code>
      * instance.
      * 
-     * @param downloadData The download data used for comparison
+     * @param downloadDataArray The download data used for comparison
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadData) {
-        PageStatus status = new PageStatus();
-        
-        if ((bodyRows.isEmpty()) || (downloadData.length == 0))
-            return status;
-
-        // Validate the pageHeading.
-        String[] expectedHeadingList = {
-            "Disease id"
-          , "Disease id link"
-          , "Disease name"
-          , "Source"
-          , "Curated genes from human (OMIM, Orphanet)"
-          , "Curated genes from mouse (MGI)"
-          , "Curated genes from human data with IMPC prediction"
-          , "Curated genes from human data with MGI prediction"
-          , "Candidate genes by phenotype - IMPC data"
-          , "Candidate genes by phenotype - Novel IMPC prediction in linkage locus"
-          , "Candidate genes by phenotype - MGI data"
-          , "Candidate genes by phenotype - Novel MGI prediction in linkage locus"
+    public PageStatus validateDownload(String[][] downloadDataArray) {
+        final int[] pageColumns = {
+              COL_INDEX_DISEASE_ID
+            , COL_INDEX_DISEASE_NAME
+            , COL_INDEX_SOURCE
         };
-        SearchFacetTable.validateDownloadHeading("DISEASE", status, expectedHeadingList, downloadData[0]);
-
-        for (int i = 0; i < bodyRows.size(); i++) {
-            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
-            DiseaseRow pageRow = bodyRows.get(i);
-
-            // Verify the components.
-            
-            if ( ! pageRow.diseaseId.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID]))
-                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value diseaseId = '" + pageRow.diseaseId + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID]);
-            
-            if ( ! pageRow.diseaseIdLink.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID_LINK]))
-                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value diseaseId = '" + pageRow.diseaseId + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID_LINK]);
-            
-            if ( ! pageRow.source.equals(downloadRow[DownloadSearchMapDiseases.COL_INDEX_SOURCE]))
-                status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value source = '" + pageRow.source + "' doesn't match download value " + downloadRow[DownloadSearchMapDiseases.COL_INDEX_SOURCE]);
-            
-            // Validate Curated and Candidate genes.
-            if (pageRow.hasCuratedGenesInHuman) {
-                if ((downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN_IMPC].equals("true"))
-                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN_MGI].equals("true"))
-                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_HUMAN_OMIM].equals("true")))
-                {
-                    // Do nothing.
-                } else {
-                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInHuman = true but download row is false.");
-                }
-            }
-            if (pageRow.hasCuratedGenesInMice) {
-                if ( ! downloadRow[DownloadSearchMapDiseases.COL_INDEX_CURATED_MOUSE_MGI].equals("true")) {
-                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCuratedGenesInMice = true but download row is false.");
-                }
-            }
-            if (pageRow.hasCandidateGenesByPhenotypeIMPC) {
-                if ((downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC].equals("true"))
-                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_IMPC_LOCUS].equals("true")))
-                {
-                    // Do nothing.
-                } else {
-                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeIMPC = true but download row is false.");
-                }
-            }
-            if (pageRow.hasCandidateGenesByPhenotypeMGI) {
-                if ((downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI].equals("true"))
-                 || (downloadRow[DownloadSearchMapDiseases.COL_INDEX_CANDIDATE_MGI_LOCUS].equals("true")))
-                {
-                    // Do nothing.
-                } else {
-                    status.addError("DISEASE MISMATCH: diseaseName '" + pageRow.diseaseName + "' page value hasCandidateGenesByPhenotypeMGI = true but download row is false.");
-                }
-            }
-        }
-
-        return status;
+        final int[] downloadColumns = {
+              DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID
+            , DownloadSearchMapDiseases.COL_INDEX_DISEASE_NAME
+            , DownloadSearchMapDiseases.COL_INDEX_SOURCE
+        };
+        
+        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
     
     
     // PRIVATE METHODS
     
     
-    private void parseBodyRows() {
+    /**
+     * Pulls all rows of data and column access variables from the search page's
+     * 'diseaseGrid' HTML table.
+     *
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the search page's 'diseaseGrid' HTML table.
+     */
+    private GridMap load() {
+        return load(null);
+    }
+
+    /**
+     * Pulls <code>numRows</code> rows of search page gene facet data and column
+     * access variables from the search page's 'diseaseGrid' HTML table.
+     *
+     * @param numRows the number of <code>GridMap</code> table rows to return,
+     * including the heading row. To specify all rows, set <code>numRows</code>
+     * to null.
+     * @return <code>numRows</code> rows of search page gene facet data and
+     * column access variables from the search page's 'diseaseGrid' HTML table.
+     */
+    private GridMap load(Integer numRows) {
+        if (numRows == null)
+            numRows = computeTableRowCount();
+        
+        String[][] pageArray;
+        
+        // Wait for page.
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#diseaseGrid")));
+        int numCols = COL_INDEX_LAST + 1;
+        
+        pageArray = new String[numRows][numCols];                               // Allocate space for the data.
+        for (int i = 0; i < numCols; i++) {
+            pageArray[0][i] = "Column_" + i;                                    // Set the headings.
+        }
+        
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
+            int sourceRowIndex = 1;
+        
+            pageArray[sourceRowIndex][COL_INDEX_DISEASE_ID] = "";               // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_DISEASE_NAME] = "";             // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_SOURCE] = "";                   // Insure there is always a non-null value.
             for (WebElement bodyRowElements : bodyRowElementsList) {                                    // diseaseId, diseaseName, source, curatedHuman, curatedMice, candidateIMPC, candidateMGI
                 DiseaseRow diseaseRow = new DiseaseRow();
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
                 WebElement element = bodyRowElementList.get(0).findElement(By.cssSelector("a"));        // Get 'Disease' element.
                 diseaseRow.diseaseIdLink = element.getAttribute("href");
                 int pos = diseaseRow.diseaseIdLink.lastIndexOf("/");
+                
                 diseaseRow.diseaseId = diseaseRow.diseaseIdLink.substring(pos + 1);                     // Add diseaseId   to row element 0 from 'Disease' element.
-                diseaseRow.diseaseName = element.getText();                                             // Add diseaseName to row element 1 from 'Disease' element.
-                diseaseRow.source = bodyRowElementList.get(1).getText();                                // Add source      to row element 2 from 'Source' element.
+                pageArray[sourceRowIndex][COL_INDEX_DISEASE_ID] = diseaseRow.diseaseId;
                 
-                element = bodyRowElementList.get(2);                                                                            // Get 'Curated Genes' element.
-                List<WebElement> elementList = element.findElements(By.cssSelector("span"));
-                if (elementList.isEmpty()) {                                                                                    // There are no curated genes...
-                    diseaseRow.hasCuratedGenesInHuman = false;                                                                  //    No human curated genes...
-                    diseaseRow.hasCuratedGenesInMice = false;                                                                   //    No mice curated genes...
-                } else {
-                    if (elementList.size() == 2) {
-                        diseaseRow.hasCuratedGenesInHuman = true;                                                               // Human curated genes found.
-                        diseaseRow.hasCuratedGenesInMice = true;                                                                // Mice curated genes found.
-                    } else {
-                        diseaseRow.hasCuratedGenesInHuman = (elementList.get(0).getText().equals("human"));                     // human curated genes [only] found.
-                        diseaseRow.hasCuratedGenesInMice = (elementList.get(0).getText().equals("mice"));                       // mice curated genes [only] found.
-                    }
-                }
+                diseaseRow.diseaseName = element.getText();   
+                pageArray[sourceRowIndex][COL_INDEX_DISEASE_NAME] = diseaseRow.diseaseName;
                 
-                element = bodyRowElementList.get(3);                                                                            // Get 'Candidate Genes' element.
-                elementList = element.findElements(By.cssSelector("span"));
-                if (elementList.isEmpty()) {                                                                                    // There are no candidate genes...
-                    diseaseRow.hasCandidateGenesByPhenotypeMGI = false;                                                         //    No MGI candidate genes...
-                    diseaseRow.hasCandidateGenesByPhenotypeIMPC = false;                                                        //    No IMPC candidate genes...
-                } else {
-                    if (elementList.size() == 2) {
-                        diseaseRow.hasCandidateGenesByPhenotypeMGI = true;                                                      // MGI candidate genes found.
-                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = true;                                                     // IMPC candidate genes found.
-                    } else {
-                        diseaseRow.hasCandidateGenesByPhenotypeMGI = (elementList.get(0).getText().equals("MGI"));              // MGI candidate genes [only] found.
-                        diseaseRow.hasCandidateGenesByPhenotypeIMPC = (elementList.get(0).getText().equals("IMPC"));            // IMPC candidate genes [only] found.
-                    }
-                }
+                diseaseRow.source = bodyRowElementList.get(1).getText();     
+                pageArray[sourceRowIndex][COL_INDEX_SOURCE] = diseaseRow.source;                           // Add source      to row element 2 from 'Source' element.
                 
+                sourceRowIndex++;
                 bodyRows.add(diseaseRow);
             }
         }
+        
+        return new GridMap(pageArray, driver.getCurrentUrl());
+    }
+    
+    /**
+     *
+     * @return the number of rows in the "geneGrid" table. Always include 1
+     * extra for the heading.
+     */
+    private int computeTableRowCount() {
+        // Wait for page.
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='diseaseGrid']/tbody/tr")));
+        return elements.size() + 1;
     }
     
     
