@@ -27,7 +27,7 @@
 									<p> <a href="${baseUrl}/reports/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
 									<p> <a href="${baseUrl}/reports/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
 									<p> <a href="${baseUrl}/reports/mpCallDistribution">Distribution of phenotype hits</a> </p>
-									<p> <a href="${baseUrl}/reports/hitsPerPP">Distribution hits per parameter</a> </p>
+									<p> <a href="${baseUrl}/reports/hitsPerPP">Distribution hits per parameter and procedure</a> </p>
 								</div>
 							</div>
 							

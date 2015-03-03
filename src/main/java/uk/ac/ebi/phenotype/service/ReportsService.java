@@ -40,13 +40,25 @@ public class ReportsService {
     	resources.add("3i");
     }
 	
-    public List<String[]> getHitsPerParamProcedure(){
+    public List<List<String[]>> getHitsPerParamProcedure(){
     	//Columns:
     	//	parameter name | parameter stable id | number of significant hits
 
-    	List<String[]> res = new ArrayList<>();
+    	List<List<String[]>> res = new ArrayList<>();
     	try {
-			res = gpService.getHitsDistributionByParameter(resources);
+    		List<String[]> parameters = new ArrayList<>();
+    		String [] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
+    		parameters.add(headerParams);
+    		parameters.addAll(gpService.getHitsDistributionByParameter(resources));
+
+    		List<String[]> procedures = new ArrayList<>();
+    		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
+    		procedures.add(headerProcedures);
+    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
+    		
+			res.add(parameters);
+			res.add(procedures);
+			
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

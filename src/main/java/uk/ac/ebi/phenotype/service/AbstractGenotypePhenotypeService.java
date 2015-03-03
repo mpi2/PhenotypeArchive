@@ -75,38 +75,57 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         }
         return null;
     }
+    
+    public List<String[]> getHitsDistributionByProcedure(ArrayList<String> resourceName)
+    throws SolrServerException, InterruptedException, ExecutionException {
+    	
+    	return getHitsDistributionBySomething(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID, resourceName);
+    }
 
     public List<String[]> getHitsDistributionByParameter(ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
-
-    	ArrayList<String[]>  res = new ArrayList<>();
-    	Long time = System.currentTimeMillis();
-    	String pivotFacet =  GenotypePhenotypeDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.PARAMETER_NAME;
-    	SolrQuery q = new SolrQuery();
     	
-    	if (resourceName != null){
-            q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
-        }else {
-            q.setQuery("*:*");
-        }               
-    	q.set("facet.pivot", pivotFacet);
-    	q.setFacet(true);
-    	q.setRows(1);
-    	q.set("facet.limit", -1); 
+    	return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
+    }
+    
+    private List<String[]> getHitsDistributionBySomething(String field, ArrayList<String> resourceName)
+    throws SolrServerException, InterruptedException, ExecutionException {
 
-    	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
-    	QueryResponse response = solr.query(q);
-    	
-    	for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-    		String parameterId = pivot.getValue().toString();
-    		String parameterName = pivot.getPivot().get(0).getValue().toString();
-    		int count = pivot.getPivot().get(0).getCount();
-    		String[] row = {parameterId, parameterName, Integer.toString(count)};
-    		res.add(row);
-    	}
-    		
-    	System.out.println("Done in " + (System.currentTimeMillis() - time));
-    	return res;
+        	ArrayList<String[]>  res = new ArrayList<>();
+        	Long time = System.currentTimeMillis();
+        	String pivotFacet = "";
+        	SolrQuery q = new SolrQuery();
+        	
+        	if (field.equals(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)){	
+            	pivotFacet =  GenotypePhenotypeDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.PARAMETER_NAME;
+        	} else if (field.equals(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)){	
+            	pivotFacet =  GenotypePhenotypeDTO.PROCEDURE_STABLE_ID + "," + StatisticalResultDTO.PROCEDURE_NAME;
+        	} 
+            
+        	if (resourceName != null){
+                q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+            }else {
+                q.setQuery("*:*");
+            }               
+        	q.set("facet.pivot", pivotFacet);
+        	q.setFacet(true);
+        	q.setRows(1);
+        	q.set("facet.limit", -1); 
+
+        	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+        	QueryResponse response = solr.query(q);
+        	
+        	for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+        		String id = pivot.getValue().toString();
+        		String name = pivot.getPivot().get(0).getValue().toString();
+        		int count = pivot.getPivot().get(0).getCount();
+        		String[] row = {id, name, Integer.toString(count)};
+        		res.add(row);
+        	}
+        		
+        	System.out.println("Done in " + (System.currentTimeMillis() - time));
+        	return res;
+        
     }
     
     public List<AggregateCountXYBean> getAggregateCountXYBean(TreeMap<String, TreeMap<String, Long>> map) {

@@ -86,10 +86,9 @@ public class ReportsController {
 	@RequestMapping(value="/reports/hitsPerPP", method = RequestMethod.GET)
 	public void getHitsPerLine(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
-		List<String[]> result = rService.getHitsPerParamProcedure();
-	    ControllerUtils.writeAsCSV(result, "hits_per_parameter_procedure.csv", response);
+		List<List<String[]>> result = rService.getHitsPerParamProcedure();
+	    ControllerUtils.writeAsCSVMultipleTables(result, "hits_per_parameter_procedure.csv", response);
 	};
-	
 	@RequestMapping(value="/reports", method = RequestMethod.GET)
 	public String defaultAction(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 		return "reports";
