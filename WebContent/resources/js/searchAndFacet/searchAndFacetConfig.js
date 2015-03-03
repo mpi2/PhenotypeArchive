@@ -280,7 +280,7 @@ config.facetParams = {
 		 subFacetFqFields: ['top_level_mp_term'],
 		 solrCoreName: 'mp', 
 		 tableCols: 3, 
-		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th><th>Annotated gene(s)</th><th></th></thead>', 
+		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th><th>Phenotyping call(s)</th><th></th></thead>', 
 		 subset: 'ontology_subset:*',
 		 //fq: 'ontology_subset:*', 
 		 fq: 'top_level_mp_term:*', 
