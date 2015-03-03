@@ -48,27 +48,27 @@ public class ReportsController {
     @Autowired
 	ReportsService rService;
     
-	@RequestMapping(value="/getLaczSpreadsheet", method = RequestMethod.GET)
+	@RequestMapping(value="/reports/getLaczSpreadsheet", method = RequestMethod.GET)
 	public void getFullData(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 		
 	    List<String[]> result = is.getLaczExpressionSpreadsheet();
 	    ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
 	};
 	
-	@RequestMapping(value="/sexualDimorphism", method = RequestMethod.GET)
+	@RequestMapping(value="/reports/sexualDimorphism", method = RequestMethod.GET)
 	public void getSexualDimorphismReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
 		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight(config.get("drupalBaseUrl")+ "/data");
 	    ControllerUtils.writeAsCSV(result, "sexual_dimorphism_no_body_weight_IMPC.csv", response);
 	};
 	
-	@RequestMapping(value="/sexualDimorphismWithBodyWeight", method = RequestMethod.GET)
+	@RequestMapping(value="/reports/sexualDimorphismWithBodyWeight", method = RequestMethod.GET)
 	public void getSexualDimorphismWithBodyWeightReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
 		List<String[]> result = sdDAO.sexualDimorphismReportWithBodyWeight(config.get("drupalBaseUrl")+ "/data");
 	    ControllerUtils.writeAsCSV(result, "sexual_dimorphism_with_body_weight_IMPC.csv", response);
 	};
-	@RequestMapping(value="/mpCallDistribution", method = RequestMethod.GET)
+	@RequestMapping(value="/reports/mpCallDistribution", method = RequestMethod.GET)
 	public void getMpCallDistribution(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
 		List<String[]> result = rService.getMpCallDistribution();

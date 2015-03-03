@@ -64,7 +64,7 @@ public class ExternalAnnotsController {
 		return "gene2pfam";
 	}
 	
-	@RequestMapping(value = "/gene2go", method = RequestMethod.GET)
+	@RequestMapping(value = "/reports/gene2go", method = RequestMethod.GET)
 	public String goStats(
 			HttpServletRequest request,
 			HttpServletResponse response,
