@@ -36,5 +36,5 @@ public class DownloadGeneMap {
     public final static int COL_INDEX_PHENOTYPING_CENTER  = 5;
     public final static int COL_INDEX_SOURCE              = 6;
     public final static int COL_INDEX_P_VALUE             = 7;
-    public final static int COL_INDEX_GRAPH_LINK               = 8;
+    public final static int COL_INDEX_GRAPH_LINK          = 8;
 }
