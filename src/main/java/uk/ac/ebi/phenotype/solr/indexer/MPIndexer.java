@@ -116,6 +116,9 @@ public class MPIndexer extends AbstractIndexer {
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
 
+    // number of postqc calls of an MP
+    Map<String, Integer> mpCalls = new HashMap<>();
+    
     public MPIndexer() {
     
     }
@@ -149,6 +152,9 @@ public class MPIndexer extends AbstractIndexer {
 
         try {
 
+        	// maps MP to number of phenotyping calls
+        	populateGene2MpCalls();
+        	
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
@@ -171,13 +177,12 @@ public class MPIndexer extends AbstractIndexer {
                 buildNodes(mp);
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
-                mp.setGoId(goIds.get(termId));
+                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp);
                 
-                // make sure this is done after addPhenotype1(mp);
-                // this sets the number of genes annotated to this MP
-                mp.setGeneCount(mp.getMgiAccessionId());  
+                // this sets the number of postqc phenotyping calls of this MP
+                mp.setPostqcCalls( mpCalls.containsKey(termId) ? mpCalls.get(termId) : 0);  
                 
                 addPhenotype2(mp);
 
@@ -200,6 +205,21 @@ public class MPIndexer extends AbstractIndexer {
         logger.info("MP Indexer complete!");
     }
 
+    private void populateGene2MpCalls() throws SQLException {
+    	
+    	String qry = "select mp_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by mp_acc";
+    	
+    	PreparedStatement ps = komp2DbConnection.prepareStatement(qry);
+    	ResultSet rs = ps.executeQuery();
+    	
+    	while (rs.next()) {
+    		String mpAcc = rs.getString("mp_acc");
+    		int calls = rs.getInt("calls");
+    	
+    		mpCalls.put(mpAcc, calls);
+    	}
+    	logger.info("Finished creating a mapping of MP to postqc phenotyping calls");
+    }
 
     /**
      * Initialize the database connections required

@@ -201,7 +201,7 @@
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 	<field name="marker_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
 	<field name="marker_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-	<field name="gene_count" type="int" indexed="true" stored="true" required="false" multiValued="false" />	
+	<field name="postqc_calls" type="int" indexed="true" stored="true" required="false" multiValued="false" />	
 	<field name="preqc_gene_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />    
 	<field name="marker_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />

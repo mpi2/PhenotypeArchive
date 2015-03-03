@@ -340,7 +340,7 @@ public class ImageService {
 	 */
 	public void getImpcImagesForGenePage(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters)
 	throws SolrServerException {
-
+		String excludeProcedureName="";
 		QueryResponse solrR = this.getProcedureFacetsForGeneByProcedure(acc, "experimental");
 		if (solrR == null) {
 			logger.error("no response from solr data source for acc=" + acc);
@@ -353,7 +353,6 @@ public class ImageService {
 			return;
 		}
 
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
 		List<Count> filteredCounts = new ArrayList<Count>();
 
 		for (FacetField procedureFacet : procedures) {
@@ -371,15 +370,15 @@ public class ImageService {
 				// displayed seperately in the using the other method
 				// need to put the section in genes.jsp!!!
 				for (Count count : procedures.get(0).getValues()) {
-					if (!count.getName().equals("Adult LacZ")) {
+					if (!count.getName().equals(excludeProcedureName)) {
 						filteredCounts.add(count);
 					}
 				}
 
 				for (Count procedure : procedureFacet.getValues()) {
 
-					if (!procedure.getName().equals("Wholemount Expression")) {
-						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, "Adult Lac Z");
+					if (!procedure.getName().equals(excludeProcedureName)) {
+						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, excludeProcedureName);
 
 					}
 				}
