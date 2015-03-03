@@ -68,111 +68,111 @@ public class SearchImageAnnotationView {
      * annotationType, annotationTerm, annotationId, annotationIdLink, relatedImageCount, imagesLink
      */
     public PageStatus validateDownload(String[][] downloadData) {
-        final Integer[] pageColumns = {
-              COL_INDEX_GENE_ID
-            , COL_INDEX_GENE_NAME
-            , COL_INDEX_GENE_SYMBOL
-            , COL_INDEX_HUMAN_ORTHOLOG
-        };
-        final Integer[] downloadColumns = {
-              DownloadSearchMapGenes.COL_INDEX_GENE_ID
-            , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
-            , DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL
-            , DownloadSearchMapGenes.COL_INDEX_HUMAN_ORTHOLOG
-        };
-        
-        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());   
-    }
-    
-    
-    
-//        PageStatus status = new PageStatus();
-//        
-//        if ((bodyRows.isEmpty()) || (downloadData.length == 0))
-//            return status;
-//            
-//        // Validate the pageHeading.
-//        String[] expectedHeadingList = {
-//            "Annotation type"
-//          , "Annotation term"
-//          , "Annotation id"
-//          , "Annotation id link"
-//          , "Related image count"
-//          , "Images link"
+//        final Integer[] pageColumns = {
+//              COL_INDEX_GENE_ID
+//            , COL_INDEX_GENE_NAME
+//            , COL_INDEX_GENE_SYMBOL
+//            , COL_INDEX_HUMAN_ORTHOLOG
 //        };
-//        SearchFacetTable.validateDownloadHeading("IMAGE (annotation view)", status, expectedHeadingList, downloadData[0]);
-//
-//        for (int i = 0; i < bodyRows.size(); i++) {
-//            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
-//            ImageRow pageRow = bodyRows.get(i);
-//            
-//            // Verify the components.
-//            // annotationType.
-//            String pageValue = pageRow.getAnnotationType();
-//            String downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE];
-////System.out.println("[" + i + "][0]: pageValue:     '" + pageValue + "'");
-////System.out.println("[" + i + "][0]: downloadValue: '" + downloadValue + "'\n");
-//            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-//                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationType = '"
-//                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-//            }
-//            
-//            // annotationTerm.
-//            pageValue = pageRow.getAnnotationTerm();
-//            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TERM];
-////System.out.println("[" + i + "][1]: pageValue:     '" + pageValue + "'");
-////System.out.println("[" + i + "][1]: downloadValue: '" + downloadValue + "'\n");
-//            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-//                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationTerm = '"
-//                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-//            }
-//            
-//            // annotationId.
-//            pageValue = pageRow.getAnnotationId();
-//            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID];
-////System.out.println("[" + i + "][2]: pageValue:     '" + pageValue + "'");
-////System.out.println("[" + i + "][2]: downloadValue: '" + downloadValue + "'\n");
-//            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-//                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationId = '"
-//                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-//            }
-//            
-//            // annotationIdLink. SPECIAL CASE: REMAP PROTOCOL FOR BOTH FROM HTTPS TO HTTP SO COMPARISON DOESN'T FAIL BECAUSE OF THE DIFFERENCE.
-//            pageValue = pageRow.getAnnotationIdLink().replace("https", "http");
-//            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK].replace("https", "http");
-//            downloadValue = TestUtils.urlDecode(downloadValue);
-//            
-////System.out.println("[" + i + "][3]: pageValue:     '" + pageValue + "'");
-////System.out.println("[" + i + "][3]: downloadValue: '" + downloadValue + "'\n");
-//            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-//                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationIdLink = '"
-//                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-//            }
-//            
-//            // relatedImageCount.
-//            pageValue = Integer.toString(pageRow.getRelatedImageCount());
-//            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT];
-////System.out.println("[" + i + "][4]: pageValue:     '" + pageValue + "'");
-////System.out.println("[" + i + "][4]: downloadValue: '" + downloadValue + "'\n");
-//            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-//                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value relatedImageCount = '"
-//                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-//            }
-//                
-//            // imagesLink.
-//            pageValue = pageRow.getImagesLink();
-//            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK];
-//            downloadValue = TestUtils.urlDecode(downloadValue);
-////System.out.println("[" + i + "][5]: pageValue:     '" + pageValue + "'");
-////System.out.println("[" + i + "][5]: downloadValue: '" + downloadValue + "'\n\n");
-//            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-//                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value imagesLink = '"
-//                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-//            }
-//        }
-//
-//        return status;
+//        final Integer[] downloadColumns = {
+//              DownloadSearchMapGenes.COL_INDEX_GENE_ID
+//            , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
+//            , DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL
+//            , DownloadSearchMapGenes.COL_INDEX_HUMAN_ORTHOLOG
+//        };
+//        
+//        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());   
 //    }
+    
+    
+    
+        PageStatus status = new PageStatus();
+        
+        if ((bodyRows.isEmpty()) || (downloadData.length == 0))
+            return status;
+            
+        // Validate the pageHeading.
+        String[] expectedHeadingList = {
+            "Annotation type"
+          , "Annotation term"
+          , "Annotation id"
+          , "Annotation id link"
+          , "Related image count"
+          , "Images link"
+        };
+        SearchFacetTable.validateDownloadHeading("IMAGE (annotation view)", status, expectedHeadingList, downloadData[0]);
+
+        for (int i = 0; i < bodyRows.size(); i++) {
+            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
+            ImageRow pageRow = bodyRows.get(i);
+            
+            // Verify the components.
+            // annotationType.
+            String pageValue = pageRow.getAnnotationType();
+            String downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE];
+//System.out.println("[" + i + "][0]: pageValue:     '" + pageValue + "'");
+//System.out.println("[" + i + "][0]: downloadValue: '" + downloadValue + "'\n");
+            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationType = '"
+                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
+            }
+            
+            // annotationTerm.
+            pageValue = pageRow.getAnnotationTerm();
+            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TERM];
+//System.out.println("[" + i + "][1]: pageValue:     '" + pageValue + "'");
+//System.out.println("[" + i + "][1]: downloadValue: '" + downloadValue + "'\n");
+            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationTerm = '"
+                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
+            }
+            
+            // annotationId.
+            pageValue = pageRow.getAnnotationId();
+            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID];
+//System.out.println("[" + i + "][2]: pageValue:     '" + pageValue + "'");
+//System.out.println("[" + i + "][2]: downloadValue: '" + downloadValue + "'\n");
+            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationId = '"
+                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
+            }
+            
+            // annotationIdLink. SPECIAL CASE: REMAP PROTOCOL FOR BOTH FROM HTTPS TO HTTP SO COMPARISON DOESN'T FAIL BECAUSE OF THE DIFFERENCE.
+            pageValue = pageRow.getAnnotationIdLink().replace("https", "http");
+            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK].replace("https", "http");
+            downloadValue = TestUtils.urlDecode(downloadValue);
+            
+//System.out.println("[" + i + "][3]: pageValue:     '" + pageValue + "'");
+//System.out.println("[" + i + "][3]: downloadValue: '" + downloadValue + "'\n");
+            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationIdLink = '"
+                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
+            }
+            
+            // relatedImageCount.
+            pageValue = Integer.toString(pageRow.getRelatedImageCount());
+            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT];
+//System.out.println("[" + i + "][4]: pageValue:     '" + pageValue + "'");
+//System.out.println("[" + i + "][4]: downloadValue: '" + downloadValue + "'\n");
+            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value relatedImageCount = '"
+                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
+            }
+                
+            // imagesLink.
+            pageValue = pageRow.getImagesLink();
+            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK];
+            downloadValue = TestUtils.urlDecode(downloadValue);
+//System.out.println("[" + i + "][5]: pageValue:     '" + pageValue + "'");
+//System.out.println("[" + i + "][5]: downloadValue: '" + downloadValue + "'\n\n");
+            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
+                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value imagesLink = '"
+                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
+            }
+        }
+
+        return status;
+    }
     
     
     // PRIVATE METHODS
