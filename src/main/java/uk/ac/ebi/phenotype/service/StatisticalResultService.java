@@ -36,6 +36,7 @@ import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
@@ -52,6 +53,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.Set;
@@ -91,6 +93,43 @@ public class StatisticalResultService extends BasicService {
         solr = new HttpSolrServer(solrUrl);
     }
 
+    
+    /**
+     * @param zygosity - optional (pass null if not needed)
+     * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
+     * @author tudose
+     */
+    public TreeMap<String, Long> getDistributionOfAnnotationsByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold) {
+
+        SolrQuery query = new SolrQuery();
+        
+        if (resourceName != null){
+            query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + StatisticalResultDTO.RESOURCE_NAME + ":"));
+        }else {
+            query.setQuery("*:*");
+        }
+
+        if (pValueThreshold != null){
+        	query.setFilterQueries(StatisticalResultDTO.P_VALUE + ":[0 TO " + pValueThreshold + "]");
+        } 
+        	
+        query.setFacet(true);
+        query.setFacetLimit(-1);
+        query.setFacetMinCount(1);
+        query.setRows(0);
+        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+
+        try {
+            QueryResponse response = solr.query(query);
+            TreeMap<String, Long> res = new TreeMap<>();
+            res.putAll(getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
+            return res;
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     /**
      * Get the result for a set of 
      *  allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex

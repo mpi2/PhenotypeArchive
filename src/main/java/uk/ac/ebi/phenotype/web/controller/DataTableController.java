@@ -507,7 +507,7 @@ public class DataTableController {
 			// number of genes annotated to this MP
 			StringBuilder sb = new StringBuilder();
 			sb.append("");
-			rowData.add(sb.append(doc.getInt("gene_count")).toString());
+			rowData.add(sb.append(doc.getInt("postqc_calls")).toString());
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {

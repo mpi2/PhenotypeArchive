@@ -46,8 +46,7 @@
 <c:if test="${empty expressionImages && fn:length(anatomy.childTerms)==0}">
 	<div class="section">
 		<div class=inner>
-			<div class="alert alert-info">No data currently available
-			</div>
+			<div class="alert alert-info">No data currently available	</div>
 		</div>
 	</div>
 </c:if>
