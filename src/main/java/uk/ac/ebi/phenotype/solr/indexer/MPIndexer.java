@@ -218,6 +218,7 @@ public class MPIndexer extends AbstractIndexer {
     	
     		mpCalls.put(mpAcc, calls);
     	}
+    	logger.info("Finished creating a mapping of MP to postqc phenotyping calls");
     }
 
     /**
