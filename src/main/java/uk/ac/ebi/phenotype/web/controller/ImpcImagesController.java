@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,7 +127,11 @@ public class ImpcImagesController {
 		String acc = request.getParameter("gene_accession_id");
 		String procedureName = request.getParameter("procedure_name");
 		String parameterStableId = request.getParameter("parameter_stable_id");
-		imageService.getControlAndExperimentalImpcImages(acc, model, procedureName, parameterStableId, 5, 100, null);
+		List<Count> filteredCounts = new ArrayList<Count>();
+		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
+		imageService.getControlAndExperimentalImpcImages(acc, model, procedureName, parameterStableId, 5, 100, null, filteredCounts, facetToDocs);
+		model.addAttribute("impcImageFacets", filteredCounts);
+		model.addAttribute("impcFacetToDocs", facetToDocs);
 		return "impcImagesContAndExp";
 	}
 

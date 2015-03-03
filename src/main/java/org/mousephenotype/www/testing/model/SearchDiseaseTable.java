@@ -101,12 +101,12 @@ public class SearchDiseaseTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               COL_INDEX_DISEASE_ID
             , COL_INDEX_DISEASE_NAME
             , COL_INDEX_SOURCE
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadSearchMapDiseases.COL_INDEX_DISEASE_ID
             , DownloadSearchMapDiseases.COL_INDEX_DISEASE_NAME
             , DownloadSearchMapDiseases.COL_INDEX_SOURCE

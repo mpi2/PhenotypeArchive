@@ -221,7 +221,7 @@ public abstract class SearchFacetTable {
      * @param downloadUrl The download stream URL
      * @return validation status
      */
-    protected PageStatus validateDownloadInternal(GridMap pageData, int[] pageColumns, String[][] downloadDataArray,  int[] downloadColumns, String downloadUrl) {
+    protected PageStatus validateDownloadInternal(GridMap pageData, Integer[] pageColumns, String[][] downloadDataArray,  Integer[] downloadColumns, String downloadUrl) {
         PageStatus status = new PageStatus();
         List<List<String>> downloadDataList = new ArrayList();
         for (String[] row : downloadDataArray) {

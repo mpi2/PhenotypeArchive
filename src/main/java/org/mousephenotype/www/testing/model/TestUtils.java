@@ -332,7 +332,57 @@ public class TestUtils {
      * @param colIndexes indexes of columns to be copied
      * @return a set containing the concatenated values.
      */
-    public static Set createSet(GridMap input, int[] colIndexes) {
+    public static Set<String> createSet(GridMap input, Integer[] colIndexes) {
+        HashSet resultSet = new HashSet();
+        
+        String[][] body = input.getBody();
+        for (int rowIndex = 0; rowIndex < body.length; rowIndex++) {
+            String[] row = body[rowIndex];
+            String resultString = "";
+            for (int colIndex : colIndexes) {
+                resultString += row[colIndex].trim().toLowerCase() + "_";
+            }
+            resultSet.add(resultString);
+        }
+        
+        return resultSet;
+    }
+    
+    /**
+     * Dump <code>set</code> using logger ('info' level)
+     * 
+     * @param name the set name (for display purposes)
+     * @param set the set to be dumped
+     */
+    public static void dumpSet(String name, Set<String> set) {
+        System.out.println("\nDumping set '" + name + "'. Contains " + set.size() + " records:");
+        if (set.size() <= 0)
+            return;
+        
+        String[] data = set.toArray(new String[0]);
+        for (int i = 0; i < set.size(); i++) {
+            System.out.println("[" + i + "]: " + data[i]);
+        }
+        System.out.println();
+    }
+    
+    /**
+     * Creates a set from <code>input</code> using <code>colIndexes</code>, using
+     * the underscore character as a column delimiter. Each value is first trimmed,
+     * then lowercased.
+     * 
+     * Example: input.body[][] = "a", "b", "c", "d", "e"
+     *                           "f", "g", "h", "i", "j"
+     * 
+     * colIndexes = 1, 3, 4
+     * 
+     * produces a set that looks like:  "b_d_e_"
+     *                                  "g_i_j_"
+     * @param input Input object
+     * @param colIndexes indexes of columns to be copied
+     * @return a set containing the concatenated values.
+     */
+    public static Set<String> createSet(GridMap input, List<Integer> colIndexes) {
         HashSet resultSet = new HashSet();
         
         String[][] body = input.getBody();

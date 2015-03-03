@@ -17,7 +17,7 @@
 	</logger>
 
 	<!-- 3rdparty Loggers -->
-	<logger name="org.springframework.beans">
+	<!-- <logger name="org.springframework.beans">
 		<level value="warn" />
 	</logger>
 	
@@ -42,7 +42,7 @@
 	</logger>
 
 	<logger name="uk.ac.ebi.phenotype.web.controller">
-		<level value="info" />
+		<level value="warn" />
 	</logger>
 	
         <logger name="uk.ac.sanger.phenodigm2">
@@ -51,7 +51,7 @@
         	
 	<logger name="uk.ac.ebi.phenotype.stats.unidimensional">
 		<level value="info" />
-	</logger>
+	</logger> -->
 	
 	<!-- <logger name="uk.ac.ebi.phenotype.pojo.StatisticalResult">
 		<level value="debug" />
