@@ -54,7 +54,7 @@ public class PhenotypeTable {
     public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER  =  5;
     public static final int COL_INDEX_PHENOTYPES_SOURCE              =  6;
     public static final int COL_INDEX_PHENOTYPES_P_VALUE             =  7;
-    public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK               =  8;
+    public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK          =  8;
     
     public static final String COL_PHENOTYPES_GENE_ALLELE         = "Gene / Allele";
     public static final String COL_PHENOTYPES_ZYGOSITY            = "Zygosity";

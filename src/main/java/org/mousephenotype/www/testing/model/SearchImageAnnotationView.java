@@ -68,6 +68,24 @@ public class SearchImageAnnotationView {
      * annotationType, annotationTerm, annotationId, annotationIdLink, relatedImageCount, imagesLink
      */
     public PageStatus validateDownload(String[][] downloadData) {
+//        final Integer[] pageColumns = {
+//              COL_INDEX_GENE_ID
+//            , COL_INDEX_GENE_NAME
+//            , COL_INDEX_GENE_SYMBOL
+//            , COL_INDEX_HUMAN_ORTHOLOG
+//        };
+//        final Integer[] downloadColumns = {
+//              DownloadSearchMapGenes.COL_INDEX_GENE_ID
+//            , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
+//            , DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL
+//            , DownloadSearchMapGenes.COL_INDEX_HUMAN_ORTHOLOG
+//        };
+//        
+//        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());   
+//    }
+    
+    
+    
         PageStatus status = new PageStatus();
         
         if ((bodyRows.isEmpty()) || (downloadData.length == 0))
@@ -122,6 +140,8 @@ public class SearchImageAnnotationView {
             // annotationIdLink. SPECIAL CASE: REMAP PROTOCOL FOR BOTH FROM HTTPS TO HTTP SO COMPARISON DOESN'T FAIL BECAUSE OF THE DIFFERENCE.
             pageValue = pageRow.getAnnotationIdLink().replace("https", "http");
             downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK].replace("https", "http");
+            downloadValue = TestUtils.urlDecode(downloadValue);
+            
 //System.out.println("[" + i + "][3]: pageValue:     '" + pageValue + "'");
 //System.out.println("[" + i + "][3]: downloadValue: '" + downloadValue + "'\n");
             if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
@@ -142,6 +162,7 @@ public class SearchImageAnnotationView {
             // imagesLink.
             pageValue = pageRow.getImagesLink();
             downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK];
+            downloadValue = TestUtils.urlDecode(downloadValue);
 //System.out.println("[" + i + "][5]: pageValue:     '" + pageValue + "'");
 //System.out.println("[" + i + "][5]: downloadValue: '" + downloadValue + "'\n\n");
             if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {

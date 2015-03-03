@@ -225,7 +225,7 @@
                             the batch term is not significant, otherwise "MM framework, linear mixed-effects model, equation withoutWeight".</p> 
 
                             <h4>Rank sum output</h4>
-                            <img src="img/stats_mm_table.png">
+                            <img src="img/stats_rs_table.png">
                             <p>The <strong>more statistics</strong> link at the bottom of the table will list the statistical method as "Wilcoxon rank sum test with continuity correction" when
                             a rank sum calculation has generated the statistics.</p> 
                             

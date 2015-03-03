@@ -49,6 +49,7 @@ import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.PreQcService;
+import uk.ac.ebi.phenotype.service.ReportsService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
 import uk.ac.ebi.phenotype.util.ParameterComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
@@ -97,6 +98,8 @@ public class PhenotypesController {
     MpService mpService;
     @Autowired
     ObservationService os;
+    @Autowired
+    ReportsService rService;
     @Autowired 
     PreQcService preqcService;
 
@@ -156,7 +159,7 @@ public class PhenotypesController {
         	
         	int nbDocs = docs.size();
         	
-        	if ( nbDocs == 0 && (preqcService.getGenesBy(phenotype_id, null).isEmpty() || preqcService.getGenesBy(phenotype_id, null) == null)) {
+        	if ( nbDocs == 0 && (preqcService.getGenesBy(phenotype_id, null, true).isEmpty() || preqcService.getGenesBy(phenotype_id, null, true) == null)) {
         		// do something
         		model.addAttribute("hasData", false);
         	} else {
@@ -477,8 +480,8 @@ public class PhenotypesController {
         int total = 0;
         int nominator = 0;
 
-        List<String> parameters = new ArrayList<>(getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
-        nominator = gpService.getGenesBy(phenotype_id, null).size();
+        List<String> parameters = new ArrayList<>(rService.getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
+        nominator = gpService.getGenesBy(phenotype_id, null, true).size();
         total = srService.getTestedGenes(parameters, null).size();
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
@@ -491,7 +494,7 @@ public class PhenotypesController {
         List<String> genesBothPhenotype;
 
         if (display) {
-            for (Group g : gpService.getGenesBy(phenotype_id, "female")) {
+            for (Group g : gpService.getGenesBy(phenotype_id, "female", true)) {
                 genesFemalePhenotype.add((String) g.getGroupValue());
             }
             nominator = genesFemalePhenotype.size();
@@ -500,7 +503,7 @@ public class PhenotypesController {
             pgs.setFemaleGenesAssociated(nominator);
             pgs.setFemaleGenesTested(total);
 
-            for (Group g : gpService.getGenesBy(phenotype_id, "male")) {
+            for (Group g : gpService.getGenesBy(phenotype_id, "male", true)) {
                 genesMalePhenotype.add(g.getGroupValue());
             }
             nominator = genesMalePhenotype.size();
@@ -537,24 +540,4 @@ public class PhenotypesController {
         return parameters;
     }
 
-    /**
-     *
-     * @param mpTermId
-     * @return List of all parameters that may lead to associations to the MP
-     * term or any of it's children (based on the slim only)
-     */
-    public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
-        HashSet<String> res = new HashSet<>();
-        ArrayList<String> mpIds;
-        try {
-            mpIds = mpService.getChildrenFor(mpTermId);
-            res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
-            for (String mp : mpIds) {
-                res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
-            }
-        } catch (SolrServerException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
 }

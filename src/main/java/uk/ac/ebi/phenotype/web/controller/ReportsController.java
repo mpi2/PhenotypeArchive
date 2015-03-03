@@ -71,8 +71,8 @@ public class ReportsController {
 	@RequestMapping(value="/reports/mpCallDistribution", method = RequestMethod.GET)
 	public void getMpCallDistribution(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
-		List<String[]> result = rService.getMpCallDistribution();
-	    ControllerUtils.writeAsCSV(result, "mp_call_distribution.csv", response);
+		List<List<String[]>> result = rService.getMpCallDistribution();
+	    ControllerUtils.writeAsCSVMultipleTables(result, "mp_call_distribution.csv", response);
 	};
 		
 	@RequestMapping(value="/reports", method = RequestMethod.GET)
