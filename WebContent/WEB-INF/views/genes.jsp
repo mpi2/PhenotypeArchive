@@ -370,38 +370,31 @@
                                     <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
+										<c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
+	                                        
+	                                        
+	                                        	<c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
+	                                                <div id="impc-images-heading" class="accordion-group">    
+				                                        
+				                                            <div class="accordion-heading">
+				                                                 ${doc.parameter_name}(${entry.count}) 
+				                                            </div>
+				                                            <div class="accordion-body">
+				                                                <ul>
+				                                                  
+				                                                            <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
+				                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" href="${baseUrl}/imagePicker/${acc}/${entry.name}" count="${entry.count}"></t:impcimgdisplay2>
+				                                                                </a>
+				                                                        
+				                                                </ul>
+				                                            </div><!--  end of accordion body -->
+				                                    </div>
+				                                  </c:forEach>
+				                            
+				                        </c:forEach>
+	                                       
 
-
-                                        <div id="impc-images-heading" class="accordion-group">
-                                            <div class="accordion-heading">
-                                                <%--  ${entry.name} (${entry.count}) --%>  
-                                                <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
-
-                                                        <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
-                                                            ${doc.parameter_name}(${entry.count})
-                                                         </c:forEach>
-                                                    </c:forEach><!-- solrFacets end -->
-                                            </div>
-                                            <div class="accordion-body">
-                                                <ul>
-                                                    <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
-
-                                                        <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
-                                                            <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
-                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" href="${baseUrl}/imagePicker/${acc}/${entry.name}" count="${entry.count}"></t:impcimgdisplay2>
-                                                                </a>
-                                                        </c:forEach>
-
-                                                        <%-- <div class="clear"></div>
-                                                        <c:if test="${entry.count>5}">
-                                                            <p class="textright"><a href="${baseUrl}/imagePicker/${acc}/${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
-                                                        </c:if> --%>
-                                                    </c:forEach><!-- solrFacets end -->
-                                                </ul>
-                                            </div><!--  end of accordion body -->
-                                        </div>
-
-
+										
                                     </div><!--  end of inner -->
                                 </div> <!-- end of section -->
                             </c:if>			

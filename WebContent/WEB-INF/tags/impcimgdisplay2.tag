@@ -33,7 +33,6 @@ allele = allele.replaceAll("##", "</sup>");
                                                 <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach var="pAssName" items="${img.parameter_association_name}" varStatus="status">${pAssName}, </c:forEach>
                                                 </c:if>
-                                                <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
                                                 </div> 
            
