@@ -884,7 +884,7 @@ public class FileExportController {
         String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";	
         
         List<String> rowData = new ArrayList();
-        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids\tAnnotated gene(s)"); // column names	
+        rowData.add("Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids\tPostqc call(s)"); // column names	
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> data = new ArrayList();
@@ -946,7 +946,7 @@ public class FileExportController {
             // number of genes annotated to this MP
 			StringBuilder sb = new StringBuilder();
 			sb.append("");
-			data.add(sb.append(doc.getInt("gene_count")).toString());
+			data.add(sb.append(doc.getInt("postqc_calls")).toString());
          			
             
             rowData.add(StringUtils.join(data, "\t"));
