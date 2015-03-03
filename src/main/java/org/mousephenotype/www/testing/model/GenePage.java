@@ -55,6 +55,7 @@ public class GenePage {
     private final GeneTable geneTable;
     
     private boolean hasImages;
+    private boolean hasImpcImages;
     private boolean hasGraphs;
     private boolean hasGenesTable;
     private int resultsCount;
@@ -88,6 +89,20 @@ public class GenePage {
     public List<String> getAssociatedImageSections() {
         List<String> associatedImageSections = new ArrayList();
         List<WebElement> associatedImageSectionElements = driver.findElements(By.className("accordion-heading"));
+        for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
+            associatedImageSections.add(associatedImageSectionElement.getText());
+        }
+        
+        return associatedImageSections;      
+    }
+    
+    /**
+     * 
+     * @return A list of Impc Images parameters.
+     */
+    public List<String> getAssociatedImpcImageSections() {
+        List<String> associatedImageSections = new ArrayList();
+        List<WebElement> associatedImageSectionElements = driver.findElements(By.id("impc-images-heading"));
         for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
             associatedImageSections.add(associatedImageSectionElement.getText());
         }
@@ -238,6 +253,14 @@ public class GenePage {
     
     /**
      * 
+     * @return true if this page has images; false otherwise.
+     */
+    public boolean hasImpcImages() {
+        return hasImpcImages;
+    }
+    
+    /**
+     * 
      * @return true if this page has a <b><i>genes</i></b> HTML table;
      * false otherwise.
      */
@@ -363,6 +386,9 @@ public class GenePage {
         // Determine if this page has images.
         elements = driver.findElements(By.xpath("//h2[@id='section-images']"));
         hasImages = ! elements.isEmpty();
+        
+        List<WebElement> impcElements = driver.findElements(By.xpath("//h2[@id='section-impc-images']"));
+        hasImpcImages= ! impcElements.isEmpty();
  
         // Determine if this page has phenotype associations. If it does, get the results count.
         try {
