@@ -105,7 +105,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               COL_INDEX_PHENOTYPE_TERM
             , COL_INDEX_PHENOTYPE_ID
             , COL_INDEX_DEFINITION
@@ -113,7 +113,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             , COL_INDEX_SYNONYMS
             , COL_INDEX_COMP_MAPPED_HP_TERMS
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_TERM
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID
             , DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION

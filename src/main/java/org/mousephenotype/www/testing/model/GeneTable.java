@@ -54,7 +54,7 @@ public class GeneTable {
     public static final int COL_INDEX_GENES_PHENOTYPING_CENTER  =  5;
     public static final int COL_INDEX_GENES_SOURCE              =  6;
     public static final int COL_INDEX_GENES_P_VALUE             =  7;
-    public static final int COL_INDEX_GENES_GRAPH               =  8;
+    public static final int COL_INDEX_GENES_GRAPH_LINK               =  8;
     
     public static final String COL_GENES_PHENOTYPE           = "Phenotype";
     public static final String COL_GENES_ALLELE              = "Allele";
@@ -170,7 +170,7 @@ public class GeneTable {
                     } else {
                         value = sex.get(0).getAttribute("alt").toLowerCase();
                     }
-                } else if (sourceColIndex == COL_INDEX_GENES_GRAPH) {                    // Extract the graph url from the <a> anchor and decode it.
+                } else if (sourceColIndex == COL_INDEX_GENES_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
                     // NOTE: Graph links are disabled if there is no supporting data.
                     List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
                     value = "";

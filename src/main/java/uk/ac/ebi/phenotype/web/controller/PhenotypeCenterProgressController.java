@@ -50,7 +50,7 @@ public class PhenotypeCenterProgressController {
 	 * @throws IOException
 	 * @author tudose
 	 */
-	@RequestMapping("/centerProgressCsv")
+	@RequestMapping("/reports/centerProgressCsv")
 	@ResponseBody
 	public void showPhenotypeCenterProgressCsv(HttpServletResponse response, Model model) throws IOException  {
 			
