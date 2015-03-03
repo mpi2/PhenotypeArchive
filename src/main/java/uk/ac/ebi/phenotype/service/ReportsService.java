@@ -31,12 +31,36 @@ public class ReportsService {
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
     
+    private static 
+	ArrayList<String> resources;
+    
+    public ReportsService(){
+    	resources = new ArrayList<>();
+    	resources.add("IMPC");
+    	resources.add("3i");
+    }
+	
+    public List<String[]> getHitsPerParamProcedure(){
+    	//Columns:
+    	//	parameter name | parameter stable id | number of significant hits
+
+    	List<String[]> res = new ArrayList<>();
+    	try {
+			res = gpService.getHitsDistributionByParameter(resources);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+    	return res;
+    	
+    }
+    
     
     public List<List<String[]>> getMpCallDistribution(){
     	
-    	ArrayList<String> resources = new ArrayList<>();
-    	resources.add("IMPC");
-    	resources.add("3i");
     	Float pVal = (float) 0.0001;
     	TreeMap<String, Long> significant = srService.getDistributionOfAnnotationsByMPTopLevel(resources, pVal);
     	TreeMap<String, Long> all = new TreeMap<String, Long>(String.CASE_INSENSITIVE_ORDER);
