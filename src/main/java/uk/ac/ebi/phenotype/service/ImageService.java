@@ -354,6 +354,8 @@ public class ImageService {
 		}
 
 		List<Count> filteredCounts = new ArrayList<Count>();
+		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
+		
 
 		for (FacetField procedureFacet : procedures) {
 
@@ -378,13 +380,15 @@ public class ImageService {
 				for (Count procedure : procedureFacet.getValues()) {
 
 					if (!procedure.getName().equals(excludeProcedureName)) {
-						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, excludeProcedureName);
+						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, excludeProcedureName, filteredCounts, facetToDocs);
 
 					}
 				}
 			}
 
 		}
+		model.addAttribute("impcImageFacets", filteredCounts);
+		model.addAttribute("impcFacetToDocs", facetToDocs);
 
 	}
 
@@ -434,9 +438,11 @@ public class ImageService {
 	 *            can be 0 or any other int
 	 * @param excludedProcedureName
 	 *            for example if we don't want "Adult Lac Z" returned
+	 * @param facetToDocs 
+	 * @param filteredCounts 
 	 * @throws SolrServerException
 	 */
-	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, String excludedProcedureName)
+	public void getControlAndExperimentalImpcImages(String acc, Model model, String procedureName, String parameterStableId, int numberOfControls, int numberOfExperimental, String excludedProcedureName, List<Count> filteredCounts, Map<String, SolrDocumentList> facetToDocs)
 	throws SolrServerException {
 
 		model.addAttribute("acc", acc);// forward the gene id along to the new
@@ -452,9 +458,6 @@ public class ImageService {
 			logger.error("no facets from solr data source for acc=" + acc);
 			return;
 		}
-
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
-		List<Count> filteredCounts = new ArrayList<Count>();
 
 		// get rid of wholemount expression/Adult LacZ facet as this is
 		// displayed seperately in the using the other method
@@ -479,48 +482,14 @@ public class ImageService {
 					if (!count.getName().equals(excludedProcedureName)) {
 						QueryResponse responseExperimental = this.getImagesForGeneByParameter(acc, count.getName(), "experimental", 1, null, null, null);
 
-						// for (SexType sex : SexType.values()) {
-						// if (!sex.equals(SexType.hermaphrodite)) {
-						// get 5 images if available for this experiment
-						// type
-
-						// need to add sex to experimental call
-						// get information from first experimetal image
-						// and
-						// get the parameters for this next call to get
-						// appropriate control images
 						if (responseExperimental.getResults().size() > 0) {
 							// for(SexType sex : SexType.values()){
 							SolrDocument imgDoc = responseExperimental.getResults().get(0);
 							// no sex filter on this request
 							QueryResponse responseExperimental2 = this.getImagesForGeneByParameter(acc, (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), "experimental", numberOfExperimental, null, (String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.STRAIN_NAME));
 
-							// QueryResponse responseControl =
-							// this.getControlImagesForProcedure((String)
-							// imgDoc.get(ObservationDTO.METADATA_GROUP),
-							// (String)
-							// imgDoc.get(ObservationDTO.PHENOTYPING_CENTER),
-							// (String) imgDoc.get(ObservationDTO.STRAIN_NAME),
-							// (String)
-							// imgDoc.get(ObservationDTO.PROCEDURE_NAME),
-							// (String)
-							// imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID),
-							// (Date)
-							// imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT),
-							// numberOfControls, sex, 7);
-							// if (responseControl != null &&
-							// responseControl.getResults().size() > 0) {
-							// log.info("adding control to list");
-							// list.addAll(responseControl.getResults());
-							//
-							// } else {
-							// log.error("no control images returned");
-							// }
-							// list=getControls(numberOfControls, list, sex,
-							// imgDoc);
+							
 							list = getControls(numberOfControls, list, null, imgDoc);
-							// list=getControls(numberOfControls, list,
-							// SexType.male, imgDoc);
 
 							if (responseExperimental2 != null) {
 								list.addAll(responseExperimental2.getResults());
@@ -537,10 +506,9 @@ public class ImageService {
 					}
 				}
 
-				model.addAttribute("impcImageFacets", filteredCounts);
-				model.addAttribute("impcFacetToDocs", facetToDocs);
 			}
 		}
+		
 
 	}
 
