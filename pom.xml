@@ -1310,6 +1310,7 @@
             <id>live</id>
 
             <properties>
+                <hi>true</hi>
                 <baseUrl>/data</baseUrl>
                 <drupalBaseUrl>https://www.mousephenotype.org</drupalBaseUrl>
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
@@ -1335,9 +1336,6 @@
                     <resource>
                         <directory>src/main/resources</directory>
                         <filtering>true</filtering>
-                        <includes>
-                            <include>**/index-app-config.xml</include>
-                        </includes>
                     </resource>
                 </resources>
                 <plugins>
