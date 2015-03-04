@@ -1310,7 +1310,6 @@
             <id>live</id>
 
             <properties>
-                <hi>true</hi>
                 <baseUrl>/data</baseUrl>
                 <drupalBaseUrl>https://www.mousephenotype.org</drupalBaseUrl>
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
