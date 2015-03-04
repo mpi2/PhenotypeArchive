@@ -351,8 +351,10 @@ public class PhenotypePage {
         Integer i;
         try {
             WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
-            String s = element.getText().replace("Total number of results: ", "");
-            i = Utils.tryParseInt(s);
+            String totResultsString = element.getText();
+            int index = totResultsString.lastIndexOf(":");
+            String count = totResultsString.substring(index + 1);
+            i = Utils.tryParseInt(count);
         } catch (Exception e) {
             i = null;
         }
