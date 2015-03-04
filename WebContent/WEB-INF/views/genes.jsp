@@ -387,6 +387,12 @@
 				                                                                </a>
 				                                                        
 				                                                </ul>
+				                                                
+				                                                
+				                                                 <div class="clear"></div>
+				                                                    <c:if test="${entry.count>5}">
+				                                                        <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+				                                                    </c:if>
 				                                            </div><!--  end of accordion body -->
 				                                    </div>
 				                                  </c:forEach>
