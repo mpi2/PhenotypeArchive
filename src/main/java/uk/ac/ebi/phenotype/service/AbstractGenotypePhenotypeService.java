@@ -89,7 +89,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     }
     
     
-    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity)
+    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity, int facetMincount, Double maxPValue)
     throws SolrServerException, InterruptedException, ExecutionException {
 
     		Map<String, Long>  res = new HashMap<>();
@@ -106,7 +106,12 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
         	}
         	
+        	if (maxPValue != null){
+        		q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[0 TO " + maxPValue + "]");
+        	}
+        	
         	q.addFacetField(fieldToDistributeBy);
+        	q.setFacetMinCount(facetMincount);
         	q.setFacet(true);
         	q.setRows(1);
         	q.set("facet.limit", -1); 

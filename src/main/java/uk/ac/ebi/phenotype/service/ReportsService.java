@@ -35,6 +35,9 @@ public class ReportsService {
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
     
+    
+    public static final double pValueThreshold = 0.0001;
+    
     private static 
 	ArrayList<String> resources;
     
@@ -87,8 +90,9 @@ public class ReportsService {
     		String [] headerParams  ={"# hits", "# HOM colonies with these hits", "# HET colonies with these hits"};
     		zygosityTable.add(headerParams);
 
-    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote);
-    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote);
+    		Map<String, Long> homsMap = srService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 0, pValueThreshold);
+    		Map<String, Long> hetsMap = srService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 0, pValueThreshold);
+    		Map<String, Long> allFromResources = srService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, pValueThreshold);
     		
     		System.out.println("HOM/HET ++ " + homsMap.size() + "  " + hetsMap.size());
     		
@@ -97,7 +101,8 @@ public class ReportsService {
     		
     		long maxHitsPerColony = 0;
     		
-    		for (long count: homsMap.values()){
+    		for (String colony: allFromResources.keySet()){
+    			long count = homsMap.get(colony);
     			if (homRes.containsKey(count)){
     				homRes.put(count, homRes.get(count) + 1);
     				if (count > maxHitsPerColony){
@@ -107,9 +112,10 @@ public class ReportsService {
     				homRes.put(count, 1);
     			}
     		}
-    		for (long count: hetsMap.values()){
+    		for (String colony: allFromResources.keySet()){
+    			long count = hetsMap.get(colony);
     			if (hetRes.containsKey(count)){
-    				hetRes.put(count, homRes.get(count) + 1);
+    				hetRes.put(count, hetRes.get(count) + 1);
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
