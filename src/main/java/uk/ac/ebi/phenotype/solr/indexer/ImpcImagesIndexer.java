@@ -54,6 +54,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	private Map<String, List<AlleleDTO>> alleles;
 	private Map<String, ImageBean> imageBeans;
+	String excludeProcedureStableId="";//"IMPC_PAT_002";
 
 
 	public ImpcImagesIndexer() {
@@ -128,9 +129,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					int omeroId = iBean.omeroId;
 					imageDTO.setOmeroId(omeroId);
 
-					if (omeroId == 0) {
+					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)) {
 						// Skip records that do not have an omero_id
-						logger.error("Skipping record for image record {} -- missing omero_id", fullResFilePath);
+						logger.error("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
 						continue;
 					}
 

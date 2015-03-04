@@ -681,3 +681,9 @@ td, th                  { padding: 0.7em 1.2em 0.7em 0.3em; }
 div.dataTables_info, div.dataTables_paginate {
 	display: inline;	
 }
+
+img.image_picker_image {
+    width: 200px;
+    height: 200px;
+    background-color: #999;
+}
