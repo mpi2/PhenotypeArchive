@@ -396,8 +396,10 @@ public class GenePage {
             hasGenesTable = ! elements.isEmpty();
             if (hasGenesTable) {
                 elements = driver.findElements(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']"));
-                String s = elements.get(0).getText().replace("Total number of results: ", "");
-                resultsCount = Utils.tryParseInt(s);
+                String totResultsString = elements.get(0).getText();
+                int index = totResultsString.lastIndexOf(":");
+                String count = totResultsString.substring(index + 1).trim();
+                resultsCount = Utils.tryParseInt(count);
             }
         } catch (Exception e) {
             throw new RuntimeException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
