@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
@@ -85,7 +84,7 @@ public class ReportsService {
     	List<List<String[]>> res = new ArrayList<>();
     	try {
     		List<String[]> zygosityTable = new ArrayList<>();
-    		String [] headerParams  ={"# hits", "# HOM colonies with these hits", "# HET colones with these hits"};
+    		String [] headerParams  ={"# hits", "# HOM colonies with these hits", "# HET colonies with these hits"};
     		zygosityTable.add(headerParams);
 
     		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote);
