@@ -79,7 +79,7 @@ public class ReportsController {
 	@RequestMapping(value="/reports/hitsPerLine", method = RequestMethod.GET)
 	public void getHitsPerLine(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
-		List<List<String[]>> result = rService.getMpCallDistribution();
+		List<List<String[]>> result = rService.getHitsPerLine();
 	    ControllerUtils.writeAsCSVMultipleTables(result, "hits_per_line.csv", response);
 	};
 

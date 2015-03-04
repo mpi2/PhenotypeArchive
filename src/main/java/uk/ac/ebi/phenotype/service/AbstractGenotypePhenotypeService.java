@@ -88,6 +88,43 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     	return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
     }
     
+    
+    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity)
+    throws SolrServerException, InterruptedException, ExecutionException {
+
+    		Map<String, Long>  res = new HashMap<>();
+        	Long time = System.currentTimeMillis();
+        	SolrQuery q = new SolrQuery();
+        	            
+        	if (resourceName != null){
+                q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+            }else {
+                q.setQuery("*:*");
+            }    
+        	
+        	if (zygosity != null){
+        		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
+        	}
+        	
+        	q.addFacetField(fieldToDistributeBy);
+        	q.setFacet(true);
+        	q.setRows(1);
+        	q.set("facet.limit", -1); 
+
+        	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+        	QueryResponse response = solr.query(q);
+        	
+        	for( Count facet : response.getFacetField(fieldToDistributeBy).getValues()){
+        		String value = facet.getName();
+        		long count = facet.getCount();
+        		res.put(value,count);
+        	}
+        		
+        	System.out.println("Done in " + (System.currentTimeMillis() - time));
+        	return res;
+        
+    }
+    
     private List<String[]> getHitsDistributionBySomething(String field, ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
 

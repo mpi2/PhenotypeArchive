@@ -1,6 +1,8 @@
 package uk.ac.ebi.phenotype.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 
 @Service
 public class ReportsService {
@@ -41,7 +46,7 @@ public class ReportsService {
     }
     
 
-    public List<List<String[]>> getHitsPerLine(){
+    public List<List<String[]>> getHitsPerParamProcedure(){
     	//Columns:
     	//	parameter name | parameter stable id | number of significant hits
 
@@ -73,24 +78,64 @@ public class ReportsService {
     
     
 	
-    public List<List<String[]>> getHitsPerParamProcedure(){
+    public List<List<String[]>> getHitsPerLine(){
     	//Columns:
     	//	parameter name | parameter stable id | number of significant hits
 
     	List<List<String[]>> res = new ArrayList<>();
     	try {
-    		List<String[]> parameters = new ArrayList<>();
-    		String [] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
-    		parameters.add(headerParams);
-    		parameters.addAll(gpService.getHitsDistributionByParameter(resources));
+    		List<String[]> zygosityTable = new ArrayList<>();
+    		String [] headerParams  ={"# hits", "# HOM colonies with these hits", "# HET colones with these hits"};
+    		zygosityTable.add(headerParams);
 
-    		List<String[]> procedures = new ArrayList<>();
-    		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
-    		procedures.add(headerProcedures);
-    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
+    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote);
+    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote);
     		
-			res.add(parameters);
-			res.add(procedures);
+    		System.out.println("HOM/HET ++ " + homsMap.size() + "  " + hetsMap.size());
+    		
+    		HashMap<Long, Integer> homRes = new HashMap<>();
+    		HashMap<Long, Integer> hetRes = new HashMap<>();   
+    		
+    		long maxHitsPerColony = 0;
+    		
+    		for (long count: homsMap.values()){
+    			if (homRes.containsKey(count)){
+    				homRes.put(count, homRes.get(count) + 1);
+    				if (count > maxHitsPerColony){
+    					maxHitsPerColony = count;
+    				}
+    			} else {
+    				homRes.put(count, 1);
+    			}
+    		}
+    		for (long count: hetsMap.values()){
+    			if (hetRes.containsKey(count)){
+    				hetRes.put(count, homRes.get(count) + 1);
+    				if (count > maxHitsPerColony){
+    					maxHitsPerColony = count;
+    				}
+    			} else {
+    				hetRes.put(count, 1);
+    			}
+    		}
+
+    		long iterator = 0;
+    		System.out.println("maxHitsPerColony  " + maxHitsPerColony);
+    		while (iterator <= maxHitsPerColony){
+    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),  Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0)};
+    			zygosityTable.add(row);
+    			iterator += 1;
+    		}
+    		
+    		
+    		
+//    		List<String[]> procedures = new ArrayList<>();
+//    		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
+//    		procedures.add(headerProcedures);
+//    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
+//    		
+			res.add(zygosityTable);
+			//res.add(procedures);
 			
 		} catch (SolrServerException e) {
 			e.printStackTrace();
