@@ -76,15 +76,15 @@ public class ReportsController {
 	    ControllerUtils.writeAsCSVMultipleTables(result, "mp_call_distribution.csv", response);
 	};
 		
-/*	@RequestMapping(value="/reports/hitsPerLine", method = RequestMethod.GET)
+	@RequestMapping(value="/reports/hitsPerLine", method = RequestMethod.GET)
 	public void getHitsPerLine(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
 		List<List<String[]>> result = rService.getMpCallDistribution();
 	    ControllerUtils.writeAsCSVMultipleTables(result, "hits_per_line.csv", response);
 	};
-*/
+
 	@RequestMapping(value="/reports/hitsPerPP", method = RequestMethod.GET)
-	public void getHitsPerLine(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
+	public void getHitsPerPP(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
 		List<List<String[]>> result = rService.getHitsPerParamProcedure();
 	    ControllerUtils.writeAsCSVMultipleTables(result, "hits_per_parameter_procedure.csv", response);
