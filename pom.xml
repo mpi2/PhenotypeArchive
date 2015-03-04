@@ -1335,9 +1335,6 @@
                     <resource>
                         <directory>src/main/resources</directory>
                         <filtering>true</filtering>
-                        <includes>
-                            <include>**/index-app-config.xml</include>
-                        </includes>
                     </resource>
                 </resources>
                 <plugins>
