@@ -36,7 +36,6 @@ public class ReportsService {
     private PhenotypePipelineDAO pipelineDao;
     
     
-    public static final double pValueThreshold = 0.0001;
     
     private static 
 	ArrayList<String> resources;
@@ -87,21 +86,30 @@ public class ReportsService {
     	List<List<String[]>> res = new ArrayList<>();
     	try {
     		List<String[]> zygosityTable = new ArrayList<>();
-    		String [] headerParams  ={"# hits", "# HOM colonies with these hits", "# HET colonies with these hits"};
+    		String [] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
     		zygosityTable.add(headerParams);
 
-    		Map<String, Long> homsMap = srService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 0, pValueThreshold);
-    		Map<String, Long> hetsMap = srService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 0, pValueThreshold);
-    		Map<String, Long> allFromResources = srService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, pValueThreshold);
-    		
+    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
+    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, srService.P_VALUE_THRESHOLD);
+    		Map<String, Long> allMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, srService.P_VALUE_THRESHOLD);
+         		
+    		Map<String, Long> homsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
+    		Map<String, Long> hetsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
+    		Map<String, Long> allNoHits = srService.getColoniesNoMPHit(resources, null);
+
     		System.out.println("HOM/HET ++ " + homsMap.size() + "  " + hetsMap.size());
+    		System.out.println("HOM/HET no hits ++ " + homsNoHits.size() + "  " + hetsNoHits.size());
     		
     		HashMap<Long, Integer> homRes = new HashMap<>();
     		HashMap<Long, Integer> hetRes = new HashMap<>();   
+    		HashMap<Long, Integer> allRes = new HashMap<>();   
     		
     		long maxHitsPerColony = 0;
     		
-    		for (String colony: allFromResources.keySet()){
+    		for (String colony: homsMap.keySet()){
+    			if (homsNoHits.containsKey(colony)){
+    				homsNoHits.remove(colony);
+    			}
     			long count = homsMap.get(colony);
     			if (homRes.containsKey(count)){
     				homRes.put(count, homRes.get(count) + 1);
@@ -112,7 +120,10 @@ public class ReportsService {
     				homRes.put(count, 1);
     			}
     		}
-    		for (String colony: allFromResources.keySet()){
+    		for (String colony: hetsMap.keySet()){
+    			if (hetsNoHits.containsKey(colony)){
+    				hetsNoHits.remove(colony);
+    			}
     			long count = hetsMap.get(colony);
     			if (hetRes.containsKey(count)){
     				hetRes.put(count, hetRes.get(count) + 1);
@@ -123,11 +134,30 @@ public class ReportsService {
     				hetRes.put(count, 1);
     			}
     		}
+    		for (String colony: allMap.keySet()){
+    			if (allNoHits.containsKey(colony)){
+    				allNoHits.remove(colony);
+    			}
+    			long count = allMap.get(colony);
+    			if (allRes.containsKey(count)){
+    				allRes.put(count, allRes.get(count) + 1);
+    				if (count > maxHitsPerColony){
+    					maxHitsPerColony = count;
+    				}
+    			} else {
+    				allRes.put(count, 1);
+    			}
+    		}
 
+    		homRes.put(Long.parseLong("0"), homsNoHits.size());
+    		hetRes.put(Long.parseLong("0"), hetsNoHits.size());
+    		allRes.put(Long.parseLong("0"), allNoHits.size());
+    		
     		long iterator = 0;
     		System.out.println("maxHitsPerColony  " + maxHitsPerColony);
     		while (iterator <= maxHitsPerColony){
-    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),  Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0)};
+    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),  
+    				Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator)? allRes.get(iterator) : 0)};
     			zygosityTable.add(row);
     			iterator += 1;
     		}

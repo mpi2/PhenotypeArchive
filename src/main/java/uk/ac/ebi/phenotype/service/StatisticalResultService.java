@@ -92,6 +92,45 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 	    
 
+	public Map<String, Long> getColoniesNoMPHit(ArrayList<String> resourceName, ZygosityType zygosity) 
+	throws SolrServerException{
+		Map<String, Long>  res = new HashMap<>();
+    	Long time = System.currentTimeMillis();
+    	SolrQuery q = new SolrQuery();
+    	            
+    	if (resourceName != null){
+            q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }    
+    	
+    	if (zygosity != null){
+    		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
+    	}
+    	
+    	q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[" + this.P_VALUE_THRESHOLD + " TO 1]");
+    	    	
+    	q.addFacetField(StatisticalResultDTO.COLONY_ID);
+    	q.setFacetMinCount(1);
+    	q.setFacet(true);
+    	q.setRows(1);
+    	q.set("facet.limit", -1); 
+
+    	System.out.println("Solr url for getColoniesNoMPHit " + solr.getBaseURL() + "/select?" + q);
+    	QueryResponse response = solr.query(q);
+    	
+    	for( Count facet : response.getFacetField(StatisticalResultDTO.COLONY_ID).getValues()){
+    		String value = facet.getName();
+    		long count = facet.getCount();
+    		res.put(value,count);
+    	}
+    		
+    	System.out.println("Done in " + (System.currentTimeMillis() - time));
+    	return res;
+    
+	}
+	
+	
     public Map<String, ArrayList<String>> getDistributionOfLinesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
