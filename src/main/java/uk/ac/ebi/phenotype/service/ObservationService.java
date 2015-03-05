@@ -96,17 +96,19 @@ public class ObservationService extends BasicService {
 	}
 	
 	
-	public String getViabilityDataCsvUrl() {
+	public QueryResponse getViabilityData() 
+	throws SolrServerException {
 		
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001" );
 		query.addField(ObservationDTO.GENE_SYMBOL);
 		query.addField(ObservationDTO.COLONY_ID);
 		query.addField(ObservationDTO.CATEGORY);
-		query.set("wt", "csv");
 		query.setRows(100000);
-				
-		return solr.getBaseURL() + "/select?" + query;
+		
+		System.out.println("getViabilityData Url" + solr.getBaseURL() + "/select?" + query);
+		
+		return solr.query(query);
 	}
 	
 	

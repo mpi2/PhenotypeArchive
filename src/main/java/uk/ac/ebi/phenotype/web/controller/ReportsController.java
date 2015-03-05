@@ -100,8 +100,8 @@ public class ReportsController {
 	@RequestMapping(value="/reports/viability", method = RequestMethod.GET)
 	public void getViabilityReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 			
-		String result = rService.getViabilityReport();
-	    ControllerUtils.writeAsCSV(result, "viability_report.csv", response);
+		List<List<String[]>> result = rService.getViabilityReport();
+	    ControllerUtils.writeAsCSVMultipleTables(result, "viability_report.csv", response);
 	};
 	
 	@RequestMapping(value="/reports", method = RequestMethod.GET)

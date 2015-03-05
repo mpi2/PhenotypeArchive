@@ -13,6 +13,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
@@ -58,22 +61,30 @@ public class ReportsService {
     }
     
 
-    public String getViabilityReport(){
+    public List<List<String[]>> getViabilityReport(){
+
+    	List<List<String[]>> res = new ArrayList<>();
+    	List<String[]> allTable = new ArrayList<>();
+		String[] forArrayType = new String[0];
     	
-    	String report ="";
     	try {
     		HttpProxy proxy = new HttpProxy();
-    		String url = oService.getViabilityDataCsvUrl();
-    		System.out.println("URL for VIA report " + url);
-    		report = proxy.getContent(new URL(url));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
+    		QueryResponse response = oService.getViabilityData();
+    		String[] header = {"Gene", "Colony", "Category"};
+    		allTable.add(header);
+    		for ( SolrDocument doc : response.getResults()){
+    			String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
+    				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), doc.getFieldValue(ObservationDTO.CATEGORY).toString()};
+    			allTable.add(row);
+    		}
+    		
+    		res.add(allTable);
+		
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	return report;
+    	return res;
     }
     
     
