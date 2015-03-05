@@ -78,7 +78,14 @@ public class ObservationService extends BasicService {
 	}
 
 
-	public long getNumberOfObservations() 
+	public ObservationService(String solrUrl) {
+		System.out.println("setting observationService solrUrl="+solrUrl);
+		solr = new HttpSolrServer(solrUrl);
+	}
+
+
+
+	public long getNumberOfDocuments( ) 
 	throws SolrServerException{
 
 		SolrQuery query = new SolrQuery();
@@ -88,12 +95,7 @@ public class ObservationService extends BasicService {
 		return solr.query(query).getResults().getNumFound();	
 	}
 	
-	public ObservationService(String solrUrl) {
-		System.out.println("setting observationService solrUrl="+solrUrl);
-		solr = new HttpSolrServer(solrUrl);
-	}
-
-
+	
 	public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
 	throws SolrServerException {
 

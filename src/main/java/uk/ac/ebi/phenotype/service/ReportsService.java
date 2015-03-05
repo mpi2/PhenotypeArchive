@@ -25,9 +25,12 @@ public class ReportsService {
 
     @Autowired
 	StatisticalResultService srService;
-    
+
     @Autowired
 	ObservationService oService;
+    
+    @Autowired
+	ImageService iService;
 
     @Autowired
 	@Qualifier("postqcService")
@@ -78,19 +81,24 @@ public class ReportsService {
 		row.add("# phenotype hits");
 		row.add(metaInfo.get("statistically_significant_calls"));
     	overview.add(row.toArray(forArrayType));
-       	
+    	
 		try {
 	    	row = new ArrayList<>();
 			row.add("# data points");
-			row.add(Long.toString(oService.getNumberOfObservations()));
+			row.add(Long.toString(oService.getNumberOfDocuments()));
 	    	overview.add(row.toArray(forArrayType));
+	    
+	    	row = new ArrayList<>();
+			row.add("# images");
+			row.add(Long.toString(iService.getNumberOfDocuments()));
+	    	overview.add(row.toArray(forArrayType));
+	       	
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-    	
+
     	res.add(overview);
     	
-
     	List<String[]> lines = new ArrayList<>();
 
 		String centers = metaInfo.get("phenotyped_lines_centers");
