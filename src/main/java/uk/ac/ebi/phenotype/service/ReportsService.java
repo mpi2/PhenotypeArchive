@@ -159,15 +159,7 @@ public class ReportsService {
     			iterator += 1;
     		}
     		
-    		
-    		
-//    		List<String[]> procedures = new ArrayList<>();
-//    		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
-//    		procedures.add(headerProcedures);
-//    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
-//    		
 			res.add(zygosityTable);
-			//res.add(procedures);
 			
 		} catch (SolrServerException e) {
 			e.printStackTrace();
