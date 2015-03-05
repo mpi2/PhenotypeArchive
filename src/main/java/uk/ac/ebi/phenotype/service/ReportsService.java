@@ -65,10 +65,8 @@ public class ReportsService {
 
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> allTable = new ArrayList<>();
-		String[] forArrayType = new String[0];
     	
     	try {
-    		HttpProxy proxy = new HttpProxy();
     		QueryResponse response = oService.getViabilityData();
     		String[] header = {"Gene", "Colony", "Category"};
     		allTable.add(header);
@@ -77,11 +75,9 @@ public class ReportsService {
     				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), doc.getFieldValue(ObservationDTO.CATEGORY).toString()};
     			allTable.add(row);
     		}
-    		
-    		res.add(allTable);
+      		res.add(allTable);
 		
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	return res;
@@ -89,11 +85,6 @@ public class ReportsService {
     
     
     public List<List<String[]>> getDataOverview(){
-    	// Lines phenotyped	with data pass QC	+
-    	// broken out by center and total
-    	// Phenotype hits	+
-    	// Datapoints
-    	// Images
       	
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> overview = new ArrayList<>();
