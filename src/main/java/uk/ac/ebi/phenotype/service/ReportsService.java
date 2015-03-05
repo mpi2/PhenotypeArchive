@@ -96,9 +96,6 @@ public class ReportsService {
     		Map<String, Long> homsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
     		Map<String, Long> hetsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
     		Map<String, Long> allNoHits = srService.getColoniesNoMPHit(resources, null);
-
-    		System.out.println("HOM/HET ++ " + homsMap.size() + "  " + hetsMap.size());
-    		System.out.println("HOM/HET no hits ++ " + homsNoHits.size() + "  " + hetsNoHits.size());
     		
     		HashMap<Long, Integer> homRes = new HashMap<>();
     		HashMap<Long, Integer> hetRes = new HashMap<>();   
@@ -154,7 +151,7 @@ public class ReportsService {
     		allRes.put(Long.parseLong("0"), allNoHits.size());
     		
     		long iterator = 0;
-    		System.out.println("maxHitsPerColony  " + maxHitsPerColony);
+    		
     		while (iterator <= maxHitsPerColony){
     			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),  
     				Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator)? allRes.get(iterator) : 0)};
