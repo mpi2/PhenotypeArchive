@@ -78,8 +78,18 @@ public class ObservationService extends BasicService {
 	}
 
 
+	public long getNumberOfObservations() 
+	throws SolrServerException{
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
+		query.setRows(0);
+		
+		return solr.query(query).getResults().getNumFound();	
+	}
+	
 	public ObservationService(String solrUrl) {
-System.out.println("setting observationService solrUrl="+solrUrl);
+		System.out.println("setting observationService solrUrl="+solrUrl);
 		solr = new HttpSolrServer(solrUrl);
 	}
 
@@ -101,12 +111,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
 
 		if (phenotypingCenterParams != null && !phenotypingCenterParams.isEmpty()) {
-			List<String> spaceSafeStringsList = new ArrayList<String>();// need
-																		// to
-																		// add "
-																		// to
-																		// ends
-																		// of
+			List<String> spaceSafeStringsList = new ArrayList<String>();// need to add " to ends of
 																		// entries
 																		// to
 																		// cope

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
@@ -24,6 +25,9 @@ public class ReportsService {
 
     @Autowired
 	StatisticalResultService srService;
+    
+    @Autowired
+	ObservationService oService;
 
     @Autowired
 	@Qualifier("postqcService")
@@ -35,9 +39,10 @@ public class ReportsService {
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
     
+	@Autowired
+	private AnalyticsDAO analyticsDAO;
     
-    
-    private static 
+	private static 
 	ArrayList<String> resources;
     
     public ReportsService(){
@@ -47,6 +52,63 @@ public class ReportsService {
     }
     
 
+    public List<List<String[]>> getDataOverview(){
+    	// Lines phenotyped	with data pass QC	+
+    	// broken out by center and total
+    	// Phenotype hits	+
+    	// Datapoints
+    	// Images
+      	
+    	List<List<String[]>> res = new ArrayList<>();
+    	List<String[]> overview = new ArrayList<>();
+		String[] forArrayType = new String[0];
+    	
+		Map<String, String> metaInfo = analyticsDAO.getMetaData();
+		List<String> row = new ArrayList<>();
+		row.add("# phenotyped genes");
+		row.add(metaInfo.get("phenotyped_genes"));
+    	overview.add(row.toArray(forArrayType));
+    	
+    	row = new ArrayList<>();
+		row.add("# phenotyped lines");
+		row.add(metaInfo.get("phenotyped_lines"));
+    	overview.add(row.toArray(forArrayType));
+    
+    	row = new ArrayList<>();
+		row.add("# phenotype hits");
+		row.add(metaInfo.get("statistically_significant_calls"));
+    	overview.add(row.toArray(forArrayType));
+       	
+		try {
+	    	row = new ArrayList<>();
+			row.add("# data points");
+			row.add(Long.toString(oService.getNumberOfObservations()));
+	    	overview.add(row.toArray(forArrayType));
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	
+    	res.add(overview);
+    	
+
+    	List<String[]> lines = new ArrayList<>();
+
+		String centers = metaInfo.get("phenotyped_lines_centers");
+		String[] phenotypingCenters = centers.split(",");
+		String[] values = new String[phenotypingCenters.length]; 
+		for (int i = 0; i < phenotypingCenters.length; i++){
+			values[i] = metaInfo.get("phenotyped_lines_" + phenotypingCenters[i]);
+			phenotypingCenters[i] = phenotypingCenters[i] + " lines";
+ 		}
+		
+    	lines.add(phenotypingCenters);
+    	lines.add(values);
+    	
+    	res.add(lines);
+		return res;
+    }
+    
+    
     public List<List<String[]>> getHitsPerParamProcedure(){
     	//Columns:
     	//	parameter name | parameter stable id | number of significant hits
