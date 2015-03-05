@@ -1248,7 +1248,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
                 <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_beta</buildIndexesSolrUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-                <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <impcMediaBaseUrl>//www.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-33310077-1</googleAnalytics>
                 <liveSite>false</liveSite>
             </properties>
