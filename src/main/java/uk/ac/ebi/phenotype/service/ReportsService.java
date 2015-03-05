@@ -1,29 +1,42 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class ReportsService {
 
     @Autowired
 	StatisticalResultService srService;
+
+    @Autowired
+	ObservationService oService;
+    
+    @Autowired
+	ImageService iService;
 
     @Autowired
 	@Qualifier("postqcService")
@@ -35,7 +48,10 @@ public class ReportsService {
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
     
-    private static 
+	@Autowired
+	private AnalyticsDAO analyticsDAO;
+    
+	private static 
 	ArrayList<String> resources;
     
     public ReportsService(){
@@ -45,6 +61,102 @@ public class ReportsService {
     }
     
 
+    public List<List<String[]>> getViabilityReport(){
+
+    	List<List<String[]>> res = new ArrayList<>();
+    	List<String[]> allTable = new ArrayList<>();
+    	List<String[]> countsTable = new ArrayList<>();
+    	HashMap<String, Integer> countsByCategory = new HashMap<>();
+    	
+    	try {
+    		QueryResponse response = oService.getViabilityData();
+    		String[] header = {"Gene", "Colony", "Category"};
+    		allTable.add(header);
+    		for ( SolrDocument doc : response.getResults()){
+    			String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
+    			String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
+    				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category};
+    			allTable.add(row);
+    			if (countsByCategory.containsKey(category)){
+    				countsByCategory.put(category, countsByCategory.get(category) + 1);
+    			}else {
+    				countsByCategory.put(category, 1);
+    			}
+    			
+    		}
+      		
+      		for (String cat: countsByCategory.keySet()){
+      			String[] row = {cat, countsByCategory.get(cat).toString()};
+      			countsTable.add(row);
+      		}
+
+      		res.add(countsTable);
+      		res.add(allTable);
+		
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	return res;
+    }
+    
+    
+    public List<List<String[]>> getDataOverview(){
+      	
+    	List<List<String[]>> res = new ArrayList<>();
+    	List<String[]> overview = new ArrayList<>();
+		String[] forArrayType = new String[0];
+    	
+		Map<String, String> metaInfo = analyticsDAO.getMetaData();
+		List<String> row = new ArrayList<>();
+		row.add("# phenotyped genes");
+		row.add(metaInfo.get("phenotyped_genes"));
+    	overview.add(row.toArray(forArrayType));
+    	
+    	row = new ArrayList<>();
+		row.add("# phenotyped lines");
+		row.add(metaInfo.get("phenotyped_lines"));
+    	overview.add(row.toArray(forArrayType));
+    
+    	row = new ArrayList<>();
+		row.add("# phenotype hits");
+		row.add(metaInfo.get("statistically_significant_calls"));
+    	overview.add(row.toArray(forArrayType));
+    	
+		try {
+	    	row = new ArrayList<>();
+			row.add("# data points");
+			row.add(Long.toString(oService.getNumberOfDocuments()));
+	    	overview.add(row.toArray(forArrayType));
+	    
+	    	row = new ArrayList<>();
+			row.add("# images");
+			row.add(Long.toString(iService.getNumberOfDocuments()));
+	    	overview.add(row.toArray(forArrayType));
+	       	
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+
+    	res.add(overview);
+    	
+    	List<String[]> lines = new ArrayList<>();
+
+		String centers = metaInfo.get("phenotyped_lines_centers");
+		String[] phenotypingCenters = centers.split(",");
+		String[] values = new String[phenotypingCenters.length]; 
+		for (int i = 0; i < phenotypingCenters.length; i++){
+			values[i] = metaInfo.get("phenotyped_lines_" + phenotypingCenters[i]);
+			phenotypingCenters[i] = phenotypingCenters[i] + " lines";
+ 		}
+		
+    	lines.add(phenotypingCenters);
+    	lines.add(values);
+    	
+    	res.add(lines);
+		return res;
+    }
+    
+    
     public List<List<String[]>> getHitsPerParamProcedure(){
     	//Columns:
     	//	parameter name | parameter stable id | number of significant hits
@@ -74,30 +186,38 @@ public class ReportsService {
     	return res;
     	
     }
-    
-    
+        
 	
     public List<List<String[]>> getHitsPerLine(){
-    	//Columns:
-    	//	parameter name | parameter stable id | number of significant hits
+   
+    	// TODO refactor to pivot facet on zygosity, colony_id (this order) => 1 call instead of 2
+      	//Columns:		parameter name | parameter stable id | number of significant hits
 
     	List<List<String[]>> res = new ArrayList<>();
     	try {
     		List<String[]> zygosityTable = new ArrayList<>();
-    		String [] headerParams  ={"# hits", "# HOM colonies with these hits", "# HET colonies with these hits"};
+    		String [] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
     		zygosityTable.add(headerParams);
 
-    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote);
-    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote);
-    		
-    		System.out.println("HOM/HET ++ " + homsMap.size() + "  " + hetsMap.size());
+    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
+    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, srService.P_VALUE_THRESHOLD);
+    		Map<String, Long> allMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, srService.P_VALUE_THRESHOLD);
+         		
+    		Map<String, Long> homsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
+    		Map<String, Long> hetsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
+    		Map<String, Long> allNoHits = srService.getColoniesNoMPHit(resources, null);
     		
     		HashMap<Long, Integer> homRes = new HashMap<>();
     		HashMap<Long, Integer> hetRes = new HashMap<>();   
+    		HashMap<Long, Integer> allRes = new HashMap<>();   
     		
     		long maxHitsPerColony = 0;
     		
-    		for (long count: homsMap.values()){
+    		for (String colony: homsMap.keySet()){
+    			if (homsNoHits.containsKey(colony)){
+    				homsNoHits.remove(colony);
+    			}
+    			long count = homsMap.get(colony);
     			if (homRes.containsKey(count)){
     				homRes.put(count, homRes.get(count) + 1);
     				if (count > maxHitsPerColony){
@@ -107,9 +227,13 @@ public class ReportsService {
     				homRes.put(count, 1);
     			}
     		}
-    		for (long count: hetsMap.values()){
+    		for (String colony: hetsMap.keySet()){
+    			if (hetsNoHits.containsKey(colony)){
+    				hetsNoHits.remove(colony);
+    			}
+    			long count = hetsMap.get(colony);
     			if (hetRes.containsKey(count)){
-    				hetRes.put(count, homRes.get(count) + 1);
+    				hetRes.put(count, hetRes.get(count) + 1);
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
@@ -117,24 +241,35 @@ public class ReportsService {
     				hetRes.put(count, 1);
     			}
     		}
+    		for (String colony: allMap.keySet()){
+    			if (allNoHits.containsKey(colony)){
+    				allNoHits.remove(colony);
+    			}
+    			long count = allMap.get(colony);
+    			if (allRes.containsKey(count)){
+    				allRes.put(count, allRes.get(count) + 1);
+    				if (count > maxHitsPerColony){
+    					maxHitsPerColony = count;
+    				}
+    			} else {
+    				allRes.put(count, 1);
+    			}
+    		}
 
+    		homRes.put(Long.parseLong("0"), homsNoHits.size());
+    		hetRes.put(Long.parseLong("0"), hetsNoHits.size());
+    		allRes.put(Long.parseLong("0"), allNoHits.size());
+    		
     		long iterator = 0;
-    		System.out.println("maxHitsPerColony  " + maxHitsPerColony);
+    		
     		while (iterator <= maxHitsPerColony){
-    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),  Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0)};
+    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),  
+    				Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator)? allRes.get(iterator) : 0)};
     			zygosityTable.add(row);
     			iterator += 1;
     		}
     		
-    		
-    		
-//    		List<String[]> procedures = new ArrayList<>();
-//    		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
-//    		procedures.add(headerProcedures);
-//    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
-//    		
 			res.add(zygosityTable);
-			//res.add(procedures);
 			
 		} catch (SolrServerException e) {
 			e.printStackTrace();

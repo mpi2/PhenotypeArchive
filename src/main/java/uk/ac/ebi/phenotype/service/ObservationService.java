@@ -79,11 +79,39 @@ public class ObservationService extends BasicService {
 
 
 	public ObservationService(String solrUrl) {
-System.out.println("setting observationService solrUrl="+solrUrl);
+		System.out.println("setting observationService solrUrl="+solrUrl);
 		solr = new HttpSolrServer(solrUrl);
 	}
 
 
+
+	public long getNumberOfDocuments( ) 
+	throws SolrServerException{
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
+		query.setRows(0);
+		
+		return solr.query(query).getResults().getNumFound();	
+	}
+	
+	
+	public QueryResponse getViabilityData() 
+	throws SolrServerException {
+		
+		SolrQuery query = new SolrQuery();
+		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001" );
+		query.addField(ObservationDTO.GENE_SYMBOL);
+		query.addField(ObservationDTO.COLONY_ID);
+		query.addField(ObservationDTO.CATEGORY);
+		query.setRows(100000);
+		
+		System.out.println("getViabilityData Url" + solr.getBaseURL() + "/select?" + query);
+		
+		return solr.query(query);
+	}
+	
+	
 	public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
 	throws SolrServerException {
 
@@ -101,12 +129,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
 
 		if (phenotypingCenterParams != null && !phenotypingCenterParams.isEmpty()) {
-			List<String> spaceSafeStringsList = new ArrayList<String>();// need
-																		// to
-																		// add "
-																		// to
-																		// ends
-																		// of
+			List<String> spaceSafeStringsList = new ArrayList<String>();// need to add " to ends of
 																		// entries
 																		// to
 																		// cope

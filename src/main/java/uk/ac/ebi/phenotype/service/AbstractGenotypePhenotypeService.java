@@ -42,6 +42,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
     protected Boolean isPreQc;
 
+    public static final double P_VALUE_THRESHOLD = 0.0001;
+    
     /**
      * @param zygosity - optional (pass null if not needed)
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
@@ -89,7 +91,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     }
     
     
-    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity)
+    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity, 
+    	int facetMincount, Double maxPValue)
     throws SolrServerException, InterruptedException, ExecutionException {
 
     		Map<String, Long>  res = new HashMap<>();
@@ -106,7 +109,12 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
         	}
         	
+        	if (maxPValue != null){
+        		q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[0 TO " + maxPValue + "]");
+        	}
+        	
         	q.addFacetField(fieldToDistributeBy);
+        	q.setFacetMinCount(facetMincount);
         	q.setFacet(true);
         	q.setRows(1);
         	q.set("facet.limit", -1); 

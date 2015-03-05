@@ -60,7 +60,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.Set;
 
 @Service
-public class StatisticalResultService extends BasicService {
+public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     @Autowired
     BiologicalModelDAO bmDAO;
@@ -71,18 +71,13 @@ public class StatisticalResultService extends BasicService {
     @Autowired
     OrganisationDAO organisationDAO;
     
-
     @Autowired
 	@Qualifier("postqcService")
     AbstractGenotypePhenotypeService gpService;
-    
-    @Autowired
-    PhenotypePipelineDAO pDAO;
-    
+        
     @Autowired
     ProjectDAO projectDAO;
     
-    private HttpSolrServer solr;
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
 
@@ -90,11 +85,52 @@ public class StatisticalResultService extends BasicService {
     Map<String, ArrayList<String>> femaleParamToGene = null;
 
 
-    public StatisticalResultService(String solrUrl) {
-        solr = new HttpSolrServer(solrUrl);
-    }
-    
+	public StatisticalResultService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
+		solr = new HttpSolrServer(solrUrl);
+		pipelineDAO = pipelineDao;
+		isPreQc = false; 
+	}
+	    
 
+	public Map<String, Long> getColoniesNoMPHit(ArrayList<String> resourceName, ZygosityType zygosity) 
+	throws SolrServerException{
+		Map<String, Long>  res = new HashMap<>();
+    	Long time = System.currentTimeMillis();
+    	SolrQuery q = new SolrQuery();
+    	            
+    	if (resourceName != null){
+            q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }    
+    	
+    	if (zygosity != null){
+    		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
+    	}
+    	
+    	q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[" + this.P_VALUE_THRESHOLD + " TO 1]");
+    	    	
+    	q.addFacetField(StatisticalResultDTO.COLONY_ID);
+    	q.setFacetMinCount(1);
+    	q.setFacet(true);
+    	q.setRows(1);
+    	q.set("facet.limit", -1); 
+
+    	System.out.println("Solr url for getColoniesNoMPHit " + solr.getBaseURL() + "/select?" + q);
+    	QueryResponse response = solr.query(q);
+    	
+    	for( Count facet : response.getFacetField(StatisticalResultDTO.COLONY_ID).getValues()){
+    		String value = facet.getName();
+    		long count = facet.getCount();
+    		res.put(value,count);
+    	}
+    		
+    	System.out.println("Done in " + (System.currentTimeMillis() - time));
+    	return res;
+    
+	}
+	
+	
     public Map<String, ArrayList<String>> getDistributionOfLinesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
@@ -459,8 +495,8 @@ public class StatisticalResultService extends BasicService {
         r.setMetadataGroup(result.getMetadataGroup());
         if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
         if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-        if(result.getParameterStableId()!= null) r.setParameter(pDAO.getParameterByStableId(result.getParameterStableId()));
-        if(result.getPipelineStableId()!= null) r.setPipeline(pDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+        if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
+        if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
         if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
         if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
         r.setRawOutput(result.getRawOutput());
@@ -492,8 +528,8 @@ public class StatisticalResultService extends BasicService {
         r.setMaleMutants(result.getMaleMutantCount()); 
         r.setMetadataGroup(result.getMetadataGroup());
         if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-        if(result.getParameterStableId()!= null) r.setParameter(pDAO.getParameterByStableId(result.getParameterStableId()));
-        if(result.getPipelineStableId()!= null) r.setPipeline(pDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+        if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
+        if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
         if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
         if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
         r.setRawOutput(result.getRawOutput());

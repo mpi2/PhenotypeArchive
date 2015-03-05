@@ -39,7 +39,16 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
+	public long getNumberOfDocuments( ) 
+	throws SolrServerException{
 
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
+		query.setRows(0);
+		
+		return solr.query(query).getResults().getNumFound();	
+	}
+	
 	/**
 	 * 
 	 * @param query
