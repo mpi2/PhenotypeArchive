@@ -55,6 +55,18 @@ public class ReportsService {
     }
     
 
+    public String getViabilityReport(){
+    	
+    	String report ="";
+    	try {
+			report = oService.getViabilityReport();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	return report;
+    }
+    
+    
     public List<List<String[]>> getDataOverview(){
     	// Lines phenotyped	with data pass QC	+
     	// broken out by center and total
@@ -146,12 +158,12 @@ public class ReportsService {
     	return res;
     	
     }
-    
-    
+        
 	
     public List<List<String[]>> getHitsPerLine(){
-    	//Columns:
-    	//	parameter name | parameter stable id | number of significant hits
+   
+    	// TODO refactor to pivot facet on zygosity, colony_id (this order) => 1 call instead of 2
+      	//Columns:		parameter name | parameter stable id | number of significant hits
 
     	List<List<String[]>> res = new ArrayList<>();
     	try {
