@@ -65,16 +65,32 @@ public class ReportsService {
 
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> allTable = new ArrayList<>();
+    	List<String[]> countsTable = new ArrayList<>();
+    	HashMap<String, Integer> countsByCategory = new HashMap<>();
     	
     	try {
     		QueryResponse response = oService.getViabilityData();
     		String[] header = {"Gene", "Colony", "Category"};
     		allTable.add(header);
     		for ( SolrDocument doc : response.getResults()){
+    			String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
     			String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
-    				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), doc.getFieldValue(ObservationDTO.CATEGORY).toString()};
+    				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category};
     			allTable.add(row);
+    			if (countsByCategory.containsKey(category)){
+    				countsByCategory.put(category, countsByCategory.get(category) + 1);
+    			}else {
+    				countsByCategory.put(category, 1);
+    			}
+    			
     		}
+      		
+      		for (String cat: countsByCategory.keySet()){
+      			String[] row = {cat, countsByCategory.get(cat).toString()};
+      			countsTable.add(row);
+      		}
+
+      		res.add(countsTable);
       		res.add(allTable);
 		
 		} catch (SolrServerException e) {
