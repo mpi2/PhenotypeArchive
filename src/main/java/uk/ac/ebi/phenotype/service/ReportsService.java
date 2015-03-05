@@ -1,5 +1,9 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,6 +15,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -19,6 +24,7 @@ import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class ReportsService {
@@ -59,8 +65,15 @@ public class ReportsService {
     	
     	String report ="";
     	try {
-			report = oService.getViabilityReport();
-		} catch (SolrServerException e) {
+    		HttpProxy proxy = new HttpProxy();
+    		String url = oService.getViabilityDataCsvUrl();
+    		System.out.println("URL for VIA report " + url);
+    		report = proxy.getContent(new URL(url));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
     	return report;

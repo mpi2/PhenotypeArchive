@@ -96,8 +96,7 @@ public class ObservationService extends BasicService {
 	}
 	
 	
-	public String getViabilityReport() 
-	throws SolrServerException{
+	public String getViabilityDataCsvUrl() {
 		
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001" );
@@ -105,15 +104,12 @@ public class ObservationService extends BasicService {
 		query.addField(ObservationDTO.COLONY_ID);
 		query.addField(ObservationDTO.CATEGORY);
 		query.set("wt", "csv");
-		query.set("csv.separator", ",");
-		query.set("csv.mv.separator", "%01");
-		query.set("csv.mv.separator", "%09");
 		query.setRows(100000);
 		
 		// http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:IMPC_VIA_001_001&
 		// fl=colony_id,gene_symbol,category&wt=csv&rows=2000&csv.separator=,&csv.mv.separator=%09&csv.mv.escape=%01
 		
-		return solr.query(query).toString();
+		return solr.getBaseURL() + "/select?" + query;
 	}
 	
 	
