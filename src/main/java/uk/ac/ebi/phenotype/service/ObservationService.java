@@ -105,10 +105,7 @@ public class ObservationService extends BasicService {
 		query.addField(ObservationDTO.CATEGORY);
 		query.set("wt", "csv");
 		query.setRows(100000);
-		
-		// http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:IMPC_VIA_001_001&
-		// fl=colony_id,gene_symbol,category&wt=csv&rows=2000&csv.separator=,&csv.mv.separator=%09&csv.mv.escape=%01
-		
+				
 		return solr.getBaseURL() + "/select?" + query;
 	}
 	
