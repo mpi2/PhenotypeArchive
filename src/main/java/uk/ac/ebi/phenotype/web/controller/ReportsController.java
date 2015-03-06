@@ -96,6 +96,15 @@ public class ReportsController {
 	}
 
 
+	};
+	
+	@RequestMapping(value="/reports/viability", method = RequestMethod.GET)
+	public void getViabilityReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
+			
+		List<List<String[]>> result = rService.getViabilityReport();
+	    ControllerUtils.writeAsCSVMultipleTables(result, "viability_report.csv", response);
+	};
+	
 	@RequestMapping(value="/reports", method = RequestMethod.GET)
 	public String defaultAction(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException{
 		return "reports";

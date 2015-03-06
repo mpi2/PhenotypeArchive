@@ -97,6 +97,22 @@ public class ObservationService extends BasicService {
 	}
 	
 	
+	public QueryResponse getViabilityData() 
+	throws SolrServerException {
+		
+		SolrQuery query = new SolrQuery();
+		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001" );
+		query.addField(ObservationDTO.GENE_SYMBOL);
+		query.addField(ObservationDTO.COLONY_ID);
+		query.addField(ObservationDTO.CATEGORY);
+		query.setRows(100000);
+		
+		System.out.println("getViabilityData Url" + solr.getBaseURL() + "/select?" + query);
+		
+		return solr.query(query);
+	}
+	
+	
 	public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
 	throws SolrServerException {
 

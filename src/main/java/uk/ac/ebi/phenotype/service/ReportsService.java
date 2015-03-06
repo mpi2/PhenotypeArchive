@@ -1,7 +1,21 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.lang.StringUtils;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -9,6 +23,8 @@ import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.web.util.HttpProxy;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import java.util.*;
@@ -141,6 +157,46 @@ public class ReportsService {
     	// Phenotype hits	+
     	// Datapoints
     	// Images
+    public List<List<String[]>> getViabilityReport(){
+
+    	List<List<String[]>> res = new ArrayList<>();
+    	List<String[]> allTable = new ArrayList<>();
+    	List<String[]> countsTable = new ArrayList<>();
+    	HashMap<String, Integer> countsByCategory = new HashMap<>();
+    	
+    	try {
+    		QueryResponse response = oService.getViabilityData();
+    		String[] header = {"Gene", "Colony", "Category"};
+    		allTable.add(header);
+    		for ( SolrDocument doc : response.getResults()){
+    			String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
+    			String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
+    				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category};
+    			allTable.add(row);
+    			if (countsByCategory.containsKey(category)){
+    				countsByCategory.put(category, countsByCategory.get(category) + 1);
+    			}else {
+    				countsByCategory.put(category, 1);
+    			}
+    			
+    		}
+      		
+      		for (String cat: countsByCategory.keySet()){
+      			String[] row = {cat, countsByCategory.get(cat).toString()};
+      			countsTable.add(row);
+      		}
+
+      		res.add(countsTable);
+      		res.add(allTable);
+		
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    	return res;
+    }
+    
+    
+    public List<List<String[]>> getDataOverview(){
       	
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> overview = new ArrayList<>();
@@ -226,12 +282,12 @@ public class ReportsService {
     	return res;
     	
     }
-    
-    
+        
 	
     public List<List<String[]>> getHitsPerLine(){
-    	//Columns:
-    	//	parameter name | parameter stable id | number of significant hits
+   
+    	// TODO refactor to pivot facet on zygosity, colony_id (this order) => 1 call instead of 2
+      	//Columns:		parameter name | parameter stable id | number of significant hits
 
     	List<List<String[]>> res = new ArrayList<>();
     	try {
