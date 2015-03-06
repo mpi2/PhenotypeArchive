@@ -19,6 +19,7 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -39,12 +40,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.ColonyObservation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -60,6 +63,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class ObservationService extends BasicService {
@@ -90,7 +94,7 @@ public class ObservationService extends BasicService {
 		return solr.query(query).getBeans(ObservationDTO.class);
 	}
 
-	public long getNumberOfDocuments(List<String> resourceName ) 
+	public long getNumberOfDocuments(List<String> resourceName, boolean experimentalOnly) 
 	throws SolrServerException{
 
 		SolrQuery query = new SolrQuery();
@@ -100,6 +104,9 @@ public class ObservationService extends BasicService {
         }else {
         	query.setQuery("*:*");
         }               
+		if(experimentalOnly){
+		  	query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		}
 		
 		return solr.query(query).getResults().getNumFound();	
 	}
@@ -124,13 +131,14 @@ public class ObservationService extends BasicService {
 	}
 
 	
-	public Map<String, Long> getDocumentCountBySomething(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity, int facetMincount)
-	throws SolrServerException, InterruptedException, ExecutionException {
+	public Map<String, Set<String>> getColoniesByPhenotypingCenter(ArrayList<String> resourceName, ZygosityType zygosity)
+	throws SolrServerException, InterruptedException {
 
-		Map<String, Long>  res = new HashMap<>();
-    	Long time = System.currentTimeMillis();
+    	Map<String, Set<String>> res =  new HashMap<>(); 
     	SolrQuery q = new SolrQuery();
-    	            
+    	String pivotFacet = ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.COLONY_ID; 
+    	NamedList<List<PivotField>> response;
+    	
     	if (resourceName != null){
             q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }else {
@@ -141,27 +149,30 @@ public class ObservationService extends BasicService {
     		q.addFilterQuery(ObservationDTO.ZYGOSITY + ":" + zygosity.name());
     	}
     	
-    	
-    	q.addFacetField(fieldToDistributeBy);
-    	q.setFacetMinCount(facetMincount);
+    	q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+    	q.addFacetPivotField(pivotFacet);
     	q.setFacet(true);
-    	q.setRows(1);
-    	q.set("facet.limit", -1); 
-
-    	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
-    	QueryResponse response = solr.query(q);
-    	
-    	for( Count facet : response.getFacetField(fieldToDistributeBy).getValues()){
-    		String value = facet.getName();
-    		long count = facet.getCount();
-    		res.put(value,count);
+    	q.setFacetLimit(-1);
+    	q.setFacetMinCount(1);
+    	q.setRows(0);
+    	    	
+    	try {
+    		response = solr.query(q).getFacetPivot();
+    		for (PivotField genePivot : response.get(pivotFacet)){
+    			String center = genePivot.getValue().toString();
+    			HashSet<String> colonies = new HashSet<>();
+    			for (PivotField f : genePivot.getPivot()){
+    				colonies.add(f.getValue().toString());
+    			}
+    			res.put(center, colonies);
+    		}
+    	} catch (SolrServerException e) {
+    		e.printStackTrace();
     	}
-    		
-    	System.out.println("Done in " + (System.currentTimeMillis() - time));
     	return res;
-}
-	    	
-	
+    }
+    	    
+
 	public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
 	throws SolrServerException {
 
@@ -1524,7 +1535,8 @@ public class ObservationService extends BasicService {
 		return solr;
 	}
 	
-	public Set<String> getAllGeneIdsByResource(List<String> resourceName){
+	public Set<String> getAllGeneIdsByResource(List<String> resourceName, boolean experimentalOnly){
+		
 		SolrQuery q = new SolrQuery();
 		q.setFacet(true);
 		q.setFacetMinCount(1);
@@ -1537,6 +1549,10 @@ public class ObservationService extends BasicService {
         	q.setQuery("*:*");
         }
 
+		if(experimentalOnly){
+			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		}
+		
 		System.out.println("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
@@ -1547,18 +1563,25 @@ public class ObservationService extends BasicService {
 		return null;
 	}
 	
-	public Set<String> getAllColonyIdsByResource(List<String> resourceName){
+	public Set<String> getAllColonyIdsByResource(List<String> resourceName, boolean experimentalOnly){
+		
 		SolrQuery q = new SolrQuery();
 		q.setFacet(true);
 		q.setFacetMinCount(1);
 		q.setFacetLimit(-1);
 		q.setRows(0);
 		q.addFacetField(ObservationDTO.COLONY_ID);
+		
 		if (resourceName != null){
 			q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }else {
         	q.setQuery("*:*");
         }
+
+		if(experimentalOnly){
+			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		}
+		
 		System.out.println("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();

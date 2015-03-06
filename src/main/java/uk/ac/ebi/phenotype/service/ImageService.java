@@ -40,7 +40,7 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
-	public long getNumberOfDocuments( List<String> resourceName ) 
+	public long getNumberOfDocuments( List<String> resourceName, boolean experimentalOnly ) 
 	throws SolrServerException{
 
 		SolrQuery query = new SolrQuery();
@@ -52,6 +52,10 @@ public class ImageService {
         	query.setQuery("*:*");
         }  
 		
+    	if(experimentalOnly){
+		  	query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		}
+    	
 		return solr.query(query).getResults().getNumFound();	
 	}
 	

@@ -266,7 +266,7 @@ public class ReleaseController {
 
 		List<String> resource = new ArrayList<>();
 		resource.add("IMPC");
-		Set<String> fertileColonies = os.getAllColonyIdsByResource(resource);
+		Set<String> fertileColonies = os.getAllColonyIdsByResource(resource, true);
 		Set<String> maleInfertileColonies = new HashSet<>();
 		Set<String> femaleInfertileColonies = new HashSet<>();
 		Set<String> bothSexesInfertileColonies;
@@ -313,7 +313,7 @@ public class ReleaseController {
 		resource.add("IMPC");
 		Set<String> partialLethality = gpService.getAssociationsDistribution("partial preweaning lethality", "IMPC").keySet();
 		Set<String> completeLethality = gpService.getAssociationsDistribution("complete preweaning lethality", "IMPC").keySet();
-		Set<String> all = os.getAllColonyIdsByResource(resource);
+		Set<String> all = os.getAllColonyIdsByResource(resource, true);
 		all.removeAll(partialLethality);
 		all.removeAll(completeLethality);
 

@@ -7,6 +7,7 @@ import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -188,12 +189,12 @@ public class ReportsService {
 		
 			List<String> row = new ArrayList<>();
 			row.add("# phenotyped genes");
-			row.add(Integer.toString(oService.getAllGeneIdsByResource(resources).size()));
+			row.add(Integer.toString(oService.getAllGeneIdsByResource(resources, false).size()));
     		overview.add(row.toArray(forArrayType));
 			
 	    	row = new ArrayList<>();
-			row.add("# phenotyped lines");
-			row.add(Integer.toString(oService.getAllColonyIdsByResource(resources).size()));
+			row.add("# phenotyped mutant lines");
+			row.add(Integer.toString(oService.getAllColonyIdsByResource(resources, true).size()));
 	    	overview.add(row.toArray(forArrayType));
 	    
 	    	row = new ArrayList<>();
@@ -203,12 +204,12 @@ public class ReportsService {
 	    	
 	    	row = new ArrayList<>();
 			row.add("# data points");
-			row.add(Long.toString(oService.getNumberOfDocuments(resources)));
+			row.add(Long.toString(oService.getNumberOfDocuments(resources, false)));
 	    	overview.add(row.toArray(forArrayType));
 	    
 	    	row = new ArrayList<>();
 			row.add("# images");
-			row.add(Long.toString(iService.getNumberOfDocuments(resources)));
+			row.add(Long.toString(iService.getNumberOfDocuments(resources, false)));
 	    	overview.add(row.toArray(forArrayType));
 	       	
 		} catch (SolrServerException e) {
@@ -220,17 +221,15 @@ public class ReportsService {
     	
     	List<String[]> linesPerCenter = new ArrayList<>();
 		try {
-			Map<String, Long> result = oService.getDocumentCountBySomething(ObservationDTO.PHENOTYPING_CENTER, resources, null, 0);
+			Map<String, Set<String>> result = oService.getColoniesByPhenotypingCenter(resources, null);
 			for (String center: result.keySet()){
-				String[] row= {center, result.get(center).toString()};
+				String[] row= {"# mutant lines phenotyped at " + center, Integer.toString(result.get(center).size())};
 				linesPerCenter.add(row);
 			}
 			
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
 		   	
