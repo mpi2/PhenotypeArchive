@@ -30,6 +30,7 @@
 									<p> <a href="${baseUrl}/reports/hitsPerPP">Hits per parameter and procedure</a> </p>
 									<p> <a href="${baseUrl}/reports/hitsPerLine">Hits per line</a> </p>
 									<p> <a href="${baseUrl}/reports/dataOverview">Data Overview</a> </p>
+									<p> <a href="${baseUrl}/reports/fertility">Fertility report</a> </p>
 								</div>
 							</div>
 							
