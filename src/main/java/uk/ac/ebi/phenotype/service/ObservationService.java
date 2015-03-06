@@ -1,4 +1,5 @@
 /**
+
  * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -18,7 +19,6 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
@@ -49,7 +48,10 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
@@ -58,9 +60,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Service
 public class ObservationService extends BasicService {
@@ -84,22 +83,35 @@ public class ObservationService extends BasicService {
 	}
 
 
+	public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+		query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+		query.setRows(Integer.MAX_VALUE);
+		return solr.query(query).getBeans(ObservationDTO.class);
+	}
 
-	public long getNumberOfDocuments( ) 
+	public long getNumberOfDocuments(List<String> resourceName ) 
 	throws SolrServerException{
 
 		SolrQuery query = new SolrQuery();
-		query.setQuery("*:*");
 		query.setRows(0);
+		if (resourceName != null){
+			query.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+        	query.setQuery("*:*");
+        }               
 		
 		return solr.query(query).getResults().getNumFound();	
 	}
 	
 	
-	public QueryResponse getViabilityData() 
+	public QueryResponse getViabilityData(List<String> resources) 
 	throws SolrServerException {
 		
 		SolrQuery query = new SolrQuery();
+		if (resources != null){
+			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }  
 		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001" );
 		query.addField(ObservationDTO.GENE_SYMBOL);
 		query.addField(ObservationDTO.COLONY_ID);
@@ -110,7 +122,45 @@ public class ObservationService extends BasicService {
 		
 		return solr.query(query);
 	}
+
 	
+	public Map<String, Long> getDocumentCountBySomething(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity, int facetMincount)
+	throws SolrServerException, InterruptedException, ExecutionException {
+
+		Map<String, Long>  res = new HashMap<>();
+    	Long time = System.currentTimeMillis();
+    	SolrQuery q = new SolrQuery();
+    	            
+    	if (resourceName != null){
+            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }    
+    	
+    	if (zygosity != null){
+    		q.addFilterQuery(ObservationDTO.ZYGOSITY + ":" + zygosity.name());
+    	}
+    	
+    	
+    	q.addFacetField(fieldToDistributeBy);
+    	q.setFacetMinCount(facetMincount);
+    	q.setFacet(true);
+    	q.setRows(1);
+    	q.set("facet.limit", -1); 
+
+    	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+    	QueryResponse response = solr.query(q);
+    	
+    	for( Count facet : response.getFacetField(fieldToDistributeBy).getValues()){
+    		String value = facet.getName();
+    		long count = facet.getCount();
+    		res.put(value,count);
+    	}
+    		
+    	System.out.println("Done in " + (System.currentTimeMillis() - time));
+    	return res;
+}
+	    	
 	
 	public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
 	throws SolrServerException {
@@ -1474,16 +1524,42 @@ public class ObservationService extends BasicService {
 		return solr;
 	}
 	
-	
-	public Set<String> getAllIMPCColonyIds(){
+	public Set<String> getAllGeneIdsByResource(List<String> resourceName){
 		SolrQuery q = new SolrQuery();
-		q.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental AND "+ ObservationDTO.DATASOURCE_NAME + ":IMPC");
+		q.setFacet(true);
+		q.setFacetMinCount(1);
+		q.setFacetLimit(-1);
+		q.setRows(0);
+		q.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
+		if (resourceName != null){
+			q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+        	q.setQuery("*:*");
+        }
+
+		System.out.println("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
+		try {
+			return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public Set<String> getAllColonyIdsByResource(List<String> resourceName){
+		SolrQuery q = new SolrQuery();
 		q.setFacet(true);
 		q.setFacetMinCount(1);
 		q.setFacetLimit(-1);
 		q.setRows(0);
 		q.addFacetField(ObservationDTO.COLONY_ID);
-		
+		if (resourceName != null){
+			q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+        	q.setQuery("*:*");
+        }
+		System.out.println("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
 		} catch (SolrServerException e) {

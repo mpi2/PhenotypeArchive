@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.SignificantType;
@@ -21,6 +22,7 @@ import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -262,7 +264,9 @@ public class ReleaseController {
 	
 	public HashMap<String, Integer> getFertilityMap(){
 
-		Set<String> fertileColonies = os.getAllIMPCColonyIds();
+		List<String> resource = new ArrayList<>();
+		resource.add("IMPC");
+		Set<String> fertileColonies = os.getAllColonyIdsByResource(resource);
 		Set<String> maleInfertileColonies = new HashSet<>();
 		Set<String> femaleInfertileColonies = new HashSet<>();
 		Set<String> bothSexesInfertileColonies;
@@ -305,9 +309,11 @@ public class ReleaseController {
 	}
 	
 	public HashMap<String , Integer> getViabilityMap(){
+		List<String> resource = new ArrayList<>();
+		resource.add("IMPC");
 		Set<String> partialLethality = gpService.getAssociationsDistribution("partial preweaning lethality", "IMPC").keySet();
 		Set<String> completeLethality = gpService.getAssociationsDistribution("complete preweaning lethality", "IMPC").keySet();
-		Set<String> all = os.getAllIMPCColonyIds();
+		Set<String> all = os.getAllColonyIdsByResource(resource);
 		all.removeAll(partialLethality);
 		all.removeAll(completeLethality);
 

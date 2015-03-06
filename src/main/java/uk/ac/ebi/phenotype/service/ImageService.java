@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
@@ -39,12 +40,17 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
-	public long getNumberOfDocuments( ) 
+	public long getNumberOfDocuments( List<String> resourceName ) 
 	throws SolrServerException{
 
 		SolrQuery query = new SolrQuery();
-		query.setQuery("*:*");
 		query.setRows(0);
+
+    	if (resourceName != null){
+    		query.setQuery(ImageDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ImageDTO.DATASOURCE_NAME + ":"));
+        }else {
+        	query.setQuery("*:*");
+        }  
 		
 		return solr.query(query).getResults().getNumFound();	
 	}
