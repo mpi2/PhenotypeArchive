@@ -1046,9 +1046,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 dto.getGoTermDomains().add(ga.goTermDomain);
                 dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
             }
-            System.out.println("GOT1 " + dto.getGoTermIds().size() + " go terms");
             dto.setGoCount(dto.getGoTermIds().size());
-            System.out.println("GOT2 " + dto.getGoCount() + " go terms");
         }
     }
 
