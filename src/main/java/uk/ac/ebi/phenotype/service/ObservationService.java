@@ -1,4 +1,5 @@
 /**
+
  * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -46,10 +47,14 @@ import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.ColonyObservation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
@@ -58,9 +63,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Service
 public class ObservationService extends BasicService {
@@ -79,10 +82,96 @@ public class ObservationService extends BasicService {
 
 
 	public ObservationService(String solrUrl) {
-System.out.println("setting observationService solrUrl="+solrUrl);
+		System.out.println("setting observationService solrUrl="+solrUrl);
 		solr = new HttpSolrServer(solrUrl);
 	}
 
+
+	public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+		query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+		query.setRows(Integer.MAX_VALUE);
+		return solr.query(query).getBeans(ObservationDTO.class);
+	}
+
+	public long getNumberOfDocuments(List<String> resourceName, boolean experimentalOnly) 
+	throws SolrServerException{
+
+		SolrQuery query = new SolrQuery();
+		query.setRows(0);
+		if (resourceName != null){
+			query.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+        	query.setQuery("*:*");
+        }               
+		if(experimentalOnly){
+		  	query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		}
+		
+		return solr.query(query).getResults().getNumFound();	
+	}
+	
+	
+	public QueryResponse getViabilityData(List<String> resources) 
+	throws SolrServerException {
+		
+		SolrQuery query = new SolrQuery();
+		if (resources != null){
+			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }  
+		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001" );
+		query.addField(ObservationDTO.GENE_SYMBOL);
+		query.addField(ObservationDTO.COLONY_ID);
+		query.addField(ObservationDTO.CATEGORY);
+		query.setRows(100000);
+		
+		System.out.println("getViabilityData Url" + solr.getBaseURL() + "/select?" + query);
+		
+		return solr.query(query);
+	}
+
+	
+	public Map<String, Set<String>> getColoniesByPhenotypingCenter(ArrayList<String> resourceName, ZygosityType zygosity)
+	throws SolrServerException, InterruptedException {
+
+    	Map<String, Set<String>> res =  new HashMap<>(); 
+    	SolrQuery q = new SolrQuery();
+    	String pivotFacet = ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.COLONY_ID; 
+    	NamedList<List<PivotField>> response;
+    	
+    	if (resourceName != null){
+            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }    
+    	
+    	if (zygosity != null){
+    		q.addFilterQuery(ObservationDTO.ZYGOSITY + ":" + zygosity.name());
+    	}
+    	
+    	q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+    	q.addFacetPivotField(pivotFacet);
+    	q.setFacet(true);
+    	q.setFacetLimit(-1);
+    	q.setFacetMinCount(1);
+    	q.setRows(0);
+    	    	
+    	try {
+    		response = solr.query(q).getFacetPivot();
+    		for (PivotField genePivot : response.get(pivotFacet)){
+    			String center = genePivot.getValue().toString();
+    			HashSet<String> colonies = new HashSet<>();
+    			for (PivotField f : genePivot.getPivot()){
+    				colonies.add(f.getValue().toString());
+    			}
+    			res.put(center, colonies);
+    		}
+    	} catch (SolrServerException e) {
+    		e.printStackTrace();
+    	}
+    	return res;
+    }
+    	    
 
 	public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
 	throws SolrServerException {
@@ -101,12 +190,7 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
 
 		if (phenotypingCenterParams != null && !phenotypingCenterParams.isEmpty()) {
-			List<String> spaceSafeStringsList = new ArrayList<String>();// need
-																		// to
-																		// add "
-																		// to
-																		// ends
-																		// of
+			List<String> spaceSafeStringsList = new ArrayList<String>();// need to add " to ends of
 																		// entries
 																		// to
 																		// cope
@@ -1451,16 +1535,54 @@ System.out.println("setting observationService solrUrl="+solrUrl);
 		return solr;
 	}
 	
-	
-	public Set<String> getAllIMPCColonyIds(){
+	public Set<String> getAllGeneIdsByResource(List<String> resourceName, boolean experimentalOnly){
+		
 		SolrQuery q = new SolrQuery();
-		q.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental AND "+ ObservationDTO.DATASOURCE_NAME + ":IMPC");
+		q.setFacet(true);
+		q.setFacetMinCount(1);
+		q.setFacetLimit(-1);
+		q.setRows(0);
+		q.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
+		if (resourceName != null){
+			q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+        	q.setQuery("*:*");
+        }
+
+		if(experimentalOnly){
+			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		}
+		
+		System.out.println("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
+		try {
+			return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public Set<String> getAllColonyIdsByResource(List<String> resourceName, boolean experimentalOnly){
+		
+		SolrQuery q = new SolrQuery();
 		q.setFacet(true);
 		q.setFacetMinCount(1);
 		q.setFacetLimit(-1);
 		q.setRows(0);
 		q.addFacetField(ObservationDTO.COLONY_ID);
 		
+		if (resourceName != null){
+			q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+        	q.setQuery("*:*");
+        }
+
+		if(experimentalOnly){
+			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+		}
+		
+		System.out.println("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
 		} catch (SolrServerException e) {

@@ -131,7 +131,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)) {
 						// Skip records that do not have an omero_id
-						logger.error("Skipping record for image record {} -- missing omero_id", fullResFilePath);
+						logger.error("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
 						continue;
 					}
 

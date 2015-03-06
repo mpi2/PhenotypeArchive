@@ -96,6 +96,7 @@
 
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
 		<constructor-arg value="${internalSolrUrl}/statistical-result" />
+		<constructor-arg ref="phenotypePipelineDAO" />
 	</bean>
 	
 	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">

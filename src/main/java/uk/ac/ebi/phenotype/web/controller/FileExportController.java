@@ -508,31 +508,29 @@ public class FileExportController {
         if (showImgView) {
 
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-            rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
-
+            rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tImage link"); // column names	
+            
             for (int i = 0; i < docs.size(); i ++) {
-                List<String> data = new ArrayList();
-                JSONObject doc = docs.getJSONObject(i);
                 
-                System.out.println(doc.toString());
-                //String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
+                JSONObject doc = docs.getJSONObject(i);
+               
+                List<String> data = new ArrayList();
+                List<String> lists = new ArrayList();
+                List<String> termLists = new ArrayList();
+                List<String> link_lists = new ArrayList();
+                
                 String[] fields = {"annotationTermId", "expName", "symbol_gene"};
                 for (String fld : fields) {
                     if (doc.has(fld)) {
-                        List<String> lists = new ArrayList();
-                        
+                  
+                    	JSONArray list = doc.getJSONArray(fld);
+                        System.out.println("FIELD: " + fld);
                     	if ( fld.equals("annotationTermId") ){
                     		
-                    		// annotaton term with prefix
-                    		List<String> termLists = new ArrayList();
                     		JSONArray termList = doc.containsKey("annotationTermName") ? 
                     				doc.getJSONArray("annotationTermName") :
                     					new JSONArray();
-                    				
-                            // annotation id links
-                            List<String> link_lists = new ArrayList();
-                            
-                            JSONArray list = doc.getJSONArray(fld); // annotationTermId
+                          
 	                    	for (int l = 0; l < list.size(); l++) {
 	                    		String value = list.getString(l);
 	                    		String termVal = termList.size() == 0 ?NO_INFO_MSG : termList.getString(l);
@@ -546,54 +544,38 @@ public class FileExportController {
 	                    			termLists.add("MA:"+termVal);
 	                    		}
 	                    		
-	                         	lists.add(value);
+	                         	lists.add(value); // id
 	                        }
-	                    	
-	                    	data.add( termLists.size() == 0 ? NO_INFO_MSG : StringUtils.join(termLists, "|") );  // term names
-	                        data.add( lists.size() == 0 ? NO_INFO_MSG : StringUtils.join(lists, "|") );      // term ids
-	                        data.add( link_lists.size() == 0 ? NO_INFO_MSG : StringUtils.join(link_lists, "|") ); // term id links
                     	}
                     	else if ( fld.equals("symbol_gene") ){
                     		// gene symbol and its link
-                            List<String> link_lists = new ArrayList();
-                            
-                            JSONArray list = doc.getJSONArray(fld);
 	                    	for (int l = 0; l < list.size(); l++) {
 	                    		String[] parts = list.getString(l).split("_");
 	                    		String symbol = parts[0];
 	                    		String mgiId  = parts[1];
-	                         	lists.add(symbol);
+	                    		termLists.add("Gene:"+symbol);
+	                         	lists.add(mgiId);
 	                         	link_lists.add(hostName + geneBaseUrl + mgiId);
 	                        }
-	                        data.add(StringUtils.join(lists, "|"));
-	                        data.add(StringUtils.join(link_lists, "|"));
-                    		
                     	}
-                    	else {
-                    		JSONArray list = doc.getJSONArray(fld);
+                    	else if ( fld.equals("expName") ){
+                    		
 	                    	for (int l = 0; l < list.size(); l++) {
 	                    		String value = list.getString(l);
-	                         	lists.add(value);
+	                    		
+	                         	termLists.add("Procedure:"+value);
+	                         	lists.add(NO_INFO_MSG);
+	                         	link_lists.add(NO_INFO_MSG);
 	                        }
-	                        data.add(StringUtils.join(lists, "|"));
                     	}
                     } 
-                    else {
-                    	if ( fld.equals("annotationTermId") ){
-	                        data.add(NO_INFO_MSG);
-	                        data.add(NO_INFO_MSG);
-	                        data.add(NO_INFO_MSG);
-                    	}
-                    	else if ( fld.equals("symbol_gene") ){
-                    		data.add(NO_INFO_MSG);
- 	                        data.add(NO_INFO_MSG);
-                    	}
-                    	else {
-                    		data.add(NO_INFO_MSG);
-                    	}
-                    }
                 }
 
+                data.add( termLists.size() == 0 ? NO_INFO_MSG : StringUtils.join(termLists, "|") );  // term names
+                data.add(StringUtils.join(lists, "|"));
+                data.add(StringUtils.join(link_lists, "|"));
+            	
+                System.out.println("this row: "+ data);
                 data.add(mediaBaseUrl + "/" + doc.getString("largeThumbnailFilePath"));
                 rowData.add(StringUtils.join(data, "\t"));
             }

@@ -106,6 +106,7 @@
     
     <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
         <constructor-arg  value="${solrUrl}/statistical-result" />
+	<constructor-arg ref="phenotypePipelineDAO" />
     </bean>
     
     <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
@@ -310,6 +311,13 @@
         <property name="url" value="${komp2url}" />
         <property name="username" value="${komp2username}" />
         <property name="password" value="${komp2password}" />
+    </bean>
+    <bean id="ontodbDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="${ontodburl}" />
+        <property name="username" value="${ontodbusername}" />
+        <property name="password" value="${ontodbpassword}" />
     </bean>
 
 </beans>

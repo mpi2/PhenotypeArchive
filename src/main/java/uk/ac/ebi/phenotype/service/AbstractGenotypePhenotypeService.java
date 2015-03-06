@@ -19,6 +19,7 @@ import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
@@ -42,6 +43,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
     protected Boolean isPreQc;
 
+    public static final double P_VALUE_THRESHOLD = 0.0001;
+    
     /**
      * @param zygosity - optional (pass null if not needed)
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
@@ -76,6 +79,20 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         return null;
     }
     
+    public long getNumberOfDocuments(List<String> resourceName ) 
+	throws SolrServerException{
+
+		SolrQuery query = new SolrQuery();
+		query.setRows(0);
+		if (resourceName != null){
+			query.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+        }else {
+        	query.setQuery("*:*");
+        }                      
+		
+		return solr.query(query).getResults().getNumFound();	
+	}
+    
     public List<String[]> getHitsDistributionByProcedure(ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
     	
@@ -86,6 +103,49 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     throws SolrServerException, InterruptedException, ExecutionException {
     	
     	return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
+    }
+    
+    
+    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity, 
+    	int facetMincount, Double maxPValue)
+    throws SolrServerException, InterruptedException, ExecutionException {
+
+    		Map<String, Long>  res = new HashMap<>();
+        	Long time = System.currentTimeMillis();
+        	SolrQuery q = new SolrQuery();
+        	            
+        	if (resourceName != null){
+                q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+            }else {
+                q.setQuery("*:*");
+            }    
+        	
+        	if (zygosity != null){
+        		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
+        	}
+        	
+        	if (maxPValue != null){
+        		q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[0 TO " + maxPValue + "]");
+        	}
+        	
+        	q.addFacetField(fieldToDistributeBy);
+        	q.setFacetMinCount(facetMincount);
+        	q.setFacet(true);
+        	q.setRows(1);
+        	q.set("facet.limit", -1); 
+
+        	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+        	QueryResponse response = solr.query(q);
+        	
+        	for( Count facet : response.getFacetField(fieldToDistributeBy).getValues()){
+        		String value = facet.getName();
+        		long count = facet.getCount();
+        		res.put(value,count);
+        	}
+        		
+        	System.out.println("Done in " + (System.currentTimeMillis() - time));
+        	return res;
+        
     }
     
     private List<String[]> getHitsDistributionBySomething(String field, ArrayList<String> resourceName)
