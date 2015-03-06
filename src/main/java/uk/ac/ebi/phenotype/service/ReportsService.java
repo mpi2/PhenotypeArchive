@@ -1,18 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.lang.StringUtils;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -23,8 +11,6 @@ import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import java.util.*;
@@ -151,12 +137,6 @@ public class ReportsService {
 
 
 
-	public List<List<String[]>> getDataOverview(){
-    	// Lines phenotyped	with data pass QC	+
-    	// broken out by center and total
-    	// Phenotype hits	+
-    	// Datapoints
-    	// Images
     public List<List<String[]>> getViabilityReport(){
 
     	List<List<String[]>> res = new ArrayList<>();
@@ -194,9 +174,14 @@ public class ReportsService {
 		}
     	return res;
     }
-    
-    
-    public List<List<String[]>> getDataOverview(){
+
+
+	public List<List<String[]>> getDataOverview(){
+		// Lines phenotyped	with data pass QC	+
+		// broken out by center and total
+		// Phenotype hits	+
+		// Datapoints
+		// Images
       	
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> overview = new ArrayList<>();
