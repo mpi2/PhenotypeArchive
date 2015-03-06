@@ -48,9 +48,6 @@ public class ReportsService {
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
     
-	@Autowired
-	private AnalyticsDAO analyticsDAO;
-    
 	private static 
 	ArrayList<String> resources;
     
@@ -69,7 +66,7 @@ public class ReportsService {
     	HashMap<String, Integer> countsByCategory = new HashMap<>();
     	
     	try {
-    		QueryResponse response = oService.getViabilityData();
+    		QueryResponse response = oService.getViabilityData(resources);
     		String[] header = {"Gene", "Colony", "Category"};
     		allTable.add(header);
     		for ( SolrDocument doc : response.getResults()){
@@ -105,54 +102,59 @@ public class ReportsService {
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> overview = new ArrayList<>();
 		String[] forArrayType = new String[0];
-    	
-		Map<String, String> metaInfo = analyticsDAO.getMetaData();
-		List<String> row = new ArrayList<>();
-		row.add("# phenotyped genes");
-		row.add(metaInfo.get("phenotyped_genes"));
-    	overview.add(row.toArray(forArrayType));
-    	
-    	row = new ArrayList<>();
-		row.add("# phenotyped lines");
-		row.add(metaInfo.get("phenotyped_lines"));
-    	overview.add(row.toArray(forArrayType));
     
-    	row = new ArrayList<>();
-		row.add("# phenotype hits");
-		row.add(metaInfo.get("statistically_significant_calls"));
-    	overview.add(row.toArray(forArrayType));
-    	
 		try {
+		
+			List<String> row = new ArrayList<>();
+			row.add("# phenotyped genes");
+			row.add(Integer.toString(oService.getAllGeneIdsByResource(resources).size()));
+    		overview.add(row.toArray(forArrayType));
+			
+	    	row = new ArrayList<>();
+			row.add("# phenotyped lines");
+			row.add(Integer.toString(oService.getAllColonyIdsByResource(resources).size()));
+	    	overview.add(row.toArray(forArrayType));
+	    
+	    	row = new ArrayList<>();
+			row.add("# phenotype hits");
+			row.add(Long.toString(gpService.getNumberOfDocuments(resources)));
+	    	overview.add(row.toArray(forArrayType));
+	    	
 	    	row = new ArrayList<>();
 			row.add("# data points");
-			row.add(Long.toString(oService.getNumberOfDocuments()));
+			row.add(Long.toString(oService.getNumberOfDocuments(resources)));
 	    	overview.add(row.toArray(forArrayType));
 	    
 	    	row = new ArrayList<>();
 			row.add("# images");
-			row.add(Long.toString(iService.getNumberOfDocuments()));
+			row.add(Long.toString(iService.getNumberOfDocuments(resources)));
 	    	overview.add(row.toArray(forArrayType));
 	       	
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
 
+		
     	res.add(overview);
     	
-    	List<String[]> lines = new ArrayList<>();
-
-		String centers = metaInfo.get("phenotyped_lines_centers");
-		String[] phenotypingCenters = centers.split(",");
-		String[] values = new String[phenotypingCenters.length]; 
-		for (int i = 0; i < phenotypingCenters.length; i++){
-			values[i] = metaInfo.get("phenotyped_lines_" + phenotypingCenters[i]);
-			phenotypingCenters[i] = phenotypingCenters[i] + " lines";
- 		}
-		
-    	lines.add(phenotypingCenters);
-    	lines.add(values);
+    	List<String[]> linesPerCenter = new ArrayList<>();
+		try {
+			Map<String, Long> result = oService.getDocumentCountBySomething(ObservationDTO.PHENOTYPING_CENTER, resources, null, 0);
+			for (String center: result.keySet()){
+				String[] row= {center, result.get(center).toString()};
+				linesPerCenter.add(row);
+			}
+			
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		   	
+    	res.add(linesPerCenter);
     	
-    	res.add(lines);
 		return res;
     }
     

@@ -78,6 +78,20 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         return null;
     }
     
+    public long getNumberOfDocuments(List<String> resourceName ) 
+	throws SolrServerException{
+
+		SolrQuery query = new SolrQuery();
+		query.setRows(0);
+		if (resourceName != null){
+			query.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+        }else {
+        	query.setQuery("*:*");
+        }               
+		
+		return solr.query(query).getResults().getNumFound();	
+	}
+    
     public List<String[]> getHitsDistributionByProcedure(ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
     	
