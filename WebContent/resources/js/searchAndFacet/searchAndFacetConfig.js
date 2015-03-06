@@ -418,7 +418,7 @@ config.facetParams = {
 		 showImgView: false,		 
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'IMPC_images',
-		 filterParams: {'fl' : 'omero_id,procedure_name,gene_symbol,gene_accession_id,jpeg_url'
+		 filterParams: {'fl' : 'omero_id,procedure_name,gene_symbol,gene_accession_id,jpeg_url,parameter_association_name,parameter_association_value,allele_symbol'
 			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
 			 //'fq' : '*:*'
 		 },	

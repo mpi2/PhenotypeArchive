@@ -19,7 +19,6 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -40,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
@@ -62,9 +60,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Service
 public class ObservationService extends BasicService {
@@ -88,6 +83,12 @@ public class ObservationService extends BasicService {
 	}
 
 
+	public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+		query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+		query.setRows(Integer.MAX_VALUE);
+		return solr.query(query).getBeans(ObservationDTO.class);
+	}
 
 	public long getNumberOfDocuments(List<String> resourceName ) 
 	throws SolrServerException{

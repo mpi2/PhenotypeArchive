@@ -1,30 +1,20 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
+
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class ReportsService {
@@ -56,7 +46,93 @@ public class ReportsService {
     	resources.add("IMPC");
     	resources.add("3i");
     }
-    
+
+	public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
+	public static final String FEMALE_FERTILITY_PARAMETER = "IMPC_FER_019_001";
+
+	/**
+	 * Generate the report for fertility data
+	 *   Fertile, Infertile, male & female infertiliy
+	 *
+	 * @return list of list of strings intended to be transformed into a delimited file for download
+	 */
+	public List<String[]> getFertilityData() throws SolrServerException {
+
+		List<String[]> report = new ArrayList<>();
+
+		try {
+			List<String> ALLOWED_DATASOURCES = Arrays.asList("IMPC", "3i");
+
+
+			List<ObservationDTO> results;
+			Map<String, Set<String>> maleColonies = new HashMap<>();
+			Map<String, Set<String>> femaleColonies = new HashMap<>();
+			Map<String, Set<String>> bothColonies = new HashMap<>();
+
+			Map<String, Set<String>> maleGenes = new HashMap<>();
+			Map<String, Set<String>> femaleGenes = new HashMap<>();
+			Map<String, Set<String>> bothGenes = new HashMap<>();
+
+			maleColonies.put("Fertile", new HashSet<String>());
+			maleColonies.put("Infertile", new HashSet<String>());
+			femaleColonies.put("Fertile", new HashSet<String>());
+			femaleColonies.put("Infertile", new HashSet<String>());
+			bothColonies.put("Fertile", new HashSet<String>());
+			bothColonies.put("Infertile", new HashSet<String>());
+
+			maleGenes.put("Fertile", new HashSet<String>());
+			maleGenes.put("Infertile", new HashSet<String>());
+			femaleGenes.put("Fertile", new HashSet<String>());
+			femaleGenes.put("Infertile", new HashSet<String>());
+			bothGenes.put("Fertile", new HashSet<String>());
+			bothGenes.put("Infertile", new HashSet<String>());
+
+
+			results = oService.getObservationsByParameterStableId(MALE_FERTILITY_PARAMETER);
+			for (ObservationDTO result : results) {
+				if (ALLOWED_DATASOURCES.contains(result.getDataSourceName())) {
+					String key = result.getCategory();
+					maleColonies.get(key).add(result.getColonyId());
+					maleGenes.get(key).add(result.getGeneSymbol());
+				}
+			}
+
+			results = oService.getObservationsByParameterStableId(FEMALE_FERTILITY_PARAMETER);
+			for (ObservationDTO result : results) {
+				if (ALLOWED_DATASOURCES.contains(result.getDataSourceName())) {
+					String key = result.getCategory();
+					femaleColonies.get(key).add(result.getColonyId());
+					femaleGenes.get(key).add(result.getGeneSymbol());
+				}
+			}
+
+
+			bothColonies.put("Fertile", new HashSet<>(femaleColonies.get("Fertile")));
+			bothColonies.put("Infertile", new HashSet<>(femaleColonies.get("Infertile")));
+			bothGenes.put("Infertile", new HashSet<>(femaleGenes.get("Infertile")));
+			bothGenes.put("Infertile", new HashSet<>(femaleGenes.get("Infertile")));
+
+			bothColonies.get("Fertile").retainAll(maleColonies.get("Fertile"));
+			bothColonies.get("Infertile").retainAll(maleColonies.get("Infertile"));
+			bothGenes.get("Fertile").retainAll(maleGenes.get("Fertile"));
+			bothGenes.get("Infertile").retainAll(maleGenes.get("Infertile"));
+
+			report.add(Arrays.asList("Sex", "IMPC/3i Line count", "IMPC/3i Gene count", "IMPC/3i Gene Symbols").toArray(new String[4]));
+			report.add(Arrays.asList("Both infertile", Integer.toString(bothColonies.get("Infertile").size()), Integer.toString(bothGenes.get("Infertile").size()), StringUtils.join(bothGenes.get("Infertile"), ";")).toArray(new String[4]));
+			report.add(Arrays.asList("Both fertile", Integer.toString(bothColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
+			report.add(Arrays.asList("Males infertile", Integer.toString(maleColonies.get("Infertile").size()), Integer.toString(maleGenes.get("Infertile").size()), StringUtils.join(maleGenes.get("Infertile"), ";")).toArray(new String[4]));
+			report.add(Arrays.asList("Males fertile", Integer.toString(maleColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
+			report.add(Arrays.asList("Females infertile", Integer.toString(femaleColonies.get("Infertile").size()), Integer.toString(femaleGenes.get("Infertile").size()), StringUtils.join(femaleGenes.get("Infertile"), ";")).toArray(new String[4]));
+			report.add(Arrays.asList("Females fertile", Integer.toString(femaleColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
+
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return report;
+	}
+
+
 
     public List<List<String[]>> getViabilityReport(){
 
@@ -95,9 +171,14 @@ public class ReportsService {
 		}
     	return res;
     }
-    
-    
-    public List<List<String[]>> getDataOverview(){
+
+
+	public List<List<String[]>> getDataOverview(){
+		// Lines phenotyped	with data pass QC	+
+		// broken out by center and total
+		// Phenotype hits	+
+		// Datapoints
+		// Images
       	
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> overview = new ArrayList<>();
