@@ -164,10 +164,10 @@ public class ImpcImagesTest {
 		genes.add("Prkab1");
 		genes.add("Rhbdl1");
 		genes.add("Vps13d");
-		String geneString=genes.toString();
-		System.out.println(geneString);
-		String orQuery=geneString.replace(",", " OR ");
-		System.out.println(orQuery);
+//		String geneString=genes.toString();
+//		System.out.println(geneString);
+//		String orQuery=geneString.replace(",", " OR ");
+//		System.out.println(orQuery);
 		List<String> geneIds = new ArrayList<>();
 		genes.add("Wee1");
 		for (String gene : genes) {
@@ -176,6 +176,29 @@ public class ImpcImagesTest {
 			geneIds.add(geneDto.getMgiAccessionId());
 		}
 		geneIdsTestEngine(testName, geneIds);
+
+	}
+	
+	@Test
+	// @Ignore
+	public void testImpcImagesOnaSpecificGenePage() throws Exception {
+
+		String testName = "testImpcImagesOnGenePage";
+		ArrayList<String> genes = new ArrayList<>();
+		// genes.add("Akt2"); should fail on Akt2 as no impc_images
+		genes.add("Baz1a");
+		String geneString=genes.toString();
+		System.out.println(geneString);
+		String orQuery=geneString.replace(",", " OR ");
+		System.out.println(orQuery);
+		List<String> geneIds = new ArrayList<>();
+//		genes.add("Wee1");
+//		
+//			GeneDTO geneDto = geneService.getGeneByGeneSymbol(gene);
+//			System.out.println("geneDto=" + geneDto.getMgiAccessionId());
+//			geneIds.add(geneDto.getMgiAccessionId());
+//		}
+		
 
 	}
 
@@ -212,7 +235,9 @@ public class ImpcImagesTest {
 						phenotypePipelineDAO, baseUrl);
 				boolean hasImpcImages = genePage.hasImpcImages();
 				if (!hasImpcImages) {
-					System.out.println("no impc images for gene " + geneId);
+					String localMessage="no impc images for gene " + geneId;
+					
+					errorList.add(localMessage);
 				}
 				assertTrue(hasImpcImages);
 				List<String>parameters=genePage.getAssociatedImpcImageSections();
@@ -239,8 +264,8 @@ public class ImpcImagesTest {
 			i++;
 		}
 
-		// TestUtils.printEpilogue(testName, start, errorList, exceptionList,
-		// successList, i, geneIds.size());
+		 TestUtils.printEpilogue(testName, start, errorList, exceptionList,
+		 successList, i, geneIds.size());
 	}
 
 }
