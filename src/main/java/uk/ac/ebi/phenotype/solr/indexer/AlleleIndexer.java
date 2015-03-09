@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import uk.ac.ebi.generic.util.SolrIndex;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -1011,21 +1012,7 @@ public class AlleleIndexer extends AbstractIndexer {
         logger.debug("Starting GO data lookup");
 
         //GO evidence code ranking mapping
-        Map<String,Integer> codeRank = new HashMap<>();
-        // experimental 
-        codeRank.put("EXP", 4);codeRank.put("IDA", 4);codeRank.put("IPI", 4);codeRank.put("IMP", 4);
-        codeRank.put("IGI", 4);codeRank.put("IEP", 4);codeRank.put("TAS", 4);
-        
-        // curated computational
-        codeRank.put("ISS", 3);codeRank.put("ISO", 3);codeRank.put("ISA", 3);codeRank.put("ISM", 3);
-        codeRank.put("IGC", 3);codeRank.put("IBA", 3);codeRank.put("IBD", 3);codeRank.put("IKR", 3);
-        codeRank.put("IRD", 3);codeRank.put("RCA", 3);codeRank.put("IC", 3);codeRank.put("NAS", 3);
-        
-        // automated electronic
-        codeRank.put("IEA", 2);
-        
-        // no biological data available
-        codeRank.put("ND", 1);
+        Map<String,Integer> codeRank = SolrIndex.getGoCodeRank();
         
         for (String id : alleles.keySet()) {
 

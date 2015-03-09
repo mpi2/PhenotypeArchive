@@ -90,7 +90,6 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
-<!-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" /> -->
 <link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
 <script>

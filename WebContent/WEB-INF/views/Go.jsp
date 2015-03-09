@@ -16,8 +16,11 @@
 	
 	<link href="${baseUrl}/js/vendor/jquery.sumoselect/sumoselect.css" rel="stylesheet" />
 	<link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
+	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
 	<script type='text/javascript' src="${baseUrl}/js/vendor/jquery.sumoselect/jquery.sumoselect.js"></script> 
-			
+	<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  
+	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+			  	
 	<style type="text/css">
 		.FP {background-color: #CC9999;}
 		.F {background-color: #996699;}
@@ -25,11 +28,11 @@
 		.nogo  {background-color: gray;}
 		.FP, .F, .P, .nogo {color: white; display: inline; margin-left: 3px; padding: 1px 3px; width: 40px; text-align: center; border-radius: 4px; font-size: 12px;}
 		span#legendBox {float: left;}
-		.viewed {border: 3px double black; padding: 5px;}
+		.viewed {border: 2px solid black; padding: 5px;}
 		div.fl1 {float: left;}
 		div.fl1 {width: 28%;}
-		div.fl2 {float: right; width: 69%;}
-		table.goStats {width: 49%; float: left; margin: 0 0 0 5px;}
+		div.fl2 {float: right; width: 67%;}
+		table.goStats {width: 48%; float: left; margin: 0 0 0 5px;}
 		#goLegend {margin: 10px 0 10px 0;}
 		h2 {margin-top: 20px;}
 		
@@ -49,6 +52,7 @@
 			border: 1px solid gray;;
     		border-radius: 10px;
     		font-size: 12px;
+    		color: black;
 		}
 		div#export input {
 			font-size: 11px !important;
@@ -61,10 +65,23 @@
 			margin-top: 5px;
 		}
 		div#view {
-			margin-top: 30px; float: right; font-size: 11px; padding-right: 10px;
+			margin-top: 30px; float: right; font-size: 13px; padding-right: 15px; color: black;
 		}
 		p.gocat {
 			padding: 5px 0 0px 5px; font-weight: bold; 
+		}
+		table.goTerm {
+			border-top: 1px solid gray;
+		}
+		table.goTerm td {
+			background-color: #F2F2F2;
+			border-bottom: 1px solid gray;
+		}
+		label#collapse.grayout {
+			color: gray;
+		}
+		span.export2 {
+			font-size: 14px; color: #0978a1;
 		}
 		
 	</style>
@@ -92,20 +109,20 @@
 										  	<input type="radio" value="nogo" name="go" class='go'>Genes w/o GO<br>
 										  
 										  	<p class='gocat'>Gene w/ GO in evidence categories:</p>
-										  	<input type="checkbox" value="collapse" name="collapse">Collapse on evidence categories<br>
+										  	<input type="checkbox" value="collapse" name="collapse"><label id='collapse'>Collapse dataset on evidence categories</label><br>
 											<input type="radio" value="experimental" name="go">Experimental<br>
 											<input type="radio" value="curatedcomp" name="go">Curated computational<br>
 											<input type="radio" value="automated" name="go">Automated electronic<br>
 											<input type="radio" value="nd" name="go">No biological data available<br>
 											<input type="radio" value="all" name="go">All evidence categories<br>
 											
-											<p id='butts'>Export as:<button class="tsv fa fa-download gridDump gridDump">TSV</button> or<button class="xls fa fa-download gridDump gridDump">XLS</button></p> 
+											<p id='butts'><span class='export2'>Download</span><button class="tsv fa fa-download gridDump gridDump">TSV</button> or<button class="xls fa fa-download gridDump gridDump">XLS</button></p> 
 										</div>
 											
 								    </div>
 						     		
 						     		<div class='fl2'>${goStatsTable}</div>
-						     		<div id='view'>Click one of the number buttons above to explorer GO annotation data below</div>
+						     		<div id='view'>Click one of the gene number buttons above to explorer GO annotation data below</div>
 									<div style="clear: both"></div>
 								</div>
 							
@@ -113,7 +130,7 @@
 							<div class="section">
 								<h2 id="section-gotable" class="title ">Explore GO annotation data</h2>
 								<div class="inner">
-									<div id='box1'>Click one of the number buttons above to view GO annotation data</div>
+									<div id='box1'></div><!-- default placeholder -->
 								</div>	
 							</div>	
 						</div>
@@ -128,6 +145,7 @@
        			//var baseUrl = '//dev.mousephenotype.org/data';
        			//var baseUrl = 'http://localhost:8080/phenotype-archive';
        			var baseUrl = "${baseUrl}";
+       			var solrUrl = "${internalSolrUrl};"
        	      	var conf = {
 					externalDbId: 1,
 					fileType:'',
@@ -136,29 +154,52 @@
 					params: '',
 					gridFields: '',
 					dumpMode: 'all',
-					goevids: '',
+					gocollapse: false,
 					dogoterm: true
        		  	};
 
-				///var commonQ = '(latest_phenotype_status:"Phenotyping Started" OR latest_phenotype_status:"Phenotyping Complete")';
-				var commonQ = 'latest_phenotype_status:*';
-				var rows = 9999999;
-				//var restParam = "&sort=marker_symbol asc&wt=json&fq=mp_id:*";
-				var restParam = "&sort=marker_symbol asc&wt=json";
+       	      	// want only phenotyping complete and started
+				var commonQ = '(latest_phenotype_status:"Phenotyping Started" OR latest_phenotype_status:"Phenotyping Complete")';
+				//var commonQ = 'latest_phenotype_status:*';
+				
+				// want only genes having mp calls
+				var restParam = "&sort=marker_symbol asc&wt=json&fq=mp_id:*";
+				//var restParam = "&sort=marker_symbol asc&wt=json";
+				
 				var exportUrl = baseUrl + '/export';      
-
+				var rows = 9999999;
+				
+				$("input[name=go]").click( function(){
+					if( $(this).val() == 'nogo' ) {
+   		     	 		$("input[name=collapse]").prop('checked', false);
+   		     	 		$('label#collapse').addClass('grayout');
+					}
+					else {
+						$('label#collapse').removeClass('grayout');
+					}
+   		     	});
+				$("input[name=collapse]").click( function(){
+					if ($("input[name=go]:checked").val() == "nogo" ){
+						return false;
+					}
+				});
+				
        	      	// submit form dynamically
        	       	$('button').click(function(){
        	       		
        		      	conf.fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
        		       	conf.fileName = 'go_dump';// + conf.fileType;
 
+       		     	var	commonFl;
+       		     	if ( $("input[name=collapse]").is(':checked') ){
+       		     		commonFl = "evidCodeRank,mgi_accession_id,marker_symbol,go_count";
+       		     		conf.gocollapse = true;
+       		     	}	
+       		     	else {
+       		     		commonFl = "evidCodeRank,latest_phenotype_status,mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name";
+       		     	}
        		     	
-       		     	var	commonFl = $("input[name=collapse]").is(':checked') 
-       		     				? "evidCodeRank,mgi_accession_id,marker_symbol"
-       		     				: "evidCodeRank,latest_phenotype_status,mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name";
-    		       	
-       		       	console.log(commonFl)
+       		       	//console.log(commonFl)
        		       	var qryMap = {
        		        	"nogo" :        "q=" + commonQ + " AND -go_term_id:*&fl=mgi_accession_id,marker_symbol&rows=" + rows + restParam,
        		           	"experimental": "q=" + commonQ + " AND evidCodeRank:4&fl=" + commonFl + "&rows=" + rows + restParam, 
@@ -171,13 +212,12 @@
        		       	
        		       	var sExp = $("input[name=go]:checked", '#export').val();
        		     	conf.params = qryMap[sExp];
-       		       	console.log(conf.params);
+       		       	//console.log(conf.params);
        		       	
        		       	if ( typeof sExp == 'undefined' ){
        		       		alert('Sorry, you need to choose one of the radio buttons to export data.');
        		       		return false;
        		       	}
-       		       	
        		     	
        		     	conf.gridFields = commonFl;
        		       	
@@ -194,11 +234,18 @@
        	               
        	       	});
        	      	
-       	     	var paramStr = "wt=json&sort=marker_symbol asc&fq=mp_id:*&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_name,go_term_domain"; 		
-				var tableHeader = "<thead><th>Marker symbol</th><th>Phenotyping Status</th><th>GO id</th><th>GO evidence</th><th>GO name</th><th>GO domain</th></thead>";		
-				var tableCols = 6;
-     	      
+       	     	//var paramStr = "wt=json&sort=marker_symbol asc&fq=mp_id:*&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_name,go_term_domain"; 		
+				//var tableHeader = "<thead><th>Marker symbol</th><th>Phenotyping Status</th><th>GO id</th><th>GO evidence</th><th>GO name</th><th>GO domain</th></thead>";		
+				//var tableCols = 6;
+     	      	
+				var paramStr = "wt=json&sort=marker_symbol asc&fq=mp_id:*"; 		
+				var displayFl = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_count";
+				var downloadFl = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,uniprot_acc,evidCodeRank,go_term_id,go_term_name,go_term_evid,go_term_domain";
+				var tableHeader = "<thead><th>Marker symbol</th><th>Phenotyping Status</th><th>GO annotated</th><th></th></thead>";		
+				var tableCols = 4;
+				
      			$('div.dlink').click(function(){
+     				var thisButt = $(this); 
      				var status = $(this).parent().siblings('td').attr('rel');
      				var goEvidCat = $(this).parent().siblings('td').text();
      				var goDomain = "not available";
@@ -209,19 +256,23 @@
      					goDomain = 'biological process';
      				}
      				else if ( $(this).hasClass('FP') ){
-     					goDomain = 'molecular function OR biological process';
+     					goDomain = 'molecular function AND biological process';
      				}
      				var msg = "DATASET&nbsp;&nbsp;&nbsp;<span class='msg'>status</span>: " + status + ", <span class='msg'>GO domain</span>: " + goDomain + ", <span class='msg'>GO evidence group</span>: " + goEvidCat;
      				
      				$('div.dlink').removeClass('viewed');
      				$(this).addClass("viewed");
      				var oInfos = {};
-     				oInfos.params = paramStr + $(this).attr('rel');
+     				oInfos.params = paramStr + displayFl + $(this).attr('rel');
      				oInfos.qOri = $(this).attr('rel');
      				oInfos.solrCoreName = "gene";
      				oInfos.legacyOnly = false;
      				oInfos.evidRank = $(this).attr('id');
      				oInfos.mode = "gene2go";
+     				oInfos.widgetName = 'geneFacet';
+     				oInfos.coreName = 'gene';
+     				oInfos.gridFields = "";
+     				oInfos.dogoterm = true;
      				
      				_refreshTable();
      				
@@ -229,7 +280,8 @@
 	       	            "bSort": true,
 	       	            "bProcessing": true,
 	       	            "bServerSide": true,
-	       	            "sDom": "<lr><'#caption'>tip",
+	       	            //"sDom": "<lr><'#caption'>tip",
+	       	         	"sDom": "<<'#exportSpinner'>l<'#tableTool'>r><'#caption'>tip",
 	       	            "sPaginationType": "bootstrap",
 	       	         	"oLanguage": {
 	       	          		"sLengthMenu": 'Show <select>'+
@@ -240,8 +292,29 @@
 		       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes"
 	       	        	},
 	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
-	       	            	// doing nothing for now
 	       	            	
+	       	            	oInfos.params = oInfos.params = paramStr + downloadFl + thisButt.attr('rel');
+	       	            	oInfos.gocollapse = false;
+	       	            	$.fn.initDataTableDumpControl(oInfos);
+
+	       	            	if (goDomain != 'not available'){
+		       	            	var dTable = $(this).DataTable();
+		       	            	$(this).find('tr').css('cursor','pointer');
+		       	            	
+		       	            	$(this).find('tr').click(function(){
+		       	            		
+		       	            		var oTr = $(this);
+		       	            		var oRow = dTable.row(oTr);
+		       	            		
+		       	            	 	if (oRow.child.isShown()) {
+		       	            	 		oRow.child.hide();
+		       	            	 		oTr.find('td > i.fa').removeClass('fa-minus-square');
+		       	            	 	}
+		       	            	 	else {
+		       	            	 		fetchDetailedGoData(oTr, oRow);
+		       	            		}
+		       	            	});
+	       	            	}
 	       	            	$('div#caption').html(msg);
 	       	            },
 	       	            "sAjaxSource": baseUrl + '/dataTable',
@@ -265,6 +338,62 @@
      			}
      			
        		});
+       		
+       		function fetchDetailedGoData(oTr, oRow) {
+       			
+       		 	var uri = solrUrl + '/gene/select';
+				$.ajax({
+	                'url': solrUrl + '/gene/select',
+	                'data': 'wt=json&q=marker_symbol:'+ oTr.find('td:first-child').text() + '&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_name,go_term_domain,go_uniprot',
+	                'dataType': 'jsonp',
+	                'jsonp': 'json.wrf',
+	                'success': function (json) {
+	       	        	
+       	        	 	var oDoc = json.response.docs[0];
+       	        	 	
+       	        	 	var aGo_term_ids = oDoc.go_term_id;
+       	        	 	var aGo_uniprots = oDoc.go_uniprot;
+       	        	 	var aGo_term_names = oDoc.go_term_name;
+       	        	 	var aGo_term_evids = oDoc.go_term_evid;
+       	        	 	var aGo_term_domains = oDoc.go_term_domain;
+       	        	 	var goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GProtein?ac=";
+       	        	
+       	        	 	var go2uniprot = {}
+       	        	 	for ( var i=0; i<aGo_uniprots.length; i++ ){
+       	        		 	var aParts = aGo_uniprots[i].split('__');
+       	        		 	var goId = aParts[0];
+       	        		 	var uniprotAcc = aParts[1];
+       	        		 	go2uniprot[goId] = uniprotAcc;
+       	        	 	}
+       	        	 	
+       	        	 	var trs = null;
+       	        	 	for ( var i=0; i<aGo_term_ids.length; i++ ){
+       	        	 		var goId = aGo_term_ids[i];
+       	        	 		var uniprotAcc = go2uniprot[goId];
+       	        	 		var goLink = "<a target='_blank' href='" + goBaseUrl + uniprotAcc + "'>" + goId + "</a>";
+       	        	 		var td1 = "<td>" + goLink + "</td>";
+       	        	 		var td2 = "<td>" + aGo_term_names[i] + "</td>";
+       	        	 		var td3 = "<td>" + aGo_term_evids[i] + "</td>";
+       	        	 		var td4 = "<td>" + aGo_term_domains[i] + "</td>";
+       	        	 		trs += "<tr>"+td1+td2+td3+td4+"</tr>";
+       	        	 	}
+       	        	 	
+       	        	 	var table = $("<table class='goTerm'></table>");
+       	        	 	table.append('<thead><th>GO id</th><th>GO name</th><th>GO evidence</th><th>GO domain</th>');
+       	        	 	table.append(trs);
+						
+						//add the response html to the target row
+       	        		oRow.child(table).show();
+       	        		oTr.find('td > i.fa').addClass('fa-minus-square');
+       	    		},
+       	    		'error': function(jqXHR, textStatus, errorThrown) {
+       		    		oRow.child('Error fetching data ...').show();
+       		    	}	
+				});
+       				
+       		}
+       		
+       		
         </script>
 		
 		

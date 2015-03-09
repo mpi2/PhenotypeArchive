@@ -87,25 +87,10 @@ public class ExternalAnnotsController {
 	public List<String> createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
 	
 		StringBuilder builder = new StringBuilder();
-		String legend = "F = molecular function<br>P = biological process<br><span id='legendBox'><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div></span>";
+		String legend = "F = molecular function<br>P = biological process<br><span id='legendBox'><div class='FP'>F and P</div><div class='F'>F</div><div class='P'>P</div></span>";
 		
-		Map<String, String> evidRank = new HashMap<>();
-		evidRank.put("1", "No biological data available");
-		evidRank.put("2", "Automated electronic");
-		evidRank.put("3", "Curated computational");
-		evidRank.put("4", "Experimental");
-		
-		
-//		Map<String, String> evidMap = new HashMap<>();
-//		evidMap.put("EXP", "Inferred from Experiment");
-//		evidMap.put("IDA", "Inferred from Direct Assay");
-//		evidMap.put("IGI", "Inferred from Genetic Interaction");
-//		evidMap.put("IMP", "Inferred from Mutant Phenotype");
-//		evidMap.put("IPI", "Inferred from Physical Interaction");
-//		evidMap.put("ISS", "Inferred from Sequence or structural Similarity");
-//		evidMap.put("ISO", "Inferred from Sequence Orthology");
-//		evidMap.put("ND", "No biological Data available");
-		
+		Map<String, String> evidRank = SolrIndex.getGoEvidRank();
+
 		Map<String, String> domainMap = new HashMap<>();
 		domainMap.put("F", "molecular_function");
 		domainMap.put("P", "biological_process");
@@ -124,7 +109,7 @@ public class ExternalAnnotsController {
 		    String phenoCount = " : " + stats.get(key).get("allPheno").get(key).get(0);
 		    
 		    builder.append("<tr>");
-        	builder.append("<td class='phenoStatus' colspan=4>" + key + phenoCount + "</td>");
+        	builder.append("<td class='phenoStatus' colspan=4>" + key + " genes" + phenoCount + "</td>");
         	builder.append("</tr>");
 		    
         	for ( String goMode : stats.get(key).keySet() ){
@@ -141,11 +126,17 @@ public class ExternalAnnotsController {
     				Map.Entry pairs2 = (Map.Entry)itd.next();
     				String domain = pairs2.getKey().toString();
     	        
-    		        //log.info(pairs2.getKey() + " = " + pairs2.getValue());
+    		        log.info(pairs2.getKey() + " = " + pairs2.getValue());
     		        JSONArray evids = (JSONArray) pairs2.getValue();
     		        itd.remove(); // avoids a ConcurrentModificationException
     			
     		        String domainParam = "go_term_domain:" + domainMap.get(domain);
+    		        if ( domain.equals("FP") ){
+    		        	List<String> fqStrs = new ArrayList<>();
+    		        	fqStrs.add("go_term_domain:\"" + domainMap.get("F") + "\"");
+    		        	fqStrs.add("go_term_domain:\"" + domainMap.get("P") + "\"");
+    		        	domainParam = StringUtils.join(fqStrs, " AND ");
+    		        }
     		        
     				for ( int i = 0; i<evids.size(); i=i+2 ){
     					int hasGoRowSpan= evids.size() / 2;
