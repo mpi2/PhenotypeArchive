@@ -131,7 +131,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)) {
 						// Skip records that do not have an omero_id
-						logger.error("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
+						if(omeroId==0)System.out.println("omero_id=0");
+						logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
 						continue;
 					}
 
@@ -160,9 +161,11 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							}
 						}
 					}
+					
+					server.addBean(imageDTO);
 				}
 
-				server.addBean(imageDTO);
+
 
 				if (count++ % 1000 == 0) {
 					logger.info(" added ImageDTO" + count + " beans");
