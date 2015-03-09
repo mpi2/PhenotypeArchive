@@ -160,7 +160,10 @@ public class MPIndexer extends AbstractIndexer {
             mpCore.commit();
 
             // Loop through the mp_term_infos
-            String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
+            //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
+            String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id ='MP:0002102' order by ti.term_id";
+            
+            
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -177,12 +180,12 @@ public class MPIndexer extends AbstractIndexer {
                 buildNodes(mp);
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
-                 mp.setGoId(goIds.get(termId));
+                mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp);
-                
+                 
                 // this sets the number of postqc phenotyping calls of this MP
-                mp.setPostqcCalls( mpCalls.containsKey(termId) ? mpCalls.get(termId) : 0);  
+                mp.setPostqcCalls(sumPhenotypingCalls(mp, termId)); 
                 
                 addPhenotype2(mp);
 
@@ -205,6 +208,27 @@ public class MPIndexer extends AbstractIndexer {
         logger.info("MP Indexer complete!");
     }
 
+    private int sumPhenotypingCalls(MpDTO mp, String mpId) {
+    	
+    	//mpCalls.containsKey(termId) ? mpCalls.get(termId) : 0
+    	int calls = mpCalls.containsKey(mpId) ? mpCalls.get(mpId) : 0;
+    	System.out.println( "LOW count: " + calls);
+    	
+        System.out.println(mpId + ": TOP - " + mp.getTopLevelMpId());
+        System.out.println(mpId + ": INT - " + mp.getIntermediateMpId());
+        System.out.println(mpId + ": PARENT - " + mp.getParentMpId());
+        System.out.println(mpId + ": CHILDREN - " + mp.getChildMpId());
+       
+        
+        
+        
+        System.out.println("");
+        
+        System.exit(0);
+        
+        return calls;
+    }
+    
     private void populateGene2MpCalls() throws SQLException {
     	
     	String qry = "select mp_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by mp_acc";
@@ -218,6 +242,7 @@ public class MPIndexer extends AbstractIndexer {
     	
     		mpCalls.put(mpAcc, calls);
     	}
+    	
     	logger.info("Finished creating a mapping of MP to postqc phenotyping calls");
     }
 

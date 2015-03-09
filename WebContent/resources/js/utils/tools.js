@@ -1909,7 +1909,8 @@
 
         //oInfos.mode = oVal.gridName;	
         oUrlParams.mode = oVal.gridName;
-
+        oUrlParams.gridFields = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridFields;
+        
         //oInfos.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
         oUrlParams.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
 
@@ -2164,7 +2165,7 @@
                         });
                     });
 
-                    initDataTableDumpControl(oInfos);
+                    $.fn.initDataTableDumpControl(oInfos);
 
                     var configs = MPI2.searchAndFacetConfig.update;
 
@@ -2300,7 +2301,8 @@
         }
     }
 
-    function initDataTableDumpControl(oInfos) {
+    $.fn.initDataTableDumpControl = function(oInfos) {
+    //function initDataTableDumpControl(oInfos) {
 
         $('div#saveTable').remove();
         $('div#toolBox').remove();
@@ -2346,7 +2348,9 @@
                         solrCoreName: solrCoreName,
                         params: oInfos.params,
                         showImgView: showImgView,
-                        gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
+                       // gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
+                        gridFields: oInfos.gridFields,
+                        dogoterm: oInfos.hasOwnProperty('dogoterm') ? oInfos.dogoterm : false,
                         fileName: solrCoreName + '_table_dump'
                 };
                 
