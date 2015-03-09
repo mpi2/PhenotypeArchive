@@ -305,7 +305,7 @@ public class AlleleIndexer extends AbstractIndexer {
         public String goTermEvid; 	
         public String goTermDomain;   
 		public String mgiSymbol;
-		//public String uniprotAcc;
+		public String goUniprot;  // GOId_UniprotAcc
 
         @Override
         public boolean equals(Object o) {
@@ -333,9 +333,9 @@ public class AlleleIndexer extends AbstractIndexer {
             if (goTermName != null ?  ! goTermName.equals(that.goTermName) : that.goTermName != null) {
                 return false;
             }
-//            if (uniprotAcc != null ?  ! uniprotAcc.equals(that.uniprotAcc) : that.uniprotAcc != null) {
-//                return false;
-//            }
+            if (goUniprot != null ?  ! goUniprot.equals(that.goUniprot) : that.goUniprot != null) {
+                return false;
+            }
 
             return true;
         }
@@ -347,7 +347,7 @@ public class AlleleIndexer extends AbstractIndexer {
            // result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
             result = 31 * result + (goTermEvid != null ? goTermEvid.hashCode() : 0);
             result = 31 * result + (goTermDomain != null ? goTermDomain.hashCode() : 0);
-            //result = 31 * result + (uniprotAcc != null ? uniprotAcc.hashCode() : 0);
+            result = 31 * result + (goUniprot != null ? goUniprot.hashCode() : 0);
             return result;
         }
     }
@@ -536,7 +536,7 @@ public class AlleleIndexer extends AbstractIndexer {
     
     private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
 
-	    String queryString = "select distinct m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
+	    String queryString = "select distinct m.accession, m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
 				+ "from go.annotations a "
 				+ "join "
 				+ "go.cv_sources s on (s.code = a.source) "
@@ -563,8 +563,8 @@ public class AlleleIndexer extends AbstractIndexer {
             	GoAnnotations ga = new GoAnnotations();
             	
     			ga.mgiSymbol  = resultSet.getString("gene_name");
-    			//ga.uniprotAcc = resultSet.getString("accession");
     			ga.goTermId   = resultSet.getString("go_id");
+    			ga.goUniprot  = ga.goTermId + "__" + resultSet.getString("accession"); //GOId__UniprotAcc
     			ga.goTermName = resultSet.getString("go_name");
     			ga.goTermEvid = resultSet.getString("go_evidence");
     			ga.goTermDomain = resultSet.getString("go_domain").toString().equals("F") ? "molecular_function" : "biological_process";
@@ -1040,6 +1040,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
                 dto.getGoTermIds().add(ga.goTermId);
+                dto.getGoUniprot().add(ga.goUniprot);
                 dto.getGoTermNames().add(ga.goTermName);
                 //dto.getGoTermDefs().add(ga.goTermDef);
                 dto.getGoTermEvids().add(ga.goTermEvid);
