@@ -60,7 +60,65 @@
     </properties>
 
     <dependencies>
+    
+		    <dependency>
+		            <groupId>org.mousephenotype.dcc.exportlibrary.xmlvalidationresourcescollection</groupId>
+		            <artifactId>exportlibrary.xmlvalidationresourcescollection</artifactId>
+		            <version>2.0.0</version>
+		            <exclusions>
+		                <exclusion>
+		                    <groupId>ch.qos.logback</groupId>
+		                    <artifactId>logback-classic</artifactId>
+		                </exclusion>
+		                <exclusion>
+		                    <groupId>ch.qos.logback</groupId>
+		                    <artifactId>logback-core</artifactId>
+		                </exclusion>
+		                <exclusion>
+		                    <groupId>org.slf4j</groupId>
+		                    <artifactId>log4j-over-slf4j</artifactId>
+		                </exclusion>
+		            </exclusions>
+		        </dependency>
 
+ <dependency>
+            <groupId>org.mousephenotype.dcc.exportlibrary.datastructure</groupId>
+            <artifactId>exportlibrary.datastructure</artifactId>
+            <version>3.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mousephenotype.dcc.exportlibrary.xmlserialization</groupId>
+            <artifactId>exportlibrary.xmlserialization</artifactId>
+            <version>1.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<!--  orace jdbc driver -->
 				<dependency>
 					<groupId>com.oracle</groupId>
