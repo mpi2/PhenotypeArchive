@@ -68,6 +68,7 @@ public class AlleleDTO {
 	public static final String GO_TERM_EVID = "go_term_evid";
 	public static final String GO_TERM_DOMAIN = "go_term_domain";
 	public static final String GO_COUNT = "go_count";
+	public static final String GO_UNIPROT = "go_uniprot";
 	public static final String EVID_CODE_RANK = "evidCodeRank";
 	public static final String UNIPROT_ACC = "uniprot_acc";
 	
@@ -221,6 +222,9 @@ public class AlleleDTO {
 	
 	@Field(GO_COUNT)
 	private Integer goCount;
+	
+	@Field(GO_UNIPROT)
+	private List<String> go_uniprot = new ArrayList<>();
 	
 	@Field(EVID_CODE_RANK)
 	private Integer evidCodeRank;
@@ -803,6 +807,20 @@ public class AlleleDTO {
 		this.goCount = goCount;
 	}
 	
+	/**
+	 * @return the go_uniprot
+	 */
+	public List<String> getGoUniprot() {
+		return go_uniprot;
+	}
+	
+	/**
+	 * @param go_uniprot
+	 *            the go_uniprot to set
+	 */
+	public void setGoUniprot(List<String> go_uniprot) {
+		this.go_uniprot = go_uniprot;
+	}
 	
 	/**
 	 * @return the evidCodeRank

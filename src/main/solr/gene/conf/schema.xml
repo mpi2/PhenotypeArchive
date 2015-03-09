@@ -242,6 +242,7 @@
 	<field name="go_term_evid" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_domain" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_count" type="int" indexed="true" stored="true" multiValued="false"/>
+	<field name="go_uniprot" type="string" indexed="true" stored="true" multiValued="true"/>
 	
 	<!-- A gene can have multiple GO terms. Use the evidence code ranking (evidCodeRank) to decide which GO evidence categories a gene should be assigned for 
 	     Ie, each gene gets only one rank. Currently, there are 4 ranks:
