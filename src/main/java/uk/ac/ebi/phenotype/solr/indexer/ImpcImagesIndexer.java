@@ -160,9 +160,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							}
 						}
 					}
+				server.addBean(imageDTO);
 				}
 
-				server.addBean(imageDTO);
+				
 
 				if (count++ % 1000 == 0) {
 					logger.info(" added ImageDTO" + count + " beans");
