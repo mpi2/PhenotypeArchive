@@ -708,6 +708,32 @@ CREATE TABLE unidimensional_observation (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /** 
+ * unidimensional_observation
+ * Unidimensional data point measurement
+ */
+CREATE TABLE ontology_observation (
+
+	id                        INT(10) UNSIGNED NOT NULL,
+	sequence_id                INT(10) NULL,
+	
+	PRIMARY KEY(id)
+	
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/** 
+ * unidimensional_observation
+ * Unidimensional data point measurement
+ */
+CREATE TABLE ontology_entity (
+
+	id                        INT(10) UNSIGNED NOT NULL,
+	ontology_observation_id INT(10) UNSIGNED NOT NULL,
+	term                varchar(255) NULL,
+	PRIMARY KEY(id)
+	
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/** 
  * multidimensional_observation
  * multidimensional data point measurement
  * data_value: store the value of the observation in dimension 'dimension'
