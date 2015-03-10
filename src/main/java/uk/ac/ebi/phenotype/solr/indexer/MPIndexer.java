@@ -185,7 +185,7 @@ public class MPIndexer extends AbstractIndexer {
                 addPhenotype1(mp);
                  
                 // this sets the number of postqc phenotyping calls of this MP
-                mp.setPostqcCalls(sumPhenotypingCalls(mp, termId)); 
+                //mp.setPostqcCalls(sumPhenotypingCalls(mp, termId)); 
                 
                 addPhenotype2(mp);
 
@@ -220,11 +220,7 @@ public class MPIndexer extends AbstractIndexer {
         System.out.println(mpId + ": CHILDREN - " + mp.getChildMpId());
        
         
-        
-        
         System.out.println("");
-        
-        System.exit(0);
         
         return calls;
     }

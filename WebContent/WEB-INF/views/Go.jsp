@@ -114,6 +114,7 @@
 											<input type="radio" value="curatedcomp" name="go">Curated computational<br>
 											<input type="radio" value="automated" name="go">Automated electronic<br>
 											<input type="radio" value="nd" name="go">No biological data available<br>
+											<input type="radio" value="other" name="go">Other<br>
 											<input type="radio" value="all" name="go">All evidence categories<br>
 											
 											<p id='butts'><span class='export2'>Download</span><button class="tsv fa fa-download gridDump gridDump">TSV</button> or<button class="xls fa fa-download gridDump gridDump">XLS</button></p> 
@@ -202,9 +203,10 @@
        		       	//console.log(commonFl)
        		       	var qryMap = {
        		        	"nogo" :        "q=" + commonQ + " AND -go_term_id:*&fl=mgi_accession_id,marker_symbol&rows=" + rows + restParam,
-       		           	"experimental": "q=" + commonQ + " AND evidCodeRank:4&fl=" + commonFl + "&rows=" + rows + restParam, 
-       		           	"curatedcomp":  "q=" + commonQ + " AND evidCodeRank:3&fl=" + commonFl + "&rows=" + rows + restParam, 
-       		     		"automated":    "q=" + commonQ + " AND evidCodeRank:2&fl=" + commonFl + "&rows=" + rows + restParam, 
+       		           	"experimental": "q=" + commonQ + " AND evidCodeRank:5&fl=" + commonFl + "&rows=" + rows + restParam, 
+       		           	"curatedcomp":  "q=" + commonQ + " AND evidCodeRank:4&fl=" + commonFl + "&rows=" + rows + restParam, 
+       		     		"automated":    "q=" + commonQ + " AND evidCodeRank:3&fl=" + commonFl + "&rows=" + rows + restParam, 
+       		     		"other":        "q=" + commonQ + " AND evidCodeRank:2&fl=" + commonFl + "&rows=" + rows + restParam, 
        		     		"nd":           "q=" + commonQ + " AND evidCodeRank:1&fl=" + commonFl + "&rows=" + rows + restParam, 
        		      		"all":          "q=" + commonQ + " AND evidCodeRank:*&fl=" + commonFl + "&rows=" + rows + restParam, 
        		      		
