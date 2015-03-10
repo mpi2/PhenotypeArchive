@@ -160,9 +160,7 @@ public class MPIndexer extends AbstractIndexer {
             mpCore.commit();
 
             // Loop through the mp_term_infos
-            //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
-            String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id ='MP:0002102' order by ti.term_id";
-            
+            String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
             
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
