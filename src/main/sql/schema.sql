@@ -708,12 +708,13 @@ CREATE TABLE unidimensional_observation (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /** 
- * unidimensional_observation
- * Unidimensional data point measurement
+ * ontology_observation
+ * ontology data measurement/observation
  */
 CREATE TABLE ontology_observation (
 
 	id                        INT(10) UNSIGNED NOT NULL,
+	parameter_id				VARCHAR(255) NOT NULL,
 	sequence_id                INT(10) NULL,
 	
 	PRIMARY KEY(id)
@@ -726,7 +727,7 @@ CREATE TABLE ontology_observation (
  */
 CREATE TABLE ontology_entity (
 
-	id                        INT(10) UNSIGNED NOT NULL,
+	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	ontology_observation_id INT(10) UNSIGNED NOT NULL,
 	term                varchar(255) NULL,
 	PRIMARY KEY(id)
