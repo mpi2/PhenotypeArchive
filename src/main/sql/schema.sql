@@ -730,6 +730,7 @@ CREATE TABLE ontology_entity (
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	ontology_observation_id INT(10) UNSIGNED NOT NULL,
 	term                varchar(255) NULL,
+	term_value               varchar(255) NULL,
 	PRIMARY KEY(id)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
