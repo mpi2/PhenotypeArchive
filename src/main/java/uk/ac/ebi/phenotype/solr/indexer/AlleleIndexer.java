@@ -190,10 +190,7 @@ public class AlleleIndexer extends AbstractIndexer {
             initializeSolrCores();
 
             SolrQuery query = new SolrQuery("mgi_accession_id:MGI*");  
-            //query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
-            
-            query.addFilterQuery("marker_symbol:Abo AND feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
-            
+            query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
             
             query.setRows(BATCH_SIZE);
 
