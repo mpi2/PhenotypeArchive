@@ -113,8 +113,8 @@
 											<input type="radio" value="experimental" name="go">Experimental<br>
 											<input type="radio" value="curatedcomp" name="go">Curated computational<br>
 											<input type="radio" value="automated" name="go">Automated electronic<br>
-											<input type="radio" value="nd" name="go">No biological data available<br>
 											<input type="radio" value="other" name="go">Other<br>
+											<input type="radio" value="nd" name="go">No biological data available<br>
 											<input type="radio" value="all" name="go">All evidence categories<br>
 											
 											<p id='butts'><span class='export2'>Download</span><button class="tsv fa fa-download gridDump gridDump">TSV</button> or<button class="xls fa fa-download gridDump gridDump">XLS</button></p> 
@@ -200,7 +200,7 @@
        		     		commonFl = "evidCodeRank,latest_phenotype_status,mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name";
        		     	}
        		     	
-       		       	//console.log(commonFl)
+       		       	console.log(commonFl)
        		       	var qryMap = {
        		        	"nogo" :        "q=" + commonQ + " AND -go_term_id:*&fl=mgi_accession_id,marker_symbol&rows=" + rows + restParam,
        		           	"experimental": "q=" + commonQ + " AND evidCodeRank:5&fl=" + commonFl + "&rows=" + rows + restParam, 
@@ -214,7 +214,8 @@
        		       	
        		       	var sExp = $("input[name=go]:checked", '#export').val();
        		     	conf.params = qryMap[sExp];
-       		       	//console.log(conf.params);
+       		     	
+       		       	console.log(conf.params);
        		       	
        		       	if ( typeof sExp == 'undefined' ){
        		       		alert('Sorry, you need to choose one of the radio buttons to export data.');
@@ -353,7 +354,17 @@
 	       	        	
        	        	 	var oDoc = json.response.docs[0];
        	        	 	
+       	        	 	//var aGo_term_ids = oDoc.go_term_id.sort($.fn.naturalSort);
        	        	 	var aGo_term_ids = oDoc.go_term_id;
+       	        	 	
+       	        	 	var goIdIndexes = {};
+       	        	 	for( var i=0; i<oDoc.go_term_id.length; i++){
+       	        	 		goIdIndexes[oDoc.go_term_id[i]+"_"+parseInt(i)] = i;  // so that same id becomes unambiguous
+       	        	 	}
+       	        	 	// sort by key
+       	        	 	goIdIndexes = $.fn.sortJson(goIdIndexes);
+       	        	 	console.log(goIdIndexes);
+       	        	 	
        	        	 	var aGo_uniprots = oDoc.go_uniprot;
        	        	 	var aGo_term_names = oDoc.go_term_name;
        	        	 	var aGo_term_evids = oDoc.go_term_evid;
@@ -365,18 +376,35 @@
        	        		 	var aParts = aGo_uniprots[i].split('__');
        	        		 	var goId = aParts[0];
        	        		 	var uniprotAcc = aParts[1];
-       	        		 	go2uniprot[goId] = uniprotAcc;
+       	        		 	if( ! goId in go2uniprot ){
+       	        		 		go2uniprot[goId] = [];
+       	        		 	}
+       	        		 	go2uniprot[goId].push(uniprotAcc);
        	        	 	}
        	        	 	
        	        	 	var trs = null;
-       	        	 	for ( var i=0; i<aGo_term_ids.length; i++ ){
-       	        	 		var goId = aGo_term_ids[i];
-       	        	 		var uniprotAcc = go2uniprot[goId];
+       	        	 	var seenGo = {};
+       	        	 	for ( goIdIndex in goIdIndexes ){
+       	        	 		
+       	        	 		var aParts = goIdIndex.split("_");
+       	        	 		var goId = 	aParts[0];
+   	        	 			var goIdIndex = aParts[1];
+   	        	 			var uniprotAcc = null;
+   	        	 			
+   	        	 			if ( ! goId in seenGo ){
+   	        	 				seenGo[goId]++;
+   	        	 				uniprotAcc = go2uniprot[goId][0]; // first time seen this GO
+   	        	 			}
+   	        	 			var seen = seenGo[goId];
+   	        	 			console.log("Seen: "+ seen);
+   	        	 			uniprotAcc = go2uniprot[goId][seen]; 
+   	        	 			
+       	        	 		
        	        	 		var goLink = "<a target='_blank' href='" + goBaseUrl + uniprotAcc + "'>" + goId + "</a>";
        	        	 		var td1 = "<td>" + goLink + "</td>";
-       	        	 		var td2 = "<td>" + aGo_term_names[i] + "</td>";
-       	        	 		var td3 = "<td>" + aGo_term_evids[i] + "</td>";
-       	        	 		var td4 = "<td>" + aGo_term_domains[i] + "</td>";
+       	        	 		var td2 = "<td>" + aGo_term_names[goIdIndex] + "</td>";
+       	        	 		var td3 = "<td>" + aGo_term_evids[goIdIndex] + "</td>";
+       	        	 		var td4 = "<td>" + aGo_term_domains[goIdIndex] + "</td>";
        	        	 		trs += "<tr>"+td1+td2+td3+td4+"</tr>";
        	        	 	}
        	        	 	

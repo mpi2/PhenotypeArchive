@@ -216,7 +216,7 @@ public class DataTableController {
 		
 		//GO evidence code ranking mapping
         Map<String,Integer> codeRank = SolrIndex.getGoCodeRank();
-		
+        
 		for (int i = 0; i < docs.size(); i ++) {
 			
             JSONObject doc = docs.getJSONObject(i);
@@ -226,15 +226,8 @@ public class DataTableController {
             
             String phenoStatus = doc.getString("latest_phenotype_status");
             
-//            JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
-//            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
-//            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
-//            JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
             String NOINFO = "no info available";
    
-            //String goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GTerm?id="; 
-            //System.out.println("doc "+ i + " has "+ _goTermEvids.size() + " GO annots");
-            
             // has GO
             if ( doc.containsKey("go_count") ){
             	List<String> rowData = new ArrayList<String>();
@@ -243,8 +236,6 @@ public class DataTableController {
             	rowData.add( Integer.toString(doc.getInt("go_count")) );
             	rowData.add("<i class='fa fa-plus-square'></i>");
             	j.getJSONArray("aaData").add(rowData);
-            	//j.getJSONArray("aaData").add(new ArrayList<String>());
-            	
             }
             else {
             	// No GO
@@ -254,33 +245,9 @@ public class DataTableController {
             	rowData.add(phenoStatus);
             	rowData.add(NOINFO);
             	rowData.add("");
-//            	rowData.add(NOINFO);
-//            	rowData.add(NOINFO);
-//            	rowData.add(NOINFO);
             	
             	j.getJSONArray("aaData").add(rowData);
-            	//j.getJSONArray("aaData").add(new ArrayList<String>());
             }
-//            else {
-//            	// one go per row
-//	            for ( int k=0; k< _goTermEvids.size(); k++ ) {
-//	            	
-//	            	String evid = _goTermEvids.get(k).toString();
-//	            	
-//	            	if ( codeRank.get(evid).equals(evidRank) ){
-//	            		
-//		            	List<String> rowData = new ArrayList();
-//	            		rowData.add(glink);
-//	                	rowData.add(phenoStatus);
-//	            		rowData.add(_goTermIds.size() > 0 ? "<a target='_blank' href='" + goBaseUrl + _goTermIds.get(k).toString() + "'>" + _goTermIds.get(k).toString()  + "</a>" : NOINFO);
-//	            		rowData.add(_goTermEvids.size() > 0 ? _goTermEvids.get(k).toString() : NOINFO);
-//	            		rowData.add(_goTermNames.size() > 0 ? _goTermNames.get(k).toString() : NOINFO);
-//	            		rowData.add(_goTermDomains.size() > 0 ? _goTermDomains.get(k).toString() : NOINFO);
-//	            		j.getJSONArray("aaData").add(rowData);
-//	            		
-//	            	}
-//	            }
-//            }
 		}
 		return j.toString();	
 	}

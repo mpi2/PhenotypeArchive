@@ -2539,7 +2539,7 @@
 //		});
 //    } ; 	    
 
-    function naturalSort(a, b) {
+    $.fn.naturalSort = function(a, b) {
         // setup temp-scope variables for comparison evauluation
         var x = a.toString().toLowerCase() || '', y = b.toString().toLowerCase() || '',
                 nC = String.fromCharCode(0),
@@ -2679,6 +2679,25 @@
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         });
     }
+    
+    $.fn.sortJson = function(o){
+	    var sorted = {},
+	    key, a = [];
+
+	    for (key in o) {
+	    	if (o.hasOwnProperty(key)) {
+	    		a.push(key);
+	    	}
+	    }
+
+	    a.sort();
+
+	    for (key = 0; key < a.length; key++) {
+	    	sorted[a[key]] = o[a[key]];
+	    }
+	    return sorted;
+    }
+    	
 
 })(jQuery);
 
