@@ -172,12 +172,19 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 					}
 					
-					if(imageDTO.getParameterAssociationStableId()!=null && !imageDTO.getParameterAssociationStableId().equals("null")){
-							String maTerm=parameterStableIdToMaTermIdMap.get(imageDTO.getParameterAssociationStableId());
-							System.out.println("impcIMagesIndexer maTerm="+maTerm);
-							//IndexerMap.get
+					if (!imageDTO.getParameterAssociationStableId().isEmpty()) {
+						for (String paramString : imageDTO.getParameterAssociationStableId()) {
+							System.out.println("parameterAssociation="+ paramString);
+							if (parameterStableIdToMaTermIdMap
+									.containsKey(paramString)) {
+								String maTerm = parameterStableIdToMaTermIdMap
+										.get(paramString);
+								System.out.println("impcIMagesIndexer maTerm="
+										+ maTerm);
+							}
+							// IndexerMap.get
+						}
 					}
-					
 					server.addBean(imageDTO);
 				}
 
