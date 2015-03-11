@@ -247,8 +247,6 @@ public class FileExportController {
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	System.out.println("------------\nEXPORT \n---------");
         log.debug("solr params: " + solrFilters);
-     
-        log.info("solr params: " + solrFilters);
         
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
@@ -301,7 +299,6 @@ public class FileExportController {
                 }
             }
             else if ( dogoterm ) {
-            	System.out.println("do go");
             	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
             	dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm, gocollapse);
             }
@@ -1288,8 +1285,8 @@ public class FileExportController {
     private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm, boolean gocollapse) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-        System.out.println(" GOT " + docs.size() + " docs");
-        System.out.println(json);
+        //System.out.println(" GOT " + docs.size() + " docs");
+       
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
        
         //List<String> evidsList = new ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));
@@ -1313,12 +1310,12 @@ public class FileExportController {
         		+ "\tGO evidence Category"
         		+ "\tGO Term Domain";
         }
-        System.out.println("Fields: "+ fields);
+       
         rowData.add(fields);
         
         //GO evidence code ranking mapping
         Map<String,Integer> codeRank = SolrIndex.getGoCodeRank();
-        System.out.println("codeRank: "+ codeRank);
+        
         // GO evidence rank to category mapping
         Map<Integer, String> evidRankCat = SolrIndex.getGoEvidRankCategory();
         
@@ -1359,7 +1356,7 @@ public class FileExportController {
             else {
             	
             	int evidCodeRank = doc.getInt("evidCodeRank");
-	            System.out.println("db codeRank: "+ evidCodeRank);
+	           
 	            JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
 	            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
 	            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
@@ -1370,7 +1367,7 @@ public class FileExportController {
 	            	String evid = _goTermEvids.get(j).toString();
 	            
 	            	if ( codeRank.get(evid) == evidCodeRank ){
-	            		 System.out.println("evid code: "+ evid);
+	            		
 	            		List<String> data = new ArrayList();
 	            		
 	            		data.add(doc.getString("marker_symbol"));
@@ -1386,7 +1383,7 @@ public class FileExportController {
 	            }
             }
         }
-        System.out.println(rowData);
+       
         return rowData;
     }
     
