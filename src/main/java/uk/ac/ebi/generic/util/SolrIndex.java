@@ -99,15 +99,15 @@ public class SolrIndex {
     	return codeRank;
     }
     
-    public static Map<String, String> getGoEvidRank(){
+    public static Map<Integer, String> getGoEvidRankCategory(){
     	
-    	Map<String, String> evidRank = new HashMap<>();
+    	Map<Integer, String> evidRank = new HashMap<>();
 		
-		evidRank.put("1", "No biological data available");
-		evidRank.put("2", "Other");
-		evidRank.put("3", "Automated electronic");
-		evidRank.put("4", "Curated computational");
-		evidRank.put("5", "Experimental");
+		evidRank.put(1, "No biological data available");
+		evidRank.put(2, "Other");
+		evidRank.put(3, "Automated electronic");
+		evidRank.put(4, "Curated computational");
+		evidRank.put(5, "Experimental");
 		
 		return evidRank;
     }

@@ -30,7 +30,7 @@
 									<p> <a href="${baseUrl}/reports/hitsPerPP">Hits per parameter and procedure</a> </p>
 									<p> <a href="${baseUrl}/reports/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
 									<p> <a href="${baseUrl}/reports/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
-									<p> <a href="${baseUrl}/reports/gene2go">GO annotations to IMPC genes tool (beta)</a> </p>
+									<p> <a href="${baseUrl}/reports/gene2go">GO annotations to IMPC genes tool</a> </p>
 									<p>	<a href="${baseUrl}/reports/getLaczSpreadsheet">LacZ Expression</a> </p>
 									<p> <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-3.0/csv/">All genotype-phenotype data</a></p>
 

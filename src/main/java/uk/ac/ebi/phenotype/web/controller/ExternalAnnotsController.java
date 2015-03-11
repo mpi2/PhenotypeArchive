@@ -85,11 +85,11 @@ public class ExternalAnnotsController {
 	}
 	
 	public List<String> createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
-	
+
 		StringBuilder builder = new StringBuilder();
 		String legend = "F = molecular function<br>P = biological process<br><span id='legendBox'><div class='FP'>F and P</div><div class='F'>F</div><div class='P'>P</div></span>";
 		
-		Map<String, String> evidRank = SolrIndex.getGoEvidRank();
+		Map<Integer, String> evidRankCat = SolrIndex.getGoEvidRankCategory();
 
 		Map<String, String> domainMap = new HashMap<>();
 		domainMap.put("F", "molecular_function");
@@ -126,7 +126,7 @@ public class ExternalAnnotsController {
     				Map.Entry pairs2 = (Map.Entry)itd.next();
     				String domain = pairs2.getKey().toString();
     	        
-    		        log.info(pairs2.getKey() + " = " + pairs2.getValue());
+    		        //System.out.println(pairs2.getKey() + " = " + pairs2.getValue());
     		        JSONArray evids = (JSONArray) pairs2.getValue();
     		        itd.remove(); // avoids a ConcurrentModificationException
     			
@@ -158,7 +158,7 @@ public class ExternalAnnotsController {
 				        else if ( goMode.equals("w/  GO") ){
 				        	String rank = evids.get(i).toString();
 				        	
-				        	if ( evidRank.containsKey(rank) ){
+				        	if ( evidRankCat.containsKey(Integer.parseInt(rank)) ){
 					        	List<String> cellVals = new ArrayList<>();
 					        	
 					        	if ( evidValDomain.get(rank) != null ){
@@ -191,7 +191,7 @@ public class ExternalAnnotsController {
     				String cellVals = StringUtils.join(cellValLst, "");
     				
     				builder.append("<tr>");
-		        	builder.append("<td rel='" + key +"' class='evidCode'>" + evidRank.get(rank) + "</td>");
+		        	builder.append("<td rel='" + key +"' class='evidCode'>" + evidRankCat.get(Integer.parseInt(rank)) + "</td>");
 		        	builder.append("<td>" + cellVals + "</td>"); // counts
 		        	builder.append("</tr>");
     		     

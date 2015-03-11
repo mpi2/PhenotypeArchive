@@ -27,6 +27,7 @@ package uk.ac.ebi.phenotype.pojo;
 public enum ObservationType {
 	categorical,
 	image_record,
+	ontological,
 	unidimensional,
 	multidimensional,
 	time_series,
