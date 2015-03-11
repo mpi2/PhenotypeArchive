@@ -1041,8 +1041,6 @@ public class AlleleIndexer extends AbstractIndexer {
 
             for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
                 dto.getGoTermIds().add(ga.goTermId);
-               
-               
                 dto.getGoTermNames().add(ga.goTermName);
                 //dto.getGoTermDefs().add(ga.goTermDef);
                 dto.getGoTermEvids().add(ga.goTermEvid);
@@ -1050,7 +1048,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
             }
             dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
-            System.out.println("GO UNIPROT: " + dto.getGoUniprot());
+           
             dto.setGoCount(dto.getGoTermIds().size());
         }
     }
