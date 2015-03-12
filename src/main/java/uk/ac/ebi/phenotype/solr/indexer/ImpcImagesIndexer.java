@@ -172,7 +172,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 					}
 					
-					if (!imageDTO.getParameterAssociationStableId().isEmpty()) {
+					if (imageDTO.getParameterAssociationStableId()!=null && !imageDTO.getParameterAssociationStableId().isEmpty()) {
 						for (String paramString : imageDTO.getParameterAssociationStableId()) {
 							System.out.println("parameterAssociation="+ paramString);
 							if (parameterStableIdToMaTermIdMap
@@ -181,6 +181,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 										.get(paramString);
 								System.out.println("impcIMagesIndexer maTerm="
 										+ maTerm);
+								//imageDTO.setMaTermId(maTerm);
+								//selected_top_level_ma_term
+								//String selectedTopLevelMaTerm=
 							}
 							// IndexerMap.get
 						}
