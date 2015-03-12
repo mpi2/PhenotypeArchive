@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,7 +143,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)) {
 						// Skip records that do not have an omero_id
 						if(omeroId==0)System.out.println("omero_id=0");
-						logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
+						//logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
 						continue;
 					}
 
@@ -173,29 +174,31 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 					
 					if (imageDTO.getParameterAssociationStableId()!=null && !imageDTO.getParameterAssociationStableId().isEmpty()) {
+						
+						ArrayList<String>maIds=new ArrayList<>();
 						for (String paramString : imageDTO.getParameterAssociationStableId()) {
-							System.out.println("parameterAssociation="+ paramString);
 							if (parameterStableIdToMaTermIdMap
 									.containsKey(paramString)) {
 								String maTerm = parameterStableIdToMaTermIdMap
 										.get(paramString);
 								
-									System.out.println("impcIMagesIndexer maTerm="
-											+ maTerm);
-								imageDTO.setMaTermId(maTerm);
-								
+									maIds.add(maTerm);
 								//selected_top_level_ma_term
 								//String selectedTopLevelMaTerm=
 							}
 							// IndexerMap.get
 						}
+						if(!maIds.isEmpty()){
+						imageDTO.setMaTermId(maIds);
+						}
 					}
 					server.addBean(imageDTO);
+					count++;
 				}
 
 
 
-				if (count++ % 1000 == 0) {
+				if (count % 10000 == 0) {
 					logger.info(" added ImageDTO" + count + " beans");
 				}
 			}
