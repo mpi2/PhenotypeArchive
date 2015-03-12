@@ -179,9 +179,11 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 									.containsKey(paramString)) {
 								String maTerm = parameterStableIdToMaTermIdMap
 										.get(paramString);
-								System.out.println("impcIMagesIndexer maTerm="
-										+ maTerm);
-								//imageDTO.setMaTermId(maTerm);
+								
+									System.out.println("impcIMagesIndexer maTerm="
+											+ maTerm);
+								imageDTO.setMaTermId(maTerm);
+								
 								//selected_top_level_ma_term
 								//String selectedTopLevelMaTerm=
 							}

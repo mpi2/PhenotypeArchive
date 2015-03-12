@@ -28,7 +28,7 @@ public class ImageDTO extends ObservationDTO {
 	@Field(JPEG_URL)
 	private String jpegUrl;
 	
-	@Field("maTermId")
+	@Field("ma_id")
 	private String maTermId;
 
 	@Field("symbol_gene")
