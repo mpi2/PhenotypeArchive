@@ -191,6 +191,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             SolrQuery query = new SolrQuery("mgi_accession_id:MGI*");  
             query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
+            
             query.setRows(BATCH_SIZE);
 
             logger.info("Populating lookups");
@@ -216,9 +217,9 @@ public class AlleleIndexer extends AbstractIndexer {
             logger.info("Populated mgi to uniprot lookup, {} records", mgi2UniprotLookup.size());
             
             // Uniprot to pfamA mapping
-            populateUniprot2pfamA();
-            logger.info("Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
-           
+            //populateUniprot2pfamA();
+            //logger.info("Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
+            logger.info("Populated uniprot to pfamA lookup is skipped for now");
             
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
@@ -252,7 +253,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 
                 // Look up uniprot to pfamA mapping
                 // NOTE: this MUST be done after lookupUniprotAcc()
-                lookupUniprotAcc2pfamA(alleles);
+                //lookupUniprotAcc2pfamA(alleles);
                 
                 
                 // Now index the alleles
@@ -311,7 +312,6 @@ public class AlleleIndexer extends AbstractIndexer {
         public String goTermDomain;   
 		public String mgiSymbol;
 		//public String goUniprot;  // GOId_UniprotAcc
-		
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -572,6 +572,7 @@ public class AlleleIndexer extends AbstractIndexer {
             	
     			ga.mgiSymbol  = resultSet.getString("gene_name");
     			ga.goTermId   = resultSet.getString("go_id");
+    			
     			String goUniprot  = ga.goTermId + "__" + resultSet.getString("accession"); //GOId__UniprotAcc
     			
     			if ( !gene2GoUniprotLookup.containsKey(ga.mgiSymbol) ){
@@ -1040,15 +1041,14 @@ public class AlleleIndexer extends AbstractIndexer {
 
             for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
                 dto.getGoTermIds().add(ga.goTermId);
-                //dto.getGoUniprot().add(ga.goUniprot);
-                dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
-                
                 dto.getGoTermNames().add(ga.goTermName);
                 //dto.getGoTermDefs().add(ga.goTermDef);
                 dto.getGoTermEvids().add(ga.goTermEvid);
                 dto.getGoTermDomains().add(ga.goTermDomain);
                 dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
             }
+            dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
+           
             dto.setGoCount(dto.getGoTermIds().size());
         }
     }

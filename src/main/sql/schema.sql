@@ -714,7 +714,7 @@ CREATE TABLE unidimensional_observation (
 CREATE TABLE ontology_observation (
 
 	id                        INT(10) UNSIGNED NOT NULL,
-	parameter_id				VARCHAR(255) NOT NULL,
+	parameter_id				VARCHAR(255) NOT NULL,/**not necessary to store this as in main parameter when store observation, we should remove it but in for dev testing**/
 	sequence_id                INT(10) NULL,
 	
 	PRIMARY KEY(id)

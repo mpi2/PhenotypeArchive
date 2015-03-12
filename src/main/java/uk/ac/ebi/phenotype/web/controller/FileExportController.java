@@ -247,7 +247,7 @@ public class FileExportController {
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	System.out.println("------------\nEXPORT \n---------");
         log.debug("solr params: " + solrFilters);
-     
+        
         String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
 		for (String pair : pairs) {
@@ -1286,6 +1286,7 @@ public class FileExportController {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
         //System.out.println(" GOT " + docs.size() + " docs");
+       
         String baseUrl = request.getAttribute("baseUrl") + "/genes/";
        
         //List<String> evidsList = new ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));
@@ -1295,13 +1296,13 @@ public class FileExportController {
         String fields = null;
         if ( gocollapse ){
         	fields = "Gene Symbol"
-        		+ "\tMGI gene link"
+        		+ "\tIMPC gene link"
         		+ "\tGO annotated"
         		+ "\tGO evidence Category";
         }
         else {
         	fields = "Gene Symbol"
-        		+ "\tMGI gene link"
+        		+ "\tIMPC gene link"
         		+ "\tPhenotyping status"
         		+ "\tGO Term Id"
         		+ "\tGO Term Name"
@@ -1309,14 +1310,14 @@ public class FileExportController {
         		+ "\tGO evidence Category"
         		+ "\tGO Term Domain";
         }
-        
+       
         rowData.add(fields);
         
         //GO evidence code ranking mapping
         Map<String,Integer> codeRank = SolrIndex.getGoCodeRank();
         
         // GO evidence rank to category mapping
-        Map<String,String> evidRank = SolrIndex.getGoEvidRank();
+        Map<Integer, String> evidRankCat = SolrIndex.getGoEvidRankCategory();
         
         String NOINFO = "no info available";
         
@@ -1346,15 +1347,16 @@ public class FileExportController {
             	data.add(hostName + baseUrl + gId);
             	data.add( Integer.toString(doc.getInt("go_count")) );
             	
-            	String evidCodeRank = Integer.toString(doc.getInt("evidCodeRank")) ;
-            	data.add(evidRank.get(evidCodeRank));
+            	int evidCodeRank = doc.getInt("evidCodeRank");
+            	data.add(evidRankCat.get(evidCodeRank));
             	
             	rowData.add(StringUtils.join(data, "\t"));
             	
             }
             else {
-            	String evidCodeRank = Integer.toString(doc.getInt("evidCodeRank")) ;
-	            
+            	
+            	int evidCodeRank = doc.getInt("evidCodeRank");
+	           
 	            JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
 	            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
 	            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
@@ -1363,23 +1365,25 @@ public class FileExportController {
 	            for ( int j=0; j< _goTermEvids.size(); j++ ) {
 	            	
 	            	String evid = _goTermEvids.get(j).toString();
-	            	
-	            	if ( codeRank.get(evid).equals(evidCodeRank) ){
+	            
+	            	if ( codeRank.get(evid) == evidCodeRank ){
+	            		
 	            		List<String> data = new ArrayList();
+	            		
 	            		data.add(doc.getString("marker_symbol"));
 		            	data.add(hostName + baseUrl + gId);
 		            	data.add(phenoStatus);
 		            	data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
 		            	data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
 		            	data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);
-		            	data.add(evidRank.get(evidCodeRank));
+		            	data.add(evidRankCat.get(evidCodeRank));
 		            	data.add(_goTermDomains.size() > 0 ? _goTermDomains.get(j).toString() : NOINFO);
 		            	rowData.add(StringUtils.join(data, "\t"));
 	            	}
 	            }
             }
         }
-        //System.out.println(rowData);
+       
         return rowData;
     }
     
