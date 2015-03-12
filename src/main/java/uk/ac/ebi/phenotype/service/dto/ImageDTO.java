@@ -28,8 +28,8 @@ public class ImageDTO extends ObservationDTO {
 	@Field(JPEG_URL)
 	private String jpegUrl;
 	
-	@Field("maTermId")
-	private String maTermId;
+	@Field("ma_id")
+	private List<String> maTermId;
 
 	@Field("symbol_gene")
 	private String symbolGene;//for search and annotation view
@@ -122,7 +122,7 @@ public class ImageDTO extends ObservationDTO {
 
 
 
-	public String getMaTermId() {
+	public List<String> getMaTermId() {
 	
 		return maTermId;
 	}
@@ -130,7 +130,7 @@ public class ImageDTO extends ObservationDTO {
 
 
 	
-	public void setMaTermId(String maTermId) {
+	public void setMaTermId(List<String> maTermId) {
 	
 		this.maTermId = maTermId;
 	}
