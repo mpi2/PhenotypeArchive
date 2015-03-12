@@ -31,12 +31,11 @@
 		.viewed {border: 2px solid black; padding: 5px;}
 		div.fl1 {float: left;}
 		div.fl1 {width: 28%;}
-		div.fl2 {float: right; width: 67%;}
-		table.goStats {width: 48%; float: left; margin: 0 0 0 5px;}
+		div.fl2 {float: right; width: 70%;}
+		table.goStats {width: 49%; float: left; margin: 0 0 0 5px;}
 		#goLegend {margin: 10px 0 10px 0;}
 		h2 {margin-top: 20px;}
 		
-		#goAnnots {border-left: 1px solid gray; margin-left: 25px;}
 		p#butts {margin-top: 20px; padding-left: 7px;}
 		table.go {width: auto; margin-left: 25px; float: left;}
 		table td {background-color: white;}
@@ -56,6 +55,9 @@
 		}
 		div#export input {
 			font-size: 11px !important;
+		}
+		div#export  i {
+			line-height: 20px;
 		}
 		span.msg {
 			font-weight: bold;
@@ -83,7 +85,34 @@
 		span.export2 {
 			font-size: 14px; color: #0978a1;
 		}
-		
+		i.fa-info {
+			float: right;
+			margin-right: 5px;
+		}
+		div.qtip-content {
+			background-color: white;
+			border: 1px solid gray !important;
+			
+		}
+		div.qtip-content ul {
+			padding: 15px 15px 15px 30px;
+		}
+		div.qtip {
+			border: none;
+		}
+		div.qtip-content ul li {
+			font-size: 12px;
+			padding: 4px 0;
+			
+		}
+		div.qtip-content ul li {
+			list-style: square;
+		}
+		div.goCat {
+			margin: 15px 15px 0px 20px;
+			font-weight: bold;
+			font-size: 14px;
+		}
 	</style>
 
 	
@@ -107,15 +136,15 @@
 										
 										<div id='export'>
 										  	<input type="radio" value="nogo" name="go" class='go'>Genes w/o GO<br>
-										  
+										     
 										  	<p class='gocat'>Gene w/ GO in evidence categories:</p>
 										  	<input type="checkbox" value="collapse" name="collapse"><label id='collapse'>Collapse dataset on evidence categories</label><br>
-											<input type="radio" value="experimental" name="go">Experimental<br>
-											<input type="radio" value="curatedcomp" name="go">Curated computational<br>
-											<input type="radio" value="automated" name="go">Automated electronic<br>
-											<input type="radio" value="other" name="go">Other<br>
-											<input type="radio" value="nd" name="go">No biological data available<br>
-											<input type="radio" value="all" name="go">All evidence categories<br>
+											<input type="radio" value="experimental" name="go"><label>Experimental</label><a class='goCatInfo fff'><i class='fa fa-info'></i></a><br>
+											<input type="radio" value="curatedcomp" name="go"><label>Curated computational</label><a class='goCatInfo'><i class='fa fa-info'></i></a><br>
+											<input type="radio" value="automated" name="go"><label>Automated electronic</label><a class='goCatInfo'><i class='fa fa-info'></i></a><br>
+											<input type="radio" value="other" name="go"><label>Other</label><a class='goCatInfo'><i class='fa fa-info'></i></a><br>
+											<input type="radio" value="nd" name="go"><label>No biological data available</label><a class='goCatInfo'><i class='fa fa-info'></i></a><br>
+											<input type="radio" value="all" name="go"><label>All evidence categories</label><br>
 											
 											<p id='butts'><span class='export2'>Download</span><button class="tsv fa fa-download gridDump gridDump">TSV</button> or<button class="xls fa fa-download gridDump gridDump">XLS</button></p> 
 										</div>
@@ -124,6 +153,7 @@
 						     		
 						     		<div class='fl2'>${goStatsTable}</div>
 						     		<div id='view'>Click one of the gene number buttons above to explorer GO annotation data below</div>
+						     		
 									<div style="clear: both"></div>
 								</div>
 							
@@ -141,12 +171,72 @@
 		
         
         <script type='text/javascript'>
-       
+        
+        	var goBaseUrl = "http://geneontology.org/page/";
+        	var oCatEvids = {
+	        	"Experimental": "<ul>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "exp-inferred-experiment'>Inferred from Experiment (EXP)</a></li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "ida-inferred-direct-assay'>Inferred from Direct Assay (IDA)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "ipi-inferred-physical-interaction'>Inferred from Physical Interaction (IPI)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "imp-inferred-mutant-phenotype'>Inferred from Mutant Phenotype (IMP)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "igi-inferred-genetic-interaction'>Inferred from Genetic Interaction (IGI)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "iep-inferred-expression-pattern'>Inferred from Expression Pattern (IEP)</li>"
+					+ "</ul>",
+	        	"Curated computational": "<ul>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "iss-inferred-sequence-or-structural-similarity'>Inferred from Sequence or structural Similarity (ISS)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "iso-inferred-sequence-orthology'>Inferred from Sequence Orthology (ISO)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "isa-inferred-sequence-alignment'>Inferred from Sequence Alignment (ISA)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "ism-inferred-sequence-model'>Inferred from Sequence Model (ISM)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "igc-inferred-genomic-context'>Inferred from Genomic Context (IGC)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "iba-inferred-biological-aspect-ancestor'>Inferred from Biological aspect of Ancestor (IBA)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "ibd-inferred-biological-aspect-descendent'>Inferred from Biological aspect of Descendant (IBD)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "ikr-inferred-key-residues'>Inferred from Key Residues (IKR)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "ird-inferred-rapid-divergence'>Inferred from Rapid Divergence(IRD)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "rca-inferred-reviewed-computational-analysis'>Inferred from Reviewed Computational Analysis (RCA)</li>"
+					+ "</ul>", 			
+				"Automated electronic": "<ul>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "automatically-assigned-evidence-codes'>Inferred from Electronic Annotation (IEA)</li>"
+					+ "</ul>", 	
+				"Other": "<ul>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "tas-traceable-author-statement'>Traceable Author Statement (TAS)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "nas-non-traceable-author-statement'>Non-traceable Author Statement (NAS)</li>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "ic-inferred-curator'>Inferred by Curator (IC)</li>"
+					+ "</ul>", 	
+				"No biological data available": "<ul>"
+					+ "<li><a target='_blank' href='" + goBaseUrl + "nd-no-biological-data-available'>No biological Data available (ND)</li>"
+					+ "</ul>"
+			};
+		
        		$(document).ready(function(){
        			//var baseUrl = '//dev.mousephenotype.org/data';
        			//var baseUrl = 'http://localhost:8080/phenotype-archive';
        			var baseUrl = "${baseUrl}";
        			var solrUrl = "${internalSolrUrl};"
+       			
+   				$("a.goCatInfo").each(function(){
+   					$(this).qtip({            	   
+   				
+	   		           	hide: false,
+	   					content: {
+	   						text: "<div class='goCat'>" + $(this).prev().text() + "</div>" + oCatEvids[$(this).prev().text()],
+	   						title: {'button': 'close'}
+	   					},		 	
+	   				 	style: {
+	   				 		classes: 'qtipimpc',			 		
+	   				        tip: {corner: 'top left'}
+	   				    },
+	   				    position: {
+	   				    	my: 'left',
+	   				    	adjust: {x: 145, y: 50},
+			 				//at: 'bottom right', // at the bottom right of...
+	        				target: $("a.goCatInfo") // my target
+	   				    },
+	   				 	show: {
+	   						event: 'click' //override the default mouseover
+	   					}
+   					}); 
+   		        });
+       			
        	      	var conf = {
 					externalDbId: 1,
 					fileType:'',
@@ -299,7 +389,7 @@
 
 	       	            	if (goDomain != 'not available'){
 		       	            	var dTable = $(this).DataTable();
-		       	            	$(this).find('tr').css('cursor','pointer');
+		       	            	$(this).find('tr td:nth-child(3)').css('cursor','pointer');
 		       	            	
 		       	            	$(this).find('tr').click(function(){
 		       	            		
@@ -364,9 +454,11 @@
        	        	 	var aGo_term_names = oDoc.go_term_name;
        	        	 	var aGo_term_evids = oDoc.go_term_evid;
        	        	 	var aGo_term_domains = oDoc.go_term_domain;
+       	        	 	var aGo_uniprotAccs = oDoc.go_uniprot;
+       	        	 
        	        	 	var goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GProtein?ac=";
        	        	
-       	        	 	var go2uniprot = {}; // prepares for GO-uniprotAcc lookup: GO to uniprotAcc is one to many relationship
+       	        	 	/* var go2uniprot = {}; // prepares for GO-uniprotAcc lookup: GO to uniprotAcc is one to many relationship
        	        	 	for ( var i=0; i<aGo_uniprots.length; i++ ){
        	        		 	var aParts = aGo_uniprots[i].split('__');
        	        		 	var goId = aParts[0];
@@ -376,15 +468,16 @@
        	        		 	}
        	        		 	go2uniprot[goId].push(uniprotAcc);
        	        	 	}
-       	        	 	
+       	        	 	 */
        	        	 	var trs = null;
-       	        	 	var seenGo = {};
+       	        	 	//var seenGo = {};
        	        	 	for ( goIdIndex in goIdIndexes ){
        	        	 		
        	        	 		var aParts = goIdIndex.split("_");
        	        	 		var goId = 	aParts[0];
    	        	 			var goIdIndex = aParts[1];
-   	        	 			var uniprotAcc = null;
+   	        	 			
+   	        	 			/* var uniprotAcc = null;
    	        	 			
    	        	 			// work out which uniprotAcc for this GO
    	        	 			if ( ! (goId in seenGo) ){
@@ -395,8 +488,10 @@
 	   	        	 			seenGo[goId]++;
 	   	        	 			var seen = seenGo[goId];
 	   	        	 			uniprotAcc = go2uniprot[goId][seen]; 
-   	        	 			}
+   	        	 			} */
    	        	 			
+   	        	 			var aParts = aGo_uniprotAccs[goIdIndex].split("__");
+   	        	 			var uniprotAcc = aParts[1];
        	        	 		var goLink = "<a target='_blank' href='" + goBaseUrl + uniprotAcc + "'>" + goId + "</a>";
        	        	 		var td1 = "<td>" + goLink + "</td>";
        	        	 		var td2 = "<td>" + aGo_term_names[goIdIndex] + "</td>";
@@ -419,6 +514,8 @@
 				});
        				
        		}
+       		
+       		
        		
        		
         </script>
