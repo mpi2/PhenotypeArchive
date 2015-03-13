@@ -222,7 +222,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
                 // Skip if we already have this data postQC
                 phenotypingCenter = EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter) ? EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
-                if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
+                if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{zygosity, colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
                     continue;
                 }
 
@@ -681,14 +681,15 @@ public class PreqcIndexer extends AbstractIndexer {
 
     public void populatePostQcData() {
 
-        String query = "SELECT DISTINCT CONCAT(e.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
-            "FROM observation o " +
+        String query = "SELECT DISTINCT CONCAT(bm.zygosity, '_', e.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
+            "FROM observation o \n" +
             "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
             "INNER JOIN experiment e ON e.id=eo.experiment_id " +
             "INNER JOIN organisation org ON org.id=e.organisation_id " +
+            "INNER JOIN biological_model bm ON bm.id=e.biological_model_id  " +
             "WHERE e.colony_id IS NOT NULL " +
             "UNION " +
-            "SELECT DISTINCT CONCAT(ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
+            "SELECT DISTINCT CONCAT(ls.zygosity, '_', ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
             "FROM observation o " +
             "INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
             "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
