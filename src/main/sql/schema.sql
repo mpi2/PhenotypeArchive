@@ -1105,6 +1105,40 @@ CREATE TABLE phenotype_call_summary (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
+CREATE TABLE anatomy_call_summary (
+
+	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	external_id               VARCHAR(20) NULL,
+	external_db_id            INT(10),
+	project_id                INT(10) UNSIGNED NOT NULL,
+	organisation_id           INT(10) UNSIGNED NOT NULL,
+	gf_acc                    VARCHAR(20),
+	gf_db_id                  INT(10),
+	background_strain_acc     VARCHAR(20),
+	background_strain_db_id   INT(10),
+	allele_acc                VARCHAR(20),
+	allele_db_id              INT(10),
+	colony_id                 VARCHAR(200) NULL,
+	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable'),
+	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
+	parameter_id              INT(10) UNSIGNED NOT NULL,
+	procedure_id              INT(10) UNSIGNED NOT NULL,
+	pipeline_id               INT(10) UNSIGNED NOT NULL,
+
+	anatomy_acc               VARCHAR(20) NOT NULL,
+	anatomy_db_id             INT(10) NOT NULL,
+
+	expression                VARCHAR(200),
+
+	PRIMARY KEY (id),
+	KEY parameter_call_idx (parameter_id),
+	KEY procedure_call_idx (procedure_id),
+	KEY pipeline_call_idx (pipeline_id),
+	KEY organisation_idx (organisation_id),
+	KEY allele_idx (allele_acc, allele_db_id),
+	KEY anatomy_acc_idx (anatomy_acc, anatomy_db_id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
  * Tables below are for the storage of media/image information
@@ -1119,6 +1153,7 @@ CREATE TABLE image_record_observation (
 	small_thumbnail_file_path  VARCHAR(256) DEFAULT NULL,
 	large_thumbnail_file_path  VARCHAR(256) DEFAULT NULL,
 	download_file_path         VARCHAR(256) DEFAULT NULL,
+	image_link				   VARCHAR(256) DEFAULT NULL,
 	organisation_id            INT(11) NOT NULL DEFAULT '0',
 	increment_value            VARCHAR(45) DEFAULT NULL,
 	file_type                  VARCHAR(45) DEFAULT NULL,
