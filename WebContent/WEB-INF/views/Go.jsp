@@ -113,6 +113,9 @@
 			font-weight: bold;
 			font-size: 14px;
 		}
+		div.dataTables_length {
+			margin-left: 0;
+		}
 	</style>
 
 	
@@ -389,11 +392,11 @@
 
 	       	            	if (goDomain != 'not available'){
 		       	            	var dTable = $(this).DataTable();
-		       	            	$(this).find('tr td:nth-child(3)').css('cursor','pointer');
+		       	            	$(this).find('tr td:nth-child(4)').css('cursor','pointer');
 		       	            	
-		       	            	$(this).find('tr').click(function(){
+		       	            	$(this).find('tr td:nth-child(4)').click(function(){
 		       	            		
-		       	            		var oTr = $(this);
+		       	            		var oTr = $(this).parent();
 		       	            		var oRow = dTable.row(oTr);
 		       	            		
 		       	            	 	if (oRow.child.isShown()) {
