@@ -371,7 +371,7 @@ public class DataTableController {
 	}
 	
 	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start){
-				
+			
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
@@ -386,9 +386,10 @@ public class DataTableController {
 		
 		for (int i=0; i<docs.size(); i++){
 			List<String> rowData = new ArrayList<String>();
-
+			
 			// array element is an alternate of facetField and facetCount			
 			JSONObject doc = docs.getJSONObject(i);
+			
 			String mpId = doc.getString("mp_id");
 			String mpTerm = doc.getString("mp_term");
 			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";							
@@ -456,7 +457,6 @@ public class DataTableController {
 			}
 			else {
 				rowData.add(mpLink);
-				
 			}
 			
 			// some MP do not have definition
@@ -471,9 +471,8 @@ public class DataTableController {
 			rowData.add(mpDef);	
 			
 			// number of genes annotated to this MP
-			StringBuilder sb = new StringBuilder();
-			sb.append("");
-			rowData.add(sb.append(doc.getInt("postqc_calls")).toString());
+			int numCalls = doc.containsKey("postqc_calls") ? doc.getInt("postqc_calls") : 0;
+			rowData.add(Integer.toString(numCalls));
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {
