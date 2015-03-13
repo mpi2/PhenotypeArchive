@@ -925,7 +925,7 @@ public class FileExportController {
             }
             
             // number of genes annotated to this MP
- 			int numCalls = doc.containsKey("postqc_calls") ? doc.getInt("postqc_calls") : 0;
+ 			int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
  			data.add(Integer.toString(numCalls));
             
             rowData.add(StringUtils.join(data, "\t"));
