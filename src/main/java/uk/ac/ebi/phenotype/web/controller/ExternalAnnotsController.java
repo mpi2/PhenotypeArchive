@@ -72,10 +72,67 @@ public class ExternalAnnotsController {
 		
 		Map<String, Map<String, Map<String, JSONArray>>> stats = solrIndex.getGO2ImpcGeneAnnotationStats();
 		List<String> data = createTable(stats);
+		//model.addAttribute("catDoc", get_go_evid_category_mapping());
 		model.addAttribute("legend", data.get(0));
 		model.addAttribute("goStatsTable", data.get(1));
 		
 		return "Go";
+	}
+	
+	private String get_go_evid_category_mapping(){
+		 
+		Map<String, List<String>> evidCat = new HashMap<>();
+		
+		List<String> expEvids = new ArrayList<>();
+		expEvids.add("Inferred from Experiment (EXP)");
+		expEvids.add("Inferred from Direct Assay (IDA)");
+		expEvids.add("Inferred from Physical Interaction (IPI)");
+		expEvids.add("Inferred from Mutant Phenotype (IMP)");
+		expEvids.add("Inferred from Genetic Interaction (IGI)");
+		expEvids.add("Inferred from Expression Pattern (IEP)");
+		evidCat.put("Experimental", expEvids);
+		
+		List<String> curatedEvids = new ArrayList<>();
+		curatedEvids.add("Inferred from Sequence or structural Similarity (ISS)");
+		curatedEvids.add("Inferred from Sequence Orthology (ISO)");
+		curatedEvids.add("Inferred from Sequence Alignment (ISA)");
+		curatedEvids.add("Inferred from Sequence Model (ISM)");
+		curatedEvids.add("Inferred from Genomic Context (IGC)");
+		curatedEvids.add("Inferred from Biological aspect of Ancestor (IBA)");
+		curatedEvids.add("Inferred from Biological aspect of Descendant (IBD)");
+		curatedEvids.add("Inferred from Key Residues (IKR)");
+		curatedEvids.add("Inferred from Rapid Divergence(IRD)");
+		curatedEvids.add("Inferred from Reviewed Computational Analysis (RCA)");
+		evidCat.put("Curated computational", curatedEvids);
+
+		List<String> autoEvids = new ArrayList<>();
+		autoEvids.add("Inferred from Electronic Annotation (IEA)");
+		evidCat.put("Automated electronic", autoEvids);
+		
+		List<String> otherEvids = new ArrayList<>();
+		otherEvids.add("Traceable Author Statement (TAS)");
+		otherEvids.add("Non-traceable Author Statement (NAS)");
+		otherEvids.add("Inferred by Curator (IC)");
+		evidCat.put("Other", otherEvids);
+		
+		List<String> ndEvids = new ArrayList<>();
+		ndEvids.add("No biological Data available (ND)");
+		evidCat.put("No biological data available", ndEvids);
+		
+		StringBuilder builder = new StringBuilder();
+		Iterator ec = evidCat.entrySet().iterator();
+		while (ec.hasNext()) {
+			
+			Map.Entry pairs = (Map.Entry)ec.next();
+			String cat = pairs.getKey().toString();
+			List<String> evidList = (List<String>) pairs.getValue();
+			builder.append("<ul class='evidCat'>" + cat);
+			for ( int i=0; i<evidList.size(); i++ ){
+				builder.append("<li class='evidCat'>" + evidList.get(i) + "</li>");
+			}
+			builder.append("</ul>");
+		}
+		return builder.toString();
 	}
 	
 	private HttpHeaders createResponseHeaders(){
@@ -149,6 +206,7 @@ public class ExternalAnnotsController {
 				        			+ key 
 				        			+ "\" AND -go_term_id:*"
 				        			+ "&fq=mp_id:*";
+				        	
 				        	
 				        	builder.append("<tr>");
 				        	builder.append("<td rel='"+ key +"'>" + goMode + "</td>");
