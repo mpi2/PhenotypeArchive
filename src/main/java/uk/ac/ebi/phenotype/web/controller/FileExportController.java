@@ -1304,6 +1304,7 @@ public class FileExportController {
         	fields = "Gene Symbol"
         		+ "\tIMPC gene link"
         		+ "\tPhenotyping status"
+        		+ "\tUniprot protein"
         		+ "\tGO Term Id"
         		+ "\tGO Term Name"
         		+ "\tGO Term Evidence"
@@ -1338,6 +1339,7 @@ public class FileExportController {
             	data.add(NOINFO);
             	data.add(NOINFO);
             	data.add(NOINFO);
+            	data.add(NOINFO);
             	
             	rowData.add(StringUtils.join(data, "\t"));
             }
@@ -1361,7 +1363,8 @@ public class FileExportController {
 	            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
 	            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
 	            JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
-            
+	            JSONArray _goUniprotAccs = doc.containsKey("go_uniprot") ? doc.getJSONArray("go_uniprot") : new JSONArray();
+	            
 	            for ( int j=0; j< _goTermEvids.size(); j++ ) {
 	            	
 	            	String evid = _goTermEvids.get(j).toString();
@@ -1373,6 +1376,11 @@ public class FileExportController {
 	            		data.add(doc.getString("marker_symbol"));
 		            	data.add(hostName + baseUrl + gId);
 		            	data.add(phenoStatus);
+		            	
+		            	String go2Uniprot = _goUniprotAccs.size() > 0 ? _goUniprotAccs.get(j).toString() : NOINFO;
+		            	String uniprotAcc = go2Uniprot.replaceAll("[A-Z0-9:]+__", "");
+		            	data.add(uniprotAcc);
+		            	
 		            	data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
 		            	data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
 		            	data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);

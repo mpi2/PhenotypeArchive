@@ -287,7 +287,7 @@
        		     		conf.gocollapse = true;
        		     	}	
        		     	else {
-       		     		commonFl = "evidCodeRank,latest_phenotype_status,mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name";
+       		     		commonFl = "evidCodeRank,latest_phenotype_status,mgi_accession_id,marker_symbol,go_term_id,go_term_evid,go_term_domain,go_term_name,go_uniprot";
        		     	}
        		     	
        		       	//console.log(commonFl)
@@ -330,7 +330,7 @@
      	      	
 				var paramStr = "wt=json&sort=marker_symbol asc&fq=mp_id:*"; 		
 				var displayFl = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_count";
-				var downloadFl = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,uniprot_acc,evidCodeRank,go_term_id,go_term_name,go_term_evid,go_term_domain";
+				var downloadFl = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_uniprot,evidCodeRank,go_term_id,go_term_name,go_term_evid,go_term_domain";
 				var tableHeader = "<thead><th>Marker symbol</th><th>Phenotyping Status</th><th>GO annotated</th><th></th></thead>";		
 				var tableCols = 4;
 				
@@ -456,8 +456,9 @@
        	        	 	var aGo_term_domains = oDoc.go_term_domain;
        	        	 	var aGo_uniprotAccs = oDoc.go_uniprot;
        	        	 
-       	        	 	var goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GProtein?ac=";
-       	        	
+       	        	 	var goUniprotBaseUrl = "http://www.ebi.ac.uk/QuickGO/GProtein?ac=";
+       	        	 	var goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
+       	        	 	
        	        	 	/* var go2uniprot = {}; // prepares for GO-uniprotAcc lookup: GO to uniprotAcc is one to many relationship
        	        	 	for ( var i=0; i<aGo_uniprots.length; i++ ){
        	        		 	var aParts = aGo_uniprots[i].split('__');
@@ -492,16 +493,19 @@
    	        	 			
    	        	 			var aParts = aGo_uniprotAccs[goIdIndex].split("__");
    	        	 			var uniprotAcc = aParts[1];
-       	        	 		var goLink = "<a target='_blank' href='" + goBaseUrl + uniprotAcc + "'>" + goId + "</a>";
+   	        	 			
+       	        	 		var uniprotLink = "<a target='_blank' href='" + goUniprotBaseUrl + uniprotAcc + "'>" + uniprotAcc + "</a>";
+       	        	 		var goLink = "<a target='_blank' href='" + goBaseUrl + goId + "'>" + goId + "</a>";
+       	        	 		var td0 = "<td>" + uniprotLink + "</td>";
        	        	 		var td1 = "<td>" + goLink + "</td>";
        	        	 		var td2 = "<td>" + aGo_term_names[goIdIndex] + "</td>";
        	        	 		var td3 = "<td>" + aGo_term_evids[goIdIndex] + "</td>";
        	        	 		var td4 = "<td>" + aGo_term_domains[goIdIndex] + "</td>";
-       	        	 		trs += "<tr>"+td1+td2+td3+td4+"</tr>";
+       	        	 		trs += "<tr>"+td0+td1+td2+td3+td4+"</tr>";
        	        	 	}
        	        	 	
        	        	 	var table = $("<table class='goTerm'></table>");
-       	        	 	table.append('<thead><th>GO id</th><th>GO name</th><th>GO evidence</th><th>GO domain</th>');
+       	        	 	table.append('<thead><th>Uniprot protein</th><th>GO id</th><th>GO name</th><th>GO evidence</th><th>GO domain</th>');
        	        	 	table.append(trs);
 						
 						//add the response html to the target row
