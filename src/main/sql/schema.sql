@@ -1119,6 +1119,7 @@ CREATE TABLE image_record_observation (
 	small_thumbnail_file_path  VARCHAR(256) DEFAULT NULL,
 	large_thumbnail_file_path  VARCHAR(256) DEFAULT NULL,
 	download_file_path         VARCHAR(256) DEFAULT NULL,
+	image_link				   VARCHAR(256) DEFAULT NULL,
 	organisation_id            INT(11) NOT NULL DEFAULT '0',
 	increment_value            VARCHAR(45) DEFAULT NULL,
 	file_type                  VARCHAR(45) DEFAULT NULL,
