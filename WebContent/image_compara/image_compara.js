@@ -5,10 +5,10 @@ console.log('comparator js ready');
 //mediaBaseUrl=https://dev.mousephenotype.org/data/media
 //var mediaBaseUrl='http://wwwdev.ebi.ac.uk/mi/media/omero/';
 var solrUrl='//wwwdev.ebi.ac.uk/mi/impc/dev/solr';
-var impcMediaBaseUrl="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway";
+var omero_gateway_root="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway";
 
 var detailUrlExt='/img_detail/';
-var url=impcMediaBaseUrl+detailUrlExt;//may need for this to be passed as a parameter for each request if not being set by jsp?
+var url=omero_gateway_root+detailUrlExt;//may need for this to be passed as a parameter for each request if not being set by jsp?
 var annotationBreak='<br/>';
 //console.log('solrUrl='+solrUrl);
 //get all the ids from the parameter list and get solrDocs for each
@@ -21,6 +21,11 @@ function getURLParameter(sParam, location)
     for (var i = 0; i < sURLVariables.length; i++) 
     {
         var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == 'omero_gateway_root') 
+        {
+        	console.log('setting omero_gateway_root='+sParameterName[1]);
+        	omero_gateway_root=sParameterName[1];
+        }
         if (sParameterName[0] == sParam) 
         {
             imgIds.push(sParameterName[1]);

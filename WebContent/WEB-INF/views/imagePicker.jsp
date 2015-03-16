@@ -94,6 +94,7 @@
 						</select>
 					</div>
 				</div>
+				<input type="hidden" name="omero_gateway_root" value="${impcMediaBaseUrl}">
 				<input type="submit" value="Click to display selected images">
 			</form>
 		
