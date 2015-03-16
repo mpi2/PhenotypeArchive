@@ -364,7 +364,6 @@
      				oInfos.mode = "gene2go";
      				oInfos.widgetName = 'geneFacet';
      				oInfos.coreName = 'gene';
-     				oInfos.gridFields = "";
      				oInfos.dogoterm = true;
      				
      				_refreshTable();

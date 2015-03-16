@@ -135,6 +135,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 					ImageBean iBean = imageBeans.get(downloadFilePath);
 					String fullResFilePath = iBean.fullResFilePath;
+					if(iBean.image_link!=null){
+						imageDTO.setImageLink(iBean.image_link);
+					}
 					imageDTO.setFullResolutionFilePath(fullResFilePath);
 
 					int omeroId = iBean.omeroId;
@@ -236,6 +239,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				ImageBean bean = new ImageBean();
 				bean.omeroId = resultSet.getInt(ImageDTO.OMERO_ID);
 				bean.fullResFilePath = resultSet.getString(ImageDTO.FULL_RESOLUTION_FILE_PATH);
+				bean.image_link = resultSet.getString(ImageDTO.IMAGE_LINK);
 				imageBeansMap.put(resultSet.getString(ImageDTO.DOWNLOAD_FILE_PATH), bean);
 
 			}
@@ -251,6 +255,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private class ImageBean {
 		int omeroId;
 		String fullResFilePath;
+		String image_link;
 	}
 
 

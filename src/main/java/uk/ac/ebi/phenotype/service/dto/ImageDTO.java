@@ -15,6 +15,7 @@ public class ImageDTO extends ObservationDTO {
 	public static final String DOWNLOAD_URL = "download_url";
 	public static final String JPEG_URL = "jpeg_url";
 	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String IMAGE_LINK="image_link";
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
@@ -25,6 +26,10 @@ public class ImageDTO extends ObservationDTO {
 	@Field(DOWNLOAD_URL)
 	private String downloadUrl;
 	
+	@Field(IMAGE_LINK)
+	private String imageLink;
+
+
 	@Field(JPEG_URL)
 	private String jpegUrl;
 	
@@ -73,6 +78,14 @@ public class ImageDTO extends ObservationDTO {
 
 	
 	
+	public String getImageLink() {
+		return imageLink;
+	}
+
+
+	public void setImageLink(String imageLink) {
+		this.imageLink = imageLink;
+	}
 	
 	public String getSubtype() {
 	

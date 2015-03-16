@@ -25,10 +25,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.*;
@@ -36,6 +38,7 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,6 +62,10 @@ public class MPIndexer extends AbstractIndexer {
     @Qualifier("preqcIndexing")
     private SolrServer preqcCore;
 
+    @Autowired
+    @Qualifier("genotypePhenotypeIndexing")
+    private SolrServer genotypePhenotypeCore;
+    
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -153,7 +160,7 @@ public class MPIndexer extends AbstractIndexer {
         try {
 
         	// maps MP to number of phenotyping calls
-        	populateGene2MpCalls();
+        	//populateGene2MpCalls();
         	
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
@@ -183,8 +190,8 @@ public class MPIndexer extends AbstractIndexer {
                 addPhenotype1(mp);
                  
                 // this sets the number of postqc phenotyping calls of this MP
-                //mp.setPostqcCalls(sumPhenotypingCalls(mp, termId)); 
-                mp.setPostqcCalls(mpCalls.get(termId));
+                mp.setPhenoCalls(sumPhenotypingCalls(termId)); 
+                //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
 
                 logger.debug("{}: Built MP DTO {}", count, termId);
@@ -206,18 +213,26 @@ public class MPIndexer extends AbstractIndexer {
         logger.info("MP Indexer complete!");
     }
 
-    private int sumPhenotypingCalls(MpDTO mp, String mpId) {
+    private int sumPhenotypingCalls(String mpId) throws SolrServerException {
+    
+    	List<SolrServer> ss = new ArrayList<>();
+    	ss.add(preqcCore);
+    	ss.add(genotypePhenotypeCore);
     	
-    	//mpCalls.containsKey(termId) ? mpCalls.get(termId) : 0
-    	int calls = mpCalls.containsKey(mpId) ? mpCalls.get(mpId) : 0;
-    	System.out.println( "LOW count: " + calls);
+    	int calls = 0;
+    	for ( int i=0; i<ss.size(); i++ ){
+    		
+    		SolrServer solrSvr = ss.get(i);
+    
+	    	SolrQuery query = new SolrQuery();
+			query.setQuery("mp_term_id:\"" + mpId + "\" OR intermediate_mp_term_id:\"" + mpId + "\" OR top_level_mp_term_id:\"" + mpId + "\"");
+			query.setRows(0);
+			
+			QueryResponse response = solrSvr.query(query);
+			calls += response.getResults().getNumFound();
+		
+		}
     	
-        System.out.println(mpId + ": TOP - " + mp.getTopLevelMpId());
-        System.out.println(mpId + ": INT - " + mp.getIntermediateMpId());
-        System.out.println(mpId + ": PARENT - " + mp.getParentMpId());
-        System.out.println(mpId + ": CHILDREN - " + mp.getChildMpId());
-        System.out.println("");
-        
         return calls;
     }
     
