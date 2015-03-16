@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<title>Image Comparator2</title>
+<title>Image Comparator</title>
 <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
 <script>
 var baseUrl="${baseUrl}";

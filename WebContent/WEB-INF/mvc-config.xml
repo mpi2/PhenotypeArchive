@@ -27,7 +27,7 @@
     <mvc:resources mapping="/documentation/**" location="/resources/documentation/" />
     <mvc:resources mapping="/dalliance/**" location="/resources/dalliance/" />
     <mvc:resources mapping="/release_notes/**" location="/resources/release_notes/" />
-    <mvc:resources mapping="/static/**" location="/static/" />
+    <mvc:resources mapping="/image_compara/**" location="/image_compara/" /><!-- first pass place to keep the omero image compara plugin -->
     
 	<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />
 	<context:component-scan base-package="uk.ac.sanger.phenodigm2.controller" />
