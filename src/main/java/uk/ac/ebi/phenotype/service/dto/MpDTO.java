@@ -62,7 +62,7 @@ public class MpDTO {
 	public static final String SIBLING_MP_DEFINITION = "sibling_mp_definition";
 	public static final String P_VALUE = "p_value";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
-	public static final String POSTQC_CALLS = "postqc_calls";
+	public static final String PHENO_CALLS = "pheno_calls";
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_ACCESSION_ID = "marker_accession_id";
 	public static final String PREQC_GENE_ID = "preqc_gene_id";
@@ -289,8 +289,8 @@ public class MpDTO {
 	@Field(MGI_ACCESSION_ID)
 	private List<String> mgiAccessionId;
 
-	@Field(POSTQC_CALLS)
-	private Integer postqcCalls;
+	@Field(PHENO_CALLS)
+	private Integer phenoCalls;
 	
 	@Field(MARKER_SYMBOL)
 	private List<String> markerSymbol;
@@ -1102,14 +1102,14 @@ public class MpDTO {
 		this.mgiAccessionId = mgiAccessionId;
 	}
 
-	public Integer getPostqcCalls() {
+	public Integer getPhenoCalls() {
 
-		return postqcCalls;
+		return phenoCalls;
 	}
 	
-	public void setPostqcCalls(Integer mpCalls) {
+	public void setPhenoCalls(Integer mpCalls) {
 		
-		this.postqcCalls = mpCalls;
+		this.phenoCalls = mpCalls;
 	}
 
 	

@@ -471,7 +471,7 @@ public class DataTableController {
 			rowData.add(mpDef);	
 			
 			// number of genes annotated to this MP
-			int numCalls = doc.containsKey("postqc_calls") ? doc.getInt("postqc_calls") : 0;
+			int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
 			rowData.add(Integer.toString(numCalls));
 			
 			// register of interest
