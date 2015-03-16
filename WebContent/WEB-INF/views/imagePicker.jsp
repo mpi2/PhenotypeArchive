@@ -39,7 +39,7 @@
     	<div class="content">
         	<div class="node">
                            
-        	<form action="../../image_compara/imageComparator.html" method="get">
+        	<form action="../../image_compara/image_compara.html" method="get">
         	<input type="submit" value="Click to display selected images">
         	 <h1 class="title" id="top">Controls</h1>
 				<div class="section">

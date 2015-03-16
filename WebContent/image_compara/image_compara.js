@@ -102,9 +102,9 @@ var docs;
 		console.log('no ids for '+controlOrExp);
 		var frame = $('#'+controlOrExp, window.parent.document);
 		if(controlOrExp=='experimental'){
-			frame.attr('src', 'experimentalImagesError.html');
+			frame.attr('src', 'experimental_images_error.html');
 		}else{
-			frame.attr('src', 'controlImagesError.html');
+			frame.attr('src', 'control_images_error.html');
 		}
 		frame.html('No images here for '+controlOrExp);
 		}
