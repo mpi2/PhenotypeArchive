@@ -4,7 +4,7 @@ console.log('comparator js ready');
 
 //mediaBaseUrl=https://dev.mousephenotype.org/data/media
 //var mediaBaseUrl='http://wwwdev.ebi.ac.uk/mi/media/omero/';
-var solrUrl='http://wwwdev.ebi.ac.uk/mi/impc/dev/solr';
+var solrUrl='//wwwdev.ebi.ac.uk/mi/impc/dev/solr';
 var impcMediaBaseUrl="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway";
 
 var detailUrlExt='/img_detail/';
