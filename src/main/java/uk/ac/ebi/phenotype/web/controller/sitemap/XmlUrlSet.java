@@ -18,42 +18,27 @@
  * limitations under the License.
  */
 
-package uk.ac.ebi.phenotype.web.controller;
+package uk.ac.ebi.phenotype.web.controller.sitemap;
 
-import com.redfin.sitemapgenerator.W3CDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
  * @author mrelac
  */
-public class XmlSitemap {
-    
-    private W3CDateFormat dateFormat;
-    
-    public XmlSitemap() {
-        this("");
-    }
-    public XmlSitemap(String loc) {
-        dateFormat = new W3CDateFormat(W3CDateFormat.Pattern.DAY);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        lastmod = dateFormat.format(new Date());
-        this.loc = loc;
+@XmlAccessorType(value = XmlAccessType.NONE)
+@XmlRootElement(name = "urlset")
+public class XmlUrlSet {
+    @XmlElements({@XmlElement(name = "url", type = XmlUrl.class)})
+    private final Collection<XmlUrl> xmlUrls = new ArrayList();
+
+    public void addUrl(XmlUrl xmlUrl) {
+        xmlUrls.add(xmlUrl);
     }
 
-    @XmlElement
-    private final String loc;
-
-    @XmlElement
-    private final String lastmod;
-    
-    public String getLoc() {
-        return loc;
-    }
-
-    public String getLastmod() {
-        return lastmod;
+    public Collection<XmlUrl> getXmlUrls() {
+        return xmlUrls;
     }
 }

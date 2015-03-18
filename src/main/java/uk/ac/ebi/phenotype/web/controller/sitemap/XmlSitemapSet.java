@@ -18,25 +18,20 @@
  * limitations under the License.
  */
 
-package uk.ac.ebi.phenotype.web.controller;
+package uk.ac.ebi.phenotype.web.controller.sitemap;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author mrelac
  */
 @XmlAccessorType(value = XmlAccessType.NONE)
-@XmlRootElement(name = "sitemapindex", namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")
-public class XmlSitemapIndex {
-
-    @XmlElements({@XmlElement(name = "sitemap", type = XmlSitemapSet.class)})
+@XmlRootElement(name = "sitemapset")
+public class XmlSitemapSet {
+    @XmlElements({@XmlElement(name = "sitemap", type = XmlSitemap.class)})
     private final Collection<XmlSitemap> xmlSitemaps = new ArrayList();
 
     public void addSitemap(XmlSitemap xmlSitemap) {
