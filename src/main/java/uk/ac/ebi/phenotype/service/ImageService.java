@@ -333,7 +333,7 @@ public class ImageService {
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
 
-		logger.info("getControlImagesForProcedure solr query: {}/select?{}", solr.getBaseURL(), solrQuery);
+		logger.debug("getControlImagesForProcedure solr query: {}/select?{}", solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
