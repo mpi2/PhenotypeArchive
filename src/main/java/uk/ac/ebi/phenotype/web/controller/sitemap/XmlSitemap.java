@@ -18,78 +18,43 @@
  * limitations under the License.
  */
 
-package uk.ac.ebi.phenotype.web.controller;
+package uk.ac.ebi.phenotype.web.controller.sitemap;
 
 import com.redfin.sitemapgenerator.W3CDateFormat;
+
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Date;
 import java.util.TimeZone;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author mrelac
  */
-@XmlAccessorType(value = XmlAccessType.NONE)
-@XmlRootElement(name = "url")
-public class XmlUrl {
+public class XmlSitemap {
     
     private W3CDateFormat dateFormat;
     
-    public XmlUrl() {
-        this(null, Priority.MEDIUM);
+    public XmlSitemap() {
+        this("");
     }
-
-    public XmlUrl(String loc, Priority priority) {
+    public XmlSitemap(String loc) {
         dateFormat = new W3CDateFormat(W3CDateFormat.Pattern.DAY);
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         lastmod = dateFormat.format(new Date());
         this.loc = loc;
-        this.priority = priority.getValue();
     }
 
     @XmlElement
-    private String loc;
+    private final String loc;
 
     @XmlElement
-    private String lastmod;
+    private final String lastmod;
     
-    @XmlElement
-    private final String changefreq = "weekly";
-
-    @XmlElement
-    private String priority;
-
     public String getLoc() {
         return loc;
     }
 
-    public String getPriority() {
-        return priority;
-    }
-
-    public String getChangefreq() {
-        return changefreq;
-    }
-
     public String getLastmod() {
         return lastmod;
-    }
-    
-    public enum Priority {
-        HIGH("1.0"),
-        MEDIUM("0.5");
-
-        private final String value;
-
-        Priority(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 }
