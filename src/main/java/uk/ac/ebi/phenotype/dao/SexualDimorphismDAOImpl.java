@@ -171,9 +171,9 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 		header.add("parameter");
 		header.add("dependent_variable");
 		header.add("female_mutants");
-		header.add("female_contols");
+		header.add("female_controls");
 		header.add("male_mutants");
-		header.add("male_contols");
+		header.add("male_controls");
 		header.add("classification");
 		header.add("globalPValue");
 		header.add("standardEffectSize");
