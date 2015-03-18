@@ -21,7 +21,7 @@ function getURLParameter(sParam, location)
     for (var i = 0; i < sURLVariables.length; i++) 
     {
         var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == 'omero_gateway_root') 
+        if (sParameterName[0] == 'omero_gateway_root') //set the default omero url to be this
         {
         	console.log('setting omero_gateway_root='+sParameterName[1]);
         	omero_gateway_root=sParameterName[1];
@@ -111,8 +111,7 @@ var docs;
 		}else{
 			frame.attr('src', 'control_images_error.html');
 		}
-		frame.html('No images here for '+controlOrExp);
-		}
+}
 	
 	
 function displayDocAnnotations(doc, frame){
