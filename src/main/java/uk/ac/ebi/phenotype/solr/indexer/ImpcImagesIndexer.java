@@ -144,7 +144,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setOmeroId(omeroId);
 
 					
-					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId) || (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
+					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId) ){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
 						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
 						//logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);

@@ -21,7 +21,7 @@ function getURLParameter(sParam, location)
     for (var i = 0; i < sURLVariables.length; i++) 
     {
         var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == 'omero_gateway_root') 
+        if (sParameterName[0] == 'omero_gateway_root') //set the default omero url to be this
         {
         	console.log('setting omero_gateway_root='+sParameterName[1]);
         	omero_gateway_root=sParameterName[1];
@@ -111,12 +111,11 @@ var docs;
 		}else{
 			frame.attr('src', 'control_images_error.html');
 		}
-		frame.html('No images here for '+controlOrExp);
-		}
+}
 	
 	
 function displayDocAnnotations(doc, frame){
-	frame.attr('src', url+doc.omero_id);
+	frame.attr('src', doc.jpeg_url.replace('render_image', 'img_detail'));//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
 	//frame.attr('src','http://omeroweb.jax.org/omero/webgateway/img_detail/7541/?c=1%7C0:255$FF0000,2%7C0:255$00FF00,3%7C0:255$0000FF&m=c&p=normal&ia=0&q=0.9&zm=6.25&t=1&z=1&x=50824&y=19576');
 	$('#annotations').html(getAnnoataionsDisplayString(doc));
 }
