@@ -163,7 +163,7 @@ ga('send', 'pageview');
 <%-- Always use www.mousephenotype.org as the canonical domain, except for bare pages --%>
 <c:choose>
 <c:when test="${param['bare'] == null}">
-	<link rel="canonical" href="http://www.mousephenotype.org/data<%= ((String) request.getAttribute("javax.servlet.forward.request_uri")).replaceAll("/phenotype-archive", "") %>" />
+	<link rel="canonical" href="http://www.mousephenotype.org/data<%= ((String) request.getAttribute("javax.servlet.forward.request_uri")).replaceAll(request.getContextPath(), "") %>" />
 </c:when>
 </c:choose>
 
