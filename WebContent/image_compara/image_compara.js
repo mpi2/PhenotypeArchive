@@ -120,10 +120,14 @@ function displayDocAnnotations(doc, frame){
 	$('#annotations').html(getAnnoataionsDisplayString(doc));
 }
 function getAnnoataionsDisplayString(doc){
-	var label= doc.biological_sample_group+ annotationBreak+doc.sex+annotationBreak+doc.full_resolution_file_path.substring(doc.full_resolution_file_path.lastIndexOf("/")+1, doc.full_resolution_file_path.length);
+	var label= annotationBreak+doc.sex+annotationBreak+doc.full_resolution_file_path.substring(doc.full_resolution_file_path.lastIndexOf("/")+1, doc.full_resolution_file_path.length);
 	
 	if(doc.biological_sample_group === 'experimental'){
 		label+=annotationBreak+doc.zygosity+annotationBreak+doc.allele_symbol;
+	}
+	
+	if(doc.parameter_association_name){
+		label+=annotationBreak+doc.parameter_association_name+annotationBreak+doc.parameter_association_value;
 	}
 	return label;
 }
