@@ -160,6 +160,12 @@ ga('send', 'pageview');
 
 <jsp:invoke fragment="header" />
 
+<%-- Always use www.mousephenotype.org as the canonical domain, except for bare pages --%>
+<c:choose>
+<c:when test="${param['bare'] == null}">
+	<link rel="canonical" href="http://www.mousephenotype.org/data<%= ((String) request.getAttribute("javax.servlet.forward.request_uri")).replaceAll(request.getContextPath(), "") %>" />
+</c:when>
+</c:choose>
 
 </head>
 
@@ -230,12 +236,6 @@ ga('send', 'pageview');
 
 			<p class="textright">&copy; 2015 IMPC &middot; International Mouse Phenotyping Consortium</p>
 
-			<div id="fn">
-				<ul>
-					<li><a href="#">Imprint</a></li>
-					<li><a href="#">Legal notices</a></li>
-				</ul>
-			</div>
 			<div class="clear"></div>
 
 		</div>
