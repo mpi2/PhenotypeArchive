@@ -781,9 +781,8 @@ public class DataTableController {
 					String thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
 					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 				}		
-				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
+				rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
 				
-				// image path
 				String imgPath = fetchImpcImagePathByAnnotName(query, defaultFqStr);
 				rowData.add(imgPath);
 				

@@ -31,8 +31,10 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         // Use the drupal destination parameter to redirect back to this page
         // after logging in
         String dest = (String)request.getAttribute("javax.servlet.forward.request_uri");
+		String destUnEncoded = dest;
         if(request.getQueryString()!=null) {
-        	dest += URLEncoder.encode("?"+request.getQueryString(), "UTF-8");        	
+        	dest += URLEncoder.encode("?"+request.getQueryString(), "UTF-8");
+			destUnEncoded += "?"+request.getQueryString();
         }
 
         String usermenu = menus[0]
@@ -160,8 +162,14 @@ ga('send', 'pageview');
 
 <jsp:invoke fragment="header" />
 
+<%-- Always use www.mousephenotype.org as the canonical domain, except for bare pages --%>
+<c:choose>
+<c:when test="${param['bare'] == null}">
+	<link rel="canonical" href="http://www.mousephenotype.org/data<%= destUnEncoded.replaceAll(request.getContextPath(), "") %>" />
+</c:when>
+</c:choose>
 
-</head>
+	</head>
 
 
 <jsp:invoke fragment="bodyTag"/>
@@ -230,12 +238,6 @@ ga('send', 'pageview');
 
 			<p class="textright">&copy; 2015 IMPC &middot; International Mouse Phenotyping Consortium</p>
 
-			<div id="fn">
-				<ul>
-					<li><a href="#">Imprint</a></li>
-					<li><a href="#">Legal notices</a></li>
-				</ul>
-			</div>
 			<div class="clear"></div>
 
 		</div>
