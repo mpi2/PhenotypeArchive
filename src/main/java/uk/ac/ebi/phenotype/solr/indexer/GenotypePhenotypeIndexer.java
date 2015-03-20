@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
-
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -20,6 +18,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import uk.ac.ebi.phenotype.service.MpOntologyService;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBeanList;
 
 /**
  * Populate the Genotype-Phenotype core
@@ -44,12 +44,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
     SolrServer gpSolrServer;
+    
+    @Autowired
+    MpOntologyService mpOntologyService;
 
     Map<Integer, ImpressBean> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBean> procedureMap = new HashMap<>();
     Map<Integer, ImpressBean> parameterMap = new HashMap<>();
-    Map<String, List<OntologyTermBean>> mpTopTerms = new HashMap<>();
-    Map<String, List<OntologyTermBean>> mpIntTerms = new HashMap<>();
 
     public GenotypePhenotypeIndexer() {
     }
@@ -75,9 +76,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         try {
 
             connection = komp2DataSource.getConnection();
-
-            mpTopTerms = IndexerMap.getMpTopLevelTerms(ontodbDataSource.getConnection());
-            mpIntTerms = IndexerMap.getMpIntermediateLevelTerms(ontodbDataSource.getConnection());
 
             logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
@@ -221,39 +219,17 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
                 doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
 
-                List<String> termIds = new ArrayList<>();
-                List<String> termNames = new ArrayList<>();
-                Set<String> termSynonyms = new HashSet<>();
-                List<String> termDefinitions = new ArrayList<>();
-                if (mpTopTerms.get(r.getString("mp_term_id")) != null) {
-                    for (OntologyTermBean term : new HashSet<>(mpTopTerms.get(r.getString("mp_term_id")))) {
-                        termIds.add(term.getTermId());
-                        termNames.add(term.getName());
-                        termSynonyms.addAll(term.getSynonyms());
-                        termDefinitions.add(term.getDefinition());
-                    }
-                    doc.setTopLevelMpTermId(termIds);
-                    doc.setTopLevelMpTermName(termNames);
-                    doc.setTopLevelMpTermSynonym(new ArrayList(termSynonyms));
-                    doc.setTopLevelMpTermDefinition(termDefinitions);
-                }
-
-                termIds = new ArrayList<>();
-                termNames = new ArrayList<>();
-                termSynonyms = new HashSet<>();
-                termDefinitions = new ArrayList<>();
-                if (mpIntTerms.get(r.getString("mp_term_id")) != null) {
-                    for (OntologyTermBean term : new HashSet<>(mpIntTerms.get(r.getString("mp_term_id")))) {
-                        termIds.add(term.getTermId());
-                        termNames.add(term.getName());
-                        termSynonyms.addAll(term.getSynonyms());
-                        termDefinitions.add(term.getDefinition());
-                    }
-                    doc.setIntermediateMpTermId(termIds);
-                    doc.setIntermediateMpTermName(termNames);
-                    doc.setIntermediateMpTermSynonym(new ArrayList(termSynonyms));
-                    doc.setIntermediateMpTermDefinition(termDefinitions);
-                }
+                String mpId = r.getString("mp_term_id");
+                OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
+                doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
+                doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+                doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
+                doc.setTopLevelMpTermDefinition(beanlist.getTopLevels().getDefinitions());
+                
+                doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
+                doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
+                doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());
+                doc.setIntermediateMpTermDefinition(beanlist.getIntermediates().getDefinitions());
 
                 documentCount++;
                 gpSolrServer.addBean(doc, 30000);
@@ -273,7 +249,5 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         } catch (Exception e) {
             logger.error("Big error {}", e.getMessage(), e);
         }
-
     }
-
 }

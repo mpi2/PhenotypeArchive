@@ -185,7 +185,11 @@
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
-
+    
+    <bean id="hpOntologyService" class="uk.ac.ebi.phenotype.service.HpOntologyService" />
+    <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
+    <bean id="mpOntologyService" class="uk.ac.ebi.phenotype.service.MpOntologyService" />
+    <bean id="mpathOntologyService" class="uk.ac.ebi.phenotype.service.MpathOntologyService" />
 
     <!-- used for concurrently loading the statistical results core -->
     <bean id="statisticalResultsIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
