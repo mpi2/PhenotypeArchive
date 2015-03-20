@@ -25,8 +25,6 @@
     <task:annotation-driven mode="proxy" executor="executorService" />
     <task:executor id="threadPoolTaskExecutor" />
 
-    <context:component-scan base-package="uk.ac.ebi" />
-
     <!-- Define the global parameters used when deploying without maven -->
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -208,7 +206,12 @@
     <bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
         <constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
     </bean>
-	
+    
+    <bean id="hpOntologyService" class="uk.ac.ebi.phenotype.service.HpOntologyService" />
+    <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
+    <bean id="mpOntologyService" class="uk.ac.ebi.phenotype.service.MpOntologyService" />
+    <bean id="mpathOntologyService" class="uk.ac.ebi.phenotype.service.MpathOntologyService" />
+    
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
         <property name="dataSource" ref="komp2DataSource"/>
         <property name="packagesToScan" value="uk.ac.ebi.phenotype"/>

@@ -12,7 +12,6 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OrganisationBean;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
-
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -20,6 +19,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import uk.ac.ebi.phenotype.service.MpOntologyService;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBeanList;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -42,10 +43,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("statisticalResultsIndexing")
     SolrServer statResultCore;
-
-    Map<String, List<OntologyTermBean>> mpTopTerms = new HashMap<>();
-    Map<String, List<OntologyTermBean>> mpIntTerms = new HashMap<>();
-    Map<String, OntologyTermBean> mpTerms = new HashMap<>();
+    
+    @Autowired
+    MpOntologyService mpOntologyService;
 
     Map<Integer, ImpressBean> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBean> procedureMap = new HashMap<>();
@@ -80,13 +80,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         try {
 
             connection = komp2DataSource.getConnection();
-
-            logger.info("Populating mp maps");
-            mpTopTerms = IndexerMap.getMpTopLevelTerms(ontodbDataSource.getConnection());
-            mpIntTerms = IndexerMap.getMpIntermediateLevelTerms(ontodbDataSource.getConnection());
-            mpTerms = IndexerMap.getMpTerms(ontodbDataSource.getConnection());
-            logger.info("MP terms has {} entries", mpTerms.size());
-
+            
             logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
@@ -455,40 +449,17 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		/*
          TODO: The sexes can have different MP terms!!!  Need to handle this case
          */
-        OntologyTermBean otBean = mpTerms.get(r.getString("mp_acc"));
-        if (otBean != null) {
-            doc.setMpTermId(otBean.getTermId());
-            doc.setMpTermName(otBean.getName());
-        }
-
-        List<String> termIds = new ArrayList<>();
-        List<String> termNames = new ArrayList<>();
-        Set<String> termSynonyms = new HashSet<>();
-        List<String> termDefinitions = new ArrayList<>();
-        if (doc.getMpTermId() != null && mpTopTerms.containsKey(doc.getMpTermId())) {
-            for (OntologyTermBean term : new HashSet<>(mpTopTerms.get(doc.getMpTermId()))) {
-                termIds.add(term.getTermId());
-                termNames.add(term.getName());
-                termSynonyms.addAll(term.getSynonyms());
-                termDefinitions.add(term.getDefinition());
-            }
-            doc.setTopLevelMpTermId(termIds);
-            doc.setTopLevelMpTermName(termNames);
-        }
-
-        termIds = new ArrayList<>();
-        termNames = new ArrayList<>();
-        termSynonyms = new HashSet<>();
-        termDefinitions = new ArrayList<>();
-        if (doc.getMpTermId() != null && mpIntTerms.containsKey(doc.getMpTermId())) {
-            for (OntologyTermBean term : new HashSet<>(mpIntTerms.get(doc.getMpTermId()))) {
-                termIds.add(term.getTermId());
-                termNames.add(term.getName());
-                termSynonyms.addAll(term.getSynonyms());
-                termDefinitions.add(term.getDefinition());
-            }
-            doc.setIntermediateMpTermId(termIds);
-            doc.setIntermediateMpTermName(termNames);
+        OntologyTermBean bean = mpOntologyService.getTerm(r.getString("mp_acc"));
+        if (bean != null) {
+            doc.setMpTermId(bean.getId());
+            doc.setMpTermName(bean.getName());
+            
+            OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+            doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
+            doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+            
+            doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
+            doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
         }
 
         return doc;
@@ -593,5 +564,4 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         public String strainName;
         public String zygosity;
     }
-
 }

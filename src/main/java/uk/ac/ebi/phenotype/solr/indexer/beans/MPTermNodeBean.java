@@ -18,7 +18,9 @@ package uk.ac.ebi.phenotype.solr.indexer.beans;
 /**
  * @author Matt Pearce
  *
+ * @deprecated We should be using <code>OntologyTermBean</code> instead.
  */
+@Deprecated
 public class MPTermNodeBean {
 
 	private String termId;
