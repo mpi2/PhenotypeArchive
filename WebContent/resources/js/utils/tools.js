@@ -1813,11 +1813,11 @@
             	
                 oParams.bq = 'marker_symbol:' + q.replace(/\*/g, '') + '^1000';
                         + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800';
-                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^700'
-                        + ' marker_name:' + q.replace(/\*/g, '') + '^500';
+                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
+                        + ' marker_name:' + q.replace(/\*/g, '') + '^200';
             }
             else {
-                oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^700 marker_name^500';
+                oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
             }
         }
         else if (facet == 'mp') {
