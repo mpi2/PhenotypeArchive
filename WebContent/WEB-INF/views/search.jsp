@@ -358,8 +358,8 @@
 		       			$.ajax({
 		       				
 		       				// use double qf fields to deal with exact and partial string match
-			       			//url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax",
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
+			       			//url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax",
 			       			dataType: "jsonp",
 			       			'jsonp': 'json.wrf',
 			       			data: {
@@ -505,7 +505,6 @@
    				
    				//console.log('hash change URL: '+ '/search' + hashStr);
    				var oUrlParams = _process_hash();
-   				oUrlParams = $.fn.addProteinCodingGeneFilter(oUrlParams);
    				//console.log(oUrlParams)
    				
    				/* deals with 3 events here:

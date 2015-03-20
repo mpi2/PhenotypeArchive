@@ -121,7 +121,6 @@
             $.fn.doBatchFacetCountUpdate(q);
         }
 
-
         MPI2.searchAndFacetConfig.update.filterChange = false;
         $.fn.loadDataTable(oConf1);
     };
@@ -151,14 +150,25 @@
         	facetFields.pipeline = fieldConf.pipelineFacet.subFacetFqFields;
         }
         
-
+        var showProteinCodingGeneCount = false;
+        
         var facetUrls = {};
         for (var facet in facetFields) {
 
             var solrbaseUrl = solrUrl + '/' + facet + '/select?';
             var fqStr = $.fn.getCurrentFq(facet).replace(/img_|impcImg_/g, '');
+          
+            if ( facet == 'gene' && q == '*%3A*' && fqStr == '*:*' ){
+            	showProteinCodingGeneCount = true;
+            } 
             
             facetUrls[facet] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
+            if ( facet == 'gene' ){
+            	fqStr = 'marker_type:"protein coding gene"';
+            	// gene2 is a pseudo facet to fetch number of protein coding genes 
+            	// for Gene main facet on default search page
+            	facetUrls["gene2"] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
+            }
         }
 
         //console.log(facetUrls);
@@ -177,6 +187,11 @@
                     var core = cores[i];
                     var solrFqStr = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
                     var oConf = {'facet': core, 'fqStr': solrFqStr, 'q': q, 'json': subFacetJsons[core]};
+
+                    if ( showProteinCodingGeneCount && core == 'gene' ){
+                    	// swap gene2 with gene to get number of  protein coding gene 
+                    	oConf.json.response = subFacetJsons.gene2.response;
+                    }
                     var facetCountsUpdater = new FacetCountsUpdater(oConf);
                     facetCountsUpdater.updateFacetCounts();
                 }
@@ -444,25 +459,9 @@
        
         oUrlParams.fq = oUrlParams.fq.replace(/img_|impcImg_/g, ''); // so that this matches the copyField of images
         
-        // show main facet gene count as protein_coding genes count
-        oUrlParams = $.fn.addProteinCodingGeneFilter(oUrlParams);
-       
         $.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
 
     };
-
-    $.fn.addProteinCodingGeneFilter = function(oUrlParams){
-    	
-    	if ( $.isEmptyObject(oUrlParams) ){
-    		oUrlParams.fq = 'marker_type:"protein coding gene"';
-    	}
-    	else if ( oUrlParams.widgetName == 'geneFacet' && oUrlParams.q == '*:*' && oUrlParams.fq == "*:*" ){
-			oUrlParams.fq = 'marker_type:"protein coding gene"';
-		}
-		
-		return oUrlParams;
-    	
-    }
     
     function _facetRefresh(json, selectorBase) {
 
@@ -1932,17 +1931,7 @@
         }
 
         oParams.fq = oUrlParams.fq;
-        //oParams.rows = 10;
-
-        //qs(query slop) parameter can be used to add slop to any explicit phrase queries
-        //oParams.qs = 100;
-
-        /*
-         oParams.hl = 'true';
-         oParams['hl.snippets']=100; // otherwise only one in each field is return, and 100 should be enough to catch all for synonyms field, etc    	    	
-         oParams['hl.fl'] = '*';    	
-         */
-
+       
         // bq, qf, pf for solr result relevance 
 
         if (facetDivId == 'geneFacet') {
@@ -1954,7 +1943,11 @@
 
         oParams.q = oUrlParams.q;
         oParams.q = $.fn.process_q(oParams.q);
-
+        
+        if ( oParams.q == '*:*' && oParams.fq == '*:*' ){
+        	oParams.fq = 'marker_type:"protein coding gene"';
+        }
+        
         oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);
 
         if (oUrlParams.widgetName == 'geneFacet') {
@@ -1972,7 +1965,6 @@
         if (typeof oUrlParams.facetName == 'undefined') {
             //oInfos.solrCoreName = coreName;
             oUrlParams.solrCoreName = coreName;
-
         }
         else {
             //oInfos.facetName = oUrlParams.facetName; 
