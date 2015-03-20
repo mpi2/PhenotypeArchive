@@ -624,6 +624,21 @@ public class TestUtils {
         return (url.replace("https://", "").replace("http://", ""));
     }
     
+    public enum HTTP_PROTOCOL {
+        http
+      , https
+    };
+    
+    /**
+     * Sets the protocol (http or https).
+     * @param url url string which may or may not contain a protocol
+     * @param protocol one of: http or https (choose from enum)
+     * @return the url, with the protocol changed, if it exists
+     */
+    public static String setProtocol(String url, HTTP_PROTOCOL protocol) {
+        return (url.replace("https://", protocol.name() + "://").replace("http://", protocol.name() + "://"));
+    }
+    
     /**
      * Scrolls <code>element</code> to the top
      * @param driver <code>WebDriver</code> instance

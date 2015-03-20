@@ -20,8 +20,10 @@
 
 package uk.ac.ebi.phenotype.solr.indexer.beans;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulates an ontology termId, name, termId & name concatenated, and a list
@@ -30,49 +32,23 @@ import java.util.List;
  * @author mrelac
  */
 public class OntologyTermBean {
-    private String termId;
+    private String id;
     private String name;
-    private List<String> synonyms;
     private String definition;
+    private List<String> synonyms;
     
-    /**
-     * Create a new, empty <code>OntologyTermBean</code> instance.
-     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     public OntologyTermBean() {
-        this("", "", new ArrayList<String>(), "");
-    }
-    
-    /**
-     * Create a new<code>OntologyTermBean</code> initialised instance
-     * @param termId the ontology name termId
-     * @param name the name name
-     * @param synonyms a list of synonyms. May be empty or null. If null, a new
-     * <code>ArrayList&lt;String&gt;</code> is created, guaranteeing that it is
-     * not initialised to null.
-     * 
-     * NOTE: A concatenation of termId and name, separated by two underscores,
-     *       is available as a getter.
-     */
-    public OntologyTermBean(String termId, String name, List<String> synonyms, String definition) {
-        this.termId = termId;
-        this.name = name;
-        this.synonyms = synonyms;
-        if (synonyms == null) {
-            this.synonyms = new ArrayList();
-        }
-        this.definition = definition;
+        
     }
 
-    
-    // BEAN SETTERS AND GETTERS
-    
-    
-    public String getTermId() {
-        return termId;
+    public String getId() {
+        return id;
     }
 
-    public void setTermId(String termId) {
-        this.termId = termId;
+    public void setId(String termId) {
+        this.id = termId;
     }
 
     public String getName() {
@@ -83,20 +59,20 @@ public class OntologyTermBean {
         this.name = name;
     }
 
-    public List<String> getSynonyms() {
-        return synonyms;
-    }
-
-    public void setSynonyms(List<String> synonyms) {
-        this.synonyms = synonyms;
-    }
-
     public String getDefinition() {
         return definition;
     }
 
     public void setDefinition(String definition) {
         this.definition = definition;
+    }
+
+    public List<String> getSynonyms() {
+        return synonyms;
+    }
+
+    public void setSynonyms(List<String> synonyms) {
+        this.synonyms = synonyms;
     }
 
 
@@ -112,12 +88,42 @@ public class OntologyTermBean {
      */
     public String getTermIdTermName() {
         String value = "";
-        if (termId != null)
-            value += termId;
+        if (id != null)
+            value += id;
         value += "__";
         if (name != null)
             value += name;
         
         return value;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 67 * hash + Objects.hashCode(this.id);
+        hash = 67 * hash + Objects.hashCode(this.name);
+        hash = 67 * hash + Objects.hashCode(this.definition);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final OntologyTermBean other = (OntologyTermBean) obj;
+        if ( ! Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if ( ! Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if ( ! Objects.equals(this.definition, other.definition)) {
+            return false;
+        }
+        return true;
     }
 }

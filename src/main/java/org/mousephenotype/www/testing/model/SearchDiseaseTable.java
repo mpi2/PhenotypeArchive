@@ -26,8 +26,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -49,6 +47,12 @@ public class SearchDiseaseTable extends SearchFacetTable {
     
     private final List<DiseaseRow> bodyRows = new ArrayList();
     private final GridMap pageData;
+
+    static {
+        byHash.put(SearchFacetTable.BY_TABLE, By.xpath("//table[@id='diseaseGrid']"));
+        byHash.put(SearchFacetTable.BY_TABLE_TR, By.xpath("//table[@id='diseaseGrid']/tbody/tr"));
+        byHash.put(SearchFacetTable.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='diseaseGrid_length']"));
+    }
     
     /**
      * Creates a new <code>SearchDiseaseTable</code> instance.
@@ -57,39 +61,9 @@ public class SearchDiseaseTable extends SearchFacetTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchDiseaseTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, "//table[@id='diseaseGrid']", timeoutInSeconds);
+        super(driver, timeoutInSeconds);
         
         pageData = load();
-    }
-    
-    /**
-     * Return the number of entries currently showing in the 'entries' drop-down
-     * box.
-     *
-     * @return the number of entries currently showing in the 'entries'
-     * drop-down box.
-     */
-    @Override
-    public int getNumEntries() {
-        Select select = new Select(driver.findElement(By.xpath("//select[@name='diseaseGrid_length']")));
-        try {
-            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
-        } catch (NullPointerException npe) {
-            return 0;
-        }
-    }
-    
-    /**
-     * Set the number of entries in the 'entries' drop-down box.
-     * 
-     * @param entriesSelect The new value for the number of entries to show.
-     */
-    @Override
-    public void setNumEntries(EntriesSelect entriesSelect) {
-        String xpathValue = "//select[@name='diseaseGrid_length']";
-        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
-        select.selectByValue(Integer.toString(entriesSelect.getValue()));
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
     }
     
     /**
@@ -187,16 +161,6 @@ public class SearchDiseaseTable extends SearchFacetTable {
         return new GridMap(pageArray, driver.getCurrentUrl());
     }
     
-    /**
-     *
-     * @return the number of rows in the "geneGrid" table. Always include 1
-     * extra for the heading.
-     */
-    private int computeTableRowCount() {
-        // Wait for page.
-        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='diseaseGrid']/tbody/tr")));
-        return elements.size() + 1;
-    }
     
     
     // PRIVATE CLASSES
@@ -207,10 +171,6 @@ public class SearchDiseaseTable extends SearchFacetTable {
         private String diseaseIdLink = "";
         private String diseaseName = "";
         private String source = "";
-        private boolean hasCuratedGenesInHuman = false;
-        private boolean hasCuratedGenesInMice = false;
-        private boolean hasCandidateGenesByPhenotypeIMPC = false;
-        private boolean hasCandidateGenesByPhenotypeMGI = false;
     }
 
 }

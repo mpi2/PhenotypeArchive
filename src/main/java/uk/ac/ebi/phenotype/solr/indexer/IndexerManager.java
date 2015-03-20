@@ -190,8 +190,6 @@ public class IndexerManager {
     @Autowired
     AutosuggestIndexer autosuggestIndexer;
     
-    
-    private String buildIndexesSolrUrl;
     private IndexerItem[] indexerItems;
     
     public String[] args;
@@ -255,9 +253,7 @@ public class IndexerManager {
             } else {
                 throw new IndexerException("Failed to parse command-line options.");
             }
-
-            buildIndexesSolrUrl = config.get("buildIndexesSolrUrl");
-
+            
             // Print the jvm memory configuration.
             printJvmMemoryConfiguration();
         } catch (Exception e) {

@@ -31,8 +31,5 @@ public class DownloadSearchMapImagesImageView {
     public final static int COL_INDEX_ANNOTATION_TERMS    = 0;
     public final static int COL_INDEX_ANNOTATION_IDS      = 1;
     public final static int COL_INDEX_ANNOTATION_ID_LINKS = 2;
-    public final static int COL_INDEX_PROCEDURES          = 3;
-    public final static int COL_INDEX_GENE_SYMBOLS        = 4;
-    public final static int COL_INDEX_GENE_SYMBOL_LINKS   = 5;
-    public final static int COL_INDEX_IMAGE_LINK          = 6;
+    public final static int COL_INDEX_IMAGE_LINK          = 3;
 }

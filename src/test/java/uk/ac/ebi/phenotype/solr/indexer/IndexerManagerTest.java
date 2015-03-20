@@ -31,6 +31,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -47,6 +49,8 @@ public class IndexerManagerTest {
 
     @Autowired
     protected GeneService geneService;
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     protected String externalDevUrl = "http://ves-ebi-d0:8090/mi/impc/dev/solr";
     
@@ -1078,6 +1082,7 @@ public class IndexerManagerTest {
         }
      }
      
+//@Ignore
      @Test
      public void testGetSolrCoreDocumentCount() throws Exception {
          String querySegment = "/allele/select?q=*:*&rows=0&wt=json";
@@ -1126,7 +1131,7 @@ public class IndexerManagerTest {
 //     public void testStaticBuildCores() {
 //        String testName = "testStaticBuildCores";
 //        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
+//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=genotype-phenotype" };
 //        logger.info("Command line = " + StringUtils.join(args, ","));
 //        int retVal =  IndexerManager.mainReturnsStatus(args);
 //         
