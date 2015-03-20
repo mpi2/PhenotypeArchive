@@ -205,7 +205,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 									List<OntologyTermBean> topLevels = maService
 											.getTopLevel(maTermId);
 									for (OntologyTermBean topLevel : topLevels) {
-										System.out.println(topLevel.getName());
+										//System.out.println(topLevel.getName());
 										topLevelMaIds.add(topLevel.getId());
 										topLevelMaTerm.add(topLevel.getName());
 										topLevelMaTermSynonym.addAll(topLevel
