@@ -20,6 +20,14 @@
         <property name="username" value="${komp2username}" />
         <property name="password" value="${komp2password}" />
     </bean>
+    
+    <!-- <bean id="admintoolsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="${admintoolsurl}" />
+        <property name="username" value="${admintoolsusername}" />
+        <property name="password" value="${admintoolspassword}" />
+    </bean> -->
+    
     <bean id="ontodbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
         <property name="url" value="${ontodburl}" />
@@ -94,6 +102,12 @@
         <constructor-arg index="1" value="10000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
+    
+    <bean id="preqcReadOnlyIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${internalSolrUrl}/preqc"/>
+        <constructor-arg index="1" value="10000"/> <!--Queue size-->
+        <constructor-arg index="2" value="3"/> <!--Num threads-->
+    </bean>
 
     <!-- used for concurrently loading the experiment core -->
     <bean id="observationIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -126,6 +140,13 @@
     <!-- used for concurrently loading the genotype phenotype core -->
     <bean id="genotypePhenotypeIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/genotype-phenotype"/>
+        <constructor-arg index="1" value="1000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+
+	<!-- used for concurrently loading the genotype phenotype core -->
+    <bean id="genotypePhenotypeReadOnlyIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${internalSolrUrl}/genotype-phenotype"/>
         <constructor-arg index="1" value="1000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
