@@ -249,13 +249,6 @@
             $('div.flist li#' + facet + ' > .flabel').click();
         }
 
-        // toggle Categorie Sections
-        /*$('div.flist li#' + facet).find('li.fcatsection:not(.inactive) .flabel').click(function() {			
-         //$(this).parent('.fcatsection').toggleClass('open'); 
-         alert('fcatsection');
-         });*/
-
-
         $('div.flist ul li#' + facet).find('li.fcatsection').click(function(e) {
 
             // when subfacet opens, tick checkbox facet filter if there is matching summary facet filter (created from url on page load)
@@ -451,10 +444,26 @@
        
         oUrlParams.fq = oUrlParams.fq.replace(/img_|impcImg_/g, ''); // so that this matches the copyField of images
         
+        // show main facet gene count as protein_coding genes count
+        oUrlParams = $.fn.addProteinCodingGeneFilter(oUrlParams);
+       
         $.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
 
     };
 
+    $.fn.addProteinCodingGeneFilter = function(oUrlParams){
+    	
+    	if ( $.isEmptyObject(oUrlParams) ){
+    		oUrlParams.fq = 'marker_type:"protein coding gene"';
+    	}
+    	else if ( oUrlParams.widgetName == 'geneFacet' && oUrlParams.q == '*:*' && oUrlParams.fq == "*:*" ){
+			oUrlParams.fq = 'marker_type:"protein coding gene"';
+		}
+		
+		return oUrlParams;
+    	
+    }
+    
     function _facetRefresh(json, selectorBase) {
 
         // refresh main facet sum count				
@@ -1801,8 +1810,9 @@
                 oParams.qf = 'mgi_accession_id';
             }
             else if (q.match(wildCardStr) && q != '*:*') {
-                oParams.bq = 'marker_symbol:' + q.replace(/\*/g, '') + '^1000'
-                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
+            	
+                oParams.bq = 'marker_symbol:' + q.replace(/\*/g, '') + '^1000';
+                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800';
                         + ' marker_synonym:' + q.replace(/\*/g, '') + '^700'
                         + ' marker_name:' + q.replace(/\*/g, '') + '^500';
             }

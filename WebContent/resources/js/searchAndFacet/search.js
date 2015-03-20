@@ -64,6 +64,10 @@
 	}
 	
 	$.fn.fetchSolrFacetCount = function(oUrlParams){		
+
+		// querybroker takes care of applying marker_type:"protein coding gene" filter
+		// when search page loads by default
+		
 		
 		/* ---- q for SOLR --- */ 
 		var q = oUrlParams.q;
@@ -95,7 +99,6 @@
 	    		MPI2.searchAndFacetConfig.update.mainFacetDone = true;
 	    		
 	    		oFacets.count = facetCountJson;
-	    		//console.log(oFacets.count.gene);
 	    		
 	    		for ( var facet in facetCountJson ){
 	    			_updateMainFacetCount(facet, facetCountJson[facet], facetMode);

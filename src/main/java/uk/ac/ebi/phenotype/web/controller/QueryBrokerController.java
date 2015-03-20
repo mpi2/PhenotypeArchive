@@ -137,6 +137,13 @@ public class QueryBrokerController {
 		while(cores.hasNext()) {
 			
 			String core  = (String) cores.next();
+			
+			String geneParams = jParams.getString("gene");
+			if ( ( geneParams.contains("&q=*:*") || geneParams.contains("&q=*%3A*") ) && geneParams.contains("&fq=*:*") ){
+				geneParams = geneParams.replace("&fq=*:*", "&fq=marker_type:\"protein coding gene\"");
+				jParams.put("gene", geneParams);
+			}
+			
 			String param = jParams.getString(core);
 			String url   = internalSolrUrl + "/" + core + "/select?" + param; 
 			
