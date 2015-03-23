@@ -23,7 +23,7 @@ function getURLParameter(sParam, location)
         var sParameterName = sURLVariables[i].split('=');
         if (sParameterName[0] == 'omero_gateway_root') //set the default omero url to be this
         {
-        	console.log('setting omero_gateway_root='+sParameterName[1]);
+        	//console.log('setting omero_gateway_root='+sParameterName[1]);
         	omero_gateway_root=sParameterName[1];
         }
         if (sParameterName[0] == sParam) 
@@ -42,10 +42,10 @@ var controlOrExp=getURLParameter('controlOrExp', window.location);
 //	controlOrExp='control';
 //};
 
-console.log('control or exp='+controlOrExp);
+//console.log('control or exp='+controlOrExp);
 
-console.log('ctrImgId='+getURLParameter('ctrImgId'));
-console.log('expImgId='+getURLParameter('expImgId'));
+//console.log('ctrImgId='+getURLParameter('ctrImgId'));
+//console.log('expImgId='+getURLParameter('expImgId'));
 var ids=[];
 if(controlOrExp=='experimental'){
 	ids=getURLParameter('expImgId', window.parent.location);
@@ -54,7 +54,7 @@ if(controlOrExp=='experimental'){
 }
 
 //make a solr request for these ids
-console.log('ids='+ids);
+//console.log('ids='+ids);
 if(ids.length!=0){//only search for info related to ids if we have them.
 
 //console.log('solrUrl='+solrUrl);
@@ -81,9 +81,9 @@ var docs;
 	        //initialise navigation to first image annotations
 	        doc=docs[0];
 	        displayDocAnnotations(doc, frame);
-	        console.log('mediaBaseUrl='+mediaBaseUrl);
+	        //console.log('mediaBaseUrl='+mediaBaseUrl);
 	        $('#next').click(function(){
-	        		console.log('nextControl clicked');
+	        		//console.log('nextControl clicked');
 	        		var doc=docs[++i % len];
 //	        		frame.attr('src', url+doc.omero_id);
 //	        		$('#annotations').html(getAnnoataionsDisplayString(doc));
@@ -91,7 +91,7 @@ var docs;
 	        	});
 	
 	        $('#prev').click(function(){
-	        	console.log('nextControl clicked');
+	        	//console.log('nextControl clicked');
 	        	var doc=docs[--i % len];
 	        	displayDocAnnotations(doc, frame);
 //	        	frame.attr('src', url+doc.omero_id);
@@ -104,7 +104,7 @@ var docs;
 	
 
 }else{//else we don't have ids so display an error to the user
-		console.log('no ids for '+controlOrExp);
+		//console.log('no ids for '+controlOrExp);
 		var frame = $('#'+controlOrExp, window.parent.document);
 		if(controlOrExp=='experimental'){
 			frame.attr('src', 'experimental_images_error.html');
