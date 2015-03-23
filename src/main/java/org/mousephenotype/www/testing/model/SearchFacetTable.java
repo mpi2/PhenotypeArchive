@@ -229,8 +229,8 @@ public abstract class SearchFacetTable {
         for (String[] row : downloadDataArray) {
             List rowList = Arrays.asList(row);
             downloadDataList.add(rowList);
-        }
-        
+        } 
+       
         GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
         
         // Do a set difference between the rows on the first displayed page
@@ -244,12 +244,14 @@ public abstract class SearchFacetTable {
         Set difference = TestUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
-            System.out.println("ERROR: The following data was found on the page but not in the download:");
+            System.out.println("SearchFacetTable.validateDownloadInternal(): Page data not found in download:");
             Iterator it = difference.iterator();
             int i = 0;
             while (it.hasNext()) {
                 String value = (String)it.next();
-                System.out.println("[" + i++ + "]: " + value);
+                System.out.println("[" + i + "]:\t page data: " + value);
+                System.out.println("\t download data: " + TestUtils.closestMatch(downloadSet, value) + "\n");
+                i++;
                 errorCount++;
             }
         }

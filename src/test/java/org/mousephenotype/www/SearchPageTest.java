@@ -857,17 +857,17 @@ public class SearchPageTest {
             }
 
             SearchPage.Facet[] facets = {
-//                  SearchPage.Facet.ANATOMY
-//                , SearchPage.Facet.DISEASES
-//                , SearchPage.Facet.GENES
-//                  SearchPage.Facet.IMAGES
-//                , SearchPage.Facet.IMPC_IMAGES
-                  SearchPage.Facet.PHENOTYPES
+                  SearchPage.Facet.ANATOMY
+                , SearchPage.Facet.DISEASES
+                , SearchPage.Facet.GENES
+                , SearchPage.Facet.IMAGES
+                , SearchPage.Facet.IMPC_IMAGES
+                , SearchPage.Facet.PHENOTYPES
             };
 
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
-//                searchPage.clickPageButton();
+                searchPage.clickPageButton();
 //searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
 //TestUtils.sleep(5000);
                 searchPage.setNumEntries(SearchFacetTable.EntriesSelect._10);
