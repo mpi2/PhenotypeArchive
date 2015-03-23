@@ -1817,7 +1817,6 @@
             }
             else {
                 //oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
-            	oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g, '') + '^1000';
             	oParams.pf = 'marker_symbol_lowercase^1000 human_gene_symbol^500';
             }
         }
