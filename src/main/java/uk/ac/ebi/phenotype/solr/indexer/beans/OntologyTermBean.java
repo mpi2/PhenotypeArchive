@@ -20,8 +20,10 @@
 
 package uk.ac.ebi.phenotype.solr.indexer.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,7 @@ public class OntologyTermBean {
     private String id;
     private String name;
     private String definition;
-    private List<String> synonyms;
+    private List<String> synonyms=new ArrayList<>();
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     

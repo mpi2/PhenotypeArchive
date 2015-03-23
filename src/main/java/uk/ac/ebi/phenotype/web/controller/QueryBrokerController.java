@@ -137,8 +137,14 @@ public class QueryBrokerController {
 		while(cores.hasNext()) {
 			
 			String core  = (String) cores.next();
+			
 			String param = jParams.getString(core);
-			String url   = internalSolrUrl + "/" + core + "/select?" + param; 
+			//System.out.println(core + " -- " + param);
+			
+			// gene2 is a pseudo core to get only protein coding genes count for 
+			// Genes main facet count on default search page 
+			String solrCore = core.equals("gene2") ? "gene" : core; 
+			String url = internalSolrUrl + "/" + solrCore + "/select?" + param; 
 			
 			String key = core+param;
 			Object o = cache.get(key);

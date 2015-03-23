@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import uk.ac.ebi.phenotype.service.ImageService;
+import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
@@ -52,6 +54,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
+	
+	@Autowired
+	MaOntologyService maService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -180,20 +185,59 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (imageDTO.getParameterAssociationStableId()!=null && !imageDTO.getParameterAssociationStableId().isEmpty()) {
 						
 						ArrayList<String>maIds=new ArrayList<>();
+						ArrayList<String>maTerms=new ArrayList<>();
+						ArrayList<String>maTermSynonyms=new ArrayList<>();
+						ArrayList<String>topLevelMaIds=new ArrayList<>();
+						ArrayList<String>topLevelMaTerm=new ArrayList<>();
+						ArrayList<String>topLevelMaTermSynonym=new ArrayList<>();
 						for (String paramString : imageDTO.getParameterAssociationStableId()) {
 							if (parameterStableIdToMaTermIdMap
 									.containsKey(paramString)) {
-								String maTerm = parameterStableIdToMaTermIdMap
+								String maTermId = parameterStableIdToMaTermIdMap
 										.get(paramString);
-								
-									maIds.add(maTerm);
+									maIds.add(maTermId);
+								OntologyTermBean maTermBean = maService
+										.getTerm(maTermId);
+								if (maTermBean != null) {
+									maTerms.add(maTermBean.getName());
+									maTermSynonyms.addAll(maTermBean
+											.getSynonyms());
+									List<OntologyTermBean> topLevels = maService
+											.getTopLevel(maTermId);
+									for (OntologyTermBean topLevel : topLevels) {
+										//System.out.println(topLevel.getName());
+										topLevelMaIds.add(topLevel.getId());
+										topLevelMaTerm.add(topLevel.getName());
+										topLevelMaTermSynonym.addAll(topLevel
+												.getSynonyms());
+									}
+								}
+//									<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//									<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//									<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 								//selected_top_level_ma_term
 								//String selectedTopLevelMaTerm=
 							}
 							// IndexerMap.get
 						}
-						if(!maIds.isEmpty()){
-						imageDTO.setMaTermId(maIds);
+						if (!maIds.isEmpty()) {
+							imageDTO.setMaTermId(maIds);
+						}
+						if (!maTerms.isEmpty()) {
+							imageDTO.setMaTerm(maTerms);
+						}
+						if (!maTermSynonyms.isEmpty()) {
+							imageDTO.setMaTermSynonym(maTermSynonyms);
+						}
+						if (!topLevelMaIds.isEmpty()) {
+							imageDTO.setTopLevelMaId(topLevelMaIds);
+						}
+						if(!topLevelMaTerm.isEmpty()){
+							imageDTO.setTopLevelMaTerm(topLevelMaTerm);
+						}
+						if(!topLevelMaTermSynonym.isEmpty()){
+							imageDTO.setTopLevelMaTermSynonym(topLevelMaTermSynonym);
 						}
 					}
 					server.addBean(imageDTO);

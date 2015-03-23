@@ -121,7 +121,6 @@
             $.fn.doBatchFacetCountUpdate(q);
         }
 
-
         MPI2.searchAndFacetConfig.update.filterChange = false;
         $.fn.loadDataTable(oConf1);
     };
@@ -151,14 +150,25 @@
         	facetFields.pipeline = fieldConf.pipelineFacet.subFacetFqFields;
         }
         
-
+        var showProteinCodingGeneCount = false;
+        
         var facetUrls = {};
         for (var facet in facetFields) {
 
             var solrbaseUrl = solrUrl + '/' + facet + '/select?';
             var fqStr = $.fn.getCurrentFq(facet).replace(/img_|impcImg_/g, '');
+          
+            if ( facet == 'gene' && q == '*%3A*' && fqStr == '*:*' ){
+            	showProteinCodingGeneCount = true;
+            } 
             
             facetUrls[facet] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
+            if ( facet == 'gene' ){
+            	fqStr = 'marker_type:"protein coding gene"';
+            	// gene2 is a pseudo facet to fetch number of protein coding genes 
+            	// for Gene main facet on default search page
+            	facetUrls["gene2"] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
+            }
         }
 
         //console.log(facetUrls);
@@ -177,6 +187,11 @@
                     var core = cores[i];
                     var solrFqStr = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
                     var oConf = {'facet': core, 'fqStr': solrFqStr, 'q': q, 'json': subFacetJsons[core]};
+
+                    if ( showProteinCodingGeneCount && core == 'gene' ){
+                    	// swap gene2 with gene to get number of  protein coding gene 
+                    	oConf.json.response = subFacetJsons.gene2.response;
+                    }
                     var facetCountsUpdater = new FacetCountsUpdater(oConf);
                     facetCountsUpdater.updateFacetCounts();
                 }
@@ -248,13 +263,6 @@
         if (!$('div.flist li#' + facet).hasClass('open')) {
             $('div.flist li#' + facet + ' > .flabel').click();
         }
-
-        // toggle Categorie Sections
-        /*$('div.flist li#' + facet).find('li.fcatsection:not(.inactive) .flabel').click(function() {			
-         //$(this).parent('.fcatsection').toggleClass('open'); 
-         alert('fcatsection');
-         });*/
-
 
         $('div.flist ul li#' + facet).find('li.fcatsection').click(function(e) {
 
@@ -454,7 +462,7 @@
         $.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
 
     };
-
+    
     function _facetRefresh(json, selectorBase) {
 
         // refresh main facet sum count				
@@ -1801,13 +1809,14 @@
                 oParams.qf = 'mgi_accession_id';
             }
             else if (q.match(wildCardStr) && q != '*:*') {
-                oParams.bq = 'marker_symbol:' + q.replace(/\*/g, '') + '^1000'
-                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
-                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^700'
-                        + ' marker_name:' + q.replace(/\*/g, '') + '^500';
+            	
+                oParams.bq = 'marker_symbol:' + q.replace(/\*/g, '') + '^1000';
+                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800';
+                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
+                        + ' marker_name:' + q.replace(/\*/g, '') + '^200';
             }
             else {
-                oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^700 marker_name^500';
+                oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
             }
         }
         else if (facet == 'mp') {
@@ -1922,17 +1931,7 @@
         }
 
         oParams.fq = oUrlParams.fq;
-        //oParams.rows = 10;
-
-        //qs(query slop) parameter can be used to add slop to any explicit phrase queries
-        //oParams.qs = 100;
-
-        /*
-         oParams.hl = 'true';
-         oParams['hl.snippets']=100; // otherwise only one in each field is return, and 100 should be enough to catch all for synonyms field, etc    	    	
-         oParams['hl.fl'] = '*';    	
-         */
-
+       
         // bq, qf, pf for solr result relevance 
 
         if (facetDivId == 'geneFacet') {
@@ -1944,7 +1943,11 @@
 
         oParams.q = oUrlParams.q;
         oParams.q = $.fn.process_q(oParams.q);
-
+        
+        if ( oParams.q == '*:*' && oParams.fq == '*:*' ){
+        	oParams.fq = 'marker_type:"protein coding gene"';
+        }
+        
         oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);
 
         if (oUrlParams.widgetName == 'geneFacet') {
@@ -1962,7 +1965,6 @@
         if (typeof oUrlParams.facetName == 'undefined') {
             //oInfos.solrCoreName = coreName;
             oUrlParams.solrCoreName = coreName;
-
         }
         else {
             //oInfos.facetName = oUrlParams.facetName; 

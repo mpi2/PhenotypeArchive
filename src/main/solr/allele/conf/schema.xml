@@ -226,7 +226,6 @@
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 	
 	<copyField source="go_term_id" dest="auto_suggest"/>
-	<copyField source="go_term_name" dest="auto_suggest"/>
 	<copyField source="latest_production_status" dest="status"/> 
 	
 	
