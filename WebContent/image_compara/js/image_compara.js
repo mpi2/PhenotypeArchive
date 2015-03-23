@@ -68,10 +68,10 @@ var docs;
 	    'dataType': 'jsonp',
 	    'jsonp': 'json.wrf',
 	    'success': function(json) {
-	        console.log(json.response.numFound + ' images');
+	        //console.log(json.response.numFound + ' images');
 	        docs=json.response.docs;
 	      //loop over solrDocs and split into control and experimental list
-	        console.log(docs);
+	        //console.log(docs);
 	        //
 	       //docs=["http://ves-ebi-cf/omero/webgateway/img_detail/5818/", "http://ves-ebi-cf/omero/webgateway/img_detail/5819/"];
 	        var len = docs.length;
