@@ -214,23 +214,9 @@ public class DataTableController {
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
 		
-		 //GO evidence code ranking mapping
-        Map<String,String> codeRank = new HashMap<>();
-        // experimental 
-        codeRank.put("EXP", "4");codeRank.put("IDA", "4");codeRank.put("IPI", "4");codeRank.put("IMP", "4");
-        codeRank.put("IGI", "4");codeRank.put("IEP", "4");codeRank.put("TAS", "4");
+		//GO evidence code ranking mapping
+        Map<String,Integer> codeRank = SolrIndex.getGoCodeRank();
         
-        // curated computational
-        codeRank.put("ISS", "3");codeRank.put("ISO", "3");codeRank.put("ISA", "3");codeRank.put("ISM", "3");
-        codeRank.put("IGC", "3");codeRank.put("IBA", "3");codeRank.put("IBD", "3");codeRank.put("IKR", "3");
-        codeRank.put("IRD", "3");codeRank.put("RCA", "3");codeRank.put("IC", "3");codeRank.put("NAS", "3");
-        
-        // automated electronic
-        codeRank.put("IEA", "2");
-        
-        // no biological data available
-        codeRank.put("ND", "1");
-		
 		for (int i = 0; i < docs.size(); i ++) {
 			
             JSONObject doc = docs.getJSONObject(i);
@@ -239,50 +225,30 @@ public class DataTableController {
             String glink = "<a href='" + hostName + baseUrl + "/" + gId + "'>" + marker_symbol +"</a>";
             
             String phenoStatus = doc.getString("latest_phenotype_status");
-
-            JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
-            JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
-            JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
-            JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
+            
             String NOINFO = "no info available";
    
-            String goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GTerm?id="; 
-            //System.out.println("doc "+ i + " has "+ _goTermEvids.size() + " GO annots");
-            
-            // NO GO
-            if ( _goTermIds.size() == 0 ){
-            	
-            	List<String> rowData = new ArrayList();
+            // has GO
+            if ( doc.containsKey("go_count") ){
+            	List<String> rowData = new ArrayList<String>();
             	rowData.add(glink);
             	rowData.add(phenoStatus);
-            	rowData.add(NOINFO);
-            	rowData.add(NOINFO);
-            	rowData.add(NOINFO);
-            	rowData.add(NOINFO);
+            	rowData.add( Integer.toString(doc.getInt("go_count")) );
+            	rowData.add("<i class='fa fa-plus-square'></i>");
             	j.getJSONArray("aaData").add(rowData);
             }
             else {
-            
-	            for ( int k=0; k< _goTermEvids.size(); k++ ) {
-	            	
-	            	String evid = _goTermEvids.get(k).toString();
-	            	
-	            	if ( codeRank.get(evid).equals(evidRank) ){
-	            		
-		            	List<String> rowData = new ArrayList();
-	            		rowData.add(glink);
-	                	rowData.add(phenoStatus);
-	            		rowData.add(_goTermIds.size() > 0 ? "<a target='_blank' href='" + goBaseUrl + _goTermIds.get(k).toString() + "'>" + _goTermIds.get(k).toString()  + "</a>" : NOINFO);
-	            		rowData.add(_goTermEvids.size() > 0 ? _goTermEvids.get(k).toString() : NOINFO);
-	            		rowData.add(_goTermNames.size() > 0 ? _goTermNames.get(k).toString() : NOINFO);
-	            		rowData.add(_goTermDomains.size() > 0 ? _goTermDomains.get(k).toString() : NOINFO);
-	            		j.getJSONArray("aaData").add(rowData);
-	            		
-	            	}
-	            }
+            	// No GO
+            	List<String> rowData = new ArrayList<String>();
+            	
+            	rowData.add(glink);
+            	rowData.add(phenoStatus);
+            	rowData.add(NOINFO);
+            	rowData.add("");
+            	
+            	j.getJSONArray("aaData").add(rowData);
             }
 		}
-			
 		return j.toString();	
 	}
 	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, boolean legacyOnly){	
@@ -405,7 +371,7 @@ public class DataTableController {
 	}
 	
 	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start){
-				
+			
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
@@ -420,9 +386,10 @@ public class DataTableController {
 		
 		for (int i=0; i<docs.size(); i++){
 			List<String> rowData = new ArrayList<String>();
-
+			
 			// array element is an alternate of facetField and facetCount			
 			JSONObject doc = docs.getJSONObject(i);
+			
 			String mpId = doc.getString("mp_id");
 			String mpTerm = doc.getString("mp_term");
 			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";							
@@ -490,7 +457,6 @@ public class DataTableController {
 			}
 			else {
 				rowData.add(mpLink);
-				
 			}
 			
 			// some MP do not have definition
@@ -505,9 +471,8 @@ public class DataTableController {
 			rowData.add(mpDef);	
 			
 			// number of genes annotated to this MP
-			StringBuilder sb = new StringBuilder();
-			sb.append("");
-			rowData.add(sb.append(doc.getInt("postqc_calls")).toString());
+			int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
+			rowData.add(Integer.toString(numCalls));
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {
@@ -816,9 +781,8 @@ public class DataTableController {
 					String thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
 					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 				}		
-				rowData.add(displayAnnotName + " " + valLink + " (" + imgSubSetLink + ")");
+				rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
 				
-				// image path
 				String imgPath = fetchImpcImagePathByAnnotName(query, defaultFqStr);
 				rowData.add(imgPath);
 				

@@ -22,13 +22,17 @@ package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -47,26 +51,29 @@ public abstract class SearchFacetTable {
     protected final WebDriver driver;
     protected final int timeoutInSeconds;
     protected final WebDriverWait wait;
-    protected final String tableXpath;
     
     public static final String NO_INFO_AVAILABLE    = "No information available";
     public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
+    
+    // byHash String keys:
+    protected final static String BY_TABLE              = "byTable";
+    protected final static String BY_TABLE_TR           = "byTableTr";
+    protected final static String BY_SELECT_GRID_LENGTH = "bySelectGridLength";
+    protected static final HashMap<String, By> byHash = new HashMap();
     
     /**
      * Initializes the generic components of a <code>SearchFacetTable</code>.
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
-     * @param tableXpath The xpath of the search facet table (e.g.
-     * //table[@id='geneGrid'])
-     * @param timeoutInSeconds
+     * <code>By</code> definitions for: table, tabletr, and selectxxGridLength.
+     * @param timeoutInSeconds timeout
      */
-    public SearchFacetTable(WebDriver driver, String tableXpath, int timeoutInSeconds) {
+    public SearchFacetTable(WebDriver driver, int timeoutInSeconds) {
         graphUrl = driver.getCurrentUrl();
         this.driver = driver;
         this.wait = new WebDriverWait(driver, timeoutInSeconds);
         this.timeoutInSeconds = timeoutInSeconds;
-        this.tableXpath = tableXpath;
-        setTable(driver.findElement(By.xpath(tableXpath)));
+        setTable(driver.findElement(byHash.get(BY_TABLE)));
     }
     
     public enum EntriesSelect {
@@ -85,54 +92,43 @@ public abstract class SearchFacetTable {
             return value;
         }
     }
+    
+    /**
+     *
+     * @return the number of rows in the "xxGrid" table. Always include 1
+     * extra for the heading.
+     */
+    public int computeTableRowCount() {
+        // Wait for page.
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(byHash.get(BY_TABLE_TR)));
+        return elements.size() + 1;
+    }
+    
     /**
      * Return the number of entries currently showing in the 'entries' drop-down
      * box.
-     * 
-     * @return the number of entries currently showing in the 'entries' drop-down
-     * box.
+     *
+     * @return the number of entries currently showing in the 'entries'
+     * drop-down box.
      */
-    public abstract int getNumEntries();
+    public int getNumEntries() {
+        Select select = new Select(driver.findElement(byHash.get(BY_SELECT_GRID_LENGTH)));
+        try {
+            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
+        } catch (NullPointerException npe) {
+            return 0;
+        }
+    }
+    
     /**
      * Set the number of entries in the 'entries' drop-down box.
      * 
      * @param entriesSelect The new value for the number of entries to show.
      */
-    public abstract void setNumEntries(EntriesSelect entriesSelect);
-    
-    /**
-     * Click the toolbox (the download link that shows/hides the download popup)
-     * @param desiredWindowState Open or Close
-     */
-    public void clickToolbox(SearchPage.WindowState desiredWindowState) {
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        switch (desiredWindowState) {
-            case CLOSED:
-                if (style.contains("block;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
-                break;
-                
-            case OPEN:
-                if (style.contains("none;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
-                break;
-        }
-    }
-    
-    /**
-     * @return The window state (open or close)
-     */
-    public SearchPage.WindowState getToolboxState() {
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        return (style.contains("block;") ? SearchPage.WindowState.OPEN : SearchPage.WindowState.CLOSED);
-    }
-
-    /**
-     * 
-     * @return The page heading, as a String array
-     */
-    public String[] getPageHeading() {
-        return pageHeading;
+    public void setNumEntries(EntriesSelect entriesSelect) {
+        Select select = new Select(driver.findElement(byHash.get(BY_SELECT_GRID_LENGTH)));
+        select.selectByValue(Integer.toString(entriesSelect.getValue()));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(byHash.get(BY_SELECT_GRID_LENGTH), Integer.toString(entriesSelect.getValue())));
     }
 
     /**
@@ -159,7 +155,7 @@ public abstract class SearchFacetTable {
         hasTable = false;
         this.table = table;
         try {
-            table = driver.findElement(By.xpath(tableXpath));
+            table = driver.findElement(byHash.get(BY_TABLE));
         } catch (Exception e) {
             pageHeading = null;
             this.table = null;
@@ -179,6 +175,33 @@ public abstract class SearchFacetTable {
     }
 
     /**
+     * Click the toolbox (the download link that shows/hides the download popup)
+     * @param desiredWindowState Open or Close
+     */
+    public void clickToolbox(SearchPage.WindowState desiredWindowState) {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        switch (desiredWindowState) {
+            case CLOSED:
+                if (style.contains("block;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
+                
+            case OPEN:
+                if (style.contains("none;"))
+                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                break;
+        }
+    }
+    
+    /**
+     * @return The window state (open or close)
+     */
+    public SearchPage.WindowState getToolboxState() {
+        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        return (style.contains("block;") ? SearchPage.WindowState.OPEN : SearchPage.WindowState.CLOSED);
+    }
+    
+    /**
      * Validates download data against this search table instance.
      * 
      * @param data The download data used for comparison
@@ -186,27 +209,6 @@ public abstract class SearchFacetTable {
      */
     public abstract PageStatus validateDownload(String[][] data);
     
-    /**
-     * Validates the download heading
-     * @param facetName the [displayable] name of the facet, for identifying errors
-     * @param status validation status
-     * @param expectedHeadingList expected download heading column list
-     * @param actualHeadingList actual download heading column list
-     */
-    public static void validateDownloadHeading(String facetName, PageStatus status, String[] expectedHeadingList, String[] actualHeadingList) {
-        if (expectedHeadingList.length != actualHeadingList.length) {
-            status.addError(facetName + " DOWNLOAD HEADING MISMATCH: expected heading column count: " + expectedHeadingList.length + ". "
-                          + "Actual heading count: " + actualHeadingList.length + ". Headings were not compared.");
-            return;
-        }
-        
-        for (int i = 0; i < actualHeadingList.length; i++) {
-            if ( ! actualHeadingList[i].equals(expectedHeadingList[i])) {
-                status.addError(facetName + " DOWNLOAD HEADING MISMATCH: heading[" + i + "] should be '"
-                        + expectedHeadingList[i] + "' but actual heading was '" + actualHeadingList[i] + "'.");
-            }
-        }
-    }
     
     // PROTECTED METHODS
     
@@ -227,8 +229,8 @@ public abstract class SearchFacetTable {
         for (String[] row : downloadDataArray) {
             List rowList = Arrays.asList(row);
             downloadDataList.add(rowList);
-        }
-        
+        } 
+       
         GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
         
         // Do a set difference between the rows on the first displayed page
@@ -242,12 +244,14 @@ public abstract class SearchFacetTable {
         Set difference = TestUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
-            System.out.println("ERROR: The following data was found on the page but not in the download:");
+            System.out.println("SearchFacetTable.validateDownloadInternal(): Page data not found in download:");
             Iterator it = difference.iterator();
             int i = 0;
             while (it.hasNext()) {
                 String value = (String)it.next();
-                System.out.println("[" + i++ + "]: " + value);
+                System.out.println("[" + i + "]:\t page data: " + value);
+                System.out.println("\t download data: " + TestUtils.closestMatch(downloadSet, value) + "\n");
+                i++;
                 errorCount++;
             }
         }

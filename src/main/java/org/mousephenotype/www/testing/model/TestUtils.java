@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -314,6 +315,40 @@ public class TestUtils {
         }
         
         return resultSet;
+    }
+    
+    /**
+     * Returns the closest match to <code>stringToMatch</code> in
+     * <code>set</code>
+     *
+     * @param set the set to search
+     * 
+     * @param stringToMatch the string to match
+     * 
+     * @return the closest match to <code>stringToMatch</code> in <code>set</code>
+     */
+    public static String closestMatch(Set<String> set, String stringToMatch) {
+        String matchedString = "";
+        Integer matchedScore = null;
+        if ((set == null) || (stringToMatch == null))
+            return matchedString;
+        
+        Iterator<String> it = set.iterator();
+        while (it.hasNext()) {
+            String candidate = it.next();
+            int candidateScore = StringUtils.getLevenshteinDistance(candidate, stringToMatch);
+            if (matchedString.isEmpty()) {                                      // First time through, populate matchedXxx.
+                matchedString = candidate;
+                matchedScore = candidateScore;
+            } else {
+                if ((candidateScore >= 0) && (candidateScore < matchedScore)) {
+                    matchedScore = candidateScore;
+                    matchedString = candidate;
+                }
+            }
+        }
+        
+        return matchedString;
     }
     
     /**
@@ -622,6 +657,21 @@ public class TestUtils {
      */
     public static String removeProtocol(String url) {
         return (url.replace("https://", "").replace("http://", ""));
+    }
+    
+    public enum HTTP_PROTOCOL {
+        http
+      , https
+    };
+    
+    /**
+     * Sets the protocol (http or https).
+     * @param url url string which may or may not contain a protocol
+     * @param protocol one of: http or https (choose from enum)
+     * @return the url, with the protocol changed, if it exists
+     */
+    public static String setProtocol(String url, HTTP_PROTOCOL protocol) {
+        return (url.replace("https://", protocol.name() + "://").replace("http://", protocol.name() + "://"));
     }
     
     /**

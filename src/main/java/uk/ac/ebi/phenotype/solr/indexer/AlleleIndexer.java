@@ -15,9 +15,7 @@
  */
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -33,24 +31,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
+import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.DiseaseBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerAlleleBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.SangerGeneBean;
-import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -96,6 +87,9 @@ public class AlleleIndexer extends AbstractIndexer {
 
     // Set of MGI IDs that have GO annotation(s)
     private static Map<String, Set<GoAnnotations>> goTermLookup = new HashMap<>();
+    
+    // Set of MGI IDs to GO - uniprotAcc mapping
+    //private static Map<String, Set<String>> gene2GoUniprotLookup = new HashMap<>();
     
     // Map MGI accession id to longest Uniprot accession
     private static Map<String, Set<String>> mgi2UniprotLookup = new HashMap<>();
@@ -184,8 +178,9 @@ public class AlleleIndexer extends AbstractIndexer {
 
             initializeSolrCores();
 
-            SolrQuery query = new SolrQuery("mgi_accession_id:MGI*");  
+            SolrQuery query = new SolrQuery("mgi_accession_id:MGI* OR mgi_accession_id:CGI*");
             query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
+            
             query.setRows(BATCH_SIZE);
 
             logger.info("Populating lookups");
@@ -211,9 +206,9 @@ public class AlleleIndexer extends AbstractIndexer {
             logger.info("Populated mgi to uniprot lookup, {} records", mgi2UniprotLookup.size());
             
             // Uniprot to pfamA mapping
-            populateUniprot2pfamA();
-            logger.info("Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
-           
+            //populateUniprot2pfamA();
+            //logger.info("Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
+            logger.info("Populated uniprot to pfamA lookup is skipped for now");
             
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
@@ -247,7 +242,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 
                 // Look up uniprot to pfamA mapping
                 // NOTE: this MUST be done after lookupUniprotAcc()
-                lookupUniprotAcc2pfamA(alleles);
+                //lookupUniprotAcc2pfamA(alleles);
                 
                 
                 // Now index the alleles
@@ -305,53 +300,65 @@ public class AlleleIndexer extends AbstractIndexer {
         public String goTermEvid; 	
         public String goTermDomain;   
 		public String mgiSymbol;
-		//public String uniprotAcc;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            GoAnnotations that = (GoAnnotations) o;
-
-            if (goTermDomain != null ?  ! goTermDomain.equals(that.goTermDomain) : that.goTermDomain != null) {
-                return false;
-            }
-            /*if (goTermDef != null ?  ! goTermDef.equals(that.goTermDef) : that.goTermDef != null) {
-                return false;
-            }*/
-            if (goTermEvid != null ?  ! goTermEvid.equals(that.goTermEvid) : that.goTermEvid != null) {
-                return false;
-            }
-            if (goTermId != null ?  ! goTermId.equals(that.goTermId) : that.goTermId != null) {
-                return false;
-            }
-            if (goTermName != null ?  ! goTermName.equals(that.goTermName) : that.goTermName != null) {
-                return false;
-            }
-//            if (uniprotAcc != null ?  ! uniprotAcc.equals(that.uniprotAcc) : that.uniprotAcc != null) {
-//                return false;
-//            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = goTermId != null ? goTermId.hashCode() : 0;
-            result = 31 * result + (goTermName != null ? goTermName.hashCode() : 0);
-           // result = 31 * result + (goTermDef != null ? goTermDef.hashCode() : 0);
-            result = 31 * result + (goTermEvid != null ? goTermEvid.hashCode() : 0);
-            result = 31 * result + (goTermDomain != null ? goTermDomain.hashCode() : 0);
-            //result = 31 * result + (uniprotAcc != null ? uniprotAcc.hashCode() : 0);
-            return result;
-        }
+		public String goUniprot;  // GOId_UniprotAcc
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((goTermDomain == null) ? 0 : goTermDomain.hashCode());
+			result = prime * result + ((goTermEvid == null) ? 0 : goTermEvid.hashCode());
+			result = prime * result + ((goTermId == null) ? 0 : goTermId.hashCode());
+			result = prime * result + ((goTermName == null) ? 0 : goTermName.hashCode());
+			result = prime * result + ((goUniprot == null) ? 0 : goUniprot.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			GoAnnotations other = (GoAnnotations) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (goTermDomain == null) {
+				if (other.goTermDomain != null)
+					return false;
+			} else if (!goTermDomain.equals(other.goTermDomain))
+				return false;
+			if (goTermEvid == null) {
+				if (other.goTermEvid != null)
+					return false;
+			} else if (!goTermEvid.equals(other.goTermEvid))
+				return false;
+			if (goTermId == null) {
+				if (other.goTermId != null)
+					return false;
+			} else if (!goTermId.equals(other.goTermId))
+				return false;
+			if (goTermName == null) {
+				if (other.goTermName != null)
+					return false;
+			} else if (!goTermName.equals(other.goTermName))
+				return false;
+			if (goUniprot == null) {
+				if (other.goUniprot != null)
+					return false;
+			} else if (!goUniprot.equals(other.goUniprot))
+				return false;
+			return true;
+		}
+		private AlleleIndexer getOuterType() {
+			return AlleleIndexer.this;
+		}
+		
+		
+		
     }
-    
+   
     public class PfamAnnotations {
 		
 		public String scdbId;
@@ -422,7 +429,6 @@ public class AlleleIndexer extends AbstractIndexer {
             result = 31 * result + (clanDesc != null ? clanDesc.hashCode() : 0);
             result = 31 * result + (pfamAacc != null ? pfamAacc.hashCode() : 0);
             result = 31 * result + (pfamAId != null ? pfamAId.hashCode() : 0);
-            
             
             return result;
         }
@@ -536,7 +542,7 @@ public class AlleleIndexer extends AbstractIndexer {
     
     private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
 
-	    String queryString = "select distinct m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
+	    String queryString = "select distinct m.accession, m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
 				+ "from go.annotations a "
 				+ "join "
 				+ "go.cv_sources s on (s.code = a.source) "
@@ -552,7 +558,6 @@ public class AlleleIndexer extends AbstractIndexer {
 				+ "and m.gene_name is not null "
 				+ "and t.category in ('F', 'P') ";
 	    
-	    
 	    Connection conn = goaproDataSource.getConnection();
 
 	    try (PreparedStatement p = conn.prepareStatement(queryString)) {
@@ -563,11 +568,20 @@ public class AlleleIndexer extends AbstractIndexer {
             	GoAnnotations ga = new GoAnnotations();
             	
     			ga.mgiSymbol  = resultSet.getString("gene_name");
-    			//ga.uniprotAcc = resultSet.getString("accession");
     			ga.goTermId   = resultSet.getString("go_id");
+    			ga.goUniprot = ga.goTermId + "__" + resultSet.getString("accession"); //GOId__UniprotAcc 
+    			
+    			//String goUniprot  = ga.goTermId + "__" + resultSet.getString("accession"); //GOId__UniprotAcc
+    			
+//    			if ( !gene2GoUniprotLookup.containsKey(ga.mgiSymbol) ){
+//    				gene2GoUniprotLookup.put(ga.mgiSymbol, new HashSet<String>());
+//    			}
+//    			gene2GoUniprotLookup.get(ga.mgiSymbol).add(goUniprot);
+//    			
     			ga.goTermName = resultSet.getString("go_name");
     			ga.goTermEvid = resultSet.getString("go_evidence");
     			ga.goTermDomain = resultSet.getString("go_domain").toString().equals("F") ? "molecular_function" : "biological_process";
+    			
     			
             	if ( ! goTermLookup.containsKey(ga.mgiSymbol)) {
             		goTermLookup.put(ga.mgiSymbol, new HashSet<GoAnnotations>());
@@ -1011,21 +1025,7 @@ public class AlleleIndexer extends AbstractIndexer {
         logger.debug("Starting GO data lookup");
 
         //GO evidence code ranking mapping
-        Map<String,Integer> codeRank = new HashMap<>();
-        // experimental 
-        codeRank.put("EXP", 4);codeRank.put("IDA", 4);codeRank.put("IPI", 4);codeRank.put("IMP", 4);
-        codeRank.put("IGI", 4);codeRank.put("IEP", 4);codeRank.put("TAS", 4);
-        
-        // curated computational
-        codeRank.put("ISS", 3);codeRank.put("ISO", 3);codeRank.put("ISA", 3);codeRank.put("ISM", 3);
-        codeRank.put("IGC", 3);codeRank.put("IBA", 3);codeRank.put("IBD", 3);codeRank.put("IKR", 3);
-        codeRank.put("IRD", 3);codeRank.put("RCA", 3);codeRank.put("IC", 3);codeRank.put("NAS", 3);
-        
-        // automated electronic
-        codeRank.put("IEA", 2);
-        
-        // no biological data available
-        codeRank.put("ND", 1);
+        Map<String,Integer> codeRank = SolrIndex.getGoCodeRank();
         
         for (String id : alleles.keySet()) {
 
@@ -1041,11 +1041,14 @@ public class AlleleIndexer extends AbstractIndexer {
             for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
                 dto.getGoTermIds().add(ga.goTermId);
                 dto.getGoTermNames().add(ga.goTermName);
+                dto.getGoUniprot().add(ga.goUniprot);
                 //dto.getGoTermDefs().add(ga.goTermDef);
                 dto.getGoTermEvids().add(ga.goTermEvid);
                 dto.getGoTermDomains().add(ga.goTermDomain);
                 dto.setEvidCodeRank( assignCodeRank(codeRank.get(ga.goTermEvid)) );
             }
+            //dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
+           
             dto.setGoCount(dto.getGoTermIds().size());
         }
     }

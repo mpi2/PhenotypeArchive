@@ -157,8 +157,10 @@
        			//console.log('default search load')
        			// do default gene search by * when search page loads	
        			// handed over to no hash change code below
+       		
        		} 
        		else if ( window.location.search == '?q=' ){
+       		
        			// catches user hitting ENTER on search input box of homepage
        			document.location.href = baseUrl + '/search';		
        		}
@@ -348,6 +350,7 @@
        		})
        		
        		var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^70 selected_top_level_ma_term:*^60";
+       		
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
@@ -355,7 +358,8 @@
 		       			$.ajax({
 		       				
 		       				// use double qf fields to deal with exact and partial string match
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,				       			
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
+			       			//url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax",
 			       			dataType: "jsonp",
 			       			'jsonp': 'json.wrf',
 			       			data: {
@@ -638,15 +642,15 @@
     		
     		function _process_hash(){
     			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
-    			//console.log(oUrlParams);
     			
     			if ( window.location.search != '' && window.location.hash == '' ){
     				// has q only, no hash string
     				//console.log('has q')
+    				
     			}
     			
     			else {
-	
+    				
 					// img_ prefix is to for fields marker_type, procedure_id, top_level_mp_term and selected_top_level_ma_term
 	   				// from images core. This is shown on the url and used to rebuild facet filters 
 	   				// - ie, we can tell if a filter is for MP or images, eg
@@ -656,9 +660,10 @@
 						oUrlParams.oriFq = oUrlParams.fq;
 						oUrlParams.fq = oUrlParams.fq.replace(/img_|impcImg_/g,'');
 					}
-	   				
-	   				oUrlParams.widgetName = oUrlParams.coreName? oUrlParams.coreName : oUrlParams.facetName;	                
+					
+	   				oUrlParams.widgetName = oUrlParams.coreName? oUrlParams.coreName : oUrlParams.facetName;	
 					oUrlParams.widgetName += 'Facet';
+					
 	   				oUrlParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
     			}	
     			return oUrlParams;

@@ -190,8 +190,6 @@ public class IndexerManager {
     @Autowired
     AutosuggestIndexer autosuggestIndexer;
     
-    
-    private String buildIndexesSolrUrl;
     private IndexerItem[] indexerItems;
     
     public String[] args;
@@ -255,17 +253,9 @@ public class IndexerManager {
             } else {
                 throw new IndexerException("Failed to parse command-line options.");
             }
-
-            buildIndexesSolrUrl = config.get("buildIndexesSolrUrl");
-
+            
             // Print the jvm memory configuration.
-            final int mb = 1024*1024;
-            Runtime runtime = Runtime.getRuntime();
-            DecimalFormat formatter = new DecimalFormat("#,###");
-            logger.info("Used memory : " + (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
-            logger.info("Free memory : " + formatter.format(runtime.freeMemory()));
-            logger.info("Total memory: " + formatter.format(runtime.totalMemory()));
-            logger.info("Max memory  : " + formatter.format(runtime.maxMemory()));
+            printJvmMemoryConfiguration();
         } catch (Exception e) {
             if (e.getLocalizedMessage() != null) {
                 logger.error(e.getLocalizedMessage());
@@ -325,6 +315,7 @@ public class IndexerManager {
             }
             
             executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.OK, start, new Date().getTime()));
+            printJvmMemoryConfiguration();
         }
         
         System.out.println(executionStatsList.toString());
@@ -711,6 +702,19 @@ public class IndexerManager {
             i++;
             t = t.getCause();
         }
+    }
+    
+    /**
+     * Print the jvm memory configuration.
+     */
+    private void printJvmMemoryConfiguration() {
+        final int mb = 1024*1024;
+        Runtime runtime = Runtime.getRuntime();
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        logger.info("Used memory : " + (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
+        logger.info("Free memory : " + formatter.format(runtime.freeMemory()));
+        logger.info("Total memory: " + formatter.format(runtime.totalMemory()));
+        logger.info("Max memory  : " + formatter.format(runtime.maxMemory()));
     }
     
     /**

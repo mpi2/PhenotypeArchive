@@ -20,13 +20,6 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,6 +29,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.phenotype.service.DiseaseService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
+import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemap;
+import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemapIndex;
+import uk.ac.ebi.phenotype.web.controller.sitemap.XmlUrl;
+import uk.ac.ebi.phenotype.web.controller.sitemap.XmlUrlSet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -69,12 +75,12 @@ public class SiteMapController {
      * @return an XML object containing a gene sitemap
      * @throws SolrServerException 
      */
-    @RequestMapping(value = "/sitemap_genes.xml", method = RequestMethod.GET)
+    @RequestMapping(value = "/sitemap_genes.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
     @ResponseBody
-    public XmlUrlSet createSitemapGenes(
-            HttpServletRequest request
-    ) throws SolrServerException {
+    public String createSitemapGenes(HttpServletRequest request, HttpServletResponse response) throws SolrServerException {
+
         List<String> geneIds = new ArrayList(geneService.getAllGenes());
+
         String mappedHostname = (String)request.getAttribute("mappedHostname");
         String baseUrl = (String)request.getAttribute("baseUrl");
         XmlUrlSet xmlUrlSet = new XmlUrlSet();
@@ -85,8 +91,7 @@ public class SiteMapController {
             create(xmlUrlSet, target, XmlUrl.Priority.MEDIUM);
         }
 
-        createSitemapFile("gene_sitemap.xml", xmlUrlSet);
-        return xmlUrlSet;
+        return getSitemapFile(xmlUrlSet);
     }
     
     /**
@@ -99,11 +104,10 @@ public class SiteMapController {
      * @return an XML object containing a phenotype sitemap
      * @throws SolrServerException 
      */
-    @RequestMapping(value = "/sitemap_phenotypes.xml", method = RequestMethod.GET)
+    @RequestMapping(value = "/sitemap_phenotypes.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
     @ResponseBody
-    public XmlUrlSet createSitemapPhenotypes(
-            HttpServletRequest request
-    ) throws SolrServerException {
+    public String createSitemapPhenotypes(HttpServletRequest request, HttpServletResponse response) throws SolrServerException {
+
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
         String mappedHostname = (String)request.getAttribute("mappedHostname");
         String baseUrl = (String)request.getAttribute("baseUrl");
@@ -115,8 +119,7 @@ public class SiteMapController {
             create(xmlUrlSet, target, XmlUrl.Priority.MEDIUM);
         }
 
-        createSitemapFile("phenotype_sitemap.xml", xmlUrlSet);
-        return xmlUrlSet;
+        return getSitemapFile(xmlUrlSet);
     }
     
     /**
@@ -129,11 +132,9 @@ public class SiteMapController {
      * @return an XML object containing a disease sitemap
      * @throws SolrServerException 
      */
-    @RequestMapping(value = "/sitemap_diseases.xml", method = RequestMethod.GET)
+    @RequestMapping(value = "/sitemap_diseases.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
     @ResponseBody
-    public XmlUrlSet createSitemapDiseases(
-            HttpServletRequest request
-    ) throws SolrServerException {
+    public String createSitemapDiseases(HttpServletRequest request, HttpServletResponse response) throws SolrServerException {
         List<String> diseases = new ArrayList(diseaseService.getAllDiseases());
         String mappedHostname = (String)request.getAttribute("mappedHostname");
         String baseUrl = (String)request.getAttribute("baseUrl");
@@ -145,8 +146,7 @@ public class SiteMapController {
             create(xmlUrlSet, target, XmlUrl.Priority.MEDIUM);
         }
 
-        createSitemapFile("disease_sitemap.xml", xmlUrlSet);
-        return xmlUrlSet;
+        return getSitemapFile(xmlUrlSet);
     }
     
     /**
@@ -158,11 +158,10 @@ public class SiteMapController {
      * @param request <code>HttpServletRequest</code> instance
      * @return an XML object containing a sitemap index
      */
-    @RequestMapping(value = "/sitemap_index.xml", method = RequestMethod.GET)
+    @RequestMapping(value = "/sitemap_index.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
     @ResponseBody
-    public XmlSitemapIndex createSitemapIndex(
-            HttpServletRequest request
-    ) {
+    public String createSitemapIndex(HttpServletRequest request, HttpServletResponse response) {
+
         String mappedHostname = (String)request.getAttribute("mappedHostname");
         String baseUrl = (String)request.getAttribute("baseUrl");
         XmlSitemapIndex xmlSitemapIndex = new XmlSitemapIndex();
@@ -175,39 +174,42 @@ public class SiteMapController {
             xmlSitemapIndex.addSitemap(xmlSitemap);
         }
 
-        createSitemapFile("sitemap_index.xml", xmlSitemapIndex);
-        return xmlSitemapIndex;
+        return getSitemapFile(xmlSitemapIndex);
     }
     
-    /**
-     * Create all of the sitemap and index XML files
-     * 
-     * Side Effects: Creates all sitemap files and a sitemap index file in the
-     * web application root directory.
-     * 
-     * @return the sitemap index xml file
-     * @param request <code>HttpServletRequest</code> instance
-     * @throws SolrServerException 
-     */
-    @RequestMapping(value = "/sitemap_files", method = RequestMethod.GET)
-    @ResponseBody
-    public XmlSitemapIndex createSitemapFiles(
-            HttpServletRequest request
-    ) throws SolrServerException {
-        createSitemapGenes(request);
-        createSitemapPhenotypes(request);
-        createSitemapDiseases(request);
-        return createSitemapIndex(request);
-    }
 
-    
     // PRIVATE METHODS
     
     
     private void create(XmlUrlSet xmlUrlSet, String link, XmlUrl.Priority priority) {
         xmlUrlSet.addUrl(new XmlUrl(link, priority));
     }
-    
+
+    private String getSitemapFile(Object xmlObject) {
+
+        StringWriter writer = new StringWriter(2048);
+
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(xmlObject.getClass());
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+
+            // Set the XML root tag to not include that standalone="yes" attribute
+            // Why U no work, JAXB?
+            //jaxbMarshaller.setProperty("com.sun.xml.bind.xmlHeaders", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+
+            jaxbMarshaller.marshal(xmlObject, writer);
+
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + writer.toString();
+    }
+
     /**
      * Creates a sitemap file withname <code>filename</code> in the web server
      * root directory
@@ -218,6 +220,7 @@ public class SiteMapController {
      * BUT REMOVE THE PART THAT CREATES THE FILE.
      */
     private void createSitemapFile(String filename, Object xmlObject) {
+
 //        File file = new File(filename);
 //        
 //        try {

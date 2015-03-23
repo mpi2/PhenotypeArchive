@@ -17,8 +17,10 @@ package uk.ac.ebi.phenotype.solr.indexer.beans;
 
 /**
  * @author Matt Pearce
+ * @deprecated To be refactored using the new <code>OntologyTermBean</code> instead.
  *
  */
+@Deprecated
 public class MPTopLevelTermBean extends MPTermNodeBean {
 	
 	private String topLevelMPTermId;

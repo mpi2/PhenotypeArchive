@@ -375,6 +375,7 @@
 	<field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="parameter_association_name" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="parameter_association_value" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="image_link" type="string" indexed="true" stored="true" multiValued="false" />
    
     <copyField source="symbol" dest="marker_symbol" />
     <copyField source="symbol" dest="auto_suggest" />

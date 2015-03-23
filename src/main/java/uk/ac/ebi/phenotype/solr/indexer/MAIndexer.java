@@ -1,22 +1,41 @@
+/**
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+/**
+ * Copyright © 2015 EMBL - European Bioinformatics Institute
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import uk.ac.ebi.phenotype.service.MaOntologyService;
+import static uk.ac.ebi.phenotype.service.OntologyService.BATCH_SIZE;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermMaBeanList;
+import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 
 /**
@@ -25,7 +44,6 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 public class MAIndexer extends AbstractIndexer {
 
     private static final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
-    private Connection ontoDbConnection;
 
     @Autowired
     @Qualifier("ontodbDataSource")
@@ -39,14 +57,10 @@ public class MAIndexer extends AbstractIndexer {
     @Qualifier("maIndexing")
     SolrServer maCore;
     
-    private Map<String, List<String>> ontologySubsetMap = new HashMap();        // key = term_id.
-    private Map<String, List<OntologyTermBean>> maChildMap = new HashMap();     // key = parent term_id.
-    private Map<String, List<OntologyTermBean>> maParentMap = new HashMap();    // key = child term_id.
-    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
-    private Map<String, List<OntologyTermBean>> maSelectedTopLevelTermsMap = new HashMap(); // key = ma_term_infos.term_id.
+    @Autowired
+    MaOntologyService maOntologyService;
     
-    private static final int BATCH_SIZE = 50;
-        
+    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
     
     public MAIndexer() {
         
@@ -68,19 +82,12 @@ public class MAIndexer extends AbstractIndexer {
     @Override
     public void initialise(String[] args) throws IndexerException {
         super.initialise(args);
-        try {
-            this.ontoDbConnection = ontodbDataSource.getConnection();
-        } catch (SQLException sqle) {
-            logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
-            throw new IndexerException(sqle);
-        }
     }
-// refactor this body into new method populateMaCore().
-// Move initiaiseSupportingBeans content into initialise.
+    
     @Override
     public void run() throws IndexerException {
         try {
-            logger.info("Starting MP Indexer...");
+            logger.info("Starting MA Indexer...");
             initialiseSupportingBeans();
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
@@ -88,89 +95,32 @@ public class MAIndexer extends AbstractIndexer {
 
             logger.info("Starting indexing loop");
 
-            // Loop through the mp_term_infos
-            String query =
-                    "SELECT\n" +
-                    "  'ma' AS dataType\n" +
-                    ", term_id\n" +
-                    ", name\n" +
-                    "FROM ma_term_infos\n" +
-                    "WHERE term_id != 'MA:0000001'\n" +
-                    "ORDER BY term_id, name";
-            PreparedStatement ps = ontoDbConnection.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                String termId = rs.getString("term_id");
-
+            // Add all ma terms to the index.
+            List<OntologyTermBean> beans = maOntologyService.getAllTerms();
+            for (OntologyTermBean bean : beans) {
                 MaDTO ma = new MaDTO();
-                ma.setDataType(rs.getString("dataType"));
-                ma.setMaId(termId);
-                ma.setMaTerm(rs.getString("name"));
-                ma.setOntologySubset(ontologySubsetMap.get(termId));
-                ma.setMaTermSynonym(IndexerMap.getMaSynonyms(ontoDbConnection, termId));
-
-                // Children
-                List<OntologyTermBean> maChildTerms = maChildMap.get(termId);
-    //   System.out.println("maChildTerms = " + maChildTerms + ". termId = " + termId);
-                if (maChildTerms != null) {
-                    List<String> childMaIdList = new ArrayList();
-                    List<String> childMaTermList = new ArrayList();
-                    List<String> childTermId_termNameList = new ArrayList();
-                    for (OntologyTermBean childBean : maChildTerms) {
-                        childMaIdList.add(childBean.getTermId());
-                        childMaTermList.add(childBean.getName());
-                        childTermId_termNameList.add(childBean.getTermIdTermName());
-                        ma.setChildMaId(childMaIdList);
-                        ma.setChildMaTerm(childMaTermList);
-                        ma.setChildMaIdTerm(childTermId_termNameList);
-                        List<String> newSynonyms = childBean.getSynonyms();
-                        List<String> oldSynonyms = ma.getChildMaTermSynonym();
-                        if (newSynonyms != null) {
-                            if (oldSynonyms == null) {
-                                ma.setChildMaTermSynonym(new ArrayList<String>());
-                                oldSynonyms = ma.getChildMaTermSynonym();
-                            }
-                            oldSynonyms.addAll(newSynonyms);
-                        }
-                    }
-                }
-
-                // Selected Top-Level Terms
-                List<OntologyTermBean> maSelectedTopLevelTerms = maSelectedTopLevelTermsMap.get(termId);
-                if (maSelectedTopLevelTerms != null) {
-                    List<String> selectedTopLevelIdList = new ArrayList();
-                    List<String> selectedTopLevelNameList = new ArrayList();
-                    List<String> selectedTopLevelSynonymList = new ArrayList();
-                    for (OntologyTermBean selectedBean : maSelectedTopLevelTerms) {
-                        selectedTopLevelIdList.add(selectedBean.getTermId());
-                        selectedTopLevelNameList.add(selectedBean.getName());
-                        List<String> synonyms = selectedBean.getSynonyms();
-                        for (String synonym : synonyms) {
-                            if ( ! selectedTopLevelSynonymList.contains(synonym)) {
-                                selectedTopLevelSynonymList.add(synonym);
-                            }
-                        }
-                        ma.setSelectedTopLevelMaId(selectedTopLevelIdList);;
-                        ma.setSelectedTopLevelMaTerm(selectedTopLevelNameList);
-                        ma.setSelectedTopLevelMaTermSynonym(selectedTopLevelSynonymList);
-                    }
-                }
                 
-                // Parents
-                List<OntologyTermBean> maParentTerms = maParentMap.get(termId);
-                if (maParentTerms != null) {
-                    List<String> parentMaIdList = new ArrayList();
-                    List<String> parentMaTermList = new ArrayList();
-                    for (OntologyTermBean parentBean : maParentTerms) {
-                        parentMaIdList.add(parentBean.getTermId());
-                        parentMaTermList.add(parentBean.getName());
-                        ma.setTopLevelMaId(parentMaIdList);
-                        ma.setTopLevelMaTerm(parentMaTermList);
-                    }
-                }
+                // Set scalars.
+                ma.setDataType("ma");
+                ma.setMaId(bean.getId());
+                ma.setMaTerm(bean.getName());
+                
+                // Set collections.
+                OntologyTermMaBeanList sourceList = new OntologyTermMaBeanList(maOntologyService, bean.getId());
+                ma.setOntologySubset(sourceList.getSubsets());
+                ma.setMaTermSynonym(sourceList.getSynonyms());
+                
+                ma.setChildMaId(sourceList.getChildren().getIds());
+                ma.setChildMaIdTerm(sourceList.getChildren().getId_name_concatenations());
+                ma.setChildMaTerm(sourceList.getChildren().getNames());
+                ma.setChildMaTermSynonym(sourceList.getChildren().getSynonyms());
+                
+                ma.setSelectedTopLevelMaId(sourceList.getTopLevels().getIds());
+                ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
+                ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());
                 
                 // Image association fields
-                List<SangerImageDTO> sangerImages = maImagesMap.get(termId);
+                List<SangerImageDTO> sangerImages = maImagesMap.get(bean.getId());
                 if (sangerImages != null) {
                     for (SangerImageDTO sangerImage : sangerImages) {
                         ma.setProcedureName(sangerImage.getProcedureName());
@@ -201,7 +151,6 @@ public class MAIndexer extends AbstractIndexer {
                     }
                 }
                 
-    //            logger.debug("{}: Built MP DTO {}", count, termId);
                 count ++;
                 maBatch.add(ma);
                 if (maBatch.size() == BATCH_SIZE) {
@@ -209,7 +158,6 @@ public class MAIndexer extends AbstractIndexer {
                     documentCount += maBatch.size();
                     maCore.addBeans(maBatch, 60000);
                     maBatch.clear();
-    //                logger.info("Indexed {} beans", count);
                 }
             }
 
@@ -223,7 +171,7 @@ public class MAIndexer extends AbstractIndexer {
             // Send a final commit
             maCore.commit();
             logger.info("Indexed {} beans in total", count);
-        } catch (SQLException | SolrServerException| IOException e) {
+        } catch (SolrServerException| IOException e) {
             throw new IndexerException(e);
         }
         
@@ -252,33 +200,13 @@ public class MAIndexer extends AbstractIndexer {
     // PRIVATE METHODS
     
     
-    private final Integer MAX_ITERATIONS = 2;                                // Set to non-null value > 0 to limit max_iterations.
+    private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
     
     private void initialiseSupportingBeans() throws IndexerException {
-        try {
-            // Grab all the supporting database content
-            ontologySubsetMap = IndexerMap.getMaTermSubsets(ontoDbConnection);
-
-            maChildMap = IndexerMap.getMaTermChildTerms(ontoDbConnection);
-            if (logger.isDebugEnabled()) {
-                IndexerMap.dumpOntologyMaTermMap(maChildMap, "Child map:");
-            }
-            maParentMap = IndexerMap.getMaTermParentTerms(ontoDbConnection);
-            if (logger.isDebugEnabled()) {
-                IndexerMap.dumpOntologyMaTermMap(maParentMap, "Parent map:");
-            }
-            
-            maSelectedTopLevelTermsMap = IndexerMap.getMaSelectedTopLevelTerms(ontoDbConnection);
-            if (logger.isDebugEnabled()) {
-                IndexerMap.dumpOntologyMaTermMap(maSelectedTopLevelTermsMap, "Selected Top Level map:");
-            }
-
-            maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
-            if (logger.isDebugEnabled()) {
-                IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
-            }
-        } catch (SQLException e) {
-            throw new IndexerException(e);
+        // Grab all the supporting database content
+        maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
+        if (logger.isDebugEnabled()) {
+            IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
         }
     }
 

@@ -857,17 +857,17 @@ public class SearchPageTest {
             }
 
             SearchPage.Facet[] facets = {
-//                  SearchPage.Facet.ANATOMY
-//                , SearchPage.Facet.DISEASES
-//                , SearchPage.Facet.GENES
-//                  SearchPage.Facet.IMAGES
-//                , SearchPage.Facet.IMPC_IMAGES
-                  SearchPage.Facet.PHENOTYPES
+                  SearchPage.Facet.ANATOMY
+                , SearchPage.Facet.DISEASES
+                , SearchPage.Facet.GENES
+                , SearchPage.Facet.IMAGES
+                , SearchPage.Facet.IMPC_IMAGES
+                , SearchPage.Facet.PHENOTYPES
             };
 
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
-//                searchPage.clickPageButton();
+                searchPage.clickPageButton();
 //searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
 //TestUtils.sleep(5000);
                 searchPage.setNumEntries(SearchFacetTable.EntriesSelect._10);
@@ -936,6 +936,7 @@ public class SearchPageTest {
         String searchString = "";
         Date start = new Date();
         PageStatus status = new PageStatus();
+        Facet facet;
         
         System.out.println();
         System.out.println("----- " + testName + " -----");
@@ -944,7 +945,8 @@ public class SearchPageTest {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
             SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
-            Facet facet = Facet.IMAGES;    
+
+            facet = Facet.IMAGES;    
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
 //            searchPage.clickPageButton();
@@ -952,6 +954,49 @@ public class SearchPageTest {
 //TestUtils.sleep(2000);
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
+            
+        } catch (Exception e) {
+            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            System.out.println(message);
+            e.printStackTrace();
+            status.addError(message);
+        } finally {
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            } else {
+                successList.add(testName + ": SUCCESS.");
+            }
+
+            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        }
+    }
+    
+    // This test doesn't use the download test engine as it requires an extra
+    // click to switch to the Image facet's 'Image' view.
+    @Test
+//@Ignore
+    public void testImpcImageFacetImageView() throws Exception {
+        String testName = "testImpcImageFacetImageView";
+        String searchString = "";
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        Facet facet;
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        try {
+            String target = baseUrl + "/search";
+// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+
+            facet = Facet.IMPC_IMAGES;    
+            searchPage.clickFacet(facet);
+            searchPage.getImpcImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
+
+            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+            status.add(searchPage.validateDownload(facet));
+            
         } catch (Exception e) {
             String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
             System.out.println(message);
@@ -1049,13 +1094,13 @@ public class SearchPageTest {
                 , SearchPage.Facet.IMPC_IMAGES
                 , SearchPage.Facet.PHENOTYPES
             };
-
+            
             for (SearchPage.Facet facet : facets) {
                 if (searchPage.getFacetCount(facet) > 0) {
                     searchPage.clickFacet(facet);
                     searchPage.clickPageButton();
-    //searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
-    //TestUtils.sleep(5000);
+//searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
+//TestUtils.sleep(5000);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 
                     status.add(searchPage.validateDownload(facet));

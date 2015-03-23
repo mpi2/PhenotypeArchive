@@ -22,10 +22,6 @@ package org.mousephenotype.www.testing.model;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -35,128 +31,21 @@ import uk.ac.ebi.phenotype.util.Utils;
  * components of a search page 'imagesGrid' HTML table common to all Image facet
  * views.
  */
-public class SearchImpcImageTable extends SearchFacetTable {
-    private SearchImageAnnotationView searchImageAnnotationView = null;
-    private SearchImageImageView      searchImageImageView      = null;
+public class SearchImpcImageTable extends SearchImageTable {
     
-    public static final String SHOW_ANNOTATION_VIEW = "Show Annotation View";
-    public static final String SHOW_IMAGE_VIEW      = "Show Image View";
-    
-    // The Selenium 'By' instance describing the target table's tr row collection
-    private static final By    byTableTr            = By.xpath("//table[@id='impc_imagesGrid']/tbody/tr");
+    static {
+        byHash.put(SearchFacetTable.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
+        byHash.put(SearchFacetTable.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
+        byHash.put(SearchFacetTable.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
+    }
     
     /**
-     * Creates a new <code>SearchIMPCImageTable</code> instance.
+     * Creates a new <code>SearchImageTable</code> instance.
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchImpcImageTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, "//table[@id='impc_imagesGrid']", timeoutInSeconds);
-        
-        searchImageAnnotationView = new SearchImageAnnotationView(byTableTr, driver, timeoutInSeconds);
+        super(driver, timeoutInSeconds);
     }
-    
-    public enum ImageFacetView {
-        ANNOTATION_VIEW,
-        IMAGE_VIEW
-    }
-    
-    public final ImageFacetView getCurrentView() {
-        String imgViewSwitcherText = driver.findElement(By.cssSelector("span#imgViewSwitcher")).getText();
-        return (imgViewSwitcherText.equals(SHOW_IMAGE_VIEW) ? ImageFacetView.ANNOTATION_VIEW : ImageFacetView.IMAGE_VIEW);
-    }
-    
-    public void setCurrentView(ImageFacetView view) {
-        if (getCurrentView() != view) {
-            SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
-            clickToolbox(SearchPage.WindowState.CLOSED);
-            WebElement imgViewSwitcherElement = driver.findElement(By.cssSelector("span#imgViewSwitcher"));
-            TestUtils.scrollToTop(driver, imgViewSwitcherElement, -50);         // Scroll 'Show Image View' link into view.
-            driver.findElement(By.cssSelector("span#imgViewSwitcher")).click();
-            updateImageTableAfterChange();
-            if (toolboxState != getToolboxState())
-                clickToolbox(toolboxState);
-        }
-    }
-    
-    /**
-     * @return the result count at the bottom of the images screen right-hand panel.
-     */
-    public int getResultCount() {
-            String rawResultCount = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='impc_imagesGrid_info']"))).getText();
-            String[] rawResultCountParts = rawResultCount.split(" ");
-            Integer niResultCount = Utils.tryParseInt(rawResultCountParts[5].replace(",", ""));
-            return (niResultCount == null ? 0 : niResultCount);
-    }
-    
-    /**
-     * This method is meant to be called after any change to the image table,
-     * such as changing between annotation and image view, or changing
-     * pagination pages. It is required to keep the image table internals in
-     * sync with what is seen on the page.
-     */
-    public void updateImageTableAfterChange() {
-        switch (getCurrentView()) {
-            case ANNOTATION_VIEW:
-                searchImageAnnotationView = new SearchImageAnnotationView(byTableTr, driver, timeoutInSeconds);
-                searchImageImageView = null;
-                break;
-
-            case IMAGE_VIEW:
-                searchImageAnnotationView = null;
-                searchImageImageView = new SearchImageImageView(byTableTr, driver, timeoutInSeconds);
-                break;
-        }
-        
-        setTable(driver.findElement(By.xpath(tableXpath)));
-    }
-
-    /**
-     * Return the number of entries currently showing in the 'entries' drop-down
-     * box.
-     *
-     * @return the number of entries currently showing in the 'entries'
-     * drop-down box.
-     */
-    @Override
-    public int getNumEntries() {
-        Select select = new Select(driver.findElement(By.xpath("//select[@name='impc_imagesGrid_length']")));
-        try {
-            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
-        } catch (NullPointerException npe) {
-            return 0;
-        }
-    }
-    
-    /**
-     * Set the number of entries in the 'entries' drop-down box.
-     * 
-     * @param entriesSelect The new value for the number of entries to show.
-     */
-    @Override
-    public void setNumEntries(EntriesSelect entriesSelect) {
-        String xpathValue = "//select[@name='impc_imagesGrid_length']";
-        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
-        select.selectByValue(Integer.toString(entriesSelect.getValue()));
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
-    }
-    
-    @Override
-    public PageStatus validateDownload(String[][] data) {
-        PageStatus status = new PageStatus();
-        
-        switch (getCurrentView()) {
-            case ANNOTATION_VIEW:
-                status = searchImageAnnotationView.validateDownload(data);
-                break;
-                
-            case IMAGE_VIEW:
-                status = searchImageImageView.validateDownload(data);
-                break;
-        }
-        
-        return status;
-    }
-    
 }

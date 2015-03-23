@@ -30,12 +30,10 @@ import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
-
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
-
-import static uk.ac.ebi.phenotype.solr.indexer.utils.OntologyUtils.BATCH_SIZE;
+import static uk.ac.ebi.phenotype.service.OntologyService.BATCH_SIZE;
 
 /**
  * 

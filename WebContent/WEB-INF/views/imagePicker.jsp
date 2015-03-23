@@ -39,8 +39,9 @@
     	<div class="content">
         	<div class="node">
                            
-        	<form action="../../imageComparator" method="get">
-        	 <h1 class="title" id="top">Controls</h1>
+        	<form action="../../image_compara/image_compara.html" method="get">
+        	<input type="submit" value="Click to display selected images">
+        	 <h1 class="title" id="control">Controls</h1>
 				<div class="section">
 					<div class="inner">
 						<select name="ctrImgId" multiple size="2" class="show-html">
