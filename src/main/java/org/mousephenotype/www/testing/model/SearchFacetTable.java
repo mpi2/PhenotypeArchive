@@ -244,7 +244,7 @@ public abstract class SearchFacetTable {
         Set difference = TestUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
-            System.out.println("SearchFacetTable.validateDownloadInternal(): Page data not found in download:");
+            System.out.println("SearchFacetTable.validateDownloadInternal(): Page data/Download data mismatch:");
             Iterator it = difference.iterator();
             int i = 0;
             while (it.hasNext()) {
