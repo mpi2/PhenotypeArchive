@@ -119,6 +119,20 @@
         <filter class="solr.PorterStemFilterFactory"/>
       </analyzer>
     </fieldType>
+    
+    <!-- to be used for marker_symbol boosting: only allow lowercase -->    
+    <fieldType name="text_lowercase" class="solr.TextField">
+        <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+         	<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+        <analyzer type="query"> 
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>  
+    
+    
   </types>
 
   
@@ -288,6 +302,10 @@
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/> 
 	
+	<field name="marker_symbol_bf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+	<field name="marker_symbol_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
+	
+	
   	<!-- bucket list qf -->
   	<field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="mpQf" type="string" indexed="true" stored="false" multiValued="true"/>
@@ -330,6 +348,9 @@
     <copyField source="maTermName" dest="auto_suggest" />
     <copyField source="mpTermId" dest="auto_suggest" />
     <copyField source="mpTermName" dest="auto_suggest" />
+    
+    <copyField source="marker_symbol" dest="marker_symbol_bf" />
+	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
     
     <copyField source="tagValue" dest="text_search" /> 
     <copyField source="expName" dest="text_search" />
