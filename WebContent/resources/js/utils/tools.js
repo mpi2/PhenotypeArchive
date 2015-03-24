@@ -1804,6 +1804,7 @@
 
 
         if (facet == 'gene') {
+        	
             if (q.match(/^MGI:\d*$/i)) {
                 oParams.q = q.toUpperCase();
                 oParams.qf = 'mgi_accession_id';
@@ -1816,6 +1817,12 @@
 //                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
 //                        + ' marker_name:' + q.replace(/\*/g, '') + '^200';
             }
+            else if ( q.match(/^.+\S+.+$/) ){
+            	// simple phrase search
+            	
+            	oParams.bq = 'marker_symbol_lowercase:"' + q + '"^1000' + ' marker_symbol_bf:"' + q + '"^100';	
+            }
+           
             else {
             	
             	if ( q == '*:*') {q = '*'} // don't want marker_symbol_lowercase:*:*^1000
@@ -1825,8 +1832,10 @@
             	oParams.pf = 'marker_symbol_lowercase^1000 human_gene_symbol^500';
             	
             }
+        	
         }
         else if (facet == 'mp') {
+        	console.log('mp q: ' + q)
         	oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
         	
             if (q.match(/^MP:\d*$/i)) {
@@ -1843,6 +1852,11 @@
                 // does not seem to take effect if complexphrase is in use
                 oParams.pf = 'mp_term^1000 mp_term_synonym^500 mp_definition^100';
             }
+            
+            if ( q != '*:*' ){
+            	delete oParams.bq;  // don't want to use the default bq when users search for something specific
+            }
+            
         }
         else if (facet == 'disease') {
             if (q.match(wildCardStr) && q != '*:*') {
@@ -1957,9 +1971,9 @@
         
         oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);
 
-        if (oUrlParams.widgetName == 'geneFacet') {
+        if (oUrlParams.widgetName == 'geneFacet' && oParams.q == '*:*') {
         	// this competes with marker_symbol_lowercase boost
-           // oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
+            oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
         }
         if (oUrlParams.widgetName == 'mpFacet') {
             oUrlParams.params += '&sort:gene_count desc';
