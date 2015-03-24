@@ -175,6 +175,8 @@ public class PhenotypePageTest {
             // This one has historically been known to fail, so it is included here for testing. Failure indicates a data problem on the Mark Griffiths end.
             if (i == 0)
                 phenotypeId = "MP:0013020";
+            else if (i == 1)
+                phenotypeId = "MP:0013017";
             
             i++;
             
