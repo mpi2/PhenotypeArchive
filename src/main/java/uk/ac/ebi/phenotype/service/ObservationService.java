@@ -1588,7 +1588,7 @@ public class ObservationService extends BasicService {
 			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
 		}
 		
-		System.out.println("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
+		LOG.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
 		} catch (SolrServerException e) {
@@ -1617,7 +1617,7 @@ public class ObservationService extends BasicService {
 			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
 		}
 		
-		System.out.println("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
+		LOG.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
 		} catch (SolrServerException e) {
