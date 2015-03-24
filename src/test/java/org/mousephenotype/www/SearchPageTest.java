@@ -795,13 +795,13 @@ public class SearchPageTest {
      */
     @Test
 //@Ignore
-    public void test_MPII_806() throws Exception {
+    public void testMPII_806() throws Exception {
         Date start = new Date();
         successList.clear();
         errorList.clear();
         testCount++;
         System.out.println();
-        String testName = "testJiraMPII_806";
+        String testName = "testMPII_806";
         System.out.println("----- " + testName + " -----");
 
          String queryStr = baseUrl + "/search";
@@ -827,7 +827,9 @@ public class SearchPageTest {
             successList.add((testName + ": OK"));
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
-    }    /**
+    }    
+    
+    /**
      * Test for Jira bug MPII-1175: from the search page, searching for the characters
      * "fasting glu" should autosuggest 'fasting glucose'. Click on 'fasting glucose'
      * and verify that the correct phenotype page appears.
@@ -835,8 +837,8 @@ public class SearchPageTest {
      */
     @Test
 //@Ignore
-    public void test_MPII_1175() throws Exception {
-        String testName = "test_MPII_1175";
+    public void testMPII_1175() throws Exception {
+        String testName = "testMPII_1175";
         String searchString = null;
         Date start = new Date();
         PageStatus status = new PageStatus();
@@ -868,8 +870,16 @@ public class SearchPageTest {
             for (SearchPage.Facet facet : facets) {
                 searchPage.clickFacet(facet);
                 searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
+// http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/search#fq=top_level_mp_term:*&facet=mp
+//searchPage.clickPageButton(SearchPage.PageDirective.THIRD_NUMBERED);
 //TestUtils.sleep(5000);
+                
+//http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/search#fq=*:*&facet=mp
+//searchPage.clickPageButton(SearchPage.PageDirective.SECOND_NUMBERED);
+//TestUtils.sleep(5000);
+                
+                
+                
                 searchPage.setNumEntries(SearchFacetTable.EntriesSelect._10);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 
                 status.add(searchPage.validateDownload(facet));
