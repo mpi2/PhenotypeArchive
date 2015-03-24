@@ -225,9 +225,6 @@
 	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" /> 
 
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
-	<field name="marker_symbol_bf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-	<field name="marker_symbol_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
-
 
 	<!-- bucket list qf -->
   	<field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>
@@ -392,10 +389,6 @@
 	<copyField source="allele_name" dest="auto_suggest"/> 
 	
 	<copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />
-
-	<copyField source="marker_symbol" dest="marker_symbol_bf" />
-	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
-	
 
 	<!--  qf bucket list -->
 	<copyField source="mgi_accession_id" dest="geneQf" /> 

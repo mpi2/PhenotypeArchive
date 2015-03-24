@@ -313,9 +313,7 @@
 	leading wildcard queries. -->
 	<field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>
   	
-  	<field name="marker_symbol_bf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-	<field name="marker_symbol_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
-  	
+  
   	<!-- bucket list qf -->
   	<field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="mpQf" type="string" indexed="true" stored="false" multiValued="true"/>
@@ -415,9 +413,6 @@
 	<copyField source="parameter_name" dest="auto_suggest" /> 	
 	
 	<copyField source="preqc_gene_id" dest="mgi_accession_id" />
-	
-	<copyField source="marker_symbol" dest="marker_symbol_bf" />
-	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
 	
 	
 	<!--  qf bucket list -->
