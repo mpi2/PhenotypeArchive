@@ -35,6 +35,26 @@ public class ImageDTO extends ObservationDTO {
 	
 	@Field("ma_id")
 	private List<String> maTermId;
+	
+	@Field("ma_term")
+	private List<String> maTerm;
+	
+	@Field("ma_term_synonym")
+	private List<String> maTermSynonym;
+
+	@Field("selected_top_level_ma_id")
+	private List<String> topLevelMaIds;
+
+	@Field("selected_top_level_ma_term")
+	private List<String> topLeveMaTerm;
+	
+	@Field("selected_top_level_ma_term_synonym")
+	private List<String> topLevelMaTermSynonym;
+	
+//	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//	<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 
 	@Field("symbol_gene")
 	private String symbolGene;//for search and annotation view
@@ -373,8 +393,57 @@ public class ImageDTO extends ObservationDTO {
 		this.symbolGene=symbolGene;
 		
 	}
+
 	
+	public List<String> getMaTerm() {
+		return maTerm;
+	}
+
+
+	public void setMaTerm(List<String> maTerm) {
+		this.maTerm = maTerm;
+	}
 	
+	public List<String> getMaTermSynonym() {
+		return maTermSynonym;
+	}
+
+
+	public void setMaTermSynonym(List<String> maTermSynonym) {
+		this.maTermSynonym = maTermSynonym;
+	}
+
+
+	public void setTopLevelMaId(ArrayList<String> topLevelMaIds) {
+		this.topLevelMaIds=topLevelMaIds;
+		
+	}
+
+
+	public void setTopLevelMaTerm(ArrayList<String> topLevelMaTerm) {
+		this.topLeveMaTerm=topLevelMaTerm;
+		
+	}
+
+
+	public void setTopLevelMaTermSynonym(ArrayList<String> topLevelMaTermSynonym) {
+		this.topLevelMaTermSynonym=topLevelMaTermSynonym;
+	}
+	
+	public List<String> getTopLevelMaIds() {
+		return topLevelMaIds;
+	}
+
+
+	public List<String> getTopLeveMaTerm() {
+		return topLeveMaTerm;
+	}
+
+
+	public List<String> getTopLevelMaTermSynonym() {
+		return topLevelMaTermSynonym;
+	}
+
 
 	
 }

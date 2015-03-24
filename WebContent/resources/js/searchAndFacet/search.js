@@ -21,8 +21,8 @@
 (function($){	
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
-	function _updateMainFacetCount(facet, numFound, facetMode){		
-		
+	function _updateMainFacetCount(facet, numFound, facetMode){	
+	
 		$('div.flist li#' + facet + ' span.fcount').html(numFound);		
 		
 		var freezeMode = numFound == 0 ? true : false;
@@ -30,6 +30,7 @@
 	}
 	
 	function _getParams(oUrlParams){
+		
 		var coreQry = {};
 		
 		var aCores = MPI2.searchAndFacetConfig.megaCores;
@@ -55,15 +56,35 @@
 			if ( typeof oUrlParams.qf != 'undefined' ){
 				params.qf = oUrlParams.qf; 
 			}
+			
+			
 			params.q = oUrlParams.q; // encoded
 			//console.log(facet + ' --- ' + $.fn.stringifyJsonAsUrlParams(params));
+			
 			coreQry[core] = $.fn.stringifyJsonAsUrlParams(params);
+			
+			if ( core == 'gene' ){
+				// gene2: pseudo key for getting protein_coding_gene count
+				var params2 = params;
+				params2.fq = 'marker_type:"protein coding gene"';
+				coreQry['gene2'] = $.fn.stringifyJsonAsUrlParams(params2);
+			}
+			
 		}
 		//console.log(JSON.stringify(coreQry));
 		return JSON.stringify(coreQry);
 	}
 	
 	$.fn.fetchSolrFacetCount = function(oUrlParams){		
+
+		// querybroker takes care of applying marker_type:"protein coding gene" filter
+		// when search page loads by default
+		var showProteinCodingGeneCount = false;
+		if ( $.isEmptyObject(oUrlParams) || 
+				(oUrlParams.q == undefined && oUrlParams.fq == "*:*" && oUrlParams.widgetName == undefined) ){
+			showProteinCodingGeneCount = true;
+		}
+		//var oUrlParamsNew = $.fn.addProteinCodingGeneFilter(oUrlParams);
 		
 		/* ---- q for SOLR --- */ 
 		var q = oUrlParams.q;
@@ -94,12 +115,16 @@
 	    		//console.log(facetCountJson);
 	    		MPI2.searchAndFacetConfig.update.mainFacetDone = true;
 	    		
+	    		if ( showProteinCodingGeneCount ){
+    				facetCountJson.gene = facetCountJson.gene2;
+    				delete facetCountJson.gene2;
+    			}
 	    		oFacets.count = facetCountJson;
-	    		//console.log(oFacets.count.gene);
 	    		
-	    		for ( var facet in facetCountJson ){
-	    			_updateMainFacetCount(facet, facetCountJson[facet], facetMode);
-	    		}
+	    		// replaced by $.fn.doBatchFacetCountUpdate
+//	    		for ( var facet in facetCountJson ){
+//	    			_updateMainFacetCount(facet, facetCountJson[facet], facetMode);
+//	    		}
 	    		
 	    		$('div#facetSrchMsg').html('&nbsp;');
 

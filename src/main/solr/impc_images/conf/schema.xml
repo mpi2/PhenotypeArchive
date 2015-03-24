@@ -119,6 +119,19 @@
         <filter class="solr.PorterStemFilterFactory"/>
       </analyzer>
     </fieldType>
+    
+    <!-- to be used for marker_symbol boosting: only allow lowercase -->    
+    <fieldType name="text_lowercase" class="solr.TextField">
+        <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+         	<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+        <analyzer type="query"> 
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>  
+    
   </types>
 
   
@@ -386,9 +399,7 @@
   	<!--  for copyFields -->
 
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-
-
-
+	
     </fields>
 
     <uniqueKey>id</uniqueKey>
@@ -409,4 +420,6 @@
   <copyField source="gene_symbol" dest="auto_suggest" />
   <copyField source="procedure_name" dest="auto_suggest" />
   <copyField source="phenotyping_center" dest="latest_phenotyping_centre" />
+  
+  
 </schema>

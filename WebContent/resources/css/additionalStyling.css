@@ -91,6 +91,7 @@ button.exportButton{
 }
 
 .abnormalities .no-sprite  { position: absolute; width: 40px; height: 40px;}
+.abnormalities .sprite_NA  { position: absolute; width: 0px; height: 0px;}
 .abnormalities .sprite_mortality_aging { margin: 0px 0px 0px 0px; background-position: 0px 0px; }
 .abnormalities .sprite_embryogenesis_phenotype { margin: 0px 0px 0px 40px; background-position: -40px 0px; }
 .abnormalities .sprite_reproductive_system_phenotype { margin: 0px 0px 0px 80px; background-position: -80px 0px; }

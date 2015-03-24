@@ -401,6 +401,7 @@ public class SearchPage {
         }
         
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
+        TestUtils.sleep(3000);                                                  // Additional sleep time, as there still seems to be a timing problem.
         return pageDirective;
     }
     

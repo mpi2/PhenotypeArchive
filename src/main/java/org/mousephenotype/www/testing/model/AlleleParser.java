@@ -66,11 +66,12 @@ public class AlleleParser {
      * @param rawAllele The allele string, without '&lt;' and '&gt;'
      * delimiters, but with the sup following the gene, to parse
      * @param sup The allele superscript string, without '&lt;' and '&gt;'
-     * delimiters, to parse
+     * delimiters, to parse. May be empty, indicating there is no allele
+     * superscript.
      */
     public AlleleParser(String rawAllele, String sup) {
-        gene = rawAllele.replace(sup, "").trim();
-        alleleSub = sup.trim();
+        gene = (sup.isEmpty() ? rawAllele : rawAllele.replace(sup, "").trim());
+        alleleSub = (sup.isEmpty() ? "" : sup.trim());
     }
     
     /**
@@ -99,7 +100,10 @@ public class AlleleParser {
      */
     @Override
     public String toString() {
-        return (gene + "<" + alleleSub + ">");
+        if (alleleSub.isEmpty())
+            return gene;
+        else
+            return (gene + "<" + alleleSub + ">");
     }
 
 }
