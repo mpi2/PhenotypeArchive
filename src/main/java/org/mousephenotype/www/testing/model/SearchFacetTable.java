@@ -129,6 +129,7 @@ public abstract class SearchFacetTable {
         Select select = new Select(driver.findElement(byHash.get(BY_SELECT_GRID_LENGTH)));
         select.selectByValue(Integer.toString(entriesSelect.getValue()));
         wait.until(ExpectedConditions.textToBePresentInElementLocated(byHash.get(BY_SELECT_GRID_LENGTH), Integer.toString(entriesSelect.getValue())));
+        TestUtils.sleep(3000);      // trying to stop timing issues.
     }
 
     /**
