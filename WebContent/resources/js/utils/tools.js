@@ -1835,7 +1835,7 @@
         	
         }
         else if (facet == 'mp') {
-        	console.log('mp q: ' + q)
+        	
         	oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
         	
             if (q.match(/^MP:\d*$/i)) {
