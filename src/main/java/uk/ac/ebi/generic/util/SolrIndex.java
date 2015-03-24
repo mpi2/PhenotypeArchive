@@ -51,6 +51,10 @@ import org.springframework.stereotype.Service;
 //import com.google.gson.stream.JsonReader;
 
 
+
+
+
+
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -66,6 +70,47 @@ public class SolrIndex {
 
 	private Object Json;
 	
+	
+	
+    
+    public static Map<String,Integer> getGoCodeRank(){
+
+    	//GO evidence code ranking mapping
+        final Map<String,Integer> codeRank = new HashMap<>();
+        
+        // experimental 
+	    codeRank.put("EXP", 5);codeRank.put("IDA", 5);codeRank.put("IPI", 5);codeRank.put("IMP", 5);
+	    codeRank.put("IGI", 5);codeRank.put("IEP", 5);
+        
+	    // curated computational
+	    codeRank.put("ISS", 4);codeRank.put("ISO", 4);codeRank.put("ISA", 4);codeRank.put("ISM", 4);
+	    codeRank.put("IGC", 4);codeRank.put("IBA", 4);codeRank.put("IBD", 4);codeRank.put("IKR", 4);
+	    codeRank.put("IRD", 4);codeRank.put("RCA", 4);
+	    
+	    // automated electronic
+	    codeRank.put("IEA", 3);
+	    
+	    // other
+	    codeRank.put("TAS", 2);codeRank.put("NAS", 2);codeRank.put("IC", 2);
+	    
+	    // no biological data available
+	    codeRank.put("ND", 1);
+	
+    	return codeRank;
+    }
+    
+    public static Map<Integer, String> getGoEvidRankCategory(){
+    	
+    	Map<Integer, String> evidRank = new HashMap<>();
+		
+		evidRank.put(1, "No biological data available");
+		evidRank.put(2, "Other");
+		evidRank.put(3, "Automated electronic");
+		evidRank.put(4, "Curated computational");
+		evidRank.put(5, "Experimental");
+		
+		return evidRank;
+    }
 	/**
 	 * Return the number of documents found for a specified solr query on a
 	 * specified core.
@@ -1002,7 +1047,7 @@ public class SolrIndex {
 			
 			// either molecular_function or biological_process
 			//String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
-			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
+			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" AND go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
 			
 			// only molecular_function
 			//String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";

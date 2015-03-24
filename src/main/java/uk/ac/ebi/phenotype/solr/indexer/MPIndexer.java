@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.*;
@@ -36,6 +37,7 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,6 +61,10 @@ public class MPIndexer extends AbstractIndexer {
     @Qualifier("preqcIndexing")
     private SolrServer preqcCore;
 
+    @Autowired
+    @Qualifier("genotypePhenotypeIndexing")
+    private SolrServer genotypePhenotypeCore;
+    
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -153,7 +159,7 @@ public class MPIndexer extends AbstractIndexer {
         try {
 
         	// maps MP to number of phenotyping calls
-        	populateGene2MpCalls();
+        	//populateGene2MpCalls();
         	
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
@@ -161,6 +167,7 @@ public class MPIndexer extends AbstractIndexer {
 
             // Loop through the mp_term_infos
             String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
+            
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -177,13 +184,13 @@ public class MPIndexer extends AbstractIndexer {
                 buildNodes(mp);
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
-                 mp.setGoId(goIds.get(termId));
+                mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp);
-                
+                 
                 // this sets the number of postqc phenotyping calls of this MP
-                mp.setPostqcCalls( mpCalls.containsKey(termId) ? mpCalls.get(termId) : 0);  
-                
+                mp.setPhenoCalls(sumPhenotypingCalls(termId)); 
+                //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
 
                 logger.debug("{}: Built MP DTO {}", count, termId);
@@ -205,6 +212,29 @@ public class MPIndexer extends AbstractIndexer {
         logger.info("MP Indexer complete!");
     }
 
+    private int sumPhenotypingCalls(String mpId) throws SolrServerException {
+    
+    	List<SolrServer> ss = new ArrayList<>();
+    	ss.add(preqcCore);
+    	ss.add(genotypePhenotypeCore);
+    	
+    	int calls = 0;
+    	for ( int i=0; i<ss.size(); i++ ){
+    		
+    		SolrServer solrSvr = ss.get(i);
+    
+	    	SolrQuery query = new SolrQuery();
+			query.setQuery("mp_term_id:\"" + mpId + "\" OR intermediate_mp_term_id:\"" + mpId + "\" OR top_level_mp_term_id:\"" + mpId + "\"");
+			query.setRows(0);
+			
+			QueryResponse response = solrSvr.query(query);
+			calls += response.getResults().getNumFound();
+		
+		}
+    	
+        return calls;
+    }
+    
     private void populateGene2MpCalls() throws SQLException {
     	
     	String qry = "select mp_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by mp_acc";
@@ -218,6 +248,7 @@ public class MPIndexer extends AbstractIndexer {
     	
     		mpCalls.put(mpAcc, calls);
     	}
+    	
     	logger.info("Finished creating a mapping of MP to postqc phenotyping calls");
     }
 

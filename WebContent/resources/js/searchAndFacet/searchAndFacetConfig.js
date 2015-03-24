@@ -297,7 +297,7 @@ config.facetParams = {
 		 filterParams: {'fq': 'top_level_mp_term:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
-					{'fl': 'mp_id,mp_term,mp_term_synonym,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition,hp_id,hp_term,postqc_calls'})
+					{'fl': 'mp_id,mp_term,mp_term_synonym,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition,hp_id,hp_term,pheno_calls'})
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',
