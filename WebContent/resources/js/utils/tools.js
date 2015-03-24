@@ -1810,18 +1810,20 @@
             }
             else if (q.match(wildCardStr) && q != '*:*') {
             	
-                oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g, '') + '^1000';
-                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800';
-                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
-                        + ' marker_name:' + q.replace(/\*/g, '') + '^200';
+            	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000' + ' marker_symbol_bf:' + q + '^100';	
+//                oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g, '') + '^1000'
+//                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
+//                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
+//                        + ' marker_name:' + q.replace(/\*/g, '') + '^200';
             }
             else {
             	
-            	if ( q = '*:*') {q = '*'} // don't want marker_symbol_lowercase:*:*^1000
+            	if ( q == '*:*') {q = '*'} // don't want marker_symbol_lowercase:*:*^1000
             	
                 //oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
-            	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000';
+            	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000' + ' marker_symbol_bf:' + q + '^100';
             	oParams.pf = 'marker_symbol_lowercase^1000 human_gene_symbol^500';
+            	
             }
         }
         else if (facet == 'mp') {
@@ -1956,7 +1958,8 @@
         oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);
 
         if (oUrlParams.widgetName == 'geneFacet') {
-            oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
+        	// this competes with marker_symbol_lowercase boost
+           // oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
         }
         if (oUrlParams.widgetName == 'mpFacet') {
             oUrlParams.params += '&sort:gene_count desc';
