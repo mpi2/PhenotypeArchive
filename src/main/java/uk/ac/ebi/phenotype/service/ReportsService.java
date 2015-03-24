@@ -235,6 +235,17 @@ public class ReportsService {
 		   	
     	res.add(linesPerCenter);
     	
+    	List<List<String[]>> overview13procedures = new ArrayList<>();
+    	List<String> genes;
+    	try {
+    		genes = oService.getGenesWithMoreProcedures(13, resources);
+    		overview13procedures.addAll(gpService.getOverviewForGenesInList(genes, resources));
+		} catch (SolrServerException | InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+    	
+    	res.addAll(overview13procedures);
+    	
 		return res;
     }
     
@@ -258,11 +269,7 @@ public class ReportsService {
 			res.add(parameters);
 			res.add(procedures);
 			
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
     	return res;
