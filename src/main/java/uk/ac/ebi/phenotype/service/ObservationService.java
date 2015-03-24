@@ -85,7 +85,42 @@ public class ObservationService extends BasicService {
 		System.out.println("setting observationService solrUrl="+solrUrl);
 		solr = new HttpSolrServer(solrUrl);
 	}
+	
+	 
+    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
+    throws SolrServerException, InterruptedException, ExecutionException {
 
+    	List<String> genes = new ArrayList<>();
+    	SolrQuery q = new SolrQuery();
+    	
+    	if (resourceName != null){
+            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }   
+    	
+    	String geneProcedurePivot = ObservationDTO.GENE_SYMBOL + "," + ObservationDTO.PROCEDURE_NAME;
+     	
+    	q.add("facet.pivot", geneProcedurePivot);
+    	
+    	q.setFacet(true);
+    	q.setRows(1);
+    	q.setFacetMinCount(1);
+    	q.set("facet.limit", -1); 
+    	
+    	System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+    	QueryResponse response = solr.query(q);
+    	
+    	for( PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)){
+       		if (pivot.getPivot().size() >=13){
+    			genes.add(pivot.getValue().toString());
+    		}
+    	}
+    	
+    	return genes;
+    }
+    
+    
 
 	public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException {
 		SolrQuery query = new SolrQuery();

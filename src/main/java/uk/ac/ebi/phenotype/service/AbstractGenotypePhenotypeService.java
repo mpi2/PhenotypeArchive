@@ -148,6 +148,72 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         
     }
     
+    public List<List<String[]>> getOverviewForGenesInList(List<String> geneSymbols, ArrayList<String> resourceName)
+    throws SolrServerException, InterruptedException, ExecutionException {
+
+    	List<List<String[]>>  res = new ArrayList<>();
+    	List<String[]>  mpTable = new ArrayList<>();
+    	List<String[]>  topLevelMpTable = new ArrayList<>();
+    	    	
+    	SolrQuery q = new SolrQuery();
+    	
+    	if (resourceName != null){
+            q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }   
+    	
+    	String mpGenePivot = GenotypePhenotypeDTO.MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+    	String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+    	
+    	q.add("facet.pivot", mpGenePivot);
+    	q.add("facet.pivot", mpTopLevelGenePivot);
+    	
+    	q.setFacet(true);
+    	q.setRows(1);
+    	q.set("facet.limit", -1); 
+    	
+    	System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+    	QueryResponse response = solr.query(q);
+    	
+    	String[] headerTopLevel = {"Top Level MP term", "# associated genes with >13 procedures done", "% associated genes of all genes with > 13 procedures done"};
+    	topLevelMpTable.add(headerTopLevel);
+    	
+    	for (PivotField pivot : response.getFacetPivot().get(mpTopLevelGenePivot)){
+    		String mpTerm = pivot.getValue().toString();
+    		Float geneNo = (float) 0;
+    		for (PivotField genePivot : pivot.getPivot()){
+    			String gene = genePivot.getValue().toString();
+    			if (geneSymbols.contains(gene)){
+    				geneNo ++;
+    			}
+    		}
+    		String[] row = {mpTerm, ""+geneNo, ""+(geneNo/geneSymbols.size()*100)}; 
+    		topLevelMpTable.add(row);
+    	}
+    	res.add(topLevelMpTable);        	
+    	
+    	String[] header = {"MP term", "# associated genes with >13 procedures done", "% associated genes of all genes with > 13 procedures done"};
+    	mpTable.add(header);
+    	
+    	for (PivotField pivot : response.getFacetPivot().get(mpGenePivot)){
+    		String mpTerm = pivot.getValue().toString();
+    		Float geneNo = (float) 0;
+    		for (PivotField genePivot : pivot.getPivot()){
+    			String gene = genePivot.getValue().toString();
+    			if (geneSymbols.contains(gene)){
+    				geneNo ++;
+    			}
+    		}
+    		String[] row = {mpTerm, ""+geneNo, ""+(geneNo/geneSymbols.size()*100)}; 
+    		mpTable.add(row);
+    	}
+    	res.add(mpTable);
+        	
+    	return res;
+    }
+    
+    
     private List<String[]> getHitsDistributionBySomething(String field, ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
 
@@ -709,13 +775,14 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
         JSONObject results = new JSONObject();
         results = JSONRestUtil.getResults(url);
-
+ 
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
         for (Object doc : docs) {
 
             list.add(createSummaryCall(doc, isPreQc));
         }
-
+        
+          
 		// get the facet information that we can use to create the buttons /
         // dropdowns/ checkboxes
         JSONObject facets = results.getJSONObject("facet_counts").getJSONObject("facet_fields");
