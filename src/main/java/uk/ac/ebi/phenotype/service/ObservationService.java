@@ -87,6 +87,41 @@ public class ObservationService extends BasicService {
 	}
 
 
+    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
+    throws SolrServerException, InterruptedException, ExecutionException {
+
+    	List<String> genes = new ArrayList<>();
+    	SolrQuery q = new SolrQuery();
+
+    	if (resourceName != null){
+            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }
+
+    	String geneProcedurePivot = ObservationDTO.GENE_SYMBOL + "," + ObservationDTO.PROCEDURE_NAME;
+
+    	q.add("facet.pivot", geneProcedurePivot);
+
+    	q.setFacet(true);
+    	q.setRows(1);
+    	q.setFacetMinCount(1);
+    	q.set("facet.limit", -1);
+
+    	System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+    	QueryResponse response = solr.query(q);
+
+    	for( PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)){
+       		if (pivot.getPivot().size() >=13){
+    			genes.add(pivot.getValue().toString());
+    		}
+    	}
+
+    	return genes;
+    }
+
+
+
 	public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException {
 		SolrQuery query = new SolrQuery();
 		query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
@@ -549,6 +584,7 @@ public class ObservationService extends BasicService {
 			.addFacetPivotField(StringUtils.join(Arrays.asList(
 				ObservationDTO.PHENOTYPING_CENTER_ID,
 				ObservationDTO.PIPELINE_ID,
+				ObservationDTO.PROCEDURE_GROUP,
 				ObservationDTO.PARAMETER_ID,
 				ObservationDTO.STRAIN_ACCESSION_ID,
 				ObservationDTO.ZYGOSITY,
@@ -572,7 +608,7 @@ public class ObservationService extends BasicService {
 	public List<Map<String, String>> getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata()
 	throws SolrServerException {
 
-		List<String> pivotFields = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.PIPELINE_ID, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID);
+		List<String> pivotFields = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.PIPELINE_ID, ObservationDTO.PROCEDURE_GROUP, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID);
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
@@ -1553,7 +1589,7 @@ public class ObservationService extends BasicService {
 			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
 		}
 		
-		System.out.println("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
+		LOG.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
 		} catch (SolrServerException e) {
@@ -1582,7 +1618,7 @@ public class ObservationService extends BasicService {
 			q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
 		}
 		
-		System.out.println("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
+		LOG.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
 		try {
 			return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
 		} catch (SolrServerException e) {
