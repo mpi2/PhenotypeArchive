@@ -48,6 +48,8 @@
 	<jee:jndi-lookup id="komp2DataSource"
 		jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
 
+	
+
 	<!-- phenodigm external solr server via HTTP -->
 	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0" value="${phenodigm.solrserver}" />

@@ -51,9 +51,9 @@ public class ExternalAnnotsController {
 	@Autowired
 	private SolrIndex solrIndex;
 
-//	@Autowired
-//	@Qualifier("admintoolsDataSource")
-//	static DataSource admintoolsDataSource;
+	@Autowired
+	@Qualifier("admintoolsDataSource")
+	static DataSource admintoolsDataSource;
 
 	@RequestMapping(value = "/pubmed", method = RequestMethod.GET)
 	public String loadAutosuggestSearchFacetPage(@RequestParam(value = "q", required = false) String q, HttpServletRequest request, Model model)
@@ -61,13 +61,13 @@ public class ExternalAnnotsController {
 
 		// model.addAttribute("q", q);
 
-		//String dataTableJson = fetch_allele_ref();
+		String dataTableJson = fetch_allele_ref();
 		model.addAttribute("datatable", "dataTableJson");
 
 		return "alleleRef";
 	}
 
-	/*public String fetch_allele_ref() throws SQLException {
+	public String fetch_allele_ref() throws SQLException {
 		System.out.println("admintools: " + admintoolsDataSource);
 		Connection conn = admintoolsDataSource.getConnection();
 
@@ -105,7 +105,7 @@ public class ExternalAnnotsController {
 		}
 
 		return "";
-	}*/
+	}
 
 	@RequestMapping(value = "/gene2fam", method = RequestMethod.GET)
 	public String loadAutosuggestSearchFacetPage(@RequestParam(value = "q", required = false) String q,
