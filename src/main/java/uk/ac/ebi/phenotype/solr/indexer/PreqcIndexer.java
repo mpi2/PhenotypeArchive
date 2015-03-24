@@ -214,7 +214,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
 
                 // Skip this one: pValue not significant OR phenotypeTerm is MA
-                if ((pValue != null && pValue >= 0.0001 && !LINE_PROCEDURES.contains(procedure)) || phenotypeTerm.startsWith("MA:")) {//|| id != 726238) {
+                if ((pValue != null && pValue >= 0.0001 && !LINE_PROCEDURES.contains(procedure)) || phenotypeTerm.startsWith("MA:")) {
                     continue;
                 }
 
