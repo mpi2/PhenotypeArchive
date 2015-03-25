@@ -18,6 +18,10 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Array;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -42,6 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,6 +67,7 @@ import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 
+
 @Controller
 public class DataTableController {
 
@@ -77,6 +84,10 @@ public class DataTableController {
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
+	
+	@Autowired
+	@Qualifier("admintoolsDataSource")
+	private DataSource admintoolsDataSource;
 	
 	private String IMG_NOT_FOUND = "Image coming soon<br>";
 	private String NO_INFO_MSG = "No information available";
@@ -1228,5 +1239,128 @@ public class DataTableController {
 			
 	}
 	
+	// allele reference stuff
+		@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.POST)
+		public ResponseEntity<String> dataTableAlleleRefJson(
+				@RequestParam(value = "value", required = false) String value,
+				HttpServletRequest request,
+				HttpServletResponse response,
+				Model model) throws IOException, URISyntaxException, SQLException  {
+		System.out.println("value: " + value);
+			String content = value;//fetch_allele_ref(value);
+			return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+			
+		}
 	
+	// allele reference stuff
+	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.GET)
+	public ResponseEntity<String> dataTableAlleleRefJson(
+			@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
+			@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
+			@RequestParam(value = "sSearch", required = false) String sSearch,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+	
+		String content = fetch_allele_ref(iDisplayLength, iDisplayStart, sSearch);
+		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+
+	}
+	public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		String likeClause = " like '%" + sSearch + "%'";
+		String query = null;
+		
+		if ( sSearch != "" ){
+			query = "select count(*) as count from allele_ref where "
+					+ " acc" + likeClause
+					+ " or symbol" + likeClause
+					+ " or pmid" + likeClause
+					+ " or date_of_publication" + likeClause
+					+ " or grant_id" + likeClause
+					+ " or agency" + likeClause
+					+ " or acronym" + likeClause; 
+		}
+		else {
+			query = "select count(*) as count from allele_ref";
+		}
+		int rowCount = 0;
+		try (PreparedStatement p1 = conn.prepareStatement(query)) {
+			ResultSet resultSet = p1.executeQuery();
+
+			while (resultSet.next()) {
+				rowCount = Integer.parseInt(resultSet.getString("count"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Got " + rowCount + " rows");
+
+		JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+
+		j.put("iTotalRecords", rowCount);
+		j.put("iTotalDisplayRecords", rowCount);
+		
+		String query2 = null;
+		
+		if ( sSearch != "" ){
+			query2 = "select * from allele_ref where"
+				+ " acc" + likeClause
+				+ " or symbol" + likeClause
+				+ " or pmid" + likeClause
+				+ " or date_of_publication" + likeClause
+				+ " or grant_id" + likeClause
+				+ " or agency" + likeClause
+				+ " or acronym" + likeClause 
+				+ " limit " + iDisplayStart + "," +  iDisplayLength;
+		}
+		else {
+			query2 = "select * from allele_ref limit " + iDisplayStart + "," +  iDisplayLength;
+		}
+		
+		//System.out.println("query: "+ query);
+		//System.out.println("query2: "+ query2);
+		
+		String mgiAlleleBaseUrl = "http://www.informatics.jax.org/allele/";
+		
+		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
+			ResultSet resultSet = p2.executeQuery();
+
+			while (resultSet.next()) {
+
+				List<String> rowData = new ArrayList<String>();
+				
+				rowData.add(resultSet.getString("reviewed"));
+				
+				//rowData.add(resultSet.getString("acc"));
+				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
+				String alLink = "<a target='_blank' href='"+ mgiAlleleBaseUrl + resultSet.getString("acc") + "'>" + alleleSymbol + "</a>";
+				rowData.add(alLink);
+				
+				
+				//rowData.add(resultSet.getString("name"));
+				rowData.add(resultSet.getString("pmid"));
+				rowData.add(resultSet.getString("date_of_publication"));
+				rowData.add(resultSet.getString("grant_id"));
+				rowData.add(resultSet.getString("agency"));
+				rowData.add(resultSet.getString("acronym"));
+				String[] urls = resultSet.getString("paper_url").split(",");
+				List<String> links = new ArrayList<>();
+				for ( int i=0; i<urls.length; i++){
+					links.add("<a target='_blank' href='" + urls[i] + "'>paper</a>");
+				}
+				rowData.add(StringUtils.join(links, "<br>"));
+				
+				j.getJSONArray("aaData").add(rowData);	
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return j.toString();
+	}
+
 }
