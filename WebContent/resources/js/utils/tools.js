@@ -1804,15 +1804,12 @@
 
 
         if (facet == 'gene') {
-        	console.log('check q:'+ q)
         	
             if (q.match(/^MGI:\d*$/i)) {
                 oParams.q = q.toUpperCase();
                 oParams.qf = 'mgi_accession_id';
             }
             else if (q.match(wildCardStr) && q != '*:*') {
-            	
-            	console.log("case 1: " + q);
             	
             	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000' + ' marker_symbol_bf:' + q + '^100';	
 //                oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g, '') + '^1000'
@@ -1822,12 +1819,12 @@
             }
             else if ( q.match(/^.+\S+.+$/) ){
             	// simple phrase search
-            	console.log("case 2: " + q);
+            	
             	oParams.bq = 'marker_symbol_lowercase:"' + q + '"^1000' + ' marker_symbol_bf:"' + q + '"^100';	
             }
            
             else {
-            	console.log("case 3: " + q);
+            	
             	if ( q == '*:*') {q = '*'} // don't want marker_symbol_lowercase:*:*^1000
             	
                 //oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
