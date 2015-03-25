@@ -1805,13 +1805,19 @@
 
         if (facet == 'gene') {
         	
+        	var matches;
+        	var qBoost = q;
+        	if ( matches = q.match(/^("|%22)(.+)("|%22)$/) ){
+        		qBoost = matches[2];
+        	}
+        	
             if (q.match(/^MGI:\d*$/i)) {
                 oParams.q = q.toUpperCase();
                 oParams.qf = 'mgi_accession_id';
             }
             else if (q.match(wildCardStr) && q != '*:*') {
             	
-            	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000' + ' marker_symbol_bf:' + q + '^100';	
+            	oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000' + ' marker_symbol_bf:' + qBoost + '^100';	
 //                oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g, '') + '^1000'
 //                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
 //                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
@@ -1820,7 +1826,7 @@
             else if ( q.match(/^.+\S+.+$/) ){
             	// simple phrase search
             	
-            	oParams.bq = 'marker_symbol_lowercase:"' + q + '"^1000' + ' marker_symbol_bf:"' + q + '"^100';	
+            	oParams.bq = 'marker_symbol_lowercase:"' + qBoost + '"^1000' + ' marker_symbol_bf:"' + qBoost + '"^100';	
             }
            
             else {
@@ -1828,7 +1834,7 @@
             	if ( q == '*:*') {q = '*'} // don't want marker_symbol_lowercase:*:*^1000
             	
                 //oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
-            	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000' + ' marker_symbol_bf:' + q + '^100';
+            	oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000' + ' marker_symbol_bf:' + qBoost + '^100';
             	oParams.pf = 'marker_symbol_lowercase^1000 human_gene_symbol^500';
             	
             }
