@@ -19,7 +19,6 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -40,21 +39,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.ColonyObservation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
@@ -121,41 +116,6 @@ public class ObservationService extends BasicService {
     }
     
     
-
-    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
-    throws SolrServerException, InterruptedException, ExecutionException {
-
-    	List<String> genes = new ArrayList<>();
-    	SolrQuery q = new SolrQuery();
-
-    	if (resourceName != null){
-            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
-        }else {
-            q.setQuery("*:*");
-        }
-
-    	String geneProcedurePivot = ObservationDTO.GENE_SYMBOL + "," + ObservationDTO.PROCEDURE_NAME;
-
-    	q.add("facet.pivot", geneProcedurePivot);
-
-    	q.setFacet(true);
-    	q.setRows(1);
-    	q.setFacetMinCount(1);
-    	q.set("facet.limit", -1);
-
-    	System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
-    	QueryResponse response = solr.query(q);
-
-    	for( PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)){
-       		if (pivot.getPivot().size() >=13){
-    			genes.add(pivot.getValue().toString());
-    		}
-    	}
-
-    	return genes;
-    }
-
-
 
 	public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException {
 		SolrQuery query = new SolrQuery();
