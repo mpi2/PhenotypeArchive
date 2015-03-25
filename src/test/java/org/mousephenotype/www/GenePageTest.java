@@ -134,7 +134,6 @@ public class GenePageTest {
     
     // TESTS
     
-    
     /**
      * Finds all MGI_ACCESSION_IDs in the genotype-phenotype
      * core that do not start with 'MGI'.
@@ -177,8 +176,9 @@ public class GenePageTest {
                 driver.get(target);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                errorList.add(message);
+// 25-Mar-2015 (mrelac) These CGI genes are now back in the game.
+//                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+//                errorList.add(message);
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);

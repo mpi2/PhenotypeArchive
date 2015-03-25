@@ -222,17 +222,17 @@ public class MaOntologyService extends OntologyService {
                 } else {
                     String ancestorId = node2termMap.get(Integer.toString(ancestorNode));
                     missingFromFullpath++;
-logger.warn("MA ancestor node " + ancestorNode + " (" + ancestorId + ") (" + allTermsMap.get(ancestorId).getName() + ") is in topLevelNodeMap but not in the fullpath.");
+//logger.warn("MA ancestor node " + ancestorNode + " (" + ancestorId + ") (" + allTermsMap.get(ancestorId).getName() + ") is in topLevelNodeMap but not in the fullpath.");
                     // New top level not found in fullpath. Replace fullpath with ancestor node.
                     ancestorMap.put(ancestorNode, Integer.toString(ancestorNode));
                 }
             } else {
                     String ancestorId = node2termMap.get(Integer.toString(ancestorNode));
                     notIn_ma_node_2_selected_top_level_mapping++;
-logger.warn("MA ancestor node " + ancestorNode + " (" + ancestorId + ") (" + allTermsMap.get(ancestorId).getName() + ") was not found in the node_topLevelNodeMap!");
+//logger.warn("MA ancestor node " + ancestorNode + " (" + ancestorId + ") (" + allTermsMap.get(ancestorId).getName() + ") was not found in the node_topLevelNodeMap!");
             }
         }
-logger.warn("Missing from fullpath: " + missingFromFullpath + ".\tNot in ma_node_2_selected_top_level_mapping:_" + notIn_ma_node_2_selected_top_level_mapping + ".");
+//logger.warn("Missing from fullpath: " + missingFromFullpath + ".\tNot in ma_node_2_selected_top_level_mapping:_" + notIn_ma_node_2_selected_top_level_mapping + ".");
     }
     
     /**
