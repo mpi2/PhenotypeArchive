@@ -44,8 +44,6 @@ public class PreqcIndexer extends AbstractIndexer {
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
-    Set<String> LINE_PROCEDURES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("IMPC_VIA", "IMPC_FER")));
-
     private static Map<String, String> geneSymbol2IdMapping = new HashMap<>();
     private static Map<String, AlleleDTO> alleleSymbol2NameIdMapping = new HashMap<>();
     private static Map<String, String> strainId2NameMapping = new HashMap<>();
@@ -212,9 +210,8 @@ public class PreqcIndexer extends AbstractIndexer {
                     continue;
                 }
 
-
                 // Skip this one: pValue not significant OR phenotypeTerm is MA
-                if ((pValue != null && pValue >= 0.0001 && !LINE_PROCEDURES.contains(procedure)) || phenotypeTerm.startsWith("MA:")) {
+                if ((pValue != null && pValue >= 0.0001) || phenotypeTerm.startsWith("MA:")) {//|| id != 726238) {
                     continue;
                 }
 
