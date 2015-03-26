@@ -1322,6 +1322,7 @@ public class DataTableController {
 	public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
 		
 		Connection conn = admintoolsDataSource.getConnection();
+		
 		String likeClause = " like '%" + sSearch + "%'";
 		String query = null;
 		
@@ -1349,7 +1350,7 @@ public class DataTableController {
 			e.printStackTrace();
 		}
 
-		//System.out.println("Got " + rowCount + " rows");
+		System.out.println("Got " + rowCount + " rows");
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);

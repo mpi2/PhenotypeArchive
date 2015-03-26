@@ -127,7 +127,7 @@
                 		// verifying passcode
                 		// boolean response
                 		if ( response ){
-                			$('button').addClass('edit').text("Unedit")
+                			$('button').addClass('edit').text("Stop editing")
                 			$('form#allele').hide();
                 			$('#formBox span').text("You are now in editing mode...");
                 			var oTable = $('table#alleleRef').dataTable();
@@ -203,7 +203,7 @@
 	   	            	// POST
 	   	            	var thisRow = $(this);
 	   	            	var dbid = parseInt($(this).find('tr td:nth-child(3) span').attr('id'));
-	   	            	$(this).find('tr td:nth-child(2)').attr('id', dbid).css('cursor','pointer'); // set id for the key in POST
+	   	            	$(this).find('tr td:nth-child(2)').attr('id', dbid).css({'cursor':'pointer'}); // set id for the key in POST
 	   	            	$(this).find('tr td:nth-child(2)').editable(baseUrl + '/dataTableAlleleRef', {
 	   	                 "callback": function( sValue, y ) {
 	   	                     	$(this).text(sValue);
@@ -220,6 +220,10 @@
 	   	            		// will be 'yes'
 	   	            		$(this).find('form').css('padding','2px'); 
 	   	            		$(this).find('form input[name=value]').val("");
+	   	            	}).mouseover(function(){
+	   	            		$(this).css({'border':'1px solid gray'});
+	   	            	}).mouseout(function(){
+	   	            		$(this).css({'border':'none'});
 	   	            	});
    	            	}
    	            },
