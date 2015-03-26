@@ -21,7 +21,9 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -48,10 +50,11 @@ public class SearchDiseaseTable extends SearchFacetTable {
     private final List<DiseaseRow> bodyRows = new ArrayList();
     private final GridMap pageData;
 
+    private final static Map<TableComponent, By> map = new HashMap();
     static {
-        byHash.put(SearchFacetTable.BY_TABLE, By.xpath("//table[@id='diseaseGrid']"));
-        byHash.put(SearchFacetTable.BY_TABLE_TR, By.xpath("//table[@id='diseaseGrid']/tbody/tr"));
-        byHash.put(SearchFacetTable.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='diseaseGrid_length']"));
+        map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='diseaseGrid']"));
+        map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='diseaseGrid']/tbody/tr"));
+        map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='diseaseGrid_length']"));
     }
     
     /**
@@ -61,7 +64,7 @@ public class SearchDiseaseTable extends SearchFacetTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchDiseaseTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, timeoutInSeconds);
+        super(driver, timeoutInSeconds, SearchDiseaseTable.map);
         
         pageData = load();
     }
