@@ -22,6 +22,7 @@ package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -48,6 +49,7 @@ public class SearchImageImageView extends SearchFacetTable {
     
     private final List<ImageRow> bodyRows = new ArrayList();
     private final GridMap pageData;
+    private Map<TableComponent, By> map;
     
     public enum AnnotationType {
         Gene,
@@ -62,9 +64,12 @@ public class SearchImageImageView extends SearchFacetTable {
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
+     * @param map a map of HTML table-related definitions, keyed by <code>
+     * TableComponent</code>.
      */
-    public SearchImageImageView(WebDriver driver, int timeoutInSeconds) {
-        super(driver, timeoutInSeconds);
+    public SearchImageImageView(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> map) {
+        super(driver, timeoutInSeconds, map);
+        this.map = map;
         
         pageData = load();
     }
@@ -126,7 +131,7 @@ public class SearchImageImageView extends SearchFacetTable {
         String[][] pageArray;
         
         // Wait for page.
-        wait.until(ExpectedConditions.presenceOfElementLocated(byHash.get(SearchFacetTable.BY_TABLE)));
+        wait.until(ExpectedConditions.presenceOfElementLocated(map.get(TableComponent.BY_TABLE)));
         int numCols = COL_INDEX_LAST + 1;
         
         pageArray = new String[numRows][numCols];                               // Allocate space for the data.

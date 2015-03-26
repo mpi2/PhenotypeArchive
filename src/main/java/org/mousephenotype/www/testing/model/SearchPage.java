@@ -353,11 +353,13 @@ public class SearchPage {
         try {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[contains(@class, 'dataTable')]")));            // Wait for facet to load.
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'dataTables_paginate')]")));    // Wait for page buttons to load.
+        
         } catch (Exception e) {
-            System.out.println("SearchPage.clickFacet: wait timed out: " + e.getLocalizedMessage());
+            System.out.println("SearchPage.clickFacetById: wait timed out: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
         
+        setFacetTable();
         return getResultCount();
     }
     
@@ -400,8 +402,8 @@ public class SearchPage {
             e.printStackTrace();
         }
         
+        setFacetTable();
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
-        TestUtils.sleep(3000);                                                  // Additional sleep time, as there still seems to be a timing problem.
         return pageDirective;
     }
     
@@ -440,10 +442,8 @@ public class SearchPage {
                         case 5:
                         case 6:
                         case 7:
-//   System.out.println("Clicking page button " + (getNumPageButtons() - 1));
                             ulElements.get(getNumPageButtons() - 1).click();    break;
                         case 9:
-//   System.out.println("Clicking page button 8");
                             ulElements.get(8).click();                          break;
                     }
                     break;
@@ -455,6 +455,8 @@ public class SearchPage {
         
         if (hasImageTable())
             getImageTable().updateImageTableAfterChange();                      // Update the images table to keep it in sync.
+        
+        setFacetTable();
         getResultCount();                                                       // Called purely to wait for the page to finish loading.
         
         // Sometimes we lose the DOM unless we pause for a second. Don't know what to wait on for clickPageButtn().
@@ -944,6 +946,25 @@ public class SearchPage {
         }
     }
     
+    /**
+     * Sets the facet table based on the current-showing facet.
+     */
+    public void setFacetTable() {
+        if (hasAnatomyTable()) {
+            anatomyTable = new SearchAnatomyTable(driver, timeoutInSeconds);
+        } else if (hasDiseaseTable()) {
+            diseaseTable = new SearchDiseaseTable(driver, timeoutInSeconds);
+        } else if (hasGeneTable()) {
+            geneTable = new SearchGeneTable(driver, timeoutInSeconds);
+        } else if (hasImageTable()) {
+            imageTable = new SearchImageTable(driver, timeoutInSeconds);
+        } else if (hasImageTable()) {
+            impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
+        } else if (hasPhenotypeTable()) {
+            phenotypeTable = new SearchPhenotypeTable(driver, timeoutInSeconds);
+        }
+    }
+    
     public void setImageFacetView(SearchImageTable.ImageFacetView desiredView) {
         getImageTable().setCurrentView(desiredView);
     }
@@ -997,14 +1018,15 @@ public class SearchPage {
             if (table != null) {
                 status.add(table.validateDownload(data));                       // Validate it.
             }
-
-            if (status.hasErrors()) {
-                System.out.println("VALIDATION ERRORS:\n" + status.toStringErrorMessages());
-            } else {
-                System.out.println("TEST for facet " + facet + " (download type " + downloadType + "): OK");
-                System.out.println();
-            }
         }
+        
+        if (status.hasErrors()) {
+            System.out.println("VALIDATION ERRORS:\t" + status.toStringErrorMessages());
+        } else {
+            System.out.println("TEST for facet '" + facet + "' OK");
+        }
+
+        System.out.println();
         
         return status;
     }
@@ -1055,21 +1077,27 @@ public class SearchPage {
         if (hasAnatomyTable()) {
             logger.info("Setting AnatomyTable entries to " + entriesSelect.getValue() + ".");
             getAnatomyTable().setNumEntries(entriesSelect);
+            anatomyTable = getAnatomyTable();
         } else if (hasDiseaseTable()) {
             logger.info("Setting DiseaseTable entries to " + entriesSelect.getValue() + ".");
             getDiseaseTable().setNumEntries(entriesSelect);
+            diseaseTable = getDiseaseTable();
         } else if (hasGeneTable()) {
             logger.info("Setting GeneTable entries to " + entriesSelect.getValue() + ".");
             getGeneTable().setNumEntries(entriesSelect);
+            geneTable = getGeneTable();
         } else if (hasImageTable()) {
             logger.info("Setting ImageTable entries to " + entriesSelect.getValue() + ".");
             getImageTable().setNumEntries(entriesSelect);
+            imageTable = getImageTable();
         } else if (hasImpcImageTable()) {
             logger.info("Setting ImpcImageTable entries to " + entriesSelect.getValue() + ".");
             getImpcImageTable().setNumEntries(entriesSelect);
+            impcImageTable = getImpcImageTable();
         } else if (hasPhenotypeTable()) {
             logger.info("Setting PhenotypeTable entries to " + entriesSelect.getValue() + ".");
             getPhenotypeTable().setNumEntries(entriesSelect);
+            phenotypeTable = getPhenotypeTable();
         }
     }
     
