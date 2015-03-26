@@ -1805,13 +1805,19 @@
 
         if (facet == 'gene') {
         	
+        	var matches;
+        	var qBoost = q;
+        	if ( matches = q.match(/^("|%22)(.+)("|%22)$/) ){
+        		qBoost = matches[2];
+        	}
+        	
             if (q.match(/^MGI:\d*$/i)) {
                 oParams.q = q.toUpperCase();
                 oParams.qf = 'mgi_accession_id';
             }
             else if (q.match(wildCardStr) && q != '*:*') {
             	
-            	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000' + ' marker_symbol_bf:' + q + '^100';	
+            	oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000' + ' marker_symbol_bf:' + qBoost + '^100';	
 //                oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g, '') + '^1000'
 //                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
 //                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
@@ -1820,7 +1826,7 @@
             else if ( q.match(/^.+\S+.+$/) ){
             	// simple phrase search
             	
-            	oParams.bq = 'marker_symbol_lowercase:"' + q + '"^1000' + ' marker_symbol_bf:"' + q + '"^100';	
+            	oParams.bq = 'marker_symbol_lowercase:"' + qBoost + '"^1000' + ' marker_symbol_bf:"' + qBoost + '"^100';	
             }
            
             else {
@@ -1828,14 +1834,14 @@
             	if ( q == '*:*') {q = '*'} // don't want marker_symbol_lowercase:*:*^1000
             	
                 //oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
-            	oParams.bq = 'marker_symbol_lowercase:' + q + '^1000' + ' marker_symbol_bf:' + q + '^100';
+            	oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000' + ' marker_symbol_bf:' + qBoost + '^100';
             	oParams.pf = 'marker_symbol_lowercase^1000 human_gene_symbol^500';
             	
             }
         	
         }
         else if (facet == 'mp') {
-        	console.log('mp q: ' + q)
+        	
         	oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
         	
             if (q.match(/^MP:\d*$/i)) {
@@ -2351,7 +2357,11 @@
                     //if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
                     $('div#toolBox').css({'top': '-30px', 'left': '65px'});
                 }
-                var solrCoreName = oInfos.widgetName.replace('Facet', '');
+                
+                var solrCoreName;
+                if (  oInfos.hasOwnProperty('widgetName') ){
+                	solrCoreName = oInfos.widgetName.replace('Facet', '');
+            	}	
                 
                 // work out solr query start and row length dynamically
                 var iActivePage = $('div.dataTables_paginate li.active a').text();
@@ -2375,7 +2385,9 @@
                        // gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
                         gridFields: oInfos.gridFields,
                         dogoterm: oInfos.hasOwnProperty('dogoterm') ? oInfos.dogoterm : false,
-                        fileName: solrCoreName + '_table_dump'
+                        fileName: oInfos.fileName != 'undefined' ? oInfos.fileName : solrCoreName + '_table_dump',
+                        filterStr: oInfos.hasOwnProperty('filterStr') ? oInfos.filterStr : null,
+                        doAlleleRef: oInfos.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef : null,
                 };
                 
                 var exportObjPageTsv = buildExportUrl(conf, 'tsv', 'page');
@@ -2981,7 +2993,20 @@ $.extend($.fn.dataTableExt.oSort, {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }
 });
-
+$.fn.dataTableExt.oApi.fnStandingRedraw = function(oSettings) {
+    if(oSettings.oFeatures.bServerSide === false){
+        var before = oSettings._iDisplayStart;
+ 
+        oSettings.oApi._fnReDraw(oSettings);
+ 
+        // iDisplayStart has been reset to zero - so lets change it back
+        oSettings._iDisplayStart = before;
+        oSettings.oApi._fnCalculateEnd(oSettings);
+    }
+ 
+    // draw the 'current' page
+    oSettings.oApi._fnDraw(oSettings);
+};
 //fix jQuery UIs autocomplete width
 $.extend($.ui.autocomplete.prototype.options, {
     open: function(event, ui) {

@@ -33,6 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,64 +52,39 @@ public class ExternalAnnotsController {
 	@Autowired
 	private SolrIndex solrIndex;
 
-//	@Autowired
-//	@Qualifier("admintoolsDataSource")
-//	static DataSource admintoolsDataSource;
-
-	@RequestMapping(value = "/pubmed", method = RequestMethod.GET)
-	public String loadAutosuggestSearchFacetPage(@RequestParam(value = "q", required = false) String q, HttpServletRequest request, Model model)
-			throws IOException, URISyntaxException, SQLException {
-
+	@Autowired
+	@Qualifier("admintoolsDataSource")
+	private DataSource admintoolsDataSource;
+	
+	@RequestMapping(value = "/alleleref", method = RequestMethod.GET)
+	public String dataTableJson(
+			//@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
+			//@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
 		// model.addAttribute("q", q);
-
-		//String dataTableJson = fetch_allele_ref();
-		model.addAttribute("datatable", "dataTableJson");
-
-		return "alleleRef";
+		
+		return "alleleref";
+	}
+	
+	@ExceptionHandler(Exception.class)
+	private ResponseEntity<String> getSolrErrorResponse(Exception e) {
+		e.printStackTrace();
+		String bootstrap="<div class=\"alert\"><strong>Warning!</strong>  Error: Search functionality is currently unavailable</div>";
+		String errorJSON="{'aaData':[[' "+bootstrap+"','  ', ' ']], 'iTotalRecords':1,'iTotalDisplayRecords':1}";
+		JSONObject errorJson = (JSONObject) JSONSerializer.toJSON(errorJSON);
+		return new ResponseEntity<String>(errorJson.toString(), createResponseHeaders(), HttpStatus.CREATED);
+	}
+	
+	private HttpHeaders createResponseHeaders(){
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+		return responseHeaders;
 	}
 
-	/*public String fetch_allele_ref() throws SQLException {
-		System.out.println("admintools: " + admintoolsDataSource);
-		Connection conn = admintoolsDataSource.getConnection();
-
-		String query = "select count(*) as count from allele_ref";
-		int rowCount = 0;
-		try (PreparedStatement p1 = conn.prepareStatement(query)) {
-			ResultSet resultSet = p1.executeQuery();
-
-			while (resultSet.next()) {
-				rowCount = Integer.parseInt(resultSet.getString("count"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		System.out.println("Got " + rowCount + " rows");
-
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
-
-		j.put("iTotalRecords", rowCount);
-		j.put("iTotalDisplayRecords", rowCount);
-
-		String query2 = "select * from allele_ref";
-
-		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
-			ResultSet resultSet = p2.executeQuery();
-
-			while (resultSet.next()) {
-
-				// pa.uniprotAcc = resultSet2.getString("pfamseq_acc");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return "";
-	}*/
-
 	@RequestMapping(value = "/gene2fam", method = RequestMethod.GET)
-	public String loadAutosuggestSearchFacetPage(@RequestParam(value = "q", required = false) String q,
+	public String gene2fam(@RequestParam(value = "q", required = false) String q,
 			@RequestParam(value = "core", required = false) String core, @RequestParam(value = "fq", required = false) String fq, HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
@@ -189,12 +165,6 @@ public class ExternalAnnotsController {
 			builder.append("</ul>");
 		}
 		return builder.toString();
-	}
-
-	private HttpHeaders createResponseHeaders() {
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.setContentType(MediaType.TEXT_HTML);
-		return responseHeaders;
 	}
 
 	public List<String> createTable(Map<String, Map<String, Map<String, JSONArray>>> stats) {

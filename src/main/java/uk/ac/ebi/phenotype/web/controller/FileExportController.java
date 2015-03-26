@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,10 +54,14 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -103,6 +108,10 @@ public class FileExportController {
     private String NO_INFO_MSG = "No information available";
     
     private String hostName;
+    
+    @Autowired
+	@Qualifier("admintoolsDataSource")
+	private DataSource admintoolsDataSource;
     
     /**
      * Return a TSV formatted response which contains all datapoints
@@ -238,6 +247,9 @@ public class FileExportController {
             @RequestParam(value = "dogoterm", required = false) boolean dogoterm,
             @RequestParam(value = "gocollapse", required = false) boolean gocollapse,
             @RequestParam(value = "gene2pfam", required = false) boolean gene2pfam,
+            @RequestParam(value = "doAlleleRef", required = false) boolean doAlleleRef,
+            @RequestParam(value = "filterStr", required = false) String filterStr,
+            
             HttpSession session,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -246,9 +258,11 @@ public class FileExportController {
 
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	System.out.println("------------\nEXPORT \n---------");
+    	
+    	String query = "*:*"; // default
+    	
         log.debug("solr params: " + solrFilters);
         
-        String query = "*:*"; // default
         String[] pairs = solrFilters.split("&");		
 		for (String pair : pairs) {
 			try {
@@ -267,8 +281,9 @@ public class FileExportController {
         length = length != null ? length : 10;
         
         panelName = panelName == null ? "" : panelName;
-
+       
         if ( ! solrCoreName.isEmpty()) {
+        	
             if (dumpMode.equals("all")) {
                 rowStart = 0;
                 //length = parseMaxRow(solrParams); // this is the facetCount
@@ -305,6 +320,9 @@ public class FileExportController {
             else if ( gene2pfam ){            	
             	JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
             	dataRows = composeGene2PfamClansDataRows(json, request);
+            }
+            else if ( doAlleleRef ){
+            	dataRows = composeAlleleRefExportRows(length, rowStart, filterStr);
             }
             else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
@@ -349,7 +367,6 @@ public class FileExportController {
                     titles = dataRows.remove(0).split("\t");
                     tableData = Tools.composeXlsTableData(dataRows);
                 }
-                
                 wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
                 ServletOutputStream output = response.getOutputStream();
                 try {
@@ -1113,8 +1130,7 @@ public class FileExportController {
         		+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
         		+ "\tCandidate genes by phenotype - MGI data"
         		+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus"
-        		//+ "\tGene symbol"
-        		//+ "\tGene id"
+        	
         		); 
 
         for (int i = 0; i < docs.size(); i ++) {
@@ -1137,13 +1153,6 @@ public class FileExportController {
             data.add(doc.getString("impc_novel_predicted_in_locus"));
             data.add(doc.getString("mgi_predicted"));
             data.add(doc.getString("mgi_novel_predicted_in_locus"));
-            //JSONArray gsyms = doc.getJSONArray("marker_symbol");
-            
-            //System.out.println(gsyms);
-            
-            //String gids = doc.getJSONArray("mgi_accession_id").toString();
-            
-            
             
             rowData.add(StringUtils.join(data, "\t"));
         }
@@ -1279,6 +1288,121 @@ public class FileExportController {
         }
         return rowData;
     }
+    
+    private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		String likeClause = " like '%" + sSearch + "%'";
+		String query = null;
+		
+		if ( sSearch != "" ){
+			query = "select count(*) as count from allele_ref where "
+					+ " acc" + likeClause
+					+ " or symbol" + likeClause
+					+ " or pmid" + likeClause
+					+ " or date_of_publication" + likeClause
+					+ " or grant_id" + likeClause
+					+ " or agency" + likeClause
+					+ " or acronym" + likeClause; 
+		}
+		else {
+			query = "select count(*) as count from allele_ref";
+		}
+		int rowCount = 0;
+		try (PreparedStatement p1 = conn.prepareStatement(query)) {
+			ResultSet resultSet = p1.executeQuery();
+
+			while (resultSet.next()) {
+				rowCount = Integer.parseInt(resultSet.getString("count"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		String query2 = null;
+		
+		if ( sSearch != "" ){
+			query2 = "select * from allele_ref where"
+				+ " acc" + likeClause
+				+ " or symbol" + likeClause
+				+ " or pmid" + likeClause
+				+ " or date_of_publication" + likeClause
+				+ " or grant_id" + likeClause
+				+ " or agency" + likeClause
+				+ " or acronym" + likeClause 
+				+ " order by reviewed desc"
+				+ " limit " + iDisplayStart + "," +  iDisplayLength;
+		}
+		else {
+			query2 = "select * from allele_ref order by reviewed desc limit " + iDisplayStart + "," +  iDisplayLength; 
+		}
+		
+		//System.out.println("query: "+ query);
+		//System.out.println("query2: "+ query2);
+		
+		String mgiAlleleBaseUrl = "http://www.informatics.jax.org/allele/";
+		
+		List<String> rowData = new ArrayList<>();
+		
+		String fields = "Reviewed"
+        		+ "\tMGI allele symbol"
+        		+ "\tMGI allele id"
+        		+ "\tMGI allele link"
+        		+ "\tMGI allele name"
+        		+ "\tPMID"
+        		+ "\tDate of publication"
+        		+ "\tGrant id"
+        		+ "\tGrant agency"
+        		+ "\tGrant acronym"
+				+ "\tPaper link";
+        
+        rowData.add(fields);
+		
+		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
+			ResultSet resultSet = p2.executeQuery();
+
+			while (resultSet.next()) {
+
+				List<String> data = new ArrayList<String>();
+				
+				int dbid = resultSet.getInt("dbid");
+				
+				data.add(resultSet.getString("reviewed"));
+				
+				//rowData.add(resultSet.getString("acc"));
+				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
+				data.add(alleleSymbol);
+				
+				String acc = resultSet.getString("acc");
+				String alLink = acc.equals("") ? "" : mgiAlleleBaseUrl + resultSet.getString("acc");
+				
+				data.add(acc);
+				data.add(alLink);
+				
+				data.add(resultSet.getString("name"));
+				
+				//rowData.add(resultSet.getString("name"));
+				data.add(resultSet.getString("pmid"));
+				data.add(resultSet.getString("date_of_publication"));
+				data.add(resultSet.getString("grant_id"));
+				data.add(resultSet.getString("agency"));
+				data.add(resultSet.getString("acronym"));
+				String[] urls = resultSet.getString("paper_url").split(",");
+				List<String> links = new ArrayList<>();
+				for ( int i=0; i<urls.length; i++){
+					links.add(urls[i]);
+				}
+				data.add(StringUtils.join(links, "|"));
+				
+				rowData.add(StringUtils.join(data, "\t"));	
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return rowData;
+	}
+
     
     private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm, boolean gocollapse) {
     	
