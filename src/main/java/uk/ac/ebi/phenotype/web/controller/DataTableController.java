@@ -1265,7 +1265,7 @@ public class DataTableController {
 		      //Handle errors for JDBC
 		      se.printStackTrace();
 		}
-		
+		conn.close();
 		return alleleSymbol;
 	}
 	
@@ -1312,6 +1312,7 @@ public class DataTableController {
 			e.printStackTrace();
 		}
 		
+		conn.close();
 		return match;
 	}
 	
@@ -1413,6 +1414,7 @@ public class DataTableController {
 			e.printStackTrace();
 		}
 
+		conn.close();
 		return j.toString();
 	}
 
