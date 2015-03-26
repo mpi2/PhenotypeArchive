@@ -1264,8 +1264,10 @@ public class DataTableController {
 		}catch(SQLException se){
 		      //Handle errors for JDBC
 		      se.printStackTrace();
+		}finally {
+			conn.close();
 		}
-		conn.close();
+		
 		return alleleSymbol;
 	}
 	
@@ -1310,9 +1312,10 @@ public class DataTableController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			conn.close();
 		}
 		
-		conn.close();
 		return match;
 	}
 	
@@ -1413,8 +1416,9 @@ public class DataTableController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		conn.close();
+		finally {
+			conn.close();
+		}
 		return j.toString();
 	}
 
