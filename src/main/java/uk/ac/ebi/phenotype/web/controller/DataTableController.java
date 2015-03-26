@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +59,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
@@ -1240,17 +1242,32 @@ public class DataTableController {
 	}
 	
 	// allele reference stuff
-		@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.POST)
-		public ResponseEntity<String> dataTableAlleleRefJson(
-				@RequestParam(value = "value", required = false) String value,
+	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.POST)
+	public @ResponseBody String updateReviewed (
+				@RequestParam(value = "value", required = true) String value,
+				@RequestParam(value = "id", required = true) int dbid,
 				HttpServletRequest request,
 				HttpServletResponse response,
 				Model model) throws IOException, URISyntaxException, SQLException  {
-		System.out.println("value: " + value);
-			String content = value;//fetch_allele_ref(value);
-			return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-			
+
+			// store new value to database
+			return setAlleleSymbol(dbid, value);
+	}
+	
+	public String setAlleleSymbol(int dbid, String alleleSymbol) throws SQLException{
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		Statement stmt = conn.createStatement();
+		String sql = "UPDATE allele_ref SET symbol='" + alleleSymbol + "', reviewed='yes' WHERE dbid=" + dbid;
+		try {
+			stmt.executeUpdate(sql);
+		}catch(SQLException se){
+		      //Handle errors for JDBC
+		      se.printStackTrace();
 		}
+		
+		return alleleSymbol;
+	}
 	
 	// allele reference stuff
 	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.GET)
@@ -1266,6 +1283,38 @@ public class DataTableController {
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
+	
+	// allele reference stuff
+	@RequestMapping(value = "/alleleRefLogin", method = RequestMethod.POST)
+	public @ResponseBody boolean checkPassCode(
+			@RequestParam(value = "passcode", required = true) String passcode,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+		
+		return checkPassCode(passcode);
+	}
+		
+	public boolean checkPassCode(String passcode) throws SQLException {
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		
+		String query = "select password = md5('" + passcode + "') as status from users where name='ebi'";
+		boolean match = false;
+		
+		try (PreparedStatement p = conn.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				match = resultSet.getBoolean("status");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return match;
+	}
+	
 	public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
 		
 		Connection conn = admintoolsDataSource.getConnection();
@@ -1296,7 +1345,7 @@ public class DataTableController {
 			e.printStackTrace();
 		}
 
-		System.out.println("Got " + rowCount + " rows");
+		//System.out.println("Got " + rowCount + " rows");
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
@@ -1315,10 +1364,11 @@ public class DataTableController {
 				+ " or grant_id" + likeClause
 				+ " or agency" + likeClause
 				+ " or acronym" + likeClause 
+				+ " order by reviewed desc"
 				+ " limit " + iDisplayStart + "," +  iDisplayLength;
 		}
 		else {
-			query2 = "select * from allele_ref limit " + iDisplayStart + "," +  iDisplayLength;
+			query2 = "select * from allele_ref order by reviewed desc limit " + iDisplayStart + "," +  iDisplayLength; 
 		}
 		
 		//System.out.println("query: "+ query);
@@ -1333,6 +1383,8 @@ public class DataTableController {
 
 				List<String> rowData = new ArrayList<String>();
 				
+				int dbid = resultSet.getInt("dbid");
+				
 				rowData.add(resultSet.getString("reviewed"));
 				
 				//rowData.add(resultSet.getString("acc"));
@@ -1342,7 +1394,8 @@ public class DataTableController {
 				
 				
 				//rowData.add(resultSet.getString("name"));
-				rowData.add(resultSet.getString("pmid"));
+				String pmid = "<span id=" + dbid + ">" +  resultSet.getString("pmid") + "</span>";
+				rowData.add(pmid);
 				rowData.add(resultSet.getString("date_of_publication"));
 				rowData.add(resultSet.getString("grant_id"));
 				rowData.add(resultSet.getString("agency"));

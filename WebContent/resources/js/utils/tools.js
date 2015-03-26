@@ -2357,7 +2357,11 @@
                     //if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
                     $('div#toolBox').css({'top': '-30px', 'left': '65px'});
                 }
-                var solrCoreName = oInfos.widgetName.replace('Facet', '');
+                
+                var solrCoreName;
+                if (  oInfos.hasOwnProperty('widgetName') ){
+                	solrCoreName = oInfos.widgetName.replace('Facet', '');
+            	}	
                 
                 // work out solr query start and row length dynamically
                 var iActivePage = $('div.dataTables_paginate li.active a').text();
@@ -2381,7 +2385,9 @@
                        // gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
                         gridFields: oInfos.gridFields,
                         dogoterm: oInfos.hasOwnProperty('dogoterm') ? oInfos.dogoterm : false,
-                        fileName: solrCoreName + '_table_dump'
+                        fileName: oInfos.fileName != 'undefined' ? oInfos.fileName : solrCoreName + '_table_dump',
+                        filterStr: oInfos.hasOwnProperty('filterStr') ? oInfos.filterStr : null,
+                        doAlleleRef: oInfos.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef : null,
                 };
                 
                 var exportObjPageTsv = buildExportUrl(conf, 'tsv', 'page');
@@ -2987,7 +2993,20 @@ $.extend($.fn.dataTableExt.oSort, {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }
 });
-
+$.fn.dataTableExt.oApi.fnStandingRedraw = function(oSettings) {
+    if(oSettings.oFeatures.bServerSide === false){
+        var before = oSettings._iDisplayStart;
+ 
+        oSettings.oApi._fnReDraw(oSettings);
+ 
+        // iDisplayStart has been reset to zero - so lets change it back
+        oSettings._iDisplayStart = before;
+        oSettings.oApi._fnCalculateEnd(oSettings);
+    }
+ 
+    // draw the 'current' page
+    oSettings.oApi._fnDraw(oSettings);
+};
 //fix jQuery UIs autocomplete width
 $.extend($.ui.autocomplete.prototype.options, {
     open: function(event, ui) {
