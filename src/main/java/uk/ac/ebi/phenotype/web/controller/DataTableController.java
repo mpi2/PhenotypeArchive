@@ -1242,6 +1242,57 @@ public class DataTableController {
 	}
 	
 	// allele reference stuff
+	
+	@RequestMapping(value = "/dataTableAlleleRefCount", method = RequestMethod.GET)
+	public @ResponseBody int updateReviewed (
+			@RequestParam(value = "filterStr", required = true) String sSearch,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+		
+		return fetchAlleleRefCount(sSearch);
+	}
+	
+	public int fetchAlleleRefCount(String sSearch) throws SQLException{
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		
+		//String likeClause = " like '%" + sSearch + "%'";
+		String like = "%" + sSearch + "%";
+		String query = null;
+		
+		if ( sSearch != "" ){
+			query = "select count(*) as count from allele_ref where "
+					+ " acc like ?"
+					+ " or symbol like ?"
+					+ " or pmid like ?"
+					+ " or date_of_publication like ?"
+					+ " or grant_id like ?"
+					+ " or agency like ?"
+					+ " or acronym like ?";
+		}
+		else {
+			query = "select count(*) as count from allele_ref";
+		}
+		int rowCount = 0;
+		try (PreparedStatement p1 = conn.prepareStatement(query)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<8; i++){
+					p1.setString(i, like);
+				}
+			}
+			ResultSet resultSet = p1.executeQuery();
+
+			while (resultSet.next()) {
+				rowCount = Integer.parseInt(resultSet.getString("count"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return rowCount;
+	}
+	
 	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.POST)
 	public @ResponseBody String updateReviewed (
 				@RequestParam(value = "value", required = true) String value,
@@ -1256,19 +1307,33 @@ public class DataTableController {
 	
 	public String setAlleleSymbol(int dbid, String alleleSymbol) throws SQLException{
 		
+		JSONObject j = new JSONObject();
+		
 		Connection conn = admintoolsDataSource.getConnection();
-		Statement stmt = conn.createStatement();
-		String sql = "UPDATE allele_ref SET symbol='" + alleleSymbol + "', reviewed='yes' WHERE dbid=" + dbid;
+		
+		String sql = "UPDATE allele_ref SET symbol=?, reviewed='yes' WHERE dbid=?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
 		try {
-			stmt.executeUpdate(sql);
+			stmt.setString(1, alleleSymbol);
+			stmt.setInt(2, dbid);
+			stmt.executeUpdate();
+			
+			j.put("reviewed", "yes");
+		    j.put("symbol", alleleSymbol);
+		    
 		}catch(SQLException se){
-		      //Handle errors for JDBC
-		      se.printStackTrace();
+			//Handle errors for JDBC
+			se.printStackTrace();
+			j.put("reviewed", "no");
+			j.put("symbol", "ERROR: setting symbol failed");
+		      
 		}finally {
 			conn.close();
 		}
 		
-		return alleleSymbol;
+		return j.toString();
 	}
 	
 	// allele reference stuff
@@ -1301,10 +1366,12 @@ public class DataTableController {
 		
 		Connection conn = admintoolsDataSource.getConnection();
 		
-		String query = "select password = md5('" + passcode + "') as status from users where name='ebi'";
+		// prevent sql injection
+		String query = "select password = md5(?) as status from users where name='ebi'";
 		boolean match = false;
 		
 		try (PreparedStatement p = conn.prepareStatement(query)) {
+			p.setString(1, passcode);
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
@@ -1323,24 +1390,30 @@ public class DataTableController {
 		
 		Connection conn = admintoolsDataSource.getConnection();
 		
-		String likeClause = " like '%" + sSearch + "%'";
+		//String likeClause = " like '%" + sSearch + "%'";
+		String like = "%" + sSearch + "%";
 		String query = null;
 		
 		if ( sSearch != "" ){
 			query = "select count(*) as count from allele_ref where "
-					+ " acc" + likeClause
-					+ " or symbol" + likeClause
-					+ " or pmid" + likeClause
-					+ " or date_of_publication" + likeClause
-					+ " or grant_id" + likeClause
-					+ " or agency" + likeClause
-					+ " or acronym" + likeClause; 
+					+ " acc like ?"
+					+ " or symbol like ?"
+					+ " or pmid like ?"
+					+ " or date_of_publication like ?"
+					+ " or grant_id like ?"
+					+ " or agency like ?"
+					+ " or acronym like ?";
 		}
 		else {
 			query = "select count(*) as count from allele_ref";
 		}
 		int rowCount = 0;
 		try (PreparedStatement p1 = conn.prepareStatement(query)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<8; i++){
+					p1.setString(i, like);
+				}
+			}
 			ResultSet resultSet = p1.executeQuery();
 
 			while (resultSet.next()) {
@@ -1350,7 +1423,7 @@ public class DataTableController {
 			e.printStackTrace();
 		}
 
-		System.out.println("Got " + rowCount + " rows");
+		//System.out.println("Got " + rowCount + " rows");
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
@@ -1362,18 +1435,18 @@ public class DataTableController {
 		
 		if ( sSearch != "" ){
 			query2 = "select * from allele_ref where"
-				+ " acc" + likeClause
-				+ " or symbol" + likeClause
-				+ " or pmid" + likeClause
-				+ " or date_of_publication" + likeClause
-				+ " or grant_id" + likeClause
-				+ " or agency" + likeClause
-				+ " or acronym" + likeClause 
+					+ " acc like ?"
+					+ " or symbol like ?"
+					+ " or pmid like ?"
+					+ " or date_of_publication like ?"
+					+ " or grant_id like ?"
+					+ " or agency like ?"
+					+ " or acronym like ?"
 				+ " order by reviewed desc"
 				+ " limit " + iDisplayStart + "," +  iDisplayLength;
 		}
 		else {
-			query2 = "select * from allele_ref order by reviewed desc limit " + iDisplayStart + "," +  iDisplayLength; 
+			query2 = "select * from allele_ref order by reviewed desc limit ?,?"; 
 		}
 		
 		//System.out.println("query: "+ query);
@@ -1382,6 +1455,16 @@ public class DataTableController {
 		String mgiAlleleBaseUrl = "http://www.informatics.jax.org/allele/";
 		
 		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<8; i++){
+					p2.setString(i, like);
+				}
+			}
+			else {
+				p2.setInt(1, iDisplayStart);
+				p2.setInt(2, iDisplayLength);
+			}
+			
 			ResultSet resultSet = p2.executeQuery();
 
 			while (resultSet.next()) {
