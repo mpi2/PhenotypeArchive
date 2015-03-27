@@ -154,22 +154,41 @@ public class ImpcImagesTest {
 		String testName = "testImpcImagesOnGenePage";
 		ArrayList<String> genes = new ArrayList<>();
 		// genes.add("Akt2"); should fail on Akt2 as no impc_images
-		genes.add("Baz1a");
-		genes.add("Ddx41");
+		
+		genes.add("Ccdc120");
+		genes.add("Cenpo");
+		genes.add("Cwc27");
 		genes.add("Eya4");
-		genes.add("Idh1");
-		genes.add("Pipox");
-		genes.add("Plekhm1");
+		genes.add("Htr1b");
+		genes.add("Lrp1");
+		genes.add("Osm");
 		genes.add("Ppp2r2b");
 		genes.add("Prkab1");
 		genes.add("Rhbdl1");
-		genes.add("Vps13d");
-//		String geneString=genes.toString();
-//		System.out.println(geneString);
-//		String orQuery=geneString.replace(",", " OR ");
-//		System.out.println(orQuery);
-		List<String> geneIds = new ArrayList<>();
+		genes.add("Rxfp2");
+		genes.add("Snrnp200");
+		genes.add("Tpgs2");
 		genes.add("Wee1");
+
+		genes.add("Abcb11");
+		genes.add("Baz1a");
+		genes.add("C3");
+		genes.add("Ddx41");
+		genes.add("Dnajb7");
+		genes.add("Idh1");
+		genes.add("Ovgp1");
+		genes.add("Palb2");
+		genes.add("Pipox");
+		genes.add("Pkd2l2");
+		genes.add("Plekhm1");
+		genes.add("Stk16");
+		genes.add("Vps13d");
+		String geneString=genes.toString();
+//		System.out.println(geneString);
+		String orQuery=geneString.replace(",", " OR ");
+		System.out.println(orQuery);
+		List<String> geneIds = new ArrayList<>();
+		
 		for (String gene : genes) {
 			GeneDTO geneDto = geneService.getGeneByGeneSymbol(gene);
 			System.out.println("geneDto=" + geneDto.getMgiAccessionId());
@@ -178,7 +197,7 @@ public class ImpcImagesTest {
 		geneIdsTestEngine(testName, geneIds);
 
 	}
-	
+
 	@Test
 	// @Ignore
 	public void testImpcImagesOnaSpecificGenePage() throws Exception {
@@ -187,18 +206,17 @@ public class ImpcImagesTest {
 		ArrayList<String> genes = new ArrayList<>();
 		// genes.add("Akt2"); should fail on Akt2 as no impc_images
 		genes.add("Baz1a");
-		String geneString=genes.toString();
+		String geneString = genes.toString();
 		System.out.println(geneString);
-		String orQuery=geneString.replace(",", " OR ");
+		String orQuery = geneString.replace(",", " OR ");
 		System.out.println(orQuery);
 		List<String> geneIds = new ArrayList<>();
-//		genes.add("Wee1");
-//		
-//			GeneDTO geneDto = geneService.getGeneByGeneSymbol(gene);
-//			System.out.println("geneDto=" + geneDto.getMgiAccessionId());
-//			geneIds.add(geneDto.getMgiAccessionId());
-//		}
-		
+		// genes.add("Wee1");
+		//
+		// GeneDTO geneDto = geneService.getGeneByGeneSymbol(gene);
+		// System.out.println("geneDto=" + geneDto.getMgiAccessionId());
+		// geneIds.add(geneDto.getMgiAccessionId());
+		// }
 
 	}
 
@@ -235,13 +253,14 @@ public class ImpcImagesTest {
 						phenotypePipelineDAO, baseUrl);
 				boolean hasImpcImages = genePage.hasImpcImages();
 				if (!hasImpcImages) {
-					String localMessage="no impc images for gene " + geneId;
-					
+					String localMessage = "no impc images for gene " + geneId;
+
 					errorList.add(localMessage);
 				}
 				assertTrue(hasImpcImages);
-				List<String>parameters=genePage.getAssociatedImpcImageSections();
-				assertTrue(parameters.size()>0);
+				List<String> parameters = genePage
+						.getAssociatedImpcImageSections();
+				assertTrue(parameters.size() > 0);
 			} catch (NoSuchElementException | TimeoutException te) {
 				message = "Expected page for MGI_ACCESSION_ID " + geneId + "("
 						+ target + ") but found none.";
@@ -264,8 +283,8 @@ public class ImpcImagesTest {
 			i++;
 		}
 
-		 TestUtils.printEpilogue(testName, start, errorList, exceptionList,
-		 successList, i, geneIds.size());
+		TestUtils.printEpilogue(testName, start, errorList, exceptionList,
+				successList, i, geneIds.size());
 	}
 
 }
