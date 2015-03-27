@@ -150,18 +150,12 @@
         	facetFields.pipeline = fieldConf.pipelineFacet.subFacetFqFields;
         }
         
-        var showProteinCodingGeneCount = false;
-        
         var facetUrls = {};
         for (var facet in facetFields) {
 
             var solrbaseUrl = solrUrl + '/' + facet + '/select?';
             var fqStr = $.fn.getCurrentFq(facet).replace(/img_|impcImg_/g, '');
-          
-            if ( facet == 'gene' && q == '*%3A*' && fqStr == '*:*' ){
-            	showProteinCodingGeneCount = true;
-            } 
-            
+
             facetUrls[facet] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
             if ( facet == 'gene' ){
             	fqStr = 'marker_type:"protein coding gene"';
@@ -188,7 +182,7 @@
                     var solrFqStr = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
                     var oConf = {'facet': core, 'fqStr': solrFqStr, 'q': q, 'json': subFacetJsons[core]};
 
-                    if ( showProteinCodingGeneCount && core == 'gene' ){
+                    if ( core == 'gene' && q == '*%3A*' && fqStr == '*:*' ){
                     	// swap gene2 with gene to get number of  protein coding gene 
                     	oConf.json.response = subFacetJsons.gene2.response;
                     }
