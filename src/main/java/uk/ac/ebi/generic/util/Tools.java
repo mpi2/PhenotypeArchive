@@ -142,11 +142,13 @@ public class Tools {
 
         // add one to omit title row
         for (int i = 0; i < rowNum; i ++) {
+        	
             String[] colVals = rows.get(i).split("\t");
             for (int j = 0; j < colVals.length; j ++) {
                 tableData[i][j] = colVals[j];
             }
         }
+       
         return tableData;
     }
 	

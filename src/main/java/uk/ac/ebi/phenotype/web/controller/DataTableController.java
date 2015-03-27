@@ -1257,7 +1257,6 @@ public class DataTableController {
 		
 		Connection conn = admintoolsDataSource.getConnection();
 		
-		//String likeClause = " like '%" + sSearch + "%'";
 		String like = "%" + sSearch + "%";
 		String query = null;
 		
@@ -1443,7 +1442,7 @@ public class DataTableController {
 					+ " or agency like ?"
 					+ " or acronym like ?"
 				+ " order by reviewed desc"
-				+ " limit " + iDisplayStart + "," +  iDisplayLength;
+				+ " limit ?, ?";
 		}
 		else {
 			query2 = "select * from allele_ref order by reviewed desc limit ?,?"; 
@@ -1456,8 +1455,14 @@ public class DataTableController {
 		
 		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
 			if ( sSearch != "" ){
-				for ( int i=1; i<8; i++){
+				for ( int i=1; i<10; i++){
 					p2.setString(i, like);
+					if ( i == 8 ){
+						p2.setInt(i, iDisplayStart);
+					}
+					else if ( i == 9 ){
+						p2.setInt(i, iDisplayLength);
+					}
 				}
 			}
 			else {
