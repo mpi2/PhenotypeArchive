@@ -57,6 +57,7 @@
         <ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
         <phenodigm.solrserver>http://solrclouddev.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
         <imits.solrserver>http://ikmc.vm.bytemark.co.uk:8983/solr/allele2</imits.solrserver>
+        <datasourcesConfig>devDatasourcesConfig.properties</datasourcesConfig>
     </properties>
 
     <dependencies>
@@ -1100,6 +1101,7 @@
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                <datasourcesConfig>devDatasourcesConfig.properties</datasourcesConfig>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1138,6 +1140,7 @@
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                <datasourcesConfig>betaDatasourcesConfig.properties</datasourcesConfig>
                 <liveSite>false</liveSite>
             </properties>
 
