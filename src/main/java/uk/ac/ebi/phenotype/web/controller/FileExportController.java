@@ -1400,6 +1400,7 @@ public class FileExportController {
 			e.printStackTrace();
 		}
 		
+		conn.close();
 		return rowData;
 	}
 
