@@ -322,5 +322,12 @@
         <property name="username" value="${ontodbusername}" />
         <property name="password" value="${ontodbpassword}" />
     </bean>
-
+    <bean id="admintoolsDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="${admintoolsurl}" />
+        <property name="username" value="${admintoolsusername}" />
+        <property name="password" value="${admintoolspassword}" />
+    </bean>
+    
 </beans>
