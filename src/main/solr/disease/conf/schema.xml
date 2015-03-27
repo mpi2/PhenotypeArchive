@@ -396,6 +396,7 @@
 	<copyField source="marker_name" dest="geneQf" /> 
 	<copyField source="marker_synonym" dest="geneQf" /> 
 	
+	
 	<copyField source="mp_id" dest="mpQf" /> 
 	<copyField source="mp_term" dest="mpQf" /> 
 	<copyField source="mp_term_synonym" dest="mpQf" /> 
@@ -529,6 +530,21 @@
 
          Note: For faster range queries, consider the tdate type
       -->
+      
+     <!-- to be used for marker_symbol boosting: only allow lowercase -->    
+    <fieldType name="text_lowercase" class="solr.TextField">
+        <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+         	<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+        <analyzer type="query"> 
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>  
+     
+      
+      
     <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
 
     <!-- A Trie based date field for faster date range queries and date faceting. -->

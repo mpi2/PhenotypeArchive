@@ -6,23 +6,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.james.mime4j.field.Field;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.util.NamedList;
+import org.apache.solr.common.SolrDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 @Service
@@ -31,6 +32,7 @@ public class PhenotypeCenterService {
 	@Autowired
 	PhenotypePipelineDAO ppDao;
 	
+	private static final Logger LOG = LoggerFactory.getLogger(PhenotypeCenterService.class);
 	private final HttpSolrServer solr;
 	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
 		
@@ -99,24 +101,36 @@ public class PhenotypeCenterService {
 		return strains;
 	}
 	
-	public List<String> getMutantStrainsForCenter(String center)  throws SolrServerException {
+	public List<StrainBean> getMutantStrainsForCenter(String center)  throws SolrServerException {
 			
-		List<String> strains=new ArrayList<>();
+		List<StrainBean> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
-		.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\" AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-		.addFacetField(ObservationDTO.COLONY_ID)
-		.setFacetMinCount(1)
-		.setFacetLimit(-1)
-		.setRows(0);
+			.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\" AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.setFields(ObservationDTO.GENE_ACCESSION_ID,ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL)
+			.setRows(1000000);
+		query.set("group", true);
+		query.set("group.field", ObservationDTO.COLONY_ID);
+		query.set("group.limit", 1);
+		
+		
 		if(solr.getBaseURL().endsWith("experiment")){
 				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + "\"" + datasourceName + "\"");
 		}
 		QueryResponse response = solr.query(query);
-		List<FacetField> fields = response.getFacetFields();
-		for(Count values: fields.get(0).getValues()){
-			strains.add(values.getName());
+		GroupResponse groups = response.getGroupResponse();
+		for( Group group : groups.getValues().get(0).getValues()){
+			StrainBean strain = new StrainBean();
+			String colonyId = group.getGroupValue();
+			if (colonyId != null && !colonyId.equalsIgnoreCase("null")){
+				strain.setColonyId(colonyId);
+				SolrDocument doc = group.getResult().get(0);				
+				strain.setAllele((String)doc.get(ObservationDTO.ALLELE_SYMBOL));
+				strain.setGeneSymbol((String)doc.get(ObservationDTO.GENE_SYMBOL));
+				strain.setMgiAccession((String)doc.get(ObservationDTO.GENE_ACCESSION_ID));
+				strains.add(strain);
+			}
 		}
-		System.out.println("getStrainsForCenter ---- " + solr.getBaseURL() + "/select?" + query);
+		LOG.info("getStrainsForCenter -- " + solr.getBaseURL() + "/select?" + query);
 		return strains;
 	}
 	
@@ -241,6 +255,9 @@ public class PhenotypeCenterService {
         String[] temp = new String[1];
         List<String> header = new ArrayList<>();
         header.add("colonyId");
+        header.add("geneSymbol");
+        header.add("mgiId");
+        header.add("allele");
         header.add("phenotypingCenter");
         header.add("percenageDone");
         header.add("numberOfDoneProcedures");
@@ -254,12 +271,15 @@ public class PhenotypeCenterService {
 		Map<String, List<String>> possibleProceduresPerCenter = getProceduresPerCenter();
 		
 		for(String center: centers){	
-			List<String> strains = getMutantStrainsForCenter(center);
+			List<StrainBean> strains = getMutantStrainsForCenter(center);
 						
-			for(String colonyId: strains){
-				List<String> procedures = getDoneProcedureIdsPerStrainAndCenter(center, colonyId);
+			for(StrainBean strain: strains){
+				List<String> procedures = getDoneProcedureIdsPerStrainAndCenter(center, strain.getColonyId());
 				List<String> row = new ArrayList<>();
-				row.add(colonyId);
+				row.add(strain.getColonyId());
+				row.add(strain.getGeneSymbol());
+				row.add(strain.getMgiAccession());
+				row.add(strain.getAllele());
 				row.add(center);
 				Float percentageDone = (float) ((procedures.size() * 100) / (float)possibleProceduresPerCenter.get(center).size()); 
 				row.add(percentageDone.toString());
@@ -290,5 +310,57 @@ public class PhenotypeCenterService {
 		}
 		return res;
 	}
+	
+}
+
+class StrainBean{
+	
+	String mgiAccession;
+	String allele;
+	String geneSymbol;
+	String colonyId;
+	
+	public String getMgiAccession() {
+	
+		return mgiAccession;
+	}
+	
+	public void setMgiAccession(String mgiAccession) {
+	
+		this.mgiAccession = mgiAccession;
+	}
+	
+	public String getAllele() {
+	
+		return allele;
+	}
+	
+	public void setAllele(String allele) {
+	
+		this.allele = allele;
+	}
+	
+	public String getGeneSymbol() {
+	
+		return geneSymbol;
+	}
+	
+	public void setGeneSymbol(String geneSymbol) {
+	
+		this.geneSymbol = geneSymbol;
+	}
+
+	
+	public String getColonyId() {
+	
+		return colonyId;
+	}
+
+	
+	public void setColonyId(String colonyId) {
+	
+		this.colonyId = colonyId;
+	}
+	
 	
 }

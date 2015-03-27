@@ -319,7 +319,8 @@ public class GraphPage {
             }
             this.title = titleElement.getText().trim();
             String rawAllele = title.replace("Allele - ", "");
-            String sup = titleElement.findElement(By.xpath("//sup")).getText();
+            List<WebElement> supElements = titleElement.findElements(By.xpath("//sup"));
+            String sup = (supElements.isEmpty() ? "" : titleElement.findElement(By.xpath("//sup")).getText());
             AlleleParser alleleParser = new AlleleParser(rawAllele, sup);
             Line1Parser line1Parser = new Line1Parser();
             Line2Parser line2Parser = new Line2Parser();

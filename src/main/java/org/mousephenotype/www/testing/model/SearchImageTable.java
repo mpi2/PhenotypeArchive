@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -38,11 +40,12 @@ public class SearchImageTable extends SearchFacetTable {
     
     public static final String SHOW_ANNOTATION_VIEW = "Show Annotation View";
     public static final String SHOW_IMAGE_VIEW      = "Show Image View";
-
+    
+    private final static Map<TableComponent, By> map = new HashMap();
     static {
-        byHash.put(SearchFacetTable.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
-        byHash.put(SearchFacetTable.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
-        byHash.put(SearchFacetTable.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
+        map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
+        map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+        map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
     }
     
     /**
@@ -52,9 +55,27 @@ public class SearchImageTable extends SearchFacetTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchImageTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, timeoutInSeconds);
+        super(driver, timeoutInSeconds, map);
         
-        searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds);
+        searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, map);
+    }
+    
+    /**
+     * Creates a new <code>SearchImageTable</code> instance with the given map.
+     * @param driver A <code>WebDriver</code> instance pointing to the search
+     * facet table with thead and tbody definitions.
+     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
+     * @param map a map of HTML table-related definitions, keyed by <code>
+     * TableComponent</code>.
+     * 
+     * NOTE: This constructor was needed to <code>SearchImpcImageTable</code> to
+     * extend from this class in order to send the correct map to the parent.
+     * 
+     */
+    public SearchImageTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> map) {
+        super(driver, timeoutInSeconds, map);
+        
+        searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, map);
     }
     
     public enum ImageFacetView {
@@ -89,17 +110,17 @@ public class SearchImageTable extends SearchFacetTable {
     public void updateImageTableAfterChange() {
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
-                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds);
+                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, map);
                 searchImageImageView = null;
                 break;
 
             case IMAGE_VIEW:
                 searchImageAnnotationView = null;
-                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds);
+                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds, map);
                 break;
         }
         
-        setTable(driver.findElement(byHash.get(SearchFacetTable.BY_TABLE)));
+        setTable(driver.findElement(SearchImageTable.map.get(TableComponent.BY_TABLE)));
     }
     
     @Override

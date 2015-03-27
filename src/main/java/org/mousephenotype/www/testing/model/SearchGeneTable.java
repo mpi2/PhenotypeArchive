@@ -21,7 +21,9 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -50,11 +52,12 @@ public class SearchGeneTable extends SearchFacetTable {
     
     private final List<GeneRow> bodyRows = new ArrayList();
     private final GridMap pageData;
-
+    
+    private final static Map<TableComponent, By> map = new HashMap();
     static {
-        byHash.put(SearchFacetTable.BY_TABLE, By.xpath("//table[@id='geneGrid']"));
-        byHash.put(SearchFacetTable.BY_TABLE_TR, By.xpath("//table[@id='geneGrid']/tbody/tr"));
-        byHash.put(SearchFacetTable.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='geneGrid_length']"));
+        map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='geneGrid']"));
+        map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='geneGrid']/tbody/tr"));
+        map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='geneGrid_length']"));
     }
     
     /**
@@ -64,7 +67,7 @@ public class SearchGeneTable extends SearchFacetTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchGeneTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, timeoutInSeconds);
+        super(driver, timeoutInSeconds, map);
         
         pageData = load();
     }

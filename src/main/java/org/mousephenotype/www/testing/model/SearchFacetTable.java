@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -56,10 +57,24 @@ public abstract class SearchFacetTable {
     public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
     
     // byHash String keys:
-    protected final static String BY_TABLE              = "byTable";
-    protected final static String BY_TABLE_TR           = "byTableTr";
-    protected final static String BY_SELECT_GRID_LENGTH = "bySelectGridLength";
-    protected static final HashMap<String, By> byHash = new HashMap();
+    public enum TableComponent {
+        BY_TABLE("byTable")
+      , BY_TABLE_TR("byTableTr")
+      , BY_SELECT_GRID_LENGTH("bySelectGridLength");
+      
+      private final String mapKey;
+      
+      private TableComponent(final String mapKey) {
+          this.mapKey = mapKey;
+      }
+      
+      @Override
+      public String toString() {
+          return mapKey;
+      }
+    };
+    
+    protected Map<TableComponent, By> byMap = new HashMap();
     
     /**
      * Initializes the generic components of a <code>SearchFacetTable</code>.
@@ -67,13 +82,16 @@ public abstract class SearchFacetTable {
      * facet table with thead and tbody definitions.
      * <code>By</code> definitions for: table, tabletr, and selectxxGridLength.
      * @param timeoutInSeconds timeout
+     * @param byMap a map of HTML table-related definitions, keyed by <code>
+     * TableComponent</code>.
      */
-    public SearchFacetTable(WebDriver driver, int timeoutInSeconds) {
+    public SearchFacetTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> byMap) {
         graphUrl = driver.getCurrentUrl();
         this.driver = driver;
         this.wait = new WebDriverWait(driver, timeoutInSeconds);
         this.timeoutInSeconds = timeoutInSeconds;
-        setTable(driver.findElement(byHash.get(BY_TABLE)));
+        this.byMap = byMap;
+        setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
     }
     
     public enum EntriesSelect {
@@ -100,7 +118,7 @@ public abstract class SearchFacetTable {
      */
     public int computeTableRowCount() {
         // Wait for page.
-        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(byHash.get(BY_TABLE_TR)));
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(byMap.get(TableComponent.BY_TABLE_TR)));
         return elements.size() + 1;
     }
     
@@ -112,7 +130,7 @@ public abstract class SearchFacetTable {
      * drop-down box.
      */
     public int getNumEntries() {
-        Select select = new Select(driver.findElement(byHash.get(BY_SELECT_GRID_LENGTH)));
+        Select select = new Select(driver.findElement(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH)));
         try {
             return Utils.tryParseInt(select.getFirstSelectedOption().getText());
         } catch (NullPointerException npe) {
@@ -126,9 +144,9 @@ public abstract class SearchFacetTable {
      * @param entriesSelect The new value for the number of entries to show.
      */
     public void setNumEntries(EntriesSelect entriesSelect) {
-        Select select = new Select(driver.findElement(byHash.get(BY_SELECT_GRID_LENGTH)));
+        Select select = new Select(driver.findElement(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH)));
         select.selectByValue(Integer.toString(entriesSelect.getValue()));
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(byHash.get(BY_SELECT_GRID_LENGTH), Integer.toString(entriesSelect.getValue())));
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH), Integer.toString(entriesSelect.getValue())));
         TestUtils.sleep(3000);      // trying to stop timing issues.
     }
 
@@ -156,7 +174,7 @@ public abstract class SearchFacetTable {
         hasTable = false;
         this.table = table;
         try {
-            table = driver.findElement(byHash.get(BY_TABLE));
+            table = driver.findElement(byMap.get(TableComponent.BY_TABLE));
         } catch (Exception e) {
             pageHeading = null;
             this.table = null;

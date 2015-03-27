@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -33,10 +35,11 @@ import org.openqa.selenium.WebDriver;
  */
 public class SearchImpcImageTable extends SearchImageTable {
     
+    private final static Map<TableComponent, By> map = new HashMap();
     static {
-        byHash.put(SearchFacetTable.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
-        byHash.put(SearchFacetTable.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
-        byHash.put(SearchFacetTable.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
+        map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
+        map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
+        map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
     }
     
     /**
@@ -46,6 +49,6 @@ public class SearchImpcImageTable extends SearchImageTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchImpcImageTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, timeoutInSeconds);
+        super(driver, timeoutInSeconds, map);
     }
 }
