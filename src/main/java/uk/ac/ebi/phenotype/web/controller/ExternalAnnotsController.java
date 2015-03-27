@@ -56,10 +56,18 @@ public class ExternalAnnotsController {
 	@Qualifier("admintoolsDataSource")
 	private DataSource admintoolsDataSource;
 	
+	@RequestMapping(value = "/allelerefedit", method = RequestMethod.GET)
+	public String dataTableJsonAlleleRefEdit(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+		// model.addAttribute("q", q);
+		
+		return "allelerefedit";
+	}
+	
 	@RequestMapping(value = "/alleleref", method = RequestMethod.GET)
-	public String dataTableJson(
-			//@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
-			//@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
+	public String dataTableJsonAlleleRef(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException  {

@@ -1298,6 +1298,118 @@ public class FileExportController {
 		String query = null;
 		
 		if ( sSearch != "" ){
+			query = "select * from allele_ref where reviewed = 'yes' and "
+				+ " title like ?"	
+				+ " or journal like ?"
+				+ " or acc like ?"
+				+ " or symbol like ?"
+				+ " or pmid like ?"
+				+ " or date_of_publication like ?"
+				+ " or grant_id like ?"
+				+ " or agency like ?"
+				+ " or acronym like ?"
+				+ " order by symbol desc"
+				+ " limit ?, ?";
+		}
+		else {
+			query = "select * from allele_ref where reviewed = 'yes' order by symbol desc limit ?,?"; 
+		}
+		
+		//System.out.println("query: "+ query);
+		
+		String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+		
+		List<String> rowData = new ArrayList<>();
+		
+		String fields = "title"
+				+ "\tjournal"
+        		+ "\tMGI allele symbol"
+        		+ "\tMGI allele id"
+        		+ "\tIMPC gene link"
+        		+ "\tMGI allele name"
+        		+ "\tPMID"
+        		+ "\tDate of publication"
+        		+ "\tGrant id"
+        		+ "\tGrant agency"
+				+ "\tPaper link";
+        
+        rowData.add(fields);
+		
+		try (PreparedStatement p2 = conn.prepareStatement(query)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<12; i++){
+					p2.setString(i, like);
+					if ( i == 10 ){
+						p2.setInt(i, iDisplayStart);
+					}
+					else if ( i == 11 ){
+						p2.setInt(i, iDisplayLength);
+					}
+				}
+			}
+			else {
+				p2.setInt(1, iDisplayStart);
+				p2.setInt(2, iDisplayLength);
+			}
+			
+			ResultSet resultSet = p2.executeQuery();
+
+			while (resultSet.next()) {
+
+				List<String> data = new ArrayList<String>();
+				
+				data.add(resultSet.getString("title"));
+				data.add(resultSet.getString("journal"));
+				
+				//rowData.add(resultSet.getString("acc"));
+				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
+				data.add(alleleSymbol);
+				
+				data.add(resultSet.getString("acc"));
+
+				String gacc = resultSet.getString("gacc");  // gene id of allele
+				String glLink = gacc.equals("") ? "" : impcGeneBaseUrl + gacc;
+				data.add(glLink);
+				
+				data.add(resultSet.getString("name"));
+				
+				//rowData.add(resultSet.getString("name"));
+				data.add(resultSet.getString("pmid"));
+				data.add(resultSet.getString("date_of_publication"));
+				data.add(resultSet.getString("grant_id"));
+				data.add(resultSet.getString("agency"));
+				
+				String url = resultSet.getString("paper_url");
+				if ( url.equals("") ){
+					data.add(url);
+				}
+				else {
+					String[] urls = resultSet.getString("paper_url").split(",");
+					List<String> links = new ArrayList<>();
+					for ( int i=0; i<urls.length; i++){
+						links.add(urls[i]);
+					}
+					data.add(StringUtils.join(links, "|"));
+				}
+				
+				rowData.add(StringUtils.join(data, "\t"));	
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		conn.close();
+		//System.out.println("Rows returned: "+rowData.size());
+		return rowData;
+	}
+    private List<String> composeAlleleRefEditExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode) throws SQLException {
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		String like = "%" + sSearch + "%";
+		
+		String query = null;
+		
+		if ( sSearch != "" ){
 			query = "select * from allele_ref where "
 				+ " acc like ?"
 				+ " or symbol like ?"
@@ -1356,8 +1468,6 @@ public class FileExportController {
 
 				List<String> data = new ArrayList<String>();
 				
-				int dbid = resultSet.getInt("dbid");
-				
 				data.add(resultSet.getString("reviewed"));
 				
 				//rowData.add(resultSet.getString("acc"));
@@ -1402,7 +1512,6 @@ public class FileExportController {
 		//System.out.println("Rows returned: "+rowData.size());
 		return rowData;
 	}
-    
     private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request, boolean hasgoterm, boolean gocollapse) {
     	
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
