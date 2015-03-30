@@ -204,7 +204,7 @@ public class MAIndexer extends AbstractIndexer {
     
     private void initialiseSupportingBeans() throws IndexerException {
         // Grab all the supporting database content
-        maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
+        maImagesMap = maOntologyService.getSangerImages(imagesCore);
         if (logger.isDebugEnabled()) {
             IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
         }

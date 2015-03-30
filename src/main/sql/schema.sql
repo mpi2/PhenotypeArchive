@@ -152,7 +152,7 @@ CREATE TABLE analytics_statistics_load (
 	allele_accession_id      VARCHAR(255) NULL,
 	impress_pipeline         VARCHAR(50) NOT NULL DEFAULT '',
 	impress_procedure        VARCHAR(100) NOT NULL DEFAULT '',
-	impress_parameters       TEXT,
+	impress_parameter        TEXT,
 	male_controls            INT(10) UNSIGNED,
 	male_mutants             INT(10) UNSIGNED,
 	female_controls          INT(10) UNSIGNED,
