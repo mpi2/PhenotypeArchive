@@ -284,7 +284,7 @@
                                             <div class="container span12">
                                                 <br/>	
                                                 <div class="row-fluid" id="phenotypesDiv">	
-                                               
+
                                                     <div class="container span12">
                                                         <div id="filterParams" >
                                                             <c:forEach var="filterParameters" items="${paramValues.fq}">
@@ -310,8 +310,8 @@
                                                             </c:forEach>
 
                                                             <jsp:include page="PhenoFrag.jsp"></jsp:include>
-                                                            <br/>
-                                                            <div id="exportIconsDiv"></div>
+                                                                <br/>
+                                                                <div id="exportIconsDiv"></div>
                                                         </c:if>
 
                                                         <!-- if no data to show -->
@@ -370,37 +370,37 @@
                                     <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
-										<c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
-	                                        
-	                                        
-	                                        	<c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
-	                                                <div id="impc-images-heading" class="accordion-group">    
-				                                        
-				                                            <div class="accordion-heading">
-				                                                 ${doc.parameter_name}(${entry.count}) 
-				                                            </div>
-				                                            <div class="accordion-body">
-				                                                <ul>
-				                                                  
-				                                                            <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
-				                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" href="${baseUrl}/imagePicker/${acc}/${entry.name}" count="${entry.count}"></t:impcimgdisplay2>
-				                                                                </a>
-				                                                        
-				                                                </ul>
-				                                                
-				                                                
-				                                                <%--  <div class="clear"></div>
-				                                                    <c:if test="${entry.count>5}">
-				                                                        <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
-				                                                    </c:if> --%>
-				                                            </div><!--  end of accordion body -->
-				                                    </div>
-				                                  </c:forEach>
-				                            
-				                        </c:forEach>
-	                                       
+                                        <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
 
-										
+
+                                            <c:forEach var="doc" items="${impcFacetToDocs[entry.name]}">
+                                                <div id="impc-images-heading" class="accordion-group">    
+
+                                                    <div class="accordion-heading">
+                                                        ${doc.parameter_name}(${entry.count}) 
+                                                    </div>
+                                                    <div class="accordion-body">
+                                                        <ul>
+
+                                                            <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" href="${baseUrl}/imagePicker/${acc}/${entry.name}" count="${entry.count}"></t:impcimgdisplay2>
+                                                                </a>
+
+                                                            </ul>
+
+
+                                                        <%--  <div class="clear"></div>
+                                                            <c:if test="${entry.count>5}">
+                                                                <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+                                                            </c:if> --%>
+                                                    </div><!--  end of accordion body -->
+                                                </div>
+                                            </c:forEach>
+
+                                        </c:forEach>
+
+
+
                                     </div><!--  end of inner -->
                                 </div> <!-- end of section -->
                             </c:if>			
@@ -520,30 +520,30 @@
 
             <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
             <script type="text/javascript">
-                var diseaseTables= [
-                    {id: '#orthologous_diseases_table',
-                        tableConf:{
-                        processing: true,
-                        paging: false,
-                        info: false,
-                        searching: false,
-                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-                            "sPaginationType": "bootstrap"
-                    }},
-                    {id: '#predicted_diseases_table', 
-                        tableConf: {
-                        order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-                            "sPaginationType": "bootstrap"
-                    }}
-                ];
-                
-                $(document).ready(function () {
-                for (var i = 0; i < diseaseTables.length; i++) {
-                    var diseaseTable = diseaseTables[i];
-                    var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
-                    $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
-                }
-            });
+                    var diseaseTables = [
+                        {id: '#orthologous_diseases_table',
+                            tableConf: {
+                                processing: true,
+                                paging: false,
+                                info: false,
+                                searching: false,
+                                order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                                "sPaginationType": "bootstrap"
+                            }},
+                        {id: '#predicted_diseases_table',
+                            tableConf: {
+                                order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
+                                "sPaginationType": "bootstrap"
+                            }}
+                    ];
+
+                    $(document).ready(function () {
+                        for (var i = 0; i < diseaseTables.length; i++) {
+                            var diseaseTable = diseaseTables[i];
+                            var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+                            $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
+                        }
+                    });
             </script>
         </jsp:body>
 

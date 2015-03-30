@@ -1131,7 +1131,7 @@ public class IndexerManagerTest {
 //     public void testStaticBuildCores() {
 //        String testName = "testStaticBuildCores";
 //        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=genotype-phenotype" };
+//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
 //        logger.info("Command line = " + StringUtils.join(args, ","));
 //        int retVal =  IndexerManager.mainReturnsStatus(args);
 //         
