@@ -42,9 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author mrelac
  */
 public class IndexerMap {
-    private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
-    private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
     private static List<AlleleDTO> alleles = null;
     private static Map<Integer, ImpressBean> pipelineMap = null;
     private static Map<Integer, ImpressBean> procedureMap = null;
@@ -88,43 +86,6 @@ public class IndexerMap {
         }
         
         return alleles;
-    }
-    
-    /**
-     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
-     *
-     * @param phenodigm_core a valid solr connection
-     * @return a cached map of all mp terms to hp terms, indexed by mp id.
-     * 
-     * @throws IndexerException
-     * @deprecated Use the MpOntologyService and HpOntologyService for these mappings (not written yet as of 16-Mar-2015)
-     */
-    @Deprecated
-    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
-        if (mpToHpTermsMap == null) {
-            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-        }
-        logger.info("mpToHpTermsMap size="+mpToHpTermsMap.size());
-        return mpToHpTermsMap;
-    }
-    
-    /**
-     * Returns a cached map of all sanger image terms associated to all ma ids,
-     * indexed by ma term id.
-     *
-     * @param imagesCore a valid solr connection
-     * @return a cached map of all sanger image terms associated to all ma ids,
-     * indexed by ma term id.
-     * @throws IndexerException
-     * @deprecated This should be provided by MaOntologyService. This method is not written yet.
-     */
-    @Deprecated
-    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
-        if (sangerImagesMap == null) {
-            sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
-        }
-        
-        return sangerImagesMap;
     }
 
     /**
