@@ -45,12 +45,14 @@ import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.enumeration.BatchClassification;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
+import uk.ac.ebi.phenotype.data.cda.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -149,7 +151,7 @@ public class ObservationService extends BasicService {
 		if (resources != null){
 			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }  
-		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001" );
+		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
 		query.addField(ObservationDTO.GENE_SYMBOL);
 		query.addField(ObservationDTO.COLONY_ID);
 		query.addField(ObservationDTO.CATEGORY);
@@ -545,11 +547,11 @@ public class ObservationService extends BasicService {
 	throws SolrServerException {
 
 		SolrQuery query = new SolrQuery().setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":unidimensional").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
-																																																																																					// at
-																																																																																					// least
-																																																																																					// 2
-																																																																																					// fields
-		ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
+			// at
+			// least
+			// 2
+			// fields
+			ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID);
 
 		QueryResponse response = solr.query(query);
 
@@ -576,16 +578,7 @@ public class ObservationService extends BasicService {
 			.setFacet(true)
 			.setFacetMinCount(1)
 			.setFacetLimit(-1)
-			.addFacetPivotField(StringUtils.join(Arrays.asList(
-				ObservationDTO.PHENOTYPING_CENTER_ID,
-				ObservationDTO.PIPELINE_ID,
-				ObservationDTO.PROCEDURE_GROUP,
-				ObservationDTO.PARAMETER_ID,
-				ObservationDTO.STRAIN_ACCESSION_ID,
-				ObservationDTO.ZYGOSITY,
-				ObservationDTO.METADATA_GROUP,
-				ObservationDTO.ALLELE_ACCESSION_ID,
-				ObservationDTO.GENE_ACCESSION_ID), ","));
+			.addFacetPivotField(StringUtils.join(Arrays.asList(ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.PIPELINE_ID, ObservationDTO.PROCEDURE_GROUP, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID), ","));
 
 		QueryResponse response = solr.query(query);
 
@@ -750,12 +743,7 @@ public class ObservationService extends BasicService {
 	throws SolrServerException {
 
 		List<Map<String, String>> results = new LinkedList<>();
-		List<String> facetFields = Arrays.asList(
-			ObservationDTO.PIPELINE_STABLE_ID,
-			ObservationDTO.PIPELINE_NAME,
-			ObservationDTO.PHENOTYPING_CENTER,
-			ObservationDTO.ALLELE_ACCESSION_ID,
-			ObservationDTO.ALLELE_SYMBOL);
+		List<String> facetFields = Arrays.asList(ObservationDTO.PIPELINE_STABLE_ID, ObservationDTO.PIPELINE_NAME, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ALLELE_SYMBOL);
 
 		SolrQuery query = new SolrQuery().setQuery("*:*")
 			.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + "\"" + genomicFeatureAcc + "\"")
@@ -1622,5 +1610,12 @@ public class ObservationService extends BasicService {
 		
 		return null;
 	}
-	
+
+	public DataBatchesBySex getBatches(String phenotypingCenter, String pipelineStableId, String parameterStableId, String strainAccessionId, String zygosity, String metadata_group, String alleleAccessionId) {
+		Integer batches = 0;
+
+		return batches;
+	}
+
+
 }
