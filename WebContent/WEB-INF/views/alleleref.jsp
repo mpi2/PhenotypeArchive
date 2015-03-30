@@ -44,8 +44,16 @@
 			table#alleleRef td {
 				font-size: 14px !important;
 			}
-			span.hideMe, li.hideMe {
-				
+			.hideMe {
+				display: none;
+			}
+			.showMe {
+				display: block;
+			}
+			.alleleToggle {
+				cursor: pointer;
+				font-size: 11px;
+				font-weight: bold;
 			}
 			
 		</style>
@@ -109,6 +117,7 @@
    	         	"sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
    	            "sPaginationType": "bootstrap",
    	            "searchHighlight": true,
+   	         	"iDisplayLength": 200,
    	         	"oLanguage": {
    	          		"sLengthMenu": 'Show <select>'+
        	            '<option value="10">10</option>'+
@@ -116,8 +125,8 @@
        	            '<option value="50">50</option>'+
        	         	'<option value="100">100</option>'+
        	         	'<option value="200">200</option>'+
-       	            '</select> allele records',
-       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ alleles records",
+       	            '</select> papers',
+       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ papers",
        	         	"sSearch": "Filter: "
    	        	},
    	        	"aoColumns": [{ "bSearchable": true },
@@ -138,6 +147,17 @@
    	            	oConf.filterStr = $(".dataTables_filter input").val();
    	            	
    	            	$.fn.initDataTableDumpControl(oConf);
+   	            	$('.alleleToggle').click(function(){
+   	            		console.log("toggle");
+   	            		if ( !$(this).hasClass('showMe') ){
+   	            			$(this).addClass('showMe').text('Show less alleles ...');
+   	            			$(this).siblings().addClass('showMe');
+   	            		}
+   	            		else{
+   	            			$(this).removeClass('showMe').text('Show all alleles ...');
+   	            			$(this).siblings().removeClass('showMe');
+   	            		}
+   	            	});
    	            },
    	            "sAjaxSource": baseUrl + '/dataTableAlleleRef',
    	            "fnServerParams": function(aoData) {
