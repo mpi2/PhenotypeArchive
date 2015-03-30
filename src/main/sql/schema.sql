@@ -141,6 +141,31 @@ CREATE TABLE analytics_experiment_load (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
+ * Contains information about the loading of experiment files
+ */
+DROP TABLE IF EXISTS analytics_statistics_load;
+CREATE TABLE analytics_statistics_load (
+	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	observation_type         VARCHAR(255) NOT NULL DEFAULT '',
+	zygosity                 VARCHAR(255) NOT NULL DEFAULT '',
+	center_id                VARCHAR(255) NOT NULL DEFAULT '',
+	allele_accession_id      VARCHAR(255) NULL,
+	impress_pipeline         VARCHAR(50) NOT NULL DEFAULT '',
+	impress_procedure        VARCHAR(100) NOT NULL DEFAULT '',
+	impress_parameter        TEXT,
+	male_controls            INT(10) UNSIGNED,
+	male_mutants             INT(10) UNSIGNED,
+	female_controls          INT(10) UNSIGNED,
+	female_mutants           INT(10) UNSIGNED,
+	stats_started            DATETIME,
+	stats_done               DATETIME,
+	status                   VARCHAR(100) NOT NULL DEFAULT '',
+
+	PRIMARY KEY (id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/**
  * Contains meta information about the database like
  * the version of the code that can run safely on the data
  * the mouse assembly version of the data

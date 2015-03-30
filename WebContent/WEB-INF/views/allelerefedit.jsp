@@ -23,10 +23,28 @@
 			div#alleleRef_filter {
 				float: right;
 			}
-			
+			form#allele {
+				position: absolute;
+				top: 220px;
+				width: auto;
+				font-size: 12px;
+				padding: 0 0 0 5px;
+				background-color: #f2f2f2;
+				display: none;
+			}
+			input[type=password] {
+       			width: 100px;     
+   			} 
+   			div#butt {
+   				margin: 15px 0;
+   			}
+   			button.edit {
+   				color: white;
+   				background-color: #993333;
+   			}
    			div#tableTool {
    				position: absolute;
-   				top: 140px;
+   				top: 180px;
    				right: 20px;
    				
    			}
@@ -34,18 +52,6 @@
 			  background-color: yellow;
 			  font-weight: bold;
 			  color: black;
-			}
-			table#alleleRef th:first-child, table#alleleRef th:nth-child(2) {
-				width: 150px !important;
-			}
-			table#alleleRef th:nth-child(3) {
-				width: 80px !important;
-			}
-			table#alleleRef td {
-				font-size: 14px !important;
-			}
-			span.hideMe, li.hideMe {
-				
 			}
 			
 		</style>
@@ -64,10 +70,17 @@
 			<div class="block block-system">
 				<div class='content'>
 				<div class="node node-gene">
-					<h1 class="title" id="top">IMPC allele references</h1>	 
+						<h1 class="title" id="top">IMPC allele references curation</h1>	 
 				
+					<div id='formBox'>
+						<span></span>
+						<form id='allele'>
+	                      Enter passcode to switch to Edit mode: <input size='10' type='password' name='passcode'>
+	                    </form>
+                    </div>
+                    <div id='butt'><button class='login'>Edit</button></div>
 					<div class="clear"></div>
-											
+					<!-- facet filter block -->								
 					<!-- container to display dataTable -->									
 					<div class="HomepageTable" id="alleleRef"></div>	
 				</div>				
@@ -85,8 +98,55 @@
    			var baseUrl = "${baseUrl}";
    			var solrUrl = "${internalSolrUrl};"
    			
-   			var tableHeader = "<thead><th>Paper title</th><th>Journal</th><th>Date of publication</th><th>Allele symbol</th><th>Grant agency</th><th>Paper link</th></thead>";		
-			var tableCols = 6;
+			$('button[class=login]').click(function(){
+				if ( ! $(this).hasClass('edit') ) {
+					$('#formBox span').text("");
+					if ( $('form#allele').is(":visible") ){
+						$('form#allele').hide();
+					}
+					else {
+						$('formBox span').text("");
+						$('form#allele').show();
+					}
+				}
+				else {
+					$(this).removeClass('edit').text('Edit');
+					$('#formBox span').text("You are now out of editing mode...");
+					var oTable = $('table#alleleRef').dataTable();
+        			oTable.fnStandingRedraw();
+				}
+        	});
+			
+			$('form#allele').submit(function(){
+				
+				var passcode = $('form input[type=password]').val();
+              	$.ajax({
+              		method: "post",
+                	url: baseUrl + "/alleleRefLogin?passcode="+passcode,
+                	success: function(response) {
+                		// verifying passcode
+                		// boolean response
+                		if ( response ){
+                			$('button').addClass('edit').text("Stop editing")
+                			$('form#allele').hide();
+                			$('#formBox span').text("You are now in editing mode...");
+                			var oTable = $('table#alleleRef').dataTable();
+                			oTable.fnStandingRedraw();
+                		}
+                		else {
+                			alert("Passcode incorrect. Please try again");
+                		}
+                	},
+              	 	error: function() {
+                     window.alert('AJAX error trying to verify passcode');
+              	 	} 
+               	});
+              	return false;
+			});
+   			
+   			
+   			var tableHeader = "<thead><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id</th><th>Grant agency</th><th>Grant acronym</th><th>Paper link</th></thead>";		
+			var tableCols = 8;
 			
 			var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
 			$('div#alleleRef').append(dTable);
@@ -114,17 +174,17 @@
        	            '<option value="10">10</option>'+
        	            '<option value="30">30</option>'+
        	            '<option value="50">50</option>'+
-       	         	'<option value="100">100</option>'+
-       	         	'<option value="200">200</option>'+
        	            '</select> allele records',
        	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ alleles records",
        	         	"sSearch": "Filter: "
    	        	},
-   	        	"aoColumns": [{ "bSearchable": true },
+   	        	"aoColumns": [{ "bSearchable": false },
    	        	              { "bSearchable": true },
    	        	           	  { "bSearchable": true },
 	        	              { "bSearchable": true },
 	        	              { "bSearchable": true },
+	        	              { "bSearchable": true },
+   	        	              { "bSearchable": true },
    	        	              { "bSearchable": false }
    	        	              ],
    	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
@@ -138,8 +198,38 @@
    	            	oConf.filterStr = $(".dataTables_filter input").val();
    	            	
    	            	$.fn.initDataTableDumpControl(oConf);
+   	            	
+   	            	
+   	            	if ( $('button').hasClass('edit')) { 
+	   	            	// POST
+	   	            	var thisRow = $(this);
+	   	            	var dbid = parseInt($(this).find('tr td:nth-child(3) span').attr('id'));
+	   	            	$(this).find('tr td:nth-child(2)').attr('id', dbid).css({'cursor':'pointer'}); // set id for the key in POST
+	   	            	$(this).find('tr td:nth-child(2)').editable(baseUrl + '/dataTableAlleleRef', {
+	   	                 "callback": function( jsonStr, y ) {
+	   	                		var j = JSON.parse(jsonStr);
+	   	                     	$(this).text(j.symbol);
+	   	                  		$(this).parent().find('td:first-child').text(j.reviewed);
+	   	                 },
+	   	                 "event": "click",
+	   	                 "height": "18px",
+	   	                 "width": "350px"
+	   	             	});
+	   	            	$(this).find('tr td:nth-child(2)').bind('click', function(){
+	   	            		//console.log($(this).html()); 
+	   	            		// a form is created on the fly by jeditable
+	   	            		// change that value for user to save typing as this value 
+	   	            		// will be 'yes'
+	   	            		$(this).find('form').css('padding','2px'); 
+	   	            		$(this).find('form input[name=value]').val("");
+	   	            	}).mouseover(function(){
+	   	            		$(this).css({'border':'1px solid gray'});
+	   	            	}).mouseout(function(){
+	   	            		$(this).css({'border':'none'});
+	   	            	});
+   	            	}
    	            },
-   	            "sAjaxSource": baseUrl + '/dataTableAlleleRef',
+   	            "sAjaxSource": baseUrl + '/dataTableAlleleRefEdit',
    	            "fnServerParams": function(aoData) {
    	                aoData.push(
    	                        {"name": "doAlleleRef",

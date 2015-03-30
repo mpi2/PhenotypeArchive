@@ -149,7 +149,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setOmeroId(omeroId);
 
 					
-					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId) ){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
+					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId) || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
 						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
 						//logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
@@ -161,9 +161,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (omeroId != 0 && downloadFilePath != null) {
 						// logger.info("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
 						// /webgateway/archived_files/download/
-						imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
-						imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
-
+						if(downloadFilePath.endsWith(".pdf")){
+							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
+							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/webclient/annotation/" + omeroId);
+							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + 119501);//pdf thumnail placeholder
+						}else{
+							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
+							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
+						}
 					} else {
 						logger.info("omero id is null for " + downloadFilePath);
 					}
