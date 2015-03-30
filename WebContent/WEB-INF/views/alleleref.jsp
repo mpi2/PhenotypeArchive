@@ -154,7 +154,8 @@
    	            			$(this).siblings().addClass('showMe');
    	            		}
    	            		else{
-   	            			$(this).removeClass('showMe').text('Show all alleles ...');
+   	            			var num = $(this).attr('rel');
+   	            			$(this).removeClass('showMe').text('Show all ' + num + ' alleles ...');
    	            			$(this).siblings().removeClass('showMe');
    	            		}
    	            	});

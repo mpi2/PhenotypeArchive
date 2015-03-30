@@ -1703,7 +1703,8 @@ public class DataTableController {
 				}
 				// show/hide toggle
 				if ( alleleLinks.size() > 5 ){
-					alleleLinks.add("<div class='alleleToggle'>Show all alleles ...</div>");
+					int num = alleleLinks.size();
+					alleleLinks.add("<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
 				}
 				rowData.add(StringUtils.join(alleleLinks, ""));
 			
