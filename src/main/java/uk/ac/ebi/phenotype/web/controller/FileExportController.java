@@ -1321,12 +1321,12 @@ public class FileExportController {
 		
 		List<String> rowData = new ArrayList<>();
 		
-		String fields = "title"
-				+ "\tjournal"
-        		+ "\tMGI allele symbol"
+		String fields = "MGI allele symbol"
         		+ "\tMGI allele id"
         		+ "\tIMPC gene link"
         		+ "\tMGI allele name"
+        		+ "\tTitle"
+				+ "\tjournal"
         		+ "\tPMID"
         		+ "\tDate of publication"
         		+ "\tGrant id"
@@ -1358,9 +1358,6 @@ public class FileExportController {
 
 				List<String> data = new ArrayList<String>();
 				
-				data.add(resultSet.getString("title"));
-				data.add(resultSet.getString("journal"));
-				
 				//rowData.add(resultSet.getString("acc"));
 				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
 				data.add(alleleSymbol);
@@ -1372,6 +1369,9 @@ public class FileExportController {
 				data.add(glLink);
 				
 				data.add(resultSet.getString("name"));
+				
+				data.add(resultSet.getString("title"));
+				data.add(resultSet.getString("journal"));
 				
 				//rowData.add(resultSet.getString("name"));
 				data.add(resultSet.getString("pmid"));

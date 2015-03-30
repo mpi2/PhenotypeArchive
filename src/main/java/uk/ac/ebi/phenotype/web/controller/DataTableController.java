@@ -1625,11 +1625,8 @@ public class DataTableController {
 
 				List<String> rowData = new ArrayList<String>();
 				
-				rowData.add(resultSet.getString("title"));
-				rowData.add(resultSet.getString("journal"));
-				rowData.add(resultSet.getString("date_of_publication"));
-			
 				List<String> alleleLinks = new ArrayList<>();
+				
 				int alleleCount = 0;
 				
 				String[] sym2gs = resultSet.getString("sym2gs").split("___,");
@@ -1658,6 +1655,10 @@ public class DataTableController {
 				}
 				rowData.add(StringUtils.join(alleleLinks, "<br>"));
 			
+				rowData.add(resultSet.getString("title"));
+				rowData.add(resultSet.getString("journal"));
+				rowData.add(resultSet.getString("date_of_publication"));
+				
 				List<String> agencyList = new ArrayList<>();
 				
 				String[] agencies = resultSet.getString("agencies").split("___,");

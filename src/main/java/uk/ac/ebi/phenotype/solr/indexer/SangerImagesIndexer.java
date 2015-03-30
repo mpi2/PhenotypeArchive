@@ -19,7 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenotype.service.MaOntologyService;
+import uk.ac.ebi.phenotype.service.MpService;
 
 /**
  * Populate the experiment core
@@ -51,7 +51,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
     SolrServer sangerImagesCore;
     
     @Autowired
-    MaOntologyService maOntologyService;
+    MpService mpService;
 
     private Map<Integer, DcfBean> dcfMap = new HashMap<>();
     private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
@@ -1280,7 +1280,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
             throws IndexerException {
 
         logger.info("populating Mp To Hp Term map");
-        mpToHpMap = maOntologyService.getMpToHpTerms(phenodigmServer);
+        mpToHpMap = mpService.getMpToHpTerms(phenodigmServer);
     }
 
     private void populateMpToNode() {
