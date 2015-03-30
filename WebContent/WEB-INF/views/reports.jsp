@@ -21,11 +21,19 @@
 				
 							<div class="section">
 								<div class="inner">
-									<p> <a href="${baseUrl}/gene2go">GO annotations to IMPC genes</a> </p>
-									<p>	<a href="${baseUrl}/getLaczSpreadsheet">LacZ Expression</a> </p>
-									<p> <a href="${baseUrl}/centerProgressCsv">Procedure Completeness </a> </p>
-									<p> <a href="${baseUrl}/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
-									<p> <a href="${baseUrl}/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
+									<p> <a href="${baseUrl}/reports/dataOverview">Data Overview</a> </p>
+									<p> <a href="${baseUrl}/reports/centerProgressCsv">Procedure Completeness </a> </p>
+									<p> <a href="${baseUrl}/reports/viability">Viability</a> </p>
+									<p> <a href="${baseUrl}/reports/fertility">Fertility report</a> </p>
+									<p> <a href="${baseUrl}/reports/mpCallDistribution">Distribution of phenotype hits</a> </p>
+									<p> <a href="${baseUrl}/reports/hitsPerLine">Hits per line</a> </p>
+									<p> <a href="${baseUrl}/reports/hitsPerPP">Hits per parameter and procedure</a> </p>
+									<p> <a href="${baseUrl}/reports/sexualDimorphism">Sexual Dimorphism No Body Weight </a> </p>
+									<p> <a href="${baseUrl}/reports/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a> </p>
+									<p> <a href="${baseUrl}/reports/gene2go">GO annotations to phenotyped IMPC genes tool</a> </p>
+									<p>	<a href="${baseUrl}/reports/getLaczSpreadsheet">LacZ Expression</a> </p>
+									<p> <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-3.0/csv/">All genotype-phenotype data</a></p>
+
 								</div>
 							</div>
 							

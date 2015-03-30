@@ -260,6 +260,9 @@
 	    			var liContainer = $("<li></li>").attr({'class':'fcat marker_type'});
 					var type = mkr_facets[i];
 					
+					if ( type == 'null') {
+						continue;
+					}
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';	
 					var isGrayout = count == 0 ? 'grayout' : '';

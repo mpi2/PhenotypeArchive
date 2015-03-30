@@ -121,7 +121,6 @@
             $.fn.doBatchFacetCountUpdate(q);
         }
 
-
         MPI2.searchAndFacetConfig.update.filterChange = false;
         $.fn.loadDataTable(oConf1);
     };
@@ -151,14 +150,19 @@
         	facetFields.pipeline = fieldConf.pipelineFacet.subFacetFqFields;
         }
         
-
         var facetUrls = {};
         for (var facet in facetFields) {
 
             var solrbaseUrl = solrUrl + '/' + facet + '/select?';
             var fqStr = $.fn.getCurrentFq(facet).replace(/img_|impcImg_/g, '');
-            
+
             facetUrls[facet] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
+            if ( facet == 'gene' ){
+            	fqStr = 'marker_type:"protein coding gene"';
+            	// gene2 is a pseudo facet to fetch number of protein coding genes 
+            	// for Gene main facet on default search page
+            	facetUrls["gene2"] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
+            }
         }
 
         //console.log(facetUrls);
@@ -177,6 +181,11 @@
                     var core = cores[i];
                     var solrFqStr = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
                     var oConf = {'facet': core, 'fqStr': solrFqStr, 'q': q, 'json': subFacetJsons[core]};
+
+                    if ( core == 'gene' && q == '*%3A*' && fqStr == '*:*' ){
+                    	// swap gene2 with gene to get number of  protein coding gene 
+                    	oConf.json.response = subFacetJsons.gene2.response;
+                    }
                     var facetCountsUpdater = new FacetCountsUpdater(oConf);
                     facetCountsUpdater.updateFacetCounts();
                 }
@@ -248,13 +257,6 @@
         if (!$('div.flist li#' + facet).hasClass('open')) {
             $('div.flist li#' + facet + ' > .flabel').click();
         }
-
-        // toggle Categorie Sections
-        /*$('div.flist li#' + facet).find('li.fcatsection:not(.inactive) .flabel').click(function() {			
-         //$(this).parent('.fcatsection').toggleClass('open'); 
-         alert('fcatsection');
-         });*/
-
 
         $('div.flist ul li#' + facet).find('li.fcatsection').click(function(e) {
 
@@ -454,7 +456,7 @@
         $.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
 
     };
-
+    
     function _facetRefresh(json, selectorBase) {
 
         // refresh main facet sum count				
@@ -1796,21 +1798,44 @@
 
 
         if (facet == 'gene') {
+        	
+        	var matches;
+        	var qBoost = q;
+        	if ( matches = q.match(/^("|%22)(.+)("|%22)$/) ){
+        		qBoost = matches[2];
+        	}
+        	
             if (q.match(/^MGI:\d*$/i)) {
                 oParams.q = q.toUpperCase();
                 oParams.qf = 'mgi_accession_id';
             }
             else if (q.match(wildCardStr) && q != '*:*') {
-                oParams.bq = 'marker_symbol:' + q.replace(/\*/g, '') + '^1000'
-                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
-                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^700'
-                        + ' marker_name:' + q.replace(/\*/g, '') + '^500';
+            	
+            	oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000' + ' marker_symbol_bf:' + qBoost + '^100';	
+//                oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g, '') + '^1000'
+//                        + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
+//                        + ' marker_synonym:' + q.replace(/\*/g, '') + '^100'
+//                        + ' marker_name:' + q.replace(/\*/g, '') + '^200';
             }
+            else if ( q.match(/^.+\S+.+$/) ){
+            	// simple phrase search
+            	
+            	oParams.bq = 'marker_symbol_lowercase:"' + qBoost + '"^1000' + ' marker_symbol_bf:"' + qBoost + '"^100';	
+            }
+           
             else {
-                oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^700 marker_name^500';
+            	
+            	if ( q == '*:*') {q = '*'} // don't want marker_symbol_lowercase:*:*^1000
+            	
+                //oParams.pf = 'marker_symbol^1000 human_gene_symbol^800 marker_synonym^100 marker_name^200';
+            	oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000' + ' marker_symbol_bf:' + qBoost + '^100';
+            	oParams.pf = 'marker_symbol_lowercase^1000 human_gene_symbol^500';
+            	
             }
+        	
         }
         else if (facet == 'mp') {
+        	
         	oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
         	
             if (q.match(/^MP:\d*$/i)) {
@@ -1827,6 +1852,11 @@
                 // does not seem to take effect if complexphrase is in use
                 oParams.pf = 'mp_term^1000 mp_term_synonym^500 mp_definition^100';
             }
+            
+            if ( q != '*:*' ){
+            	delete oParams.bq;  // don't want to use the default bq when users search for something specific
+            }
+            
         }
         else if (facet == 'disease') {
             if (q.match(wildCardStr) && q != '*:*') {
@@ -1909,7 +1939,8 @@
 
         //oInfos.mode = oVal.gridName;	
         oUrlParams.mode = oVal.gridName;
-
+        oUrlParams.gridFields = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridFields;
+        
         //oInfos.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
         oUrlParams.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
 
@@ -1921,17 +1952,7 @@
         }
 
         oParams.fq = oUrlParams.fq;
-        //oParams.rows = 10;
-
-        //qs(query slop) parameter can be used to add slop to any explicit phrase queries
-        //oParams.qs = 100;
-
-        /*
-         oParams.hl = 'true';
-         oParams['hl.snippets']=100; // otherwise only one in each field is return, and 100 should be enough to catch all for synonyms field, etc    	    	
-         oParams['hl.fl'] = '*';    	
-         */
-
+       
         // bq, qf, pf for solr result relevance 
 
         if (facetDivId == 'geneFacet') {
@@ -1943,11 +1964,19 @@
 
         oParams.q = oUrlParams.q;
         oParams.q = $.fn.process_q(oParams.q);
-
+        
+        if ( oParams.q == '*:*' && oParams.fq == '*:*' && facetDivId == 'geneFacet' ){
+        	oParams.fq = 'marker_type:"protein coding gene"';
+        }
+        
         oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);
 
-        if (oUrlParams.widgetName == 'geneFacet') {
+        if (oUrlParams.widgetName == 'geneFacet' && oParams.q == '*:*') {
+        	// this competes with marker_symbol_lowercase boost
             oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
+        }
+        if (oUrlParams.widgetName == 'mpFacet') {
+            oUrlParams.params += '&sort:gene_count desc';
         }
 
         if (facetDivId == 'imagesFacet' || facetDivId == 'impc_imagesFacet') {
@@ -1958,7 +1987,6 @@
         if (typeof oUrlParams.facetName == 'undefined') {
             //oInfos.solrCoreName = coreName;
             oUrlParams.solrCoreName = coreName;
-
         }
         else {
             //oInfos.facetName = oUrlParams.facetName; 
@@ -2161,7 +2189,7 @@
                         });
                     });
 
-                    initDataTableDumpControl(oInfos);
+                    $.fn.initDataTableDumpControl(oInfos);
 
                     var configs = MPI2.searchAndFacetConfig.update;
 
@@ -2297,7 +2325,8 @@
         }
     }
 
-    function initDataTableDumpControl(oInfos) {
+    $.fn.initDataTableDumpControl = function(oInfos) {
+    //function initDataTableDumpControl(oInfos) {
 
         $('div#saveTable').remove();
         $('div#toolBox').remove();
@@ -2322,7 +2351,11 @@
                     //if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
                     $('div#toolBox').css({'top': '-30px', 'left': '65px'});
                 }
-                var solrCoreName = oInfos.widgetName.replace('Facet', '');
+                
+                var solrCoreName;
+                if (  oInfos.hasOwnProperty('widgetName') ){
+                	solrCoreName = oInfos.widgetName.replace('Facet', '');
+            	}	
                 
                 // work out solr query start and row length dynamically
                 var iActivePage = $('div.dataTables_paginate li.active a').text();
@@ -2343,8 +2376,12 @@
                         solrCoreName: solrCoreName,
                         params: oInfos.params,
                         showImgView: showImgView,
-                        gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
-                        fileName: solrCoreName + '_table_dump'
+                       // gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
+                        gridFields: oInfos.gridFields,
+                        dogoterm: oInfos.hasOwnProperty('dogoterm') ? oInfos.dogoterm : false,
+                        fileName: oInfos.fileName != 'undefined' ? oInfos.fileName : solrCoreName + '_table_dump',
+                        filterStr: oInfos.hasOwnProperty('filterStr') ? oInfos.filterStr : null,
+                        doAlleleRef: oInfos.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef : null,
                 };
                 
                 var exportObjPageTsv = buildExportUrl(conf, 'tsv', 'page');
@@ -2378,36 +2415,41 @@
         var form = exportObj.form;
 
         if (dumpMode == 'all') {
-
-            var paramStr = conf['params'] + "&start=" + conf['rowStart'] + "&rows=0";
-            var url1;
-
-            url1 = solrUrl + '/' + conf['solrCoreName'] + "/select?";
-            paramStr += "&wt=json";
-
-            $.ajax({
-                url: url1,
-                data: paramStr,
-                dataType: 'jsonp',
-                jsonp: 'json.wrf',
-                timeout: 5000,
-                success: function(json) {
-                    // prewarn users if dataset is big
-                    if (json.response.numFound > 3000) {
-                        //console.log(json.response.numFound);
-                        if (confirm("Download big dataset would take a while, would you like to proceed?")) {
-                            $(form).appendTo('body').submit().remove();
-                        }
-                    }
-                    else {
-                        $(form).appendTo('body').submit().remove();
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    $('div#facetBrowser').html('Error fetching data ...');
-                }
-            });
-        }
+        	
+        	if ( typeof conf.solrCoreName != 'undefined' ) {
+	            var paramStr = conf['params'] + "&start=" + conf['rowStart'] + "&rows=0";
+	            var url1;
+	
+	            url1 = solrUrl + '/' + conf['solrCoreName'] + "/select?";
+	            paramStr += "&wt=json";
+	
+	            $.ajax({
+	                url: url1,
+	                data: paramStr,
+	                dataType: 'jsonp',
+	                jsonp: 'json.wrf',
+	                timeout: 5000,
+	                success: function(json) {
+	                    // prewarn users if dataset is big
+	                    if (json.response.numFound > 3000) {
+	                        //console.log(json.response.numFound);
+	                        if (confirm("Download big dataset would take a while, would you like to proceed?")) {
+	                            $(form).appendTo('body').submit().remove();
+	                        }
+	                    }
+	                    else {
+	                        $(form).appendTo('body').submit().remove();
+	                    }
+	                },
+	                error: function(jqXHR, textStatus, errorThrown) {
+	                    $('div#facetBrowser').html('Error fetching data ...');
+	                }
+	            });
+        	} 
+	        else if ( conf.hasOwnProperty('doAlleleRef') ){
+	        	dump_all_allele_ref(conf, form);
+	        }
+        }    
         else {
             // NOTE that IE8 prevents from download if over https.
             // see http://support.microsoft.com/kb/2549423
@@ -2417,7 +2459,35 @@
         $('div#toolBox').hide();
 
     }
+    
+    function dump_all_allele_ref(conf, form){
+    	
+        var url1 = baseUrl + '/dataTableAlleleRefCount';
 
+        $.ajax({
+            url: url1,
+            data: {filterStr: conf.hasOwnProperty('filterStr') ? conf.filterStr : ''},
+           // dataType: 'jsonp',
+            jsonp: 'json.wrf',
+            timeout: 5000,
+            success: function(count) {
+                // prewarn users if dataset is big
+                if (count > 3000) {
+                    //console.log(json.response.numFound);
+                    if (confirm("Download big dataset would take a while, would you like to proceed?")) {
+                        $(form).appendTo('body').submit().remove();
+                    }
+                }
+                else {
+                    $(form).appendTo('body').submit().remove();
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                $('div#facetBrowser').html('Error fetching data ...');
+            }
+        });
+    }
+    
     function buildExportUrl(conf, fileType, dumpMode) {
         if (fileType === undefined)
             fileType = '';
@@ -2468,14 +2538,6 @@
 
     $.fn.initDataTable = function(jqObj, customConfig) {
 
-        // extend dataTable with naturalSort function
-        /*jQuery.fn.dataTableExt.oSort['natural-asc']  = function(a,b) {
-         return naturalSort(a,b);
-         };	 
-         jQuery.fn.dataTableExt.oSort['natural-desc'] = function(a,b) {
-         return naturalSort(a,b) * -1;
-         };*/
-
         var params = {
 //				"sDom": "<'row-fluid'<'#foundEntries'><'span6'f>r>t<'row-fluid'<'#tableShowAllLess'><'span6'p>>",				
 //				 "bPaginate":true,
@@ -2489,50 +2551,11 @@
             "bFilter": false,
             "sPaginationType": "bootstrap",
         };
-//				//console.log('calling tools datababe ini');
         var oTbl = jqObj.dataTable($.extend({}, params, customConfig)).fnSearchHighlighting();
         return oTbl;
     };
-//    $.fn.dataTableshowAllShowLess = function(oDataTbl, aDataTblCols, display){
-//    	    	
-//    	var rowFound = oDataTbl.fnSettings().aoData.length;
-//    	$('div#foundEntries').html("Total entries found: " + rowFound).addClass('span6');    	
-//    	
-//		$('div.dataTables_paginate').hide();
-//		    		
-//		$('div.dataTables_filter input').keyup(function(){
-//						
-//			if ( !$(this).val() ){								
-//				$('div.dataTables_paginate').hide();							
-//			}
-//			else {
-//				// use pagination as soon as users use filter
-//				$('div.dataTables_paginate').show();
-//			}
-//		});	
-//				
-//		var display = ( display == 'Show fewer entries' || !display ) ? 'Show all entries' : 'Show fewer entries';  		
-//			
-//		// show all/less toggle only appears when we have > 10 rows in table
-//		if ( rowFound > 10 ){			
-//			$('div#tableShowAllLess').html("<span>" + display + "</span>").addClass('span6')
-//			$.fn.reloadDataTable(oDataTbl, aDataTblCols, display);
-//		}
-//    }
-//    
-//    $.fn.reloadDataTable = function(oDataTbl, aDataTblCols, display){
-//		$('div#tableShowAllLess').click(function(){    			
-//			
-//			oDataTbl.fnSettings()._iDisplayLength = display == 'Show all entries' ? -1 : 10;			
-//			var selector = oDataTbl.selector;			
-//			
-//			display = display == 'Show all entries' ? 'Show fewer entries' : 'Show all entries';
-//			$(this).find('span').text(display);
-//			$(selector).dataTable().fnDraw();			
-//		});
-//    } ; 	    
 
-    function naturalSort(a, b) {
+    $.fn.naturalSort = function(a, b) {
         // setup temp-scope variables for comparison evauluation
         var x = a.toString().toLowerCase() || '', y = b.toString().toLowerCase() || '',
                 nC = String.fromCharCode(0),
@@ -2672,6 +2695,25 @@
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         });
     }
+    
+    $.fn.sortJson = function(o){
+	    var sorted = {},
+	    key, a = [];
+
+	    for (key in o) {
+	    	if (o.hasOwnProperty(key)) {
+	    		a.push(key);
+	    	}
+	    }
+
+	    a.sort();
+
+	    for (key = 0; key < a.length; key++) {
+	    	sorted[a[key]] = o[a[key]];
+	    }
+	    return sorted;
+    }
+    	
 
 })(jQuery);
 
@@ -2931,7 +2973,20 @@ $.extend($.fn.dataTableExt.oSort, {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }
 });
-
+$.fn.dataTableExt.oApi.fnStandingRedraw = function(oSettings) {
+    if(oSettings.oFeatures.bServerSide === false){
+        var before = oSettings._iDisplayStart;
+ 
+        oSettings.oApi._fnReDraw(oSettings);
+ 
+        // iDisplayStart has been reset to zero - so lets change it back
+        oSettings._iDisplayStart = before;
+        oSettings.oApi._fnCalculateEnd(oSettings);
+    }
+ 
+    // draw the 'current' page
+    oSettings.oApi._fnDraw(oSettings);
+};
 //fix jQuery UIs autocomplete width
 $.extend($.ui.autocomplete.prototype.options, {
     open: function(event, ui) {

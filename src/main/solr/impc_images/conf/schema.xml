@@ -119,6 +119,19 @@
         <filter class="solr.PorterStemFilterFactory"/>
       </analyzer>
     </fieldType>
+    
+    <!-- to be used for marker_symbol boosting: only allow lowercase -->    
+    <fieldType name="text_lowercase" class="solr.TextField">
+        <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+         	<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+        <analyzer type="query"> 
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>  
+    
   </types>
 
   
@@ -369,12 +382,13 @@
         <field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
    
-        <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="parameter_association_stable_id" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parameter_association_sequence_id" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parameter_association_name" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parameter_association_value" type="string" indexed="true" stored="true" multiValued="true" />
+   	<field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+   	<field name="parameter_association_stable_id" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="parameter_association_sequence_id" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="parameter_association_name" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="parameter_association_value" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="image_link" type="string" indexed="true" stored="true" multiValued="false" />
    
         <copyField source="symbol" dest="marker_symbol" />
         <copyField source="symbol" dest="auto_suggest" />
@@ -384,10 +398,8 @@
   
         <!--  for copyFields -->
 
-        <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-
-
-
+	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+	
     </fields>
 
     <uniqueKey>id</uniqueKey>
@@ -404,8 +416,10 @@
   
     <!-- <copyField source="name" dest="text"/>-->
   
-    <copyField source="gene_accession_id" dest="auto_suggest" />
-    <copyField source="gene_symbol" dest="auto_suggest" />
-    <copyField source="procedure_name" dest="auto_suggest" />
-    <copyField source="phenotyping_center" dest="latest_phenotyping_centre" />
+  <copyField source="gene_accession_id" dest="auto_suggest" />
+  <copyField source="gene_symbol" dest="auto_suggest" />
+  <copyField source="procedure_name" dest="auto_suggest" />
+  <copyField source="phenotyping_center" dest="latest_phenotyping_centre" />
+  
+  
 </schema>

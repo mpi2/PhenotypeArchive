@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -317,6 +318,40 @@ public class TestUtils {
     }
     
     /**
+     * Returns the closest match to <code>stringToMatch</code> in
+     * <code>set</code>
+     *
+     * @param set the set to search
+     * 
+     * @param stringToMatch the string to match
+     * 
+     * @return the closest match to <code>stringToMatch</code> in <code>set</code>
+     */
+    public static String closestMatch(Set<String> set, String stringToMatch) {
+        String matchedString = "";
+        Integer matchedScore = null;
+        if ((set == null) || (stringToMatch == null))
+            return matchedString;
+        
+        Iterator<String> it = set.iterator();
+        while (it.hasNext()) {
+            String candidate = it.next();
+            int candidateScore = StringUtils.getLevenshteinDistance(candidate, stringToMatch);
+            if (matchedString.isEmpty()) {                                      // First time through, populate matchedXxx.
+                matchedString = candidate;
+                matchedScore = candidateScore;
+            } else {
+                if ((candidateScore >= 0) && (candidateScore < matchedScore)) {
+                    matchedScore = candidateScore;
+                    matchedString = candidate;
+                }
+            }
+        }
+        
+        return matchedString;
+    }
+    
+    /**
      * Creates a set from <code>input</code> using <code>colIndexes</code>, using
      * the underscore character as a column delimiter. Each value is first trimmed,
      * then lowercased.
@@ -332,7 +367,57 @@ public class TestUtils {
      * @param colIndexes indexes of columns to be copied
      * @return a set containing the concatenated values.
      */
-    public static Set createSet(GridMap input, int[] colIndexes) {
+    public static Set<String> createSet(GridMap input, Integer[] colIndexes) {
+        HashSet resultSet = new HashSet();
+        
+        String[][] body = input.getBody();
+        for (int rowIndex = 0; rowIndex < body.length; rowIndex++) {
+            String[] row = body[rowIndex];
+            String resultString = "";
+            for (int colIndex : colIndexes) {
+                resultString += row[colIndex].trim().toLowerCase() + "_";
+            }
+            resultSet.add(resultString);
+        }
+        
+        return resultSet;
+    }
+    
+    /**
+     * Dump <code>set</code> using logger ('info' level)
+     * 
+     * @param name the set name (for display purposes)
+     * @param set the set to be dumped
+     */
+    public static void dumpSet(String name, Set<String> set) {
+        System.out.println("\nDumping set '" + name + "'. Contains " + set.size() + " records:");
+        if (set.size() <= 0)
+            return;
+        
+        String[] data = set.toArray(new String[0]);
+        for (int i = 0; i < set.size(); i++) {
+            System.out.println("[" + i + "]: " + data[i]);
+        }
+        System.out.println();
+    }
+    
+    /**
+     * Creates a set from <code>input</code> using <code>colIndexes</code>, using
+     * the underscore character as a column delimiter. Each value is first trimmed,
+     * then lowercased.
+     * 
+     * Example: input.body[][] = "a", "b", "c", "d", "e"
+     *                           "f", "g", "h", "i", "j"
+     * 
+     * colIndexes = 1, 3, 4
+     * 
+     * produces a set that looks like:  "b_d_e_"
+     *                                  "g_i_j_"
+     * @param input Input object
+     * @param colIndexes indexes of columns to be copied
+     * @return a set containing the concatenated values.
+     */
+    public static Set<String> createSet(GridMap input, List<Integer> colIndexes) {
         HashSet resultSet = new HashSet();
         
         String[][] body = input.getBody();
@@ -572,6 +657,21 @@ public class TestUtils {
      */
     public static String removeProtocol(String url) {
         return (url.replace("https://", "").replace("http://", ""));
+    }
+    
+    public enum HTTP_PROTOCOL {
+        http
+      , https
+    };
+    
+    /**
+     * Sets the protocol (http or https).
+     * @param url url string which may or may not contain a protocol
+     * @param protocol one of: http or https (choose from enum)
+     * @return the url, with the protocol changed, if it exists
+     */
+    public static String setProtocol(String url, HTTP_PROTOCOL protocol) {
+        return (url.replace("https://", protocol.name() + "://").replace("http://", protocol.name() + "://"));
     }
     
     /**

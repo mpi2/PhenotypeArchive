@@ -23,13 +23,14 @@ package org.mousephenotype.www.testing.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -48,10 +49,18 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     public static final int COL_INDEX_PHENOTYPE_ID_LINK    = 4;
     public static final int COL_INDEX_SYNONYMS             = 5;
     public static final int COL_INDEX_TOP_LEVEL_MP_TERM    = 6;
-    public static final int COL_INDEX_LAST = COL_INDEX_TOP_LEVEL_MP_TERM;       // Should always point to the last (highest-numbered) index.
+    public static final int COL_INDEX_PHENOTYPING_CALLS    = 7;
+    public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPING_CALLS;       // Should always point to the last (highest-numbered) index.
     
     private final List<PhenotypeRow> bodyRows = new ArrayList();
     private final GridMap pageData;
+    
+    private final static Map<TableComponent, By> map = new HashMap();
+    static {
+        map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='mpGrid']"));
+        map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='mpGrid']/tbody/tr"));
+        map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='mpGrid_length']"));
+    }
     
     /**
      * Creates a new <code>SearchPhenotypeTable</code> instance.
@@ -60,40 +69,9 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchPhenotypeTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, "//table[@id='mpGrid']", timeoutInSeconds);
+        super(driver, timeoutInSeconds, map);
         
         pageData = load();
-    }
-
-    
-    /**
-     * Return the number of entries currently showing in the 'entries' drop-down
-     * box.
-     *
-     * @return the number of entries currently showing in the 'entries'
-     * drop-down box.
-     */
-    @Override
-    public int getNumEntries() {
-        Select select = new Select(driver.findElement(By.xpath("//select[@name='mpGrid_length']")));
-        try {
-            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
-        } catch (NullPointerException npe) {
-            return 0;
-        }
-    }
-    
-    /**
-     * Set the number of entries in the 'entries' drop-down box.
-     * 
-     * @param entriesSelect The new value for the number of entries to show.
-     */
-    @Override
-    public void setNumEntries(EntriesSelect entriesSelect) {
-        String xpathValue = "//select[@name='mpGrid_length']";
-        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
-        select.selectByValue(Integer.toString(entriesSelect.getValue()));
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
     }
     
     /**
@@ -105,21 +83,23 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               COL_INDEX_PHENOTYPE_TERM
             , COL_INDEX_PHENOTYPE_ID
             , COL_INDEX_DEFINITION
             , COL_INDEX_PHENOTYPE_ID_LINK
             , COL_INDEX_SYNONYMS
             , COL_INDEX_COMP_MAPPED_HP_TERMS
+            , COL_INDEX_PHENOTYPING_CALLS
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_TERM
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID
             , DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID_LINK
             , DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
             , DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS
+            , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPING_CALLS
         };
         final Integer[] sortColumns = {
               DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
@@ -181,6 +161,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_TERM] = "";
             pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_ID_LINK] = "";
             pageArray[sourceRowIndex][COL_INDEX_SYNONYMS] = "";
+            pageArray[sourceRowIndex][COL_INDEX_PHENOTYPING_CALLS] = "";
             
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 PhenotypeRow phenotypeRow = new PhenotypeRow();
@@ -210,23 +191,16 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 phenotypeRow.definition = bodyRowElementList.get(1).getText();                                          // definition.
                 pageArray[sourceRowIndex][COL_INDEX_DEFINITION] = phenotypeRow.definition;
                 
+                Integer iCalls = Utils.tryParseInt(bodyRowElementList.get(2).getText());
+                phenotypeRow.phenotypeCalls = (iCalls == null ? 0 : iCalls);
+                pageArray[sourceRowIndex][COL_INDEX_PHENOTYPING_CALLS] = Integer.toString(phenotypeRow.phenotypeCalls);
+                
                 sourceRowIndex++;
                 bodyRows.add(phenotypeRow);
             }
         }
         
         return new GridMap(pageArray, driver.getCurrentUrl());
-    }
-    
-    /**
-     *
-     * @return the number of rows in the "geneGrid" table. Always include 1
-     * extra for the heading.
-     */
-    private int computeTableRowCount() {
-        // Wait for page.
-        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='mpGrid']/tbody/tr")));
-        return elements.size() + 1;
     }
     
     
@@ -331,20 +305,22 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     
     private class PhenotypeRow {
         private String phenotypeTerm   = "";
-        private String phenotypeId    = "";
+        private String phenotypeId     = "";
         private String phenotypeIdLink = "";
         private String definition      = "";
+        private int    phenotypeCalls  = 0;
         private List<String> synonyms   = new ArrayList();
         private List<String> hpTerms   = new ArrayList();
         
         @Override
         public String toString() {
-            return "phenotypeTerm: '"    + phenotypeTerm
-                 + "'  phenotypeId: '"   + phenotypeId
-                 + "'  phenotypeLink: '" + phenotypeIdLink
-                 + "'  definition: '"    + definition
-                 + "'  synonyms: '"      + toStringSynonyms() + "'"
-                 + "'  hpTerms: '"       + toStringHpTerms() + "'"
+            return "phenotypeTerm: '"     + phenotypeTerm
+                 + "'  phenotypeId: '"    + phenotypeId
+                 + "'  phenotypeLink: '"  + phenotypeIdLink
+                 + "'  definition: '"     + definition
+                 + "'  phenotypeCalls: '" + phenotypeCalls
+                 + "'  synonyms: '"       + toStringSynonyms() + "'"
+                 + "'  hpTerms: '"        + toStringHpTerms() + "'"
                     ;
         }
         

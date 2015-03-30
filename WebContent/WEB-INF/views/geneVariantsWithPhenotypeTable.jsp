@@ -9,7 +9,7 @@
 </c:forEach>
 
 <p class="resultCount">
-    Total number of results: ${count}
+    Total number of significant genotype-phenotype associations: ${count}
 </p>
 
 <script>

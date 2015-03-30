@@ -378,5 +378,6 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	{  
 		return str.matches("-?\\d+(\\.\\d+)?");
 	}
+	
 
 }

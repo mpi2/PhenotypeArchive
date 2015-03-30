@@ -22,9 +22,11 @@ package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -34,123 +36,58 @@ import uk.ac.ebi.phenotype.util.Utils;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'imagesGrid' HTML table (annotation view) for images.
  */
-public class SearchImageAnnotationView {
+public class SearchImageAnnotationView extends SearchFacetTable {
+    
+    public static final int COL_INDEX_ANNOTATION_TYPE     = 0;
+    public static final int COL_INDEX_ANNOTATION_TERM     = 1;
+    public static final int COL_INDEX_ANNOTATION_ID       = 2;
+    public static final int COL_INDEX_RELATED_IMAGE_COUNT = 3;
+    public static final int COL_INDEX_LAST = COL_INDEX_RELATED_IMAGE_COUNT;     // Should always point to the last (highest-numbered) index.
+    
     private final List<ImageRow> bodyRows = new ArrayList();
-    private final WebDriver      driver;
-    private final int            timeoutInSeconds;
-    
-    public static final int COL_INDEX_NAME           = 0;
-    public static final int COL_INDEX_EXAMPLE_IMAGES = 1;
-    
+    private final GridMap pageData;
+    private Map<TableComponent, By> map;
     
     /**
      * Creates a new <code>SearchImageTable</code> instance.
      * 
-     * @param byTableTr The Selenium <code>By</code> describing the target
-     * table's tr row collection
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
+     * @param map a map of HTML table-related definitions, keyed by <code>
+     * TableComponent</code>.
      */
-    public SearchImageAnnotationView(By byTableTr, WebDriver driver, int timeoutInSeconds) {
-        this.driver = driver;
-        this.timeoutInSeconds = timeoutInSeconds;
+    public SearchImageAnnotationView(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> map) {
+        super(driver, timeoutInSeconds, map);
+        this.map = map;
         
-        parseBodyRows(byTableTr);
+        pageData = load();
     }
 
     /**
      * Validates download data against this <code>SearchImageAnnotationView</code>
      * instance.
      * 
-     * @param downloadData The download data used for comparison
+     * @param downloadDataArray The download data used for comparison
      * @return validation status
      * annotationType, annotationTerm, annotationId, annotationIdLink, relatedImageCount, imagesLink
      */
-    public PageStatus validateDownload(String[][] downloadData) {
-        PageStatus status = new PageStatus();
-        
-        if ((bodyRows.isEmpty()) || (downloadData.length == 0))
-            return status;
-            
-        // Validate the pageHeading.
-        String[] expectedHeadingList = {
-            "Annotation type"
-          , "Annotation term"
-          , "Annotation id"
-          , "Annotation id link"
-          , "Related image count"
-          , "Images link"
+    @Override
+    public PageStatus validateDownload(String[][] downloadDataArray) {
+        final Integer[] pageColumns = {
+              COL_INDEX_ANNOTATION_ID
+            , COL_INDEX_ANNOTATION_TERM
+            , COL_INDEX_ANNOTATION_TYPE
+            , COL_INDEX_RELATED_IMAGE_COUNT
         };
-        SearchFacetTable.validateDownloadHeading("IMAGE (annotation view)", status, expectedHeadingList, downloadData[0]);
-
-        for (int i = 0; i < bodyRows.size(); i++) {
-            String[] downloadRow = downloadData[i + 1];                         // Skip over heading row.
-            ImageRow pageRow = bodyRows.get(i);
-            
-            // Verify the components.
-            // annotationType.
-            String pageValue = pageRow.getAnnotationType();
-            String downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE];
-//System.out.println("[" + i + "][0]: pageValue:     '" + pageValue + "'");
-//System.out.println("[" + i + "][0]: downloadValue: '" + downloadValue + "'\n");
-            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationType = '"
-                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-            }
-            
-            // annotationTerm.
-            pageValue = pageRow.getAnnotationTerm();
-            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TERM];
-//System.out.println("[" + i + "][1]: pageValue:     '" + pageValue + "'");
-//System.out.println("[" + i + "][1]: downloadValue: '" + downloadValue + "'\n");
-            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationTerm = '"
-                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-            }
-            
-            // annotationId.
-            pageValue = pageRow.getAnnotationId();
-            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID];
-//System.out.println("[" + i + "][2]: pageValue:     '" + pageValue + "'");
-//System.out.println("[" + i + "][2]: downloadValue: '" + downloadValue + "'\n");
-            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationId = '"
-                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-            }
-            
-            // annotationIdLink. SPECIAL CASE: REMAP PROTOCOL FOR BOTH FROM HTTPS TO HTTP SO COMPARISON DOESN'T FAIL BECAUSE OF THE DIFFERENCE.
-            pageValue = pageRow.getAnnotationIdLink().replace("https", "http");
-            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK].replace("https", "http");
-//System.out.println("[" + i + "][3]: pageValue:     '" + pageValue + "'");
-//System.out.println("[" + i + "][3]: downloadValue: '" + downloadValue + "'\n");
-            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value annotationIdLink = '"
-                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-            }
-            
-            // relatedImageCount.
-            pageValue = Integer.toString(pageRow.getRelatedImageCount());
-            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT];
-//System.out.println("[" + i + "][4]: pageValue:     '" + pageValue + "'");
-//System.out.println("[" + i + "][4]: downloadValue: '" + downloadValue + "'\n");
-            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value relatedImageCount = '"
-                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-            }
-                
-            // imagesLink.
-            pageValue = pageRow.getImagesLink();
-            downloadValue = downloadRow[DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK];
-//System.out.println("[" + i + "][5]: pageValue:     '" + pageValue + "'");
-//System.out.println("[" + i + "][5]: downloadValue: '" + downloadValue + "'\n\n");
-            if ( ! TestUtils.pageEqualsDownload(pageValue, downloadValue)) {
-                status.addError("IMAGE MISMATCH for term " + pageRow.getAnnotationTerm() + ": page value imagesLink = '"
-                        + pageValue + "' doesn't match download value '" + downloadValue + "'.");
-            }
-        }
-
-        return status;
+        final Integer[] downloadColumns = {
+              DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID
+            , DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TERM
+            , DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE
+            , DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT
+        };
+        
+        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());   
     }
     
     
@@ -158,23 +95,64 @@ public class SearchImageAnnotationView {
     
     
     /**
-     * Parse all of the Annotation tr rows.
+     * Pulls all rows of data and column access variables from the search page's
+     * 'maGrid' HTML table.
      *
-     * annotationType, annotationTerm, annotationId, annotationIdLink,
-     * relatedImageCount, imagesLink
-     *
-     * @param byTableTr The Selenium <code>By</code> describing the target
-     * table's tr row collection
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the search page's 'maGrid' HTML table.
      */
-    private void parseBodyRows(By byTableTr) {
+    private GridMap load() {
+        return load(null);
+    }
+
+    /**
+     * Pulls <code>numRows</code> rows of search page gene facet data and column
+     * access variables from the search page's 'maGrid' HTML table.
+     *
+     * @param numRows the number of <code>GridMap</code> table rows to return,
+     * including the heading row. To specify all rows, set <code>numRows</code>
+     * to null.
+     * @return <code>numRows</code> rows of search page gene facet data and
+     * column access variables from the search page's 'maGrid' HTML table.
+     */
+    private GridMap load(Integer numRows) {
+        if (numRows == null)
+            numRows = computeTableRowCount();
+        
+        String[][] pageArray;
+        
+        // Wait for page.
+        wait.until(ExpectedConditions.presenceOfElementLocated(map.get(TableComponent.BY_TABLE)));
+        int numCols = COL_INDEX_LAST + 1;
+        
+        pageArray = new String[numRows][numCols];                               // Allocate space for the data.
+        for (int i = 0; i < numCols; i++) {
+            pageArray[0][i] = "Column_" + i;                                    // Set the headings.
+        }
+        
         // Save the body values.
-        List<WebElement> trElements = driver.findElements(byTableTr);
-        if ( ! trElements.isEmpty()) {
-            for (WebElement trElement : trElements) {
-                ImageRow bodyRow = new ImageRowFactory(trElement).getImageRow();
+        List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
+        if ( ! bodyRowElementsList.isEmpty()) {
+            int sourceRowIndex = 1;
+            
+            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = "";            // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = "";
+            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TYPE] = "";
+            pageArray[sourceRowIndex][COL_INDEX_RELATED_IMAGE_COUNT] = "";
+            for (WebElement bodyRowElements : bodyRowElementsList) {
+                ImageRow bodyRow = new ImageRowFactory(bodyRowElements).getImageRow();
+                
+                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = bodyRow.getAnnotationId();
+                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = bodyRow.getAnnotationTerm();
+                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TYPE] = bodyRow.getAnnotationType();
+                pageArray[sourceRowIndex][COL_INDEX_RELATED_IMAGE_COUNT] = Integer.toString(bodyRow.getRelatedImageCount());
+                
+                sourceRowIndex++;
                 bodyRows.add(bodyRow);
             }
         }
+        
+        return new GridMap(pageArray, driver.getCurrentUrl());
     }
     
     
@@ -320,7 +298,7 @@ public class SearchImageAnnotationView {
     
     public class ImageRowFactory {
         private ImageRow imageRow;
-        private String annotationType     = "";
+        private String annotationType = "";
         
         public ImageRowFactory(WebElement trElement) {
             List<WebElement> bodyRowElementList= trElement.findElements(By.cssSelector("td"));

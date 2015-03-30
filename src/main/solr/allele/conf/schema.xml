@@ -111,6 +111,19 @@
     </fieldType>  
   </types>
 
+	<!-- to be used for marker_symbol boosting: only allow lowercase -->    
+    <fieldType name="text_lowercase" class="solr.TextField">
+        <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+         	<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+        <analyzer type="query"> 
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>  
+
+
   <fields>  
     <field name="_version_" type="long" indexed="true" stored="true"/>             
 
@@ -157,6 +170,8 @@
 	<field name="go_term_def" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_evid" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="go_term_domain" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="go_count" type="int" indexed="true" stored="true" multiValued="false"/>
+	<field name="go_uniprot" type="string" indexed="true" stored="true" multiValued="true"/>
 	
 	<!-- A gene can have multiple GO terms. Use the evidence code ranking (evidCodeRank) to decide which GO evidence categories a gene should be assigned for 
 	     Ie, each gene gets only one rank. Currently, there are 4 ranks:
@@ -199,6 +214,9 @@
 	<field name="mgi_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="impc_novel_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
 
+	<field name="marker_symbol_bf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+	<field name="marker_symbol_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
+	
 	<!-- for copyfield -->
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
@@ -214,6 +232,7 @@
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>text</defaultSearchField>
 
+
 	<copyField source="*" dest="text"/>  
 	<copyField source="mgi_accession_id" dest="auto_suggest"/>
 	<copyField source="marker_symbol" dest="auto_suggest"/> 
@@ -224,10 +243,10 @@
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 	
 	<copyField source="go_term_id" dest="auto_suggest"/>
-	<copyField source="go_term_name" dest="auto_suggest"/>
 	<copyField source="latest_production_status" dest="status"/> 
 	
-	
+	<copyField source="marker_symbol" dest="marker_symbol_bf" />
+	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
 	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 

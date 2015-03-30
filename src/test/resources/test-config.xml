@@ -25,15 +25,12 @@
     <task:annotation-driven mode="proxy" executor="executorService" />
     <task:executor id="threadPoolTaskExecutor" />
 
-    <context:component-scan base-package="uk.ac.ebi" />
-
     <!-- Define the global parameters used when deploying without maven -->
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>classpath:testConfig.properties</value>
-                <value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
-
+                <value>file:${user.home}/configfiles/${datasourcesConfig}</value>
             </list>
         </property>
     </bean>
@@ -106,6 +103,7 @@
     
     <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
         <constructor-arg  value="${solrUrl}/statistical-result" />
+	<constructor-arg ref="phenotypePipelineDAO" />
     </bean>
     
     <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
@@ -207,7 +205,12 @@
     <bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
         <constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
     </bean>
-	
+    
+    <bean id="hpOntologyService" class="uk.ac.ebi.phenotype.service.HpOntologyService" />
+    <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
+    <bean id="mpOntologyService" class="uk.ac.ebi.phenotype.service.MpOntologyService" />
+    <bean id="mpathOntologyService" class="uk.ac.ebi.phenotype.service.MpathOntologyService" />
+    
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
         <property name="dataSource" ref="komp2DataSource"/>
         <property name="packagesToScan" value="uk.ac.ebi.phenotype"/>
@@ -311,5 +314,19 @@
         <property name="username" value="${komp2username}" />
         <property name="password" value="${komp2password}" />
     </bean>
-
+    <bean id="ontodbDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="${ontodburl}" />
+        <property name="username" value="${ontodbusername}" />
+        <property name="password" value="${ontodbpassword}" />
+    </bean>
+    <bean id="admintoolsDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="${admintoolsurl}" />
+        <property name="username" value="${admintoolsusername}" />
+        <property name="password" value="${admintoolspassword}" />
+    </bean>
+    
 </beans>

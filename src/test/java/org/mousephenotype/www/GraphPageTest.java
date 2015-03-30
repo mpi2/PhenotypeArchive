@@ -222,7 +222,7 @@ public class GraphPageTest {
             GridMap data = new GridMap(geneTable.getPreAndPostQcList(), target);
             // Start rowIndex at 1 to skip over heading row.
             for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
-                graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
+                graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH_LINK);
 
                 // Select only preQc links.
                 if (TestUtils.isPreQcLink(graphUrl)) {
@@ -270,9 +270,11 @@ public class GraphPageTest {
         // Make sure to keep baseUrls in sync with graplUrls. Don't forget to manage d0/d1/d2 appropriately.
         String[] graphUrls = {
             "http://beta.mousephenotype.org/data/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"
         };
         String[] baseUrls = {
             "http://ves-ebi-d1:8080/mi/impc/beta/phenotype-archive"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive"
         };
         
         PageStatus status;
@@ -401,7 +403,7 @@ public class GraphPageTest {
                 // Start rowIndex at 1 to skip over heading row.
                 for (int rowIndex = 1; rowIndex < data.getBody().length; rowIndex++) {
                     Double pagePvalue = Utils.tryParseDouble(data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_P_VALUE));
-                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH);
+                    graphUrl = data.getCell(rowIndex, GeneTable.COL_INDEX_GENES_GRAPH_LINK);
                     
                     // Skip over preQc links.
                     if (TestUtils.isPreQcLink(graphUrl)) {

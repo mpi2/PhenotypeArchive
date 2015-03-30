@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -15,6 +16,7 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.SangerProcedureMapper;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -53,6 +55,7 @@ public class PipelineIndexer extends AbstractIndexer {
     private Map<String, List<GfMpBean>> pppidsToGfMpBeans;
     private Map<String, List<AlleleDTO>> mgiToAlleleMap;
     private Map<String, MpDTO> mpIdToMp;
+	private Map<String, String> parameterStableIdToMaTermIdMap;
 
     public PipelineIndexer() {
 
@@ -96,7 +99,6 @@ public class PipelineIndexer extends AbstractIndexer {
             logger.info("Starting Pipeline Indexer...");
 
             initialiseSupportingBeans();
-
             pipelineCore.deleteByQuery("*:*");
             pipelineCore.commit();
 
@@ -352,6 +354,7 @@ public class PipelineIndexer extends AbstractIndexer {
     private void initialiseSupportingBeans()
             throws IndexerException {
 
+    	
         paramDbIdToParameter = populateParamDbIdToParametersMap();
         paramIdToProcedureList = populateParamIdToProcedureIdListMap();
         procedureIdToProcedure = populateProcedureIdToProcedureMap();
@@ -359,6 +362,7 @@ public class PipelineIndexer extends AbstractIndexer {
         pppidsToGfMpBeans = populateGfAccAndMp();
         mgiToAlleleMap = IndexerMap.getGeneToAlleles(alleleCore);
         mpIdToMp = populateMpIdToMp();
+        
 
     }
 
@@ -574,6 +578,8 @@ public class PipelineIndexer extends AbstractIndexer {
     private Map<String, MpDTO> populateMpIdToMp() throws IndexerException {
         return SolrUtils.populateMpTermIdToMp(mpCore);
     }
+    
+ 
 
     public static void main(String[] args)
             throws IndexerException {

@@ -280,7 +280,7 @@ config.facetParams = {
 		 subFacetFqFields: ['top_level_mp_term'],
 		 solrCoreName: 'mp', 
 		 tableCols: 3, 
-		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th><th></th></thead>', 
+		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th><th>Phenotyping call(s)</th><th></th></thead>', 
 		 subset: 'ontology_subset:*',
 		 //fq: 'ontology_subset:*', 
 		 fq: 'top_level_mp_term:*', 
@@ -297,7 +297,7 @@ config.facetParams = {
 		 filterParams: {'fq': 'top_level_mp_term:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
-					{'fl': 'mp_id,mp_term,mp_term_synonym,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition,hp_id,hp_term'})
+					{'fl': 'mp_id,mp_term,mp_term_synonym,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition,hp_id,hp_term,pheno_calls'})
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',
@@ -418,7 +418,7 @@ config.facetParams = {
 		 showImgView: false,		 
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'IMPC_images',
-		 filterParams: {'fl' : 'omero_id,procedure_name,gene_symbol,gene_accession_id,jpeg_url'
+		 filterParams: {'fl' : 'omero_id,procedure_name,gene_symbol,gene_accession_id,jpeg_url,parameter_association_name,parameter_association_value,allele_symbol'
 			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
 			 //'fq' : '*:*'
 		 },	

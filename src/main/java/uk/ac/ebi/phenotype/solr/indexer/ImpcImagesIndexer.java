@@ -7,16 +7,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.ImageService;
+import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,12 +54,18 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
+	
+	@Autowired
+	MaOntologyService maService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
 	private Map<String, List<AlleleDTO>> alleles;
 	private Map<String, ImageBean> imageBeans;
+	String excludeProcedureStableId="IMPC_PAT_002";
+
+	private Map<String, String> parameterStableIdToMaTermIdMap;
 
 
 	public ImpcImagesIndexer() {
@@ -94,6 +106,11 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		logger.info("running impc_images indexer");
 
+		try{
+	    	parameterStableIdToMaTermIdMap=this.populateParameterStableIdToMaIdMap();
+	    	} catch(SQLException e){
+	    		e.printStackTrace();
+	    	}
 		logger.info("populating image urls from db");
 		imageBeans = populateImageUrls();
 		logger.info("Image beans map size=" + imageBeans.size());
@@ -123,25 +140,35 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 					ImageBean iBean = imageBeans.get(downloadFilePath);
 					String fullResFilePath = iBean.fullResFilePath;
+					if(iBean.image_link!=null){
+						imageDTO.setImageLink(iBean.image_link);
+					}
 					imageDTO.setFullResolutionFilePath(fullResFilePath);
 
 					int omeroId = iBean.omeroId;
 					imageDTO.setOmeroId(omeroId);
 
-/*					if (omeroId == 0) {
+					
+					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId) || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
-						logger.error("Skipping record for image record {} -- missing omero_id", fullResFilePath);
+						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
+						//logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
 						continue;
 					}
-*/
+
 					// need to add a full path to image in omero as part of api
 					// e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
 					if (omeroId != 0 && downloadFilePath != null) {
 						// logger.info("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
 						// /webgateway/archived_files/download/
-						imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
-						imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
-
+						if(downloadFilePath.endsWith(".pdf")){
+							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
+							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/webclient/annotation/" + omeroId);
+							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + 119501);//pdf thumnail placeholder
+						}else{
+							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
+							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
+						}
 					} else {
 						logger.info("omero id is null for " + downloadFilePath);
 					}
@@ -159,11 +186,72 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							}
 						}
 					}
+					
+					if (imageDTO.getParameterAssociationStableId()!=null && !imageDTO.getParameterAssociationStableId().isEmpty()) {
+						
+						ArrayList<String>maIds=new ArrayList<>();
+						ArrayList<String>maTerms=new ArrayList<>();
+						ArrayList<String>maTermSynonyms=new ArrayList<>();
+						ArrayList<String>topLevelMaIds=new ArrayList<>();
+						ArrayList<String>topLevelMaTerm=new ArrayList<>();
+						ArrayList<String>topLevelMaTermSynonym=new ArrayList<>();
+						for (String paramString : imageDTO.getParameterAssociationStableId()) {
+							if (parameterStableIdToMaTermIdMap
+									.containsKey(paramString)) {
+								String maTermId = parameterStableIdToMaTermIdMap
+										.get(paramString);
+									maIds.add(maTermId);
+								OntologyTermBean maTermBean = maService
+										.getTerm(maTermId);
+								if (maTermBean != null) {
+									maTerms.add(maTermBean.getName());
+									maTermSynonyms.addAll(maTermBean
+											.getSynonyms());
+									List<OntologyTermBean> topLevels = maService
+											.getTopLevel(maTermId);
+									for (OntologyTermBean topLevel : topLevels) {
+										//System.out.println(topLevel.getName());
+										topLevelMaIds.add(topLevel.getId());
+										topLevelMaTerm.add(topLevel.getName());
+										topLevelMaTermSynonym.addAll(topLevel
+												.getSynonyms());
+									}
+								}
+//									<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//									<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//									<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+								//selected_top_level_ma_term
+								//String selectedTopLevelMaTerm=
+							}
+							// IndexerMap.get
+						}
+						if (!maIds.isEmpty()) {
+							imageDTO.setMaTermId(maIds);
+						}
+						if (!maTerms.isEmpty()) {
+							imageDTO.setMaTerm(maTerms);
+						}
+						if (!maTermSynonyms.isEmpty()) {
+							imageDTO.setMaTermSynonym(maTermSynonyms);
+						}
+						if (!topLevelMaIds.isEmpty()) {
+							imageDTO.setTopLevelMaId(topLevelMaIds);
+						}
+						if(!topLevelMaTerm.isEmpty()){
+							imageDTO.setTopLevelMaTerm(topLevelMaTerm);
+						}
+						if(!topLevelMaTermSynonym.isEmpty()){
+							imageDTO.setTopLevelMaTermSynonym(topLevelMaTermSynonym);
+						}
+					}
+					server.addBean(imageDTO);
+					count++;
 				}
 
-				server.addBean(imageDTO);
 
-				if (count++ % 1000 == 0) {
+
+				if (count % 10000 == 0) {
 					logger.info(" added ImageDTO" + count + " beans");
 				}
 			}
@@ -190,6 +278,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		final String getExtraImageInfoSQL = "SELECT "
 			+ ImageDTO.OMERO_ID + ", "
 			+ ImageDTO.DOWNLOAD_FILE_PATH + ", "
+			+ ImageDTO.IMAGE_LINK + ", "
 			+ ImageDTO.FULL_RESOLUTION_FILE_PATH
 			+ " FROM image_record_observation WHERE omero_id is not null AND omero_id != 0";
 
@@ -201,6 +290,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				ImageBean bean = new ImageBean();
 				bean.omeroId = resultSet.getInt(ImageDTO.OMERO_ID);
 				bean.fullResFilePath = resultSet.getString(ImageDTO.FULL_RESOLUTION_FILE_PATH);
+				bean.image_link = resultSet.getString(ImageDTO.IMAGE_LINK);
 				imageBeansMap.put(resultSet.getString(ImageDTO.DOWNLOAD_FILE_PATH), bean);
 
 			}
@@ -216,6 +306,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private class ImageBean {
 		int omeroId;
 		String fullResFilePath;
+		String image_link;
 	}
 
 
@@ -337,6 +428,24 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				}
 			}
 		}
+	}
+	
+	public Map<String,String> populateParameterStableIdToMaIdMap() throws SQLException{
+    	System.out.println("populating parameterStableId to MA map");
+		 Map<String,String> paramToMa = new HashMap<String, String>();
+		String query="SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 1000";
+		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)){
+		    ResultSet resultSet = statement.executeQuery();
+		   
+			while (resultSet.next()) {
+				String parameterStableId=resultSet.getString("stable_id");
+				String maAcc=resultSet.getString("ontology_acc");
+				System.out.println("adding "+parameterStableId+" "+maAcc);
+				paramToMa.put(parameterStableId, maAcc);
+			}
+		}
+		System.out.println("paramToMa size="+paramToMa.size());
+		return paramToMa;
 	}
 
 }

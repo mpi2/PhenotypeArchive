@@ -15,8 +15,12 @@
  */
 package uk.ac.ebi.generic.util;
 
+import java.net.URLEncoder;
 import java.util.List;
 
+
+
+import org.apache.commons.httpclient.util.URIUtil;
 // XSSF
 import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -77,21 +81,34 @@ public class ExcelWorkBook {
 	    // Create a row and put some cells in it. Rows are 0 based.
 	    // Then set value for that created cell
     	for (int k=0; k<tableData.length; k++) {
-    		XSSFRow row = sheet.createRow(k+1);  // data starts from row 1	 		
+    		XSSFRow row = sheet.createRow(k+1);  // data starts from row 1	
     		for (int l = 0; l < tableData[k].length; l++) {  
     			XSSFCell cell = row.createCell(l);   
+    			String cellStr = null;
     			
-    			String cellStr = tableData[k][l].toString();
+    			try{
+    				cellStr = tableData[k][l].toString();
+    			}catch(Exception e){
+    				cellStr = "";
+    			}
+    			
+    			//System.out.println("cell " + l + ":  " + cellStr);
     			
     			// make hyperlink in cell
     			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
     				
+    				//need to encode URI for this version of ExcelWorkBook
+    				cellStr = URIUtil.encodePath(cellStr,"UTF-8");
+    				
+    				cellStr = cellStr.replace("%3F","?");  // so that url link would work
+    				
+    				//System.out.println("cellStr: " + cellStr);
     				XSSFHyperlink url_link = (XSSFHyperlink)createHelper.createHyperlink(Hyperlink.LINK_URL);
+    				
     				url_link.setAddress(cellStr);
     				
                     cell.setCellValue(cellStr);         
                     cell.setHyperlink(url_link);
-                   
     			}
     			else {
     				cell.setCellValue(cellStr);  
@@ -99,7 +116,6 @@ public class ExcelWorkBook {
     			
     			//System.out.println((String)tableData[k][l]);
     		}
-    		
     	}    
 	}
 	

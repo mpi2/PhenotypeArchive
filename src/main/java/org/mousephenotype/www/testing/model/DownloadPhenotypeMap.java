@@ -37,5 +37,5 @@ public class DownloadPhenotypeMap {
     public final static int COL_INDEX_PHENOTYPING_CENTER  = 6;
     public final static int COL_INDEX_SOURCE              = 7;
     public final static int COL_INDEX_P_VALUE             = 8;
-    public final static int COL_INDEX_GRAPH               = 9;
+    public final static int COL_INDEX_GRAPH_LINK          = 9;
 }

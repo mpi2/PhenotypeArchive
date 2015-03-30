@@ -118,6 +118,21 @@
                 <filter class="solr.PorterStemFilterFactory"/>
             </analyzer>
         </fieldType>
+        
+        <!-- to be used for marker_symbol boosting: only allow lowercase -->    
+    	<fieldType name="text_lowercase" class="solr.TextField">
+	        <analyzer type="index">
+	        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+	         	<filter class="solr.LowerCaseFilterFactory"/>
+	        </analyzer>
+	        <analyzer type="query"> 
+	        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+	        <filter class="solr.LowerCaseFilterFactory"/>
+	        </analyzer>
+    	</fieldType>  
+    
+        
+        
     </types>
 
     <fields>  
@@ -260,7 +275,6 @@
         via copyField further on in this schema  -->
         <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
         <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-   
    
         <!-- bucket list qf -->
         <field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>

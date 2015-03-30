@@ -21,16 +21,15 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
@@ -54,6 +53,13 @@ public class SearchGeneTable extends SearchFacetTable {
     private final List<GeneRow> bodyRows = new ArrayList();
     private final GridMap pageData;
     
+    private final static Map<TableComponent, By> map = new HashMap();
+    static {
+        map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='geneGrid']"));
+        map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='geneGrid']/tbody/tr"));
+        map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='geneGrid_length']"));
+    }
+    
     /**
      * Creates a new <code>SearchGeneTable</code> instance.
      * @param driver A <code>WebDriver</code> instance pointing to the search
@@ -61,39 +67,9 @@ public class SearchGeneTable extends SearchFacetTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
     public SearchGeneTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, "//table[@id='geneGrid']", timeoutInSeconds);
+        super(driver, timeoutInSeconds, map);
         
         pageData = load();
-    }
-    
-    /**
-     * Return the number of entries currently showing in the 'entries' drop-down
-     * box.
-     *
-     * @return the number of entries currently showing in the 'entries'
-     * drop-down box.
-     */
-    @Override
-    public int getNumEntries() {
-        Select select = new Select(driver.findElement(By.xpath("//select[@name='geneGrid_length']")));
-        try {
-            return Utils.tryParseInt(select.getFirstSelectedOption().getText());
-        } catch (NullPointerException npe) {
-            return 0;
-        }
-    }
-    
-    /**
-     * Set the number of entries in the 'entries' drop-down box.
-     * 
-     * @param entriesSelect The new value for the number of entries to show.
-     */
-    @Override
-    public void setNumEntries(EntriesSelect entriesSelect) {
-        String xpathValue = "//select[@name='geneGrid_length']";
-        Select select = new Select(driver.findElement(By.xpath(xpathValue)));
-        select.selectByValue(Integer.toString(entriesSelect.getValue()));
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpathValue), Integer.toString(entriesSelect.getValue())));
     }
     
     /**
@@ -105,13 +81,13 @@ public class SearchGeneTable extends SearchFacetTable {
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               COL_INDEX_GENE_ID
             , COL_INDEX_GENE_NAME
             , COL_INDEX_GENE_SYMBOL
             , COL_INDEX_HUMAN_ORTHOLOG
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadSearchMapGenes.COL_INDEX_GENE_ID
             , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
             , DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL
@@ -190,17 +166,6 @@ public class SearchGeneTable extends SearchFacetTable {
         }
         
         return new GridMap(pageArray, driver.getCurrentUrl());
-    }
-    
-    /**
-     *
-     * @return the number of rows in the "geneGrid" table. Always include 1
-     * extra for the heading.
-     */
-    private int computeTableRowCount() {
-        // Wait for page.
-        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='geneGrid']/tbody/tr")));
-        return elements.size() + 1;
     }
     
     

@@ -22,6 +22,7 @@ package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -114,7 +115,7 @@ public class PhenotypePage {
             ptPhenotype.load();
             GridMap map = ptPhenotype.getData();
             for (int i = 0; i < map.getBody().length; i++) {
-                urls.add(map.getCell(i, PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH));
+                urls.add(map.getCell(i, PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK));
             }
         }
         
@@ -236,7 +237,7 @@ public class PhenotypePage {
                 }
 
                 // Validate that the graph link is not missing.
-                cell = row.get(PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH);
+                cell = row.get(PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK);
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
@@ -350,8 +351,10 @@ public class PhenotypePage {
         Integer i;
         try {
             WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
-            String s = element.getText().replace("Total number of results: ", "");
-            i = Utils.tryParseInt(s);
+            String totResultsString = element.getText();
+            int index = totResultsString.lastIndexOf(":");
+            String count = totResultsString.substring(index + 1);
+            i = Utils.tryParseInt(count);
         } catch (Exception e) {
             i = null;
         }
@@ -436,7 +439,7 @@ public class PhenotypePage {
         // Check that the number of rows in the download file is at least as
         // many rows as the number of [non-preqc] sex icons shown on the first page.
         int sexIconCount = TestUtils.getSexIconCount(pageData, PhenotypeTable.COL_INDEX_PHENOTYPES_SEX,
-                                                               PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH);
+                                                               PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK);
         if (downloadDataLineCount < sexIconCount) {
             status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
                     sexIconCount + ").");
@@ -446,30 +449,33 @@ public class PhenotypePage {
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               PhenotypeTable.COL_INDEX_PHENOTYPES_GENE_ALLELE
             , PhenotypeTable.COL_INDEX_PHENOTYPES_ZYGOSITY
             , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPE
             , PhenotypeTable.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER
             , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER
             , PhenotypeTable.COL_INDEX_PHENOTYPES_SOURCE
-            , PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH
+            , PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadPhenotypeMap.COL_INDEX_ALLELE
             , DownloadPhenotypeMap.COL_INDEX_ZYGOSITY
             , DownloadPhenotypeMap.COL_INDEX_PHENOTYPE
             , DownloadPhenotypeMap.COL_INDEX_PROCEDURE_PARAMETER
             , DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER
             , DownloadPhenotypeMap.COL_INDEX_SOURCE
-            , DownloadPhenotypeMap.COL_INDEX_GRAPH
+            , DownloadPhenotypeMap.COL_INDEX_GRAPH_LINK
+        };
+        final Integer[] decodeColumns = {
+            DownloadPhenotypeMap.COL_INDEX_GRAPH_LINK
         };
         
         // Create a pair of sets: one from the page, the other from the download.
-        Set pageSet = TestUtils.createSet(pageData, pageColumns);
-        Set downloadSet = TestUtils.createSet(downloadData, downloadColumns);
+        Set<String> pageSet = TestUtils.createSet(pageData, pageColumns);
+        Set<String> downloadSet = downloadData.urlDecode(Arrays.asList(decodeColumns)).createSet(downloadColumns);
         
-        Set difference = TestUtils.cloneStringSet(pageSet);
+        Set<String> difference = TestUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
             System.out.println("ERROR: The following data was found on the page but not in the download:");

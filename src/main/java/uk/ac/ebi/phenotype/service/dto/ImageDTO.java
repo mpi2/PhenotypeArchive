@@ -15,6 +15,7 @@ public class ImageDTO extends ObservationDTO {
 	public static final String DOWNLOAD_URL = "download_url";
 	public static final String JPEG_URL = "jpeg_url";
 	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String IMAGE_LINK="image_link";
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
@@ -25,11 +26,35 @@ public class ImageDTO extends ObservationDTO {
 	@Field(DOWNLOAD_URL)
 	private String downloadUrl;
 	
+	@Field(IMAGE_LINK)
+	private String imageLink;
+
+
 	@Field(JPEG_URL)
 	private String jpegUrl;
 	
-	@Field("maTermId")
-	private String maTermId;
+	@Field("ma_id")
+	private List<String> maTermId;
+	
+	@Field("ma_term")
+	private List<String> maTerm;
+	
+	@Field("ma_term_synonym")
+	private List<String> maTermSynonym;
+
+	@Field("selected_top_level_ma_id")
+	private List<String> topLevelMaIds;
+
+	@Field("selected_top_level_ma_term")
+	private List<String> topLeveMaTerm;
+	
+	@Field("selected_top_level_ma_term_synonym")
+	private List<String> topLevelMaTermSynonym;
+	
+//	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//	<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 
 	@Field("symbol_gene")
 	private String symbolGene;//for search and annotation view
@@ -73,6 +98,14 @@ public class ImageDTO extends ObservationDTO {
 
 	
 	
+	public String getImageLink() {
+		return imageLink;
+	}
+
+
+	public void setImageLink(String imageLink) {
+		this.imageLink = imageLink;
+	}
 	
 	public String getSubtype() {
 	
@@ -122,7 +155,7 @@ public class ImageDTO extends ObservationDTO {
 
 
 
-	public String getMaTermId() {
+	public List<String> getMaTermId() {
 	
 		return maTermId;
 	}
@@ -130,7 +163,7 @@ public class ImageDTO extends ObservationDTO {
 
 
 	
-	public void setMaTermId(String maTermId) {
+	public void setMaTermId(List<String> maTermId) {
 	
 		this.maTermId = maTermId;
 	}
@@ -360,8 +393,57 @@ public class ImageDTO extends ObservationDTO {
 		this.symbolGene=symbolGene;
 		
 	}
+
 	
+	public List<String> getMaTerm() {
+		return maTerm;
+	}
+
+
+	public void setMaTerm(List<String> maTerm) {
+		this.maTerm = maTerm;
+	}
 	
+	public List<String> getMaTermSynonym() {
+		return maTermSynonym;
+	}
+
+
+	public void setMaTermSynonym(List<String> maTermSynonym) {
+		this.maTermSynonym = maTermSynonym;
+	}
+
+
+	public void setTopLevelMaId(ArrayList<String> topLevelMaIds) {
+		this.topLevelMaIds=topLevelMaIds;
+		
+	}
+
+
+	public void setTopLevelMaTerm(ArrayList<String> topLevelMaTerm) {
+		this.topLeveMaTerm=topLevelMaTerm;
+		
+	}
+
+
+	public void setTopLevelMaTermSynonym(ArrayList<String> topLevelMaTermSynonym) {
+		this.topLevelMaTermSynonym=topLevelMaTermSynonym;
+	}
+	
+	public List<String> getTopLevelMaIds() {
+		return topLevelMaIds;
+	}
+
+
+	public List<String> getTopLeveMaTerm() {
+		return topLeveMaTerm;
+	}
+
+
+	public List<String> getTopLevelMaTermSynonym() {
+		return topLevelMaTermSynonym;
+	}
+
 
 	
 }

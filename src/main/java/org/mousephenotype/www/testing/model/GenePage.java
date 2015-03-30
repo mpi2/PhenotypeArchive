@@ -55,6 +55,7 @@ public class GenePage {
     private final GeneTable geneTable;
     
     private boolean hasImages;
+    private boolean hasImpcImages;
     private boolean hasGraphs;
     private boolean hasGenesTable;
     private int resultsCount;
@@ -88,6 +89,20 @@ public class GenePage {
     public List<String> getAssociatedImageSections() {
         List<String> associatedImageSections = new ArrayList();
         List<WebElement> associatedImageSectionElements = driver.findElements(By.className("accordion-heading"));
+        for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
+            associatedImageSections.add(associatedImageSectionElement.getText());
+        }
+        
+        return associatedImageSections;      
+    }
+    
+    /**
+     * 
+     * @return A list of Impc Images parameters.
+     */
+    public List<String> getAssociatedImpcImageSections() {
+        List<String> associatedImageSections = new ArrayList();
+        List<WebElement> associatedImageSectionElements = driver.findElements(By.id("impc-images-heading"));
         for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
             associatedImageSections.add(associatedImageSectionElement.getText());
         }
@@ -157,7 +172,7 @@ public class GenePage {
                 geneTable.load();
                 GridMap map = geneTable.getData();
                 for (int i = 0; i < map.getBody().length; i++) {
-                    urls.add(map.getCell(i, GeneTable.COL_INDEX_GENES_GRAPH));
+                    urls.add(map.getCell(i, GeneTable.COL_INDEX_GENES_GRAPH_LINK));
                 }
             }
         }
@@ -238,6 +253,14 @@ public class GenePage {
     
     /**
      * 
+     * @return true if this page has images; false otherwise.
+     */
+    public boolean hasImpcImages() {
+        return hasImpcImages;
+    }
+    
+    /**
+     * 
      * @return true if this page has a <b><i>genes</i></b> HTML table;
      * false otherwise.
      */
@@ -305,7 +328,7 @@ public class GenePage {
                     status.addError("Missing or invalid P Value. URL: " + target);
                 }
 
-                cell = row.get(GeneTable.COL_INDEX_GENES_GRAPH);
+                cell = row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK);
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
@@ -363,6 +386,9 @@ public class GenePage {
         // Determine if this page has images.
         elements = driver.findElements(By.xpath("//h2[@id='section-images']"));
         hasImages = ! elements.isEmpty();
+        
+        List<WebElement> impcElements = driver.findElements(By.xpath("//h2[@id='section-impc-images']"));
+        hasImpcImages= ! impcElements.isEmpty();
  
         // Determine if this page has phenotype associations. If it does, get the results count.
         try {
@@ -370,8 +396,10 @@ public class GenePage {
             hasGenesTable = ! elements.isEmpty();
             if (hasGenesTable) {
                 elements = driver.findElements(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']"));
-                String s = elements.get(0).getText().replace("Total number of results: ", "");
-                resultsCount = Utils.tryParseInt(s);
+                String totResultsString = elements.get(0).getText();
+                int index = totResultsString.lastIndexOf(":");
+                String count = totResultsString.substring(index + 1).trim();
+                resultsCount = Utils.tryParseInt(count);
             }
         } catch (Exception e) {
             throw new RuntimeException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
@@ -442,9 +470,9 @@ public class GenePage {
 
         // When testing using http, the download link compare fails because the page url uses http
         // but the download graph link uses https. Ignore the protocol (but not the hostname).
-        pageCell = TestUtils.removeProtocol(pageMap.getCell(1, GeneTable.COL_INDEX_GENES_GRAPH).trim());
+        pageCell = TestUtils.removeProtocol(pageMap.getCell(1, GeneTable.COL_INDEX_GENES_GRAPH_LINK).trim());
         
-        downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH).trim());
+        downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH_LINK).trim());
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
@@ -598,7 +626,7 @@ public class GenePage {
         // Check that the number of rows in the download file is at least as
         // many rows as the number of [non-preqc] sex icons shown on the first page.
         int sexIconCount = TestUtils.getSexIconCount(pageData, GeneTable.COL_INDEX_GENES_SEX,
-                                                               GeneTable.COL_INDEX_GENES_GRAPH);
+                                                               GeneTable.COL_INDEX_GENES_GRAPH_LINK);
         if (downloadDataLineCount < sexIconCount) {
             status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
                     sexIconCount + ").");
@@ -608,28 +636,31 @@ public class GenePage {
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
-        final int[] pageColumns = {
+        final Integer[] pageColumns = {
               GeneTable.COL_INDEX_GENES_ALLELE
             , GeneTable.COL_INDEX_GENES_ZYGOSITY
             , GeneTable.COL_INDEX_GENES_PHENOTYPE
             , GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER
             , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER
             , GeneTable.COL_INDEX_GENES_SOURCE
-            , GeneTable.COL_INDEX_GENES_GRAPH
+            , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
-        final int[] downloadColumns = {
+        final Integer[] downloadColumns = {
               DownloadGeneMap.COL_INDEX_ALLELE
             , DownloadGeneMap.COL_INDEX_ZYGOSITY
             , DownloadGeneMap.COL_INDEX_PHENOTYPE
             , DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER
             , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER
             , DownloadGeneMap.COL_INDEX_SOURCE
-            , DownloadGeneMap.COL_INDEX_GRAPH
+            , DownloadGeneMap.COL_INDEX_GRAPH_LINK
+        };
+        final Integer[] decodeColumns = {
+            DownloadGeneMap.COL_INDEX_GRAPH_LINK
         };
         
         // Create a pair of sets: one from the page, the other from the download.
-        Set pageSet = TestUtils.createSet(pageData, pageColumns);
-        Set downloadSet = TestUtils.createSet(downloadData, downloadColumns);
+        Set<String> pageSet = TestUtils.createSet(pageData, pageColumns);
+        Set<String> downloadSet = downloadData.urlDecode(Arrays.asList(decodeColumns)).createSet(downloadColumns);
         
         Set difference = TestUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);

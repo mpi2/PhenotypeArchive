@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <version>1.1.5</version>
+    <version>1.2.0</version>
     <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
@@ -57,6 +57,7 @@
         <ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
         <phenodigm.solrserver>http://solrclouddev.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
         <imits.solrserver>http://ikmc.vm.bytemark.co.uk:8983/solr/allele2</imits.solrserver>
+        <datasourcesConfig>devDatasourcesConfig.properties</datasourcesConfig>
     </properties>
 
     <dependencies>
@@ -814,6 +815,7 @@
                             <includes>
                                 <include>**/web.xml</include>
                                 <include>**/app-config.xml</include>
+                                <include>**/test-config.xml</include>
                                 <include>**/index-app-config.xml</include>
                                 <include>**/views/404.jsp</include>
                                 <include>**/views/identifierError.jsp</include>
@@ -1100,10 +1102,21 @@
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                <datasourcesConfig>devDatasourcesConfig.properties</datasourcesConfig>
                 <liveSite>false</liveSite>
             </properties>
 
             <build>
+                <resources>
+                    <resource>
+                        <directory>src/test/resources</directory>
+                        <targetPath>${basedir}/target/test-classes</targetPath>
+                        <includes>
+                            <include>**/test-config.xml</include>
+                        </includes>
+                        <filtering>true</filtering>
+                    </resource>
+                </resources>
                 <pluginManagement>
                     <plugins>
                         <plugin>
@@ -1138,6 +1151,7 @@
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                <datasourcesConfig>betaDatasourcesConfig.properties</datasourcesConfig>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1248,7 +1262,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
                 <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_beta</buildIndexesSolrUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-                <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <impcMediaBaseUrl>//www.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-33310077-1</googleAnalytics>
                 <liveSite>false</liveSite>
             </properties>
@@ -1317,7 +1331,7 @@
                 <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_live</buildIndexesSolrUrl>
                 <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
-                <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <impcMediaBaseUrl>//www.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
                 <liveSite>true</liveSite>
             </properties>
@@ -1335,9 +1349,6 @@
                     <resource>
                         <directory>src/main/resources</directory>
                         <filtering>true</filtering>
-                        <includes>
-                            <include>**/index-app-config.xml</include>
-                        </includes>
                     </resource>
                 </resources>
                 <plugins>
