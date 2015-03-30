@@ -91,9 +91,6 @@ public class SecondaryProjectController {
     @Autowired
     @Qualifier("solrServer")
     SolrServer phenodigmCore;
-    
-    @Autowired
-    MaOntologyService maOntologyService;
 
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
@@ -117,7 +114,7 @@ public class SecondaryProjectController {
         try {
             Set<String> accessions = idg.getAccessionsBySecondaryProjectId(id);
 
-            Map<String, List<Map<String, String>>> getMpToHpTerms = maOntologyService.getMpToHpTerms(phenodigmCore);
+            Map<String, List<Map<String, String>>> getMpToHpTerms = mpService.getMpToHpTerms(phenodigmCore);
             Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
 
             // Gather all the phenotype calls by gene id

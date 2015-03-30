@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author mrelac
  */
 public class IndexerMap {
+    private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
     private static List<AlleleDTO> alleles = null;
     private static Map<Integer, ImpressBean> pipelineMap = null;
@@ -86,6 +87,23 @@ public class IndexerMap {
         }
         
         return alleles;
+    }
+    
+    /**
+     * Returns a cached map of all sanger image terms associated to all ma ids,
+     * indexed by ma term id.
+     *
+     * @param imagesCore a valid solr connection
+     * @return a cached map of all sanger image terms associated to all ma ids,
+     * indexed by ma term id.
+     * @throws IndexerException
+     */
+    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
+        if (sangerImagesMap == null) {
+            sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
+        }
+        
+        return sangerImagesMap;
     }
 
     /**

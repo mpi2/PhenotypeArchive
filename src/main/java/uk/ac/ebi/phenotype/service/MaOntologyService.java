@@ -30,12 +30,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
-import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
-import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 
 /**
  * This class encapsulates the code and data necessary to serve a Mouse
@@ -46,8 +42,6 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 public class MaOntologyService extends OntologyService {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
-    private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
     private final Map<String, String> subsets = new HashMap();
 
     public MaOntologyService() throws SQLException {
@@ -70,39 +64,6 @@ public class MaOntologyService extends OntologyService {
           + "WHERE node_id IN (" + nodeIds + ")\n";
         
         return getDescendentGraphsInternal(query);
-    }
-    
-    /**
-     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
-     *
-     * @param phenodigm_core a valid solr connection
-     * @return a cached map of all mp terms to hp terms, indexed by mp id.
-     * 
-     * @throws IndexerException
-     */
-    public Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
-        if (mpToHpTermsMap == null) {
-            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-        }
-        logger.info("mpToHpTermsMap size=" + mpToHpTermsMap.size());
-        return mpToHpTermsMap;
-    }
-    
-    /**
-     * Returns a cached map of all sanger image terms associated to all ma ids,
-     * indexed by ma term id.
-     *
-     * @param imagesCore a valid solr connection
-     * @return a cached map of all sanger image terms associated to all ma ids,
-     * indexed by ma term id.
-     * @throws IndexerException
-     */
-    public Map<String, List<SangerImageDTO>> getSangerImages(SolrServer imagesCore) throws IndexerException {
-        if (sangerImagesMap == null) {
-            sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
-        }
-        
-        return sangerImagesMap;
     }
     
     /**
