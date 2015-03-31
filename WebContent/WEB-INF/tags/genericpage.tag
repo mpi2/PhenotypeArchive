@@ -31,8 +31,10 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         // Use the drupal destination parameter to redirect back to this page
         // after logging in
         String dest = (String)request.getAttribute("javax.servlet.forward.request_uri");
+		String destUnEncoded = dest;
         if(request.getQueryString()!=null) {
-        	dest += URLEncoder.encode("?"+request.getQueryString(), "UTF-8");        	
+        	dest += URLEncoder.encode("?"+request.getQueryString(), "UTF-8");
+			destUnEncoded += "?"+request.getQueryString();
         }
 
         String usermenu = menus[0]
@@ -90,7 +92,6 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
-<!-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" /> -->
 <link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
 <script>
@@ -147,6 +148,8 @@ ga('send', 'pageview');
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/DataTables-1.10.4/media/js/jquery.dataTables.min.js?v=${version}"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/DataTables-1.10.4/extensions/TableTools/js/dataTables.tableTools.min.js?v=${version}"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery.jeditable.js?v=${version}"></script>
+
         
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
@@ -161,8 +164,14 @@ ga('send', 'pageview');
 
 <jsp:invoke fragment="header" />
 
+<%-- Always use www.mousephenotype.org as the canonical domain, except for bare pages --%>
+<c:choose>
+<c:when test="${param['bare'] == null}">
+	<link rel="canonical" href="http://www.mousephenotype.org/data<%= destUnEncoded.replaceAll(request.getContextPath(), "") %>" />
+</c:when>
+</c:choose>
 
-</head>
+	</head>
 
 
 <jsp:invoke fragment="bodyTag"/>
@@ -231,12 +240,6 @@ ga('send', 'pageview');
 
 			<p class="textright">&copy; 2015 IMPC &middot; International Mouse Phenotyping Consortium</p>
 
-			<div id="fn">
-				<ul>
-					<li><a href="#">Imprint</a></li>
-					<li><a href="#">Legal notices</a></li>
-				</ul>
-			</div>
 			<div class="clear"></div>
 
 		</div>
