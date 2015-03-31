@@ -18,6 +18,11 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Array;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +38,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -42,6 +48,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,6 +59,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
@@ -60,6 +68,7 @@ import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
+
 
 @Controller
 public class DataTableController {
@@ -77,6 +86,14 @@ public class DataTableController {
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
+	
+	@Autowired
+	@Qualifier("admintoolsDataSource")
+	private DataSource admintoolsDataSource;
+	
+	@Autowired
+	@Qualifier("komp2DataSource")
+	private DataSource komp2DataSource;
 	
 	private String IMG_NOT_FOUND = "Image coming soon<br>";
 	private String NO_INFO_MSG = "No information available";
@@ -1228,5 +1245,551 @@ public class DataTableController {
 			
 	}
 	
+	// allele reference stuff
 	
+	@RequestMapping(value = "/dataTableAlleleRefCount", method = RequestMethod.GET)
+	public @ResponseBody int updateReviewed (
+			@RequestParam(value = "filterStr", required = true) String sSearch,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+		
+		return fetchAlleleRefCount(sSearch);
+	}
+	
+	public int fetchAlleleRefCount(String sSearch) throws SQLException{
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		
+		String like = "%" + sSearch + "%";
+		String query = null;
+		
+		if ( sSearch != "" ){
+			query = "select count(*) as count from allele_ref where "
+					+ " acc like ?"
+					+ " or symbol like ?"
+					+ " or pmid like ?"
+					+ " or date_of_publication like ?"
+					+ " or grant_id like ?"
+					+ " or agency like ?"
+					+ " or acronym like ?";
+		}
+		else {
+			query = "select count(*) as count from allele_ref";
+		}
+		int rowCount = 0;
+		try (PreparedStatement p1 = conn.prepareStatement(query)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<8; i++){
+					p1.setString(i, like);
+				}
+			}
+			ResultSet resultSet = p1.executeQuery();
+
+			while (resultSet.next()) {
+				rowCount = Integer.parseInt(resultSet.getString("count"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return rowCount;
+	}
+	
+	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.POST)
+	public @ResponseBody String updateReviewed (
+				@RequestParam(value = "value", required = true) String value,
+				@RequestParam(value = "id", required = true) int dbid,
+				HttpServletRequest request,
+				HttpServletResponse response,
+				Model model) throws IOException, URISyntaxException, SQLException  {
+
+			// store new value to database
+			return setAlleleSymbol(dbid, value);
+	}
+	
+	public String setAlleleSymbol(int dbid, String alleleSymbol) throws SQLException{
+		
+		JSONObject j = new JSONObject();
+		
+		Connection connKomp2 = komp2DataSource.getConnection();
+		Connection conn = admintoolsDataSource.getConnection();
+		
+		String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
+		
+		// if there are multiple allele symbols, it should have been separated by comma
+		if ( alleleSymbol.contains(",") ){
+			int symCount = alleleSymbol.split(",").length;
+			List<String> placeHolders = new ArrayList<>();
+			for ( int c=0; c<symCount; c++ ){
+				placeHolders.add("?");
+			}
+			String placeHolderStr = StringUtils.join(placeHolders, ",");
+			/*List<String> syms = new ArrayList<>();
+			for ( int s=0; s<symbols.length; s++ ){
+				syms.add("\"" + symbols[s] + "\"");
+			}
+			alleleSymbol = StringUtils.join(syms, ",");*/
+			sqla = "SELECT acc, gf_acc FROM allele WHERE symbol in (placeHolderStr)";
+		}
+		
+		// fetch allele id, gene id of this allele symbol
+		// and update acc and gacc fields of allele_ref table
+		System.out.println("set allele: " + sqla );
+		
+		String alleleAcc = "";
+		String geneAcc = "";
+		
+		try (PreparedStatement p = connKomp2.prepareStatement(sqla)) {
+			p.setString(1, alleleSymbol);
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				alleleAcc = resultSet.getString("acc");
+				geneAcc = resultSet.getString("gf_acc");
+				System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			connKomp2.close();
+		}
+		
+		String sql = "UPDATE allele_ref SET symbol=?, reviewed='yes', acc=?, gacc=? WHERE dbid=?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		try {
+			stmt.setString(1, alleleSymbol);
+			stmt.setString(2, alleleAcc);
+			stmt.setString(3, geneAcc);
+			stmt.setInt(4, dbid);
+			stmt.executeUpdate();
+			
+			j.put("reviewed", "yes");
+		    j.put("symbol", alleleSymbol);
+		    System.out.println("sql: "+ sql);
+		    System.out.println("setting acc and gacc -> " +  alleleAcc + " --- " + geneAcc);
+		}catch(SQLException se){
+			//Handle errors for JDBC
+			se.printStackTrace();
+			j.put("reviewed", "no");
+			j.put("symbol", "ERROR: setting symbol failed");
+		      
+		}finally {
+			conn.close();
+		}
+		
+		return j.toString();
+	}
+	
+	// allele reference stuff
+	@RequestMapping(value = "/dataTableAlleleRefEdit", method = RequestMethod.GET)
+	public ResponseEntity<String> dataTableAlleleRefEditJson(
+			@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
+			@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
+			@RequestParam(value = "sSearch", required = false) String sSearch,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+	
+		String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch);
+		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+
+	}
+	
+	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.GET)
+	public ResponseEntity<String> dataTableAlleleRefJson(
+			@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
+			@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
+			@RequestParam(value = "sSearch", required = false) String sSearch,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+	
+		String content = fetch_allele_ref(iDisplayLength, iDisplayStart, sSearch);
+		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+
+	}
+	
+	// allele reference stuff
+	@RequestMapping(value = "/alleleRefLogin", method = RequestMethod.POST)
+	public @ResponseBody boolean checkPassCode(
+			@RequestParam(value = "passcode", required = true) String passcode,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+		
+		return checkPassCode(passcode);
+	}
+		
+	public boolean checkPassCode(String passcode) throws SQLException {
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		
+		// prevent sql injection
+		String query = "select password = md5(?) as status from users where name='ebi'";
+		boolean match = false;
+		
+		try (PreparedStatement p = conn.prepareStatement(query)) {
+			p.setString(1, passcode);
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				match = resultSet.getBoolean("status");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			conn.close();
+		}
+		
+		return match;
+	}
+	
+	public String fetch_allele_ref_edit(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		
+		//String likeClause = " like '%" + sSearch + "%'";
+		String like = "%" + sSearch + "%";
+		String query = null;
+		
+		if ( sSearch != "" ){
+			query = "select count(*) as count from allele_ref where "
+					+ " acc like ?"
+					+ " or symbol like ?"
+					+ " or pmid like ?"
+					+ " or date_of_publication like ?"
+					+ " or grant_id like ?"
+					+ " or agency like ?"
+					+ " or acronym like ?";
+		}
+		else {
+			query = "select count(*) as count from allele_ref";
+		}
+		int rowCount = 0;
+		try (PreparedStatement p1 = conn.prepareStatement(query)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<8; i++){
+					p1.setString(i, like);
+				}
+			}
+			ResultSet resultSet = p1.executeQuery();
+
+			while (resultSet.next()) {
+				rowCount = Integer.parseInt(resultSet.getString("count"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//System.out.println("Got " + rowCount + " rows");
+
+		JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+
+		j.put("iTotalRecords", rowCount);
+		j.put("iTotalDisplayRecords", rowCount);
+		
+		String query2 = null;
+		
+		if ( sSearch != "" ){
+			query2 = "select * from allele_ref where"
+					+ " acc like ?"
+					+ " or symbol like ?"
+					+ " or pmid like ?"
+					+ " or date_of_publication like ?"
+					+ " or grant_id like ?"
+					+ " or agency like ?"
+					+ " or acronym like ?"
+				+ " order by reviewed desc"
+				+ " limit ?, ?";
+		}
+		else {
+			query2 = "select * from allele_ref order by reviewed desc limit ?,?"; 
+		}
+		
+		//System.out.println("query: "+ query);
+		//System.out.println("query2: "+ query2);
+		
+		String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+		
+		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<10; i++){
+					p2.setString(i, like);
+					if ( i == 8 ){
+						p2.setInt(i, iDisplayStart);
+					}
+					else if ( i == 9 ){
+						p2.setInt(i, iDisplayLength);
+					}
+				}
+			}
+			else {
+				p2.setInt(1, iDisplayStart);
+				p2.setInt(2, iDisplayLength);
+			}
+			
+			ResultSet resultSet = p2.executeQuery();
+
+			while (resultSet.next()) {
+
+				List<String> rowData = new ArrayList<String>();
+				
+				int dbid = resultSet.getInt("dbid");
+				String gacc = resultSet.getString("gacc");
+				
+				rowData.add(resultSet.getString("reviewed"));
+				
+				//rowData.add(resultSet.getString("acc"));
+				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
+				String alLink = "<a target='_blank' href='"+ impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
+				rowData.add(alLink);
+				
+				
+				//rowData.add(resultSet.getString("name"));
+				String pmid = "<span id=" + dbid + ">" +  resultSet.getString("pmid") + "</span>";
+				rowData.add(pmid);
+				rowData.add(resultSet.getString("date_of_publication"));
+				rowData.add(resultSet.getString("grant_id"));
+				rowData.add(resultSet.getString("agency"));
+				rowData.add(resultSet.getString("acronym"));
+				String[] urls = resultSet.getString("paper_url").split(",");
+				List<String> links = new ArrayList<>();
+				for ( int i=0; i<urls.length; i++){
+					links.add("<a target='_blank' href='" + urls[i] + "'>paper</a>");
+				}
+				rowData.add(StringUtils.join(links, "<br>"));
+				
+				j.getJSONArray("aaData").add(rowData);	
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			conn.close();
+		}
+		return j.toString();
+	}
+	
+	public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
+		
+		Connection conn = admintoolsDataSource.getConnection();
+		
+		String like = "%" + sSearch + "%";
+		String query1 = null;
+		
+		String baseQuery1 = "SELECT COUNT(DISTINCT pmid) AS count FROM allele_ref";
+		String where = " WHERE reviewed = 'yes' ";
+		String colLike = " acc LIKE ?"
+				+ " OR symbol LIKE ?"
+				+ " OR title LIKE ?"
+				+ " OR journal LIKE ?"
+				+ " OR date_of_publication LIKE ?"
+				+ " OR agency LIKE ?";
+		
+		if ( sSearch != "" ){
+			query1 = baseQuery1 + where + " AND " + colLike;
+		}
+		else {
+			query1 = baseQuery1 + where;
+		}
+		
+		int rowCount = 0;
+		try (PreparedStatement p1 = conn.prepareStatement(query1)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<7; i++){
+					p1.setString(i, like);
+				}
+			}
+			
+			ResultSet resultSet = p1.executeQuery();
+
+			while (resultSet.next()) {
+				rowCount = Integer.parseInt(resultSet.getString("count"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		String baseQuery = "SELECT COUNT(*) as count, title, journal, date_of_publication, pmid, "
+				+ "GROUP_CONCAT(DISTINCT(CONCAT(symbol, '__', gacc)), '___') AS sym2gs, "
+				+ "GROUP_CONCAT(DISTINCT(agency), '___') AS agencies, "
+				+ "GROUP_CONCAT(DISTINCT(paper_url), '___') AS paperurls "
+				+ "FROM allele_ref ";
+		
+		String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY date_of_publication DESC LIMIT ?, ?";
+		
+		String query2 = null;
+		
+		if ( sSearch != "" ){
+			query2 = baseQuery + where + " AND " + colLike + groupOrderLimit;
+		}
+		else {
+			query2 = baseQuery + where + groupOrderLimit;
+		}
+		
+		JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+
+		j.put("iTotalRecords", rowCount);
+		j.put("iTotalDisplayRecords", rowCount);
+		
+		//System.out.println("query: "+ query1);
+		//System.out.println("query2: "+ query2);
+		
+		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
+			if ( sSearch != "" ){
+				for ( int i=1; i<9; i++){
+					p2.setString(i, like);
+					if ( i == 7 ){
+						p2.setInt(i, iDisplayStart);
+					}
+					else if ( i == 8 ){
+						p2.setInt(i, iDisplayLength);
+					}
+				}
+			}
+			else {
+				p2.setInt(1, iDisplayStart);
+				p2.setInt(2, iDisplayLength);
+			}
+			
+			ResultSet resultSet = p2.executeQuery();
+			/*tableHeader : 
+			  		Paper title
+					Journal
+					Date of publication
+					Allele symbol
+					Grant agency
+					Paper link
+			*/	
+
+			String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+			int hideCount = 4; // cutoff: when beyond, hide by default
+			
+			while (resultSet.next()) {
+
+				List<String> rowData = new ArrayList<String>();
+				
+				List<String> alleleLinks = new ArrayList<>();
+				
+				int alleleCount = 0;
+				
+				String[] sym2gs = resultSet.getString("sym2gs").split("___,");
+				for( int i=0; i<sym2gs.length; i++ ){
+					alleleCount++;
+					String cls = alleleCount > hideCount ? "hideMe" : "";
+					String[] symGacc = sym2gs[i].replace("___", "").split("__");
+					
+					if ( symGacc.length != 0 ){
+					
+						String symbol = Tools.superscriptify(symGacc[0]);
+						String gAcc = null;
+						String alleleLink = null;
+						
+						if (symGacc.length == 2 ){
+							gAcc = symGacc[1];
+							//System.out.println(symbol + " ---> "+ gAcc);
+							alleleLink = "<div class='" + cls + "'><a target='_blank' href='"+ impcGeneBaseUrl + gAcc + "'>" + symbol + "</a></div>";
+						}
+						else {
+							alleleLink = "<div class='" + cls + "'><a" + symbol + "</a></div>";
+						}
+						
+						alleleLinks.add(alleleLink);
+					}
+				}
+				// show/hide toggle
+				if ( alleleLinks.size() > 5 ){
+					int num = alleleLinks.size();
+					alleleLinks.add("<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
+				}
+				rowData.add(StringUtils.join(alleleLinks, ""));
+			
+				rowData.add(resultSet.getString("title"));
+				rowData.add(resultSet.getString("journal"));
+				rowData.add(resultSet.getString("date_of_publication"));
+				
+				List<String> agencyList = new ArrayList<>();
+				
+				String[] agencies = resultSet.getString("agencies").split("___,");
+				int agencyCount = 0;
+				for( int i=0; i<agencies.length; i++ ){
+					String agency = agencies[i].replace("___", "");
+					
+					if ( ! agency.equals("") ){
+						agencyCount++;
+						String cls = agencyCount > hideCount ? "hideMe" : "";
+						agencyList.add("<li class='" + cls + "'>" + agency + "</li>");
+					}
+				}
+				rowData.add(StringUtils.join(agencyList, ""));
+				
+				int pmid = resultSet.getInt("pmid");
+				
+				List<String> paperLinks = new ArrayList<>();
+				List<String> paperLinksOther = new ArrayList<>();
+				List<String> paperLinksPubmed = new ArrayList<>();
+				List<String> paperLinksEuroPubmed = new ArrayList<>();
+				
+				String[] urlList = resultSet.getString("paperurls").split("___,");
+				for( int i=0; i<urlList.length; i++ ){
+					String[] urls = urlList[i].replace("___", "").split(",");
+					
+					int pubmedSeen = 0;
+					int eupubmedSeen = 0;
+					int otherSeen = 0;
+					
+					for ( int k=0; k<urls.length; k++){
+						
+						String url = urls[k]; 
+						
+						if (pubmedSeen != 1 ){
+							if ( url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf") ){
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								pubmedSeen++;
+							}
+							else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid)) ){
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								pubmedSeen++;
+							}
+						}
+						if ( eupubmedSeen != 1 ){
+							if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")){
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								eupubmedSeen++;
+							}
+							else if (url.startsWith("http://europepmc.org/")){
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								eupubmedSeen++;
+							}
+						}
+						if ( otherSeen != 1 && ! url.startsWith("http://www.pubmedcentral.nih.gov") && ! url.startsWith("http://europepmc.org/") ){
+							paperLinksOther.add("<li><a target='_blank' href='" + url + "'>Non-pubmed source</a></li>");
+							otherSeen++;
+						}
+					}
+				}	
+				
+				// ordered
+				paperLinks.addAll(paperLinksEuroPubmed);
+				paperLinks.addAll(paperLinksPubmed);
+				paperLinks.addAll(paperLinksOther);
+				rowData.add(StringUtils.join(paperLinks, ""));
+				
+				j.getJSONArray("aaData").add(rowData);	
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			conn.close();
+		}
+		
+		//System.out.println("Got " + rowCount + " rows");
+		return j.toString();
+	}
+
 }
