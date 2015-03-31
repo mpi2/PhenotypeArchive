@@ -72,7 +72,7 @@
 			<div class="block block-system">
 				<div class='content'>
 				<div class="node node-gene">
-					<h1 class="title" id="top">IMPC allele references</h1>	 
+					<h1 class="title" id="top">IMPC references</h1>	 
 				
 					<div class="clear"></div>
 											

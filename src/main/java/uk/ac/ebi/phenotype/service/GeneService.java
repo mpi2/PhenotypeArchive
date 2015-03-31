@@ -254,8 +254,7 @@ public class GeneService {
 					String val = doc.getString(statusField);
 					
 					if ( val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || 
-						 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE)  ||
-						 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) ){
+						 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ){
 						
 						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
 						
