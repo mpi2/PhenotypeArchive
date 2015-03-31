@@ -54,8 +54,8 @@ public class ObservationIndexer extends AbstractIndexer {
 
     Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
-    public final String ipgttWeightParamter = "IMPC_IPG_001_001";
-    public final List<String> weightParamters = Arrays.asList(
+    public static final String ipgttWeightParameter = "IMPC_IPG_001_001";
+    public static final List<String> weightParameters = Arrays.asList(
         "'IMPC_GRS_003_001'", "'IMPC_CAL_001_001'", "'IMPC_DXA_001_001'",
         "'IMPC_HWT_007_001'", "'IMPC_PAT_049_001'", "'IMPC_BWT_001_001'",
         "'IMPC_ABR_001_001'", "'IMPC_CHL_001_001'", "'TCP_CHL_001_001'",
@@ -68,10 +68,10 @@ public class ObservationIndexer extends AbstractIndexer {
         "'GMC_922_001_002'", "'GMC_923_001_001'", "'GMC_921_001_002'",
         "'GMC_902_001_003'", "'GMC_912_001_018'", "'GMC_917_001_001'",
         "'GMC_920_001_001'", "'GMC_909_001_002'", "'GMC_914_001_001'" );
-    public final List<String> maleFertilityParameters = Arrays.asList(
+    public static final List<String> maleFertilityParameters = Arrays.asList(
         "IMPC_FER_001_001", "IMPC_FER_006_001", "IMPC_FER_007_001",
         "IMPC_FER_008_001", "IMPC_FER_009_001");
-    public final List<String> femaleFertilityParameters = Arrays.asList(
+    public static final List<String> femaleFertilityParameters = Arrays.asList(
         "IMPC_FER_019_001", "IMPC_FER_010_001", "IMPC_FER_011_001",
         "IMPC_FER_012_001", "IMPC_FER_013_001");
 
@@ -392,11 +392,11 @@ public class ObservationIndexer extends AbstractIndexer {
                 }
 
                 // Add weight parameters only if this observation isn't for a weight parameter
-                if ( ! weightParamters.contains(o.getParameterStableId()) && ! ipgttWeightParamter.equals(o.getParameterStableId())) {
+                if ( ! weightParameters.contains(o.getParameterStableId()) && ! ipgttWeightParameter.equals(o.getParameterStableId())) {
 
                     WeightBean b = getNearestWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
 
-                    if (o.getParameterStableId().equals(ipgttWeightParamter)) {
+                    if (o.getParameterStableId().equals(ipgttWeightParameter)) {
                         b = getNearestIpgttWeight(o.getBiologicalSampleId());
                     }
 
@@ -748,7 +748,7 @@ public class ObservationIndexer extends AbstractIndexer {
             "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id \n" +
             "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id \n" +
             "  INNER JOIN experiment e ON e.id = eo.experiment_id \n" +
-            "WHERE parameter_stable_id IN ("+StringUtils.join(weightParamters, ",")+") AND data_point > 0" +
+            "WHERE parameter_stable_id IN ("+StringUtils.join(weightParameters, ",")+") AND data_point > 0" +
             "  ORDER BY biological_sample_id, date_of_experiment ASC \n" ;
 
         try (PreparedStatement statement = getConnection().prepareStatement(query)) {
@@ -789,7 +789,7 @@ public class ObservationIndexer extends AbstractIndexer {
             "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
             "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id " +
             "  INNER JOIN experiment e ON e.id = eo.experiment_id " +
-            "WHERE parameter_stable_id = '"+ipgttWeightParamter+"' " ;
+            "WHERE parameter_stable_id = '"+ ipgttWeightParameter +"' " ;
 
         try (PreparedStatement statement = getConnection().prepareStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
