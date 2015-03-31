@@ -157,8 +157,7 @@ CREATE TABLE analytics_statistics_load (
 	male_mutants             INT(10) UNSIGNED,
 	female_controls          INT(10) UNSIGNED,
 	female_mutants           INT(10) UNSIGNED,
-	stats_started            DATETIME,
-	stats_done               DATETIME,
+	status_date              DATETIME,
 	status                   VARCHAR(100) NOT NULL DEFAULT '',
 
 	PRIMARY KEY (id)

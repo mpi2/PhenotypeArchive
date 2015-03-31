@@ -306,42 +306,51 @@ public class ReportsService {
     			if (homsNoHits.containsKey(colony)){
     				homsNoHits.remove(colony);
     			}
+    			if (allNoHits.containsKey(colony)){
+    				allNoHits.remove(colony);
+    			}
     			long count = homsMap.get(colony);
     			if (homRes.containsKey(count)){
     				homRes.put(count, homRes.get(count) + 1);
+    			} else {
+    				homRes.put(count, 1);
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
-    			} else {
-    				homRes.put(count, 1);
     			}
     		}
     		for (String colony: hetsMap.keySet()){
     			if (hetsNoHits.containsKey(colony)){
     				hetsNoHits.remove(colony);
     			}
+    			if (allNoHits.containsKey(colony)){
+    				allNoHits.remove(colony);
+    			}
     			long count = hetsMap.get(colony);
     			if (hetRes.containsKey(count)){
     				hetRes.put(count, hetRes.get(count) + 1);
+    			} else {
+    				hetRes.put(count, 1);
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
-    			} else {
-    				hetRes.put(count, 1);
     			}
     		}
+    		int tempI = 0;
     		for (String colony: allMap.keySet()){
     			if (allNoHits.containsKey(colony)){
     				allNoHits.remove(colony);
     			}
     			long count = allMap.get(colony);
     			if (allRes.containsKey(count)){
+        			tempI++;
     				allRes.put(count, allRes.get(count) + 1);
+    			} else {
+    				allRes.put(count, 1);
+        			tempI++;
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
-    			} else {
-    				allRes.put(count, 1);
     			}
     		}
 
