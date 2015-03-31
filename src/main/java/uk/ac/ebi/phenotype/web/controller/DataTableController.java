@@ -1619,7 +1619,7 @@ public class DataTableController {
 				+ "GROUP_CONCAT(DISTINCT(paper_url), '___') AS paperurls "
 				+ "FROM allele_ref ";
 		
-		String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY count DESC LIMIT ?, ?";
+		String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY date_of_publication DESC LIMIT ?, ?";
 		
 		String query2 = null;
 		
@@ -1755,14 +1755,8 @@ public class DataTableController {
 								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
 								pubmedSeen++;
 							}
-							else {
-								if ( otherSeen != 1 ){
-									paperLinksOther.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
-									otherSeen++;
-								}
-							}
 						}
-						else if ( eupubmedSeen != 1 ){
+						if ( eupubmedSeen != 1 ){
 							if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")){
 								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
@@ -1771,20 +1765,18 @@ public class DataTableController {
 								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
 							}
-							else {
-								if ( otherSeen != 1 ){
-									paperLinksOther.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
-									otherSeen++;
-								}
-							}
+						}
+						if ( otherSeen != 1 && ! url.startsWith("http://www.pubmedcentral.nih.gov") && ! url.startsWith("http://europepmc.org/") ){
+							paperLinksOther.add("<li><a target='_blank' href='" + url + "'>Non-pubmed source</a></li>");
+							otherSeen++;
 						}
 					}
 				}	
 				
 				// ordered
-				paperLinks.addAll(paperLinksOther);
 				paperLinks.addAll(paperLinksEuroPubmed);
 				paperLinks.addAll(paperLinksPubmed);
+				paperLinks.addAll(paperLinksOther);
 				rowData.add(StringUtils.join(paperLinks, ""));
 				
 				j.getJSONArray("aaData").add(rowData);	
