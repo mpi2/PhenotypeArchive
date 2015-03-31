@@ -266,7 +266,6 @@ public class UnidimensionalChartAndTableProvider {
 
 			String columnPadding = "";
 			for (int i = 0; i < column; i++) {
-				// add an empty column for each column
 				columnPadding += "[], ";
 			}
 			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
@@ -285,7 +284,7 @@ public class UnidimensionalChartAndTableProvider {
 			seriesData += femaleBoxPlotObject + ",";
 			column++;
 
-		}// end of boxplot loop
+		}
 
 		// loop over the chartSeries data and create scatters for each
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
@@ -296,45 +295,19 @@ public class UnidimensionalChartAndTableProvider {
 
 			List<Float> originalDataFloats = chartsSeriesElement.getOriginalData();
 			JSONArray scatterJArray = new JSONArray();
-			categories.put(categoryString);// add another category string for
-											// this scatter as well as the one
-											// for boxplot already added
-			// int column=1;//chartsSeriesElement.getColumn();
+			categories.put(categoryString);
 			for (Float data : originalDataFloats) {
 				JSONArray array = new JSONArray();
 				array.put(column);
 				array.put(data);
 				scatterJArray.put(array);
 			}
-
-			// if(chartsSeriesElement.getControlOrZygosity().equalsIgnoreCase("WT"))
-			// {
-			// color=ChartColors.getWTColor(ChartColors.alphaScatter);
-			// fillColor="white";
-			// lineColor=color;
-			// }
-			//
-			// if(chartsSeriesElement.getSexType().equals(SexType.male) ) {
-			// symbol="triangle";
-			// }
-
 			String marker = ChartColors.getMarkerString(chartsSeriesElement.getSexType(), chartsSeriesElement.getZygosityType());
-
-			String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
-															// number of pair
-															// indicates
-															// category/column
-															// so 0
-															// is first column 3
-															// is
-															// second
-			femaleScatterObjectString = "{ " + " 	name: 'Observation', type: 'scatter', data: " + scatterString + ", " + marker +
-			// "marker: { lineWidth: 1}" +
-			", tooltip: { pointFormat: '{point.y:.4f}' }" + "          }";
-			seriesData += femaleScatterObjectString + ",";// +","+maleBoxPlotObject+", "+maleScatterObjectString;
+			
 			column++;
-
-		}// end of scatter loop
+			
+		}
+		System.out.println("\n\nSeries Data: " + seriesData);
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
@@ -349,7 +322,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "; } } }    ,"
 			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
-			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
+			+ " subtitle: { useHTML: true,  text: '" + procedureDescription + "', x: -20 }, "
 			+ " legend: { enabled: false }, "
 			+ " xAxis: { categories:  " + categories + " }, \n" 
 			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 
@@ -371,7 +344,6 @@ public class UnidimensionalChartAndTableProvider {
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-		// System.out.println("... histogram with id " + chartId);
 		return chartAndTable;
 	}
 
@@ -395,17 +367,14 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		else {
 			for (String key: values.keySet()){
-				//if (!key.equals("")){
-					data += "['" + key + "', " + values.get(key) + "], ";
-				//}
+				data += "['" + key + "', " + values.get(key) + "], ";
 			}
 		}
 		data += "]";
 		
 		String javascript = "$(function () { $('#" + divId + "').highcharts({" +
         	" chart: {type: 'column' }," + 
-        	" title: {text: '" + title + "'}," +
-   //     	" subtitle: { text: 'Source' }, " + 	
+        	" title: {text: '" + title + "'}," +	
         	" credits: { enabled: false },  " +
         	" xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
         	" yAxis: { min: 0, title: { text: 'Number of genes' } }," + 
@@ -417,7 +386,6 @@ public class UnidimensionalChartAndTableProvider {
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId("statusChart");
-		// System.out.println("... histogram with id " + chartId);
 		return chartAndTable;
 	}
 	
