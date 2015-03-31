@@ -223,7 +223,7 @@ public class FileExportController {
             @RequestParam(value = "externalDbId", required = true) Integer extDbId,
             @RequestParam(value = "fileType", required = true) String fileType,
             @RequestParam(value = "fileName", required = true) String fileName,
-            @RequestParam(value = "legacyOnly", required = false) boolean legacyOnly,
+            @RequestParam(value = "legacyOnly", required = false, defaultValue = "false") Boolean legacyOnly,
             @RequestParam(value = "allele", required = false) String[] allele,
             @RequestParam(value = "rowStart", required = false) Integer rowStart,
             @RequestParam(value = "length", required = false) Integer length,
@@ -238,16 +238,16 @@ public class FileExportController {
             @RequestParam(value = "solrCoreName", required = false) String solrCoreName,
             @RequestParam(value = "params", required = false) String solrFilters,
             @RequestParam(value = "gridFields", required = false) String gridFields,
-            @RequestParam(value = "showImgView", required = false, defaultValue = "false") boolean showImgView,
+            @RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
             @RequestParam(value = "dumpMode", required = false) String dumpMode,
             @RequestParam(value = "baseUrl", required = false) String baseUrl,
             @RequestParam(value = "sex", required = false) String sex,
             @RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
             @RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
-            @RequestParam(value = "dogoterm", required = false) boolean dogoterm,
-            @RequestParam(value = "gocollapse", required = false) boolean gocollapse,
-            @RequestParam(value = "gene2pfam", required = false) boolean gene2pfam,
-            @RequestParam(value = "doAlleleRef", required = false) boolean doAlleleRef,
+            @RequestParam(value = "dogoterm", required = false, defaultValue = "false") Boolean dogoterm,
+            @RequestParam(value = "gocollapse", required = false, defaultValue = "false") Boolean gocollapse,
+            @RequestParam(value = "gene2pfam", required = false, defaultValue = "false") Boolean gene2pfam,
+            @RequestParam(value = "doAlleleRef", required = false, defaultValue = "false") Boolean doAlleleRef,
             @RequestParam(value = "filterStr", required = false) String filterStr,
             
             HttpSession session,
@@ -256,6 +256,7 @@ public class FileExportController {
             Model model
     ) throws Exception {
 
+    	
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	System.out.println("------------\nEXPORT \n---------");
     	
@@ -1215,7 +1216,7 @@ public class FileExportController {
                     phenotypes.add(pr);
                 }
             }
-            Collections.sort(phenotypes);                                       // sort in same order as phenotype page.
+            Collections.sort(phenotypes);  // sort in same order as phenotype page.
             
             for (DataTableRow pr : phenotypes) {
                 res.add(pr.toTabbedString("phenotype"));
@@ -1297,7 +1298,7 @@ public class FileExportController {
 		
 		String query = null;
 		
-		if ( sSearch != "" ){
+		if ( ! sSearch.isEmpty() ){
 			query = "select * from allele_ref where reviewed = 'yes' and "
 				+ " title like ?"	
 				+ " or journal like ?"
@@ -1336,7 +1337,7 @@ public class FileExportController {
         rowData.add(fields);
 		
 		try (PreparedStatement p2 = conn.prepareStatement(query)) {
-			if ( sSearch != "" ){
+			if ( ! sSearch.isEmpty() ){
 				for ( int i=1; i<12; i++){
 					p2.setString(i, like);
 					if ( i == 10 ){
@@ -1409,7 +1410,7 @@ public class FileExportController {
 		
 		String query = null;
 		
-		if ( sSearch != "" ){
+		if ( ! sSearch.isEmpty() ){
 			query = "select * from allele_ref where "
 				+ " acc like ?"
 				+ " or symbol like ?"
@@ -1446,7 +1447,7 @@ public class FileExportController {
         rowData.add(fields);
 		
 		try (PreparedStatement p2 = conn.prepareStatement(query)) {
-			if ( sSearch != "" ){
+			if ( ! sSearch.isEmpty() ){
 				for ( int i=1; i<10; i++){
 					p2.setString(i, like);
 					if ( i == 8 ){
