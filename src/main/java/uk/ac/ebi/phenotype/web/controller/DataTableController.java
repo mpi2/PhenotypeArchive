@@ -1730,6 +1730,9 @@ public class DataTableController {
 				int pmid = resultSet.getInt("pmid");
 				
 				List<String> paperLinks = new ArrayList<>();
+				List<String> paperLinksOther = new ArrayList<>();
+				List<String> paperLinksPubmed = new ArrayList<>();
+				List<String> paperLinksEuroPubmed = new ArrayList<>();
 				
 				String[] urlList = resultSet.getString("paperurls").split("___,");
 				for( int i=0; i<urlList.length; i++ ){
@@ -1745,38 +1748,43 @@ public class DataTableController {
 						
 						if (pubmedSeen != 1 ){
 							if ( url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf") ){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
 								pubmedSeen++;
 							}
 							else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid)) ){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
 								pubmedSeen++;
 							}
 							else {
 								if ( otherSeen != 1 ){
-									paperLinks.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
+									paperLinksOther.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
 									otherSeen++;
 								}
 							}
 						}
 						else if ( eupubmedSeen != 1 ){
 							if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
 							}
 							else if (url.startsWith("http://europepmc.org/")){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
 							}
 							else {
 								if ( otherSeen != 1 ){
-									paperLinks.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
+									paperLinksOther.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
 									otherSeen++;
 								}
 							}
 						}
 					}
 				}	
+				
+				// ordered
+				paperLinks.addAll(paperLinksOther);
+				paperLinks.addAll(paperLinksEuroPubmed);
+				paperLinks.addAll(paperLinksPubmed);
 				rowData.add(StringUtils.join(paperLinks, ""));
 				
 				j.getJSONArray("aaData").add(rowData);	
