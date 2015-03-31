@@ -3,7 +3,6 @@ package uk.ac.ebi.phenotype.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
-import java.util.Objects;
 
 
 public class StatisticalResultDTO {
@@ -63,7 +62,8 @@ public class StatisticalResultDTO {
     public final static String ALLELE_NAME = "allele_name";
     public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
     public final static String STRAIN_NAME = "strain_name"; 
-    public final static String STRAIN_ACCESSION_ID = "strain_accession_id"; 
+    public final static String STRAIN_ACCESSION_ID = "strain_accession_id";
+    public static final String GENETIC_BACKGROUND = "genetic_background";
     public final static String SEX = "sex"; 
     public final static String ZYGOSITY = "zygosity"; 
 
@@ -271,6 +271,9 @@ public class StatisticalResultDTO {
 
     @Field(STRAIN_ACCESSION_ID)
     private String strainAccessionId;
+
+    @Field(GENETIC_BACKGROUND)
+    String geneticBackground;
 
     @Field(SEX)
     private String sex;
@@ -986,6 +989,14 @@ public class StatisticalResultDTO {
     public void setStrainAccessionId(String strainAccessionId) {
 
         this.strainAccessionId = strainAccessionId;
+    }
+
+    public String getGeneticBackground() {
+        return geneticBackground;
+    }
+
+    public void setGeneticBackground(String geneticBackground) {
+        this.geneticBackground = geneticBackground;
     }
 
 
@@ -1787,6 +1798,7 @@ public class StatisticalResultDTO {
         if (strainAccessionId != null ? !strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null)
             return false;
         if (strainName != null ? !strainName.equals(that.strainName) : that.strainName != null) return false;
+        if (geneticBackground != null ? !geneticBackground.equals(that.geneticBackground) : that.geneticBackground != null) return false;
         if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
             return false;
         if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
@@ -1861,6 +1873,7 @@ public class StatisticalResultDTO {
         result = 31 * result + (alleleAccessionId != null ? alleleAccessionId.hashCode() : 0);
         result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
         result = 31 * result + (strainAccessionId != null ? strainAccessionId.hashCode() : 0);
+        result = 31 * result + (geneticBackground != null ? geneticBackground.hashCode() : 0);
         result = 31 * result + (sex != null ? sex.hashCode() : 0);
         result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
         result = 31 * result + (controlSelectionMethod != null ? controlSelectionMethod.hashCode() : 0);
