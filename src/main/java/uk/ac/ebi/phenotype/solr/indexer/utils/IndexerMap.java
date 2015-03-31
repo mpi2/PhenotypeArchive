@@ -203,20 +203,4 @@ public class IndexerMap {
             Map<String, List<SangerImageDTO>> map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
             return map;
     }
-    
-    /**
-     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
-     *
-     * @param phenodigm_core a valid solr connection
-     * @return a cached map of all mp terms to hp terms, indexed by mp id.
-     * 
-     * @throws IndexerException
-     */
-    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
-        if (mpToHpTermsMap == null) {
-            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-        }
-        logger.info("mpToHpTermsMap size=" + mpToHpTermsMap.size());
-        return mpToHpTermsMap;
-    }
 }
