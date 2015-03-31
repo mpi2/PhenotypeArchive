@@ -2379,9 +2379,9 @@
                        // gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
                         gridFields: oInfos.gridFields,
                         dogoterm: oInfos.hasOwnProperty('dogoterm') ? oInfos.dogoterm : false,
-                        fileName: oInfos.fileName != 'undefined' ? oInfos.fileName : solrCoreName + '_table_dump',
-                        filterStr: oInfos.hasOwnProperty('filterStr') ? oInfos.filterStr : null,
-                        doAlleleRef: oInfos.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef : null,
+                        fileName: typeof oInfos.fileName == 'undefined' ? solrCoreName + '_table_dump' : oInfos.fileName,
+                        filterStr: oInfos.hasOwnProperty('filterStr') ? oInfos.filterStr : false,
+                        doAlleleRef: oInfos.hasOwnProperty('doAlleleRef') ? oInfos.doAlleleRef : false,
                 };
                 
                 var exportObjPageTsv = buildExportUrl(conf, 'tsv', 'page');

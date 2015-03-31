@@ -82,6 +82,10 @@ public class DataTableController {
 	@Qualifier("admintoolsDataSource")
 	private DataSource admintoolsDataSource;
 	
+	@Autowired
+	@Qualifier("komp2DataSource")
+	private DataSource komp2DataSource;
+	
 	private String IMG_NOT_FOUND = "Image coming soon<br>";
 	private String NO_INFO_MSG = "No information available";
 	
@@ -1299,20 +1303,64 @@ public class DataTableController {
 		
 		JSONObject j = new JSONObject();
 		
+		Connection connKomp2 = komp2DataSource.getConnection();
 		Connection conn = admintoolsDataSource.getConnection();
 		
-		String sql = "UPDATE allele_ref SET symbol=?, reviewed='yes' WHERE dbid=?";
+		String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
+		
+		// if there are multiple allele symbols, it should have been separated by comma
+		if ( alleleSymbol.contains(",") ){
+			int symCount = alleleSymbol.split(",").length;
+			List<String> placeHolders = new ArrayList<>();
+			for ( int c=0; c<symCount; c++ ){
+				placeHolders.add("?");
+			}
+			String placeHolderStr = StringUtils.join(placeHolders, ",");
+			/*List<String> syms = new ArrayList<>();
+			for ( int s=0; s<symbols.length; s++ ){
+				syms.add("\"" + symbols[s] + "\"");
+			}
+			alleleSymbol = StringUtils.join(syms, ",");*/
+			sqla = "SELECT acc, gf_acc FROM allele WHERE symbol in (placeHolderStr)";
+		}
+		
+		// fetch allele id, gene id of this allele symbol
+		// and update acc and gacc fields of allele_ref table
+		System.out.println("set allele: " + sqla );
+		
+		String alleleAcc = "";
+		String geneAcc = "";
+		
+		try (PreparedStatement p = connKomp2.prepareStatement(sqla)) {
+			p.setString(1, alleleSymbol);
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				alleleAcc = resultSet.getString("acc");
+				geneAcc = resultSet.getString("gf_acc");
+				System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			connKomp2.close();
+		}
+		
+		String sql = "UPDATE allele_ref SET symbol=?, reviewed='yes', acc=?, gacc=? WHERE dbid=?";
 		
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		
 		try {
 			stmt.setString(1, alleleSymbol);
-			stmt.setInt(2, dbid);
+			stmt.setString(2, alleleAcc);
+			stmt.setString(3, geneAcc);
+			stmt.setInt(4, dbid);
 			stmt.executeUpdate();
 			
 			j.put("reviewed", "yes");
 		    j.put("symbol", alleleSymbol);
-		    
+		    System.out.println("sql: "+ sql);
+		    System.out.println("setting acc and gacc -> " +  alleleAcc + " --- " + geneAcc);
 		}catch(SQLException se){
 			//Handle errors for JDBC
 			se.printStackTrace();
@@ -1456,7 +1504,7 @@ public class DataTableController {
 		//System.out.println("query: "+ query);
 		//System.out.println("query2: "+ query2);
 		
-		String mgiAlleleBaseUrl = "http://www.informatics.jax.org/allele/";
+		String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
 		
 		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
 			if ( sSearch != "" ){
@@ -1482,12 +1530,13 @@ public class DataTableController {
 				List<String> rowData = new ArrayList<String>();
 				
 				int dbid = resultSet.getInt("dbid");
+				String gacc = resultSet.getString("gacc");
 				
 				rowData.add(resultSet.getString("reviewed"));
 				
 				//rowData.add(resultSet.getString("acc"));
 				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
-				String alLink = "<a target='_blank' href='"+ mgiAlleleBaseUrl + resultSet.getString("acc") + "'>" + alleleSymbol + "</a>";
+				String alLink = "<a target='_blank' href='"+ impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
 				rowData.add(alLink);
 				
 				
@@ -1509,8 +1558,7 @@ public class DataTableController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			conn.close();
 		}
 		return j.toString();
@@ -1562,7 +1610,7 @@ public class DataTableController {
 				+ "GROUP_CONCAT(DISTINCT(paper_url), '___') AS paperurls "
 				+ "FROM allele_ref ";
 		
-		String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY count DESC LIMIT ?, ?";
+		String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY date_of_publication DESC LIMIT ?, ?";
 		
 		String query2 = null;
 		
@@ -1635,16 +1683,21 @@ public class DataTableController {
 						if (symGacc.length == 2 ){
 							gAcc = symGacc[1];
 							//System.out.println(symbol + " ---> "+ gAcc);
-							alleleLink = "<span class='" + cls + "'><a target='_blank' href='"+ impcGeneBaseUrl + gAcc + "'>" + symbol + "</a></span>";
+							alleleLink = "<div class='" + cls + "'><a target='_blank' href='"+ impcGeneBaseUrl + gAcc + "'>" + symbol + "</a></div>";
 						}
 						else {
-							alleleLink = "<span class='" + cls + "'><a" + symbol + "</a></span>";
+							alleleLink = "<div class='" + cls + "'><a" + symbol + "</a></div>";
 						}
 						
 						alleleLinks.add(alleleLink);
 					}
 				}
-				rowData.add(StringUtils.join(alleleLinks, "<br>"));
+				// show/hide toggle
+				if ( alleleLinks.size() > 5 ){
+					int num = alleleLinks.size();
+					alleleLinks.add("<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
+				}
+				rowData.add(StringUtils.join(alleleLinks, ""));
 			
 				rowData.add(resultSet.getString("title"));
 				rowData.add(resultSet.getString("journal"));
@@ -1668,6 +1721,9 @@ public class DataTableController {
 				int pmid = resultSet.getInt("pmid");
 				
 				List<String> paperLinks = new ArrayList<>();
+				List<String> paperLinksOther = new ArrayList<>();
+				List<String> paperLinksPubmed = new ArrayList<>();
+				List<String> paperLinksEuroPubmed = new ArrayList<>();
 				
 				String[] urlList = resultSet.getString("paperurls").split("___,");
 				for( int i=0; i<urlList.length; i++ ){
@@ -1675,6 +1731,7 @@ public class DataTableController {
 					
 					int pubmedSeen = 0;
 					int eupubmedSeen = 0;
+					int otherSeen = 0;
 					
 					for ( int k=0; k<urls.length; k++){
 						
@@ -1682,26 +1739,35 @@ public class DataTableController {
 						
 						if (pubmedSeen != 1 ){
 							if ( url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf") ){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
 								pubmedSeen++;
 							}
 							else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid)) ){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
 								pubmedSeen++;
 							}
 						}
-						else if ( eupubmedSeen != 1 ){
+						if ( eupubmedSeen != 1 ){
 							if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
 							}
 							else if (url.startsWith("http://europepmc.org/")){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
 							}
 						}
+						if ( otherSeen != 1 && ! url.startsWith("http://www.pubmedcentral.nih.gov") && ! url.startsWith("http://europepmc.org/") ){
+							paperLinksOther.add("<li><a target='_blank' href='" + url + "'>Non-pubmed source</a></li>");
+							otherSeen++;
+						}
 					}
 				}	
+				
+				// ordered
+				paperLinks.addAll(paperLinksEuroPubmed);
+				paperLinks.addAll(paperLinksPubmed);
+				paperLinks.addAll(paperLinksOther);
 				rowData.add(StringUtils.join(paperLinks, ""));
 				
 				j.getJSONArray("aaData").add(rowData);	

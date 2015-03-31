@@ -34,9 +34,9 @@ import java.util.*;
 
 @Service
 public class MpService {
-    private HttpSolrServer solr;
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private HttpSolrServer solr;
 
     public MpService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
