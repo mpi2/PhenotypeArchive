@@ -23,6 +23,8 @@
 package org.mousephenotype.www.testing.model;
 
 import static com.thoughtworks.selenium.SeleneseTestBase.fail;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -801,6 +803,25 @@ public class TestUtils {
         }
         
         return retVal;
+    }
+    
+    /**
+     * Returns the classpath, prefaced by the string 'Classpath:\n'. Each
+     * file is separated by a newline.
+     * 
+     * @return the classpath, prefaced by the string 'Classpath:\n'. Each
+     * file is separated by a newline.
+     */
+    public static String getClasspath() {
+        StringBuilder sb = new StringBuilder("Classpath:\n");
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        URL[] urls = ((URLClassLoader) cl).getURLs();
+        
+        for (URL url : urls) {
+            sb.append(url.getFile()).append("\n");
+        }
+        
+        return sb.toString();
     }
     
     /**
