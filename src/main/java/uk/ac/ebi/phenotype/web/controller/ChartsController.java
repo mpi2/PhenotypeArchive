@@ -33,6 +33,7 @@ import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartType;
+import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.chart.FertilityChartAndDataProvider;
 import uk.ac.ebi.phenotype.chart.FertilityDTO;
 import uk.ac.ebi.phenotype.chart.GraphUtils;
@@ -295,11 +296,13 @@ public class ChartsController {
 				// }
 				// }
 				if (chartType != null) {
+					
+					ScatterChartAndData scatterChartAndData;
+					
 					switch (chartType) {
 
 						case UNIDIMENSIONAL_SCATTER_PLOT:
-
-							ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
+							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("scatterChartAndData", scatterChartAndData);
 
 							if (observationTypeForParam.equals(ObservationType.unidimensional)) {
@@ -317,11 +320,18 @@ public class ChartsController {
 
 							// get experiments for other parameters too
 							model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession));
-
+							break;
+							
 						case UNIDIMENSIONAL_BOX_PLOT:
-
+							
 							unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
 							model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+													
+							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
+							model.addAttribute("scatterChartAndData", scatterChartAndData);
+							
+							System.out.println(scatterChartAndData.getChart());
+							
 							break;
 
 						case CATEGORICAL_STACKED_COLUMN:
