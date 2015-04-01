@@ -124,6 +124,12 @@ public class UnidimensionalChartAndTableProvider {
 		unidimensionalStatsObjects.addAll(unidimensionalStatsObject);
 		Map <String, Float> boxMinMax = ChartUtils.getMinMaxXAxis(chartsSeriesElementsList, experiment);
 		chartAndTable = processChartData(chartId, boxMinMax.get("min"), boxMinMax.get("max"), parameter, experiment, yAxisTitle, chartsSeriesElementsList);
+		String title = "<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>";
+		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+		String procedureDescription = "";
+		if (proc != null) {
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+		}
 		
 		unidimensionalDataSet.setChartData(chartAndTable);
 		unidimensionalDataSet.setAllUnidimensionalResults(allUnidimensionalResults);
@@ -131,7 +137,8 @@ public class UnidimensionalChartAndTableProvider {
 		unidimensionalDataSets.add(unidimensionalDataSet);
 		unidimensionalDataSet.setMin(boxMinMax.get("min"));
 		unidimensionalDataSet.setMax(boxMinMax.get("max"));
-		
+		unidimensionalDataSet.setTitle(title);
+		unidimensionalDataSet.setSubtitle(procedureDescription);
 		return unidimensionalDataSet;
 
 	}
@@ -201,16 +208,10 @@ public class UnidimensionalChartAndTableProvider {
 			
 			PercentileComputation pc = new PercentileComputation(listOfFloats);
 
-			// get boxplot data here
-			// use the stats object to get the mean upper quartile etc
 			List<Float> wt1 = new ArrayList<Float>();
 			if (listOfFloats.size() > 0) {
-				// double lower = stats.getPercentile(25);
-				// double higher=stats.getPercentile(75);
 				double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getLowerQuartile()), decimalPlaces);
-				// new Float(stats.getPercentile(25)), decimalPlaces);
 				double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getUpperQuartile()), decimalPlaces);
-				// new Float(stats.getPercentile(75)), decimalPlaces);
 				double IQR = Q3 - Q1;
 
 				Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1 - (1.5 * IQR)), decimalPlaces);
@@ -276,7 +277,6 @@ public class UnidimensionalChartAndTableProvider {
 			column++;
 		}
 		
-		System.out.println("\n\nSeries Data: " + seriesData);
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
@@ -289,9 +289,8 @@ public class UnidimensionalChartAndTableProvider {
 			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
 			+ "<br/>LQ - 1.5 * IQR: ' + this.point.low"
 			+ "; } } }    ,"
-			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
+			+ " title: {  text: 'Boxplot', useHTML:true } , "
 			+ " credits: { enabled: false },  "
-			+ " subtitle: { useHTML: true,  text: '" + procedureDescription + "', x: -20 }, "
 			+ " legend: { enabled: false }, "
 			+ " xAxis: { categories:  " + categories + " }, \n" 
 			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 

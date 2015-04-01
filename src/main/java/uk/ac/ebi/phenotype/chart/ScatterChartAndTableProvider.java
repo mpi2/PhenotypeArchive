@@ -58,8 +58,7 @@ public class ScatterChartAndTableProvider {
 			    +"         zoomType: 'xy'"
 			    
 			    +"     },"
-			      +"   title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true  },"
-			    +"     subtitle: { useHTML: true,  text: '" + procedureDescription + "' },"
+			    +"   title: {  text: 'Scatterplot by Date' },"
 			    +"     xAxis: {"
 			    +"         type: 'datetime',"
 			      +"       labels: { "

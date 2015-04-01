@@ -302,13 +302,11 @@ public class ChartsController {
 					switch (chartType) {
 
 						case UNIDIMENSIONAL_SCATTER_PLOT:
+							
 							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("scatterChartAndData", scatterChartAndData);
 
 							if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-								// if unidimensional add the unidimensional data
-								// so we
-								// can create the tables
 								List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
 								unidimensionalChartDataSet = new UnidimensionalDataSet();
 								unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
@@ -326,7 +324,7 @@ public class ChartsController {
 							
 							unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
 							model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-													
+								
 							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("scatterChartAndData", scatterChartAndData);
 							

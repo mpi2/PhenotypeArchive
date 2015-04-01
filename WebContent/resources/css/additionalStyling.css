@@ -1,5 +1,18 @@
 /* Additional styling written at EBI */
 
+p.chartTitle{
+	margin:auto;
+	text-align: center;
+	color: black;
+	font-size: 1.4em;
+}
+p.chartSubtitle{
+	margin:auto;
+	text-align: center;
+	color: black;
+	font-size: 1em;
+}
+
 .hitMap td{
 	border-bottom: #efefef 1px solid;
 	border-top: #efefef 1px solid;
