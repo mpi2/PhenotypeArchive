@@ -6,17 +6,15 @@
 <c:if test="${unidimensionalChartDataSet!=null}">
 	<c:if
 		test="${unidimensionalChartDataSet.experiment.metadataGroup!=null}">Metadata Group - ${unidimensionalChartDataSet.experiment.metadataGroup}</c:if>
-	<div id="chart${experimentNumber}" class="half"></div>
-	<div id="scatter${experimentNumber}" class="half"></div>
+	<br/><br/>
+	<div id="chart${experimentNumber}" class="onethird"></div>
+	<div id="scatter${experimentNumber}" class="twothird"></div>
 	<div class="clear"></div>
 	<script type="text/javascript">
 				${scatterChartAndData.chart};
   			$(function () {${unidimensionalChartDataSet.chartData.chart}
 	</script>
-	<div class="section half">
-		<a href="${acc}?${fn:replace(pageContext.request.queryString, 'UNIDIMENSIONAL_BOX_PLOT', 'UNIDIMENSIONAL_SCATTER_PLOT')}">Graph	by date</a>
-	</div>
-	<div class="section half"></div>
+	<br/> <br/>
 </c:if>
 
 <jsp:include page="unidimensionalTables.jsp"></jsp:include>
