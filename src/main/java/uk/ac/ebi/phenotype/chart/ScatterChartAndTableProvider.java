@@ -50,66 +50,67 @@ public class ScatterChartAndTableProvider {
 		
 		
 		String chartString="	$(function () { "
-			  +"  chart71maleWTSI = new Highcharts.Chart({ "
-			    +"     chart: {"
-			    +"renderTo: 'scatter"
-				+ experimentNumber + "',"
-			    +"         type: 'scatter',"
-			    +"         zoomType: 'xy'"
-			    
-			    +"     },"
-			    +"   title: {  text: 'Scatterplot by Date' },"
-			    +"     xAxis: {"
-			    +"         type: 'datetime',"
-			      +"       labels: { "
-			      +"           rotation: -45, "
-			      +"           align: 'right', "
-			      +"           style: { "
-			       +"              fontSize: '13px', "
-			       +"              fontFamily: 'Verdana, sans-serif' "
-			       +"         } "
-			       +"     }, "
-			       +"      showLastLabel: true "
-			       +"  }, "
-			     +"    yAxis: { "
-			     + (max != null ? "        max: " + max + ", " : "")
-			     + (min != null ? "         min: " + min + ", " : "")
-			    +"         title: { "
-			    +"             text: '"+parameter.getUnit()+"' "
-			    +"           } "
-			    +"       }, "
-			   +"      credits: { "
-			    +"         enabled: false "
-			    +"      }, "
-			   +"      plotOptions: { "
-			     +"        scatter: { "
-			     +"            marker: { "
-			      +"                radius: 5, "
-			      +"              states: { "
-			         +"                hover: { "
-			         +"                    enabled: true, "
-			          +"                   lineColor: 'rgb(100,100,100)' "
-			          +"               } "
-			          +"           } "
-			          +"       }, "
-			          +"       states: { "
-			          +"           hover: { "
-			          +"               marker: { "
-			          +"                   enabled: false "
-			          +"               } "
-			          +"           } "
-			          +"        } "
-			          +"     } "
-			          +"   }, "
-			    +"     tooltip: { "
-			   +"          formatter: function () { "
-			   +"              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' "+parameter.getUnit()+" '; "
-			   +"          } "
-			   +"      }, "
-			    +"     series: "+
-			     series.toString()
-			    +"    }); "
-			    +"	}); ";
+			+ "  chart71maleWTSI = new Highcharts.Chart({ "
+			+ "     chart: {"
+			+ "renderTo: 'scatter"
+			+ experimentNumber + "',"
+			+ "         type: 'scatter',"
+			+ "         zoomType: 'xy'"
+	
+			+ "     },"
+			+ "   title: {  text: 'Scatterplot by Date' },"
+			+ "     xAxis: {"
+			+ "         type: 'datetime',"
+			+ "       labels: { "
+			+ "           rotation: -45, "
+			+ "           align: 'right', "
+			+ "           style: { "
+			+ "              fontSize: '13px', "
+			+ "              fontFamily: 'Verdana, sans-serif' "
+			+ "         } "
+			+ "     }, "
+			+ "      showLastLabel: true "
+			+ "  }, "
+			+ "    yAxis: { "
+			+ " tickAmount: 5,"
+			+ (max != null ? "        max: " + max + ", " : "")
+			+ (min != null ? "         min: " + min + ", " : "")
+			+ "         title: { "
+			+ "             text: '" + parameter.getUnit() + "' "
+			+ "           } "
+			+ "       }, "
+			+ "      credits: { "
+			+ "         enabled: false "
+			+ "      }, "
+			+ "      plotOptions: { "
+			+ "        scatter: { "
+			+ "            marker: { "
+			+ "                radius: 5, "
+			+ "              states: { "
+			+ "                hover: { "
+			+ "                    enabled: true, "
+			+ "                   lineColor: 'rgb(100,100,100)' "
+			+ "               } "
+			+ "           } "
+			+ "       }, "
+			+ "       states: { "
+			+ "           hover: { "
+			+ "               marker: { "
+			+ "                   enabled: false "
+			+ "               } "
+			+ "           } "
+			+ "        } "
+			+ "     } "
+			+ "   }, "
+			+ "     tooltip: { "
+			+ "          formatter: function () { "
+			+ "              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' " + parameter.getUnit() + " '; "
+			+ "          } "
+			+ "      }, "
+			+ "     series: " +
+			series.toString()
+			+ "    }); "
+			+ "	}); ";
 		return chartString;
 	}
 
@@ -160,15 +161,15 @@ public class ScatterChartAndTableProvider {
 			List<DiscreteTimePoint> controlMeans = stats
 					.getMeanDataPoints(controlDataPoints);
 
-			lines.put(WordUtils.capitalize(sex.name())+" Control", controlMeans);
+			lines.put(WordUtils.capitalize(sex.name())+" WT", controlMeans);
 			
 			JSONObject expZyg=new JSONObject();
 			JSONArray expDataArray=new JSONArray();
 			for (ZygosityType zType : experiment.getZygosities()) {
 				colorIndex++;
 				try {
-					expZyg.put("name", WordUtils.capitalize(sex.name())+" "+WordUtils.capitalize(zType.name()));
-					JSONObject markerObject=ChartColors.getMarkerJSONObject(sex, zType);
+					expZyg.put("name", WordUtils.capitalize(sex.name()) + " " + WordUtils.capitalize(zType.getShortName()));
+					JSONObject markerObject = ChartColors.getMarkerJSONObject(sex, zType);
 					expZyg.put("marker", markerObject);
 					
 				} catch (JSONException e1) {

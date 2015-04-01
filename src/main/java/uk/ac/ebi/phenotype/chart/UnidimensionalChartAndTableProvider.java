@@ -137,6 +137,8 @@ public class UnidimensionalChartAndTableProvider {
 		unidimensionalDataSets.add(unidimensionalDataSet);
 		unidimensionalDataSet.setMin(boxMinMax.get("min"));
 		unidimensionalDataSet.setMax(boxMinMax.get("max"));
+		System.out.println("==max " + boxMinMax.get("min"));
+		System.out.println("==max " + boxMinMax.get("max"));
 		unidimensionalDataSet.setTitle(title);
 		unidimensionalDataSet.setSubtitle(procedureDescription);
 		return unidimensionalDataSet;
@@ -185,7 +187,7 @@ public class UnidimensionalChartAndTableProvider {
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
 
 		JSONArray categories = new JSONArray();// "['WT', 'WT', 'HOM', 'HOM']";
-		String femaleBoxPlotObject = "";
+		String boxPlotObject = "";
 
 		String seriesData = "";
 		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
@@ -239,22 +241,17 @@ public class UnidimensionalChartAndTableProvider {
 				columnPadding += "[], ";
 			}
 			
-			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
-			// for each
-			// column/category
-			// WT HOM etc
-			// get the color based on if mutant or WT based on terrys ticket
-			// MPII-504
+			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";
 			String color = ChartColors.getMutantColor(ChartColors.alphaBox);
-			if (chartsSeriesElement.getControlOrZygosityString().equals("Control")) {
+			if (chartsSeriesElement.getControlOrZygosityString().equals("WT")) {
 				color = ChartColors.getWTColor(ChartColors.alphaScatter);
 			}
 
-			femaleBoxPlotObject = "{" + " color: " + color + " ," + ""
+			boxPlotObject = "{" + " color: " + color + " ," + ""
 				+ " name: 'Observations', data:" + observationsString + ", "
 				+ " tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }  }";
 
-			seriesData += femaleBoxPlotObject + ",";
+			seriesData += boxPlotObject + ",";
 			column++;
 		}
 
@@ -292,9 +289,18 @@ public class UnidimensionalChartAndTableProvider {
 			+ " title: {  text: 'Boxplot', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " legend: { enabled: false }, "
-			+ " xAxis: { categories:  " + categories + " }, \n" 
+			+ " xAxis: { categories:  " + categories + ","
+			+ " labels: { "
+			+ "           rotation: -45, "
+			+ "           align: 'right', "
+			+ "           style: { "
+			+ "              fontSize: '14px',"
+			+ "              fontFamily: 'Verdana, sans-serif'"
+			+ "         } "
+			+ "     }, "
+			+ " }, \n" 
 			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 
-			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' } }, " 
+			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, " 
 			+ "\n series: [" + seriesData + "] }); });";
 
 		return chartString;
