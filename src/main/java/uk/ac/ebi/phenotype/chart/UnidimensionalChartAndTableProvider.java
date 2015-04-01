@@ -294,7 +294,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "           rotation: -45, "
 			+ "           align: 'right', "
 			+ "           style: { "
-			+ "              fontSize: '14px',"
+			+ "              fontSize: '15px',"
 			+ "              fontFamily: 'Verdana, sans-serif'"
 			+ "         } "
 			+ "     }, "
