@@ -406,8 +406,10 @@ public class ExperimentDTO {
     }
     public String getMetadataHtml() {
     	String html = "";
-    	for (String m: metadata){
-    		html += m + "\n";	
+    	if (metadata != null){
+	    	for (String m: metadata){
+	    		html += m + "\n";	
+	    	}
     	}
         return html;
     }
