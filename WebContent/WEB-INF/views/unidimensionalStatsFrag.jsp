@@ -5,7 +5,7 @@
 <!-- unidimensional here -->
 <c:if test="${unidimensionalChartDataSet!=null}">
 	<c:if
-		test="${unidimensionalChartDataSet.experiment.metadataGroup!=null}">Metadata Group - ${unidimensionalChartDataSet.experiment.metadataGroup}</c:if>
+		test="${unidimensionalChartDataSet.experiment.metadataGroup!=null}"><span title="${unidimensionalChartDataSet.experiment.getMetadataHtml()}">Metadata Group - ${unidimensionalChartDataSet.experiment.metadataGroup}</span></c:if>
 	<br/><br/><br/>
 	
 	<p class = "chartTitle">${unidimensionalChartDataSet.title}</p>

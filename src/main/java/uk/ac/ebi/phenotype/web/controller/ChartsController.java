@@ -327,10 +327,7 @@ public class ChartsController {
 								
 							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-							System.out.println("SCATTER  " + scatterChartAndData.getChart());
-							System.out.println("unidimensionalChartDataSet  " + unidimensionalChartDataSet.getChartData().getChart());
-							
+		
 							break;
 
 						case CATEGORICAL_STACKED_COLUMN:

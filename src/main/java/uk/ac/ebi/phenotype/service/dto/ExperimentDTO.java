@@ -404,6 +404,13 @@ public class ExperimentDTO {
     public List<String> getMetadata() {
         return metadata;
     }
+    public String getMetadataHtml() {
+    	String html = "";
+    	for (String m: metadata){
+    		html += m + "\n";	
+    	}
+        return html;
+    }
 
     /**
      * @param metadata the metadata to set
