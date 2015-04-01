@@ -477,7 +477,6 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.sampleGroup = resultSet.getString("sample_group");
                 b.sex = resultSet.getString("sex");
                 b.strainAcc = resultSet.getString("strain_acc");
-                b.geneticBackground = resultSet.getString("genetic_background");
                 b.strainName = resultSet.getString("strain_name");
                 b.geneticBackground = resultSet.getString("genetic_background");
                 b.zygosity = resultSet.getString("zygosity");
