@@ -19,6 +19,20 @@ public class DataBatchesBySex {
 	public Integer getMaleBatchCount() { return maleBatches.size(); }
 	public Integer getFemaleBatchCount() { return maleBatches.size(); }
 
+	/*
+	    if male_batches == 0 or female_batches == 0:
+	        batch = "One sex only"
+	    elif both_batches == 1:
+	        batch = "One batch"
+	    elif both_batches <= 3:
+	        batch = "Low batch"
+	    elif male_batches >= 3 and female_batches >= 2:
+	        batch = "Multi batch"
+	    elif female_batches >= 3 and male_batches >= 2:
+	        batch = "Multi batch"
+	    else:
+	        batch = "Low batch"
+	 */
 	public BatchClassification getBatchClassification() {
 
 
