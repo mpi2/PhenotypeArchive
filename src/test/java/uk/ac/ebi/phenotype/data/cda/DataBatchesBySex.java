@@ -36,7 +36,7 @@ public class DataBatchesBySex {
 	public BatchClassification getBatchClassification() {
 
 
-		if (maleBatches.size()==0 && femaleBatches.size()>0 ||)
+		if (maleBatches.size()==0 && femaleBatches.size()>0 || false)
 		if (maleBatches.size()==1 && femaleBatches.size()==1 &&
 			Sets.intersection(maleBatches, femaleBatches).size()==1) {
 			return BatchClassification.one_batch;
