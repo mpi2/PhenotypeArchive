@@ -127,7 +127,8 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
-		//System.out.println("solr params: " + solrParams);
+		
+		System.out.println("iDisplayStart param: " + iDisplayStart);
 		
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);		
 				
@@ -1619,7 +1620,7 @@ public class DataTableController {
 				+ "GROUP_CONCAT(DISTINCT(paper_url), '___') AS paperurls "
 				+ "FROM allele_ref ";
 		
-		String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY count DESC LIMIT ?, ?";
+		String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY date_of_publication DESC LIMIT ?, ?";
 		
 		String query2 = null;
 		
@@ -1730,6 +1731,9 @@ public class DataTableController {
 				int pmid = resultSet.getInt("pmid");
 				
 				List<String> paperLinks = new ArrayList<>();
+				List<String> paperLinksOther = new ArrayList<>();
+				List<String> paperLinksPubmed = new ArrayList<>();
+				List<String> paperLinksEuroPubmed = new ArrayList<>();
 				
 				String[] urlList = resultSet.getString("paperurls").split("___,");
 				for( int i=0; i<urlList.length; i++ ){
@@ -1745,38 +1749,35 @@ public class DataTableController {
 						
 						if (pubmedSeen != 1 ){
 							if ( url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf") ){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
 								pubmedSeen++;
 							}
 							else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid)) ){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+								paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
 								pubmedSeen++;
 							}
-							else {
-								if ( otherSeen != 1 ){
-									paperLinks.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
-									otherSeen++;
-								}
-							}
 						}
-						else if ( eupubmedSeen != 1 ){
+						if ( eupubmedSeen != 1 ){
 							if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
 							}
 							else if (url.startsWith("http://europepmc.org/")){
-								paperLinks.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+								paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
 								eupubmedSeen++;
 							}
-							else {
-								if ( otherSeen != 1 ){
-									paperLinks.add("<li><a target='_blank' href='" + url + "'>None Pubmed source</a></li>");
-									otherSeen++;
-								}
-							}
+						}
+						if ( otherSeen != 1 && ! url.startsWith("http://www.pubmedcentral.nih.gov") && ! url.startsWith("http://europepmc.org/") ){
+							paperLinksOther.add("<li><a target='_blank' href='" + url + "'>Non-pubmed source</a></li>");
+							otherSeen++;
 						}
 					}
 				}	
+				
+				// ordered
+				paperLinks.addAll(paperLinksEuroPubmed);
+				paperLinks.addAll(paperLinksPubmed);
+				paperLinks.addAll(paperLinksOther);
 				rowData.add(StringUtils.join(paperLinks, ""));
 				
 				j.getJSONArray("aaData").add(rowData);	

@@ -139,14 +139,13 @@ public class ChartColors {
 		if(sex.equals(SexType.male) ) {
 			symbol="triangle";
 		}
-		//&& chartsSeriesElement.getControlOrZygosity().equals("WT")
 		
-String marker="marker:{"
-			+"symbol: '"+symbol
-			+"', fillColor:  "+fillColor+"," +
-					" lineWidth: 1,"
-		    +" lineColor: "+lineColor+ " "
-      +" }";
+		String marker = "marker:{"
+			+ "symbol: '" + symbol
+			+ "', fillColor:  " + fillColor + "," +
+			" lineWidth: 1,"
+			+ " lineColor: " + lineColor + " "
+			+ " }";
 		return marker;
 	}
 	

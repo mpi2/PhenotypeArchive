@@ -2,10 +2,14 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
+import org.json.JSONArray;
 
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
@@ -84,4 +88,46 @@ public class ChartUtils {
 			}
 	        return url;
 		}
+		
+		
+		public static Map<String, Float> getMinMaxXAxis(List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment){
+			
+			Float min = new Float(Integer.MAX_VALUE);
+			Float max = new Float(Integer.MIN_VALUE);
+			Map<String, Float> res = new HashMap<>();
+			
+			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
+			
+			for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {	
+			
+				List<Float> listOfFloats = chartsSeriesElement.getOriginalData();
+				PercentileComputation pc = new PercentileComputation(listOfFloats);
+				
+				for (Float point : listOfFloats) {
+					if (point > max) max = point;
+					if (point < min) min = point;
+				}
+								
+				if (listOfFloats.size() > 0) {
+					
+					double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getLowerQuartile()), decimalPlaces);
+					double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getUpperQuartile()), decimalPlaces);
+					double IQR = Q3 - Q1;
+
+					Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1 - (1.5 * IQR)), decimalPlaces);
+					if (minIQR < min) min = minIQR;
+
+					Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3 + (1.5 * IQR)), decimalPlaces);
+					if (maxIQR > max) max = maxIQR;
+
+				}
+			}
+			
+			res.put("min", min);
+			res.put("max", max);
+			
+			return res;
+		}
+		
+		
 }
