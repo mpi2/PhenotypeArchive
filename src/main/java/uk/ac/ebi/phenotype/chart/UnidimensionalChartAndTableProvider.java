@@ -137,8 +137,6 @@ public class UnidimensionalChartAndTableProvider {
 		unidimensionalDataSets.add(unidimensionalDataSet);
 		unidimensionalDataSet.setMin(boxMinMax.get("min"));
 		unidimensionalDataSet.setMax(boxMinMax.get("max"));
-		System.out.println("==max " + boxMinMax.get("min"));
-		System.out.println("==max " + boxMinMax.get("max"));
 		unidimensionalDataSet.setTitle(title);
 		unidimensionalDataSet.setSubtitle(procedureDescription);
 		return unidimensionalDataSet;
