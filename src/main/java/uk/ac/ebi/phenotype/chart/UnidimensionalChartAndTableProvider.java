@@ -297,7 +297,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "         } "
 			+ "     }, "
 			+ " }, \n" 
-			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 
+			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -1.5 }" + "}," 
 			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, " 
 			+ "\n series: [" + seriesData + "] }); });";
 
