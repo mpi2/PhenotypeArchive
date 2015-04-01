@@ -30,7 +30,7 @@
         <property name="locations">
             <list>
                 <value>classpath:testConfig.properties</value>
-                <value>file:${user.home}/configfiles/${datasourcesConfig}</value>
+                <value>file:${user.home}/configfiles/devDatasourcesConfig.properties</value>
             </list>
         </property>
     </bean>

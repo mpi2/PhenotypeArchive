@@ -31,17 +31,12 @@ import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 
 import java.util.*;
-import org.apache.solr.client.solrj.SolrServer;
-import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
-import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 
 @Service
 public class MpService {
 
-    private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
-    private HttpSolrServer solr;
-
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private HttpSolrServer solr;
 
     public MpService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
@@ -153,21 +148,5 @@ public class MpService {
 		}
     	
     	return computationalHPTerms;
-    }
-    
-    /**
-     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
-     *
-     * @param phenodigm_core a valid solr connection
-     * @return a cached map of all mp terms to hp terms, indexed by mp id.
-     * 
-     * @throws IndexerException
-     */
-    public Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
-        if (mpToHpTermsMap == null) {
-            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-        }
-        log.info("mpToHpTermsMap size=" + mpToHpTermsMap.size());
-        return mpToHpTermsMap;
     }
 }
