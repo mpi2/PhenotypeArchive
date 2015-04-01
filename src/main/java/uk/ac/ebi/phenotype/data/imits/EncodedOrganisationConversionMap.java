@@ -1,14 +1,17 @@
 package uk.ac.ebi.phenotype.data.imits;
 
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public final class EncodedOrganisationConversionMap {
+@Component
+public class EncodedOrganisationConversionMap {
 
-    public static Map<String, String> imitsCenters = new HashMap<String, String>();
-    public static Map<String, String> dccCenterMap = new HashMap<String, String>();
+    public Map<String, String> imitsCenters = new HashMap<String, String>();
+    public Map<String, String> dccCenterMap = new HashMap<String, String>();
 
-    static {
+    public EncodedOrganisationConversionMap() {
         imitsCenters.put("Harwell", "MRC Harwell");
         imitsCenters.put("JAX", "The Jackson Laboratory");
         imitsCenters.put("BCM", "Baylor College of Medicine");
@@ -27,7 +30,6 @@ public final class EncodedOrganisationConversionMap {
         dccCenterMap.put("J", "JAX");
         dccCenterMap.put("UCD", "UC Davis");
         dccCenterMap.put("GMC", "HMGU");
-
     }
 
 }
