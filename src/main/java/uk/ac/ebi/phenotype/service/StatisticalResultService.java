@@ -209,7 +209,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
     
     /**
-     * @param zygosity - optional (pass null if not needed)
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
      * @author tudose
      */

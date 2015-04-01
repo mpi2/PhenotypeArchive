@@ -1614,7 +1614,7 @@ public class ObservationService extends BasicService {
 	public DataBatchesBySex getBatches(String phenotypingCenter, String pipelineStableId, String parameterStableId, String strainAccessionId, String zygosity, String metadata_group, String alleleAccessionId) {
 		Integer batches = 0;
 
-		return batches;
+		return new DataBatchesBySex();
 	}
 
 
