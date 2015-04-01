@@ -106,6 +106,9 @@ public class ChartsController {
 	@Autowired
 	private ImpressService is;
 
+	@Autowired
+	Utilities impressUtilities;
+
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -195,7 +198,7 @@ public class ChartsController {
 			yUnits = parameterUnits[1];
 		}
 
-		ObservationType observationTypeForParam = Utilities.checkType(parameter);
+		ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
 		log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
 
 		List<String> genderList = getParamsAsList(gender);

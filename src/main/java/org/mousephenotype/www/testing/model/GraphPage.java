@@ -20,13 +20,7 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -34,6 +28,9 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -55,7 +52,9 @@ public class GraphPage {
     protected final String id;
     protected final PhenotypePipelineDAO phenotypePipelineDAO;
     protected final String baseUrl;
-    
+
+    private Utilities impressUtils = new Utilities();
+
     // Page variables common to all graphs
     protected String title;
     protected String alleleSymbol;
@@ -338,7 +337,7 @@ public class GraphPage {
             
             // Set the graph type from the parameterDAO.
             if (parameterObject != null) {
-                graphType = Utilities.checkType(parameterObject);
+                graphType = impressUtils.checkType(parameterObject);
             }
             
 //  System.out.println("title:             '" + this.title + "'");

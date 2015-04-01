@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
@@ -45,10 +45,14 @@
             to EBI servers for performance -->
         <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
         <!--  <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl> -->
-         <internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
+        <internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
         <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes</buildIndexesSolrUrl>
-        <preqcXmlfile>/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/PhenotypeCallSummary.xml</preqcXmlfile>
-        <human2mouseFile>/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/HMD_HumanPhenotype.rpt</human2mouseFile>
+        <preqcXmlfile>
+            /nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/PhenotypeCallSummary.xml
+        </preqcXmlfile>
+        <human2mouseFile>
+            /nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/HMD_HumanPhenotype.rpt
+        </human2mouseFile>
         <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
         <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
         <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
@@ -62,20 +66,20 @@
 
     <dependencies>
 
-		<!--  orace jdbc driver -->
-				<dependency>
-					<groupId>com.oracle</groupId>
-				  	<artifactId>ojdbc6</artifactId>
-				  	<version>11.2.0</version>
-				</dependency>
-				
-				<dependency>
-						<groupId>net.sf.opencsv</groupId>
-						<artifactId>opencsv</artifactId>
-						<version>2.3</version>
-				</dependency>
-				
-				<!--Phenodigm disease pages dependencies -->
+        <!--  orace jdbc driver -->
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>2.3</version>
+        </dependency>
+
+        <!--Phenodigm disease pages dependencies -->
         <dependency>
             <groupId>uk.ac.sanger</groupId>
             <artifactId>phenodigm2-core</artifactId>
@@ -576,92 +580,6 @@
                             <exclude>**PageTest.java</exclude>
                             <exclude>**/org/mousephenotype/www/**</exclude>
                         </excludes>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                    <lifecycleMappingMetadata>
-                    <pluginExecutions>
-                    <pluginExecution>
-                    <pluginExecutionFilter>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>gwt-maven-plugin</artifactId>
-                    <versionRange>[2.4.0,)</versionRange>
-                    <goals>
-                    <goal>resources</goal>
-                    <goal>compile</goal>
-                    <goal>i18n</goal>
-                    <goal>generateAsync</goal>
-                    </goals>
-                    </pluginExecutionFilter>
-                    <action>
-                    <execute />
-                    </action>
-                    </pluginExecution>
-                    <pluginExecution>
-                    <pluginExecutionFilter>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <!-- 2.1.1 copy the resources twice use 2.0.1 -->
-                    <versionRange>[2.0.1,)</versionRange>
-                    <goals>
-                    <goal>exploded</goal>
-                    </goals>
-                    </pluginExecutionFilter>
-                    <action>
-                    <execute />
-                    </action>
-                    </pluginExecution>
-
-                    <pluginExecution>
-                    <pluginExecutionFilter>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <versionRange>[1.7,)</versionRange>
-                    <goals>
-                    <goal>add-source</goal>
-                    </goals>
-                    </pluginExecutionFilter>
-                    <action>
-                    <execute />
-                    </action>
-                    </pluginExecution>
-
-                    <pluginExecution>
-                    <pluginExecutionFilter>
-                    <groupId>com.google.code.maven-replacer-plugin</groupId>
-                    <artifactId>replacer</artifactId>
-                    <versionRange>[1.5.2,)</versionRange>
-                    <goals>
-                    <goal>replace</goal>
-                    </goals>
-                    </pluginExecutionFilter>
-                    <action>
-                    <execute />
-                    </action>
-                    </pluginExecution>
-
-                    <pluginExecution>
-                    <pluginExecutionFilter>
-                    <groupId>com.samaxes.maven</groupId>
-                    <artifactId>minify-maven-plugin</artifactId>
-                    <versionRange>[1.0.0,)</versionRange>
-                    <goals>
-                    <goal>minify</goal>
-                    </goals>
-                    </pluginExecutionFilter>
-                    <action>
-                    <execute>
-                    <runOnIncremental>false</runOnIncremental>
-                    </execute>
-                    </action>
-                    </pluginExecution>
-
-                    </pluginExecutions>
-                    </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
 
@@ -1369,6 +1287,108 @@
             </build>
 
         </profile>
+
+        <profile>
+            <id>eclipse-only</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>1.0.0</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.codehaus.mojo</groupId>
+                                                <artifactId>gwt-maven-plugin</artifactId>
+                                                <versionRange>[2.4.0,)</versionRange>
+                                                <goals>
+                                                    <goal>resources</goal>
+                                                    <goal>compile</goal>
+                                                    <goal>i18n</goal>
+                                                    <goal>generateAsync</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <execute/>
+                                            </action>
+                                        </pluginExecution>
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.apache.maven.plugins</groupId>
+                                                <artifactId>maven-war-plugin</artifactId>
+                                                <!-- 2.1.1 copy the resources twice use 2.0.1 -->
+                                                <versionRange>[2.0.1,)</versionRange>
+                                                <goals>
+                                                    <goal>exploded</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <execute/>
+                                            </action>
+                                        </pluginExecution>
+
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.codehaus.mojo</groupId>
+                                                <artifactId>build-helper-maven-plugin</artifactId>
+                                                <versionRange>[1.7,)</versionRange>
+                                                <goals>
+                                                    <goal>add-source</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <execute/>
+                                            </action>
+                                        </pluginExecution>
+
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                                                <artifactId>replacer</artifactId>
+                                                <versionRange>[1.5.2,)</versionRange>
+                                                <goals>
+                                                    <goal>replace</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <execute/>
+                                            </action>
+                                        </pluginExecution>
+
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>com.samaxes.maven</groupId>
+                                                <artifactId>minify-maven-plugin</artifactId>
+                                                <versionRange>[1.0.0,)</versionRange>
+                                                <goals>
+                                                    <goal>minify</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <execute>
+                                                    <runOnIncremental>false</runOnIncremental>
+                                                </execute>
+                                            </action>
+                                        </pluginExecution>
+
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>
