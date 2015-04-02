@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.data.impress;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -33,6 +34,8 @@ public class Utilities {
 
 	protected static Logger logger = Logger.getLogger(Utilities.class);
 
+	@Autowired
+	ParameterDataType parameterDataType;
 
 	/**
 	 * Returns the observation type based on the parameter, when the parameter
@@ -75,8 +78,8 @@ public class Utilities {
 		Float valueToInsert = 0.0f;
 
 		String datatype = parameter.getDatatype();
-		if (ParameterDataType.MAPPING.containsKey(parameter.getStableId())) {
-			datatype = ParameterDataType.MAPPING.get(parameter.getStableId());
+		if (parameterDataType.MAPPING.containsKey(parameter.getStableId())) {
+			datatype = parameterDataType.MAPPING.get(parameter.getStableId());
 		}
 
 		if (parameter.isMetaDataFlag()) {
