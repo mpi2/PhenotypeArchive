@@ -2,6 +2,8 @@ package uk.ac.ebi.phenotype.data.cda;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.enumeration.BatchClassification;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -14,6 +16,9 @@ import java.util.Set;
  * Created by jmason on 30/03/2015.
  */
 public class DataBatchesBySex {
+
+	private static final Logger logger = LoggerFactory.getLogger(DataBatchesBySex.class);
+
 
 	private Set<String> maleBatches = new HashSet<>();
 	private Set<String> femaleBatches = new HashSet<>();
@@ -48,9 +53,9 @@ public class DataBatchesBySex {
 	 */
 	public BatchClassification getBatchClassification() {
 
-		System.out.println("Male batches by sex: " + StringUtils.join(maleBatches, ", "));
-		System.out.println("Femle batches by sex: " + StringUtils.join(femaleBatches, ", "));
-		System.out.println("Both batches by sex: " + StringUtils.join(Sets.union(maleBatches, femaleBatches), ", "));
+		logger.debug("Male batches by sex: " + StringUtils.join(maleBatches, ", "));
+		logger.debug("Femle batches by sex: " + StringUtils.join(femaleBatches, ", "));
+		logger.debug("Both batches by sex: " + StringUtils.join(Sets.union(maleBatches, femaleBatches), ", "));
 
 		if ((maleBatches.size()==0 && femaleBatches.size()>0) ||
 			(femaleBatches.size()==0 && maleBatches.size()>0) ) {
