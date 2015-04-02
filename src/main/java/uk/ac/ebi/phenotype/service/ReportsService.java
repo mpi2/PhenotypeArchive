@@ -302,11 +302,11 @@ public class ReportsService {
     			long count = homsMap.get(colony);
     			if (homRes.containsKey(count)){
     				homRes.put(count, homRes.get(count) + 1);
+    			} else {
+    				homRes.put(count, 1);
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
-    			} else {
-    				homRes.put(count, 1);
     			}
     		}
     		for (String colony: hetsMap.keySet()){
@@ -316,11 +316,11 @@ public class ReportsService {
     			long count = hetsMap.get(colony);
     			if (hetRes.containsKey(count)){
     				hetRes.put(count, hetRes.get(count) + 1);
+    			} else {
+    				hetRes.put(count, 1);
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
-    			} else {
-    				hetRes.put(count, 1);
     			}
     		}
     		for (String colony: allMap.keySet()){
@@ -330,11 +330,11 @@ public class ReportsService {
     			long count = allMap.get(colony);
     			if (allRes.containsKey(count)){
     				allRes.put(count, allRes.get(count) + 1);
+    			} else {
+    				allRes.put(count, 1);
     				if (count > maxHitsPerColony){
     					maxHitsPerColony = count;
     				}
-    			} else {
-    				allRes.put(count, 1);
     			}
     		}
 
