@@ -45,14 +45,13 @@ import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.enumeration.BatchClassification;
+import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
-import uk.ac.ebi.phenotype.data.cda.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -1611,10 +1610,22 @@ public class ObservationService extends BasicService {
 		return null;
 	}
 
-	public DataBatchesBySex getBatches(String phenotypingCenter, String pipelineStableId, String parameterStableId, String strainAccessionId, String zygosity, String metadata_group, String alleleAccessionId) {
-		Integer batches = 0;
+	public DataBatchesBySex getExperimentalBatches(String phenotypingCenter, String pipelineStableId, String parameterStableId, String strainAccessionId, String zygosity, String metadataGroup, String alleleAccessionId) throws SolrServerException {
 
-		return new DataBatchesBySex();
+		SolrQuery q = new SolrQuery()
+			.setQuery("*:*")
+			.setRows(10000)
+			.setFields(ObservationDTO.SEX, ObservationDTO.DATE_OF_EXPERIMENT)
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
+			.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
+			.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
+			.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccessionId + "\"")
+			.addFilterQuery(ObservationDTO.ZYGOSITY + ":" + zygosity)
+			.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccessionId + "\"")
+			.addFilterQuery(ObservationDTO.METADATA_GROUP + ":\"" + metadataGroup + "\"");
+
+		return new DataBatchesBySex(solr.query(q).getBeans(ObservationDTO.class));
 	}
 
 

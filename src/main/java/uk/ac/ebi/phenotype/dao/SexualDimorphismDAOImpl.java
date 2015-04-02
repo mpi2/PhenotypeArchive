@@ -2,9 +2,11 @@ package uk.ac.ebi.phenotype.dao;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer;
 import uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer;
 
@@ -14,8 +16,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualDimorphismDAO {
+
+	@Autowired
+	ObservationService observationService;
 
 	public SexualDimorphismDAOImpl(SessionFactory sessionFactory) {
 
@@ -51,6 +55,16 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 				row.add(results.getString("male_mutants"));
 				row.add(results.getString("male_controls"));
 				row.add(results.getString("classification_tag"));
+
+				row.add(observationService.getExperimentalBatches(
+					results.getString("phenotyping_center")
+					, results.getString("pipeline_stable_id")
+					, results.getString("dependent_variable")
+					, results.getString("strain_accession_id")
+					, results.getString("experimental_zygosity")
+					, results.getString("metadata_group")
+					, results.getString("allele_acc")).getBatchClassification().toString());
+
 				row.add(results.getString("globalPValue"));
 				row.add(results.getString("standardEffectSize"));
 				row.add(getEffectDifference(results.getString("standardEffectSize")).toString());
@@ -102,6 +116,16 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 				row.add(results.getString("male_mutants"));
 				row.add(results.getString("male_controls"));
 				row.add(results.getString("classification_tag"));
+
+				row.add(observationService.getExperimentalBatches(
+					results.getString("phenotyping_center")
+					, results.getString("pipeline_stable_id")
+					, results.getString("dependent_variable")
+					, results.getString("strain_accession_id")
+					, results.getString("experimental_zygosity")
+					, results.getString("metadata_group")
+					, results.getString("allele_acc")).getBatchClassification().toString());
+
 				row.add(results.getString("globalPValue"));
 				row.add(results.getString("standardEffectSize"));
 				row.add(getEffectDifference(results.getString("standardEffectSize")).toString());
@@ -135,8 +159,8 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 			database = "";
 		}
 
-		String command = "SELECT distinct gf.symbol as gene_symbol, gf.acc as gene_acc, allele_acc, allele.symbol as allele_symbol, "
-			+ " experimental_zygosity, colony_id, allele_acc, pp.name as parameter, dependent_variable, female_mutants, female_controls, "
+		String command = "SELECT distinct bmstrain.strain_acc as strain_accession_id, sur.metadata_group, org.name as phenotyping_center, gf.symbol as gene_symbol, gf.acc as gene_acc, allele_acc, allele.symbol as allele_symbol, "
+			+ " experimental_zygosity, colony_id, allele_acc, ppp.stable_id as pipeline_stable_id, pp.name as parameter, dependent_variable, female_mutants, female_controls, "
 			+ " male_mutants, male_controls, null_test_significance as globalPValue, genotype_percentage_change as standardEffectSize, "
 			+ " gender_male_ko_pvalue as male_genotype_pvalue, gender_male_ko_estimate as male_genotype_estimate, "
 			+ " gender_male_ko_stderr_estimate male_genotype_stderr, gender_female_ko_pvalue as female_genotype_pvalue, "
@@ -145,9 +169,12 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 			+ " FROM " + database + "stats_unidimensional_results sur "
 			+ " INNER JOIN " + database + "biological_model_allele bma ON bma.biological_model_id = sur.experimental_id"
 			+ " INNER JOIN " + database + "biological_model_genomic_feature bmgf ON bmgf.biological_model_id = sur.experimental_id"
+			+ " INNER JOIN " + database + "biological_model_strain bmstrain ON bmstrain.biological_model_id = sur.control_id"
 			+ " INNER JOIN " + database + "phenotype_parameter pp on pp.id = sur.parameter_id"
+			+ " INNER JOIN " + database + "phenotype_pipeline ppp on ppp.id = sur.pipeline_id"
 			+ " INNER JOIN " + database + "allele on allele.acc = bma.allele_acc"
 			+ " INNER JOIN " + database + "genomic_feature gf on gf.acc = bmgf.gf_acc "
+			+ " INNER JOIN " + database + "organisation org on sur.organisation_id = org.id "
 			+ " WHERE sur.status like \"SUCCESS\" AND classification_tag not in (\"Both genders equally\", \"No significant change\", \"If phenotype is significant - can not classify effect\", \"If phenotype is significant it is for the one sex tested\")"
 			+ "	AND statistical_method not in (\"Wilcoxon rank sum test with continuity correction\") AND interaction_significance = 1 AND project_id not in (1,8)"
 			+ " AND pp.stable_id NOT IN (" + StringUtils.join(ObservationIndexer.weightParameters, ",") + ")"
@@ -180,6 +207,7 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 		header.add("male_mutants");
 		header.add("male_controls");
 		header.add("classification");
+		header.add("workflow");
 		header.add("globalPValue");
 		header.add("standardEffectSize");
 		header.add("effect_percentage_difference");
