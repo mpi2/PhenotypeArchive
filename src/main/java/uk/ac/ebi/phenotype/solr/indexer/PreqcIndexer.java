@@ -44,6 +44,9 @@ public class PreqcIndexer extends AbstractIndexer {
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
+    @Autowired
+    EncodedOrganisationConversionMap dccMapping;
+
     private static Map<String, String> geneSymbol2IdMapping = new HashMap<>();
     private static Map<String, AlleleDTO> alleleSymbol2NameIdMapping = new HashMap<>();
     private static Map<String, String> strainId2NameMapping = new HashMap<>();
@@ -221,7 +224,7 @@ public class PreqcIndexer extends AbstractIndexer {
                 }
 
                 // Skip if we already have this data postQC
-                phenotypingCenter = EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter) ? EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
+                phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
                 if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
                     continue;
                 }
@@ -282,8 +285,8 @@ public class PreqcIndexer extends AbstractIndexer {
                 }
                 o.setAlleleSymbol(allele);
 
-                if (EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter)) {
-                    o.setPhenotypingCenter(EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter));
+                if (dccMapping.dccCenterMap.containsKey(phenotypingCenter)) {
+                    o.setPhenotypingCenter(dccMapping.dccCenterMap.get(phenotypingCenter));
                 } else {
                     o.setPhenotypingCenter(phenotypingCenter);
                 }

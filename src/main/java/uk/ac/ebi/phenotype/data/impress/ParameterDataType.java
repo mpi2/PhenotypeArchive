@@ -15,6 +15,8 @@
  */
 package uk.ac.ebi.phenotype.data.impress;
 
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,17 +25,17 @@ import java.util.Map;
  * @author Gautier Koscielny
  * @since February 2013
  */
-
+@Component
 public class ParameterDataType {
 
-	public static final Map<String, String>MAPPING;
-	
-	static {
-		MAPPING = new HashMap<String, String>();
+	public Map<String, String> MAPPING = new HashMap<>();
+
+	public ParameterDataType() {
+
 		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
 		MAPPING.put("M-G-P_022_001_001", "FLOAT");
-		
 		MAPPING.put("ESLIM_006_001_035", "FLOAT");
-		
+
 	}
+
 }

@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author mrelac
  */
 public class IndexerMap {
+    private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
     private static List<AlleleDTO> alleles = null;
@@ -185,5 +186,21 @@ public class IndexerMap {
     public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
             Map<String, List<SangerImageDTO>> map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
             return map;
+    }
+    
+    /**
+     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
+     *
+     * @param phenodigm_core a valid solr connection
+     * @return a cached map of all mp terms to hp terms, indexed by mp id.
+     * 
+     * @throws IndexerException
+     */
+    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
+        if (mpToHpTermsMap == null) {
+            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
+        }
+        logger.info("mpToHpTermsMap size=" + mpToHpTermsMap.size());
+        return mpToHpTermsMap;
     }
 }

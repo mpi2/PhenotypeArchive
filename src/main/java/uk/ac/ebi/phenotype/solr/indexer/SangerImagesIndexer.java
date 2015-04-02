@@ -49,9 +49,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("sangerImagesIndexing")
     SolrServer sangerImagesCore;
-    
-    @Autowired
-    MpService mpService;
 
     private Map<Integer, DcfBean> dcfMap = new HashMap<>();
     private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
@@ -1280,7 +1277,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
             throws IndexerException {
 
         logger.info("populating Mp To Hp Term map");
-        mpToHpMap = mpService.getMpToHpTerms(phenodigmServer);
+        mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmServer);
     }
 
     private void populateMpToNode() {

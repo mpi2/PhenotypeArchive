@@ -1,22 +1,7 @@
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.eclipse.jetty.util.log.Log;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -24,15 +9,16 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
+
 public class GraphUtils {
 
 	private static final Logger log = Logger.getLogger(GraphUtils.class);
 	ExperimentService experimentService;
 
 
-    @Autowired
-    private static PhenotypePipelineDAO pipelineDAO;
-    
 	public GraphUtils(ExperimentService experimentService) {
 
 		this.experimentService = experimentService;
@@ -145,7 +131,8 @@ public class GraphUtils {
 			
 		}else{
 
-	        ObservationType observationTypeForParam = Utilities.checkType(parameter);
+			Utilities impressUtilities = new Utilities();
+	        ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
 	        
 	        switch (observationTypeForParam) {
 
