@@ -268,12 +268,12 @@ public class ChartsController {
 			model.addAttribute("pipeline", pipeline);
 			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
 			model.addAttribute("phenotypingCenter", phenotypingCenter);
-			}
-			return "chart";
 		}
-		experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
-
-		if (experiment != null) {
+		return "chart";
+	}
+		
+	experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+	if (experiment != null) {
 
 			if (pipeline == null) {
 				// if we don't already have the pipeline for this experiment
@@ -347,7 +347,6 @@ public class ChartsController {
 
 						default:
 
-							// Trying to graph Unknown observation type
 							log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
 							break;
 					}
