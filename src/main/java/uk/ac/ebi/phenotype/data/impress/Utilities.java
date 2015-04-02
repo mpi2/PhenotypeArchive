@@ -16,10 +16,13 @@
 package uk.ac.ebi.phenotype.data.impress;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -33,9 +36,6 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 public class Utilities {
 
 	protected static Logger logger = Logger.getLogger(Utilities.class);
-
-	@Autowired
-	ParameterDataType parameterDataType;
 
 	/**
 	 * Returns the observation type based on the parameter, when the parameter
@@ -52,7 +52,13 @@ public class Utilities {
 	 */
 	public ObservationType checkType(Parameter parameter) {
 
-		return checkType(parameter, null);
+		ObservationType ret=null;
+		try {
+			ret = checkType(parameter, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
 	}
 
 
@@ -73,13 +79,19 @@ public class Utilities {
 	 */
 	public ObservationType checkType(Parameter parameter, String value) {
 
+		Map<String, String> MAPPING = new HashMap<>();
+		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
+		MAPPING.put("M-G-P_022_001_001", "FLOAT");
+		MAPPING.put("ESLIM_006_001_035", "FLOAT");
+		MAPPING = Collections.unmodifiableMap(MAPPING);
+
 		ObservationType observationType = null;
 
 		Float valueToInsert = 0.0f;
 
 		String datatype = parameter.getDatatype();
-		if (parameterDataType.MAPPING.containsKey(parameter.getStableId())) {
-			datatype = parameterDataType.MAPPING.get(parameter.getStableId());
+		if (MAPPING.containsKey(parameter.getStableId())) {
+			datatype = MAPPING.get(parameter.getStableId());
 		}
 
 		if (parameter.isMetaDataFlag()) {
