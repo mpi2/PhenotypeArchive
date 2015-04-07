@@ -119,7 +119,7 @@ public class AbrChartAndTableProvider {
 		Map<String, JSONArray> lines = new LinkedMap();
 		
 		Integer decimalNumber = 2;
-		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaTranslucid50);
 		String empty = null;
 		JSONArray emptyObj = new JSONArray();
 		emptyObj.put("");
@@ -252,7 +252,6 @@ public class AbrChartAndTableProvider {
 					"    name: '" + label + "',"+
 					"    data: " + lines.get(label).toString() + "," +
 					"    zIndex: 1,"+
-					"	 marker: {radius: 5}," +
 					"    color: "+ colors.get(0) +", " +
 					"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:." + decimalNumber + "f}</b>' }" +
 					"  }, {" +
@@ -267,6 +266,8 @@ public class AbrChartAndTableProvider {
 				chart += " ]" +
 				"});" +
 			"});" ; 
+				
+				System.out.println(chart);
 		return chart;
 		}
 	

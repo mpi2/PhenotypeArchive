@@ -54,7 +54,7 @@
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
 
-                var tableHeader = "<thead><th>Allele symbol</th><th>Paper title</th><th>Journal</th><th>Date of publication</th><th>Grant agency</th><th>Paper link</th></thead>";
+                var tableHeader = "<thead><th>Allele symbol</th><th>Paper title</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
                 var tableCols = 6;
 
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");

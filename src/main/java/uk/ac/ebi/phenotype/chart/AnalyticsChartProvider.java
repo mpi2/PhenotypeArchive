@@ -161,7 +161,7 @@ public class AnalyticsChartProvider {
 		String chartString= 			
 			"$(function () {\n"+
 			"	Highcharts.setOptions({"+
-			"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox) + "});" +
+			"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque) + "});" +
 		    "    $('#"+ containerId +"').highcharts({\n"+
 		    "        chart: {\n"+
 		    "            type: 'column',\n"+
@@ -340,7 +340,7 @@ public class AnalyticsChartProvider {
 	
 	public String getSlicedPieChart(Map<String, Integer> slicedOut, Map<String, Integer> notSliced, String title, String containerId){
 			
-			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);			
+			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);			
 			JSONArray data = new JSONArray();
 			try {
 				for ( Entry<String, Integer> entry : slicedOut.entrySet()){
