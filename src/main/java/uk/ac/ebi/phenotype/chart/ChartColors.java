@@ -126,21 +126,21 @@ public class ChartColors {
 		
 		Double alphaMutants = alpha;
 		Double alphaControl = alpha;
+		Double alphaControlLine = alpha;
 		
 		if (alpha == null) {
 			alphaMutants = ChartColors.alphaTranslucid70;
 			alphaControl = ChartColors.alphaTranslucid20;
+			alphaControlLine = ChartColors.alphaTranslucid50;
 		}
 		
 		String symbol="circle";
 		String lineColor=ChartColors.getMutantColor(alphaMutants);
-		String color=ChartColors.getMutantColor(alphaMutants);
-		String fillColor=color;
+		String fillColor=ChartColors.getMutantColor(alphaMutants);
 		
 		if (zygosityType == null) {// then its WT
-			color = ChartColors.getWTColor(alphaControl);
 			fillColor = ChartColors.getWTColor(alphaControl);
-			lineColor = color;
+			lineColor = ChartColors.getWTColor(alphaControlLine);
 		}
 		
 		if (sex.equals(SexType.male)) {
@@ -148,11 +148,11 @@ public class ChartColors {
 		}
 		
 		String marker = "marker:{"
-			+ "symbol: '" + symbol + "', "
-			+ "fillColor:  " + fillColor + ","
+			+ " symbol: '" + symbol + "', "
+			+ " fillColor:  " + fillColor + ","
 			+ " lineWidth: 1,"
 			+ " lineColor: " + lineColor + " "
-			+ " }";
+			+ "}";
 		return marker;
 	}
 	
