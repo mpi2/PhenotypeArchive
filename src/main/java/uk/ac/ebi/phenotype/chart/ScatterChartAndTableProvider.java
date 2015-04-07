@@ -86,10 +86,10 @@ public class ScatterChartAndTableProvider {
 			+ "        scatter: { "
 			+ "            marker: { "
 			+ "                radius: 5, "
-			+ "              states: { "
+			+ "                states: { "
 			+ "                hover: { "
 			+ "                    enabled: true, "
-			+ "                   lineColor: 'rgb(100,100,100)' "
+			+ "                    lineColor: 'rgb(100,100,100)' "
 			+ "               } "
 			+ "           } "
 			+ "       }, "
@@ -111,6 +111,7 @@ public class ScatterChartAndTableProvider {
 			series.toString()
 			+ "    }); "
 			+ "	}); ";
+				
 		return chartString;
 	}
 

@@ -36,6 +36,7 @@ public class ChartColors {
 	public static final Double alphaOpaque = 1.0;
 	public static final Double alphaTranslucid70 = 0.7;
 	public static final Double alphaTranslucid50 = 0.5;
+	public static final Double alphaTranslucid20 = 0.2;
 
 	private static String wtColor="239, 123, 11";
 	private static String mutantColor="9, 120, 161";	
@@ -122,29 +123,37 @@ public class ChartColors {
 	 * @return
 	 */
 	public static String getMarkerString(SexType sex, ZygosityType zygosityType, Double alpha) {
-		if(alpha==null) {
-			alpha=ChartColors.alphaTranslucid70;
-		}
-		String symbol="circle";
-		String lineColor=ChartColors.getMutantColor(alpha);
-		String color=ChartColors.getMutantColor(alpha);
-		String fillColor=color;
-		if(zygosityType==null) {// then its WT
-			color=ChartColors.getWTColor(alpha);
-			fillColor="\'white\'";
-			lineColor=color;
+		
+		Double alphaMutants = alpha;
+		Double alphaControl = alpha;
+		Double alphaControlLine = alpha;
+		
+		if (alpha == null) {
+			alphaMutants = ChartColors.alphaTranslucid70;
+			alphaControl = ChartColors.alphaTranslucid20;
+			alphaControlLine = ChartColors.alphaTranslucid50;
 		}
 		
-		if(sex.equals(SexType.male) ) {
+		String symbol="circle";
+		String lineColor=ChartColors.getMutantColor(alphaMutants);
+		String fillColor=ChartColors.getMutantColor(alphaMutants);
+		
+		if (zygosityType == null) {// then its WT
+			fillColor = ChartColors.getWTColor(alphaControl);
+			lineColor = ChartColors.getWTColor(alphaControlLine);
+		}
+		
+		if (sex.equals(SexType.male)) {
 			symbol="triangle";
 		}
 		
 		String marker = "marker:{"
-			+ "symbol: '" + symbol
-			+ "', fillColor:  " + fillColor + "," +
-			" lineWidth: 1,"
+			+ " symbol: '" + symbol + "', "
+			+ " fillColor:  " + fillColor + ","
+			+ " lineWidth: 1,"
+			+ " radius: 3,"
 			+ " lineColor: " + lineColor + " "
-			+ " }";
+			+ "}";
 		return marker;
 	}
 	

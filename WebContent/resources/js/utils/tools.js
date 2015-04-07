@@ -2419,7 +2419,6 @@
     var DOWNLOAD_WARNING_THRESHOLD = 60000;                                     // count value for alleleref page was 32104 as of 07-Apr-2015 and the download is instantaneous (mrelac).
     function confirmDownloadIfExceedsThreshold(count) {
         var retVal = true;
-        alert(count);
         if (count > DOWNLOAD_WARNING_THRESHOLD) {
             retVal = confirm("Download big dataset would take a while, would you like to proceed?");
         }
