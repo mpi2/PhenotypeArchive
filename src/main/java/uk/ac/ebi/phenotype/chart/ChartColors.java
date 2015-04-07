@@ -151,6 +151,7 @@ public class ChartColors {
 			+ " symbol: '" + symbol + "', "
 			+ " fillColor:  " + fillColor + ","
 			+ " lineWidth: 1,"
+			+ " radius: 3,"
 			+ " lineColor: " + lineColor + " "
 			+ "}";
 		return marker;
