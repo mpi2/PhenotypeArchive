@@ -240,9 +240,9 @@ public class UnidimensionalChartAndTableProvider {
 			}
 			
 			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";
-			String color = ChartColors.getMutantColor(ChartColors.alphaBox);
+			String color = ChartColors.getMutantColor(ChartColors.alphaOpaque);
 			if (chartsSeriesElement.getControlOrZygosityString().equals("WT")) {
-				color = ChartColors.getWTColor(ChartColors.alphaScatter);
+				color = ChartColors.getWTColor(ChartColors.alphaTranslucid70);
 			}
 
 			boxPlotObject = "{" + " color: " + color + " ," + ""
@@ -272,7 +272,7 @@ public class UnidimensionalChartAndTableProvider {
 			column++;
 		}
 		
-		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
+		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
