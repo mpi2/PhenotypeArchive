@@ -127,6 +127,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
+
 		try {
 
 			server.deleteByQuery("*:*");

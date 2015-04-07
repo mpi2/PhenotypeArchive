@@ -267,7 +267,6 @@ public class AbrChartAndTableProvider {
 				"});" +
 			"});" ; 
 				
-				System.out.println(chart);
 		return chart;
 		}
 	
