@@ -1252,37 +1252,94 @@ public class FileExportController {
         }
         return rowData;
     }
+    
+    /**
+     * Returns a comma-separated, single-quoted list of pmid values to omit.
+     * This is meant to be a filter to omit any common distinct papers. Rows
+     * with more than MAX_ROWS distinct papers are excluded from the download
+     * row set.
+     *
+     * @return a comma-separated list of pmid values to omit.
+     */
+    private String getPmidsToOmit() throws SQLException {
+        StringBuilder retVal = new StringBuilder();
+        
+        // Filter to omit any common distinct papers. Rows with more than MAX_ROWS distinct papers are excluded.
+        final int MAX_PAPERS = 140;
+        
+        Connection connection = admintoolsDataSource.getConnection();
+        String query = "SELECT pmid FROM allele_ref ar GROUP BY pmid HAVING (SELECT count(pmid)) > " + MAX_PAPERS;
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                if (retVal.length() > 0) {
+                    retVal.append(", ");
+                }
+                retVal.append("'").append(rs.getString("pmid")).append("'");
+            }
+            rs.close();
+            ps.close();
+            connection.close();
+        } catch (SQLException e) {
+            log.error("getPmidsToOmit() call failed: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        
+        return retVal.toString();
+    }
 
     private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode) throws SQLException {
-
-        Connection conn = admintoolsDataSource.getConnection();
-        String like = "%" + sSearch + "%";
-
-        String query = null;
-
-        if ( ! sSearch.isEmpty()) {
-            query = "select * from allele_ref where reviewed = 'yes' and "
-                    + " title like ?"
-                    + " or journal like ?"
-                    + " or acc like ?"
-                    + " or symbol like ?"
-                    + " or pmid like ?"
-                    + " or date_of_publication like ?"
-                    + " or grant_id like ?"
-                    + " or agency like ?"
-                    + " or acronym like ?"
-                    + " order by symbol desc"
-                    + " limit ?, ?";
-        } else {
-            query = "select * from allele_ref where reviewed = 'yes' order by symbol desc limit ?,?";
-        }
-
-		//System.out.println("query: "+ query);
+        
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
-
+        Connection connection = admintoolsDataSource.getConnection();
+        String pmidsToOmit = getPmidsToOmit();
+        String notInClause = (pmidsToOmit.isEmpty() ? "" : "  AND pmid NOT IN (" + pmidsToOmit + ")\n");
+        String searchClause = "";
+        if ( ! sSearch.isEmpty()) {
+            searchClause = 
+                "  AND (\n"
+                + "     title               LIKE ?\n"
+                + "  OR journal             LIKE ?\n"
+                + "  OR acc                 LIKE ?\n"
+                + "  OR symbol              LIKE ?\n"
+                + "  OR pmid                LIKE ?\n"
+                + "  OR date_of_publication LIKE ?\n"
+                + "  OR grant_id            LIKE ?\n"
+                + "  OR agency              LIKE ?\n"
+                + "  OR acronym             LIKE ?)\n";
+        }
+        
+        String whereClause =
+                "WHERE\n"
+              + "      reviewed = 'yes'\n"
+              + "  AND symbol != ''\n"
+              + notInClause
+              + searchClause;
+        
+        String query =
+                "SELECT\n"
+              + "  GROUP_CONCAT(DISTINCT symbol    SEPARATOR \"|\") AS alleleSymbols\n"
+              + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|\") AS alleleIds\n"
+              + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|\") AS gaccs\n"
+              + ", GROUP_CONCAT(DISTINCT name      SEPARATOR \"|\") AS alleleNames\n"
+              + ", title\n"
+              + ", journal\n"
+              + ", pmid\n"
+              + ", date_of_publication\n"
+              + ", GROUP_CONCAT(DISTINCT grant_id  SEPARATOR \"|\") AS grantIds\n"
+              + ", GROUP_CONCAT(DISTINCT agency    SEPARATOR \"|\") AS agencies\n"
+              + ", GROUP_CONCAT(DISTINCT paper_url SEPARATOR \"|\") AS paperUrls\n"
+              + "FROM allele_ref AS ar\n"
+              + whereClause
+              + "GROUP BY pmid\n"
+              + "ORDER BY date_of_publication DESC\n";
+        
         List<String> rowData = new ArrayList<>();
-
-        String fields = "MGI allele symbol"
+        String fields =
+                    "MGI allele symbol"
                 + "\tMGI allele id"
                 + "\tIMPC gene link"
                 + "\tMGI allele name"
@@ -1293,74 +1350,70 @@ public class FileExportController {
                 + "\tGrant id"
                 + "\tGrant agency"
                 + "\tPaper link";
-
-        rowData.add(fields);
-
-        try (PreparedStatement p2 = conn.prepareStatement(query)) {
-            if ( ! sSearch.isEmpty()) {
-                for (int i = 1; i < 12; i ++) {
-                    p2.setString(i, like);
-                    if (i == 10) {
-                        p2.setInt(i, iDisplayStart);
-                    } else if (i == 11) {
-                        p2.setInt(i, iDisplayLength);
-                    }
+        rowData.add(fields);                                                    // Add the heading.
+        
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            if ( ! searchClause.isEmpty()) {
+                // Replace the 9 parameter holder ? with the values.
+                String like = "%" + sSearch + "%";
+                for (int i = 0; i < 9; i++) {                                   // If a search clause was specified, load the parameters.
+                    ps.setString(i + 1, like);
                 }
-            } else {
-                p2.setInt(1, iDisplayStart);
-                p2.setInt(2, iDisplayLength);
             }
-
-            ResultSet resultSet = p2.executeQuery();
-
+        
+            ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
-
-                List<String> data = new ArrayList<String>();
-
-                //rowData.add(resultSet.getString("acc"));
-                String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
-                data.add(alleleSymbol);
-
-                data.add(resultSet.getString("acc"));
-
-                String gacc = resultSet.getString("gacc");  // gene id of allele
-                String glLink = gacc.equals("") ? "" : impcGeneBaseUrl + gacc;
-                data.add(glLink);
-
-                data.add(resultSet.getString("name"));
-
-                data.add(resultSet.getString("title"));
-                data.add(resultSet.getString("journal"));
-
-                //rowData.add(resultSet.getString("name"));
-                data.add(resultSet.getString("pmid"));
-                data.add(resultSet.getString("date_of_publication"));
-                data.add(resultSet.getString("grant_id"));
-                data.add(resultSet.getString("agency"));
-
-                String url = resultSet.getString("paper_url");
-                if (url.equals("")) {
-                    data.add(url);
-                } else {
-                    String[] urls = resultSet.getString("paper_url").split(",");
-                    List<String> links = new ArrayList<>();
-                    for (int i = 0; i < urls.length; i ++) {
-                        links.add(urls[i]);
+                List<String> row = new ArrayList();
+                row.add(resultSet.getString("alleleSymbols"));
+                row.add(resultSet.getString("alleleIds"));
+                
+                String gacc = resultSet.getString("gaccs").trim();
+                String geneLinks = "";
+                if ( ! gacc.isEmpty()) {
+                    String[] parts = gacc.split("\\|");
+                    for (String s : parts) {
+                        if ( ! geneLinks.isEmpty()) {
+                            geneLinks += "|";
+                        }
+                        geneLinks += impcGeneBaseUrl + s.trim();
                     }
-                    data.add(StringUtils.join(links, "|"));
                 }
+                row.add(geneLinks);
+                row.add(resultSet.getString("alleleNames"));
+                row.add(resultSet.getString("title"));
+                row.add(resultSet.getString("journal"));
+                row.add(resultSet.getString("pmid"));
+                row.add(resultSet.getString("date_of_publication"));
+                row.add(resultSet.getString("grantIds"));
+                row.add(resultSet.getString("agencies"));
+                
+                String paperUrlsSource = resultSet.getString("paperUrls").trim();
+                String paperUrls = "";
+                if ( ! paperUrlsSource.isEmpty()) {
+                    String[] parts = paperUrlsSource.split(",");
+                    for (String s : parts) {
+                        if (! paperUrls.isEmpty()) {
+                            paperUrls += "|";
+                        }
+                        paperUrls += s.trim();
+                    }
+                }
+                row.add(paperUrls);
 
-                rowData.add(StringUtils.join(data, "\t"));
+                rowData.add(StringUtils.join(row, "\t"));
             }
+            resultSet.close();
+            ps.close();
+            connection.close();
+            
         } catch (Exception e) {
+            log.error("download rowData extract failed: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
-
-        conn.close();
-        //System.out.println("Rows returned: "+rowData.size());
+        
         return rowData;
     }
-
+    
     private List<String> composeAlleleRefEditExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode) throws SQLException {
 
         Connection conn = admintoolsDataSource.getConnection();

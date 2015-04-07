@@ -11,6 +11,9 @@
 
     <context:annotation-config />
 
+
+    <bean id="dccConvertMap" class="uk.ac.ebi.phenotype.data.imits.EncodedOrganisationConversionMap" />
+
     <!-- Get the datasources from the filesystem overrides -->
     <!-- Creates a MySQL Datasource -->
     <bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
