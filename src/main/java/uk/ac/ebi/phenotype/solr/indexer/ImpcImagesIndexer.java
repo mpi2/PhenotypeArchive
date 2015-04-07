@@ -67,6 +67,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 
+	private String impcMediaBaseUrl;
+	private String impcAnnotationBaseUrl;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -101,7 +103,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void run() throws IndexerException {
-
 		int count = 0;
 
 		logger.info("running impc_images indexer");
@@ -125,6 +126,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
+		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
 		try {
 
@@ -163,7 +165,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						// /webgateway/archived_files/download/
 						if(downloadFilePath.endsWith(".pdf")){
 							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
-							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/webclient/annotation/" + omeroId);
+							imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/webclient/annotation/" + omeroId);
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + 119501);//pdf thumnail placeholder
 						}else{
 							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);

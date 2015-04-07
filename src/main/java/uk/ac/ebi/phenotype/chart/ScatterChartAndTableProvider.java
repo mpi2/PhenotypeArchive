@@ -86,10 +86,10 @@ public class ScatterChartAndTableProvider {
 			+ "        scatter: { "
 			+ "            marker: { "
 			+ "                radius: 5, "
-			+ "              states: { "
+			+ "                states: { "
 			+ "                hover: { "
 			+ "                    enabled: true, "
-			+ "                   lineColor: 'rgb(100,100,100)' "
+			+ "                    lineColor: 'rgb(100,100,100)' "
 			+ "               } "
 			+ "           } "
 			+ "       }, "
@@ -111,6 +111,9 @@ public class ScatterChartAndTableProvider {
 			series.toString()
 			+ "    }); "
 			+ "	}); ";
+				
+		System.out.println("charty here " + chartString);
+		
 		return chartString;
 	}
 
@@ -124,10 +127,11 @@ public class ScatterChartAndTableProvider {
 		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
 		
 		for (SexType sex : experiment.getSexes()) {
+			
 			List<DiscreteTimePoint> controlDataPoints = new ArrayList<>();
 			JSONObject controlJsonObject=new JSONObject();
 			JSONArray dataArray=new JSONArray();
-			int colorIndex=0;
+			
 			try {
 				controlJsonObject.put("name", WordUtils.capitalize(sex.name())+" "+"WT");				
 				JSONObject markerObject=ChartColors.getMarkerJSONObject(sex, null);
@@ -135,6 +139,7 @@ public class ScatterChartAndTableProvider {
 			} catch (JSONException e) {
 			e.printStackTrace();
 			}
+			
 			for (ObservationDTO control : experiment.getControls(sex)) {	
 				
 				String docGender = control.getSex();
@@ -146,54 +151,55 @@ public class ScatterChartAndTableProvider {
 				}
 				
 			}
+			
 			try {
-				controlJsonObject.put("data", dataArray);
-				//if we want opacity not 100% we can use code like below?
-				//controlJsonObject.put("color", "rgba(223, 83, 83, .5)");
-				
+				controlJsonObject.put("data", dataArray);				
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+			
 			series.put(controlJsonObject);
 
-			logger.debug("finished putting control to data points");
 			TimeSeriesStats stats = new TimeSeriesStats();
-			List<DiscreteTimePoint> controlMeans = stats
-					.getMeanDataPoints(controlDataPoints);
-
+			List<DiscreteTimePoint> controlMeans = stats.getMeanDataPoints(controlDataPoints);
 			lines.put(WordUtils.capitalize(sex.name())+" WT", controlMeans);
+			logger.debug("finished putting control to data points");			
+		}
+		
+		for (SexType sex : experiment.getSexes()) {
+			JSONObject expZyg = new JSONObject();
+			JSONArray expDataArray = new JSONArray();
 			
-			JSONObject expZyg=new JSONObject();
-			JSONArray expDataArray=new JSONArray();
 			for (ZygosityType zType : experiment.getZygosities()) {
-				colorIndex++;
+				
 				try {
 					expZyg.put("name", WordUtils.capitalize(sex.name()) + " " + WordUtils.capitalize(zType.getShortName()));
 					JSONObject markerObject = ChartColors.getMarkerJSONObject(sex, zType);
-					expZyg.put("marker", markerObject);
-					
+					expZyg.put("marker", markerObject);					
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
+				
 				Set<ObservationDTO> expObservationsSet = Collections.emptySet();
+				
 				if (zType.equals(ZygosityType.heterozygote)) {
 					expObservationsSet = experiment.getHeterozygoteMutants();
 				}
-                                if (zType.equals(ZygosityType.hemizygote)) {
+                if (zType.equals(ZygosityType.hemizygote)) {
 					expObservationsSet = experiment.getHemizygoteMutants();
-				}
+				}                                
 				if (zType.equals(ZygosityType.homozygote)) {
 					expObservationsSet = experiment.getHomozygoteMutants();
 				}
 
 				for (ObservationDTO expDto : expObservationsSet) {
-					// get the attributes of this data point
 					String docGender = expDto.getSex();
 					if (SexType.valueOf(docGender).equals(sex)) {
 						Float dataPoint = expDto.getDataPoint();
 						addScatterPoint(expDataArray, expDto, dataPoint);
 					}
 				}
+				
 				try {
 					expZyg.put("data", expDataArray);
 				} catch (JSONException e) {
@@ -201,7 +207,7 @@ public class ScatterChartAndTableProvider {
 				}
 				series.put(expZyg);
 			}
-		}// end of gender
+		}
 
 		ScatterChartAndData scatterChartAndData = new ScatterChartAndData();
 		String chartString = createScatter(experiment, yMin, yMax, experimentNumber, parameter, series);
