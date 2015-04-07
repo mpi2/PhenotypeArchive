@@ -2407,6 +2407,26 @@
         });
     }
 
+    /**
+    * if count &gt; DOWNLOAD_WARNING_THRESHOLD, presents a confirm() box to the
+    * user warning them that the download may take a long time and giving them
+    * the ability to opt out.
+    * 
+    * count - value above which the confirm() box is run. Returns false if
+    * <code>count</count> &gt; DOWNLOAD_WARNING_THRESHOLD and user has canceled
+    * the operation; true otherwise.
+    */
+    var DOWNLOAD_WARNING_THRESHOLD = 60000;                                     // count value for alleleref page was 32104 as of 07-Apr-2015 and the download is instantaneous (mrelac).
+    function confirmDownloadIfExceedsThreshold(count) {
+        var retVal = true;
+        alert(count);
+        if (count > DOWNLOAD_WARNING_THRESHOLD) {
+            retVal = confirm("Download big dataset would take a while, would you like to proceed?");
+        }
+        
+        return retVal;
+    }
+    
     function initGridExporter(thisButt, conf) {
         var fileType = thisButt.text();
         var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';
@@ -2431,13 +2451,7 @@
 	                timeout: 5000,
 	                success: function(json) {
 	                    // prewarn users if dataset is big
-	                    if (json.response.numFound > 3000) {
-	                        //console.log(json.response.numFound);
-	                        if (confirm("Download big dataset would take a while, would you like to proceed?")) {
-	                            $(form).appendTo('body').submit().remove();
-	                        }
-	                    }
-	                    else {
+                            if (confirmDownloadIfExceedsThreshold(json.response.numFound)) {
 	                        $(form).appendTo('body').submit().remove();
 	                    }
 	                },
@@ -2472,13 +2486,7 @@
             timeout: 5000,
             success: function(count) {
                 // prewarn users if dataset is big
-                if (count > 3000) {
-                    //console.log(json.response.numFound);
-                    if (confirm("Download big dataset would take a while, would you like to proceed?")) {
-                        $(form).appendTo('body').submit().remove();
-                    }
-                }
-                else {
+                if (confirmDownloadIfExceedsThreshold(count)) {
                     $(form).appendTo('body').submit().remove();
                 }
             },
