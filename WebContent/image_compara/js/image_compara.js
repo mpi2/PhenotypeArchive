@@ -1,7 +1,7 @@
 $(document).ready(function(){						
 	
-console.log('comparator js ready');
-console.log('window.location='+window.location);
+//console.log('comparator js ready');
+//console.log('window.location='+window.location);
 //mediaBaseUrl=https://dev.mousephenotype.org/data/media
 //var mediaBaseUrl='http://wwwdev.ebi.ac.uk/mi/media/omero/';
 //var solrUrl='//www.ebi.ac.uk/mi/impc/beta/solr';
