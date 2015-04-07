@@ -68,7 +68,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 
 	private String impcMediaBaseUrl;
-	private static String impcAnnotationBaseUrl;
+	private String impcAnnotationBaseUrl;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -103,7 +103,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void run() throws IndexerException {
-		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 		int count = 0;
 
 		logger.info("running impc_images indexer");
@@ -127,6 +126,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
+		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
 		try {
 
