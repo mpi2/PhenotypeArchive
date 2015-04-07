@@ -282,7 +282,7 @@ public class CategoricalChartAndTableProvider {
 											// underscore so valid javascritp
 											// variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
-		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
 		+ "colors:" + colors + ", "
 		+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
@@ -402,7 +402,7 @@ public class CategoricalChartAndTableProvider {
 		
 		//impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 
-		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart_"
 		+ chartId

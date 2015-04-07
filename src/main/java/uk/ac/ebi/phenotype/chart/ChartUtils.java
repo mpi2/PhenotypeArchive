@@ -6,11 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.json.JSONArray;
 
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -129,5 +131,10 @@ public class ChartUtils {
 			return res;
 		}
 		
+		public static String getLabel(ZygosityType zyg, SexType sex){
+			
+			return StringUtils.capitalize(sex.getName()) + " " + (zyg == null ? "WT" : StringUtils.capitalize(zyg.getName())) ;
+		}
+	
 		
 }

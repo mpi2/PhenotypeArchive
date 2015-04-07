@@ -165,7 +165,7 @@ public class TimeSeriesChartAndTableProvider {
 				if(key.contains("Female")) {
 					sexType=SexType.female;
 				}
-				String colorString=ChartColors.getRgbaString(sexType, i, ChartColors.alphaScatter);
+				String colorString=ChartColors.getRgbaString(sexType, i, ChartColors.alphaTranslucid70);
 				object.put("color", colorString);
 
 				JSONObject errorBarsObject = null;
@@ -258,7 +258,7 @@ public class TimeSeriesChartAndTableProvider {
 				escapedErrorString + "," + errorBarsToolTip);
 		String axisFontSize = "15";
 		
-		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaScatter);
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaTranslucid70);
 //		JSONArray colorArray = new JSONArray(colors);
 		
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
@@ -310,10 +310,10 @@ public class TimeSeriesChartAndTableProvider {
 				
 				String colorString;
 				if (key.equalsIgnoreCase("Control")){
-					colorString = ChartColors.getDefaultControlColor(ChartColors.alphaScatter);
+					colorString = ChartColors.getDefaultControlColor(ChartColors.alphaTranslucid70);
 				}
 				else {
-					colorString = ChartColors.getRgbaString(SexType.male, i, ChartColors.alphaScatter);
+					colorString = ChartColors.getRgbaString(SexType.male, i, ChartColors.alphaTranslucid70);
 				}
 				object.put("color", colorString);
 				
@@ -392,7 +392,7 @@ public class TimeSeriesChartAndTableProvider {
 				escapedErrorString + "," + errorBarsToolTip);
 		String axisFontSize = "15";
 		
-		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaScatter);
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaTranslucid70);
 //		JSONArray colorArray = new JSONArray(colors);
 		
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 

@@ -6,12 +6,14 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.mousephenotype.www.testing.model.GraphCatTable.Sex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
@@ -48,12 +50,15 @@ public class AbrChartAndTableProvider {
 	ImpressService impressService;
 
 	
-	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession){
+	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList, 
+			Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession){
 
     	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
-    	data.put("control", new ArrayList<UnidimensionalStatsObject>() );
+    	data.put(ChartUtils.getLabel(null,  SexType.female), new ArrayList<UnidimensionalStatsObject>() );
+    	data.put(ChartUtils.getLabel(null,  SexType.male), new ArrayList<UnidimensionalStatsObject>() );
     	for (String zygosity: zyList){
-        	data.put(zygosity, new ArrayList<UnidimensionalStatsObject>() );
+        	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.male), new ArrayList<UnidimensionalStatsObject>() );
+        	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.female), new ArrayList<UnidimensionalStatsObject>() );
     	}
     	
 		UnidimensionalStatsObject emptyObj = new UnidimensionalStatsObject();
@@ -65,28 +70,34 @@ public class AbrChartAndTableProvider {
     	String unit = pipelineDAO.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnit();
 
     	for (String parameterStableId : Constants.ABR_PARAMETERS){
+    		
     		Integer paramId = pipelineDAO.getParameterByStableId(parameterStableId).getId();
     		try {
     			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenterId, strain, metadataGroup, alleleAccession);
 			    
     			if (experiment != null){
 			    	zygosities = experiment.getZygosities();
+			    	Set<SexType> sexes = experiment.getSexes();
 					if (procedureUrl == null){
 						Procedure proc = pipelineDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
 						if (proc != null) {
 							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
 						}
 					}
-					data.get("control").add(getMeans("control", experiment));
-					for (ZygosityType z : zygosities){
-						data.get(z.toString()).add(getMeans(z.toString(), experiment));
+					for (SexType sex : sexes){
+						data.get(ChartUtils.getLabel(null, sex)).add(getMeans( sex, null, experiment));
+						for (ZygosityType z : zygosities){
+							data.get(ChartUtils.getLabel(z, sex)).add(getMeans(sex, z, experiment));
+						}
 					}
 				}
 				else {
 					emptyObj.setLabel(pipelineDAO.getParameterByStableId(parameterStableId).getName());
-					data.get("control").add(emptyObj);
+			    	data.get(ChartUtils.getLabel(null,  SexType.female)).add(emptyObj);
+			    	data.get(ChartUtils.getLabel(null,  SexType.male)).add(emptyObj);
 					for (String z : zyList){
-						data.get(z).add(emptyObj);
+						data.get(ChartUtils.getLabel(ZygosityType.valueOf(z),  SexType.male)).add(emptyObj);
+						data.get(ChartUtils.getLabel(ZygosityType.valueOf(z),  SexType.female)).add(emptyObj);
 					}
 				}
     		} catch (SolrServerException | IOException | URISyntaxException | SpecificExperimentException e) {
@@ -98,6 +109,7 @@ public class AbrChartAndTableProvider {
 		return getCustomChart(data, procedureUrl, unit, zygosities);
 	}
 	
+	
 	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities){
 				
 		JSONArray categories = new JSONArray();
@@ -107,12 +119,16 @@ public class AbrChartAndTableProvider {
 		Map<String, JSONArray> lines = new LinkedMap();
 		
 		Integer decimalNumber = 2;
-		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaTranslucid50);
 		String empty = null;
 		JSONArray emptyObj = new JSONArray();
 		emptyObj.put("");
 		emptyObj.put(empty);
 		emptyObj.put(empty);
+		
+		List<SexType> sexes = new ArrayList<>();
+		sexes.add(SexType.male);
+		sexes.add(SexType.female);
 		
 		for (String abrId: Constants.ABR_PARAMETERS){
 			categories.put(pipelineDAO.getParameterByStableId(abrId).getName());
@@ -123,67 +139,78 @@ public class AbrChartAndTableProvider {
 			}
 		}
 		try {
-			boolean first = true;
-			
-			for (UnidimensionalStatsObject c : data.get("control")){
-
-				JSONArray obj = new JSONArray();
-				obj.put(c.getLabel());
-				obj.put(c.getMean());
-				JSONArray sdobj = new JSONArray();
-				sdobj.put(c.getLabel());
-				if (c.getMean() != null){
-					sdobj.put(c.getMean() - c.getSd());
-					sdobj.put(c.getMean() + c.getSd());
-				}else {
-					sdobj.put(empty);
-					sdobj.put(empty);
-				}
+						
+			for (SexType sex : sexes){
 				
-				if(first) {
-					standardDeviation.put("control", new JSONArray());
-					lines.put("control", new JSONArray());
-					first = false;
-					lines.get("control").put(obj);
-					lines.get("control").put(emptyObj);
-					standardDeviation.get("control").put(sdobj);
-					standardDeviation.get("control").put(emptyObj);
-				} else {
-					lines.get("control").put(obj);
-					standardDeviation.get("control").put(sdobj);
-				}
-			}
-			for (ZygosityType zyg : zygosities){			
-				first = true;
-				for (UnidimensionalStatsObject hom : data.get(zyg.toString())){
+				boolean first = true;
+				String label = ChartUtils.getLabel(null, sex);
+				
+				for (UnidimensionalStatsObject c : data.get(label)){
+					
 					JSONArray obj = new JSONArray();
-					obj.put(hom.getLabel());
-					obj.put(hom.getMean());
+					obj.put(c.getLabel());
+					obj.put(c.getMean());
 					
 					JSONArray sdobj = new JSONArray();
-					sdobj.put(hom.getLabel());
+					sdobj.put(c.getLabel());
 					
-					if (hom.getMean() != null){
-						sdobj.put(hom.getMean() - hom.getSd());
-						sdobj.put(hom.getMean() + hom.getSd());
+					if (c.getMean() != null){
+						sdobj.put(c.getMean() - c.getSd());
+						sdobj.put(c.getMean() + c.getSd());
 					}else {
 						sdobj.put(empty);
 						sdobj.put(empty);
 					}
+					
 					if(first) {
+						standardDeviation.put(label, new JSONArray());
+						lines.put(label, new JSONArray());
 						first = false;
-						standardDeviation.put(zyg.toString(), new JSONArray());
-						lines.put(zyg.toString(), new JSONArray());
-						// add empty datapoint too to keep the click separated
-						lines.get(zyg.toString()).put(obj);
-						lines.get(zyg.toString()).put(emptyObj);
-						standardDeviation.get(zyg.toString()).put(sdobj);
-						standardDeviation.get(zyg.toString()).put(emptyObj);
+						lines.get(label).put(obj);
+						lines.get(label).put(emptyObj);
+						standardDeviation.get(label).put(sdobj);
+						standardDeviation.get(label).put(emptyObj);
 					} else {
-						lines.get(zyg.toString()).put(obj);
-						standardDeviation.get(zyg.toString()).put(sdobj);
+						lines.get(label).put(obj);
+						standardDeviation.get(label).put(sdobj);
 					}
-	
+				}
+				
+				for (ZygosityType zyg : zygosities){			
+					
+					first = true;
+					label = ChartUtils.getLabel(zyg, sex);
+					
+					for (UnidimensionalStatsObject mutant : data.get(label)){
+						JSONArray obj = new JSONArray();
+						obj.put(mutant.getLabel());
+						obj.put(mutant.getMean());
+						
+						JSONArray sdobj = new JSONArray();
+						sdobj.put(mutant.getLabel());
+						
+						if (mutant.getMean() != null){
+							sdobj.put(mutant.getMean() - mutant.getSd());
+							sdobj.put(mutant.getMean() + mutant.getSd());
+						}else {
+							sdobj.put(empty);
+							sdobj.put(empty);
+						}
+						if(first) {
+							first = false;
+							standardDeviation.put(label, new JSONArray());
+							lines.put(label, new JSONArray());
+							// add empty datapoint too to keep the click separated
+							lines.get(label).put(obj);
+							lines.get(label).put(emptyObj);
+							standardDeviation.get(label).put(sdobj);
+							standardDeviation.get(label).put(emptyObj);
+						} else {
+							lines.get(label).put(obj);
+							standardDeviation.get(label).put(sdobj);
+						}
+		
+					}
 				}
 			}
 		} catch (JSONException e) {
@@ -201,63 +228,64 @@ public class AbrChartAndTableProvider {
 				"  legend: { },"+
 				"  credits: { enabled: false },  " +
 				"  series: [ ";
-		
-				for (ZygosityType zyg: zygosities){
-					chart += "   { name: '"+ StringUtils.capitalize(zyg.getName())+"',"+
-					"    data: " + lines.get(zyg.getName()).toString() + "," +
+
+				for (SexType sex: sexes){
+					for (ZygosityType zyg: zygosities){
+						String label = ChartUtils.getLabel(zyg, sex);
+						chart += "   { name: '"+ label + "'," +
+						"    data: " + lines.get(label).toString() + "," +
+						"    zIndex: 1," +
+						"    color: " + colors.get(1) + "," +
+						"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:." + decimalNumber + "f}</b>' }," +
+						"  }, {"+
+						"    name: '" + label + " SD'," +
+						"    data: " + standardDeviation.get(label).toString() + "," +
+						"    type: 'errorbar',"+
+						"    linkedTo: ':previous',"+
+						"    color: " + colors.get(1) +","+
+						"    tooltip: { pointFormat: ' (SD: {point.low:." + decimalNumber + "f} - {point.high:." + decimalNumber + "f} )<br/>', shared:true }" +
+						"  },";
+					}
+
+					String label = ChartUtils.getLabel(null, sex);
+					chart += "{" +
+					"    name: '" + label + "',"+
+					"    data: " + lines.get(label).toString() + "," +
 					"    zIndex: 1,"+
-					"    color: "+ colors.get(0) +","+
-					"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }," +
-					"  }, {"+
-					"    name: '"+ StringUtils.capitalize(zyg.getName())+" SD',"+
-					"    data: " + standardDeviation.get(zyg.getName()).toString() + "," +
+					"    color: "+ colors.get(0) +", " +
+					"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:." + decimalNumber + "f}</b>' }" +
+					"  }, {" +
+					"    name: '" + label + " SD',"+
+					"    data: " + standardDeviation.get(label).toString() + "," +
 					"    type: 'errorbar',"+
 					"    linkedTo: ':previous',"+
 					"    color: "+ colors.get(0) +","+
-					"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f} )<br/>', shared:true }" +
+					"    tooltip: { pointFormat: ' (SD: {point.low:." + decimalNumber + "f} - {point.high:." + decimalNumber + "f}) <br/>' }" +
 					"  },";
 				}
-				chart += "{"+
-				"    name: 'Control',"+
-				"    data: " + lines.get("control").toString() + "," +
-				"    zIndex: 1,"+
-				"    color: "+ colors.get(1) +", " +
-				"    tooltip: { pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>: <b>{point.y:."+decimalNumber+"f}</b>' }" +
-				"  }, {"+
-				"    name: 'Control SD',"+
-				"    data: " + standardDeviation.get("control").toString() + "," +
-				"    type: 'errorbar',"+
-				"    linkedTo: ':previous',"+
-				"    color: "+ colors.get(1) +","+
-				"    tooltip: { pointFormat: ' (SD: {point.low:."+decimalNumber+"f} - {point.high:."+decimalNumber+"f}) <br/>' }" +
-				"  } ]"+
-				"});"+
+				chart += " ]" +
+				"});" +
 			"});" ; 
+				
+				System.out.println(chart);
 		return chart;
 		}
 	
-	public UnidimensionalStatsObject getMeans(String typeOfData, ExperimentDTO exp){
+	public UnidimensionalStatsObject getMeans(SexType sex, ZygosityType zyg, ExperimentDTO exp){
 		
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 		UnidimensionalStatsObject res = new UnidimensionalStatsObject();
-		res.setLabel(pipelineDAO.getParameterByStableId(exp.getParameterStableId()).getName());
 		Set<ObservationDTO> dataPoints = null;
-		
-		if (typeOfData.equals("control")){
-			dataPoints = exp.getControls();
-			
-		}else{
-			if (typeOfData.equalsIgnoreCase(ZygosityType.homozygote.getName())) {
-				dataPoints = exp.getHomozygoteMutants();
-			} else if (typeOfData.equals( typeOfData.equals(ZygosityType.hemizygote.getName()) )){
-				dataPoints = exp.getHemizygoteMutants();				
-			} else if (typeOfData.equals(ZygosityType.heterozygote.getName())){
-				dataPoints = exp.getHeterozygoteMutants();	
-			}
+				
+		if (zyg == null){
+			dataPoints = exp.getControls(sex);
+		} else{
+			dataPoints = exp.getMutants(sex, zyg);
 			res.setAllele(exp.getAlleleAccession());
 			res.setLine("Not control");
 			res.setGeneticBackground(exp.getStrain());
 		}
+		
 		if (dataPoints != null){
 			for (ObservationDTO obs : dataPoints){
 				stats.addValue(obs.getDataPoint());;
