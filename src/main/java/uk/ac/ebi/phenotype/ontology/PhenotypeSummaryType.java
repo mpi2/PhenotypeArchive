@@ -58,7 +58,7 @@ public class PhenotypeSummaryType {
 		else if ( this.name.equalsIgnoreCase("muscle phenotype") || this.name.equalsIgnoreCase("renal/urinary system phenotype") || this.name.equalsIgnoreCase("reproductive system phenotype") ||
 		this.name.equalsIgnoreCase("respiratory system phenotype") || this.name.equalsIgnoreCase("craniofacial phenotype") || this.name.equalsIgnoreCase("hearing/vestibular/ear phenotype") ||
 		this.name.equalsIgnoreCase("limbs/digits/tail phenotype") || this.name.equalsIgnoreCase("cardiovascular system phenotype") || this.name.equalsIgnoreCase("mortality/aging") ||
-		this.name.equalsIgnoreCase("skeleton phenotype") || this.name.equalsIgnoreCase("growth/size/body phenotype")){
+		this.name.equalsIgnoreCase("skeleton phenotype") || this.name.equalsIgnoreCase("growth/size/body phenotype") || this.name.equalsIgnoreCase("vision/eye phenotype")){
 			return this.name;			
 		}
 				
