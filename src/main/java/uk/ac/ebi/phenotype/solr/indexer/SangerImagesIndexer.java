@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SangerProcedureMapper;
 
@@ -19,7 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenotype.service.MpService;
+
 
 /**
  * Populate the experiment core

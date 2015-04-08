@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.ebi.phenotype.solr.indexer;
+package uk.ac.ebi.phenotype.solr.indexer.exceptions;
 
 /**
  * @author Matt Pearce
  */
-public class NoDepsException extends Exception {
+public class UnrecognizedOptionException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public NoDepsException() {
+	public UnrecognizedOptionException() {
 		super();
 	}
 
-	public NoDepsException(String message) {
+	public UnrecognizedOptionException(String message) {
 		super(message);
 	}
 
-	public NoDepsException(Throwable cause) {
+	public UnrecognizedOptionException(Throwable cause) {
 		super(cause);
 	}
 
-	public NoDepsException(String message, Throwable cause) {
+	public UnrecognizedOptionException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

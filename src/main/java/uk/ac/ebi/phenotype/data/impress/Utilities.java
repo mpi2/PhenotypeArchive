@@ -16,13 +16,15 @@
 package uk.ac.ebi.phenotype.data.impress;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.StageUnitType;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -34,6 +36,11 @@ import java.util.Map;
  */
 @Component
 public class Utilities {
+
+	@Autowired
+	OntologyTermDAO ontologyTermDAO;
+
+	OntologyTerm embryoStage = null;
 
 	protected static Logger logger = Logger.getLogger(Utilities.class);
 
@@ -162,5 +169,35 @@ public class Utilities {
 		}
 
 		return observationType;
+	}
+
+
+	/**
+	 * Always return EFO term for "embryo stage" for now
+	 * Future enhancement (once EFO gets a term for "embryonic day 9.5") would be
+	 * to return the actual term associated with the stage parameter
+	 *
+	 * @param stage the stage from impress
+	 * @param stageUnit the stage unit applicable to stage
+	 * @return the term associated with the correct stage
+	 */
+	public OntologyTerm getStageTerm(String stage, StageUnitType stageUnit) {
+
+		Set<String> allowedDpc = new HashSet<>(Arrays.asList("9.5", "12.5", "14.5", "15.5", "18.5"));
+		Set<String> allowedTheiler = new HashSet<>(Arrays.asList("15", "20", "14.5", "15.5", "18.5"));
+
+		// Initialize the embryoStage term only once
+		if (embryoStage == null) {
+			embryoStage = ontologyTermDAO.getOntologyTermByAccession("EFO:0001367");
+		}
+
+		switch (stageUnit) {
+			case DPC:
+				return (allowedDpc.contains(stage)) ? embryoStage : null;
+			case THEILER:
+				return (allowedTheiler.contains(stage)) ? embryoStage : null;
+			default:
+				return null;
+		}
 	}
 }

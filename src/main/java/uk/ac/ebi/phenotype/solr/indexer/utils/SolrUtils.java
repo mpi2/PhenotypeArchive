@@ -29,10 +29,12 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
-import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
+
 import static uk.ac.ebi.phenotype.service.OntologyService.BATCH_SIZE;
 
 /**

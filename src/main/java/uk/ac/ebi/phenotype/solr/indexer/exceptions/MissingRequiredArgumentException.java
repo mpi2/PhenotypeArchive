@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.ebi.phenotype.solr.indexer;
+package uk.ac.ebi.phenotype.solr.indexer.exceptions;
 
 /**
  * @author Matt Pearce
  */
-public class UnrecognizedOptionException extends Exception {
+public class MissingRequiredArgumentException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public UnrecognizedOptionException() {
+	public MissingRequiredArgumentException() {
 		super();
 	}
 
-	public UnrecognizedOptionException(String message) {
+	public MissingRequiredArgumentException(String message) {
 		super(message);
 	}
 
-	public UnrecognizedOptionException(Throwable cause) {
+	public MissingRequiredArgumentException(Throwable cause) {
 		super(cause);
 	}
 
-	public UnrecognizedOptionException(String message, Throwable cause) {
+	public MissingRequiredArgumentException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
