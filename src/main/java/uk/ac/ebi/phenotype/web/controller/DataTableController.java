@@ -1401,8 +1401,8 @@ public class DataTableController {
 	
 	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.GET)
 	public ResponseEntity<String> dataTableAlleleRefJson(
-			@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
-			@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
+			@RequestParam(value = "iDisplayStart", required = false, defaultValue = "0") int iDisplayStart,
+			@RequestParam(value = "iDisplayLength", required = false, defaultValue = "-1") int iDisplayLength,
 			@RequestParam(value = "sSearch", required = false) String sSearch,
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -1610,6 +1610,9 @@ public class DataTableController {
 			while (resultSet.next()) {
 				rowCount = Integer.parseInt(resultSet.getString("count"));
 			}
+                        if (iDisplayLength == -1) {
+                            iDisplayLength = rowCount;                          // iDisplayLength of -1 indicates return all rows.
+                        }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -206,6 +206,8 @@
         <constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
     </bean>
     
+    <bean id="referenceDAO" class="uk.ac.ebi.phenotype.dao.ReferenceDAO" />
+    
     <bean id="hpOntologyService" class="uk.ac.ebi.phenotype.service.HpOntologyService" />
     <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
     <bean id="mpOntologyService" class="uk.ac.ebi.phenotype.service.MpOntologyService" />
