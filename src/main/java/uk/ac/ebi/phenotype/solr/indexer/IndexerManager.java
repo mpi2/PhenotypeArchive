@@ -20,16 +20,6 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.File;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
 import joptsimple.HelpFormatter;
 import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
@@ -46,8 +36,16 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
-import static uk.ac.ebi.phenotype.solr.indexer.AbstractIndexer.CONTEXT_ARG;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.*;
 import uk.ac.ebi.phenotype.util.Utils;
+
+import javax.annotation.Resource;
+import java.io.File;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static uk.ac.ebi.phenotype.solr.indexer.AbstractIndexer.CONTEXT_ARG;
 
 /**
  * This class encapsulates the code and data necessary to represent an index

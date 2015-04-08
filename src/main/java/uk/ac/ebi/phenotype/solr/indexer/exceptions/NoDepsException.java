@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.ebi.phenotype.solr.indexer;
+package uk.ac.ebi.phenotype.solr.indexer.exceptions;
 
 /**
  * @author Matt Pearce
  */
-public class MissingRequiredArgumentException extends Exception {
+public class NoDepsException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public MissingRequiredArgumentException() {
+	public NoDepsException() {
 		super();
 	}
 
-	public MissingRequiredArgumentException(String message) {
+	public NoDepsException(String message) {
 		super(message);
 	}
 
-	public MissingRequiredArgumentException(Throwable cause) {
+	public NoDepsException(Throwable cause) {
 		super(cause);
 	}
 
-	public MissingRequiredArgumentException(String message, Throwable cause) {
+	public NoDepsException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

@@ -7,17 +7,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -68,7 +68,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 
 	private String impcMediaBaseUrl;
-	private static String impcAnnotationBaseUrl;
+	private String impcAnnotationBaseUrl;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -103,7 +103,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void run() throws IndexerException {
-		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 		int count = 0;
 
 		logger.info("running impc_images indexer");
@@ -127,6 +126,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
+		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
 		try {
 

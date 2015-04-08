@@ -15,6 +15,8 @@ import org.xml.sax.SAXException;
 import uk.ac.ebi.phenotype.data.imits.EncodedOrganisationConversionMap;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;

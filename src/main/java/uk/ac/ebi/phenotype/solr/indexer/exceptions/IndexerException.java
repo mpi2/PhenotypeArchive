@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.ebi.phenotype.solr.indexer;
+package uk.ac.ebi.phenotype.solr.indexer.exceptions;
 
 /**
  * @author Matt Pearce

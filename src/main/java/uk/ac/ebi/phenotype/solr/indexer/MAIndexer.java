@@ -24,19 +24,26 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
-import java.util.*;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.service.MaOntologyService;
-import static uk.ac.ebi.phenotype.service.OntologyService.BATCH_SIZE;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermMaBeanList;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static uk.ac.ebi.phenotype.service.OntologyService.BATCH_SIZE;
 
 /**
  * Populate the MA core
