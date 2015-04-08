@@ -623,6 +623,7 @@ public class PhenomeChartProvider {
 								JSONObject dataPoint = new JSONObject();
 								dataPoint.put("name", parameter.getName());
 								dataPoint.put("parameter_stable_id", parameter.getStableId());
+								dataPoint.put("parameter_name", parameter.getName());
 								dataPoint.put("pipeline_stable_id", pipeline.getStableId());
 								dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
 								dataPoint.put("alleleAccession", allele.getId().getAccession());
@@ -638,8 +639,8 @@ public class PhenomeChartProvider {
 								dataPoint.put("maleMutants", statsResult.getMaleMutants());
 								dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
 								
-								if (!categories.contains(parameter.getStableId())) {
-									categories.add(parameter.getStableId());
+								if (!categories.contains(parameter.getName())) {
+									categories.add(parameter.getName());
 									dataArray.put(dataPoint);
 									resultIndex++;
 										index++;
