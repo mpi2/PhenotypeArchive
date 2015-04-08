@@ -240,9 +240,6 @@ public class ChartsController {
 			ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
 			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
 			model.addAttribute("viabilityDTO", viabilityDTO);
-			// we need the biological model for the line level param so just get
-			// the first observation from the first entry and get the
-			// biologicalModelId
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
 			model.addAttribute("pipeline", pipeline);
@@ -260,9 +257,6 @@ public class ChartsController {
 			FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
 			if(fertilityDTO!=null){
 			model.addAttribute("fertilityDTO", fertilityDTO);
-			// we need the biological model for the line level param so just get
-			// the first observation from the first entry and get the
-			// biologicalModelId
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
 			model.addAttribute("pipeline", pipeline);
@@ -276,8 +270,7 @@ public class ChartsController {
 	if (experiment != null) {
 
 			if (pipeline == null) {
-				// if we don't already have the pipeline for this experiment
-				// from the url params lets get it via the experiment returned
+				// if we don't already have the pipeline from the url params get it via the experiment returned
 				pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
 			}
 
@@ -340,6 +333,12 @@ public class ChartsController {
 							break;
 
 						case TIME_SERIES_LINE:
+
+							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
+							break;
+
+						case TIME_SERIES_LINE_BODYWEIGHT:
 
 							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
