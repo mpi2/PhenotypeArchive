@@ -141,7 +141,7 @@ public class IndexerManager {
         , AUTOSUGGEST_CORE
     };
     
-    public static final int RETRY_COUNT = 5;                                    // If any core fails, retry building it up to this many times.
+    public static final int RETRY_COUNT = 2;                                    // If any core fails, retry building it up to this many times.
     public static final int RETRY_SLEEP_IN_MS = 60000;                          // If any core fails, sleep this long before reattempting to build the core.
     public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
     
