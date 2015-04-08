@@ -144,7 +144,18 @@ public class ChartsController {
 	 * @throws SolrServerException
 	 */
 	@RequestMapping("/charts")
-	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams, @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds, @RequestParam(required = false, value = "gender") String[] gender, @RequestParam(required = false, value = "zygosity") String[] zygosity, @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter, @RequestParam(required = false, value = "strategy") String[] strategies, @RequestParam(required = false, value = "strain") String[] strains, @RequestParam(required = false, value = "metadata_group") String[] metadataGroup, @RequestParam(required = false, value = "chart_type") ChartType chartType, @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds, @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession, Model model)
+	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
+						 @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds, 
+						 @RequestParam(required = false, value = "gender") String[] gender, 
+						 @RequestParam(required = false, value = "zygosity") String[] zygosity, 
+						 @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter, 
+						 @RequestParam(required = false, value = "strategy") String[] strategies, 
+						 @RequestParam(required = false, value = "strain") String[] strains, 
+						 @RequestParam(required = false, value = "metadata_group") String[] metadataGroup, 
+						 @RequestParam(required = false, value = "chart_type") ChartType chartType, 
+						 @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds, 
+						 @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession, 
+						 Model model)
 	throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		System.out.println("charts ::: chart_type=" + chartType);
