@@ -55,23 +55,6 @@ public class AllelesController {
     @Autowired
     SolrIndex2 solrIndex2;
 
-//    private HashMap<String, String> makeItem(Map<String, Object> map2) {
-//        HashMap<String, String> map = new HashMap<>();
-//        map.put("marker_symbol", (String)map2.get("marker_symbol"));
-//        map.put("allele_name", (String)map2.get("allele_name"));
-//        map.put("mgi_accession_id", (String)map2.get("mgi_accession_id"));
-//        map.put("type", (String)map2.get("type"));
-//        map.put("display_name_debug", (String)map2.get("display_name_debug"));
-//        map.put("display_name", (String)map2.get("display_name"));
-//        map.put("url", (String)map2.get("url"));
-//
-//        log.info("#### makeItem...");
-//        log.info("#### makeItem: map2: " + map2);
-//        log.info("#### makeItem: map: " + map);
-//
-//        return map;
-//    }
-
     @RequestMapping("/alleles/project_id")
     public String alleles1(
             @RequestParam (value = "ikmc_project_id", required = true) String ikmc_project_id,
@@ -95,10 +78,12 @@ public class AllelesController {
         if (gene != null){
             acc = gene.get("mgi_accession_id").toString();
         }
+    
         model.addAttribute("acc", acc);
         
         return geneAllelesCommon(acc, ikmc_project_id, null, null, bare, model, request, attributes);
-        }
+    
+    }
    
     
     @RequestMapping("/alleles/{acc}")
@@ -168,10 +153,7 @@ public class AllelesController {
         list_alleles.addAll(list3);
         
         log.info("#### alleles1: list_alleles: " + list_alleles);
-
-        model.addAttribute("marker_symbol", marker_symbol);
-        if (bare) model.addAttribute("bare", bare);
-        
+       
         String allele_type_string = "";
         String pipeline_string;
         String ikmc_project_id_string;
@@ -187,10 +169,14 @@ public class AllelesController {
         pipeline_string = (pipeline != null) ? " for " + pipeline : "";
         ikmc_project_id_string = (ikmc_project_id != null) ? " created by project " +  ikmc_project_id : "";
         log.info("SEARCH STRING: showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
+        
         model.addAttribute("search_title", "Showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
-
         model.addAttribute("list_alleles", list_alleles);
-
+        model.addAttribute("marker_symbol", marker_symbol);
+        if (bare){
+        	model.addAttribute("bare", bare);
+        }
+        
         return "alleles_list";
     }
     

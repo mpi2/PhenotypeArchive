@@ -46,15 +46,15 @@ public class PhenomeChartProvider {
 		+ "     subtitle: {\n"
 		+ "        text: 'Parameter by parameter' \n"
 		+ "    },\n"
-		+ "     xAxis: {\n"
+		+ "     yAxis: {\n"
 		+ "     categories: " + categories.toString() + ",\n"
 		+ "        title: {\n"
 		+ "           enabled: true,\n"
 		+ "           text: 'Parameters' \n"
 		+ "        }, \n"
 		+ "       labels: { \n"
-		+ "           rotation: -90, \n"
-		+ "           align: 'right', \n"
+	//	+ "           rotation: -90, \n"
+	//	+ "           align: 'right', \n"
 		+ "           style: { \n"
 		+ "              fontSize: '11px', \n"
 		+ "              fontFamily: 'Verdana, sans-serif' \n"
@@ -62,7 +62,7 @@ public class PhenomeChartProvider {
 		+ "     }, \n"
 		+ "      showLastLabel: true \n"
 		+ "  }, \n"
-		+ "    yAxis: { \n"
+		+ "    xAxis: { \n"
 		// +"         min:"+ -Math.log(minimalPValue) + ","
 		+ "         title: { \n"
 		+ "             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
@@ -603,13 +603,6 @@ public class PhenomeChartProvider {
 			for (Procedure procedure : pipeline.getProcedures()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
-				// Tooltip first for correct formatting
-				/*
-				 * tooltip: {
-				 * 
-				 * headerFormat: '<b>{series.name}</b><br>', pointFormat:
-				 * '{point.name}<br/>value: {point.y}' },
-				 */
 
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure.getName());
@@ -618,10 +611,6 @@ public class PhenomeChartProvider {
 
 				// create a series here
 				for (Parameter parameter : procedure.getParameters()) {
-					/*
-					 * data: [{ name: 'IMPC_...', x: 1, y: 2 }, { name:
-					 * 'IMPC_...', x: 2, y: 5 }]
-					 */
 
 					if (statisticalResults.containsKey(parameter.getStableId())) {
 
@@ -638,8 +627,8 @@ public class PhenomeChartProvider {
 								dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
 								dataPoint.put("alleleAccession", allele.getId().getAccession());
 								dataPoint.put("phenotyping_center", phenotypingCenter);
-								dataPoint.put("x", index);
-								dataPoint.put("y", statsResult.getLogValue());
+								dataPoint.put("y", index);
+								dataPoint.put("x", statsResult.getLogValue());
 								dataPoint.put("pValue", statsResult.getpValue());
 								dataPoint.put("effectSize", statsResult.getEffectSize());
 								dataPoint.put("sex", statsResult.getControlSex());
