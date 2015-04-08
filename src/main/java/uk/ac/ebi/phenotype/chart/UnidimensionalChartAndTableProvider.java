@@ -184,7 +184,7 @@ public class UnidimensionalChartAndTableProvider {
 	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,Parameter parameter, String yAxisTitle, 
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
 
-		JSONArray categories = new JSONArray();// "['WT', 'WT', 'HOM', 'HOM']";
+		JSONArray categories = new JSONArray();
 		String boxPlotObject = "";
 
 		String seriesData = "";
@@ -297,7 +297,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "         } "
 			+ "     }, "
 			+ " }, \n" 
-			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -1.5 }" + "}," 
+			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "}," 
 			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, " 
 			+ "\n series: [" + seriesData + "] }); });";
 
