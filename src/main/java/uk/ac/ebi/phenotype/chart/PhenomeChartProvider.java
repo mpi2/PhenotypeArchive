@@ -116,9 +116,8 @@ public class PhenomeChartProvider {
 		+ "                  } \n"
 		+ "                  ], \n"
 		+ "                   { \n"
-		+ "                     'maxWidth'          : 1000, \n" // 980 too
-																// narrow
-		+ "                     'maxHeight'         : 900, \n"
+		+ "                     'maxWidth'          : 1000, \n" 															
+		+ "                     'maxHeight'         : 1900, \n"
 		+ "                     'fitToView'         : false, \n"
 		+ "                     'width'             : '100%',  \n"
 		+ "                     'height'            : '85%',  \n"
@@ -135,6 +134,9 @@ public class PhenomeChartProvider {
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
+		
+		
+		
 		return chartString;
 	}
 
@@ -572,17 +574,12 @@ public class PhenomeChartProvider {
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
-
 		JSONArray series = new JSONArray();
-
 		ArrayList<String> categories = new ArrayList();
 
 		try {
 
 			int index = 0;
-
-			// build tooltip
-
 			StringBuilder pointFormat = new StringBuilder();
 
 			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">parameter: {point.name}</td></tr>");
@@ -600,14 +597,14 @@ public class PhenomeChartProvider {
 			// get All procedures and generate a Map Parameter => Procedure
 			Map<Parameter, Procedure> parametersToProcedure = new HashMap<Parameter, Procedure>();
 			Map<String, Parameter> parametersMap = new HashMap<String, Parameter>();
+			
 			for (Procedure procedure : pipeline.getProcedures()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
+				JSONArray dataArray = new JSONArray();
 
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure.getName());
-
-				JSONArray dataArray = new JSONArray();
 
 				// create a series here
 				for (Parameter parameter : procedure.getParameters()) {
