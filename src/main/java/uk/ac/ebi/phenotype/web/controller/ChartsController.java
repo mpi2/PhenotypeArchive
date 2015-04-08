@@ -144,7 +144,18 @@ public class ChartsController {
 	 * @throws SolrServerException
 	 */
 	@RequestMapping("/charts")
-	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams, @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds, @RequestParam(required = false, value = "gender") String[] gender, @RequestParam(required = false, value = "zygosity") String[] zygosity, @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter, @RequestParam(required = false, value = "strategy") String[] strategies, @RequestParam(required = false, value = "strain") String[] strains, @RequestParam(required = false, value = "metadata_group") String[] metadataGroup, @RequestParam(required = false, value = "chart_type") ChartType chartType, @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds, @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession, Model model)
+	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
+						 @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds, 
+						 @RequestParam(required = false, value = "gender") String[] gender, 
+						 @RequestParam(required = false, value = "zygosity") String[] zygosity, 
+						 @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter, 
+						 @RequestParam(required = false, value = "strategy") String[] strategies, 
+						 @RequestParam(required = false, value = "strain") String[] strains, 
+						 @RequestParam(required = false, value = "metadata_group") String[] metadataGroup, 
+						 @RequestParam(required = false, value = "chart_type") ChartType chartType, 
+						 @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds, 
+						 @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession, 
+						 Model model)
 	throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		System.out.println("charts ::: chart_type=" + chartType);
@@ -240,9 +251,6 @@ public class ChartsController {
 			ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
 			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
 			model.addAttribute("viabilityDTO", viabilityDTO);
-			// we need the biological model for the line level param so just get
-			// the first observation from the first entry and get the
-			// biologicalModelId
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
 			model.addAttribute("pipeline", pipeline);
@@ -260,9 +268,6 @@ public class ChartsController {
 			FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
 			if(fertilityDTO!=null){
 			model.addAttribute("fertilityDTO", fertilityDTO);
-			// we need the biological model for the line level param so just get
-			// the first observation from the first entry and get the
-			// biologicalModelId
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
 			model.addAttribute("pipeline", pipeline);
@@ -276,8 +281,7 @@ public class ChartsController {
 	if (experiment != null) {
 
 			if (pipeline == null) {
-				// if we don't already have the pipeline for this experiment
-				// from the url params lets get it via the experiment returned
+				// if we don't already have the pipeline from the url params get it via the experiment returned
 				pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
 			}
 
@@ -340,6 +344,12 @@ public class ChartsController {
 							break;
 
 						case TIME_SERIES_LINE:
+
+							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
+							break;
+
+						case TIME_SERIES_LINE_BODYWEIGHT:
 
 							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);

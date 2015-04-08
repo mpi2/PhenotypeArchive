@@ -68,7 +68,7 @@ public class ObservationServiceTest {
 		String alleleAccession = "EUROALL:19";
 
 		try {
-			dataset = os.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
+			dataset = os.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null, null);
 			// for (Map<String, String> map: dataset) {
 			// for (String key: map.keySet()) {
 			// System.out.println(key + ":" + map.get(key));
@@ -93,7 +93,7 @@ public class ObservationServiceTest {
 		String alleleAccession = "MGI:4435468";
 
 		try {
-			dataset = os.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
+			dataset = os.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null, null);
 			// for (Map<String, String> map: dataset) {
 			// for (String key: map.keySet()) {
 			// System.out.println(key + ":" + map.get(key));
