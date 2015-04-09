@@ -15,8 +15,6 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-//import java.io.IOException;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -54,9 +52,11 @@ import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.dao.ReferenceDAO;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
+import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 
 
 @Controller
@@ -86,6 +86,9 @@ public class DataTableController {
 
     private String IMG_NOT_FOUND = "Image coming soon<br>";
     private String NO_INFO_MSG = "No information available";
+    
+    @Autowired
+    private ReferenceDAO referenceDAO;
 
     /**
      * <p>
@@ -1502,214 +1505,108 @@ public class DataTableController {
         }
         return j.toString();
     }
-
+    
     public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
-
-        Connection conn = admintoolsDataSource.getConnection();
-
-        String like = "%" + sSearch + "%";
-        String query1 = null;
-
-        String baseQuery1 = "SELECT COUNT(DISTINCT pmid) AS count FROM allele_ref";
-        String where = " WHERE reviewed = 'yes' ";
-        String colLike = " acc LIKE ?"
-                + " OR symbol LIKE ?"
-                + " OR title LIKE ?"
-                + " OR journal LIKE ?"
-                + " OR date_of_publication LIKE ?"
-                + " OR agency LIKE ?";
-
-        if (sSearch != "") {
-            query1 = baseQuery1 + where + " AND " + colLike;
-        } else {
-            query1 = baseQuery1 + where;
-        }
-
-        int rowCount = 0;
-        try (PreparedStatement p1 = conn.prepareStatement(query1)) {
-            if (sSearch != "") {
-                for (int i = 1; i < 7; i ++) {
-                    p1.setString(i, like);
-                }
-            }
-
-            ResultSet resultSet = p1.executeQuery();
-
-            while (resultSet.next()) {
-                rowCount = Integer.parseInt(resultSet.getString("count"));
-            }
-            if (iDisplayLength == -1) {
-                iDisplayLength = rowCount;                          // iDisplayLength of -1 indicates return all rows.
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        String baseQuery = "SELECT COUNT(*) as count, title, journal, date_of_publication, pmid, "
-                + "GROUP_CONCAT(DISTINCT(CONCAT(symbol, '__', gacc)), '___') AS sym2gs, "
-                + "GROUP_CONCAT(DISTINCT(agency), '___') AS agencies, "
-                + "GROUP_CONCAT(DISTINCT(paper_url), '___') AS paperurls "
-                + "FROM allele_ref ";
-
-        String groupOrderLimit = "GROUP BY pmid HAVING count <= 150 ORDER BY date_of_publication DESC LIMIT ?, ?";
-
-        String query2 = null;
-
-        if (sSearch != "") {
-            query2 = baseQuery + where + " AND " + colLike + groupOrderLimit;
-        } else {
-            query2 = baseQuery + where + groupOrderLimit;
-        }
-
+        final int DISPLAY_THRESHOLD = 4;
+        List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
+        
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
-
-        j.put("iTotalRecords", rowCount);
-        j.put("iTotalDisplayRecords", rowCount);
-
-		//System.out.println("query: "+ query1);
-        //System.out.println("query2: "+ query2);
-        try (PreparedStatement p2 = conn.prepareStatement(query2)) {
-            if (sSearch != "") {
-                for (int i = 1; i < 9; i ++) {
-                    p2.setString(i, like);
-                    if (i == 7) {
-                        p2.setInt(i, iDisplayStart);
-                    } else if (i == 8) {
-                        p2.setInt(i, iDisplayLength);
+        j.put("iTotalRecords", references.size());
+        j.put("iTotalDisplayRecords", references.size());
+        
+        for (ReferenceDTO reference : references) {
+            List<String> rowData = new ArrayList<>();
+            List<String> alleleLinks = new ArrayList<>();
+            int alleleAccessionIdCount = reference.getAlleleAccessionIds().size();
+            
+            for (int i = 0; i < alleleAccessionIdCount; i++) {
+                String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+                String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
+                String alleleLink;
+                if (i < reference.getImpcGeneLinks().size()) {
+                    alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
+                } else {
+                    if (i > 0) {
+                        alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
+                    } else {
+                        alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
                     }
                 }
-            } else {
-                p2.setInt(1, iDisplayStart);
-                p2.setInt(2, iDisplayLength);
+                alleleLinks.add(alleleLink);
+            }
+            // show/hide toggle
+            if (alleleLinks.size() > 5) {
+                int num = alleleLinks.size();
+                alleleLinks.add("<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
+            }
+            rowData.add(StringUtils.join(alleleLinks, ""));
+
+            rowData.add(reference.getTitle());
+            rowData.add(reference.getJournal());
+            rowData.add(reference.getDateOfPublication());
+            
+            List<String> agencyList = new ArrayList();
+            int agencyCount = reference.getGrantAgencies().size();
+            
+            for (int i = 0; i < agencyCount; i++) {
+                String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+                String grantAgency = reference.getGrantAgencies().get(i);
+                if ( ! grantAgency.isEmpty()) {
+                    agencyList.add("<li " + cssClass + ">" + grantAgency + "</li>");
+                }
+            }
+            rowData.add("<ul>" + StringUtils.join(agencyList, "") + "</ul>");
+            
+            int pmid = Integer.parseInt(reference.getPmid());
+            List<String> paperLinks = new ArrayList<>();
+            List<String> paperLinksOther = new ArrayList<>();
+            List<String> paperLinksPubmed = new ArrayList<>();
+            List<String> paperLinksEuroPubmed = new ArrayList<>();
+            String[] urlList = reference.getPaperUrls().toArray(new String[0]);
+            
+            for (int i = 0; i < urlList.length; i ++) {
+                String[] urls = urlList[i].split(",");
+
+                int pubmedSeen = 0;
+                int eupubmedSeen = 0;
+                int otherSeen = 0;
+
+                for (int k = 0; k < urls.length; k ++) {
+                    String url = urls[k];
+
+                    if (pubmedSeen != 1) {
+                        if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf")) {
+                            paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+                            pubmedSeen ++;
+                        } else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid))) {
+                            paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
+                            pubmedSeen ++;
+                        }
+                    }
+                    if (eupubmedSeen != 1) {
+                        if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")) {
+                            paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+                            eupubmedSeen ++;
+                        } else if (url.startsWith("http://europepmc.org/")) {
+                            paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
+                            eupubmedSeen ++;
+                        }
+                    }
+                    if (otherSeen != 1 &&  ! url.startsWith("http://www.pubmedcentral.nih.gov") &&  ! url.startsWith("http://europepmc.org/")) {
+                        paperLinksOther.add("<li><a target='_blank' href='" + url + "'>Non-pubmed source</a></li>");
+                        otherSeen ++;
+                    }
+                }
             }
 
-            ResultSet resultSet = p2.executeQuery();
-            /*tableHeader : 
-             Paper title
-             Journal
-             Date of publication
-             Allele symbol
-             Grant agency
-             Paper link
-             */
-
-            String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
-            int hideCount = 4; // cutoff: when beyond, hide by default
-
-            while (resultSet.next()) {
-
-                List<String> rowData = new ArrayList<String>();
-
-                List<String> alleleLinks = new ArrayList<>();
-
-                int alleleCount = 0;
-
-                String[] sym2gs = resultSet.getString("sym2gs").split("___,");
-                for (int i = 0; i < sym2gs.length; i ++) {
-                    alleleCount ++;
-                    String cls = alleleCount > hideCount ? "hideMe" : "";
-                    String[] symGacc = sym2gs[i].replace("___", "").split("__");
-
-                    if (symGacc.length != 0) {
-
-                        String symbol = Tools.superscriptify(symGacc[0]);
-                        String gAcc = null;
-                        String alleleLink = null;
-
-                        if (symGacc.length == 2) {
-                            gAcc = symGacc[1];
-                            //System.out.println(symbol + " ---> "+ gAcc);
-                            alleleLink = "<div class='" + cls + "'><a target='_blank' href='" + impcGeneBaseUrl + gAcc + "'>" + symbol + "</a></div>";
-                        } else {
-                            alleleLink = "<div class='" + cls + "'><a" + symbol + "</a></div>";
-                        }
-
-                        alleleLinks.add(alleleLink);
-                    }
-                }
-                // show/hide toggle
-                if (alleleLinks.size() > 5) {
-                    int num = alleleLinks.size();
-                    alleleLinks.add("<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
-                }
-                rowData.add(StringUtils.join(alleleLinks, ""));
-
-                rowData.add(resultSet.getString("title"));
-                rowData.add(resultSet.getString("journal"));
-                rowData.add(resultSet.getString("date_of_publication"));
-
-                List<String> agencyList = new ArrayList<>();
-
-                String[] agencies = resultSet.getString("agencies").split("___,");
-                int agencyCount = 0;
-                for (int i = 0; i < agencies.length; i ++) {
-                    String agency = agencies[i].replace("___", "");
-
-                    if ( ! agency.equals("")) {
-                        agencyCount ++;
-                        String cls = agencyCount > hideCount ? "hideMe" : "";
-                        agencyList.add("<li class='" + cls + "'>" + agency + "</li>");
-                    }
-                }
-                rowData.add(StringUtils.join(agencyList, ""));
-
-                int pmid = resultSet.getInt("pmid");
-
-                List<String> paperLinks = new ArrayList<>();
-                List<String> paperLinksOther = new ArrayList<>();
-                List<String> paperLinksPubmed = new ArrayList<>();
-                List<String> paperLinksEuroPubmed = new ArrayList<>();
-
-                String[] urlList = resultSet.getString("paperurls").split("___,");
-                for (int i = 0; i < urlList.length; i ++) {
-                    String[] urls = urlList[i].replace("___", "").split(",");
-
-                    int pubmedSeen = 0;
-                    int eupubmedSeen = 0;
-                    int otherSeen = 0;
-
-                    for (int k = 0; k < urls.length; k ++) {
-
-                        String url = urls[k];
-
-                        if (pubmedSeen != 1) {
-                            if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf")) {
-                                paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
-                                pubmedSeen ++;
-                            } else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid))) {
-                                paperLinksPubmed.add("<li><a target='_blank' href='" + url + "'>Pubmed Central</a></li>");
-                                pubmedSeen ++;
-                            }
-                        }
-                        if (eupubmedSeen != 1) {
-                            if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")) {
-                                paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
-                                eupubmedSeen ++;
-                            } else if (url.startsWith("http://europepmc.org/")) {
-                                paperLinksEuroPubmed.add("<li><a target='_blank' href='" + url + "'>Europe Pubmed Central</a></li>");
-                                eupubmedSeen ++;
-                            }
-                        }
-                        if (otherSeen != 1 &&  ! url.startsWith("http://www.pubmedcentral.nih.gov") &&  ! url.startsWith("http://europepmc.org/")) {
-                            paperLinksOther.add("<li><a target='_blank' href='" + url + "'>Non-pubmed source</a></li>");
-                            otherSeen ++;
-                        }
-                    }
-                }
-
-                // ordered
-                paperLinks.addAll(paperLinksEuroPubmed);
-                paperLinks.addAll(paperLinksPubmed);
-                paperLinks.addAll(paperLinksOther);
-                rowData.add(StringUtils.join(paperLinks, ""));
-
-                j.getJSONArray("aaData").add(rowData);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            conn.close();
+            // ordered
+            paperLinks.addAll(paperLinksEuroPubmed);
+            paperLinks.addAll(paperLinksPubmed);
+            paperLinks.addAll(paperLinksOther);
+            rowData.add(StringUtils.join(paperLinks, ""));
+            
+            j.getJSONArray("aaData").add(rowData);
         }
 
         //System.out.println("Got " + rowCount + " rows");

@@ -136,15 +136,15 @@ public class ReferenceDAO {
         String query =
                 "SELECT\n"
               + "  GROUP_CONCAT(DISTINCT symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
-              + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|||\") AS alleleIds\n"
-              + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|||\") AS gaccs\n"
+              + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
+              + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
               + ", GROUP_CONCAT(DISTINCT name      SEPARATOR \"|||\") AS alleleNames\n"
               + ", title\n"
               + ", journal\n"
               + ", pmid\n"
               + ", date_of_publication\n"
               + ", GROUP_CONCAT(DISTINCT grant_id  SEPARATOR \"|||\") AS grantIds\n"
-              + ", GROUP_CONCAT(DISTINCT agency    SEPARATOR \"|||\") AS agencies\n"
+              + ", GROUP_CONCAT(DISTINCT agency    SEPARATOR \"|||\") AS grantAgencies\n"
               + ", GROUP_CONCAT(DISTINCT paper_url SEPARATOR \"|||\") AS paperUrls\n"
               + "FROM allele_ref AS ar\n"
               + whereClause
@@ -168,13 +168,14 @@ public class ReferenceDAO {
                 ReferenceDTO referenceRow = new ReferenceDTO();
                 
                 referenceRow.setAlleleSymbols((Arrays.asList(resultSet.getString("alleleSymbols").split(delimeter))));
-                referenceRow.setAlleleIds((Arrays.asList(resultSet.getString("alleleIds").split(delimeter))));
-                String gacc = resultSet.getString("gaccs").trim();
+                referenceRow.setAlleleAccessionIds((Arrays.asList(resultSet.getString("alleleAccessionIds").split(delimeter))));
+                String geneAccessionIds = resultSet.getString("geneAccessionIds").trim();
                 List<String> geneLinks = new ArrayList();
-                if ( ! gacc.isEmpty()) {
-                    String[] parts = gacc.split(delimeter);
-                    for (String s : parts) {
-                        geneLinks.add(impcGeneBaseUrl + s.trim());
+                if ( ! geneAccessionIds.isEmpty()) {
+                    referenceRow.setGeneAccessionIds((Arrays.asList(resultSet.getString("geneAccessionIds").split(delimeter))));
+                    String[] parts = geneAccessionIds.split(delimeter);
+                    for (String part : parts) {
+                        geneLinks.add(impcGeneBaseUrl + part.trim());
                     }
                     referenceRow.setImpcGeneLinks(geneLinks);
                 }
@@ -184,7 +185,7 @@ public class ReferenceDAO {
                 referenceRow.setPmid(resultSet.getString("pmid"));
                 referenceRow.setDateOfPublication(resultSet.getString("date_of_publication"));
                 referenceRow.setGrantIds((Arrays.asList(resultSet.getString("grantIds").split(delimeter))));
-                referenceRow.setGrantAgencies((Arrays.asList(resultSet.getString("agencies").split(delimeter))));
+                referenceRow.setGrantAgencies((Arrays.asList(resultSet.getString("grantAgencies").split(delimeter))));
                 
                 String paperUrls = resultSet.getString("paperUrls").trim();
                 List<String> paperLinks = new ArrayList();
@@ -194,7 +195,7 @@ public class ReferenceDAO {
                         String[] parts2 = s.split(",");
                         paperLinks.addAll(Arrays.asList(parts2));
                     }
-                    referenceRow.setPaperLinks(paperLinks);
+                    referenceRow.setPaperUrls(paperLinks);
                 }
                 
                 results.add(referenceRow);

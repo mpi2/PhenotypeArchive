@@ -39,7 +39,8 @@ import java.util.Objects;
  */
 public class ReferenceDTO {
     private List<String> alleleSymbols;
-    private List<String> alleleIds;
+    private List<String> alleleAccessionIds;
+    private List<String> geneAccessionIds;
     private List<String> impcGeneLinks;
     private List<String> mgiAlleleNames;
     private String       title;
@@ -48,7 +49,7 @@ public class ReferenceDTO {
     private String       dateOfPublication;
     private List<String> grantIds;
     private List<String> grantAgencies;
-    private List<String> paperLinks;
+    private List<String> paperUrls;
     
     public List<String> getAlleleSymbols() {
         return alleleSymbols;
@@ -58,12 +59,20 @@ public class ReferenceDTO {
         this.alleleSymbols = alleleSymbols;
     }
 
-    public List<String> getAlleleIds() {
-        return alleleIds;
+    public List<String> getAlleleAccessionIds() {
+        return alleleAccessionIds;
     }
 
-    public void setAlleleIds(List<String> alleleIds) {
-        this.alleleIds = alleleIds;
+    public void setAlleleAccessionIds(List<String> alleleAccessionIds) {
+        this.alleleAccessionIds = alleleAccessionIds;
+    }
+
+    public List<String> getGeneAccessionIds() {
+        return geneAccessionIds;
+    }
+
+    public void setGeneAccessionIds(List<String> geneAccessionIds) {
+        this.geneAccessionIds = geneAccessionIds;
     }
 
     public List<String> getImpcGeneLinks() {
@@ -130,19 +139,20 @@ public class ReferenceDTO {
         this.grantAgencies = grantAgencies;
     }
 
-    public List<String> getPaperLinks() {
-        return paperLinks;
+    public List<String> getPaperUrls() {
+        return paperUrls;
     }
 
-    public void setPaperLinks(List<String> paperLinks) {
-        this.paperLinks = paperLinks;
+    public void setPaperUrls(List<String> paperUrls) {
+        this.paperUrls = paperUrls;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 37 * hash + Objects.hashCode(this.alleleSymbols);
-        hash = 37 * hash + Objects.hashCode(this.alleleIds);
+        hash = 37 * hash + Objects.hashCode(this.alleleAccessionIds);
+        hash = 37 * hash + Objects.hashCode(this.geneAccessionIds);
         hash = 37 * hash + Objects.hashCode(this.impcGeneLinks);
         hash = 37 * hash + Objects.hashCode(this.mgiAlleleNames);
         hash = 37 * hash + Objects.hashCode(this.title);
@@ -151,7 +161,7 @@ public class ReferenceDTO {
         hash = 37 * hash + Objects.hashCode(this.dateOfPublication);
         hash = 37 * hash + Objects.hashCode(this.grantIds);
         hash = 37 * hash + Objects.hashCode(this.grantAgencies);
-        hash = 37 * hash + Objects.hashCode(this.paperLinks);
+        hash = 37 * hash + Objects.hashCode(this.paperUrls);
         return hash;
     }
 
@@ -167,7 +177,10 @@ public class ReferenceDTO {
         if ( ! Objects.equals(this.alleleSymbols, other.alleleSymbols)) {
             return false;
         }
-        if ( ! Objects.equals(this.alleleIds, other.alleleIds)) {
+        if ( ! Objects.equals(this.alleleAccessionIds, other.alleleAccessionIds)) {
+            return false;
+        }
+        if ( ! Objects.equals(this.geneAccessionIds, other.geneAccessionIds)) {
             return false;
         }
         if ( ! Objects.equals(this.impcGeneLinks, other.impcGeneLinks)) {
@@ -194,7 +207,7 @@ public class ReferenceDTO {
         if ( ! Objects.equals(this.grantAgencies, other.grantAgencies)) {
             return false;
         }
-        if ( ! Objects.equals(this.paperLinks, other.paperLinks)) {
+        if ( ! Objects.equals(this.paperUrls, other.paperUrls)) {
             return false;
         }
         return true;
@@ -202,7 +215,7 @@ public class ReferenceDTO {
 
     @Override
     public String toString() {
-        return "ReferenceDTO{" + "alleleSymbols=" + alleleSymbols + ", alleleIds=" + alleleIds + ", impcGeneLinks=" + impcGeneLinks + ", mgiAlleleNames=" + mgiAlleleNames + ", title=" + title + ", journal=" + journal + ", pmid=" + pmid + ", dateOfPublication=" + dateOfPublication + ", grantIds=" + grantIds + ", grantAgencies=" + grantAgencies + ", paperLinks=" + paperLinks + '}';
+        return "ReferenceDTO{" + "alleleSymbols=" + alleleSymbols + ", alleleIds=" + ", geneAccessionIds=" + geneAccessionIds + ", impcGeneLinks=" + impcGeneLinks + ", mgiAlleleNames=" + mgiAlleleNames + ", title=" + title + ", journal=" + journal + ", pmid=" + pmid + ", dateOfPublication=" + dateOfPublication + ", grantIds=" + grantIds + ", grantAgencies=" + grantAgencies + ", paperLinks=" + paperUrls + '}';
     }
     
     

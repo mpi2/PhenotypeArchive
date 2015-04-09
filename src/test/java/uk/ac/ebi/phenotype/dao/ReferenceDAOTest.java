@@ -51,7 +51,7 @@ public class ReferenceDAOTest {
     @PostConstruct
     public void initialize() {
         expected25155611 = new ReferenceDTO();
-        expected25155611.setAlleleIds(Arrays.asList(new String[] { "MGI:4431566", "MGI:4434431" }));
+        expected25155611.setAlleleAccessionIds(Arrays.asList(new String[] { "MGI:4431566", "MGI:4434431" }));
         expected25155611.setAlleleSymbols(Arrays.asList(new String[] { "Aldh2<tm1a(EUCOMM)Wtsi>", "Fanca<tm1a(EUCOMM)Wtsi>" }));
         expected25155611.setDateOfPublication("2014 Sep");
         expected25155611.setGrantAgencies(Arrays.asList(new String[] { "Cancer Research UK", "Medical Research Council" }));
@@ -59,7 +59,7 @@ public class ReferenceDAOTest {
         expected25155611.setImpcGeneLinks(Arrays.asList(new String[] { "http://www.mousephenotype.org/data/genes/MGI:99600", "http://www.mousephenotype.org/data/genes/MGI:1341823" }));
         expected25155611.setJournal("Molecular cell");
         expected25155611.setMgiAlleleNames(Arrays.asList(new String[] { "aldehyde dehydrogenase 2, mitochondrial; targeted mutation 1a, Wellcome Trust Sanger Institute", "Fanconi anemia, complementation group A; targeted mutation 1a, Wellcome Trust Sanger Institute" }));
-        expected25155611.setPaperLinks(Arrays.asList(new String[] { "http://dx.doi.org/10.1016/j.molcel.2014.07.010", "http://europepmc.org/articles/PMC4175174", "http://europepmc.org/articles/PMC4175174?pdf=render" }));
+        expected25155611.setPaperUrls(Arrays.asList(new String[] { "http://dx.doi.org/10.1016/j.molcel.2014.07.010", "http://europepmc.org/articles/PMC4175174", "http://europepmc.org/articles/PMC4175174?pdf=render" }));
         expected25155611.setPmid("25155611");
         expected25155611.setTitle("Maternal aldehyde elimination during pregnancy preserves the fetal genome.");
     }

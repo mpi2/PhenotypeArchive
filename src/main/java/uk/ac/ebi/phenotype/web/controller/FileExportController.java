@@ -1264,7 +1264,7 @@ public class FileExportController {
         for (ReferenceDTO reference : references) {
             List<String> row = new ArrayList();
             row.add(StringUtils.join(reference.getAlleleSymbols(),  "|"));
-            row.add(StringUtils.join(reference.getAlleleIds(),      "|"));
+            row.add(StringUtils.join(reference.getAlleleAccessionIds(),      "|"));
             row.add(StringUtils.join(reference.getImpcGeneLinks(),  "|"));
             row.add(StringUtils.join(reference.getMgiAlleleNames(), "|"));
             row.add(reference.getTitle());
@@ -1273,7 +1273,7 @@ public class FileExportController {
             row.add(reference.getDateOfPublication());
             row.add(StringUtils.join(reference.getGrantIds(),       "|"));
             row.add(StringUtils.join(reference.getGrantAgencies(),  "|"));
-            row.add(StringUtils.join(reference.getPaperLinks(),     "|"));
+            row.add(StringUtils.join(reference.getPaperUrls(),     "|"));
 
             rowData.add(StringUtils.join(row, "\t"));
         }
