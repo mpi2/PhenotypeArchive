@@ -132,7 +132,9 @@
 	</div><!-- end of anatomy explore panel-->
 	</c:if>
 	
-					<div class="section">
+					<div class="section"> 
+						<h2 class="title">Expression data for ${anatomy.term}</h2>
+						<div class="inner">
 						<table id="genes" class="table tableSorter">
 					    <thead>
 					    <tr>
@@ -171,8 +173,8 @@
 					    </c:forEach>
 					    </tbody>
 					</table>
-			
-				</div>
+		
+				</div></div>
 	
 			</div>
 		</div>
