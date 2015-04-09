@@ -14,7 +14,6 @@ public class ImageDTO extends ObservationDTO {
 	public static final String OMERO_ID = "omero_id";
 	public static final String DOWNLOAD_URL = "download_url";
 	public static final String JPEG_URL = "jpeg_url";
-	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String IMAGE_LINK = "image_link";
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
@@ -24,8 +23,21 @@ public class ImageDTO extends ObservationDTO {
 	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "selected_top_level_ma_term_synonym";
 	public static final String SYMBOL_GENE = "symbol_gene";
 	public static final String SYMBOL = "symbol";
-	public static final String SUBTYPE = "subtype";
-		
+	public static final String SUBTYPE = "subtype";	
+	public static final String STATUS = "status";	
+	public static final String IMITS_PHENOTYPE_STARTED = SangerImageDTO.IMITS_PHENOTYPE_STARTED;	
+	public static final String IMITS_PHENOTYPE_COMPLETE = SangerImageDTO.IMITS_PHENOTYPE_COMPLETE;	
+	public static final String IMITS_PHENOTYPE_STATUS = SangerImageDTO.IMITS_PHENOTYPE_STATUS;	
+	public static final String LEGACY_PHENOTYPE_STATUS = AlleleDTO.LEGACY_PHENOTYPE_STATUS;
+	public static final String LATEST_PRODUCTION_CENTRE = SangerImageDTO.LATEST_PRODUCTION_CENTRE;	
+	public static final String LATEST_PHENOTYPING_CENTRE = SangerImageDTO.LATEST_PHENOTYPING_CENTRE;	
+	public static final String ALLELE_NAME = SangerImageDTO.ALLELE_NAME;	
+	public static final String MARKER_SYMBOL = SangerImageDTO.MARKER_SYMBOL;	
+	public static final String MARKER_NAME = SangerImageDTO.MARKER_NAME;	
+	public static final String MARKER_SYNONYM = SangerImageDTO.MARKER_SYNONYM;	
+	public static final String MARKER_TYPE = SangerImageDTO.MARKER_TYPE;	
+	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
+	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
@@ -63,43 +75,43 @@ public class ImageDTO extends ObservationDTO {
 	@Field(SYMBOL_GENE)
 	private String symbolGene;//for search and annotation view	
 	
-	@Field(SangerImageDTO.STATUS)
+	@Field(STATUS)
 	private List<String> status;
 	
-	@Field(SangerImageDTO.IMITS_PHENOTYPE_STARTED)
+	@Field(IMITS_PHENOTYPE_STARTED)
 	private List<String> imitsPhenotypeStarted;
 	
-	@Field(SangerImageDTO.IMITS_PHENOTYPE_COMPLETE)
+	@Field(IMITS_PHENOTYPE_COMPLETE)
 	private List<String> imitsPhenotypeComplete;
 	
-	@Field(SangerImageDTO.IMITS_PHENOTYPE_STATUS)
+	@Field(IMITS_PHENOTYPE_STATUS)
 	private List<String> imitsPhenotypeStatus;
 	
-	@Field(AlleleDTO.LEGACY_PHENOTYPE_STATUS)
+	@Field(LEGACY_PHENOTYPE_STATUS)
 	private Integer legacyPhenotypeStatus;	
 
-	@Field(SangerImageDTO.LATEST_PRODUCTION_CENTRE)
+	@Field(LATEST_PRODUCTION_CENTRE)
 	private List<String> latestProductionCentre;
 	
-	@Field(SangerImageDTO.LATEST_PHENOTYPING_CENTRE)
+	@Field(LATEST_PHENOTYPING_CENTRE)
 	private List<String> latestPhenotypingCentre;
 	
-	@Field(SangerImageDTO.ALLELE_NAME)
+	@Field(ALLELE_NAME)
 	private List<String> alleleName;
 	
-	@Field(SangerImageDTO.MARKER_SYMBOL)
+	@Field(MARKER_SYMBOL)
 	private List<String> markerSymbol;
 	
-	@Field(SangerImageDTO.MARKER_NAME)
+	@Field(MARKER_NAME)
 	private List<String> markerName;
 	
-	@Field(SangerImageDTO.MARKER_SYNONYM)
+	@Field(MARKER_SYNONYM)
 	private List<String> markerSynonym;
 	
-	@Field(SangerImageDTO.MARKER_TYPE)
+	@Field(MARKER_TYPE)
 	private String markerType;
 	
-	@Field(SangerImageDTO.HUMAN_GENE_SYMBOL)
+	@Field(HUMAN_GENE_SYMBOL)
 	private List<String> humanGeneSymbol;
 	
 	@Field(SYMBOL)
@@ -108,7 +120,7 @@ public class ImageDTO extends ObservationDTO {
 	@Field(SUBTYPE)
 	private String subtype;
 	
-	@Field(AlleleDTO.LATEST_PHENOTYPE_STATUS)
+	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypeStatus;
 
 	
