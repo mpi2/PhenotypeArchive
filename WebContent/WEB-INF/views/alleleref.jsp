@@ -9,7 +9,7 @@
         
         <style type="text/css">
             div#alleleRef_filter {
-                float: right;
+                float: left;
             }
 
             div#tableTool {
@@ -73,6 +73,7 @@
                 var oTable = $('table#alleleRef').dataTable({
                     "bSort": true,
                     "processing": true,
+                    "paging": false,
                     "serverSide": true,
                     //"sDom": "<lr><'#caption'>tip",
                     "sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
@@ -80,14 +81,6 @@
                     "searchHighlight": true,
                     "iDisplayLength": 200,
                     "oLanguage": {
-                        "sLengthMenu": 'Show <select>' +
-                                '<option value="10">10</option>' +
-                                '<option value="30">30</option>' +
-                                '<option value="50">50</option>' +
-                                '<option value="100">100</option>' +
-                                '<option value="200">200</option>' +
-                                '</select> papers',
-                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ papers",
                         "sSearch": "Filter: "
                     },
                     "aoColumns": [{"bSearchable": true},
@@ -111,7 +104,7 @@
                         $('.alleleToggle').click(function () {
                             console.log("toggle");
                             if (!$(this).hasClass('showMe')) {
-                                $(this).addClass('showMe').text('Show less alleles ...');
+                                $(this).addClass('showMe').text('Show fewer alleles ...');
                                 $(this).siblings().addClass('showMe');
                             }
                             else {
@@ -155,7 +148,7 @@
             <div class="block">
                 <div class='content'>
                     <div class="node node-gene">
-                        <h1 class="title" id="top">IMPC references</h1>	 
+                        <h1 class="title" id="top">References using IKMC and IMPC resources</h1>	 
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>
