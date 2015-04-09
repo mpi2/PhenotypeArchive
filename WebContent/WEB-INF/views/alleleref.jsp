@@ -7,16 +7,18 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/alleleref">&nbsp;Allele references</a></jsp:attribute>
     <jsp:attribute name="header">
         
+        <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
+        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
+        
         <style type="text/css">
             div#alleleRef_filter {
-                float: left;
+                float: right;
             }
 
             div#tableTool {
                 position: absolute;
                 top: 140px;
                 right: 20px;
-
             }
             table.dataTable span.highlight {
                 background-color: yellow;
@@ -42,6 +44,16 @@
                 cursor: pointer;
                 font-size: 11px;
                 font-weight: bold;
+            }
+            
+            div#saveTable {
+                top: 54px;
+                left: -25px;
+            }
+            
+            div#toolBox {
+                top: -38px;
+                right: 35px;
             }
         </style>
         
@@ -127,8 +139,6 @@
             }
         </script>
         
-        <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
         <script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>  
         <script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>  
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  
