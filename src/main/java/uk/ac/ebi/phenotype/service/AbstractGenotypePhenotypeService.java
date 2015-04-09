@@ -698,6 +698,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             solrUrl += "&" + queryString;
         }
         solrUrl += "&sort=p_value%20asc";
+        
+        System.out.println("SOLR UR ABSTRACT GENOTYPE PHENOTYPE L 702 " + solrUrl);
         return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 
     }

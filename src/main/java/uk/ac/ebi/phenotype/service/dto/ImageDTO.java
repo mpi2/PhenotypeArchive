@@ -470,6 +470,11 @@ public class ImageDTO extends ObservationDTO {
 		return topLevelMaTermSynonym;
 	}
 
-
+	public String getExpression(String maId){
+		
+		int pos = maTermId.indexOf(maId);
+		return getParameterAssociationValue().get(pos);
+		
+	}
 	
 }
