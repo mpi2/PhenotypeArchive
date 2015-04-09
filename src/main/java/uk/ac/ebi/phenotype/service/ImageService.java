@@ -45,9 +45,11 @@ public class ImageService {
 		
 		List<DataTableRow> res = new ArrayList<>();
 		SolrQuery query = new SolrQuery();
-//		query.setQuery("*:*")
-//			.addFilterQuery(ImageDTO.)
-		
+		query.setQuery("*:*")
+			.addFilterQuery(ImageDTO.MA_ID + ":\"" + maId + "\"")
+			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
+			.setRows(100000);
+	//		.setFields(I)
 		
 		return res;
 		
