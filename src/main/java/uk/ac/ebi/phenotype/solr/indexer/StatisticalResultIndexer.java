@@ -7,11 +7,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import uk.ac.ebi.phenotype.service.MpOntologyService;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBeanList;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OrganisationBean;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
+
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -19,8 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenotype.service.MpOntologyService;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBeanList;
 
 /**
  * Load documents into the statistical-results SOLR core

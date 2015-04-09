@@ -67,11 +67,13 @@
 					
 								<!-- Associations table -->
 								<c:if test="${chart != null}">						
-									<!-- phenome chart here -->
+									<!-- chart here -->
 					  			<div id="chart${allele.id.accession}"></div>
 									<script type="text/javascript">${chart}</script>	
 								</c:if>
+								
 								<br/><br/>			
+								
 								<c:set var="count" value="0" scope="page" />
 								<c:forEach var="dataMap" items="${mapList}" varStatus="status">
 									<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>

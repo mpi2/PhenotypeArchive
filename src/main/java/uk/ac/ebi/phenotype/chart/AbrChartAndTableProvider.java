@@ -105,7 +105,6 @@ public class AbrChartAndTableProvider {
 			}
     	}
     	
-    	// We've got everything, get the chart now.
 		return getCustomChart(data, procedureUrl, unit, zygosities);
 	}
 	

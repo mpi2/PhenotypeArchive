@@ -19,6 +19,7 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
@@ -51,6 +53,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
@@ -792,10 +795,17 @@ public class ObservationService extends BasicService {
 	 * @return list of triplets
 	 * @throws SolrServerException
 	 */
-	public List<Map<String, String>> getDistinctParameterListByPipelineAlleleCenter(String pipelineStableId, String alleleAccession, String phenotypingCenter, List<String> procedureFilters)
+	public List<Map<String, String>> getDistinctParameterListByPipelineAlleleCenter(String pipelineStableId, String alleleAccession, String phenotypingCenter, List<String> procedureFilters, ArrayList<String> resource)
 	throws SolrServerException {
 
-		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId).addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"").addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")	
+			.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
+			.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
+			.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+		if (resource != null){
+			query.addFilterQuery("(" + ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resource, " OR " + ObservationDTO.DATASOURCE_NAME + ":") + ")");
+		}
 
 		int index = 0;
 		if (procedureFilters != null && procedureFilters.size() > 0) {
@@ -813,31 +823,23 @@ public class ObservationService extends BasicService {
 			query.addFilterQuery(queryBuilder.toString());
 		}
 
-		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
-																									// at
-																									// least
-																									// 2
-																									// fields
-		ObservationDTO.PROCEDURE_STABLE_ID + "," + ObservationDTO.PROCEDURE_NAME + "," + ObservationDTO.PARAMETER_STABLE_ID + "," + ObservationDTO.PARAMETER_NAME + "," + ObservationDTO.OBSERVATION_TYPE + "," + ObservationDTO.ZYGOSITY);
+		query.setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( ObservationDTO.PROCEDURE_STABLE_ID 
+			+ "," + ObservationDTO.PROCEDURE_NAME + "," + ObservationDTO.PARAMETER_STABLE_ID + "," + ObservationDTO.PARAMETER_NAME 
+			+ "," + ObservationDTO.OBSERVATION_TYPE + "," + ObservationDTO.ZYGOSITY);
 
 		QueryResponse response = solr.query(query);
-
 		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
-
 		List<Map<String, String>> results = new LinkedList<Map<String, String>>();
 
 		if (facetPivot != null && facetPivot.size() > 0) {
+			
 			for (int i = 0; i < facetPivot.size(); i++) {
 
-				String name = facetPivot.getName(i); // in this case only one of
-														// them
-
+				String name = facetPivot.getName(i); 
 				List<PivotField> pivotResult = facetPivot.get(name);
 
-				// iterate on results
 				for (int j = 0; j < pivotResult.size(); j++) {
 
-					// create a HashMap to store a new triplet of data
 					PivotField pivotLevel = pivotResult.get(j);
 					List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, false);
 					results.addAll(lmap);

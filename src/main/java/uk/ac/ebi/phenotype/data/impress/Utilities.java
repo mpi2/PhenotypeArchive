@@ -15,14 +15,16 @@
  */
 package uk.ac.ebi.phenotype.data.impress;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.dao.DatasourceDAO;
+import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
+import uk.ac.ebi.phenotype.pojo.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -35,7 +37,18 @@ import java.util.Map;
 @Component
 public class Utilities {
 
-	protected static Logger logger = Logger.getLogger(Utilities.class);
+	private static final Logger logger = LoggerFactory.getLogger(Utilities.class);
+
+	@Autowired
+	OntologyTermDAO ontologyTermDAO;
+
+	@Autowired
+	DatasourceDAO datasourceDAO;
+
+	private Integer efoDbId=null;
+	private final Set<String> expectedDpc = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("9.5", "12.5", "13.5", "14.5", "15.5", "18.5")));
+
+
 
 	/**
 	 * Returns the observation type based on the parameter, when the parameter
@@ -163,4 +176,90 @@ public class Utilities {
 
 		return observationType;
 	}
+
+
+	/**
+	 * Always return EFO term for "embryo stage" for now
+	 * Future enhancement (once EFO gets a term for "embryonic day 9.5") would be
+	 * to return the actual term associated with the stage parameter
+	 *
+	 * @param stage the stage from impress
+	 * @param stageUnit the stage unit applicable to stage
+	 * @return the term associated with the correct stage
+	 */
+	public OntologyTerm getStageTerm(String stage, StageUnitType stageUnit) {
+
+		// Fail fast if the stage is not a "number"
+		try {
+			Float.parseFloat(stage);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+
+		initializeEfoDbId();
+
+		switch (stageUnit) {
+
+			case DPC:
+
+				// Mouse gestation is 20 days
+				if(Float.parseFloat(stage)>21) {
+					return null;
+				}
+
+				String termName = String.format("embryonic day %s", stage);
+
+				if( ! expectedDpc.contains(stage)) {
+					logger.warn("Unexpected value for embryonic DCP stage: "+stage);
+				}
+
+				OntologyTerm term = ontologyTermDAO.getOntologyTermByName(termName);
+				if (term==null) {
+					// Term not found -- create it
+					term = createOntologyTerm(termName);
+				}
+
+				return term;
+
+			case THEILER:
+
+				return ontologyTermDAO.getOntologyTermByName(String.format("TS%s,embryo", stage));
+
+			default:
+				return null;
+		}
+	}
+
+
+	/**
+	 * Create an EFO OntologyTerm for the passed in termName
+	 *
+	 * @param termName the name of the term to create
+	 * @return the (already persisted) ontology term
+	 */
+	public OntologyTerm createOntologyTerm(String termName) {
+
+		initializeEfoDbId();
+
+		String termAcc = "NULL-" + DigestUtils.md5Hex(termName).substring(0,9).toUpperCase();
+
+		logger.info("Creating EFO term for name '%s' (Accession: %s)", termName, termAcc);
+
+		OntologyTerm term;
+		term = new OntologyTerm();
+		term.setId(new DatasourceEntityId(termAcc,efoDbId));
+		term.setDescription(termName);
+		term.setName(termName);
+		ontologyTermDAO.batchInsertion(Arrays.asList(term));
+
+		return term;
+	}
+
+	private void initializeEfoDbId() {
+
+		if(efoDbId==null) {
+			efoDbId = datasourceDAO.getDatasourceByShortName("EFO").getId();
+		}
+	}
+
 }
