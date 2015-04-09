@@ -15,7 +15,17 @@ public class ImageDTO extends ObservationDTO {
 	public static final String DOWNLOAD_URL = "download_url";
 	public static final String JPEG_URL = "jpeg_url";
 	public static final String MARKER_SYMBOL = "marker_symbol";
-	public static final String IMAGE_LINK="image_link";
+	public static final String IMAGE_LINK = "image_link";
+	public static final String MA_ID = "ma_id";
+	public static final String MA_TERM = "ma_term";
+	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
+	public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
+	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
+	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "selected_top_level_ma_term_synonym";
+	public static final String SYMBOL_GENE = "symbol_gene";
+	public static final String SYMBOL = "symbol";
+	public static final String SUBTYPE = "subtype";
+		
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
@@ -29,74 +39,78 @@ public class ImageDTO extends ObservationDTO {
 	@Field(IMAGE_LINK)
 	private String imageLink;
 
-
 	@Field(JPEG_URL)
 	private String jpegUrl;
 	
-	@Field("ma_id")
+	@Field(MA_ID)
 	private List<String> maTermId;
 	
-	@Field("ma_term")
+	@Field(MA_TERM)
 	private List<String> maTerm;
 	
-	@Field("ma_term_synonym")
+	@Field(MA_TERM_SYNONYM)
 	private List<String> maTermSynonym;
 
-	@Field("selected_top_level_ma_id")
+	@Field(SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> topLevelMaIds;
 
-	@Field("selected_top_level_ma_term")
+	@Field(SELECTED_TOP_LEVEL_MA_TERM)
 	private List<String> topLeveMaTerm;
 	
-	@Field("selected_top_level_ma_term_synonym")
+	@Field(SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String> topLevelMaTermSynonym;
-	
-//	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-//	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-//	<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-
-	@Field("symbol_gene")
-	private String symbolGene;//for search and annotation view
+	@Field(SYMBOL_GENE)
+	private String symbolGene;//for search and annotation view	
 	
 	@Field(SangerImageDTO.STATUS)
 	private List<String> status;
 	
 	@Field(SangerImageDTO.IMITS_PHENOTYPE_STARTED)
 	private List<String> imitsPhenotypeStarted;
+	
 	@Field(SangerImageDTO.IMITS_PHENOTYPE_COMPLETE)
 	private List<String> imitsPhenotypeComplete;
+	
 	@Field(SangerImageDTO.IMITS_PHENOTYPE_STATUS)
 	private List<String> imitsPhenotypeStatus;
+	
 	@Field(AlleleDTO.LEGACY_PHENOTYPE_STATUS)
-	private Integer legacyPhenotypeStatus;
-	
-	
+	private Integer legacyPhenotypeStatus;	
 
 	@Field(SangerImageDTO.LATEST_PRODUCTION_CENTRE)
 	private List<String> latestProductionCentre;
+	
 	@Field(SangerImageDTO.LATEST_PHENOTYPING_CENTRE)
 	private List<String> latestPhenotypingCentre;
+	
 	@Field(SangerImageDTO.ALLELE_NAME)
 	private List<String> alleleName;
+	
 	@Field(SangerImageDTO.MARKER_SYMBOL)
 	private List<String> markerSymbol;
+	
 	@Field(SangerImageDTO.MARKER_NAME)
 	private List<String> markerName;
+	
 	@Field(SangerImageDTO.MARKER_SYNONYM)
 	private List<String> markerSynonym;
+	
 	@Field(SangerImageDTO.MARKER_TYPE)
 	private String markerType;
+	
 	@Field(SangerImageDTO.HUMAN_GENE_SYMBOL)
 	private List<String> humanGeneSymbol;
-	@Field("symbol")
+	
+	@Field(SYMBOL)
 	private String symbol;
-	@Field("subtype")
+	
+	@Field(SUBTYPE)
 	private String subtype;
+	
 	@Field(AlleleDTO.LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypeStatus;
 
-	
 	
 	public String getImageLink() {
 		return imageLink;

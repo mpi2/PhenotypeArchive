@@ -20,6 +20,7 @@ import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
+import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
 import java.util.*;
 
@@ -40,6 +41,20 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
+	public List<DataTableRow> getImagesForMA(String maId){
+		
+		List<DataTableRow> res = new ArrayList<>();
+		SolrQuery query = new SolrQuery();
+//		query.setQuery("*:*")
+//			.addFilterQuery(ImageDTO.)
+		
+		
+		return res;
+		
+	}
+	
+	
+	
 	public long getNumberOfDocuments( List<String> resourceName, boolean experimentalOnly ) 
 	throws SolrServerException{
 
