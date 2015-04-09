@@ -555,6 +555,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			seriesObservation.setParameter(parameter);
 			seriesObservation.setSample(sample);
 			seriesObservation.setType(observationType);
+			seriesObservation.setMissingFlag(false);
 
 			obs = seriesObservation;
 			
