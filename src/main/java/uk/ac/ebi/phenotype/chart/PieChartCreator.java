@@ -17,7 +17,7 @@ String pieChart="";
 	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, Map<String, String> map){
 		List<String> colors=new ArrayList<>();;
 		if(map==null){//if no colormap then use highdifference colors as default
-		colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		}else{
 			for(Entry<String, Integer> entry: labelToNumber.entrySet()){
 				if(entry.getKey().contains("WT")){
