@@ -11,9 +11,6 @@
         <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
         
         <style type="text/css">
-            div#alleleRef_filter {
-                float: right;
-            }
 
             div#tableTool {
                 position: absolute;
