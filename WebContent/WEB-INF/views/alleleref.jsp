@@ -7,16 +7,15 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/alleleref">&nbsp;Allele references</a></jsp:attribute>
     <jsp:attribute name="header">
         
+        <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
+        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
+        
         <style type="text/css">
-            div#alleleRef_filter {
-                float: right;
-            }
 
             div#tableTool {
                 position: absolute;
                 top: 140px;
                 right: 20px;
-
             }
             table.dataTable span.highlight {
                 background-color: yellow;
@@ -42,6 +41,16 @@
                 cursor: pointer;
                 font-size: 11px;
                 font-weight: bold;
+            }
+            
+            div#saveTable {
+                top: 54px;
+                left: -25px;
+            }
+            
+            div#toolBox {
+                top: -38px;
+                right: 35px;
             }
         </style>
         
@@ -73,6 +82,7 @@
                 var oTable = $('table#alleleRef').dataTable({
                     "bSort": true,
                     "processing": true,
+                    "paging": false,
                     "serverSide": true,
                     //"sDom": "<lr><'#caption'>tip",
                     "sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
@@ -80,14 +90,6 @@
                     "searchHighlight": true,
                     "iDisplayLength": 200,
                     "oLanguage": {
-                        "sLengthMenu": 'Show <select>' +
-                                '<option value="10">10</option>' +
-                                '<option value="30">30</option>' +
-                                '<option value="50">50</option>' +
-                                '<option value="100">100</option>' +
-                                '<option value="200">200</option>' +
-                                '</select> papers',
-                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ papers",
                         "sSearch": "Filter: "
                     },
                     "aoColumns": [{"bSearchable": true},
@@ -111,7 +113,7 @@
                         $('.alleleToggle').click(function () {
                             console.log("toggle");
                             if (!$(this).hasClass('showMe')) {
-                                $(this).addClass('showMe').text('Show less alleles ...');
+                                $(this).addClass('showMe').text('Show fewer alleles ...');
                                 $(this).siblings().addClass('showMe');
                             }
                             else {
@@ -134,8 +136,6 @@
             }
         </script>
         
-        <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
         <script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>  
         <script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>  
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  
@@ -155,7 +155,7 @@
             <div class="block">
                 <div class='content'>
                     <div class="node node-gene">
-                        <h1 class="title" id="top">IMPC references</h1>	 
+                        <h1 class="title" id="top">References using IKMC and IMPC resources</h1>	 
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>

@@ -1,11 +1,21 @@
 $(document).ready(function(){						
 	
-console.log('comparator js ready');
-
+//console.log('comparator js ready');
+//console.log('window.location='+window.location);
 //mediaBaseUrl=https://dev.mousephenotype.org/data/media
 //var mediaBaseUrl='http://wwwdev.ebi.ac.uk/mi/media/omero/';
-var solrUrl='//www.ebi.ac.uk/mi/impc/beta/solr';
-var omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
+//var solrUrl='//www.ebi.ac.uk/mi/impc/beta/solr';
+//var omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
+var solrUrl='//wwwdev.ebi.ac.uk/mi/impc/dev/solr';
+var omero_gateway_root="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway";
+if(window.location.href.indexOf('beta') > -1){
+	solrUrl='//www.ebi.ac.uk/mi/impc/beta/solr';
+	omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
+}
+if(window.location.href.indexOf('www.mousephenotype.org') > -1){
+	solrUrl='//www.ebi.ac.uk/mi/impc/solr';
+	omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
+}
 
 var detailUrlExt='/img_detail/';
 var url=omero_gateway_root+detailUrlExt;//may need for this to be passed as a parameter for each request if not being set by jsp?

@@ -48,16 +48,12 @@ public class UtilitiesTest {
     @Test
     public void testCheckStageConversion() throws Exception {
 
-        OntologyTerm embryoStage = ontologyTermDAO.getOntologyTermByAccession("EFO:0001367");
-        OntologyTerm adultStage = ontologyTermDAO.getOntologyTermByAccession("EFO:0002948");
-
         List<String> goodStages = Arrays.asList("9.5", "12.5", "20");
         List<StageUnitType> goodStageUnits = Arrays.asList(StageUnitType.DPC, StageUnitType.DPC, StageUnitType.THEILER);
-        List<OntologyTerm> goodTerms = Arrays.asList( embryoStage, embryoStage, embryoStage);
+        List<String> goodTerms = Arrays.asList( "embryonic day 9.5", "embryonic day 12.5", "TS20,embryo");
 
-        List<String> badStages = Arrays.asList( "9.5", "a", "20");
+        List<String> badStages = Arrays.asList( "9.5", "a", "30");
         List<StageUnitType> badStageUnits = Arrays.asList(StageUnitType.THEILER, StageUnitType.THEILER, StageUnitType.DPC);
-        List<OntologyTerm> badTerms = Arrays.asList( embryoStage, embryoStage, embryoStage);
 
         for (int i = 0; i<goodStages.size(); i++) {
             String stage = goodStages.get(i);
@@ -65,9 +61,9 @@ public class UtilitiesTest {
 
             System.out.println("Testing :" + stage + " " + stageUnit.getStageUnitName());
 
-            // Need a method to convert impress input to represnetative EFO term
+            // Need a method to convert impress input to representative EFO term
             OntologyTerm term = impressUtilities.getStageTerm(stage, stageUnit);
-            org.junit.Assert.assertTrue(term.equals(goodTerms.get(i)));
+            org.junit.Assert.assertTrue(term.getName().equals(goodTerms.get(i)));
         }
 
         for (int i = 0; i<badStages.size(); i++) {

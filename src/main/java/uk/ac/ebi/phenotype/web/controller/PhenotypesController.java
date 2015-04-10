@@ -160,7 +160,6 @@ public class PhenotypesController {
         	int nbDocs = docs.size();
         	
         	if ( nbDocs == 0 && (preqcService.getGenesBy(phenotype_id, null, true).isEmpty() || preqcService.getGenesBy(phenotype_id, null, true) == null)) {
-        		// do something
         		model.addAttribute("hasData", false);
         	} else {
 	        	model.addAttribute("hasData", true);
@@ -242,9 +241,7 @@ public class PhenotypesController {
         model.addAttribute("hpTerms", computationalHPTerms);
         
         
-        // Query the images for this phenotype
-        
-        
+        // Query the images for this phenotype        
         QueryResponse response = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay);
         model.addAttribute("numberFound", response.getResults().getNumFound());
         model.addAttribute("images", response.getResults());
@@ -333,8 +330,6 @@ public class PhenotypesController {
             sex.add(pcs.getSex().toString());
 
             DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
-
-
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr)) {
