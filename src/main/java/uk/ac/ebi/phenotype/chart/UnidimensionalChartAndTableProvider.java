@@ -71,13 +71,9 @@ public class UnidimensionalChartAndTableProvider {
 	throws SQLException, IOException, URISyntaxException {
 
 		ChartData chartAndTable = null;
-		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
-		// String parameterId="ESLIM_015_001_018";// ESLIM_015_001_018
-
 		List<UnidimensionalDataSet> unidimensionalDataSets = new ArrayList<UnidimensionalDataSet>();
 
 		// get control data
-
 		List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<UnidimensionalResult>();
 		UnidimensionalDataSet unidimensionalDataSet = new UnidimensionalDataSet();
 		unidimensionalDataSet.setExperiment(experiment);
@@ -90,42 +86,25 @@ public class UnidimensionalChartAndTableProvider {
 		List<ChartsSeriesElement> chartsSeriesElementsList = new ArrayList<ChartsSeriesElement>();
 		for (SexType sexType : experiment.getSexes()) {
 			List<List<Float>> rawData = new ArrayList<List<Float>>();
-			List<Float> controlCounts = new ArrayList<Float>();
-			List<MouseDataPoint> controlMouseDataPoints = new ArrayList<>();
-			// unidimensionalStatisticsDAO
-			// .getControlDataPointsWithMouseName(popId);
-
-			// loop over the control points and add them
 			List<Float> dataFloats = new ArrayList<>();
 			for (ObservationDTO control : experiment.getControls(sexType)) {
 
 				Float dataPoint = control.getDataPoint();
 				dataFloats.add(dataPoint);
-
-				// logger.debug("adding control point="+dataPoint);
-
 			}
 
-			// set up for WT for this sex
 			ChartsSeriesElement tempElement = new ChartsSeriesElement();
 			tempElement.setSexType(sexType);
 			tempElement.setZygosityType(null);
 			tempElement.setOriginalData(dataFloats);
-			// tempElement.setColumn(columnIndex);
 			chartsSeriesElementsList.add(tempElement);
 
 			for (ZygosityType zType : experiment.getZygosities()) {
 
-				// loop over all the experimental docs and get all
-				// that apply to current loop parameters
 				List<Float> mutantCounts = new ArrayList<Float>();
-
-				List<MouseDataPoint> mutantMouseDataPoints = new ArrayList<>();
-
 				Set<ObservationDTO> expObservationsSet = Collections.emptySet();
-				// JW added hemizygote capabillity to experimentService so just
-				// use this one method
 				expObservationsSet = experiment.getMutants(sexType, zType);
+				
 				for (ObservationDTO expDto : expObservationsSet) {
 					Float dataPoint = expDto.getDataPoint();
 					mutantCounts.add(dataPoint);
@@ -135,20 +114,31 @@ public class UnidimensionalChartAndTableProvider {
 				tempElementExp.setZygosityType(zType);
 				tempElementExp.setOriginalData(mutantCounts);
 				chartsSeriesElementsList.add(tempElementExp);
-
 			}
 
 			genderAndRawDataMap.put(sexType, rawData);
-		}// end of sextype loop
+		}
+		
 		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment, parameter, expBiologicalModel);
 
 		unidimensionalStatsObjects.addAll(unidimensionalStatsObject);
-		chartAndTable = processChartData(chartId, parameter, experiment, yAxisTitle, chartsSeriesElementsList);
-
+		Map <String, Float> boxMinMax = ChartUtils.getMinMaxXAxis(chartsSeriesElementsList, experiment);
+		chartAndTable = processChartData(chartId, boxMinMax.get("min"), boxMinMax.get("max"), parameter, experiment, yAxisTitle, chartsSeriesElementsList);
+		String title = "<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>";
+		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+		String procedureDescription = "";
+		if (proc != null) {
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+		}
+		
 		unidimensionalDataSet.setChartData(chartAndTable);
 		unidimensionalDataSet.setAllUnidimensionalResults(allUnidimensionalResults);
 		unidimensionalDataSet.setStatsObjects(unidimensionalStatsObjects);
 		unidimensionalDataSets.add(unidimensionalDataSet);
+		unidimensionalDataSet.setMin(boxMinMax.get("min"));
+		unidimensionalDataSet.setMax(boxMinMax.get("max"));
+		unidimensionalDataSet.setTitle(title);
+		unidimensionalDataSet.setSubtitle(procedureDescription);
 		return unidimensionalDataSet;
 
 	}
@@ -170,9 +160,9 @@ public class UnidimensionalChartAndTableProvider {
 	 *            - bare categories from database e.g. WT, HOM
 	 * @param continuousBarCharts
 	 */
-	private ChartData processChartData(String chartId, Parameter parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) {
+	private ChartData processChartData(String chartId, Float yMin, Float yMax,Parameter parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) {
 
-		String chartString = createContinuousBoxPlotChartsString(chartId, parameter, yAxisTitle, chartsSeriesElementsList, experiment);
+		String chartString = createContinuousBoxPlotChartsString(chartId, yMin, yMax, parameter, yAxisTitle, chartsSeriesElementsList, experiment);
 		ChartData cNTable = new ChartData();
 		cNTable.setChart(chartString);
 		return cNTable;
@@ -191,19 +181,16 @@ public class UnidimensionalChartAndTableProvider {
 	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
 	 * @return
 	 */
-	private String createContinuousBoxPlotChartsString(String experimentNumber, Parameter parameter, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
+	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,Parameter parameter, String yAxisTitle, 
+		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
 
-		// System.out.println("chartSeriesElements="+chartsSeriesElements);
-		// JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
-		JSONArray categories = new JSONArray();// "['WT', 'WT', 'HOM', 'HOM']";
-		String femaleBoxPlotObject = "";
-		String femaleScatterObjectString = "";
+		JSONArray categories = new JSONArray();
+		String boxPlotObject = "";
 
 		String seriesData = "";
 		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 		int column = 0;
-		Float min = 1000000000f;
-		Float max = 0f;
+
 		
 		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
@@ -211,42 +198,26 @@ public class UnidimensionalChartAndTableProvider {
 			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
 		}
 		
-		// loop over the chartSeries data and create boxplots for each
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data
 			// set at the moment as we will create both the scatter and boxplots
 			// here
-			// // Get a DescriptiveStatistics instance
 			String categoryString = WordUtils.capitalize(chartsSeriesElement.getSexType().toString()) + " " + WordUtils.capitalize(chartsSeriesElement.getControlOrZygosityString());
 			categories.put(categoryString);
 			List<Float> listOfFloats = chartsSeriesElement.getOriginalData();
-			// stats.setPercentileImpl(new PercentileComputation());
-
-			// load up the stats object
-			for (Float point : listOfFloats) {
-				if (point > max) max = point;
-				if (point < min) min = point;
-			}
-
+			
 			PercentileComputation pc = new PercentileComputation(listOfFloats);
 
-			// get boxplot data here
-			// use the stats object to get the mean upper quartile etc
 			List<Float> wt1 = new ArrayList<Float>();
 			if (listOfFloats.size() > 0) {
-				// double lower = stats.getPercentile(25);
-				// double higher=stats.getPercentile(75);
 				double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getLowerQuartile()), decimalPlaces);
-				// new Float(stats.getPercentile(25)), decimalPlaces);
 				double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getUpperQuartile()), decimalPlaces);
-				// new Float(stats.getPercentile(75)), decimalPlaces);
 				double IQR = Q3 - Q1;
 
 				Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1 - (1.5 * IQR)), decimalPlaces);
 				wt1.add(minIQR);// minimum
 				Float q1 = new Float(Q1);
 				wt1.add(q1);// lower quartile
-				if (minIQR < min) min = minIQR;
 
 				Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getMedian()), decimalPlaces);
 				wt1.add(decFloat);// median
@@ -254,7 +225,6 @@ public class UnidimensionalChartAndTableProvider {
 				wt1.add(q3);// upper quartile
 				Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3 + (1.5 * IQR)), decimalPlaces);
 				wt1.add(maxIQR);// maximumbs.
-				if (maxIQR > max) max = maxIQR;
 				chartsSeriesElement.setBoxPlotArray(new JSONArray(wt1));
 			}
 
@@ -266,26 +236,22 @@ public class UnidimensionalChartAndTableProvider {
 
 			String columnPadding = "";
 			for (int i = 0; i < column; i++) {
-				// add an empty column for each column
 				columnPadding += "[], ";
 			}
-			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
-			// for each
-			// column/category
-			// WT HOM etc
-			// get the color based on if mutant or WT based on terrys ticket
-			// MPII-504
-			String color = ChartColors.getMutantColor(ChartColors.alphaBox);
-			if (chartsSeriesElement.getControlOrZygosityString().equals("Control")) {
-				color = ChartColors.getWTColor(ChartColors.alphaScatter);
+			
+			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";
+			String color = ChartColors.getMutantColor(ChartColors.alphaOpaque);
+			if (chartsSeriesElement.getControlOrZygosityString().equals("WT")) {
+				color = ChartColors.getWTColor(ChartColors.alphaTranslucid70);
 			}
 
-			femaleBoxPlotObject = "{" + " color: " + color + " ," + " name: 'Observations', data:" + observationsString + ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
+			boxPlotObject = "{" + " color: " + color + " ," + ""
+				+ " name: 'Observations', data:" + observationsString + ", "
+				+ " tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }  }";
 
-			seriesData += femaleBoxPlotObject + ",";
+			seriesData += boxPlotObject + ",";
 			column++;
-
-		}// end of boxplot loop
+		}
 
 		// loop over the chartSeries data and create scatters for each
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
@@ -296,46 +262,17 @@ public class UnidimensionalChartAndTableProvider {
 
 			List<Float> originalDataFloats = chartsSeriesElement.getOriginalData();
 			JSONArray scatterJArray = new JSONArray();
-			categories.put(categoryString);// add another category string for
-											// this scatter as well as the one
-											// for boxplot already added
-			// int column=1;//chartsSeriesElement.getColumn();
+			categories.put(categoryString);
 			for (Float data : originalDataFloats) {
 				JSONArray array = new JSONArray();
 				array.put(column);
 				array.put(data);
 				scatterJArray.put(array);
-			}
-
-			// if(chartsSeriesElement.getControlOrZygosity().equalsIgnoreCase("WT"))
-			// {
-			// color=ChartColors.getWTColor(ChartColors.alphaScatter);
-			// fillColor="white";
-			// lineColor=color;
-			// }
-			//
-			// if(chartsSeriesElement.getSexType().equals(SexType.male) ) {
-			// symbol="triangle";
-			// }
-
-			String marker = ChartColors.getMarkerString(chartsSeriesElement.getSexType(), chartsSeriesElement.getZygosityType());
-
-			String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
-															// number of pair
-															// indicates
-															// category/column
-															// so 0
-															// is first column 3
-															// is
-															// second
-			femaleScatterObjectString = "{ " + " 	name: 'Observation', type: 'scatter', data: " + scatterString + ", " + marker +
-			// "marker: { lineWidth: 1}" +
-			", tooltip: { pointFormat: '{point.y:.4f}' }" + "          }";
-			seriesData += femaleScatterObjectString + ",";// +","+maleBoxPlotObject+", "+maleScatterObjectString;
+			}			
 			column++;
-
-		}// end of scatter loop
-		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
+		}
+		
+		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
@@ -347,13 +284,21 @@ public class UnidimensionalChartAndTableProvider {
 			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
 			+ "<br/>LQ - 1.5 * IQR: ' + this.point.low"
 			+ "; } } }    ,"
-			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
+			+ " title: {  text: 'Boxplot', useHTML:true } , "
 			+ " credits: { enabled: false },  "
-			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
 			+ " legend: { enabled: false }, "
-			+ " xAxis: { categories:  " + categories + " }, \n" 
-			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 
-			+ " yAxis: { " + "max: " + max + ",  min: " + min + "," + "labels: { },title: { text: '" + yAxisTitle + "' } }, " 
+			+ " xAxis: { categories:  " + categories + ","
+			+ " labels: { "
+			+ "           rotation: -45, "
+			+ "           align: 'right', "
+			+ "           style: { "
+			+ "              fontSize: '15px',"
+			+ "              fontFamily: 'Verdana, sans-serif'"
+			+ "         } "
+			+ "     }, "
+			+ " }, \n" 
+			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "}," 
+			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, " 
 			+ "\n series: [" + seriesData + "] }); });";
 
 		return chartString;
@@ -371,7 +316,6 @@ public class UnidimensionalChartAndTableProvider {
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-		// System.out.println("... histogram with id " + chartId);
 		return chartAndTable;
 	}
 
@@ -395,17 +339,14 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		else {
 			for (String key: values.keySet()){
-				//if (!key.equals("")){
-					data += "['" + key + "', " + values.get(key) + "], ";
-				//}
+				data += "['" + key + "', " + values.get(key) + "], ";
 			}
 		}
 		data += "]";
 		
 		String javascript = "$(function () { $('#" + divId + "').highcharts({" +
         	" chart: {type: 'column' }," + 
-        	" title: {text: '" + title + "'}," +
-   //     	" subtitle: { text: 'Source' }, " + 	
+        	" title: {text: '" + title + "'}," +	
         	" credits: { enabled: false },  " +
         	" xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
         	" yAxis: { min: 0, title: { text: 'Number of genes' } }," + 
@@ -417,7 +358,6 @@ public class UnidimensionalChartAndTableProvider {
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId("statusChart");
-		// System.out.println("... histogram with id " + chartId);
 		return chartAndTable;
 	}
 	

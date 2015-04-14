@@ -7,17 +7,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -67,6 +67,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 
+	private String impcMediaBaseUrl;
+	private String impcAnnotationBaseUrl;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -101,7 +103,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void run() throws IndexerException {
-
 		int count = 0;
 
 		logger.info("running impc_images indexer");
@@ -125,6 +126,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
+		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
 		try {
 
@@ -149,7 +151,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setOmeroId(omeroId);
 
 					
-					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId) || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
+					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)){// || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
 						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
 						//logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
@@ -163,7 +165,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						// /webgateway/archived_files/download/
 						if(downloadFilePath.endsWith(".pdf")){
 							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
-							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/webclient/annotation/" + omeroId);
+							imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/webclient/annotation/" + omeroId);
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + 119501);//pdf thumnail placeholder
 						}else{
 							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);

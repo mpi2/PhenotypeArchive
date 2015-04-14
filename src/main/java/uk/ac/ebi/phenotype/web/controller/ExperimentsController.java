@@ -115,11 +115,12 @@ public class ExperimentsController {
 			@RequestParam(required = true, value = "phenotyping_center") String phenotypingCenter,
 			@RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
 			@RequestParam(required = false, value = "procedure_stable_id") String procedureStableId,
+			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+			RedirectAttributes attributes) 
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		
-		// retrieve the Allele from the database
 		
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
 		
@@ -149,9 +150,9 @@ public class ExperimentsController {
 		}	
 		
 		try {
-			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, procedureStableIds);
+			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, procedureStableIds, resource);
 			// get all p-values for this allele/center/pipeline
-			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds);
+			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds, resource);
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}

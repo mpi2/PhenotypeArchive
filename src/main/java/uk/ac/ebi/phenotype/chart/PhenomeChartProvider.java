@@ -46,15 +46,15 @@ public class PhenomeChartProvider {
 		+ "     subtitle: {\n"
 		+ "        text: 'Parameter by parameter' \n"
 		+ "    },\n"
-		+ "     xAxis: {\n"
+		+ "     yAxis: {\n"
 		+ "     categories: " + categories.toString() + ",\n"
 		+ "        title: {\n"
 		+ "           enabled: true,\n"
 		+ "           text: 'Parameters' \n"
 		+ "        }, \n"
 		+ "       labels: { \n"
-		+ "           rotation: -90, \n"
-		+ "           align: 'right', \n"
+	//	+ "           rotation: -90, \n"
+	//	+ "           align: 'right', \n"
 		+ "           style: { \n"
 		+ "              fontSize: '11px', \n"
 		+ "              fontFamily: 'Verdana, sans-serif' \n"
@@ -62,7 +62,7 @@ public class PhenomeChartProvider {
 		+ "     }, \n"
 		+ "      showLastLabel: true \n"
 		+ "  }, \n"
-		+ "    yAxis: { \n"
+		+ "    xAxis: { \n"
 		// +"         min:"+ -Math.log(minimalPValue) + ","
 		+ "         title: { \n"
 		+ "             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
@@ -116,9 +116,8 @@ public class PhenomeChartProvider {
 		+ "                  } \n"
 		+ "                  ], \n"
 		+ "                   { \n"
-		+ "                     'maxWidth'          : 1000, \n" // 980 too
-																// narrow
-		+ "                     'maxHeight'         : 900, \n"
+		+ "                     'maxWidth'          : 1000, \n" 															
+		+ "                     'maxHeight'         : 1900, \n"
 		+ "                     'fitToView'         : false, \n"
 		+ "                     'width'             : '100%',  \n"
 		+ "                     'height'            : '85%',  \n"
@@ -135,6 +134,9 @@ public class PhenomeChartProvider {
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
+		
+		
+		
 		return chartString;
 	}
 
@@ -572,17 +574,12 @@ public class PhenomeChartProvider {
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
-
 		JSONArray series = new JSONArray();
-
 		ArrayList<String> categories = new ArrayList();
 
 		try {
 
 			int index = 0;
-
-			// build tooltip
-
 			StringBuilder pointFormat = new StringBuilder();
 
 			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">parameter: {point.name}</td></tr>");
@@ -600,28 +597,17 @@ public class PhenomeChartProvider {
 			// get All procedures and generate a Map Parameter => Procedure
 			Map<Parameter, Procedure> parametersToProcedure = new HashMap<Parameter, Procedure>();
 			Map<String, Parameter> parametersMap = new HashMap<String, Parameter>();
+			
 			for (Procedure procedure : pipeline.getProcedures()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
-				// Tooltip first for correct formatting
-				/*
-				 * tooltip: {
-				 * 
-				 * headerFormat: '<b>{series.name}</b><br>', pointFormat:
-				 * '{point.name}<br/>value: {point.y}' },
-				 */
+				JSONArray dataArray = new JSONArray();
 
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure.getName());
 
-				JSONArray dataArray = new JSONArray();
-
 				// create a series here
 				for (Parameter parameter : procedure.getParameters()) {
-					/*
-					 * data: [{ name: 'IMPC_...', x: 1, y: 2 }, { name:
-					 * 'IMPC_...', x: 2, y: 5 }]
-					 */
 
 					if (statisticalResults.containsKey(parameter.getStableId())) {
 
@@ -634,12 +620,13 @@ public class PhenomeChartProvider {
 								JSONObject dataPoint = new JSONObject();
 								dataPoint.put("name", parameter.getName());
 								dataPoint.put("parameter_stable_id", parameter.getStableId());
+								dataPoint.put("parameter_name", parameter.getName());
 								dataPoint.put("pipeline_stable_id", pipeline.getStableId());
 								dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
 								dataPoint.put("alleleAccession", allele.getId().getAccession());
 								dataPoint.put("phenotyping_center", phenotypingCenter);
-								dataPoint.put("x", index);
-								dataPoint.put("y", statsResult.getLogValue());
+								dataPoint.put("y", index);
+								dataPoint.put("x", statsResult.getLogValue());
 								dataPoint.put("pValue", statsResult.getpValue());
 								dataPoint.put("effectSize", statsResult.getEffectSize());
 								dataPoint.put("sex", statsResult.getControlSex());
@@ -649,8 +636,8 @@ public class PhenomeChartProvider {
 								dataPoint.put("maleMutants", statsResult.getMaleMutants());
 								dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
 								
-								if (!categories.contains(parameter.getStableId())) {
-									categories.add(parameter.getStableId());
+								if (!categories.contains(parameter.getName())) {
+									categories.add(parameter.getName());
 									dataArray.put(dataPoint);
 									resultIndex++;
 										index++;

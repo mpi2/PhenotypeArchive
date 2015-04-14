@@ -33,6 +33,7 @@ import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartType;
+import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.chart.FertilityChartAndDataProvider;
 import uk.ac.ebi.phenotype.chart.FertilityDTO;
 import uk.ac.ebi.phenotype.chart.GraphUtils;
@@ -106,6 +107,9 @@ public class ChartsController {
 	@Autowired
 	private ImpressService is;
 
+	@Autowired
+	Utilities impressUtilities;
+
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -140,7 +144,18 @@ public class ChartsController {
 	 * @throws SolrServerException
 	 */
 	@RequestMapping("/charts")
-	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams, @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds, @RequestParam(required = false, value = "gender") String[] gender, @RequestParam(required = false, value = "zygosity") String[] zygosity, @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter, @RequestParam(required = false, value = "strategy") String[] strategies, @RequestParam(required = false, value = "strain") String[] strains, @RequestParam(required = false, value = "metadata_group") String[] metadataGroup, @RequestParam(required = false, value = "chart_type") ChartType chartType, @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds, @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession, Model model)
+	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
+						 @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds, 
+						 @RequestParam(required = false, value = "gender") String[] gender, 
+						 @RequestParam(required = false, value = "zygosity") String[] zygosity, 
+						 @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter, 
+						 @RequestParam(required = false, value = "strategy") String[] strategies, 
+						 @RequestParam(required = false, value = "strain") String[] strains, 
+						 @RequestParam(required = false, value = "metadata_group") String[] metadataGroup, 
+						 @RequestParam(required = false, value = "chart_type") ChartType chartType, 
+						 @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds, 
+						 @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession, 
+						 Model model)
 	throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		System.out.println("charts ::: chart_type=" + chartType);
@@ -195,7 +210,7 @@ public class ChartsController {
 			yUnits = parameterUnits[1];
 		}
 
-		ObservationType observationTypeForParam = Utilities.checkType(parameter);
+		ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
 		log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
 
 		List<String> genderList = getParamsAsList(gender);
@@ -236,9 +251,6 @@ public class ChartsController {
 			ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
 			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
 			model.addAttribute("viabilityDTO", viabilityDTO);
-			// we need the biological model for the line level param so just get
-			// the first observation from the first entry and get the
-			// biologicalModelId
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
 			model.addAttribute("pipeline", pipeline);
@@ -256,24 +268,20 @@ public class ChartsController {
 			FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
 			if(fertilityDTO!=null){
 			model.addAttribute("fertilityDTO", fertilityDTO);
-			// we need the biological model for the line level param so just get
-			// the first observation from the first entry and get the
-			// biologicalModelId
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
 			model.addAttribute("pipeline", pipeline);
 			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
 			model.addAttribute("phenotypingCenter", phenotypingCenter);
-			}
-			return "chart";
 		}
-		experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
-
-		if (experiment != null) {
+		return "chart";
+	}
+		
+	experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+	if (experiment != null) {
 
 			if (pipeline == null) {
-				// if we don't already have the pipeline for this experiment
-				// from the url params lets get it via the experiment returned
+				// if we don't already have the pipeline from the url params get it via the experiment returned
 				pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
 			}
 
@@ -295,17 +303,17 @@ public class ChartsController {
 				// }
 				// }
 				if (chartType != null) {
+					
+					ScatterChartAndData scatterChartAndData;
+					
 					switch (chartType) {
 
 						case UNIDIMENSIONAL_SCATTER_PLOT:
-
-							ScatterChartAndData scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
+							
+							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("scatterChartAndData", scatterChartAndData);
 
 							if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-								// if unidimensional add the unidimensional data
-								// so we
-								// can create the tables
 								List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
 								unidimensionalChartDataSet = new UnidimensionalDataSet();
 								unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
@@ -317,11 +325,16 @@ public class ChartsController {
 
 							// get experiments for other parameters too
 							model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession));
-
+							break;
+							
 						case UNIDIMENSIONAL_BOX_PLOT:
-
+							
 							unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
 							model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+								
+							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
+							model.addAttribute("scatterChartAndData", scatterChartAndData);
+					
 							break;
 
 						case CATEGORICAL_STACKED_COLUMN:
@@ -336,9 +349,14 @@ public class ChartsController {
 							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
 							break;
 
+						case TIME_SERIES_LINE_BODYWEIGHT:
+
+							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
+							break;
+
 						default:
 
-							// Trying to graph Unknown observation type
 							log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
 							break;
 					}

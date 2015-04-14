@@ -20,6 +20,7 @@ import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
+import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
 import java.util.*;
 
@@ -40,6 +41,22 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
+	public List<DataTableRow> getImagesForMA(String maId){
+		
+		List<DataTableRow> res = new ArrayList<>();
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*")
+			.addFilterQuery(ImageDTO.MA_ID + ":\"" + maId + "\"")
+			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
+			.setRows(100000);
+	//		.setFields(I)
+		
+		return res;
+		
+	}
+	
+	
+	
 	public long getNumberOfDocuments( List<String> resourceName, boolean experimentalOnly ) 
 	throws SolrServerException{
 
@@ -132,7 +149,7 @@ public class ImageService {
 	public static SolrQuery allImageRecordSolrQuery()
 	throws SolrServerException {
 
-		return new SolrQuery().setQuery("observation_type:image_record").addFilterQuery("(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org*)").setRows(1000000000);
+		return new SolrQuery().setQuery("observation_type:image_record").addFilterQuery("(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org*)");
 	}
 
 

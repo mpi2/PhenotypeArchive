@@ -1,17 +1,5 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,21 +9,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalSet;
-import uk.ac.ebi.phenotype.chart.ChartData;
-import uk.ac.ebi.phenotype.chart.StackedBarsData;
-import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.PostQcService;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 
 @Controller
@@ -52,6 +39,9 @@ public class OverviewChartsController {
 	
 	@Autowired
 	PostQcService gpService;
+
+	@Autowired
+	Utilities impressUtilities;
 
 	public OverviewChartsController(){
 
@@ -101,7 +91,7 @@ public class OverviewChartsController {
 				centerToFilter = tempCenters.toArray(new String[0]);
 			}
 			
-			if( Utilities.checkType(p).equals(ObservationType.categorical) ){
+			if( impressUtilities.checkType(p).equals(ObservationType.categorical) ){
 				CategoricalSet controlSet = os.getCategories(p, null , "control", OVERVIEW_STRAINS, centerToFilter, sex);
 				controlSet.setName("Control");
 				CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", OVERVIEW_STRAINS, centerToFilter, sex);
@@ -112,7 +102,7 @@ public class OverviewChartsController {
 				}
 			}
 			
-			else if ( Utilities.checkType(p).equals(ObservationType.time_series) ){
+			else if ( impressUtilities.checkType(p).equals(ObservationType.time_series) ){
 				Map<String, List<DiscreteTimePoint>> data = new HashMap<String, List<DiscreteTimePoint>>(); 
 				data.put("Control", os.getTimeSeriesControlData(parameter, OVERVIEW_STRAINS, centerToFilter, sex));
 				data.putAll(os.getTimeSeriesMutantData(parameter, genes, OVERVIEW_STRAINS, centerToFilter, sex));
@@ -121,7 +111,7 @@ public class OverviewChartsController {
 				chartRes = chart;
 			}
 			
-			else if ( Utilities.checkType(p).equals(ObservationType.unidimensional) ){
+			else if ( impressUtilities.checkType(p).equals(ObservationType.unidimensional) ){
 				StackedBarsData data = os.getUnidimensionalData(p, genes, OVERVIEW_STRAINS, "experimental", centerToFilter, sex);
 				chartRes = uctp.getStackedHistogram(data, p, procedureName);
 			}

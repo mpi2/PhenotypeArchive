@@ -209,7 +209,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
     
     /**
-     * @param zygosity - optional (pass null if not needed)
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
      * @author tudose
      */
@@ -348,7 +347,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
     
 
-    public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String alleleAccession, String phenotypingCenter,	String pipelineStableId,	List<String> procedureStableIds) 
+    public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String alleleAccession, String phenotypingCenter,	String pipelineStableId, List<String> procedureStableIds, ArrayList<String> resource) 
 	throws NumberFormatException, SolrServerException {
     	
     	Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
@@ -360,6 +359,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		if (procedureStableIds != null){
 			query.addFilterQuery("(" + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" 
 					+ StringUtils.join(procedureStableIds, " OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + ")");
+		}
+		if (resource != null) {
+			query.addFilterQuery("(" + StatisticalResultDTO.RESOURCE_NAME + ":" + StringUtils.join(resource, " OR " + StatisticalResultDTO.RESOURCE_NAME + ":") + ")");
 		}
 		query.setRows(Integer.MAX_VALUE);
 		query.addField(StatisticalResultDTO.P_VALUE)

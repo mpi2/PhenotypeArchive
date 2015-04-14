@@ -33,13 +33,13 @@ public class ChartColors {
 	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1", "191, 75, 50", "166, 30, 1", "255, 201, 67");
 	
 	
-	public static final Double alphaBox=1.0;//set the opacity for boxes here
-	public static final Double alphaScatter=0.7;//set the opacity for scatter points here
+	public static final Double alphaOpaque = 1.0;
+	public static final Double alphaTranslucid70 = 0.7;
+	public static final Double alphaTranslucid50 = 0.5;
+	public static final Double alphaTranslucid20 = 0.2;
 
 	private static String wtColor="239, 123, 11";
-	private static String mutantColor="9, 120, 161";
-	
-	
+	private static String mutantColor="9, 120, 161";	
 	
 	/**
 	 * get a string to represent rgba for highcharts for either sex and choose your alpha (opacity) 0.0-1.0
@@ -72,8 +72,8 @@ public class ChartColors {
 	public static List<String> getFemaleMaleColorsRgba(Double alpha) {
 		List<String> colorStrings=new ArrayList<String>(); 
 		for(int i=0; i<ChartColors.maleRgb.size(); i++) {
-			colorStrings.add(getRgbaString(SexType.female, i, alphaScatter));
-			colorStrings.add(getRgbaString(SexType.male, i, alphaScatter));
+			colorStrings.add(getRgbaString(SexType.female, i, alphaTranslucid70));
+			colorStrings.add(getRgbaString(SexType.male, i, alphaTranslucid70));
 		}
 		
 		return colorStrings;
@@ -123,30 +123,37 @@ public class ChartColors {
 	 * @return
 	 */
 	public static String getMarkerString(SexType sex, ZygosityType zygosityType, Double alpha) {
-		if(alpha==null) {
-			alpha=ChartColors.alphaScatter;
-		}
-		String symbol="circle";
-		String lineColor=ChartColors.getMutantColor(alpha);
-		String color=ChartColors.getMutantColor(alpha);
-		String fillColor=color;
-		if(zygosityType==null) {// then its WT
-			color=ChartColors.getWTColor(alpha);
-			fillColor="\'white\'";
-			lineColor=color;
+		
+		Double alphaMutants = alpha;
+		Double alphaControl = alpha;
+		Double alphaControlLine = alpha;
+		
+		if (alpha == null) {
+			alphaMutants = ChartColors.alphaTranslucid70;
+			alphaControl = ChartColors.alphaTranslucid20;
+			alphaControlLine = ChartColors.alphaTranslucid50;
 		}
 		
-		if(sex.equals(SexType.male) ) {
+		String symbol="circle";
+		String lineColor=ChartColors.getMutantColor(alphaMutants);
+		String fillColor=ChartColors.getMutantColor(alphaMutants);
+		
+		if (zygosityType == null) {// then its WT
+			fillColor = ChartColors.getWTColor(alphaControl);
+			lineColor = ChartColors.getWTColor(alphaControlLine);
+		}
+		
+		if (sex.equals(SexType.male)) {
 			symbol="triangle";
 		}
-		//&& chartsSeriesElement.getControlOrZygosity().equals("WT")
 		
-String marker="marker:{"
-			+"symbol: '"+symbol
-			+"', fillColor:  "+fillColor+"," +
-					" lineWidth: 1,"
-		    +" lineColor: "+lineColor+ " "
-      +" }";
+		String marker = "marker:{"
+			+ " symbol: '" + symbol + "', "
+			+ " fillColor:  " + fillColor + ","
+			+ " lineWidth: 1,"
+			+ " radius: 3,"
+			+ " lineColor: " + lineColor + " "
+			+ "}";
 		return marker;
 	}
 	
@@ -162,10 +169,10 @@ String marker="marker:{"
 	public static Map<String,String> getZygosityColorMap(){
 		//"239, 123, 11" ,  "9, 120, 161", "119, 119, 119",
 		Map<String,String> zygColorMap=new LinkedHashMap<>();
-		zygColorMap.put("WT", ChartColors.getWTColor(alphaBox));
-		zygColorMap.put(ZygosityType.homozygote.name(),getHighDifferenceColorsRgba(alphaBox).get(1) );
-		zygColorMap.put(ZygosityType.heterozygote.name(),getHighDifferenceColorsRgba(alphaBox).get(2));
-		zygColorMap.put(ZygosityType.hemizygote.name(),getHighDifferenceColorsRgba(alphaBox).get(3) );
+		zygColorMap.put("WT", ChartColors.getWTColor(alphaOpaque));
+		zygColorMap.put(ZygosityType.homozygote.name(),getHighDifferenceColorsRgba(alphaOpaque).get(1) );
+		zygColorMap.put(ZygosityType.heterozygote.name(),getHighDifferenceColorsRgba(alphaOpaque).get(2));
+		zygColorMap.put(ZygosityType.hemizygote.name(),getHighDifferenceColorsRgba(alphaOpaque).get(3) );
 		return zygColorMap;
 	}
 }

@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -47,7 +48,10 @@ import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
+import uk.ac.ebi.phenotype.service.ImageService;
+import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.web.pojo.Anatomy;
+import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
 @Controller
 public class AnatomyController {
@@ -57,8 +61,9 @@ public class AnatomyController {
 	@Autowired
 	private OntologyTermDAO ontoTermDao;
 
-	// @Autowired
-	// private PhenotypeCallSummaryDAO phenoDAO;
+	@Autowired
+	ImageService is;
+	
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
 
@@ -74,8 +79,12 @@ public class AnatomyController {
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 	
+	
+	
 	private static final int numberOfImagesToDisplay=5;
 
+	
+	
 	/**
 	 * Phenotype controller loads information required for displaying the
 	 * phenotype page or, in the case of an error, redirects to the error page
@@ -90,29 +99,31 @@ public class AnatomyController {
 	 * 
 	 */
 	@RequestMapping(value = "/anatomy/{anatomy_id}", method = RequestMethod.GET)
-	public String loadMaPage(@PathVariable String anatomy_id, Model model,
-			HttpServletRequest request, RedirectAttributes attributes)
-			throws SolrServerException, IOException, URISyntaxException {
+	public String loadMaPage(@PathVariable String anatomy_id, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws SolrServerException, IOException, URISyntaxException {
+	
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
 		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config);
-		model.addAttribute("anatomy", ma);
 		Map<String, JSONObject> exampleImagesMap = getExampleImages(anatomy_id);
 
-		model.addAttribute("exampleImages", exampleImagesMap);
-
 		//get expression only images
-		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils
-				.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
-		int numberExpressionImagesFound = JSONRestUtil
-				.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
-		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject(
-				"response").getJSONArray("docs");
+		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
+		int numberExpressionImagesFound = JSONRestUtil.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
+		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
+		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id);
+		
+		
+		
+		model.addAttribute("anatomy", ma);
+		model.addAttribute("exampleImages", exampleImagesMap);
 		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
 		model.addAttribute("expressionImages", expressionImageDocs);
+		model.addAttribute("anatomyTable", anatomyTable);
 		
 		return "anatomy";
 	}
+	
 
 	/**
 	 * Get control and experimental example images for the top of the MP page
@@ -146,6 +157,7 @@ public class AnatomyController {
 		return Collections.emptyMap();
 	}
 
+	
 	@ExceptionHandler(Exception.class)
 	public ModelAndView handleGenericException(Exception exception) {
 		exception.printStackTrace();

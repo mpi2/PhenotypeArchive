@@ -15,43 +15,26 @@
  */
 package uk.ac.ebi.phenotype.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.phenotype.chart.FertilityDTO;
 import uk.ac.ebi.phenotype.chart.ViabilityDTO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
-import uk.ac.ebi.phenotype.pojo.ControlStrategy;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.strategy.AllControlsStrategy;
 import uk.ac.ebi.phenotype.stats.strategy.ControlSelectionStrategy;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Service
 public class ExperimentService {
@@ -97,10 +80,6 @@ public class ExperimentService {
      *            null for any strain
      * @param phenotypingCenterId
      *            The database identifier of the center
-     * @param metaDataString
-     *            TODO
-     * @param phenotypingCenter
-     *            TODO
      * @return list of experiment objects
      * @throws SolrServerException
      * @throws IOException
@@ -470,8 +449,6 @@ public class ExperimentService {
      * 
      * @param parameterId
      * @param acc
-     * @param genderList
-     * @param zyList
      * @param phenotypingCenterId
      * @param strain
      * @param metadataGroup

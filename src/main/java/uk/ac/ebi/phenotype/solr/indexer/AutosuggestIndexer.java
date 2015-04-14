@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.service.dto.*;
 import uk.ac.ebi.phenotype.solr.indexer.beans.AutosuggestBean;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 
 import javax.annotation.Resource;
 import java.io.IOException;

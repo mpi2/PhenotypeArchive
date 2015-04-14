@@ -15,6 +15,8 @@ import org.xml.sax.SAXException;
 import uk.ac.ebi.phenotype.data.imits.EncodedOrganisationConversionMap;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -43,6 +45,9 @@ public class PreqcIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
+
+    @Autowired
+    EncodedOrganisationConversionMap dccMapping;
 
     private static Map<String, String> geneSymbol2IdMapping = new HashMap<>();
     private static Map<String, AlleleDTO> alleleSymbol2NameIdMapping = new HashMap<>();
@@ -221,7 +226,7 @@ public class PreqcIndexer extends AbstractIndexer {
                 }
 
                 // Skip if we already have this data postQC
-                phenotypingCenter = EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter) ? EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
+                phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
                 if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
                     continue;
                 }
@@ -282,8 +287,8 @@ public class PreqcIndexer extends AbstractIndexer {
                 }
                 o.setAlleleSymbol(allele);
 
-                if (EncodedOrganisationConversionMap.dccCenterMap.containsKey(phenotypingCenter)) {
-                    o.setPhenotypingCenter(EncodedOrganisationConversionMap.dccCenterMap.get(phenotypingCenter));
+                if (dccMapping.dccCenterMap.containsKey(phenotypingCenter)) {
+                    o.setPhenotypingCenter(dccMapping.dccCenterMap.get(phenotypingCenter));
                 } else {
                     o.setPhenotypingCenter(phenotypingCenter);
                 }

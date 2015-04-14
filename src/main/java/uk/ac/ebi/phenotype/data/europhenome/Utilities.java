@@ -26,7 +26,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class Utilities {
 
-	public static String getZygosity(ZygosityType zygosity) {
+	public String getZygosity(ZygosityType zygosity) {
 		
 	  switch (zygosity) {
 	  	case homozygote: return "Hom";

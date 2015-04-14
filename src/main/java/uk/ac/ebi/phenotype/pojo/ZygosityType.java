@@ -33,6 +33,8 @@ public enum ZygosityType {
 		return this.toString();
 	}
 
-
+	public String getShortName(){
+		return this.toString().substring(0, 3) + ".";
+	}
 
 }

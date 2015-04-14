@@ -27,6 +27,7 @@ public enum SexType {
 	hermaphrodite,
 	male,
 	not_applicable,
+	no_data,
 	both;
 
 

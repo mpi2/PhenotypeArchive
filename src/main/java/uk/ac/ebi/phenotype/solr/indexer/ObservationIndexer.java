@@ -12,6 +12,8 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.sql.DataSource;

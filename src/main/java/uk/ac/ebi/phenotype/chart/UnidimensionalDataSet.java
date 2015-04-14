@@ -11,14 +11,26 @@ import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
  *
  */
 public class UnidimensionalDataSet {
-	 private String experimentId=""; //experimentId should be distinct per UnidimensionalSet
-	 private ExperimentDTO experiment;
-	 private String organisation="";
+
+	private String experimentId = ""; 
+	private String title;
+	private String subtitle;
+	private ExperimentDTO experiment;
+	private String organisation = "";
+	private Float min;
+	private Float max;
+	
+	
+
 	public String getOrganisation() {
+
 		return organisation;
 	}
+
+
 	public void setOrganisation(String organisation) {
-		this.organisation = organisation;
+
+	this.organisation = organisation;
 	}
 	public String getExperimentId() {
 		return experimentId;
@@ -63,6 +75,46 @@ public class UnidimensionalDataSet {
 	 */
 	public void setExperiment(ExperimentDTO experiment) {
 		this.experiment = experiment;
+	}
+
+	public Float getMin() {
+	
+		return min;
+	}
+	
+	public void setMin(Float min) {
+	
+		this.min = min;
+	}
+
+	public Float getMax() {
+	
+		return max;
+	}
+	
+	public void setMax(Float max) {
+	
+		this.max = max;
+	}
+
+	public String getTitle() {
+	
+		return title;
+	}
+	
+	public void setTitle(String title) {
+	
+		this.title = title;
+	}
+	
+	public String getSubtitle() {
+	
+		return subtitle;
+	}
+	
+	public void setSubtitle(String subtitle) {
+	
+		this.subtitle = subtitle;
 	}
 	
 }

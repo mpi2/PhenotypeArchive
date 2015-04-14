@@ -20,16 +20,6 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
-import java.io.File;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
 import joptsimple.HelpFormatter;
 import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
@@ -46,8 +36,16 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
-import static uk.ac.ebi.phenotype.solr.indexer.AbstractIndexer.CONTEXT_ARG;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.*;
 import uk.ac.ebi.phenotype.util.Utils;
+
+import javax.annotation.Resource;
+import java.io.File;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static uk.ac.ebi.phenotype.solr.indexer.AbstractIndexer.CONTEXT_ARG;
 
 /**
  * This class encapsulates the code and data necessary to represent an index
@@ -141,7 +139,7 @@ public class IndexerManager {
         , AUTOSUGGEST_CORE
     };
     
-    public static final int RETRY_COUNT = 5;                                    // If any core fails, retry building it up to this many times.
+    public static final int RETRY_COUNT = 2;                                    // If any core fails, retry building it up to this many times.
     public static final int RETRY_SLEEP_IN_MS = 60000;                          // If any core fails, sleep this long before reattempting to build the core.
     public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
     
@@ -240,7 +238,7 @@ public class IndexerManager {
     
     
     public void initialise(String[] args) throws IndexerException {
-        logger.info("IndexerManager called with args = " + StringUtils.join(args), ", ");
+        logger.info("IndexerManager called with args = " + StringUtils.join(args, ", "));
         
         try {
             OptionSet options = parseCommandLine(args);
@@ -332,7 +330,7 @@ public class IndexerManager {
             appContext = new FileSystemXmlApplicationContext("file:" + context);
         } else {
             // Try context as a class path resource
-            logger.info(TestUtils.getClasspath());
+//            logger.info(TestUtils.getClasspath());
             logger.info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
         }

@@ -21,17 +21,18 @@
 package uk.ac.ebi.phenotype.solr.indexer.utils;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
-import uk.ac.ebi.phenotype.solr.indexer.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OrganisationBean;
+import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class encapsulates the code and data necessary to represent all of the
