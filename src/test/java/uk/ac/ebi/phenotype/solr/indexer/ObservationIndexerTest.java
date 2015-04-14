@@ -21,30 +21,31 @@ import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:test-config.xml"})
-@TransactionConfiguration
-@Transactional
+//@TransactionConfiguration
+//@Transactional
 public class ObservationIndexerTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ObservationIndexerTest.class);
+    @Autowired
+    private ObservationIndexer observationIndexer;
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("komp2DataSource")
     private DataSource ds;
 
-    private Connection connection;
-
     @Before
     public void setUp() throws Exception {
-        connection = ds.getConnection();
     }
 
     @Test
 //@Ignore
     public void testPopulateBiologicalDataMap() throws Exception {
-        ObservationIndexer e = new ObservationIndexer();
+        String args[] = { "--context=index-config_DEV.xml" };
+        observationIndexer.initialise(args);
 
-        e.populateBiologicalDataMap();
-        Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = e.getBiologicalData();
+        observationIndexer.populateBiologicalDataMap();
+        Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
         Assert.assertTrue(bioDataMap.size() > 1000);
 
         logger.info("Size of biological data map {}", bioDataMap.size());
@@ -54,10 +55,11 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testPopulateLineBiologicalDataMap() throws Exception {
-        ObservationIndexer e = new ObservationIndexer();
+        String args[] = { "--context=index-config_DEV.xml" };
+        observationIndexer.initialise(args);
 
-        e.populateLineBiologicalDataMap();
-        Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = e.getLineBiologicalData();
+        observationIndexer.populateLineBiologicalDataMap();
+        Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getLineBiologicalData();
         Assert.assertTrue(bioDataMap.size() > 50);
 
         logger.info("Size of line level biological data map {}", bioDataMap.size());
@@ -68,6 +70,7 @@ public class ObservationIndexerTest {
 //@Ignore
     public void testImpressDataMaps() throws Exception {
         Map<Integer, ImpressBean> bioDataMap;
+        Connection connection = ds.getConnection();
 
         // Pipelines
         bioDataMap = IndexerMap.getImpressPipelines(connection);
@@ -89,18 +92,19 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testDatasourceDataMaps() throws Exception {
-        ObservationIndexer e = new ObservationIndexer();
+        String args[] = { "--context=index-config_DEV.xml" };
+        observationIndexer.initialise(args);
 
-        e.populateDatasourceDataMap();
+        observationIndexer.populateDatasourceDataMap();
         Map<Integer, ObservationIndexer.DatasourceBean> bioDataMap;
 
         // Project
-        bioDataMap = e.getProjectMap();
+        bioDataMap = observationIndexer.getProjectMap();
         Assert.assertTrue(bioDataMap.size() > 5);
         logger.info("Size of project data map {}", bioDataMap.size());
 
         //Datasource
-        bioDataMap = e.getDatasourceMap();
+        bioDataMap = observationIndexer.getDatasourceMap();
         Assert.assertTrue(bioDataMap.size() > 10);
         logger.info("Size of datasource data map {}", bioDataMap.size());
 
@@ -109,10 +113,11 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testpopulateCategoryNamesDataMap() throws Exception {
-        ObservationIndexer e = new ObservationIndexer();
+        String args[] = { "--context=index-config_DEV.xml" };
+        observationIndexer.initialise(args);
 
-        e.populateCategoryNamesDataMap();
-        Map<String, Map<String, String>> bioDataMap = e.getTranslateCategoryNames();
+        observationIndexer.populateCategoryNamesDataMap();
+        Map<String, Map<String, String>> bioDataMap = observationIndexer.getTranslateCategoryNames();
 
         Assert.assertTrue(bioDataMap.size() > 5);
         logger.info("Size of translated category map {}", bioDataMap.size());
