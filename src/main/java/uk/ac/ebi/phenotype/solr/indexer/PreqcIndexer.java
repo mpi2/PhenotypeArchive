@@ -697,7 +697,8 @@ public class PreqcIndexer extends AbstractIndexer {
             "FROM observation o " +
             "INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
             "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
-            "INNER JOIN organisation org ON org.id=bs.organisation_id " ;
+            "INNER JOIN organisation org ON org.id=bs.organisation_id " +
+            "WHERE bs.sample_group='experimental' " ;
 
         try (PreparedStatement p = conn_komp2.prepareStatement(query)) {
             ResultSet resultSet = p.executeQuery();
