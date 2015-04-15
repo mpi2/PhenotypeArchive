@@ -235,6 +235,7 @@
         <field name="biological_sample_group"           type="string" indexed="true" stored="true" multiValued="false" />
         <field name="strain_accession_id"               type="string" indexed="true" stored="true" multiValued="false" />
         <field name="strain_name"                       type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="genetic_background"                type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="colony_id"                         type="string" indexed="true" stored="true" multiValued="false" />
         <field name="date_of_birth"                     type="tdate"  indexed="true" stored="true" multiValued="false" />
         <field name="external_sample_id"                type="string" indexed="true" stored="true" multiValued="false" />
