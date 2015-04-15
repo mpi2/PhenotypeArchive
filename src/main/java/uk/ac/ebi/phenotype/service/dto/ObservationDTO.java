@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 import java.sql.SQLException;

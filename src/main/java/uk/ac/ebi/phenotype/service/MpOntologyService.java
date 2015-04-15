@@ -20,11 +20,12 @@
 
 package uk.ac.ebi.phenotype.service;
 
-import java.sql.SQLException;
-import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * This class encapsulates the code and data necessary to serve a Mammalian
