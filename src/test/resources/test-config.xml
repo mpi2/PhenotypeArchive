@@ -331,4 +331,13 @@
         <property name="password" value="${admintoolspassword}" />
     </bean>
     
+    <bean id="observationIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer" />
+
+    <!-- used for concurrently loading the experiment core -->
+    <bean id="observationIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/experiment"/>
+        <constructor-arg index="1" value="100000"/> <!--Queue size-->
+        <constructor-arg index="2" value="5"/> <!--Num threads-->
+    </bean>
+    
 </beans>

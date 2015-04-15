@@ -1250,10 +1250,10 @@ public class SearchPageTest {
 
         // Verify that the core counts returned by solr match the facet counts on the page and the page.
         for (String core : cores) {
-            // 26-Mar-2015 (mrelac) Skip the core compare. The rules are fuzzy.
-            if (core.equals(SearchPage.GENE_CORE)) {
-                continue;
-            }
+// 26-Mar-2015 (mrelac) Skip the core compare. The rules are fuzzy.
+if (core.equals(SearchPage.GENE_CORE)) {
+    continue;
+}
             
             int facetCountFromPage = searchPage.getFacetCount(core);
             int facetCountFromSolr = (int)solrCoreCountMap.get(core);

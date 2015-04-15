@@ -288,8 +288,8 @@
 	<field name="allele_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="allele_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-	<field name="strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="strain_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="background_strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="background_strain_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="pipeline_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />

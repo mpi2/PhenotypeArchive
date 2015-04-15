@@ -35,7 +35,6 @@ import uk.ac.ebi.phenotype.solr.indexer.beans.*;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
-
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;

@@ -498,7 +498,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private void populateBiologicalDataMap() throws SQLException {
 
         String query = "SELECT bm.id, "
-                + "strain.acc AS strain_acc, strain.name AS strain_name, "
+                + "strain.acc AS strain_acc, strain.name AS strain_name, bm.genetic_background, "
                 + "(SELECT DISTINCT allele_acc FROM biological_model_allele bma WHERE bma.biological_model_id=bm.id) AS allele_accession, "
                 + "(SELECT DISTINCT a.symbol FROM biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) AS allele_symbol, "
                 + "(SELECT DISTINCT a.name FROM biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) AS allele_name, "
@@ -523,6 +523,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 b.geneSymbol = resultSet.getString("symbol");
                 b.strainAcc = resultSet.getString("strain_acc");
                 b.strainName = resultSet.getString("strain_name");
+                b.geneticBackground = resultSet.getString("genetic_background");
 
                 biologicalDataMap.put(resultSet.getInt("id"), b);
             }
@@ -586,6 +587,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         public String sex;
         public String strainAcc;
         public String strainName;
+        public String geneticBackground;
         public String zygosity;
     }
 }

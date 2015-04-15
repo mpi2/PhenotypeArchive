@@ -118,6 +118,7 @@ public class MaDTO {
 
     public static final String STRAIN_NAME = "strain_name";
     public static final String STRAIN_ID = "strain_id";
+    public static final String GENETIC_BACKGROUND = "genetic_background";
 
     public static final String PIPELINE_NAME = "pipeline_name";
     public static final String PIPELINE_STABLE_ID = "pipeline_stable_id";
@@ -419,6 +420,9 @@ public class MaDTO {
 
     @Field(STRAIN_ID)
     private List<String> strainId;
+
+    @Field(GENETIC_BACKGROUND)
+    String geneticBackground;
 
     @Field(PIPELINE_NAME)
     private List<String> pipelineName;
@@ -1163,6 +1167,14 @@ public class MaDTO {
         this.strainId = strainId;
     }
 
+    public String getGeneticBackground() {
+        return geneticBackground;
+    }
+
+    public void setGeneticBackground(String geneticBackground) {
+        this.geneticBackground = geneticBackground;
+    }
+
     public List<String> getPipelineName() {
         return pipelineName;
     }
@@ -1464,6 +1476,7 @@ public class MaDTO {
         hash = 97 * hash + Objects.hashCode(this.alleleId);
         hash = 97 * hash + Objects.hashCode(this.strainName);
         hash = 97 * hash + Objects.hashCode(this.strainId);
+        hash = 97 * hash + Objects.hashCode(this.geneticBackground);
         hash = 97 * hash + Objects.hashCode(this.pipelineName);
         hash = 97 * hash + Objects.hashCode(this.pipelineStableId);
         hash = 97 * hash + Objects.hashCode(this.pipelineStableKey);
@@ -1747,6 +1760,9 @@ public class MaDTO {
             return false;
         }
         if ( ! Objects.equals(this.strainId, other.strainId)) {
+            return false;
+        }
+        if ( ! Objects.equals(this.geneticBackground, other.geneticBackground)) {
             return false;
         }
         if ( ! Objects.equals(this.pipelineName, other.pipelineName)) {
