@@ -1167,25 +1167,25 @@ CREATE TABLE anatomy_call_summary (
 /*
  * Tables below are for the storage of media/image information
  */
-CREATE TABLE image_record_observation (
-
-	id                         INT(11) NOT NULL AUTO_INCREMENT,
-	sample_id                  INT(11) DEFAULT NULL,
-	original_file_name         VARCHAR(1024) DEFAULT NULL,
-	creator_id                 INT(11) DEFAULT NULL,
-	full_resolution_file_path  VARCHAR(256) DEFAULT NULL,
-	small_thumbnail_file_path  VARCHAR(256) DEFAULT NULL,
-	large_thumbnail_file_path  VARCHAR(256) DEFAULT NULL,
-	download_file_path         VARCHAR(256) DEFAULT NULL,
-	image_link				   VARCHAR(256) DEFAULT NULL,
-	organisation_id            INT(11) NOT NULL DEFAULT '0',
-	increment_value            VARCHAR(45) DEFAULT NULL,
-	file_type                  VARCHAR(45) DEFAULT NULL,
-	media_sample_local_id      VARCHAR(45) DEFAULT NULL,
-	media_section_id           VARCHAR(45) DEFAULT NULL,
-	omero_id                   INT(11) DEFAULT NULL,
-	PRIMARY KEY (id)
-	
+CREATE TABLE `image_record_observation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_id` int(11) DEFAULT NULL,
+  `original_file_name` varchar(1024) DEFAULT NULL,
+  `creator_id` int(11) DEFAULT NULL,
+  `full_resolution_file_path` varchar(256) DEFAULT NULL,
+  `small_thumbnail_file_path` varchar(256) DEFAULT NULL,
+  `large_thumbnail_file_path` varchar(256) DEFAULT NULL,
+  `download_file_path` varchar(256) DEFAULT NULL,
+  `image_link` varchar(256) DEFAULT NULL,
+  `organisation_id` int(11) NOT NULL DEFAULT '0',
+  `increment_value` varchar(45) DEFAULT NULL,
+  `file_type` varchar(45) DEFAULT NULL,
+  `media_sample_local_id` varchar(45) DEFAULT NULL,
+  `media_section_id` varchar(45) DEFAULT NULL,
+  `omero_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `OMERO_ID` (`omero_id`),
+  KEY `FULL_RES_FILE_PATH` (`full_resolution_file_path`)
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
