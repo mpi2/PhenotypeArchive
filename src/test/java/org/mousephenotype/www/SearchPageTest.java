@@ -19,26 +19,11 @@
  */
 package org.mousephenotype.www;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.SearchFacetTable;
@@ -60,6 +45,13 @@ import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.util.Utils;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
 /**
  *
  * @author ckchen@ebi.ac.uk (private methods)
@@ -1080,6 +1072,70 @@ public class SearchPageTest {
             TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
         }
     }
+    
+    // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
+    @Test
+//@Ignore
+    public void testWnt1IsAtTop() throws Exception {
+        String testName = "testWnt1IsAtTop";
+        String searchString = "Wnt1";
+        String target = baseUrl + "/search";
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+        List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
+        String expectedResult = "wnt1";
+        String actualResult = rows.get(0).value.toLowerCase();
+        assertEquals(expectedResult, actualResult);
+    }
+    
+    // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
+    @Test
+//@Ignore
+    public void testHox() throws Exception {
+        String testName = "testHox";
+        String searchString = "Hox";
+        String target = baseUrl + "/search";
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+        List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
+        String expectedStartsWith = "Hox";
+        for (int i = 0; i < rows.size(); i++) {
+            SearchPage.AutosuggestRow row = rows.get(i);
+            String errMsg = "Row[" + i + "]: Expected autosuggest row to begin with 'Hox'. Row value = " + row.value;
+            assertTrue(errMsg, row.value.startsWith(expectedStartsWith));
+        }
+    }
+    
+    // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
+    @Test
+//@Ignore
+    public void testHoxStar() throws Exception {
+        String testName = "testHoxStar";
+        String searchString = "Hox*";
+        String target = baseUrl + "/search";
+        
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+        
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+        List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
+        String expectedStartsWith = "Hox";
+        assertTrue("Expected 10 autosuggest rows. Found " + rows.size() + " rows.", rows.size() == 10);
+        for (int i = 0; i < rows.size(); i++) {
+            SearchPage.AutosuggestRow row = rows.get(i);
+            String errMsg = "Row[" + i + "]: Expected autosuggest row to begin with 'Hox'. Row value = " + row.value;
+            assertTrue(errMsg, row.value.startsWith(expectedStartsWith));
+        }
+    }
 
     
     // PRIVATE METHODS
@@ -1186,10 +1242,10 @@ public class SearchPageTest {
 
         // Verify that the core counts returned by solr match the facet counts on the page and the page.
         for (String core : cores) {
-            // 26-Mar-2015 (mrelac) Skip the core compare. The rules are fuzzy.
-            if (core.equals(SearchPage.GENE_CORE)) {
-                continue;
-            }
+// 26-Mar-2015 (mrelac) Skip the core compare. The rules are fuzzy.
+if (core.equals(SearchPage.GENE_CORE)) {
+    continue;
+}
             
             int facetCountFromPage = searchPage.getFacetCount(core);
             int facetCountFromSolr = (int)solrCoreCountMap.get(core);

@@ -135,15 +135,29 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             statResultCore.deleteByQuery("*:*");
 
+            String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='stats_unidimensional_results' AND TABLE_SCHEMA=(select database())";
+            Set<String> featureFlagMeans = new HashSet<>();
+            try (PreparedStatement p = connection.prepareStatement(featureFlagMeansQuery)) {
+                ResultSet r = p.executeQuery();
+                while (r.next()) {
+                    featureFlagMeans.add(r.getString("column_name"));
+                }
+            }
+
             // Populate unidimensional statistic results
             String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
                     + "  'unidimensional' AS data_type, "
                     + "  sr.id AS db_id, control_id, experimental_id, experimental_zygosity, "
                     + "  external_db_id, organisation_id, "
                     + "  pipeline_id, procedure_id, parameter_id, colony_id, "
-                    + "  dependent_variable, control_selection_strategy, male_controls, "
-                    + "  male_mutants, female_controls, female_mutants, "
-                    + "  metadata_group, statistical_method, status, "
+                    + "  dependent_variable, control_selection_strategy, "
+                    + "  male_controls, male_mutants, female_controls, female_mutants, ";
+
+            if (featureFlagMeans.contains("male_control_mean")) {
+                query += "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, ";
+            }
+
+            query += "  metadata_group, statistical_method, status, "
                     + "  batch_significance, "
                     + "  variance_significance, null_test_significance, genotype_parameter_estimate, "
                     + "  genotype_percentage_change, "
@@ -232,6 +246,13 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
+
+        // Index the mean fields
+        doc.setMaleControlMean(r.getDouble("male_control_mean"));
+        doc.setMaleMutantMean(r.getDouble("male_experimental_mean"));
+        doc.setFemaleControlMean(r.getDouble("female_control_mean"));
+        doc.setFemaleMutantMean(r.getDouble("female_experimental_mean"));
+
         doc.setNullTestPValue(r.getDouble("null_test_significance"));
 
         // If PhenStat did not run, then the result will have a NULL for the null_test_significance field
@@ -477,7 +498,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private void populateBiologicalDataMap() throws SQLException {
 
         String query = "SELECT bm.id, "
-                + "strain.acc AS strain_acc, strain.name AS strain_name, "
+                + "strain.acc AS strain_acc, strain.name AS strain_name, bm.genetic_background, "
                 + "(SELECT DISTINCT allele_acc FROM biological_model_allele bma WHERE bma.biological_model_id=bm.id) AS allele_accession, "
                 + "(SELECT DISTINCT a.symbol FROM biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) AS allele_symbol, "
                 + "(SELECT DISTINCT a.name FROM biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) AS allele_name, "
@@ -502,6 +523,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 b.geneSymbol = resultSet.getString("symbol");
                 b.strainAcc = resultSet.getString("strain_acc");
                 b.strainName = resultSet.getString("strain_name");
+                b.geneticBackground = resultSet.getString("genetic_background");
 
                 biologicalDataMap.put(resultSet.getInt("id"), b);
             }
@@ -565,6 +587,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         public String sex;
         public String strainAcc;
         public String strainName;
+        public String geneticBackground;
         public String zygosity;
     }
 }

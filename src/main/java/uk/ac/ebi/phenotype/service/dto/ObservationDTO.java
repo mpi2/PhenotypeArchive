@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 import java.sql.SQLException;
@@ -30,13 +29,14 @@ public class ObservationDTO {
     public final static String BIOLOGICAL_SAMPLE_GROUP = "biological_sample_group";
     public final static String STRAIN_ACCESSION_ID = "strain_accession_id";
     public final static String STRAIN_NAME = "strain_name";
+    public final static String GENETIC_BACKGROUND = "genetic_background";
     public final static String PIPELINE_NAME = "pipeline_name";
     public final static String PIPELINE_ID = "pipeline_id";
     public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";
     public final static String PROCEDURE_ID = "procedure_id";
     public final static String PROCEDURE_NAME = "procedure_name";
     public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
-	public final static String PROCEDURE_GROUP = "procedure_group";
+    public final static String PROCEDURE_GROUP = "procedure_group";
     public final static String PARAMETER_ID = "parameter_id";
     public final static String PARAMETER_NAME = "parameter_name";
     public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
@@ -114,6 +114,9 @@ public class ObservationDTO {
 
     @Field(STRAIN_NAME)
     private String strainName;
+
+    @Field(GENETIC_BACKGROUND)
+    private String geneticBackground;
 
     @Field(EXPERIMENT_SOURCE_ID)
     private String experimentSourceId;
@@ -303,6 +306,7 @@ public class ObservationDTO {
                 // + "\t" + parameterId
                 + "\t" + strainAccessionId
                 + "\t" + strainName
+                + "\t" + geneticBackground
                 // + "\t" + experimentSourceId
                 + "\t" + geneSymbol
                 + "\t" + geneAccession
@@ -353,8 +357,9 @@ public class ObservationDTO {
                 // + "\t pipeline id"
                 // + "\t procedureId"
                 // + "\t parameterId"
-                + "\t backgroundId"
-                + "\t background"
+                + "\t strainId"
+                + "\t strain"
+                + "\t backgroundStrain"
                 // + "\t experimentSourceId"
                 + "\t geneSymbol"
                 + "\t geneAccession"
@@ -983,6 +988,14 @@ public class ObservationDTO {
 	public void setStrainName(String strainName) {
 		this.strainName = strainName;
 	}
+
+    public String getGeneticBackground() {
+        return geneticBackground;
+    }
+
+    public void setGeneticBackground(String geneticBackground) {
+        this.geneticBackground = geneticBackground;
+    }
 
 	public String getAlleleSymbol() {
 		return alleleSymbol;

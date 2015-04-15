@@ -22,13 +22,7 @@ package uk.ac.ebi.phenotype.solr.indexer;
 
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +35,8 @@ import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.InvalidCoreNameException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.MissingRequiredArgumentException;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -1134,7 +1130,7 @@ public class IndexerManagerTest {
 //     public void testStaticBuildCores() {
 //        String testName = "testStaticBuildCores";
 //        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=autosuggest", "--nodeps" };
+//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
 //        logger.info("Command line = " + StringUtils.join(args, ","));
 //        int retVal =  IndexerManager.mainReturnsStatus(args);
 //         
