@@ -140,6 +140,10 @@
         <field name="male_mutant_count" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="female_control_count" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="female_mutant_count" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="male_control_mean" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="male_mutant_mean" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="female_control_mean" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="female_mutant_mean" type="double" indexed="true" stored="true" multiValued="false" />
 
         <!-- Information about the calculation -->
         <field name="statistical_method" type="string" indexed="true" stored="true" multiValued="false"/>

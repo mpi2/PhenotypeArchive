@@ -135,15 +135,29 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             statResultCore.deleteByQuery("*:*");
 
+            String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='stats_unidimensional_results' AND TABLE_SCHEMA=(select database())";
+            Set<String> featureFlagMeans = new HashSet<>();
+            try (PreparedStatement p = connection.prepareStatement(featureFlagMeansQuery)) {
+                ResultSet r = p.executeQuery();
+                while (r.next()) {
+                    featureFlagMeans.add(r.getString("column_name"));
+                }
+            }
+
             // Populate unidimensional statistic results
             String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
                     + "  'unidimensional' AS data_type, "
                     + "  sr.id AS db_id, control_id, experimental_id, experimental_zygosity, "
                     + "  external_db_id, organisation_id, "
                     + "  pipeline_id, procedure_id, parameter_id, colony_id, "
-                    + "  dependent_variable, control_selection_strategy, male_controls, "
-                    + "  male_mutants, female_controls, female_mutants, "
-                    + "  metadata_group, statistical_method, status, "
+                    + "  dependent_variable, control_selection_strategy, "
+                    + "  male_controls, male_mutants, female_controls, female_mutants, ";
+
+            if (featureFlagMeans.contains("male_control_mean")) {
+                query += "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, ";
+            }
+
+            query += "  metadata_group, statistical_method, status, "
                     + "  batch_significance, "
                     + "  variance_significance, null_test_significance, genotype_parameter_estimate, "
                     + "  genotype_percentage_change, "
@@ -232,6 +246,13 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
+
+        // Index the mean fields
+        doc.setMaleControlMean(r.getDouble("male_control_mean"));
+        doc.setMaleMutantMean(r.getDouble("male_experimental_mean"));
+        doc.setFemaleControlMean(r.getDouble("female_control_mean"));
+        doc.setFemaleMutantMean(r.getDouble("female_experimental_mean"));
+
         doc.setNullTestPValue(r.getDouble("null_test_significance"));
 
         // If PhenStat did not run, then the result will have a NULL for the null_test_significance field

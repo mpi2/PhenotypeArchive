@@ -3,1919 +3,2152 @@ package uk.ac.ebi.phenotype.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
-import java.util.Objects;
 
 
 public class StatisticalResultDTO {
 
 
+	public final static String DOCUMENT_ID = "doc_id";
+	public final static String DB_ID = "db_id";
+	public final static String DATA_TYPE = "data_type";
+
+	public final static String MP_TERM_ID = "mp_term_id";
+	public final static String MP_TERM_NAME = "mp_term_name";
+	public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
+	public final static String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
+	public final static String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";
+	public final static String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";
+
+	public final static String MALE_MP_TERM_ID = "male_mp_term_id";
+	public final static String MALE_MP_TERM_NAME = "male_mp_term_name";
+	public final static String MALE_TOP_LEVEL_MP_TERM_ID = "male_top_level_mp_term_id";
+	public final static String MALE_TOP_LEVEL_MP_TERM_NAME = "male_top_level_mp_term_name";
+	public final static String MALE_INTERMEDIATE_MP_TERM_ID = "male_intermediate_mp_term_id";
+	public final static String MALE_INTERMEDIATE_MP_TERM_NAME = "male_intermediate_mp_term_name";
+
+	public final static String FEMALE_MP_TERM_ID = "female_mp_term_id";
+	public final static String FEMALE_MP_TERM_NAME = "female_mp_term_name";
+	public final static String FEMALE_TOP_LEVEL_MP_TERM_ID = "female_top_level_mp_term_id";
+	public final static String FEMALE_TOP_LEVEL_MP_TERM_NAME = "female_top_level_mp_term_name";
+	public final static String FEMALE_INTERMEDIATE_MP_TERM_ID = "female_intermediate_mp_term_id";
+	public final static String FEMALE_INTERMEDIATE_MP_TERM_NAME = "female_intermediate_mp_term_name";
+
+	public final static String RESOURCE_NAME = "resource_name";
+	public final static String RESOURCE_FULLNAME = "resource_fullname";
+	public final static String RESOURCE_ID = "resource_id";
+	public final static String PROJECT_NAME = "project_name";
+	public final static String PHENOTYPING_CENTER = "phenotyping_center";
+
+	public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";
+	public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key";
+	public final static String PIPELINE_NAME = "pipeline_name";
+	public final static String PIPELINE_ID = "pipeline_id";
+
+	public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
+	public final static String PROCEDURE_STABLE_KEY = "procedure_stable_key";
+	public final static String PROCEDURE_NAME = "procedure_name";
+	public final static String PROCEDURE_ID = "procedure_id";
+
+	public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
+	public final static String PARAMETER_STABLE_KEY = "parameter_stable_key";
+	public final static String PARAMETER_NAME = "parameter_name";
+	public final static String PARAMETER_ID = "parameter_id";
+
+	public final static String COLONY_ID = "colony_id";
+	public final static String MARKER_SYMBOL = "marker_symbol";
+	public final static String MARKER_ACCESSION_ID = "marker_accession_id";
+	public final static String ALLELE_SYMBOL = "allele_symbol";
+	public final static String ALLELE_NAME = "allele_name";
+	public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
+	public final static String STRAIN_NAME = "strain_name";
+	public final static String STRAIN_ACCESSION_ID = "strain_accession_id";
+	public final static String SEX = "sex";
+	public final static String ZYGOSITY = "zygosity";
+
+	public final static String CONTROL_SELECTION_METHOD = "control_selection_method";
+	public final static String DEPENDENT_VARIABLE = "dependent_variable";
+	public final static String METADATA_GROUP = "metadata_group";
+
+	public final static String CONTROL_BIOLOGICAL_MODEL_ID = "control_biological_model_id";
+	public final static String MUTANT_BIOLOGICAL_MODEL_ID = "mutant_biological_model_id";
+	public final static String MALE_CONTROL_COUNT = "male_control_count";
+	public final static String MALE_MUTANT_COUNT = "male_mutant_count";
+	public final static String FEMALE_CONTROL_COUNT = "female_control_count";
+	public final static String FEMALE_MUTANT_COUNT = "female_mutant_count";
+
+	public final static String MALE_CONTROL_MEAN = "male_control_mean";
+	public final static String MALE_MUTANT_MEAN = "male_mutant_mean";
+	public final static String FEMALE_CONTROL_MEAN = "female_control_mean";
+	public final static String FEMALE_MUTANT_MEAN = "female_mutant_mean";
+
+	public final static String STATISTICAL_METHOD = "statistical_method";
+	public final static String STATUS = "status";
+	public final static String ADDITIONAL_INFORMATION = "additional_information";
+	public final static String RAW_OUTPUT = "raw_output";
+	public final static String P_VALUE = "p_value";
+	public final static String EFFECT_SIZE = "effect_size";
+
+	public final static String CATEGORIES = "categories";
+	public final static String CATEGORICAL_P_VALUE = "categorical_p_value";
+	public final static String CATEGORICAL_EFFECT_SIZE = "categorical_effect_size";
+
+	public final static String BATCH_SIGNIFICANT = "batch_significant";
+	public final static String VARIANCE_SIGNIFICANT = "variance_significant";
+	public final static String NULL_TEST_P_VALUE = "null_test_p_value";
+	public final static String GENOTYPE_EFFECT_P_VALUE = "genotype_effect_p_value";
+	public final static String GENOTYPE_EFFECT_STDERR_ESTIMATE = "genotype_effect_stderr_estimate";
+	public final static String GENOTYPE_EFFECT_PARAMETER_ESTIMATE = "genotype_effect_parameter_estimate";
+
+	public final static String FEMALE_PERCENTAGE_CHANGE = "female_percentage_change";
+	public final static String MALE_PERCENTAGE_CHANGE = "male_percentage_change";
+
+	public final static String SEX_EFFECT_P_VALUE = "sex_effect_p_value";
+	public final static String SEX_EFFECT_STDERR_ESTIMATE = "sex_effect_stderr_estimate";
+	public final static String SEX_EFFECT_PARAMETER_ESTIMATE = "sex_effect_parameter_estimate";
+	public final static String WEIGHT_EFFECT_P_VALUE = "weight_effect_p_value";
+	public final static String WEIGHT_EFFECT_STDERR_ESTIMATE = "weight_effect_stderr_estimate";
+	public final static String WEIGHT_EFFECT_PARAMETER_ESTIMATE = "weight_effect_parameter_estimate";
+
+	public final static String GROUP_1_GENOTYPE = "group_1_genotype";
+	public final static String GROUP_1_RESIDUALS_NORMALITY_TEST = "group_1_residuals_normality_test";
+	public final static String GROUP_2_GENOTYPE = "group_2_genotype";
+	public final static String GROUP_2_RESIDUALS_NORMALITY_TEST = "group_2_residuals_normality_test";
+	public final static String BLUPS_TEST = "blups_test";
+	public final static String ROTATED_RESIDUALS_TEST = "rotated_residuals_test";
 
-    public final static String DOCUMENT_ID = "doc_id";
-    public final static String DB_ID = "db_id";
-    public final static String DATA_TYPE = "data_type";
-
-    public final static String MP_TERM_ID = "mp_term_id"; 
-    public final static String MP_TERM_NAME = "mp_term_name"; 
-    public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
-    public final static String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
-    public final static String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";
-    public final static String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";
-
-    public final static String MALE_MP_TERM_ID = "male_mp_term_id";
-    public final static String MALE_MP_TERM_NAME = "male_mp_term_name";
-    public final static String MALE_TOP_LEVEL_MP_TERM_ID = "male_top_level_mp_term_id";
-    public final static String MALE_TOP_LEVEL_MP_TERM_NAME = "male_top_level_mp_term_name";
-    public final static String MALE_INTERMEDIATE_MP_TERM_ID = "male_intermediate_mp_term_id";
-    public final static String MALE_INTERMEDIATE_MP_TERM_NAME = "male_intermediate_mp_term_name";
-
-    public final static String FEMALE_MP_TERM_ID = "female_mp_term_id";
-    public final static String FEMALE_MP_TERM_NAME = "female_mp_term_name";
-    public final static String FEMALE_TOP_LEVEL_MP_TERM_ID = "female_top_level_mp_term_id";
-    public final static String FEMALE_TOP_LEVEL_MP_TERM_NAME = "female_top_level_mp_term_name";
-    public final static String FEMALE_INTERMEDIATE_MP_TERM_ID = "female_intermediate_mp_term_id";
-    public final static String FEMALE_INTERMEDIATE_MP_TERM_NAME = "female_intermediate_mp_term_name";
-
-    public final static String RESOURCE_NAME = "resource_name"; 
-    public final static String RESOURCE_FULLNAME = "resource_fullname";
-    public final static String RESOURCE_ID = "resource_id"; 
-    public final static String PROJECT_NAME = "project_name";
-    public final static String PHENOTYPING_CENTER = "phenotyping_center"; 
-
-    public final static String PIPELINE_STABLE_ID = "pipeline_stable_id"; 
-    public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key"; 
-    public final static String PIPELINE_NAME = "pipeline_name"; 
-    public final static String PIPELINE_ID = "pipeline_id"; 
-
-    public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
-    public final static String PROCEDURE_STABLE_KEY = "procedure_stable_key"; 
-    public final static String PROCEDURE_NAME = "procedure_name"; 
-    public final static String PROCEDURE_ID = "procedure_id"; 
-
-    public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
-    public final static String PARAMETER_STABLE_KEY = "parameter_stable_key";
-    public final static String PARAMETER_NAME = "parameter_name";
-    public final static String PARAMETER_ID = "parameter_id";
-
-    public final static String COLONY_ID = "colony_id"; 
-    public final static String MARKER_SYMBOL = "marker_symbol";
-    public final static String MARKER_ACCESSION_ID = "marker_accession_id";
-    public final static String ALLELE_SYMBOL = "allele_symbol";
-    public final static String ALLELE_NAME = "allele_name";
-    public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
-    public final static String STRAIN_NAME = "strain_name"; 
-    public final static String STRAIN_ACCESSION_ID = "strain_accession_id"; 
-    public final static String SEX = "sex"; 
-    public final static String ZYGOSITY = "zygosity"; 
-
-    public final static String CONTROL_SELECTION_METHOD = "control_selection_method";
-    public final static String DEPENDENT_VARIABLE = "dependent_variable";
-    public final static String METADATA_GROUP = "metadata_group";
-
-    public final static String CONTROL_BIOLOGICAL_MODEL_ID = "control_biological_model_id";
-    public final static String MUTANT_BIOLOGICAL_MODEL_ID = "mutant_biological_model_id";
-    public final static String MALE_CONTROL_COUNT = "male_control_count";
-    public final static String MALE_MUTANT_COUNT = "male_mutant_count";
-    public final static String FEMALE_CONTROL_COUNT = "female_control_count";
-    public final static String FEMALE_MUTANT_COUNT = "female_mutant_count";
-
-    public final static String STATISTICAL_METHOD = "statistical_method";
-    public final static String STATUS = "status";
-    public final static String ADDITIONAL_INFORMATION = "additional_information";
-    public final static String RAW_OUTPUT = "raw_output";
-    public final static String P_VALUE = "p_value";
-    public final static String EFFECT_SIZE = "effect_size";
-
-    public final static String CATEGORIES = "categories";
-    public final static String CATEGORICAL_P_VALUE = "categorical_p_value";
-    public final static String CATEGORICAL_EFFECT_SIZE = "categorical_effect_size";
-    
-    public final static String BATCH_SIGNIFICANT = "batch_significant";
-    public final static String VARIANCE_SIGNIFICANT = "variance_significant";
-    public final static String NULL_TEST_P_VALUE = "null_test_p_value";
-    public final static String GENOTYPE_EFFECT_P_VALUE = "genotype_effect_p_value";
-    public final static String GENOTYPE_EFFECT_STDERR_ESTIMATE = "genotype_effect_stderr_estimate";
-    public final static String GENOTYPE_EFFECT_PARAMETER_ESTIMATE = "genotype_effect_parameter_estimate";
-    
-    public final static String FEMALE_PERCENTAGE_CHANGE = "female_percentage_change";
-    public final static String MALE_PERCENTAGE_CHANGE = "male_percentage_change";
-    
-    public final static String SEX_EFFECT_P_VALUE = "sex_effect_p_value";
-    public final static String SEX_EFFECT_STDERR_ESTIMATE = "sex_effect_stderr_estimate";
-    public final static String SEX_EFFECT_PARAMETER_ESTIMATE = "sex_effect_parameter_estimate";
-    public final static String WEIGHT_EFFECT_P_VALUE = "weight_effect_p_value";
-    public final static String WEIGHT_EFFECT_STDERR_ESTIMATE = "weight_effect_stderr_estimate";
-    public final static String WEIGHT_EFFECT_PARAMETER_ESTIMATE = "weight_effect_parameter_estimate";
-
-    public final static String GROUP_1_GENOTYPE = "group_1_genotype";
-    public final static String GROUP_1_RESIDUALS_NORMALITY_TEST = "group_1_residuals_normality_test";
-    public final static String GROUP_2_GENOTYPE = "group_2_genotype";
-    public final static String GROUP_2_RESIDUALS_NORMALITY_TEST = "group_2_residuals_normality_test";
-    public final static String BLUPS_TEST = "blups_test";
-    public final static String ROTATED_RESIDUALS_TEST = "rotated_residuals_test";
+	public final static String INTERCEPT_ESTIMATE = "intercept_estimate";
+	public final static String INTERCEPT_ESTIMATE_STDERR_ESTIMATE = "intercept_estimate_stderr_estimate";
+	public final static String INTERACTION_SIGNIFICANT = "interaction_significant";
+	public final static String INTERACTION_EFFECT_P_VALUE = "interaction_effect_p_value";
+	public final static String FEMALE_KO_EFFECT_P_VALUE = "female_ko_effect_p_value";
+	public final static String FEMALE_KO_EFFECT_STDERR_ESTIMATE = "female_ko_effect_stderr_estimate";
+	public final static String FEMALE_KO_PARAMETER_ESTIMATE = "female_ko_parameter_estimate";
+	public final static String MALE_KO_EFFECT_P_VALUE = "male_ko_effect_p_value";
+	public final static String MALE_KO_EFFECT_STDERR_ESTIMATE = "male_ko_effect_stderr_estimate";
+	public final static String MALE_KO_PARAMETER_ESTIMATE = "male_ko_parameter_estimate";
+	public final static String CLASSIFICATION_TAG = "classification_tag";
 
-    public final static String INTERCEPT_ESTIMATE = "intercept_estimate";
-    public final static String INTERCEPT_ESTIMATE_STDERR_ESTIMATE = "intercept_estimate_stderr_estimate";
-    public final static String INTERACTION_SIGNIFICANT = "interaction_significant";
-    public final static String INTERACTION_EFFECT_P_VALUE = "interaction_effect_p_value";
-    public final static String FEMALE_KO_EFFECT_P_VALUE = "female_ko_effect_p_value";
-    public final static String FEMALE_KO_EFFECT_STDERR_ESTIMATE = "female_ko_effect_stderr_estimate";
-    public final static String FEMALE_KO_PARAMETER_ESTIMATE = "female_ko_parameter_estimate";
-    public final static String MALE_KO_EFFECT_P_VALUE = "male_ko_effect_p_value";
-    public final static String MALE_KO_EFFECT_STDERR_ESTIMATE = "male_ko_effect_stderr_estimate";
-    public final static String MALE_KO_PARAMETER_ESTIMATE = "male_ko_parameter_estimate";
-    public final static String CLASSIFICATION_TAG = "classification_tag";
+	public final static String EXTERNAL_DB_ID = "external_db_id";
+	public final static String ORGANISATION_ID = "organisation_id";
+	public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
+	public final static String PROJECT_ID = "project_id";
 
-    public final static String EXTERNAL_DB_ID = "external_db_id";
-    public final static String ORGANISATION_ID = "organisation_id";
-    public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
-    public final static String PROJECT_ID = "project_id";
+	@Field(DOCUMENT_ID)
+	private String docId;
 
-    @Field(DOCUMENT_ID)
-    private String docId;
+	@Field(DB_ID)
+	private Integer dbId;
 
-    @Field(DB_ID)
-    private Integer dbId;
+	@Field(DATA_TYPE)
+	private String dataType;
 
-    @Field(DATA_TYPE)
-    private String dataType;
+	@Field(MP_TERM_ID)
+	private String mpTermId;
 
-    @Field(MP_TERM_ID)
-    private String mpTermId;
+	@Field(MP_TERM_NAME)
+	private String mpTermName;
 
-    @Field(MP_TERM_NAME)
-    private String mpTermName;
+	@Field(TOP_LEVEL_MP_TERM_ID)
+	private List<String> topLevelMpTermId;
 
-    @Field(TOP_LEVEL_MP_TERM_ID)
-    private List<String> topLevelMpTermId;
+	@Field(TOP_LEVEL_MP_TERM_NAME)
+	private List<String> topLevelMpTermName;
 
-    @Field(TOP_LEVEL_MP_TERM_NAME)
-    private List<String> topLevelMpTermName;
+	@Field(INTERMEDIATE_MP_TERM_ID)
+	private List<String> intermediateMpTermId;
 
-    @Field(INTERMEDIATE_MP_TERM_ID)
-    private List<String> intermediateMpTermId;
+	@Field(INTERMEDIATE_MP_TERM_NAME)
+	private List<String> intermediateMpTermName;
 
-    @Field(INTERMEDIATE_MP_TERM_NAME)
-    private List<String> intermediateMpTermName;
 
+	@Field(MALE_MP_TERM_ID)
+	private String maleMpTermId;
 
-    @Field(MALE_MP_TERM_ID)
-    private String maleMpTermId;
+	@Field(MALE_MP_TERM_NAME)
+	private String maleMpTermName;
 
-    @Field(MALE_MP_TERM_NAME)
-    private String maleMpTermName;
+	@Field(MALE_TOP_LEVEL_MP_TERM_ID)
+	private List<String> maleTopLevelMpTermId;
 
-    @Field(MALE_TOP_LEVEL_MP_TERM_ID)
-    private List<String> maleTopLevelMpTermId;
+	@Field(MALE_TOP_LEVEL_MP_TERM_NAME)
+	private List<String> maleTopLevelMpTermName;
 
-    @Field(MALE_TOP_LEVEL_MP_TERM_NAME)
-    private List<String> maleTopLevelMpTermName;
+	@Field(MALE_INTERMEDIATE_MP_TERM_ID)
+	private List<String> maleIntermediateMpTermId;
 
-    @Field(MALE_INTERMEDIATE_MP_TERM_ID)
-    private List<String> maleIntermediateMpTermId;
+	@Field(MALE_INTERMEDIATE_MP_TERM_NAME)
+	private List<String> maleIntermediateMpTermName;
 
-    @Field(MALE_INTERMEDIATE_MP_TERM_NAME)
-    private List<String> maleIntermediateMpTermName;
 
+	@Field(FEMALE_MP_TERM_ID)
+	private String femaleMpTermId;
 
-    @Field(FEMALE_MP_TERM_ID)
-    private String femaleMpTermId;
+	@Field(FEMALE_MP_TERM_NAME)
+	private String femaleMpTermName;
 
-    @Field(FEMALE_MP_TERM_NAME)
-    private String femaleMpTermName;
+	@Field(FEMALE_TOP_LEVEL_MP_TERM_ID)
+	private List<String> femaleTopLevelMpTermId;
 
-    @Field(FEMALE_TOP_LEVEL_MP_TERM_ID)
-    private List<String> femaleTopLevelMpTermId;
+	@Field(FEMALE_TOP_LEVEL_MP_TERM_NAME)
+	private List<String> femaleTopLevelMpTermName;
 
-    @Field(FEMALE_TOP_LEVEL_MP_TERM_NAME)
-    private List<String> femaleTopLevelMpTermName;
+	@Field(FEMALE_INTERMEDIATE_MP_TERM_ID)
+	private List<String> femaleIntermediateMpTermId;
 
-    @Field(FEMALE_INTERMEDIATE_MP_TERM_ID)
-    private List<String> femaleIntermediateMpTermId;
+	@Field(FEMALE_INTERMEDIATE_MP_TERM_NAME)
+	private List<String> femaleIntermediateMpTermName;
 
-    @Field(FEMALE_INTERMEDIATE_MP_TERM_NAME)
-    private List<String> femaleIntermediateMpTermName;
 
+	@Field(RESOURCE_NAME)
+	private String resourceName;
 
+	@Field(RESOURCE_FULLNAME)
+	private String resourceFullname;
 
-    @Field(RESOURCE_NAME)
-    private String resourceName;
+	@Field(RESOURCE_ID)
+	private Integer resourceId;
 
-    @Field(RESOURCE_FULLNAME)
-    private String resourceFullname;
+	@Field(PROJECT_NAME)
+	private String projectName;
 
-    @Field(RESOURCE_ID)
-    private Integer resourceId;
+	@Field(PHENOTYPING_CENTER)
+	private String phenotypingCenter;
 
-    @Field(PROJECT_NAME)
-    private String projectName;
+	@Field(PIPELINE_STABLE_ID)
+	private String pipelineStableId;
 
-    @Field(PHENOTYPING_CENTER)
-    private String phenotypingCenter;
+	@Field(PIPELINE_STABLE_KEY)
+	private String pipelineStableKey;
 
-    @Field(PIPELINE_STABLE_ID)
-    private String pipelineStableId;
+	@Field(PIPELINE_NAME)
+	private String pipelineName;
 
-    @Field(PIPELINE_STABLE_KEY)
-    private String pipelineStableKey;
+	@Field(PIPELINE_ID)
+	private Integer pipelineId;
 
-    @Field(PIPELINE_NAME)
-    private String pipelineName;
+	@Field(PROCEDURE_STABLE_ID)
+	private String procedureStableId;
 
-    @Field(PIPELINE_ID)
-    private Integer pipelineId;
+	@Field(PROCEDURE_STABLE_KEY)
+	private String procedureStableKey;
 
-    @Field(PROCEDURE_STABLE_ID)
-    private String procedureStableId;
+	@Field(PROCEDURE_NAME)
+	private String procedureName;
 
-    @Field(PROCEDURE_STABLE_KEY)
-    private String procedureStableKey;
+	@Field(PROCEDURE_ID)
+	private Integer procedureId;
 
-    @Field(PROCEDURE_NAME)
-    private String procedureName;
+	@Field(PARAMETER_STABLE_ID)
+	private String parameterStableId;
 
-    @Field(PROCEDURE_ID)
-    private Integer procedureId;
+	@Field(PARAMETER_STABLE_KEY)
+	private String parameterStableKey;
 
-    @Field(PARAMETER_STABLE_ID)
-    private String parameterStableId;
+	@Field(PARAMETER_NAME)
+	private String parameterName;
 
-    @Field(PARAMETER_STABLE_KEY)
-    private String parameterStableKey;
+	@Field(PARAMETER_ID)
+	private Integer parameterId;
 
-    @Field(PARAMETER_NAME)
-    private String parameterName;
+	@Field(COLONY_ID)
+	private String colonyId;
 
-    @Field(PARAMETER_ID)
-    private Integer parameterId;
+	@Field(MARKER_SYMBOL)
+	private String markerSymbol;
 
-    @Field(COLONY_ID)
-    private String colonyId;
+	@Field(MARKER_ACCESSION_ID)
+	private String markerAccessionId;
 
-    @Field(MARKER_SYMBOL)
-    private String markerSymbol;
+	@Field(ALLELE_SYMBOL)
+	private String alleleSymbol;
 
-    @Field(MARKER_ACCESSION_ID)
-    private String markerAccessionId;
+	@Field(ALLELE_NAME)
+	private String alleleName;
 
-    @Field(ALLELE_SYMBOL)
-    private String alleleSymbol;
+	@Field(ALLELE_ACCESSION_ID)
+	private String alleleAccessionId;
 
-    @Field(ALLELE_NAME)
-    private String alleleName;
+	@Field(STRAIN_NAME)
+	private String strainName;
 
-    @Field(ALLELE_ACCESSION_ID)
-    private String alleleAccessionId;
+	@Field(STRAIN_ACCESSION_ID)
+	private String strainAccessionId;
 
-    @Field(STRAIN_NAME)
-    private String strainName;
+	@Field(SEX)
+	private String sex;
 
-    @Field(STRAIN_ACCESSION_ID)
-    private String strainAccessionId;
+	@Field(ZYGOSITY)
+	private String zygosity;
 
-    @Field(SEX)
-    private String sex;
+	@Field(CONTROL_SELECTION_METHOD)
+	private String controlSelectionMethod;
 
-    @Field(ZYGOSITY)
-    private String zygosity;
+	@Field(DEPENDENT_VARIABLE)
+	private String dependentVariable;
 
-    @Field(CONTROL_SELECTION_METHOD)
-    private String controlSelectionMethod;
+	@Field(METADATA_GROUP)
+	private String metadataGroup;
 
-    @Field(DEPENDENT_VARIABLE)
-    private String dependentVariable;
+	@Field(CONTROL_BIOLOGICAL_MODEL_ID)
+	private Integer controlBiologicalModelId;
 
-    @Field(METADATA_GROUP)
-    private String metadataGroup;
+	@Field(MUTANT_BIOLOGICAL_MODEL_ID)
+	private Integer mutantBiologicalModelId;
 
-    @Field(CONTROL_BIOLOGICAL_MODEL_ID)
-    private Integer controlBiologicalModelId;
+	@Field(MALE_CONTROL_COUNT)
+	private Integer maleControlCount;
 
-    @Field(MUTANT_BIOLOGICAL_MODEL_ID)
-    private Integer mutantBiologicalModelId;
+	@Field(MALE_MUTANT_COUNT)
+	private Integer maleMutantCount;
 
-    @Field(MALE_CONTROL_COUNT)
-    private Integer maleControlCount;
+	@Field(FEMALE_CONTROL_COUNT)
+	private Integer femaleControlCount;
 
-    @Field(MALE_MUTANT_COUNT)
-    private Integer maleMutantCount;
+	@Field(FEMALE_MUTANT_COUNT)
+	private Integer femaleMutantCount;
 
-    @Field(FEMALE_CONTROL_COUNT)
-    private Integer femaleControlCount;
+	@Field(FEMALE_MUTANT_MEAN)
+	private Double femaleMutantMean;
 
-    @Field(FEMALE_MUTANT_COUNT)
-    private Integer femaleMutantCount;
+	@Field(FEMALE_CONTROL_MEAN)
+	private Double femaleControlMean;
 
-    @Field(STATISTICAL_METHOD)
-    private String statisticalMethod;
+	@Field(MALE_MUTANT_MEAN)
+	private Double maleMutantMean;
 
-    @Field(STATUS)
-    private String status;
+	@Field(MALE_CONTROL_MEAN)
+	private Double maleControlMean;
 
-    @Field(ADDITIONAL_INFORMATION)
-    private String additionalInformation;
+	@Field(STATISTICAL_METHOD)
+	private String statisticalMethod;
 
-    @Field(RAW_OUTPUT)
-    private String rawOutput;
+	@Field(STATUS)
+	private String status;
 
-    @Field(P_VALUE)
-    private Double pValue;
+	@Field(ADDITIONAL_INFORMATION)
+	private String additionalInformation;
 
-    @Field(EFFECT_SIZE)
-    private Double effectSize;
+	@Field(RAW_OUTPUT)
+	private String rawOutput;
 
-    @Field(CATEGORIES)
-    private List<String> categories;
+	@Field(P_VALUE)
+	private Double pValue;
 
-    @Field(CATEGORICAL_P_VALUE)
-    private Double categoricalPValue;
+	@Field(EFFECT_SIZE)
+	private Double effectSize;
 
-    @Field(CATEGORICAL_EFFECT_SIZE)
-    private Double categoricalEffectSize;
+	@Field(CATEGORIES)
+	private List<String> categories;
 
-    @Field(BATCH_SIGNIFICANT)
-    private Boolean batchSignificant;
+	@Field(CATEGORICAL_P_VALUE)
+	private Double categoricalPValue;
 
-    @Field(VARIANCE_SIGNIFICANT)
-    private Boolean varianceSignificant;
+	@Field(CATEGORICAL_EFFECT_SIZE)
+	private Double categoricalEffectSize;
 
-    @Field(NULL_TEST_P_VALUE)
-    private Double nullTestPValue;
+	@Field(BATCH_SIGNIFICANT)
+	private Boolean batchSignificant;
 
-    @Field(GENOTYPE_EFFECT_P_VALUE)
-    private Double genotypeEffectPValue;
+	@Field(VARIANCE_SIGNIFICANT)
+	private Boolean varianceSignificant;
 
-    @Field(GENOTYPE_EFFECT_STDERR_ESTIMATE)
-    private Double genotypeEffectStderrEstimate;
+	@Field(NULL_TEST_P_VALUE)
+	private Double nullTestPValue;
 
-    @Field(GENOTYPE_EFFECT_PARAMETER_ESTIMATE)
-    private Double genotypeEffectParameterEstimate;
+	@Field(GENOTYPE_EFFECT_P_VALUE)
+	private Double genotypeEffectPValue;
 
-    @Field(FEMALE_PERCENTAGE_CHANGE)
-    private String femalePercentageChange;
+	@Field(GENOTYPE_EFFECT_STDERR_ESTIMATE)
+	private Double genotypeEffectStderrEstimate;
 
-    @Field(MALE_PERCENTAGE_CHANGE)
-    private String malePercentageChange;
-    
-    @Field(SEX_EFFECT_P_VALUE)
-    private Double sexEffectPValue;
+	@Field(GENOTYPE_EFFECT_PARAMETER_ESTIMATE)
+	private Double genotypeEffectParameterEstimate;
 
-    @Field(SEX_EFFECT_STDERR_ESTIMATE)
-    private Double sexEffectStderrEstimate;
+	@Field(FEMALE_PERCENTAGE_CHANGE)
+	private String femalePercentageChange;
 
-    @Field(SEX_EFFECT_PARAMETER_ESTIMATE)
-    private Double sexEffectParameterEstimate;
+	@Field(MALE_PERCENTAGE_CHANGE)
+	private String malePercentageChange;
 
-    @Field(WEIGHT_EFFECT_P_VALUE)
-    private Double weightEffectPValue;
+	@Field(SEX_EFFECT_P_VALUE)
+	private Double sexEffectPValue;
 
-    @Field(WEIGHT_EFFECT_STDERR_ESTIMATE)
-    private Double weightEffectStderrEstimate;
+	@Field(SEX_EFFECT_STDERR_ESTIMATE)
+	private Double sexEffectStderrEstimate;
 
-    @Field(WEIGHT_EFFECT_PARAMETER_ESTIMATE)
-    private Double weightEffectParameterEstimate;
+	@Field(SEX_EFFECT_PARAMETER_ESTIMATE)
+	private Double sexEffectParameterEstimate;
 
-    @Field(GROUP_1_GENOTYPE)
-    private String group1Genotype;
+	@Field(WEIGHT_EFFECT_P_VALUE)
+	private Double weightEffectPValue;
 
-    @Field(GROUP_1_RESIDUALS_NORMALITY_TEST)
-    private Double group1ResidualsNormalityTest;
+	@Field(WEIGHT_EFFECT_STDERR_ESTIMATE)
+	private Double weightEffectStderrEstimate;
 
-    @Field(GROUP_2_GENOTYPE)
-    private String group2Genotype;
+	@Field(WEIGHT_EFFECT_PARAMETER_ESTIMATE)
+	private Double weightEffectParameterEstimate;
 
-    @Field(GROUP_2_RESIDUALS_NORMALITY_TEST)
-    private Double group2ResidualsNormalityTest;
+	@Field(GROUP_1_GENOTYPE)
+	private String group1Genotype;
 
-    @Field(BLUPS_TEST)
-    private Double blupsTest;
+	@Field(GROUP_1_RESIDUALS_NORMALITY_TEST)
+	private Double group1ResidualsNormalityTest;
 
-    @Field(ROTATED_RESIDUALS_TEST)
-    private Double rotatedResidualsTest;
+	@Field(GROUP_2_GENOTYPE)
+	private String group2Genotype;
 
-    @Field(INTERCEPT_ESTIMATE)
-    private Double interceptEstimate;
+	@Field(GROUP_2_RESIDUALS_NORMALITY_TEST)
+	private Double group2ResidualsNormalityTest;
 
-    @Field(INTERCEPT_ESTIMATE_STDERR_ESTIMATE)
-    private Double interceptEstimateStderrEstimate;
+	@Field(BLUPS_TEST)
+	private Double blupsTest;
 
-    @Field(INTERACTION_SIGNIFICANT)
-    private Boolean interactionSignificant;
+	@Field(ROTATED_RESIDUALS_TEST)
+	private Double rotatedResidualsTest;
 
-    @Field(INTERACTION_EFFECT_P_VALUE)
-    private Double interactionEffectPValue;
+	@Field(INTERCEPT_ESTIMATE)
+	private Double interceptEstimate;
 
-    @Field(FEMALE_KO_EFFECT_P_VALUE)
-    private Double femaleKoEffectPValue;
+	@Field(INTERCEPT_ESTIMATE_STDERR_ESTIMATE)
+	private Double interceptEstimateStderrEstimate;
 
-    @Field(FEMALE_KO_EFFECT_STDERR_ESTIMATE)
-    private Double femaleKoEffectStderrEstimate;
+	@Field(INTERACTION_SIGNIFICANT)
+	private Boolean interactionSignificant;
 
-    @Field(FEMALE_KO_PARAMETER_ESTIMATE)
-    private Double femaleKoParameterEstimate;
+	@Field(INTERACTION_EFFECT_P_VALUE)
+	private Double interactionEffectPValue;
 
-    @Field(MALE_KO_EFFECT_P_VALUE)
-    private Double maleKoEffectPValue;
+	@Field(FEMALE_KO_EFFECT_P_VALUE)
+	private Double femaleKoEffectPValue;
 
-    @Field(MALE_KO_EFFECT_STDERR_ESTIMATE)
-    private Double maleKoEffectStderrEstimate;
+	@Field(FEMALE_KO_EFFECT_STDERR_ESTIMATE)
+	private Double femaleKoEffectStderrEstimate;
 
-    @Field(MALE_KO_PARAMETER_ESTIMATE)
-    private Double maleKoParameterEstimate;
+	@Field(FEMALE_KO_PARAMETER_ESTIMATE)
+	private Double femaleKoParameterEstimate;
 
-    @Field(CLASSIFICATION_TAG)
-    private String classificationTag;
-    
-    @Field(EXTERNAL_DB_ID)
-    private Integer externalDbId;
-    
-    @Field(ORGANISATION_ID)
-    private Integer organisationId;
-    
-    @Field(PHENOTYPING_CENTER_ID)
-    private Integer phenotypingCenterId;
-    
-    @Field(PROJECT_ID)
-    private Integer projectId;
+	@Field(MALE_KO_EFFECT_P_VALUE)
+	private Double maleKoEffectPValue;
 
-    public String getDocId() {
+	@Field(MALE_KO_EFFECT_STDERR_ESTIMATE)
+	private Double maleKoEffectStderrEstimate;
 
-        return docId;
-    }
+	@Field(MALE_KO_PARAMETER_ESTIMATE)
+	private Double maleKoParameterEstimate;
 
+	@Field(CLASSIFICATION_TAG)
+	private String classificationTag;
 
-    public void setDocId(String docId) {
+	@Field(EXTERNAL_DB_ID)
+	private Integer externalDbId;
 
-        this.docId = docId;
-    }
+	@Field(ORGANISATION_ID)
+	private Integer organisationId;
 
+	@Field(PHENOTYPING_CENTER_ID)
+	private Integer phenotypingCenterId;
 
-    public Integer getDbId() {
+	@Field(PROJECT_ID)
+	private Integer projectId;
 
-        return dbId;
-    }
 
+	public String getDocId() {
 
-    public void setDbId(Integer dbId) {
+		return docId;
+	}
 
-        this.dbId = dbId;
-    }
 
+	public void setDocId(String docId) {
 
-    public String getDataType() {
+		this.docId = docId;
+	}
 
-        return dataType;
-    }
 
+	public Integer getDbId() {
 
-    public void setDataType(String dataType) {
+		return dbId;
+	}
 
-        this.dataType = dataType;
-    }
 
+	public void setDbId(Integer dbId) {
 
-    public String getMpTermId() {
+		this.dbId = dbId;
+	}
 
-        return mpTermId;
-    }
 
+	public String getDataType() {
 
-    public void setMpTermId(String mpTermId) {
+		return dataType;
+	}
 
-        this.mpTermId = mpTermId;
-    }
 
+	public void setDataType(String dataType) {
 
-    public String getMpTermName() {
+		this.dataType = dataType;
+	}
 
-        return mpTermName;
-    }
 
+	public String getMpTermId() {
 
-    public void setMpTermName(String mpTermName) {
+		return mpTermId;
+	}
 
-        this.mpTermName = mpTermName;
-    }
 
+	public void setMpTermId(String mpTermId) {
 
-    public List<String> getTopLevelMpTermId() {
+		this.mpTermId = mpTermId;
+	}
 
-        return topLevelMpTermId;
-    }
 
+	public String getMpTermName() {
 
-    public void setTopLevelMpTermId(List<String> topLevelMpTermId) {
+		return mpTermName;
+	}
 
-        this.topLevelMpTermId = topLevelMpTermId;
-    }
 
+	public void setMpTermName(String mpTermName) {
 
-    public List<String> getTopLevelMpTermName() {
+		this.mpTermName = mpTermName;
+	}
 
-        return topLevelMpTermName;
-    }
 
+	public List<String> getTopLevelMpTermId() {
 
-    public void setTopLevelMpTermName(List<String> topLevelMpTermName) {
+		return topLevelMpTermId;
+	}
 
-        this.topLevelMpTermName = topLevelMpTermName;
-    }
 
+	public void setTopLevelMpTermId(List<String> topLevelMpTermId) {
 
-    public List<String> getIntermediateMpTermId() {
+		this.topLevelMpTermId = topLevelMpTermId;
+	}
 
-        return intermediateMpTermId;
-    }
 
+	public List<String> getTopLevelMpTermName() {
 
-    public void setIntermediateMpTermId(List<String> intermediateMpTermId) {
+		return topLevelMpTermName;
+	}
 
-        this.intermediateMpTermId = intermediateMpTermId;
-    }
 
+	public void setTopLevelMpTermName(List<String> topLevelMpTermName) {
 
-    public List<String> getIntermediateMpTermName() {
+		this.topLevelMpTermName = topLevelMpTermName;
+	}
 
-        return intermediateMpTermName;
-    }
 
+	public List<String> getIntermediateMpTermId() {
 
-    public void setIntermediateMpTermName(List<String> intermediateMpTermName) {
+		return intermediateMpTermId;
+	}
 
-        this.intermediateMpTermName = intermediateMpTermName;
-    }
 
+	public void setIntermediateMpTermId(List<String> intermediateMpTermId) {
 
-    public String getMaleMpTermId() {
+		this.intermediateMpTermId = intermediateMpTermId;
+	}
 
-        return maleMpTermId;
-    }
 
+	public List<String> getIntermediateMpTermName() {
 
-    public void setMaleMpTermId(String maleMpTermId) {
+		return intermediateMpTermName;
+	}
 
-        this.maleMpTermId = maleMpTermId;
-    }
 
+	public void setIntermediateMpTermName(List<String> intermediateMpTermName) {
 
-    public String getMaleMpTermName() {
+		this.intermediateMpTermName = intermediateMpTermName;
+	}
 
-        return maleMpTermName;
-    }
 
+	public String getMaleMpTermId() {
 
-    public void setMaleMpTermName(String maleMpTermName) {
+		return maleMpTermId;
+	}
 
-        this.maleMpTermName = maleMpTermName;
-    }
 
+	public void setMaleMpTermId(String maleMpTermId) {
 
-    public List<String> getMaleTopLevelMpTermId() {
+		this.maleMpTermId = maleMpTermId;
+	}
 
-        return maleTopLevelMpTermId;
-    }
 
+	public String getMaleMpTermName() {
 
-    public void setMaleTopLevelMpTermId(List<String> maleTopLevelMpTermId) {
+		return maleMpTermName;
+	}
 
-        this.maleTopLevelMpTermId = maleTopLevelMpTermId;
-    }
 
+	public void setMaleMpTermName(String maleMpTermName) {
 
-    public List<String> getMaleTopLevelMpTermName() {
+		this.maleMpTermName = maleMpTermName;
+	}
 
-        return maleTopLevelMpTermName;
-    }
 
+	public List<String> getMaleTopLevelMpTermId() {
 
-    public void setMaleTopLevelMpTermName(List<String> maleTopLevelMpTermName) {
+		return maleTopLevelMpTermId;
+	}
 
-        this.maleTopLevelMpTermName = maleTopLevelMpTermName;
-    }
 
+	public void setMaleTopLevelMpTermId(List<String> maleTopLevelMpTermId) {
 
-    public List<String> getMaleIntermediateMpTermId() {
+		this.maleTopLevelMpTermId = maleTopLevelMpTermId;
+	}
 
-        return maleIntermediateMpTermId;
-    }
 
+	public List<String> getMaleTopLevelMpTermName() {
 
-    public void setMaleIntermediateMpTermId(List<String> maleIntermediateMpTermId) {
+		return maleTopLevelMpTermName;
+	}
 
-        this.maleIntermediateMpTermId = maleIntermediateMpTermId;
-    }
 
+	public void setMaleTopLevelMpTermName(List<String> maleTopLevelMpTermName) {
 
-    public List<String> getMaleIntermediateMpTermName() {
+		this.maleTopLevelMpTermName = maleTopLevelMpTermName;
+	}
 
-        return maleIntermediateMpTermName;
-    }
 
+	public List<String> getMaleIntermediateMpTermId() {
 
-    public void setMaleIntermediateMpTermName(List<String> maleIntermediateMpTermName) {
+		return maleIntermediateMpTermId;
+	}
 
-        this.maleIntermediateMpTermName = maleIntermediateMpTermName;
-    }
 
+	public void setMaleIntermediateMpTermId(List<String> maleIntermediateMpTermId) {
 
-    public String getFemaleMpTermId() {
+		this.maleIntermediateMpTermId = maleIntermediateMpTermId;
+	}
 
-        return femaleMpTermId;
-    }
 
+	public List<String> getMaleIntermediateMpTermName() {
 
-    public void setFemaleMpTermId(String femaleMpTermId) {
+		return maleIntermediateMpTermName;
+	}
 
-        this.femaleMpTermId = femaleMpTermId;
-    }
 
+	public void setMaleIntermediateMpTermName(List<String> maleIntermediateMpTermName) {
 
-    public String getFemaleMpTermName() {
+		this.maleIntermediateMpTermName = maleIntermediateMpTermName;
+	}
 
-        return femaleMpTermName;
-    }
 
+	public String getFemaleMpTermId() {
 
-    public void setFemaleMpTermName(String femaleMpTermName) {
+		return femaleMpTermId;
+	}
 
-        this.femaleMpTermName = femaleMpTermName;
-    }
 
+	public void setFemaleMpTermId(String femaleMpTermId) {
 
-    public List<String> getFemaleTopLevelMpTermId() {
+		this.femaleMpTermId = femaleMpTermId;
+	}
 
-        return femaleTopLevelMpTermId;
-    }
 
+	public String getFemaleMpTermName() {
 
-    public void setFemaleTopLevelMpTermId(List<String> femaleTopLevelMpTermId) {
+		return femaleMpTermName;
+	}
 
-        this.femaleTopLevelMpTermId = femaleTopLevelMpTermId;
-    }
 
+	public void setFemaleMpTermName(String femaleMpTermName) {
 
-    public List<String> getFemaleTopLevelMpTermName() {
+		this.femaleMpTermName = femaleMpTermName;
+	}
 
-        return femaleTopLevelMpTermName;
-    }
 
+	public List<String> getFemaleTopLevelMpTermId() {
 
-    public void setFemaleTopLevelMpTermName(List<String> femaleTopLevelMpTermName) {
+		return femaleTopLevelMpTermId;
+	}
 
-        this.femaleTopLevelMpTermName = femaleTopLevelMpTermName;
-    }
 
+	public void setFemaleTopLevelMpTermId(List<String> femaleTopLevelMpTermId) {
 
-    public List<String> getFemaleIntermediateMpTermId() {
+		this.femaleTopLevelMpTermId = femaleTopLevelMpTermId;
+	}
 
-        return femaleIntermediateMpTermId;
-    }
 
+	public List<String> getFemaleTopLevelMpTermName() {
 
-    public void setFemaleIntermediateMpTermId(List<String> femaleIntermediateMpTermId) {
+		return femaleTopLevelMpTermName;
+	}
 
-        this.femaleIntermediateMpTermId = femaleIntermediateMpTermId;
-    }
 
+	public void setFemaleTopLevelMpTermName(List<String> femaleTopLevelMpTermName) {
 
-    public List<String> getFemaleIntermediateMpTermName() {
+		this.femaleTopLevelMpTermName = femaleTopLevelMpTermName;
+	}
 
-        return femaleIntermediateMpTermName;
-    }
 
+	public List<String> getFemaleIntermediateMpTermId() {
 
-    public void setFemaleIntermediateMpTermName(List<String> femaleIntermediateMpTermName) {
+		return femaleIntermediateMpTermId;
+	}
 
-        this.femaleIntermediateMpTermName = femaleIntermediateMpTermName;
-    }
 
+	public void setFemaleIntermediateMpTermId(List<String> femaleIntermediateMpTermId) {
 
-    public String getResourceName() {
+		this.femaleIntermediateMpTermId = femaleIntermediateMpTermId;
+	}
 
-        return resourceName;
-    }
 
+	public List<String> getFemaleIntermediateMpTermName() {
 
-    public void setResourceName(String resourceName) {
+		return femaleIntermediateMpTermName;
+	}
 
-        this.resourceName = resourceName;
-    }
 
+	public void setFemaleIntermediateMpTermName(List<String> femaleIntermediateMpTermName) {
 
-    public String getResourceFullname() {
+		this.femaleIntermediateMpTermName = femaleIntermediateMpTermName;
+	}
 
-        return resourceFullname;
-    }
 
+	public String getResourceName() {
 
-    public void setResourceFullname(String resourceFullname) {
+		return resourceName;
+	}
 
-        this.resourceFullname = resourceFullname;
-    }
 
+	public void setResourceName(String resourceName) {
 
-    public Integer getResourceId() {
+		this.resourceName = resourceName;
+	}
 
-        return resourceId;
-    }
 
+	public String getResourceFullname() {
 
-    public void setResourceId(Integer resourceId) {
+		return resourceFullname;
+	}
 
-        this.resourceId = resourceId;
-    }
 
+	public void setResourceFullname(String resourceFullname) {
 
-    public String getProjectName() {
+		this.resourceFullname = resourceFullname;
+	}
 
-        return projectName;
-    }
 
+	public Integer getResourceId() {
 
-    public void setProjectName(String projectName) {
+		return resourceId;
+	}
 
-        this.projectName = projectName;
-    }
 
+	public void setResourceId(Integer resourceId) {
 
-    public String getPhenotypingCenter() {
+		this.resourceId = resourceId;
+	}
 
-        return phenotypingCenter;
-    }
 
+	public String getProjectName() {
 
-    public void setPhenotypingCenter(String phenotypingCenter) {
+		return projectName;
+	}
 
-        this.phenotypingCenter = phenotypingCenter;
-    }
 
+	public void setProjectName(String projectName) {
 
-    public String getPipelineStableId() {
+		this.projectName = projectName;
+	}
 
-        return pipelineStableId;
-    }
 
+	public String getPhenotypingCenter() {
 
-    public void setPipelineStableId(String pipelineStableId) {
+		return phenotypingCenter;
+	}
 
-        this.pipelineStableId = pipelineStableId;
-    }
 
+	public void setPhenotypingCenter(String phenotypingCenter) {
 
-    public String getPipelineStableKey() {
+		this.phenotypingCenter = phenotypingCenter;
+	}
 
-        return pipelineStableKey;
-    }
 
+	public String getPipelineStableId() {
 
-    public void setPipelineStableKey(String pipelineStableKey) {
+		return pipelineStableId;
+	}
 
-        this.pipelineStableKey = pipelineStableKey;
-    }
 
+	public void setPipelineStableId(String pipelineStableId) {
 
-    public String getPipelineName() {
+		this.pipelineStableId = pipelineStableId;
+	}
 
-        return pipelineName;
-    }
 
+	public String getPipelineStableKey() {
 
-    public void setPipelineName(String pipelineName) {
+		return pipelineStableKey;
+	}
 
-        this.pipelineName = pipelineName;
-    }
 
+	public void setPipelineStableKey(String pipelineStableKey) {
 
-    public Integer getPipelineId() {
+		this.pipelineStableKey = pipelineStableKey;
+	}
 
-        return pipelineId;
-    }
 
+	public String getPipelineName() {
 
-    public void setPipelineId(Integer pipelineId) {
+		return pipelineName;
+	}
 
-        this.pipelineId = pipelineId;
-    }
 
+	public void setPipelineName(String pipelineName) {
 
-    public String getProcedureStableId() {
+		this.pipelineName = pipelineName;
+	}
 
-        return procedureStableId;
-    }
 
+	public Integer getPipelineId() {
 
-    public void setProcedureStableId(String procedureStableId) {
+		return pipelineId;
+	}
 
-        this.procedureStableId = procedureStableId;
-    }
 
+	public void setPipelineId(Integer pipelineId) {
 
-    public String getProcedureStableKey() {
+		this.pipelineId = pipelineId;
+	}
 
-        return procedureStableKey;
-    }
 
+	public String getProcedureStableId() {
 
-    public void setProcedureStableKey(String procedureStableKey) {
+		return procedureStableId;
+	}
 
-        this.procedureStableKey = procedureStableKey;
-    }
 
+	public void setProcedureStableId(String procedureStableId) {
 
-    public String getProcedureName() {
+		this.procedureStableId = procedureStableId;
+	}
 
-        return procedureName;
-    }
 
+	public String getProcedureStableKey() {
 
-    public void setProcedureName(String procedureName) {
+		return procedureStableKey;
+	}
 
-        this.procedureName = procedureName;
-    }
 
+	public void setProcedureStableKey(String procedureStableKey) {
 
-    public Integer getProcedureId() {
+		this.procedureStableKey = procedureStableKey;
+	}
 
-        return procedureId;
-    }
 
+	public String getProcedureName() {
 
-    public void setProcedureId(Integer procedureId) {
+		return procedureName;
+	}
 
-        this.procedureId = procedureId;
-    }
 
+	public void setProcedureName(String procedureName) {
 
-    public String getParameterStableId() {
+		this.procedureName = procedureName;
+	}
 
-        return parameterStableId;
-    }
 
+	public Integer getProcedureId() {
 
-    public void setParameterStableId(String parameterStableId) {
+		return procedureId;
+	}
 
-        this.parameterStableId = parameterStableId;
-    }
 
+	public void setProcedureId(Integer procedureId) {
 
-    public String getParameterStableKey() {
+		this.procedureId = procedureId;
+	}
 
-        return parameterStableKey;
-    }
 
+	public String getParameterStableId() {
 
-    public void setParameterStableKey(String parameterStableKey) {
+		return parameterStableId;
+	}
 
-        this.parameterStableKey = parameterStableKey;
-    }
 
+	public void setParameterStableId(String parameterStableId) {
 
-    public String getParameterName() {
+		this.parameterStableId = parameterStableId;
+	}
 
-        return parameterName;
-    }
 
+	public String getParameterStableKey() {
 
-    public void setParameterName(String parameterName) {
+		return parameterStableKey;
+	}
 
-        this.parameterName = parameterName;
-    }
 
+	public void setParameterStableKey(String parameterStableKey) {
 
-    public Integer getParameterId() {
+		this.parameterStableKey = parameterStableKey;
+	}
 
-        return parameterId;
-    }
 
+	public String getParameterName() {
 
-    public void setParameterId(Integer parameterId) {
+		return parameterName;
+	}
 
-        this.parameterId = parameterId;
-    }
 
+	public void setParameterName(String parameterName) {
 
-    public String getColonyId() {
+		this.parameterName = parameterName;
+	}
 
-        return colonyId;
-    }
 
+	public Integer getParameterId() {
 
-    public void setColonyId(String colonyId) {
+		return parameterId;
+	}
 
-        this.colonyId = colonyId;
-    }
 
+	public void setParameterId(Integer parameterId) {
 
-    public String getMarkerSymbol() {
+		this.parameterId = parameterId;
+	}
 
-        return markerSymbol;
-    }
 
+	public String getColonyId() {
 
-    public void setMarkerSymbol(String markerSymbol) {
+		return colonyId;
+	}
 
-        this.markerSymbol = markerSymbol;
-    }
 
+	public void setColonyId(String colonyId) {
 
-    public String getMarkerAccessionId() {
+		this.colonyId = colonyId;
+	}
 
-        return markerAccessionId;
-    }
 
+	public String getMarkerSymbol() {
 
-    public void setMarkerAccessionId(String markerAccessionId) {
+		return markerSymbol;
+	}
 
-        this.markerAccessionId = markerAccessionId;
-    }
 
+	public void setMarkerSymbol(String markerSymbol) {
 
-    public String getAlleleSymbol() {
+		this.markerSymbol = markerSymbol;
+	}
 
-        return alleleSymbol;
-    }
 
+	public String getMarkerAccessionId() {
 
-    public void setAlleleSymbol(String alleleSymbol) {
+		return markerAccessionId;
+	}
 
-        this.alleleSymbol = alleleSymbol;
-    }
 
+	public void setMarkerAccessionId(String markerAccessionId) {
 
-    public String getAlleleName() {
+		this.markerAccessionId = markerAccessionId;
+	}
 
-        return alleleName;
-    }
 
+	public String getAlleleSymbol() {
 
-    public void setAlleleName(String alleleName) {
+		return alleleSymbol;
+	}
 
-        this.alleleName = alleleName;
-    }
 
+	public void setAlleleSymbol(String alleleSymbol) {
 
-    public String getAlleleAccessionId() {
+		this.alleleSymbol = alleleSymbol;
+	}
 
-        return alleleAccessionId;
-    }
 
+	public String getAlleleName() {
 
-    public void setAlleleAccessionId(String alleleAccessionId) {
+		return alleleName;
+	}
 
-        this.alleleAccessionId = alleleAccessionId;
-    }
 
+	public void setAlleleName(String alleleName) {
 
-    public String getStrainName() {
+		this.alleleName = alleleName;
+	}
 
-        return strainName;
-    }
 
+	public String getAlleleAccessionId() {
 
-    public void setStrainName(String strainName) {
+		return alleleAccessionId;
+	}
 
-        this.strainName = strainName;
-    }
 
+	public void setAlleleAccessionId(String alleleAccessionId) {
 
-    public String getStrainAccessionId() {
+		this.alleleAccessionId = alleleAccessionId;
+	}
 
-        return strainAccessionId;
-    }
 
+	public String getStrainName() {
 
-    public void setStrainAccessionId(String strainAccessionId) {
+		return strainName;
+	}
 
-        this.strainAccessionId = strainAccessionId;
-    }
 
+	public void setStrainName(String strainName) {
 
-    public String getSex() {
+		this.strainName = strainName;
+	}
 
-        return sex;
-    }
 
+	public String getStrainAccessionId() {
 
-    public void setSex(String sex) {
+		return strainAccessionId;
+	}
 
-        this.sex = sex;
-    }
 
+	public void setStrainAccessionId(String strainAccessionId) {
 
-    public String getZygosity() {
+		this.strainAccessionId = strainAccessionId;
+	}
 
-        return zygosity;
-    }
 
+	public String getSex() {
 
-    public void setZygosity(String zygosity) {
+		return sex;
+	}
 
-        this.zygosity = zygosity;
-    }
 
+	public void setSex(String sex) {
 
-    public String getControlSelectionMethod() {
+		this.sex = sex;
+	}
 
-        return controlSelectionMethod;
-    }
 
+	public String getZygosity() {
 
-    public void setControlSelectionMethod(String controlSelectionMethod) {
+		return zygosity;
+	}
 
-        this.controlSelectionMethod = controlSelectionMethod;
-    }
 
+	public void setZygosity(String zygosity) {
 
-    public String getDependentVariable() {
+		this.zygosity = zygosity;
+	}
 
-        return dependentVariable;
-    }
 
+	public String getControlSelectionMethod() {
 
-    public void setDependentVariable(String dependentVariable) {
+		return controlSelectionMethod;
+	}
 
-        this.dependentVariable = dependentVariable;
-    }
 
+	public void setControlSelectionMethod(String controlSelectionMethod) {
 
-    public String getMetadataGroup() {
+		this.controlSelectionMethod = controlSelectionMethod;
+	}
 
-        return metadataGroup;
-    }
 
+	public String getDependentVariable() {
 
-    public void setMetadataGroup(String metadataGroup) {
+		return dependentVariable;
+	}
 
-        this.metadataGroup = metadataGroup;
-    }
 
+	public void setDependentVariable(String dependentVariable) {
 
-    public Integer getControlBiologicalModelId() {
+		this.dependentVariable = dependentVariable;
+	}
 
-        return controlBiologicalModelId;
-    }
 
+	public String getMetadataGroup() {
 
-    public void setControlBiologicalModelId(Integer controlBiologicalModelId) {
+		return metadataGroup;
+	}
 
-        this.controlBiologicalModelId = controlBiologicalModelId;
-    }
 
+	public void setMetadataGroup(String metadataGroup) {
 
-    public Integer getMutantBiologicalModelId() {
+		this.metadataGroup = metadataGroup;
+	}
 
-        return mutantBiologicalModelId;
-    }
 
+	public Integer getControlBiologicalModelId() {
 
-    public void setMutantBiologicalModelId(Integer mutantBiologicalModelId) {
+		return controlBiologicalModelId;
+	}
 
-        this.mutantBiologicalModelId = mutantBiologicalModelId;
-    }
 
+	public void setControlBiologicalModelId(Integer controlBiologicalModelId) {
 
-    public Integer getMaleControlCount() {
+		this.controlBiologicalModelId = controlBiologicalModelId;
+	}
 
-        return maleControlCount;
-    }
 
+	public Integer getMutantBiologicalModelId() {
 
-    public void setMaleControlCount(Integer maleControlCount) {
+		return mutantBiologicalModelId;
+	}
 
-        this.maleControlCount = maleControlCount;
-    }
 
+	public void setMutantBiologicalModelId(Integer mutantBiologicalModelId) {
 
-    public Integer getMaleMutantCount() {
+		this.mutantBiologicalModelId = mutantBiologicalModelId;
+	}
 
-        return maleMutantCount;
-    }
 
+	public Integer getMaleControlCount() {
 
-    public void setMaleMutantCount(Integer maleMutantCount) {
+		return maleControlCount;
+	}
 
-        this.maleMutantCount = maleMutantCount;
-    }
 
+	public void setMaleControlCount(Integer maleControlCount) {
 
-    public Integer getFemaleControlCount() {
+		this.maleControlCount = maleControlCount;
+	}
 
-        return femaleControlCount;
-    }
 
+	public Integer getMaleMutantCount() {
 
-    public void setFemaleControlCount(Integer femaleControlCount) {
+		return maleMutantCount;
+	}
 
-        this.femaleControlCount = femaleControlCount;
-    }
 
+	public void setMaleMutantCount(Integer maleMutantCount) {
 
-    public Integer getFemaleMutantCount() {
+		this.maleMutantCount = maleMutantCount;
+	}
 
-        return femaleMutantCount;
-    }
 
+	public Integer getFemaleControlCount() {
 
-    public void setFemaleMutantCount(Integer femaleMutantCount) {
+		return femaleControlCount;
+	}
 
-        this.femaleMutantCount = femaleMutantCount;
-    }
 
+	public void setFemaleControlCount(Integer femaleControlCount) {
 
-    public String getStatisticalMethod() {
+		this.femaleControlCount = femaleControlCount;
+	}
 
-        return statisticalMethod;
-    }
 
+	public Integer getFemaleMutantCount() {
 
-    public void setStatisticalMethod(String statisticalMethod) {
+		return femaleMutantCount;
+	}
 
-        this.statisticalMethod = statisticalMethod;
-    }
 
+	public void setFemaleMutantCount(Integer femaleMutantCount) {
 
-    public String getStatus() {
+		this.femaleMutantCount = femaleMutantCount;
+	}
 
-        return status;
-    }
 
+	public Double getFemaleMutantMean() {
 
-    public void setStatus(String status) {
+		return femaleMutantMean;
+	}
 
-        this.status = status;
-    }
 
+	public void setFemaleMutantMean(Double femaleMutantMean) {
 
-    public String getAdditionalInformation() {
+		this.femaleMutantMean = femaleMutantMean;
+	}
 
-        return additionalInformation;
-    }
 
+	public Double getFemaleControlMean() {
 
-    public void setAdditionalInformation(String additionalInformation) {
+		return femaleControlMean;
+	}
 
-        this.additionalInformation = additionalInformation;
-    }
 
+	public void setFemaleControlMean(Double femaleControlMean) {
 
-    public String getRawOutput() {
+		this.femaleControlMean = femaleControlMean;
+	}
 
-        return rawOutput;
-    }
 
+	public Double getMaleMutantMean() {
 
-    public void setRawOutput(String rawOutput) {
+		return maleMutantMean;
+	}
 
-        this.rawOutput = rawOutput;
-    }
 
+	public void setMaleMutantMean(Double maleMutantMean) {
 
-    public Double getpValue() {
+		this.maleMutantMean = maleMutantMean;
+	}
 
-        return pValue;
-    }
 
+	public Double getMaleControlMean() {
 
-    public void setpValue(Double pValue) {
+		return maleControlMean;
+	}
 
-        this.pValue = pValue;
-    }
 
+	public void setMaleControlMean(Double maleControlMean) {
 
-    public Double getEffectSize() {
+		this.maleControlMean = maleControlMean;
+	}
 
-        return effectSize;
-    }
 
+	public String getStatisticalMethod() {
 
-    public void setEffectSize(Double effectSize) {
+		return statisticalMethod;
+	}
 
-        this.effectSize = effectSize;
-    }
 
+	public void setStatisticalMethod(String statisticalMethod) {
 
-    public List<String> getCategories() {
+		this.statisticalMethod = statisticalMethod;
+	}
 
-        return categories;
-    }
 
+	public String getStatus() {
 
-    public void setCategories(List<String> categories) {
+		return status;
+	}
 
-        this.categories = categories;
-    }
 
+	public void setStatus(String status) {
 
-    public Double getCategoricalPValue() {
+		this.status = status;
+	}
 
-        return categoricalPValue;
-    }
 
+	public String getAdditionalInformation() {
 
-    public void setCategoricalPValue(Double categoricalPValue) {
+		return additionalInformation;
+	}
 
-        this.categoricalPValue = categoricalPValue;
-    }
 
+	public void setAdditionalInformation(String additionalInformation) {
 
-    public Double getCategoricalEffectSize() {
+		this.additionalInformation = additionalInformation;
+	}
 
-        return categoricalEffectSize;
-    }
 
+	public String getRawOutput() {
 
-    public void setCategoricalEffectSize(Double categoricalEffectSize) {
+		return rawOutput;
+	}
 
-        this.categoricalEffectSize = categoricalEffectSize;
-    }
 
+	public void setRawOutput(String rawOutput) {
 
-    public Boolean getBatchSignificant() {
+		this.rawOutput = rawOutput;
+	}
 
-        return batchSignificant;
-    }
 
+	public Double getpValue() {
 
-    public void setBatchSignificant(Boolean batchSignificant) {
+		return pValue;
+	}
 
-        this.batchSignificant = batchSignificant;
-    }
 
+	public void setpValue(Double pValue) {
 
-    public Boolean getVarianceSignificant() {
+		this.pValue = pValue;
+	}
 
-        return varianceSignificant;
-    }
 
+	public Double getEffectSize() {
 
-    public void setVarianceSignificant(Boolean varianceSignificant) {
+		return effectSize;
+	}
 
-        this.varianceSignificant = varianceSignificant;
-    }
 
+	public void setEffectSize(Double effectSize) {
 
-    public Double getNullTestPValue() {
+		this.effectSize = effectSize;
+	}
 
-        return nullTestPValue;
-    }
 
+	public List<String> getCategories() {
 
-    public void setNullTestPValue(Double nullTestPValue) {
+		return categories;
+	}
 
-        this.nullTestPValue = nullTestPValue;
-    }
 
+	public void setCategories(List<String> categories) {
 
-    public Double getGenotypeEffectPValue() {
+		this.categories = categories;
+	}
 
-        return genotypeEffectPValue;
-    }
 
+	public Double getCategoricalPValue() {
 
-    public void setGenotypeEffectPValue(Double genotypeEffectPValue) {
+		return categoricalPValue;
+	}
 
-        this.genotypeEffectPValue = genotypeEffectPValue;
-    }
 
+	public void setCategoricalPValue(Double categoricalPValue) {
 
-    public Double getGenotypeEffectStderrEstimate() {
+		this.categoricalPValue = categoricalPValue;
+	}
 
-        return genotypeEffectStderrEstimate;
-    }
 
+	public Double getCategoricalEffectSize() {
 
-    public void setGenotypeEffectStderrEstimate(Double genotypeEffectStderrEstimate) {
+		return categoricalEffectSize;
+	}
 
-        this.genotypeEffectStderrEstimate = genotypeEffectStderrEstimate;
-    }
 
+	public void setCategoricalEffectSize(Double categoricalEffectSize) {
 
-    public Double getGenotypeEffectParameterEstimate() {
+		this.categoricalEffectSize = categoricalEffectSize;
+	}
 
-        return genotypeEffectParameterEstimate;
-    }
 
+	public Boolean getBatchSignificant() {
 
-    public void setGenotypeEffectParameterEstimate(Double genotypeEffectParameterEstimate) {
+		return batchSignificant;
+	}
 
-        this.genotypeEffectParameterEstimate = genotypeEffectParameterEstimate;
-    }
 
-    public String getFemalePercentageChange() {
-        return femalePercentageChange;
-    }
+	public void setBatchSignificant(Boolean batchSignificant) {
 
-    public void setFemalePercentageChange(String femalePercentageChange) {
-        this.femalePercentageChange = femalePercentageChange;
-    }
+		this.batchSignificant = batchSignificant;
+	}
 
-    public String getMalePercentageChange() {
-        return malePercentageChange;
-    }
 
-    public void setMalePercentageChange(String malePercentageChange) {
-        this.malePercentageChange = malePercentageChange;
-    }
+	public Boolean getVarianceSignificant() {
 
+		return varianceSignificant;
+	}
 
-    public Double getSexEffectPValue() {
 
-        return sexEffectPValue;
-    }
+	public void setVarianceSignificant(Boolean varianceSignificant) {
 
+		this.varianceSignificant = varianceSignificant;
+	}
 
-    public void setSexEffectPValue(Double sexEffectPValue) {
 
-        this.sexEffectPValue = sexEffectPValue;
-    }
+	public Double getNullTestPValue() {
 
+		return nullTestPValue;
+	}
 
-    public Double getSexEffectStderrEstimate() {
 
-        return sexEffectStderrEstimate;
-    }
+	public void setNullTestPValue(Double nullTestPValue) {
 
+		this.nullTestPValue = nullTestPValue;
+	}
 
-    public void setSexEffectStderrEstimate(Double sexEffectStderrEstimate) {
 
-        this.sexEffectStderrEstimate = sexEffectStderrEstimate;
-    }
+	public Double getGenotypeEffectPValue() {
 
+		return genotypeEffectPValue;
+	}
 
-    public Double getSexEffectParameterEstimate() {
 
-        return sexEffectParameterEstimate;
-    }
+	public void setGenotypeEffectPValue(Double genotypeEffectPValue) {
 
+		this.genotypeEffectPValue = genotypeEffectPValue;
+	}
 
-    public void setSexEffectParameterEstimate(Double sexEffectParameterEstimate) {
 
-        this.sexEffectParameterEstimate = sexEffectParameterEstimate;
-    }
+	public Double getGenotypeEffectStderrEstimate() {
 
+		return genotypeEffectStderrEstimate;
+	}
 
-    public Double getWeightEffectPValue() {
 
-        return weightEffectPValue;
-    }
+	public void setGenotypeEffectStderrEstimate(Double genotypeEffectStderrEstimate) {
 
+		this.genotypeEffectStderrEstimate = genotypeEffectStderrEstimate;
+	}
 
-    public void setWeightEffectPValue(Double weightEffectPValue) {
 
-        this.weightEffectPValue = weightEffectPValue;
-    }
+	public Double getGenotypeEffectParameterEstimate() {
 
+		return genotypeEffectParameterEstimate;
+	}
 
-    public Double getWeightEffectStderrEstimate() {
 
-        return weightEffectStderrEstimate;
-    }
+	public void setGenotypeEffectParameterEstimate(Double genotypeEffectParameterEstimate) {
 
+		this.genotypeEffectParameterEstimate = genotypeEffectParameterEstimate;
+	}
 
-    public void setWeightEffectStderrEstimate(Double weightEffectStderrEstimate) {
 
-        this.weightEffectStderrEstimate = weightEffectStderrEstimate;
-    }
+	public String getFemalePercentageChange() {
 
+		return femalePercentageChange;
+	}
 
-    public Double getWeightEffectParameterEstimate() {
 
-        return weightEffectParameterEstimate;
-    }
+	public void setFemalePercentageChange(String femalePercentageChange) {
 
+		this.femalePercentageChange = femalePercentageChange;
+	}
 
-    public void setWeightEffectParameterEstimate(Double weightEffectParameterEstimate) {
 
-        this.weightEffectParameterEstimate = weightEffectParameterEstimate;
-    }
+	public String getMalePercentageChange() {
 
+		return malePercentageChange;
+	}
 
-    public String getGroup1Genotype() {
 
-        return group1Genotype;
-    }
+	public void setMalePercentageChange(String malePercentageChange) {
 
+		this.malePercentageChange = malePercentageChange;
+	}
 
-    public void setGroup1Genotype(String group1Genotype) {
 
-        this.group1Genotype = group1Genotype;
-    }
+	public Double getSexEffectPValue() {
 
+		return sexEffectPValue;
+	}
 
-    public Double getGroup1ResidualsNormalityTest() {
 
-        return group1ResidualsNormalityTest;
-    }
+	public void setSexEffectPValue(Double sexEffectPValue) {
 
+		this.sexEffectPValue = sexEffectPValue;
+	}
 
-    public void setGroup1ResidualsNormalityTest(Double group1ResidualsNormalityTest) {
 
-        this.group1ResidualsNormalityTest = group1ResidualsNormalityTest;
-    }
+	public Double getSexEffectStderrEstimate() {
 
+		return sexEffectStderrEstimate;
+	}
 
-    public String getGroup2Genotype() {
 
-        return group2Genotype;
-    }
+	public void setSexEffectStderrEstimate(Double sexEffectStderrEstimate) {
 
+		this.sexEffectStderrEstimate = sexEffectStderrEstimate;
+	}
 
-    public void setGroup2Genotype(String group2Genotype) {
 
-        this.group2Genotype = group2Genotype;
-    }
+	public Double getSexEffectParameterEstimate() {
 
+		return sexEffectParameterEstimate;
+	}
 
-    public Double getGroup2ResidualsNormalityTest() {
 
-        return group2ResidualsNormalityTest;
-    }
+	public void setSexEffectParameterEstimate(Double sexEffectParameterEstimate) {
 
+		this.sexEffectParameterEstimate = sexEffectParameterEstimate;
+	}
 
-    public void setGroup2ResidualsNormalityTest(Double group2ResidualsNormalityTest) {
 
-        this.group2ResidualsNormalityTest = group2ResidualsNormalityTest;
-    }
+	public Double getWeightEffectPValue() {
 
+		return weightEffectPValue;
+	}
 
-    public Double getBlupsTest() {
 
-        return blupsTest;
-    }
+	public void setWeightEffectPValue(Double weightEffectPValue) {
 
+		this.weightEffectPValue = weightEffectPValue;
+	}
 
-    public void setBlupsTest(Double blupsTest) {
 
-        this.blupsTest = blupsTest;
-    }
+	public Double getWeightEffectStderrEstimate() {
 
+		return weightEffectStderrEstimate;
+	}
 
-    public Double getRotatedResidualsTest() {
 
-        return rotatedResidualsTest;
-    }
+	public void setWeightEffectStderrEstimate(Double weightEffectStderrEstimate) {
 
+		this.weightEffectStderrEstimate = weightEffectStderrEstimate;
+	}
 
-    public void setRotatedResidualsTest(Double rotatedResidualsTest) {
 
-        this.rotatedResidualsTest = rotatedResidualsTest;
-    }
+	public Double getWeightEffectParameterEstimate() {
 
+		return weightEffectParameterEstimate;
+	}
 
-    public Double getInterceptEstimate() {
 
-        return interceptEstimate;
-    }
+	public void setWeightEffectParameterEstimate(Double weightEffectParameterEstimate) {
 
+		this.weightEffectParameterEstimate = weightEffectParameterEstimate;
+	}
 
-    public void setInterceptEstimate(Double interceptEstimate) {
 
-        this.interceptEstimate = interceptEstimate;
-    }
+	public String getGroup1Genotype() {
 
+		return group1Genotype;
+	}
 
-    public Double getInterceptEstimateStderrEstimate() {
 
-        return interceptEstimateStderrEstimate;
-    }
+	public void setGroup1Genotype(String group1Genotype) {
 
+		this.group1Genotype = group1Genotype;
+	}
 
-    public void setInterceptEstimateStderrEstimate(Double interceptEstimateStderrEstimate) {
 
-        this.interceptEstimateStderrEstimate = interceptEstimateStderrEstimate;
-    }
+	public Double getGroup1ResidualsNormalityTest() {
 
+		return group1ResidualsNormalityTest;
+	}
 
-    public Boolean getInteractionSignificant() {
 
-        return interactionSignificant;
-    }
+	public void setGroup1ResidualsNormalityTest(Double group1ResidualsNormalityTest) {
 
+		this.group1ResidualsNormalityTest = group1ResidualsNormalityTest;
+	}
 
-    public void setInteractionSignificant(Boolean interactionSignificant) {
 
-        this.interactionSignificant = interactionSignificant;
-    }
+	public String getGroup2Genotype() {
 
+		return group2Genotype;
+	}
 
-    public Double getInteractionEffectPValue() {
 
-        return interactionEffectPValue;
-    }
+	public void setGroup2Genotype(String group2Genotype) {
 
+		this.group2Genotype = group2Genotype;
+	}
 
-    public void setInteractionEffectPValue(Double interactionEffectPValue) {
 
-        this.interactionEffectPValue = interactionEffectPValue;
-    }
+	public Double getGroup2ResidualsNormalityTest() {
 
+		return group2ResidualsNormalityTest;
+	}
 
-    public Double getFemaleKoEffectPValue() {
 
-        return femaleKoEffectPValue;
-    }
+	public void setGroup2ResidualsNormalityTest(Double group2ResidualsNormalityTest) {
 
+		this.group2ResidualsNormalityTest = group2ResidualsNormalityTest;
+	}
 
-    public void setFemaleKoEffectPValue(Double femaleKoEffectPValue) {
 
-        this.femaleKoEffectPValue = femaleKoEffectPValue;
-    }
+	public Double getBlupsTest() {
 
+		return blupsTest;
+	}
 
-    public Double getFemaleKoEffectStderrEstimate() {
 
-        return femaleKoEffectStderrEstimate;
-    }
+	public void setBlupsTest(Double blupsTest) {
 
+		this.blupsTest = blupsTest;
+	}
 
-    public void setFemaleKoEffectStderrEstimate(Double femaleKoEffectStderrEstimate) {
 
-        this.femaleKoEffectStderrEstimate = femaleKoEffectStderrEstimate;
-    }
+	public Double getRotatedResidualsTest() {
 
+		return rotatedResidualsTest;
+	}
 
-    public Double getFemaleKoParameterEstimate() {
 
-        return femaleKoParameterEstimate;
-    }
+	public void setRotatedResidualsTest(Double rotatedResidualsTest) {
 
+		this.rotatedResidualsTest = rotatedResidualsTest;
+	}
 
-    public void setFemaleKoParameterEstimate(Double femaleKoParameterEstimate) {
 
-        this.femaleKoParameterEstimate = femaleKoParameterEstimate;
-    }
+	public Double getInterceptEstimate() {
 
+		return interceptEstimate;
+	}
 
-    public Double getMaleKoEffectPValue() {
 
-        return maleKoEffectPValue;
-    }
+	public void setInterceptEstimate(Double interceptEstimate) {
 
+		this.interceptEstimate = interceptEstimate;
+	}
 
-    public void setMaleKoEffectPValue(Double maleKoEffectPValue) {
 
-        this.maleKoEffectPValue = maleKoEffectPValue;
-    }
+	public Double getInterceptEstimateStderrEstimate() {
 
+		return interceptEstimateStderrEstimate;
+	}
 
-    public Double getMaleKoEffectStderrEstimate() {
 
-        return maleKoEffectStderrEstimate;
-    }
+	public void setInterceptEstimateStderrEstimate(Double interceptEstimateStderrEstimate) {
 
+		this.interceptEstimateStderrEstimate = interceptEstimateStderrEstimate;
+	}
 
-    public void setMaleKoEffectStderrEstimate(Double maleKoEffectStderrEstimate) {
 
-        this.maleKoEffectStderrEstimate = maleKoEffectStderrEstimate;
-    }
+	public Boolean getInteractionSignificant() {
 
+		return interactionSignificant;
+	}
 
-    public Double getMaleKoParameterEstimate() {
 
-        return maleKoParameterEstimate;
-    }
+	public void setInteractionSignificant(Boolean interactionSignificant) {
 
+		this.interactionSignificant = interactionSignificant;
+	}
 
-    public void setMaleKoParameterEstimate(Double maleKoParameterEstimate) {
 
-        this.maleKoParameterEstimate = maleKoParameterEstimate;
-    }
+	public Double getInteractionEffectPValue() {
 
+		return interactionEffectPValue;
+	}
 
-    public String getClassificationTag() {
 
-        return classificationTag;
-    }
+	public void setInteractionEffectPValue(Double interactionEffectPValue) {
 
+		this.interactionEffectPValue = interactionEffectPValue;
+	}
 
-    public void setClassificationTag(String classificationTag) {
 
-        this.classificationTag = classificationTag;
-    }
+	public Double getFemaleKoEffectPValue() {
 
-    public Integer getExternalDbId() {
-        return externalDbId;
-    }
+		return femaleKoEffectPValue;
+	}
 
-    public void setExternalDbId(Integer externalDbId) {
-        this.externalDbId = externalDbId;
-    }
 
-    public Integer getOrganisationId() {
-        return organisationId;
-    }
+	public void setFemaleKoEffectPValue(Double femaleKoEffectPValue) {
 
-    public void setOrganisationId(Integer organisationId) {
-        this.organisationId = organisationId;
-    }
+		this.femaleKoEffectPValue = femaleKoEffectPValue;
+	}
 
-    public Integer getPhenotypingCenterId() {
-        return phenotypingCenterId;
-    }
 
-    public void setPhenotypingCenterId(Integer phenotypingCenterId) {
-        this.phenotypingCenterId = phenotypingCenterId;
-    }
+	public Double getFemaleKoEffectStderrEstimate() {
 
-    public Integer getProjectId() {
-        return projectId;
-    }
+		return femaleKoEffectStderrEstimate;
+	}
 
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
-    }
 
-    @Override
-    public boolean equals(Object o) {
+	public void setFemaleKoEffectStderrEstimate(Double femaleKoEffectStderrEstimate) {
 
-        if (this == o) return true;
-        if (!(o instanceof StatisticalResultDTO)) return false;
+		this.femaleKoEffectStderrEstimate = femaleKoEffectStderrEstimate;
+	}
 
-        StatisticalResultDTO that = (StatisticalResultDTO) o;
 
-        if (additionalInformation != null ? !additionalInformation.equals(that.additionalInformation) : that.additionalInformation != null)
-            return false;
-        if (alleleAccessionId != null ? !alleleAccessionId.equals(that.alleleAccessionId) : that.alleleAccessionId != null)
-            return false;
-        if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) return false;
-        if (alleleSymbol != null ? !alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) return false;
-        if (batchSignificant != null ? !batchSignificant.equals(that.batchSignificant) : that.batchSignificant != null)
-            return false;
-        if (blupsTest != null ? !blupsTest.equals(that.blupsTest) : that.blupsTest != null) return false;
-        if (categoricalEffectSize != null ? !categoricalEffectSize.equals(that.categoricalEffectSize) : that.categoricalEffectSize != null)
-            return false;
-        if (categoricalPValue != null ? !categoricalPValue.equals(that.categoricalPValue) : that.categoricalPValue != null)
-            return false;
-        if (categories != null ? !categories.equals(that.categories) : that.categories != null) return false;
-        if (classificationTag != null ? !classificationTag.equals(that.classificationTag) : that.classificationTag != null)
-            return false;
-        if (colonyId != null ? !colonyId.equals(that.colonyId) : that.colonyId != null) return false;
-        if (controlBiologicalModelId != null ? !controlBiologicalModelId.equals(that.controlBiologicalModelId) : that.controlBiologicalModelId != null)
-            return false;
-        if (controlSelectionMethod != null ? !controlSelectionMethod.equals(that.controlSelectionMethod) : that.controlSelectionMethod != null)
-            return false;
-        if (dataType != null ? !dataType.equals(that.dataType) : that.dataType != null) return false;
-        if (dbId != null ? !dbId.equals(that.dbId) : that.dbId != null) return false;
-        if (dependentVariable != null ? !dependentVariable.equals(that.dependentVariable) : that.dependentVariable != null)
-            return false;
-        if (docId != null ? !docId.equals(that.docId) : that.docId != null) return false;
-        if (effectSize != null ? !effectSize.equals(that.effectSize) : that.effectSize != null) return false;
-        if (femaleControlCount != null ? !femaleControlCount.equals(that.femaleControlCount) : that.femaleControlCount != null)
-            return false;
-        if (femaleIntermediateMpTermId != null ? !femaleIntermediateMpTermId.equals(that.femaleIntermediateMpTermId) : that.femaleIntermediateMpTermId != null)
-            return false;
-        if (femaleIntermediateMpTermName != null ? !femaleIntermediateMpTermName.equals(that.femaleIntermediateMpTermName) : that.femaleIntermediateMpTermName != null)
-            return false;
-        if (femaleKoEffectPValue != null ? !femaleKoEffectPValue.equals(that.femaleKoEffectPValue) : that.femaleKoEffectPValue != null)
-            return false;
-        if (femaleKoEffectStderrEstimate != null ? !femaleKoEffectStderrEstimate.equals(that.femaleKoEffectStderrEstimate) : that.femaleKoEffectStderrEstimate != null)
-            return false;
-        if (femaleKoParameterEstimate != null ? !femaleKoParameterEstimate.equals(that.femaleKoParameterEstimate) : that.femaleKoParameterEstimate != null)
-            return false;
-        if (femalePercentageChange != null ? !femalePercentageChange.equals(that.femalePercentageChange) : that.femalePercentageChange != null)
-            return false;
-        if (malePercentageChange != null ? !malePercentageChange.equals(that.malePercentageChange) : that.malePercentageChange != null)
-            return false;
-        if (femaleMpTermId != null ? !femaleMpTermId.equals(that.femaleMpTermId) : that.femaleMpTermId != null)
-            return false;
-        if (femaleMpTermName != null ? !femaleMpTermName.equals(that.femaleMpTermName) : that.femaleMpTermName != null)
-            return false;
-        if (femaleMutantCount != null ? !femaleMutantCount.equals(that.femaleMutantCount) : that.femaleMutantCount != null)
-            return false;
-        if (femaleTopLevelMpTermId != null ? !femaleTopLevelMpTermId.equals(that.femaleTopLevelMpTermId) : that.femaleTopLevelMpTermId != null)
-            return false;
-        if (femaleTopLevelMpTermName != null ? !femaleTopLevelMpTermName.equals(that.femaleTopLevelMpTermName) : that.femaleTopLevelMpTermName != null)
-            return false;
-        if (genotypeEffectPValue != null ? !genotypeEffectPValue.equals(that.genotypeEffectPValue) : that.genotypeEffectPValue != null)
-            return false;
-        if (genotypeEffectParameterEstimate != null ? !genotypeEffectParameterEstimate.equals(that.genotypeEffectParameterEstimate) : that.genotypeEffectParameterEstimate != null)
-            return false;
-        if (genotypeEffectStderrEstimate != null ? !genotypeEffectStderrEstimate.equals(that.genotypeEffectStderrEstimate) : that.genotypeEffectStderrEstimate != null)
-            return false;
-        if (group1Genotype != null ? !group1Genotype.equals(that.group1Genotype) : that.group1Genotype != null)
-            return false;
-        if (group1ResidualsNormalityTest != null ? !group1ResidualsNormalityTest.equals(that.group1ResidualsNormalityTest) : that.group1ResidualsNormalityTest != null)
-            return false;
-        if (group2Genotype != null ? !group2Genotype.equals(that.group2Genotype) : that.group2Genotype != null)
-            return false;
-        if (group2ResidualsNormalityTest != null ? !group2ResidualsNormalityTest.equals(that.group2ResidualsNormalityTest) : that.group2ResidualsNormalityTest != null)
-            return false;
-        if (interactionEffectPValue != null ? !interactionEffectPValue.equals(that.interactionEffectPValue) : that.interactionEffectPValue != null)
-            return false;
-        if (interactionSignificant != null ? !interactionSignificant.equals(that.interactionSignificant) : that.interactionSignificant != null)
-            return false;
-        if (interceptEstimate != null ? !interceptEstimate.equals(that.interceptEstimate) : that.interceptEstimate != null)
-            return false;
-        if (interceptEstimateStderrEstimate != null ? !interceptEstimateStderrEstimate.equals(that.interceptEstimateStderrEstimate) : that.interceptEstimateStderrEstimate != null)
-            return false;
-        if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null)
-            return false;
-        if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null)
-            return false;
-        if (maleControlCount != null ? !maleControlCount.equals(that.maleControlCount) : that.maleControlCount != null)
-            return false;
-        if (maleIntermediateMpTermId != null ? !maleIntermediateMpTermId.equals(that.maleIntermediateMpTermId) : that.maleIntermediateMpTermId != null)
-            return false;
-        if (maleIntermediateMpTermName != null ? !maleIntermediateMpTermName.equals(that.maleIntermediateMpTermName) : that.maleIntermediateMpTermName != null)
-            return false;
-        if (maleKoEffectPValue != null ? !maleKoEffectPValue.equals(that.maleKoEffectPValue) : that.maleKoEffectPValue != null)
-            return false;
-        if (maleKoEffectStderrEstimate != null ? !maleKoEffectStderrEstimate.equals(that.maleKoEffectStderrEstimate) : that.maleKoEffectStderrEstimate != null)
-            return false;
-        if (maleKoParameterEstimate != null ? !maleKoParameterEstimate.equals(that.maleKoParameterEstimate) : that.maleKoParameterEstimate != null)
-            return false;
-        if (maleMpTermId != null ? !maleMpTermId.equals(that.maleMpTermId) : that.maleMpTermId != null) return false;
-        if (maleMpTermName != null ? !maleMpTermName.equals(that.maleMpTermName) : that.maleMpTermName != null)
-            return false;
-        if (maleMutantCount != null ? !maleMutantCount.equals(that.maleMutantCount) : that.maleMutantCount != null)
-            return false;
-        if (maleTopLevelMpTermId != null ? !maleTopLevelMpTermId.equals(that.maleTopLevelMpTermId) : that.maleTopLevelMpTermId != null)
-            return false;
-        if (maleTopLevelMpTermName != null ? !maleTopLevelMpTermName.equals(that.maleTopLevelMpTermName) : that.maleTopLevelMpTermName != null)
-            return false;
-        if (markerAccessionId != null ? !markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null)
-            return false;
-        if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
-        if (metadataGroup != null ? !metadataGroup.equals(that.metadataGroup) : that.metadataGroup != null)
-            return false;
-        if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) return false;
-        if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) return false;
-        if (mutantBiologicalModelId != null ? !mutantBiologicalModelId.equals(that.mutantBiologicalModelId) : that.mutantBiologicalModelId != null)
-            return false;
-        if (nullTestPValue != null ? !nullTestPValue.equals(that.nullTestPValue) : that.nullTestPValue != null)
-            return false;
-        if (pValue != null ? !pValue.equals(that.pValue) : that.pValue != null) return false;
-        if (parameterId != null ? !parameterId.equals(that.parameterId) : that.parameterId != null) return false;
-        if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null)
-            return false;
-        if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null)
-            return false;
-        if (parameterStableKey != null ? !parameterStableKey.equals(that.parameterStableKey) : that.parameterStableKey != null)
-            return false;
-        if (phenotypingCenter != null ? !phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null)
-            return false;
-        if (pipelineId != null ? !pipelineId.equals(that.pipelineId) : that.pipelineId != null) return false;
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
-        if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null)
-            return false;
-        if (pipelineStableKey != null ? !pipelineStableKey.equals(that.pipelineStableKey) : that.pipelineStableKey != null)
-            return false;
-        if (procedureId != null ? !procedureId.equals(that.procedureId) : that.procedureId != null) return false;
-        if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null)
-            return false;
-        if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null)
-            return false;
-        if (procedureStableKey != null ? !procedureStableKey.equals(that.procedureStableKey) : that.procedureStableKey != null)
-            return false;
-        if (projectName != null ? !projectName.equals(that.projectName) : that.projectName != null) return false;
-        if (rawOutput != null ? !rawOutput.equals(that.rawOutput) : that.rawOutput != null) return false;
-        if (resourceFullname != null ? !resourceFullname.equals(that.resourceFullname) : that.resourceFullname != null)
-            return false;
-        if (resourceId != null ? !resourceId.equals(that.resourceId) : that.resourceId != null) return false;
-        if (resourceName != null ? !resourceName.equals(that.resourceName) : that.resourceName != null) return false;
-        if (rotatedResidualsTest != null ? !rotatedResidualsTest.equals(that.rotatedResidualsTest) : that.rotatedResidualsTest != null)
-            return false;
-        if (sex != null ? !sex.equals(that.sex) : that.sex != null) return false;
-        if (sexEffectPValue != null ? !sexEffectPValue.equals(that.sexEffectPValue) : that.sexEffectPValue != null)
-            return false;
-        if (sexEffectParameterEstimate != null ? !sexEffectParameterEstimate.equals(that.sexEffectParameterEstimate) : that.sexEffectParameterEstimate != null)
-            return false;
-        if (sexEffectStderrEstimate != null ? !sexEffectStderrEstimate.equals(that.sexEffectStderrEstimate) : that.sexEffectStderrEstimate != null)
-            return false;
-        if (statisticalMethod != null ? !statisticalMethod.equals(that.statisticalMethod) : that.statisticalMethod != null)
-            return false;
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
-        if (strainAccessionId != null ? !strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null)
-            return false;
-        if (strainName != null ? !strainName.equals(that.strainName) : that.strainName != null) return false;
-        if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
-            return false;
-        if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
-            return false;
-        if (varianceSignificant != null ? !varianceSignificant.equals(that.varianceSignificant) : that.varianceSignificant != null)
-            return false;
-        if (weightEffectPValue != null ? !weightEffectPValue.equals(that.weightEffectPValue) : that.weightEffectPValue != null)
-            return false;
-        if (weightEffectParameterEstimate != null ? !weightEffectParameterEstimate.equals(that.weightEffectParameterEstimate) : that.weightEffectParameterEstimate != null)
-            return false;
-        if (weightEffectStderrEstimate != null ? !weightEffectStderrEstimate.equals(that.weightEffectStderrEstimate) : that.weightEffectStderrEstimate != null)
-            return false;
-        if (externalDbId != null ? !externalDbId.equals(that.externalDbId) : that.externalDbId != null)
-            return false;
-        if (organisationId != null ? !organisationId.equals(that.organisationId) : that.organisationId != null)
-            return false;
-        if (phenotypingCenterId != null ? !phenotypingCenterId.equals(that.phenotypingCenterId) : that.phenotypingCenterId != null)
-            return false;
-        if (projectId != null ? !projectId.equals(that.projectId) : that.projectId != null)
-            return false;
-        
-        return !(zygosity != null ? !zygosity.equals(that.zygosity) : that.zygosity != null);
-    }
+	public Double getFemaleKoParameterEstimate() {
 
+		return femaleKoParameterEstimate;
+	}
 
-    @Override
-    public int hashCode() {
 
-        int result = docId != null ? docId.hashCode() : 0;
-        result = 31 * result + (dbId != null ? dbId.hashCode() : 0);
-        result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
-        result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
-        result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermName != null ? topLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermId != null ? intermediateMpTermId.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermName != null ? intermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (maleMpTermId != null ? maleMpTermId.hashCode() : 0);
-        result = 31 * result + (maleMpTermName != null ? maleMpTermName.hashCode() : 0);
-        result = 31 * result + (maleTopLevelMpTermId != null ? maleTopLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (maleTopLevelMpTermName != null ? maleTopLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (maleIntermediateMpTermId != null ? maleIntermediateMpTermId.hashCode() : 0);
-        result = 31 * result + (maleIntermediateMpTermName != null ? maleIntermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (femaleMpTermId != null ? femaleMpTermId.hashCode() : 0);
-        result = 31 * result + (femaleMpTermName != null ? femaleMpTermName.hashCode() : 0);
-        result = 31 * result + (femaleTopLevelMpTermId != null ? femaleTopLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (femaleTopLevelMpTermName != null ? femaleTopLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (femaleIntermediateMpTermId != null ? femaleIntermediateMpTermId.hashCode() : 0);
-        result = 31 * result + (femaleIntermediateMpTermName != null ? femaleIntermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (resourceName != null ? resourceName.hashCode() : 0);
-        result = 31 * result + (resourceFullname != null ? resourceFullname.hashCode() : 0);
-        result = 31 * result + (resourceId != null ? resourceId.hashCode() : 0);
-        result = 31 * result + (projectName != null ? projectName.hashCode() : 0);
-        result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
-        result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
-        result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
-        result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
-        result = 31 * result + (pipelineId != null ? pipelineId.hashCode() : 0);
-        result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
-        result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
-        result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
-        result = 31 * result + (procedureId != null ? procedureId.hashCode() : 0);
-        result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
-        result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
-        result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
-        result = 31 * result + (parameterId != null ? parameterId.hashCode() : 0);
-        result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
-        result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
-        result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
-        result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
-        result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
-        result = 31 * result + (alleleAccessionId != null ? alleleAccessionId.hashCode() : 0);
-        result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
-        result = 31 * result + (strainAccessionId != null ? strainAccessionId.hashCode() : 0);
-        result = 31 * result + (sex != null ? sex.hashCode() : 0);
-        result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
-        result = 31 * result + (controlSelectionMethod != null ? controlSelectionMethod.hashCode() : 0);
-        result = 31 * result + (dependentVariable != null ? dependentVariable.hashCode() : 0);
-        result = 31 * result + (metadataGroup != null ? metadataGroup.hashCode() : 0);
-        result = 31 * result + (controlBiologicalModelId != null ? controlBiologicalModelId.hashCode() : 0);
-        result = 31 * result + (mutantBiologicalModelId != null ? mutantBiologicalModelId.hashCode() : 0);
-        result = 31 * result + (maleControlCount != null ? maleControlCount.hashCode() : 0);
-        result = 31 * result + (maleMutantCount != null ? maleMutantCount.hashCode() : 0);
-        result = 31 * result + (femaleControlCount != null ? femaleControlCount.hashCode() : 0);
-        result = 31 * result + (femaleMutantCount != null ? femaleMutantCount.hashCode() : 0);
-        result = 31 * result + (statisticalMethod != null ? statisticalMethod.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (additionalInformation != null ? additionalInformation.hashCode() : 0);
-        result = 31 * result + (rawOutput != null ? rawOutput.hashCode() : 0);
-        result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
-        result = 31 * result + (effectSize != null ? effectSize.hashCode() : 0);
-        result = 31 * result + (categories != null ? categories.hashCode() : 0);
-        result = 31 * result + (categoricalPValue != null ? categoricalPValue.hashCode() : 0);
-        result = 31 * result + (categoricalEffectSize != null ? categoricalEffectSize.hashCode() : 0);
-        result = 31 * result + (batchSignificant != null ? batchSignificant.hashCode() : 0);
-        result = 31 * result + (varianceSignificant != null ? varianceSignificant.hashCode() : 0);
-        result = 31 * result + (nullTestPValue != null ? nullTestPValue.hashCode() : 0);
-        result = 31 * result + (genotypeEffectPValue != null ? genotypeEffectPValue.hashCode() : 0);
-        result = 31 * result + (genotypeEffectStderrEstimate != null ? genotypeEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (genotypeEffectParameterEstimate != null ? genotypeEffectParameterEstimate.hashCode() : 0);
-        result = 31 * result + (femalePercentageChange != null ? femalePercentageChange.hashCode() : 0);
-        result = 31 * result + (malePercentageChange != null ? malePercentageChange.hashCode() : 0);
-        result = 31 * result + (sexEffectPValue != null ? sexEffectPValue.hashCode() : 0);
-        result = 31 * result + (sexEffectStderrEstimate != null ? sexEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (sexEffectParameterEstimate != null ? sexEffectParameterEstimate.hashCode() : 0);
-        result = 31 * result + (weightEffectPValue != null ? weightEffectPValue.hashCode() : 0);
-        result = 31 * result + (weightEffectStderrEstimate != null ? weightEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (weightEffectParameterEstimate != null ? weightEffectParameterEstimate.hashCode() : 0);
-        result = 31 * result + (group1Genotype != null ? group1Genotype.hashCode() : 0);
-        result = 31 * result + (group1ResidualsNormalityTest != null ? group1ResidualsNormalityTest.hashCode() : 0);
-        result = 31 * result + (group2Genotype != null ? group2Genotype.hashCode() : 0);
-        result = 31 * result + (group2ResidualsNormalityTest != null ? group2ResidualsNormalityTest.hashCode() : 0);
-        result = 31 * result + (blupsTest != null ? blupsTest.hashCode() : 0);
-        result = 31 * result + (rotatedResidualsTest != null ? rotatedResidualsTest.hashCode() : 0);
-        result = 31 * result + (interceptEstimate != null ? interceptEstimate.hashCode() : 0);
-        result = 31 * result + (interceptEstimateStderrEstimate != null ? interceptEstimateStderrEstimate.hashCode() : 0);
-        result = 31 * result + (interactionSignificant != null ? interactionSignificant.hashCode() : 0);
-        result = 31 * result + (interactionEffectPValue != null ? interactionEffectPValue.hashCode() : 0);
-        result = 31 * result + (femaleKoEffectPValue != null ? femaleKoEffectPValue.hashCode() : 0);
-        result = 31 * result + (femaleKoEffectStderrEstimate != null ? femaleKoEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (femaleKoParameterEstimate != null ? femaleKoParameterEstimate.hashCode() : 0);
-        result = 31 * result + (maleKoEffectPValue != null ? maleKoEffectPValue.hashCode() : 0);
-        result = 31 * result + (maleKoEffectStderrEstimate != null ? maleKoEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (maleKoParameterEstimate != null ? maleKoParameterEstimate.hashCode() : 0);
-        result = 31 * result + (classificationTag != null ? classificationTag.hashCode() : 0);
-        result = 31 * result + (externalDbId != null ? externalDbId.hashCode() : 0);
-        result = 31 * result + (organisationId != null ? organisationId.hashCode() : 0);
-        result = 31 * result + (phenotypingCenterId != null ? phenotypingCenterId.hashCode() : 0);
-        result = 31 * result + (projectId != null ? projectId.hashCode() : 0);
-        return result;
-    }
+	public void setFemaleKoParameterEstimate(Double femaleKoParameterEstimate) {
+
+		this.femaleKoParameterEstimate = femaleKoParameterEstimate;
+	}
+
+
+	public Double getMaleKoEffectPValue() {
+
+		return maleKoEffectPValue;
+	}
+
+
+	public void setMaleKoEffectPValue(Double maleKoEffectPValue) {
+
+		this.maleKoEffectPValue = maleKoEffectPValue;
+	}
+
+
+	public Double getMaleKoEffectStderrEstimate() {
+
+		return maleKoEffectStderrEstimate;
+	}
+
+
+	public void setMaleKoEffectStderrEstimate(Double maleKoEffectStderrEstimate) {
+
+		this.maleKoEffectStderrEstimate = maleKoEffectStderrEstimate;
+	}
+
+
+	public Double getMaleKoParameterEstimate() {
+
+		return maleKoParameterEstimate;
+	}
+
+
+	public void setMaleKoParameterEstimate(Double maleKoParameterEstimate) {
+
+		this.maleKoParameterEstimate = maleKoParameterEstimate;
+	}
+
+
+	public String getClassificationTag() {
+
+		return classificationTag;
+	}
+
+
+	public void setClassificationTag(String classificationTag) {
+
+		this.classificationTag = classificationTag;
+	}
+
+
+	public Integer getExternalDbId() {
+
+		return externalDbId;
+	}
+
+
+	public void setExternalDbId(Integer externalDbId) {
+
+		this.externalDbId = externalDbId;
+	}
+
+
+	public Integer getOrganisationId() {
+
+		return organisationId;
+	}
+
+
+	public void setOrganisationId(Integer organisationId) {
+
+		this.organisationId = organisationId;
+	}
+
+
+	public Integer getPhenotypingCenterId() {
+
+		return phenotypingCenterId;
+	}
+
+
+	public void setPhenotypingCenterId(Integer phenotypingCenterId) {
+
+		this.phenotypingCenterId = phenotypingCenterId;
+	}
+
+
+	public Integer getProjectId() {
+
+		return projectId;
+	}
+
+
+	public void setProjectId(Integer projectId) {
+
+		this.projectId = projectId;
+	}
+
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof StatisticalResultDTO)) {
+			return false;
+		}
+
+		StatisticalResultDTO that = (StatisticalResultDTO) o;
+
+		if (docId != null ? !docId.equals(that.docId) : that.docId != null) {
+			return false;
+		}
+		if (dbId != null ? !dbId.equals(that.dbId) : that.dbId != null) {
+			return false;
+		}
+		if (dataType != null ? !dataType.equals(that.dataType) : that.dataType != null) {
+			return false;
+		}
+		if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) {
+			return false;
+		}
+		if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) {
+			return false;
+		}
+		if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null) {
+			return false;
+		}
+		if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null) {
+			return false;
+		}
+		if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null) {
+			return false;
+		}
+		if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null) {
+			return false;
+		}
+		if (maleMpTermId != null ? !maleMpTermId.equals(that.maleMpTermId) : that.maleMpTermId != null) {
+			return false;
+		}
+		if (maleMpTermName != null ? !maleMpTermName.equals(that.maleMpTermName) : that.maleMpTermName != null) {
+			return false;
+		}
+		if (maleTopLevelMpTermId != null ? !maleTopLevelMpTermId.equals(that.maleTopLevelMpTermId) : that.maleTopLevelMpTermId != null) {
+			return false;
+		}
+		if (maleTopLevelMpTermName != null ? !maleTopLevelMpTermName.equals(that.maleTopLevelMpTermName) : that.maleTopLevelMpTermName != null) {
+			return false;
+		}
+		if (maleIntermediateMpTermId != null ? !maleIntermediateMpTermId.equals(that.maleIntermediateMpTermId) : that.maleIntermediateMpTermId != null) {
+			return false;
+		}
+		if (maleIntermediateMpTermName != null ? !maleIntermediateMpTermName.equals(that.maleIntermediateMpTermName) : that.maleIntermediateMpTermName != null) {
+			return false;
+		}
+		if (femaleMpTermId != null ? !femaleMpTermId.equals(that.femaleMpTermId) : that.femaleMpTermId != null) {
+			return false;
+		}
+		if (femaleMpTermName != null ? !femaleMpTermName.equals(that.femaleMpTermName) : that.femaleMpTermName != null) {
+			return false;
+		}
+		if (femaleTopLevelMpTermId != null ? !femaleTopLevelMpTermId.equals(that.femaleTopLevelMpTermId) : that.femaleTopLevelMpTermId != null) {
+			return false;
+		}
+		if (femaleTopLevelMpTermName != null ? !femaleTopLevelMpTermName.equals(that.femaleTopLevelMpTermName) : that.femaleTopLevelMpTermName != null) {
+			return false;
+		}
+		if (femaleIntermediateMpTermId != null ? !femaleIntermediateMpTermId.equals(that.femaleIntermediateMpTermId) : that.femaleIntermediateMpTermId != null) {
+			return false;
+		}
+		if (femaleIntermediateMpTermName != null ? !femaleIntermediateMpTermName.equals(that.femaleIntermediateMpTermName) : that.femaleIntermediateMpTermName != null) {
+			return false;
+		}
+		if (resourceName != null ? !resourceName.equals(that.resourceName) : that.resourceName != null) {
+			return false;
+		}
+		if (resourceFullname != null ? !resourceFullname.equals(that.resourceFullname) : that.resourceFullname != null) {
+			return false;
+		}
+		if (resourceId != null ? !resourceId.equals(that.resourceId) : that.resourceId != null) {
+			return false;
+		}
+		if (projectName != null ? !projectName.equals(that.projectName) : that.projectName != null) {
+			return false;
+		}
+		if (phenotypingCenter != null ? !phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null) {
+			return false;
+		}
+		if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null) {
+			return false;
+		}
+		if (pipelineStableKey != null ? !pipelineStableKey.equals(that.pipelineStableKey) : that.pipelineStableKey != null) {
+			return false;
+		}
+		if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+			return false;
+		}
+		if (pipelineId != null ? !pipelineId.equals(that.pipelineId) : that.pipelineId != null) {
+			return false;
+		}
+		if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null) {
+			return false;
+		}
+		if (procedureStableKey != null ? !procedureStableKey.equals(that.procedureStableKey) : that.procedureStableKey != null) {
+			return false;
+		}
+		if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null) {
+			return false;
+		}
+		if (procedureId != null ? !procedureId.equals(that.procedureId) : that.procedureId != null) {
+			return false;
+		}
+		if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null) {
+			return false;
+		}
+		if (parameterStableKey != null ? !parameterStableKey.equals(that.parameterStableKey) : that.parameterStableKey != null) {
+			return false;
+		}
+		if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null) {
+			return false;
+		}
+		if (parameterId != null ? !parameterId.equals(that.parameterId) : that.parameterId != null) {
+			return false;
+		}
+		if (colonyId != null ? !colonyId.equals(that.colonyId) : that.colonyId != null) {
+			return false;
+		}
+		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) {
+			return false;
+		}
+		if (markerAccessionId != null ? !markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null) {
+			return false;
+		}
+		if (alleleSymbol != null ? !alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) {
+			return false;
+		}
+		if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) {
+			return false;
+		}
+		if (alleleAccessionId != null ? !alleleAccessionId.equals(that.alleleAccessionId) : that.alleleAccessionId != null) {
+			return false;
+		}
+		if (strainName != null ? !strainName.equals(that.strainName) : that.strainName != null) {
+			return false;
+		}
+		if (strainAccessionId != null ? !strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null) {
+			return false;
+		}
+		if (sex != null ? !sex.equals(that.sex) : that.sex != null) {
+			return false;
+		}
+		if (zygosity != null ? !zygosity.equals(that.zygosity) : that.zygosity != null) {
+			return false;
+		}
+		if (controlSelectionMethod != null ? !controlSelectionMethod.equals(that.controlSelectionMethod) : that.controlSelectionMethod != null) {
+			return false;
+		}
+		if (dependentVariable != null ? !dependentVariable.equals(that.dependentVariable) : that.dependentVariable != null) {
+			return false;
+		}
+		if (metadataGroup != null ? !metadataGroup.equals(that.metadataGroup) : that.metadataGroup != null) {
+			return false;
+		}
+		if (controlBiologicalModelId != null ? !controlBiologicalModelId.equals(that.controlBiologicalModelId) : that.controlBiologicalModelId != null) {
+			return false;
+		}
+		if (mutantBiologicalModelId != null ? !mutantBiologicalModelId.equals(that.mutantBiologicalModelId) : that.mutantBiologicalModelId != null) {
+			return false;
+		}
+		if (maleControlCount != null ? !maleControlCount.equals(that.maleControlCount) : that.maleControlCount != null) {
+			return false;
+		}
+		if (maleMutantCount != null ? !maleMutantCount.equals(that.maleMutantCount) : that.maleMutantCount != null) {
+			return false;
+		}
+		if (femaleControlCount != null ? !femaleControlCount.equals(that.femaleControlCount) : that.femaleControlCount != null) {
+			return false;
+		}
+		if (femaleMutantCount != null ? !femaleMutantCount.equals(that.femaleMutantCount) : that.femaleMutantCount != null) {
+			return false;
+		}
+		if (femaleMutantMean != null ? !femaleMutantMean.equals(that.femaleMutantMean) : that.femaleMutantMean != null) {
+			return false;
+		}
+		if (femaleControlMean != null ? !femaleControlMean.equals(that.femaleControlMean) : that.femaleControlMean != null) {
+			return false;
+		}
+		if (maleMutantMean != null ? !maleMutantMean.equals(that.maleMutantMean) : that.maleMutantMean != null) {
+			return false;
+		}
+		if (maleControlMean != null ? !maleControlMean.equals(that.maleControlMean) : that.maleControlMean != null) {
+			return false;
+		}
+		if (statisticalMethod != null ? !statisticalMethod.equals(that.statisticalMethod) : that.statisticalMethod != null) {
+			return false;
+		}
+		if (status != null ? !status.equals(that.status) : that.status != null) {
+			return false;
+		}
+		if (additionalInformation != null ? !additionalInformation.equals(that.additionalInformation) : that.additionalInformation != null) {
+			return false;
+		}
+		if (rawOutput != null ? !rawOutput.equals(that.rawOutput) : that.rawOutput != null) {
+			return false;
+		}
+		if (pValue != null ? !pValue.equals(that.pValue) : that.pValue != null) {
+			return false;
+		}
+		if (effectSize != null ? !effectSize.equals(that.effectSize) : that.effectSize != null) {
+			return false;
+		}
+		if (categories != null ? !categories.equals(that.categories) : that.categories != null) {
+			return false;
+		}
+		if (categoricalPValue != null ? !categoricalPValue.equals(that.categoricalPValue) : that.categoricalPValue != null) {
+			return false;
+		}
+		if (categoricalEffectSize != null ? !categoricalEffectSize.equals(that.categoricalEffectSize) : that.categoricalEffectSize != null) {
+			return false;
+		}
+		if (batchSignificant != null ? !batchSignificant.equals(that.batchSignificant) : that.batchSignificant != null) {
+			return false;
+		}
+		if (varianceSignificant != null ? !varianceSignificant.equals(that.varianceSignificant) : that.varianceSignificant != null) {
+			return false;
+		}
+		if (nullTestPValue != null ? !nullTestPValue.equals(that.nullTestPValue) : that.nullTestPValue != null) {
+			return false;
+		}
+		if (genotypeEffectPValue != null ? !genotypeEffectPValue.equals(that.genotypeEffectPValue) : that.genotypeEffectPValue != null) {
+			return false;
+		}
+		if (genotypeEffectStderrEstimate != null ? !genotypeEffectStderrEstimate.equals(that.genotypeEffectStderrEstimate) : that.genotypeEffectStderrEstimate != null) {
+			return false;
+		}
+		if (genotypeEffectParameterEstimate != null ? !genotypeEffectParameterEstimate.equals(that.genotypeEffectParameterEstimate) : that.genotypeEffectParameterEstimate != null) {
+			return false;
+		}
+		if (femalePercentageChange != null ? !femalePercentageChange.equals(that.femalePercentageChange) : that.femalePercentageChange != null) {
+			return false;
+		}
+		if (malePercentageChange != null ? !malePercentageChange.equals(that.malePercentageChange) : that.malePercentageChange != null) {
+			return false;
+		}
+		if (sexEffectPValue != null ? !sexEffectPValue.equals(that.sexEffectPValue) : that.sexEffectPValue != null) {
+			return false;
+		}
+		if (sexEffectStderrEstimate != null ? !sexEffectStderrEstimate.equals(that.sexEffectStderrEstimate) : that.sexEffectStderrEstimate != null) {
+			return false;
+		}
+		if (sexEffectParameterEstimate != null ? !sexEffectParameterEstimate.equals(that.sexEffectParameterEstimate) : that.sexEffectParameterEstimate != null) {
+			return false;
+		}
+		if (weightEffectPValue != null ? !weightEffectPValue.equals(that.weightEffectPValue) : that.weightEffectPValue != null) {
+			return false;
+		}
+		if (weightEffectStderrEstimate != null ? !weightEffectStderrEstimate.equals(that.weightEffectStderrEstimate) : that.weightEffectStderrEstimate != null) {
+			return false;
+		}
+		if (weightEffectParameterEstimate != null ? !weightEffectParameterEstimate.equals(that.weightEffectParameterEstimate) : that.weightEffectParameterEstimate != null) {
+			return false;
+		}
+		if (group1Genotype != null ? !group1Genotype.equals(that.group1Genotype) : that.group1Genotype != null) {
+			return false;
+		}
+		if (group1ResidualsNormalityTest != null ? !group1ResidualsNormalityTest.equals(that.group1ResidualsNormalityTest) : that.group1ResidualsNormalityTest != null) {
+			return false;
+		}
+		if (group2Genotype != null ? !group2Genotype.equals(that.group2Genotype) : that.group2Genotype != null) {
+			return false;
+		}
+		if (group2ResidualsNormalityTest != null ? !group2ResidualsNormalityTest.equals(that.group2ResidualsNormalityTest) : that.group2ResidualsNormalityTest != null) {
+			return false;
+		}
+		if (blupsTest != null ? !blupsTest.equals(that.blupsTest) : that.blupsTest != null) {
+			return false;
+		}
+		if (rotatedResidualsTest != null ? !rotatedResidualsTest.equals(that.rotatedResidualsTest) : that.rotatedResidualsTest != null) {
+			return false;
+		}
+		if (interceptEstimate != null ? !interceptEstimate.equals(that.interceptEstimate) : that.interceptEstimate != null) {
+			return false;
+		}
+		if (interceptEstimateStderrEstimate != null ? !interceptEstimateStderrEstimate.equals(that.interceptEstimateStderrEstimate) : that.interceptEstimateStderrEstimate != null) {
+			return false;
+		}
+		if (interactionSignificant != null ? !interactionSignificant.equals(that.interactionSignificant) : that.interactionSignificant != null) {
+			return false;
+		}
+		if (interactionEffectPValue != null ? !interactionEffectPValue.equals(that.interactionEffectPValue) : that.interactionEffectPValue != null) {
+			return false;
+		}
+		if (femaleKoEffectPValue != null ? !femaleKoEffectPValue.equals(that.femaleKoEffectPValue) : that.femaleKoEffectPValue != null) {
+			return false;
+		}
+		if (femaleKoEffectStderrEstimate != null ? !femaleKoEffectStderrEstimate.equals(that.femaleKoEffectStderrEstimate) : that.femaleKoEffectStderrEstimate != null) {
+			return false;
+		}
+		if (femaleKoParameterEstimate != null ? !femaleKoParameterEstimate.equals(that.femaleKoParameterEstimate) : that.femaleKoParameterEstimate != null) {
+			return false;
+		}
+		if (maleKoEffectPValue != null ? !maleKoEffectPValue.equals(that.maleKoEffectPValue) : that.maleKoEffectPValue != null) {
+			return false;
+		}
+		if (maleKoEffectStderrEstimate != null ? !maleKoEffectStderrEstimate.equals(that.maleKoEffectStderrEstimate) : that.maleKoEffectStderrEstimate != null) {
+			return false;
+		}
+		if (maleKoParameterEstimate != null ? !maleKoParameterEstimate.equals(that.maleKoParameterEstimate) : that.maleKoParameterEstimate != null) {
+			return false;
+		}
+		if (classificationTag != null ? !classificationTag.equals(that.classificationTag) : that.classificationTag != null) {
+			return false;
+		}
+		if (externalDbId != null ? !externalDbId.equals(that.externalDbId) : that.externalDbId != null) {
+			return false;
+		}
+		if (organisationId != null ? !organisationId.equals(that.organisationId) : that.organisationId != null) {
+			return false;
+		}
+		if (phenotypingCenterId != null ? !phenotypingCenterId.equals(that.phenotypingCenterId) : that.phenotypingCenterId != null) {
+			return false;
+		}
+		return !(projectId != null ? !projectId.equals(that.projectId) : that.projectId != null);
+
+	}
+
+
+	@Override
+	public int hashCode() {
+
+		int result = docId != null ? docId.hashCode() : 0;
+		result = 31 * result + (dbId != null ? dbId.hashCode() : 0);
+		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
+		result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
+		result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermName != null ? topLevelMpTermName.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermId != null ? intermediateMpTermId.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermName != null ? intermediateMpTermName.hashCode() : 0);
+		result = 31 * result + (maleMpTermId != null ? maleMpTermId.hashCode() : 0);
+		result = 31 * result + (maleMpTermName != null ? maleMpTermName.hashCode() : 0);
+		result = 31 * result + (maleTopLevelMpTermId != null ? maleTopLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (maleTopLevelMpTermName != null ? maleTopLevelMpTermName.hashCode() : 0);
+		result = 31 * result + (maleIntermediateMpTermId != null ? maleIntermediateMpTermId.hashCode() : 0);
+		result = 31 * result + (maleIntermediateMpTermName != null ? maleIntermediateMpTermName.hashCode() : 0);
+		result = 31 * result + (femaleMpTermId != null ? femaleMpTermId.hashCode() : 0);
+		result = 31 * result + (femaleMpTermName != null ? femaleMpTermName.hashCode() : 0);
+		result = 31 * result + (femaleTopLevelMpTermId != null ? femaleTopLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (femaleTopLevelMpTermName != null ? femaleTopLevelMpTermName.hashCode() : 0);
+		result = 31 * result + (femaleIntermediateMpTermId != null ? femaleIntermediateMpTermId.hashCode() : 0);
+		result = 31 * result + (femaleIntermediateMpTermName != null ? femaleIntermediateMpTermName.hashCode() : 0);
+		result = 31 * result + (resourceName != null ? resourceName.hashCode() : 0);
+		result = 31 * result + (resourceFullname != null ? resourceFullname.hashCode() : 0);
+		result = 31 * result + (resourceId != null ? resourceId.hashCode() : 0);
+		result = 31 * result + (projectName != null ? projectName.hashCode() : 0);
+		result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
+		result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
+		result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
+		result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+		result = 31 * result + (pipelineId != null ? pipelineId.hashCode() : 0);
+		result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
+		result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
+		result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
+		result = 31 * result + (procedureId != null ? procedureId.hashCode() : 0);
+		result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
+		result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
+		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
+		result = 31 * result + (parameterId != null ? parameterId.hashCode() : 0);
+		result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
+		result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (alleleAccessionId != null ? alleleAccessionId.hashCode() : 0);
+		result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
+		result = 31 * result + (strainAccessionId != null ? strainAccessionId.hashCode() : 0);
+		result = 31 * result + (sex != null ? sex.hashCode() : 0);
+		result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
+		result = 31 * result + (controlSelectionMethod != null ? controlSelectionMethod.hashCode() : 0);
+		result = 31 * result + (dependentVariable != null ? dependentVariable.hashCode() : 0);
+		result = 31 * result + (metadataGroup != null ? metadataGroup.hashCode() : 0);
+		result = 31 * result + (controlBiologicalModelId != null ? controlBiologicalModelId.hashCode() : 0);
+		result = 31 * result + (mutantBiologicalModelId != null ? mutantBiologicalModelId.hashCode() : 0);
+		result = 31 * result + (maleControlCount != null ? maleControlCount.hashCode() : 0);
+		result = 31 * result + (maleMutantCount != null ? maleMutantCount.hashCode() : 0);
+		result = 31 * result + (femaleControlCount != null ? femaleControlCount.hashCode() : 0);
+		result = 31 * result + (femaleMutantCount != null ? femaleMutantCount.hashCode() : 0);
+		result = 31 * result + (femaleMutantMean != null ? femaleMutantMean.hashCode() : 0);
+		result = 31 * result + (femaleControlMean != null ? femaleControlMean.hashCode() : 0);
+		result = 31 * result + (maleMutantMean != null ? maleMutantMean.hashCode() : 0);
+		result = 31 * result + (maleControlMean != null ? maleControlMean.hashCode() : 0);
+		result = 31 * result + (statisticalMethod != null ? statisticalMethod.hashCode() : 0);
+		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (additionalInformation != null ? additionalInformation.hashCode() : 0);
+		result = 31 * result + (rawOutput != null ? rawOutput.hashCode() : 0);
+		result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
+		result = 31 * result + (effectSize != null ? effectSize.hashCode() : 0);
+		result = 31 * result + (categories != null ? categories.hashCode() : 0);
+		result = 31 * result + (categoricalPValue != null ? categoricalPValue.hashCode() : 0);
+		result = 31 * result + (categoricalEffectSize != null ? categoricalEffectSize.hashCode() : 0);
+		result = 31 * result + (batchSignificant != null ? batchSignificant.hashCode() : 0);
+		result = 31 * result + (varianceSignificant != null ? varianceSignificant.hashCode() : 0);
+		result = 31 * result + (nullTestPValue != null ? nullTestPValue.hashCode() : 0);
+		result = 31 * result + (genotypeEffectPValue != null ? genotypeEffectPValue.hashCode() : 0);
+		result = 31 * result + (genotypeEffectStderrEstimate != null ? genotypeEffectStderrEstimate.hashCode() : 0);
+		result = 31 * result + (genotypeEffectParameterEstimate != null ? genotypeEffectParameterEstimate.hashCode() : 0);
+		result = 31 * result + (femalePercentageChange != null ? femalePercentageChange.hashCode() : 0);
+		result = 31 * result + (malePercentageChange != null ? malePercentageChange.hashCode() : 0);
+		result = 31 * result + (sexEffectPValue != null ? sexEffectPValue.hashCode() : 0);
+		result = 31 * result + (sexEffectStderrEstimate != null ? sexEffectStderrEstimate.hashCode() : 0);
+		result = 31 * result + (sexEffectParameterEstimate != null ? sexEffectParameterEstimate.hashCode() : 0);
+		result = 31 * result + (weightEffectPValue != null ? weightEffectPValue.hashCode() : 0);
+		result = 31 * result + (weightEffectStderrEstimate != null ? weightEffectStderrEstimate.hashCode() : 0);
+		result = 31 * result + (weightEffectParameterEstimate != null ? weightEffectParameterEstimate.hashCode() : 0);
+		result = 31 * result + (group1Genotype != null ? group1Genotype.hashCode() : 0);
+		result = 31 * result + (group1ResidualsNormalityTest != null ? group1ResidualsNormalityTest.hashCode() : 0);
+		result = 31 * result + (group2Genotype != null ? group2Genotype.hashCode() : 0);
+		result = 31 * result + (group2ResidualsNormalityTest != null ? group2ResidualsNormalityTest.hashCode() : 0);
+		result = 31 * result + (blupsTest != null ? blupsTest.hashCode() : 0);
+		result = 31 * result + (rotatedResidualsTest != null ? rotatedResidualsTest.hashCode() : 0);
+		result = 31 * result + (interceptEstimate != null ? interceptEstimate.hashCode() : 0);
+		result = 31 * result + (interceptEstimateStderrEstimate != null ? interceptEstimateStderrEstimate.hashCode() : 0);
+		result = 31 * result + (interactionSignificant != null ? interactionSignificant.hashCode() : 0);
+		result = 31 * result + (interactionEffectPValue != null ? interactionEffectPValue.hashCode() : 0);
+		result = 31 * result + (femaleKoEffectPValue != null ? femaleKoEffectPValue.hashCode() : 0);
+		result = 31 * result + (femaleKoEffectStderrEstimate != null ? femaleKoEffectStderrEstimate.hashCode() : 0);
+		result = 31 * result + (femaleKoParameterEstimate != null ? femaleKoParameterEstimate.hashCode() : 0);
+		result = 31 * result + (maleKoEffectPValue != null ? maleKoEffectPValue.hashCode() : 0);
+		result = 31 * result + (maleKoEffectStderrEstimate != null ? maleKoEffectStderrEstimate.hashCode() : 0);
+		result = 31 * result + (maleKoParameterEstimate != null ? maleKoParameterEstimate.hashCode() : 0);
+		result = 31 * result + (classificationTag != null ? classificationTag.hashCode() : 0);
+		result = 31 * result + (externalDbId != null ? externalDbId.hashCode() : 0);
+		result = 31 * result + (organisationId != null ? organisationId.hashCode() : 0);
+		result = 31 * result + (phenotypingCenterId != null ? phenotypingCenterId.hashCode() : 0);
+		result = 31 * result + (projectId != null ? projectId.hashCode() : 0);
+		return result;
+	}
 }
