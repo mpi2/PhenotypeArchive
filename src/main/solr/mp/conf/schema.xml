@@ -288,8 +288,8 @@
 	<field name="allele_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="allele_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-	<field name="background_strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="background_strain_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="strain_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="pipeline_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -398,7 +398,7 @@
 	<copyField source="go_id" dest="auto_suggest" />
 	<copyField source="mgi_accession_id" dest="auto_suggest" />
 
-	<copyField source="strain_id" dest="auto_suggest" />
+	<copyField source="strain_accession_id" dest="auto_suggest" />
 	<copyField source="strain_name" dest="auto_suggest" /> 	
 
 	<copyField source="marker_symbol" dest="auto_suggest" />  
