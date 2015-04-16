@@ -165,7 +165,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						// /webgateway/archived_files/download/
 						if(downloadFilePath.endsWith(".pdf")){
 							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
-							imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/webclient/annotation/" + omeroId);
+							imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/annotation/" + omeroId);
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + 119501);//pdf thumnail placeholder
 						}else{
 							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
