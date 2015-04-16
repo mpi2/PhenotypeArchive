@@ -262,6 +262,7 @@
 				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
 				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
+				<entry key="pdfThumbnailUrl" value="${pdfThumbnailUrl}" />
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
 			</map>

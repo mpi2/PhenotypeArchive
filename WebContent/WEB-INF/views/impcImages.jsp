@@ -59,7 +59,7 @@
                                         <div id="grid">
                                             <ul>
                                             <c:forEach var="image" items="${images}" varStatus="status">
-                                                <t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                <t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}"></t:impcimgdisplay2>
                                             </c:forEach>
                                         </ul>
                                     </div>

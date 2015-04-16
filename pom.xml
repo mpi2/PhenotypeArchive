@@ -56,6 +56,7 @@
         <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
         <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
         <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+        <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
         <googleAnalytics></googleAnalytics>
         <liveSite>false</liveSite>
         <ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
@@ -986,6 +987,7 @@
                 <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1020,6 +1022,7 @@
                 <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
                 <datasourcesConfig>devDatasourcesConfig.properties</datasourcesConfig>
                 <liveSite>false</liveSite>
@@ -1069,6 +1072,7 @@
                 <drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
                 <datasourcesConfig>betaDatasourcesConfig.properties</datasourcesConfig>
                 <liveSite>false</liveSite>
@@ -1118,6 +1122,7 @@
                 <drupalBaseUrl>https://test.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1150,6 +1155,7 @@
                 <drupalBaseUrl>http://localhost:8084</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1182,6 +1188,7 @@
                 <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_beta</buildIndexesSolrUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//www.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
                 <googleAnalytics>UA-33310077-1</googleAnalytics>
                 <liveSite>false</liveSite>
             </properties>
@@ -1251,6 +1258,7 @@
                 <phenodigm.solrserver>http://solrcloudlive.sanger.ac.uk/solr/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//www.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
+                <pdfThumbnailUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501</pdfThumbnailUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
                 <liveSite>true</liveSite>
             </properties>
