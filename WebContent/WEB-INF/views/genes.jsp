@@ -383,7 +383,7 @@
                                                         <ul>
 
                                                             <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
-                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" href="${baseUrl}/imagePicker/${acc}/${entry.name}" count="${entry.count}"></t:impcimgdisplay2>
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}" href="${baseUrl}/imagePicker/${acc}/${entry.name}" count="${entry.count}"></t:impcimgdisplay2>
                                                                 </a>
 
                                                             </ul>
