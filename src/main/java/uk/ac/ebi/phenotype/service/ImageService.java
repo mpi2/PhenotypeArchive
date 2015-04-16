@@ -57,12 +57,15 @@ public class ImageService {
 			.addFilterQuery(ImageDTO.MA_ID + ":\"" + maId + "\"")
 			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
 			.setRows(100000)
-			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY, ImageDTO.MA_ID, ImageDTO.MA_TERM, ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME);
+			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY, ImageDTO.MA_ID, 
+						ImageDTO.MA_TERM, ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, 
+						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, ImageDTO.PHENOTYPING_CENTER);
 
 		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query );
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
+		
 		for (ImageDTO image: response){
-			AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId); 
+			AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl") ); 
 			if (res.containsKey(row.getKey())){
 				row = res.get(row.getKey());
 				row.addSex(image.getSex());

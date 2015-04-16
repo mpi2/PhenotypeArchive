@@ -6,6 +6,7 @@ import java.util.List;
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -16,12 +17,13 @@ public class AnatomyPageTableRow extends DataTableRow{
 
 	
 	String expression;
+	String imageUrl;
 	
     public AnatomyPageTableRow() {
         super();
     }
     
-    public AnatomyPageTableRow(ImageDTO image, String maId) {
+    public AnatomyPageTableRow(ImageDTO image, String maId, String baseUrl) {
 
     	super();
         List<String> sex = new ArrayList<String>();
@@ -44,8 +46,25 @@ public class AnatomyPageTableRow extends DataTableRow{
         param.setName(image.getParameterName());      
         this.setProcedure(proc);
         this.setParameter(param);
-        this.setPhenotypingCenter(image.getPhenotypingCenter()); 
+        this.setPhenotypingCenter(image.getPhenotypingCenter());
+        int pos = image.getMaTermId().indexOf(maId);
+        OntologyTerm anatomy = new OntologyTerm();
+        DatasourceEntityId maIdDei = new DatasourceEntityId(maId, -10);
+        anatomy.setId(maIdDei);
+        anatomy.setName(image.getMaTerm().get(pos));
+        this.setAnatomyTerm(anatomy);
+        this.setImageUrl(buildImageUrl(maId, baseUrl));
         
+    }
+    
+    
+    public String buildImageUrl(String maId, String baseUrl){
+    	
+    	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=" + ImageDTO.MA_TERM + ":";
+    	url += this.getAnatomyTerm().getName();
+    	url += " AND " + ImageDTO.GENE_SYMBOL + ":" + this.getGene().getSymbol();		
+    	
+    	return url;
     }
     
 	@Override
@@ -79,6 +98,18 @@ public class AnatomyPageTableRow extends DataTableRow{
 			sexes.add(sex);
 		}	
 	
+	}
+
+	
+	public String getImageUrl() {
+	
+		return imageUrl;
+	}
+
+	
+	public void setImageUrl(String imageUrl) {
+	
+		this.imageUrl = imageUrl;
 	}
 	
 }

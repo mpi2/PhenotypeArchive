@@ -168,7 +168,7 @@
 					            </td>				
 					            <td>${row.parameter.name}</td>
 					            <td>${row.phenotypingCenter} </td>
-					            <td><a href="#"><i class="fa fa-file-image-o" alt="Images"></i></a></td>	
+					            <td><a href="${row.imageUrl}"><i class="fa fa-file-image-o" alt="Images"></i></a></td>	
 					            <!-- http://localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=(ma_term:%22olfactory%20lobe%22)&q=*:*&fq=symbol:%22Adh5%22&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath -->			
 					        </tr>
 					    </c:forEach>
