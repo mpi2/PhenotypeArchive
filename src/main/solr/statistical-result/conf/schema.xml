@@ -118,8 +118,8 @@
         <field name="allele_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="allele_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="background_strain_name" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="background_strain_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+        <field name="strain_name" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="strain_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="sex" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="zygosity" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="control_selection_method" type="string" indexed="true" stored="true" multiValued="false"/>

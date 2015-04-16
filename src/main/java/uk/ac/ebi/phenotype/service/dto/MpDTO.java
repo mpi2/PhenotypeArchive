@@ -3,8 +3,6 @@ package uk.ac.ebi.phenotype.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 
 /**
@@ -124,7 +122,7 @@ public class MpDTO {
 	public static final String ALLELE_SYMBOL = "allele_symbol";
 	public static final String ALLELE_ID = "allele_id";
 	public static final String STRAIN_NAME = "strain_name";
-	public static final String STRAIN_ID = "strain_id";
+	public static final String STRAIN_ID = "strain_accession_id";
 	public static final String PIPELINE_NAME = "pipeline_name";
 	public static final String PIPELINE_STABLE_ID = "pipeline_stable_id";
 	public static final String PIPELINE_STABLE_KEY = "pipeline_stable_key";

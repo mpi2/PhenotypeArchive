@@ -97,6 +97,9 @@
     var solrUrl = '${solrUrl}';
     var drupalBaseUrl = "${drupalBaseUrl}";
     var mediaBaseUrl = "${mediaBaseUrl}";
+    console.log("mediaBaseUrl set="+mediaBaseUrl);
+    var pdfThumbnailUrl = "${pdfThumbnailUrl}";
+    console.log("pdfThumbnailUrl set="+pdfThumbnailUrl);
 
             <%--
             Some browsers do not provide a console object see:
