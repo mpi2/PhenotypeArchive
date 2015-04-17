@@ -28,6 +28,7 @@ allele = allele.replaceAll("##", "</sup>");
          	<c:when test="${not empty href}">
          		<a href="${href}">
          		<div class="thumb-image-holder">
+         		<img class="thumb-image" src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
          	</c:when>
          	
          	<c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
@@ -37,20 +38,11 @@ allele = allele.replaceAll("##", "</sup>");
          	</c:when>
          	
          	<c:otherwise>
-         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}" original="${img.download_url}">
+         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/800" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}">
          		<div class="thumb-image-holder">
          		<img class="thumb-image" src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
          	</c:otherwise>
          </c:choose>
-         <%-- <c:choose>
-         	<c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
-          		<img class="thumb-image" src="${pdfThumbnailUrl}/200"></a>
-          	</c:when>
-          	<c:otherwise>
-          		 <img class="thumb-image" src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
-          	</c:otherwise>
-         </c:choose> --%>
-        
                                                 <div class="caption">
                                                 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                 <c:if test="${not empty img.parameter_association_name}">
