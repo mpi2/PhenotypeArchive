@@ -38,7 +38,7 @@ allele = allele.replaceAll("##", "</sup>");
          	</c:when>
          	
          	<c:otherwise>
-         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/800" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}">
+         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}">
          		<div class="thumb-image-holder">
          		<img class="thumb-image" src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
          	</c:otherwise>
