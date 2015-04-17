@@ -794,11 +794,11 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         while (ite.hasNext()) {
             Map<String, Integer> map = new HashMap<String, Integer>();
             String key = (String) ite.next();
-            JSONArray array = (JSONArray) facets.get(key);
+            JSONArray facetArray = (JSONArray) facets.get(key);
             int i = 0;
-            while (i + 1 < array.size()) {
-                String facetString = array.get(i).toString();
-                int number = array.getInt(i + 1);
+            while (i + 1 < facetArray.size()) {
+                String facetString = facetArray.get(i).toString();
+                int number = facetArray.getInt(i + 1);
                 if (number != 0) {// only add if some counts to filter on!
                     map.put(facetString, number);
                 }

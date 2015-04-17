@@ -45,7 +45,7 @@ public class ImageService {
 	}
 
 	
-	public List<DataTableRow> getImagesForMA(String maId) 
+	public List<DataTableRow> getImagesForMA(String maId, String filters) 
 	throws SolrServerException{
 		
 		System.out.println("Getting getImagesForMA");
@@ -62,6 +62,10 @@ public class ImageService {
 						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, 
 						ImageDTO.PHENOTYPING_CENTER, ImageDTO.MA_ID, ImageDTO.MA_TERM);
 
+		if (filters != null){
+			query.setQuery("*:*" + filters);
+		}
+		
 		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query );
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 		
@@ -77,6 +81,40 @@ public class ImageService {
 		return new ArrayList (res.values());
 	}
 		
+	
+	public Map<String, Map<String, Long>> getFacets(String anatomyId) 
+	throws SolrServerException{
+	    
+    	Map<String, Map<String, Long>> res = new HashMap<>();
+		SolrQuery query = new SolrQuery();
+		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ");
+    	
+		if (anatomyId != null){
+    		query.addFilterQuery("(" + ImageDTO.MA_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + anatomyId +"\")");
+    	}
+    	
+		query.setFacet(true);
+		query.setFacetLimit(-1);
+		query.setFacetMinCount(1);
+		query.addFacetField(ImageDTO.MA_TERM);
+		query.addFacetField(ImageDTO.PHENOTYPING_CENTER);
+		query.addFacetField(ImageDTO.PROCEDURE_NAME);
+		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
+    	
+		System.out.println("Solr url for getColoniesNoMPHit " + solr.getBaseURL() + "/select?" + query);
+        QueryResponse response = solr.query(query);
+
+        for (FacetField facetField : response.getFacetFields()){
+        	Map<String, Long> filter = new HashMap<>();
+        	for( Count facet : facetField.getValues()){
+        		filter.put(facet.getName(), facet.getCount());
+        	}
+        	res.put(facetField.getName(), filter);
+        }
+        	
+		return res;		
+    }
+	
 	
 	public List<DataTableRow> getImagesForGene(String geneAccession) 
 	throws SolrServerException{

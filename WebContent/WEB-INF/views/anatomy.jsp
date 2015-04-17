@@ -107,78 +107,60 @@
 	</div><!-- end of images lacz expression priority and xray maybe -->
 	</c:if> --%>
 	
-	<c:if test="${fn:length(anatomy.childTerms)>0 }">
-	<div class="section">
-	<%-- <div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
-		<h2 class="title" id="explore">Explore<i class="fa fa-question-circle pull-right"></i></h2>
-				
-		<div class="inner">				
+				<c:if test="${fn:length(anatomy.childTerms)>0 }">
+				<div class="section">
+				<%-- <div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
+					<h2 class="title" id="explore">Explore<i class="fa fa-question-circle pull-right"></i></h2>
+							
+					<div class="inner">				
+								
+							<table>
+							<tbody>
+							<tr>
+									<td>Child Terms:</td>
+									<td></td>
+									<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
+									<tr>
+									<td><a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${anatomy.childIds[childStatus.index]}</a></td><td>${childTerm}</td>
+									</tr>
+									</c:forEach>
+								</tr>
+								</tbody>
+								</table>
+					</div>
 					
-				<table>
-				<tbody>
-				<tr>
-						<td>Child Terms:</td>
-						<td></td>
-						<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
-						<tr>
-						<td><a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${anatomy.childIds[childStatus.index]}</a></td><td>${childTerm}</td>
-						</tr>
-						</c:forEach>
-					</tr>
-					</tbody>
-					</table>
-		</div>
-		
-	</div><!-- end of anatomy explore panel-->
-	</c:if>
+				</div><!-- end of anatomy explore panel-->
+				</c:if>	
 	
-					<div class="section"> 
-						<h2 class="title">Gene with reporter expression for ${anatomy.term}</h2>
+				<div class="section"> 
+					<h2 class="title">Gene with reporter expression for ${anatomy.term}</h2>
 						<div class="inner">
-						<table id="anatomy" class="table tableSorter">
-					    <thead>
-					    <tr>
-					        <th class="headerSort">Gene/Allele</th>
-					        <th class="headerSort">Expression</th>
-					        <th class="headerSort">Anatomy</th>					        
-					        <th class="headerSort">Zygosity</th>
-					        <th class="headerSort">Sex</th>
-					        <th class="headerSort">Parameter</th>
-					        <th class="headerSort">Phenotyping Center</th>
-					        <th class="headerSort">Images</th>
-					    </tr>
-					    </thead>
-					    <tbody>
-					    <c:forEach var="row" items="${anatomyTable}" varStatus="status">
-					        <c:set var="europhenome_gender" value="Both-Split"/>
-					        <tr>
-					            <td><a href="${baseUrl}/genes/${row.gene.id.accession}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span></td>
-					            <td>${row.expression}</td>
-					           	<td>${row.anatomyLinks}</td>
-					            <td>${row.zygosity}</td>
-					            <td>
-					                <c:set var="count" value="0" scope="page"/>
-					                <c:forEach var="sex" items="${row.sexes}"><c:set var="count" value="${count + 1}" scope="page"/>
-					                    <c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/>
-					                        <img alt="Female" src="${baseUrl}/img/female.jpg"/>
-					                    </c:if>
-					                    <c:if test="${sex == 'male'}">
-					                        <c:if test="${count != 2}"><img data-placement="top" src="${baseUrl}/img/empty.jpg"/></c:if>
-					                        <c:set var="europhenome_gender" value="Male"/><img alt="Male" src="${baseUrl}/img/male.jpg"/>
-					                    </c:if>
-					                </c:forEach>
-					            </td>				
-					            <td>${row.parameter.name}</td>
-					            <td>${row.phenotypingCenter} </td>
-					            <td><a href='${row.imageUrl}'><i class="fa fa-image" alt="Images"></i></a></td>	
-					            <!-- http://localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=(ma_term:%22olfactory%20lobe%22)&q=*:*&fq=symbol:%22Adh5%22&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath -->			
-					        </tr>
-					    </c:forEach>
-					    </tbody>
-					</table>
-		
-				</div></div>
-	
+							 <div class="container span12">
+									<div id="filterParams" >
+                     <c:forEach var="filterParameters" items="${paramValues.fq}">
+                         ${filterParameters}
+                     </c:forEach>
+                  </div> 
+                  <c:if test="${not empty phenoFacets}">
+                     <form class="tablefiltering no-style" id="target" action="destination.html">
+                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+                                  <c:forEach var="facet" items="${phenoFacet.value}">
+                                       <option>${facet.key}</option>
+                                  </c:forEach>
+                             </select> 
+                        </c:forEach>
+                        <div class="clear"></div>
+                     </form>
+                 </c:if>
+                    						
+								 <div id="anatomy_wrapper">
+							 		  <jsp:include page="anatomyFrag.jsp"></jsp:include>
+								 </div>
+								 
+							</div>
+				    </div>
+				 </div>	
 			</div>
 		</div>
 	</div>
@@ -187,16 +169,15 @@
 	<script>
 	$(document).ready(function(){						
 					
-			$.fn.qTip({'pageName':'ma',
-				'textAlign':'left',
-				'tip':'topLeft'
-			});	// bubble popup for brief panel documentation
+				
+			initAnatomyDataTable();
 			
 			var selectedFilters = "";
 			var dropdownsList = new Array();
-		    initGenePhenotypesTable();
-		  function initGenePhenotypesTable(){
-				var aDataTblCols = [0,1,2,3,4,5,6];
+			
+		  function initAnatomyDataTable(){
+			  
+				var aDataTblCols = [0,1,2,3,4,5,6,7];
 				$('table#anatomy').dataTable( {
 						"aoColumns": [
 						              { "sType": "html", "mRender":function( data, type, full ) {
@@ -219,31 +200,130 @@
 					});
 		  }
 		  
-			// the number of columns should be kept in sync in the JSP
-			var oDataTable = $.fn.initDataTable($('table#strainPhenome'), {
-				"aoColumns": [
-				              { "sType": "string" },		              
-				              { "sType": "string" },
-				              { "sType": "string" },		 
-				              { "sType": "string" },
-				              { "sType": "string" },
-				              { "sType": "string" },
-				              { "sType": "string", "bSortable" : false }
-
-				              ],
-				              "bDestroy": true,
-				              "bFilter":false
-			});
 			
 			function refreshPhenoTable(newUrl){
 				$.ajax({
 					url: newUrl,
 					cache: false
 				}).done(function( html ) {
-					$("#genes_wrapper").html(html);
-					initGenePhenotypesTable();
+					$("#anatomy_wrapper").html(html);
+					initAnatomyPhenotypesTable();
 					alert('calling new table in anatomy.jsp');
 				});
+			}
+			
+
+			//function to fire off a refresh of a table and it's dropdown filters
+			var selectedFilters = "";
+			var dropdownsList = new Array();
+			
+			var allDropdowns = new Array();
+			allDropdowns[0] = $('#anatomy');
+			allDropdowns[1] = $('#procedure_name');
+			allDropdowns[2] = $('#expression');
+			allDropdowns[3] = $('#source');
+			createDropdown(allDropdowns[3], "Source: All", allDropdowns);
+			createDropdown(allDropdowns[0],"Anatomy: All", allDropdowns);
+			createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
+			createDropdown(allDropdowns[2], "Expression: All", allDropdowns);
+			
+			function createDropdown(multipleSel, emptyText,  allDd){
+				
+				console.log("called phen createDropdown "+ multipleSel);
+				
+				$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
+					minWidth: 150, onItemClick: function(checkbox, selector){
+						console.log("IN dropdownchecklist");
+						var justChecked = checkbox.prop("checked");
+						console.log("justChecked="+justChecked);
+						console.log("checked="+ checkbox.val());
+						var values = [];
+						for(var  i=0; i < selector.options.length; i++ ) {
+							if (selector.options[i].selected && (selector.options[i].value != "")) {
+								values .push(selector.options[i].value);
+							}
+						}
+
+						if(justChecked){				    		 
+							values.push( checkbox.val());
+						}else{//just unchecked value is in the array so we remove it as already ticked
+							var index = $.inArray(checkbox.val(), values);
+							values.splice(index, 1);
+						}  
+						
+						console.log("values="+values );
+						// add current one and create drop down object 
+						dd1 = new Object();
+						dd1.name = multipleSel.attr('id'); 
+						dd1.array = values; // selected values
+						
+						dropdownsList[0] = dd1;
+						
+						var ddI  = 1; 
+						for (var ii=0; ii<allDd.length; ii++) { 
+							if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
+//								console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
+								dd = new Object();
+								dd.name = allDd[ii].attr('id'); 
+								dd.array = allDd[ii].val() || []; 
+								dropdownsList[ddI++] = dd;
+							}
+						}
+//						console.log("call with " + dropdownsList.length);
+						refreshAnatomyFrag(dropdownsList);
+					}, textFormatFunction: function(options) {
+						var selectedOptions = options.filter(":selected");
+				        var countOfSelected = selectedOptions.size();
+				        var size = options.size();
+				        var text = "";
+				        if (size > 1){
+				        	options.each(function() {
+			                    if ($(this).prop("selected")) {
+			                        if ( text != "" ) { text += ", "; }
+			                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
+			                        var optCss = $(this).attr('style');
+			                        var tempspan = $('<span/>');
+			                        tempspan.html( $(this).html() );
+			                        if ( optCss == null ) {
+			                                text += tempspan.html();
+			                        } else {
+			                                tempspan.attr('style',optCss);
+			                                text += $("<span/>").append(tempspan).html();
+			                        }
+			                    }
+			                });
+				        }
+				        switch(countOfSelected) {
+				           case 0: return emptyText;
+				           case 1: return selectedOptions.text();
+				           case options.size(): return emptyText;
+				           default: return text;
+				        }
+					}
+				} );
+			}
+			
+			//if filter parameters are already set then we need to set them as selected in the dropdowns
+			var previousParams=$("#filterParams").html();
+			
+			function refreshAnatomyFrag(dropdownsList) {
+				var rootUrl = window.location.href;
+				console.log("...Called method (refreshAnatomyFrag) called with " + dropdownsList.length);
+				var newUrl = rootUrl.replace("anatomy", "anatomyFrag");
+				var output ='?';
+				selectedFilters = "";
+				for (var it = 0; it < dropdownsList.length; it++){
+					if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
+						selectedFilters += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
+					} 
+					if(dropdownsList[it].array.length > 1)	{
+						selectedFilters += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\" OR \"") + '\")';
+					}			    			 
+				}
+				newUrl += output + selectedFilters;
+				refreshPhenoTable(newUrl);
+		    console.log('...refresh genes AnatomyFrag called woth new url='+newUrl);
+				return false;
 			}
 	});				
 	</script>

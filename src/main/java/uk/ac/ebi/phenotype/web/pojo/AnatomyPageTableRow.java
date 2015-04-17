@@ -91,7 +91,6 @@ public class AnatomyPageTableRow extends DataTableRow{
     		url += " AND " + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":control";
     	}
     	
-    	System.out.println("Image URL " + url);
     	return url;
     }
     

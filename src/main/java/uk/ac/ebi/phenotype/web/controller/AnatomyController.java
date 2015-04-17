@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,7 @@ import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolr;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.web.pojo.Anatomy;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
@@ -111,18 +113,48 @@ public class AnatomyController {
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
 		int numberExpressionImagesFound = JSONRestUtil.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id);
-					
+		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null);
+               
 		model.addAttribute("anatomy", ma);
 		model.addAttribute("exampleImages", exampleImagesMap);
 		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
-		
+        model.addAttribute("phenoFacets", getFacets(anatomy_id));
 		return "anatomy";
 	}
 	
 
+    @RequestMapping(value = "/anatomyFrag/{anatomy_id}", method = RequestMethod.GET)
+	public String loadMaTable(@PathVariable String anatomy_id, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws SolrServerException, IOException, URISyntaxException {
+
+		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null);
+		model.addAttribute("anatomyTable", anatomyTable);
+        model.addAttribute("phenoFacets", getFacets(anatomy_id));
+		System.out.println("ANATOMY FRAG\n");
+				
+		return "anatomyFrag";
+	}     
+    
+    private Map<String, Map<String, Long>> getFacets (String maId){
+
+    	Map<String, Map<String, Long>> phenoFacets = new HashMap<>();
+    	Map<String, Map<String, Long>> temp = new HashMap<>();
+		try {
+			temp = is.getFacets(maId);
+			phenoFacets.put("anatomy", temp.get(ImageDTO.MA_TERM));
+			phenoFacets.put("expression", temp.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
+			phenoFacets.put("source", temp.get(ImageDTO.PHENOTYPING_CENTER));
+			phenoFacets.put("procedure_name", temp.get(ImageDTO.PROCEDURE_NAME));
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+        return phenoFacets;
+    }
+    
+    
+    
 	/**
 	 * Get control and experimental example images for the top of the MP page
 	 * 

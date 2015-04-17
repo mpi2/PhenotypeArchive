@@ -325,15 +325,15 @@ public class PhenotypesController {
 
         for (PhenotypeCallSummary pcs : phenotypeList) {
 
-            // Use a tree set to maintain an alphabetical order (Female, Male)
             List<String> sex = new ArrayList();
             sex.add(pcs.getSex().toString());
-
             DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr)) {
                 pr = phenotypes.get(pr);
+                
+                // Use a tree set to maintain an alphabetical order (Female, Male)
                 TreeSet<String> sexes = new TreeSet();
                 for (String s : pr.getSexes()) {
                     sexes.add(s);
