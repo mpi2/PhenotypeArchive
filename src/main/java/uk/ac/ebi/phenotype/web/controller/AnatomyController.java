@@ -112,9 +112,7 @@ public class AnatomyController {
 		int numberExpressionImagesFound = JSONRestUtil.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id);
-		
-		
-		
+					
 		model.addAttribute("anatomy", ma);
 		model.addAttribute("exampleImages", exampleImagesMap);
 		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);

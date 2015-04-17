@@ -43,6 +43,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     private Map<String, String> config;
     protected OntologyTerm phenotypeTerm;
+    protected OntologyTerm anatomyTerm;
     protected GenomicFeature gene;
     protected Allele allele;
     protected List<String> sexes;
@@ -103,9 +104,18 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     public void setConfig(Map<String, String> config) {
         this.config = config;
     }
+  
+	public OntologyTerm getAnatomyTerm() {
+	
+		return anatomyTerm;
+	}
+	
+	public void setAnatomyTerm(OntologyTerm anatomyTerm) {
+	
+		this.anatomyTerm = anatomyTerm;
+	}
 
-
-    /**
+	/**
 	 * @return the gid
 	 */
 	public String getGid() {

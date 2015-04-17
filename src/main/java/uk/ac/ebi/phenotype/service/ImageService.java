@@ -1,5 +1,13 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -7,7 +15,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -16,15 +23,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
+import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
-
-import java.util.*;
-
-import javax.annotation.Resource;
 
 
 public class ImageService {
@@ -41,21 +44,41 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
-	public List<DataTableRow> getImagesForMA(String maId){
+	
+	public List<DataTableRow> getImagesForMA(String maId) 
+	throws SolrServerException{
 		
-		List<DataTableRow> res = new ArrayList<>();
+		System.out.println("Getting getImagesForMA");
+		
+		Map<String,AnatomyPageTableRow> res = new HashMap();
 		SolrQuery query = new SolrQuery();
+		
 		query.setQuery("*:*")
 			.addFilterQuery(ImageDTO.MA_ID + ":\"" + maId + "\"")
 			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
-			.setRows(100000);
-	//		.setFields(I)
+			.setRows(100000)
+			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY, ImageDTO.MA_ID, 
+						ImageDTO.MA_TERM, ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, 
+						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, ImageDTO.PHENOTYPING_CENTER);
+
+		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query );
+		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 		
-		return res;
+		for (ImageDTO image: response){
+			AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl") ); 
+			if (res.containsKey(row.getKey())){
+				row = res.get(row.getKey());
+				row.addSex(image.getSex());
+			} 
+			res.put(row.getKey(), row);
+		}
+		
+		System.out.println("# rows added : " + res.size());
+		
+		return new ArrayList (res.values());
 		
 	}
-	
-	
+		
 	
 	public long getNumberOfDocuments( List<String> resourceName, boolean experimentalOnly ) 
 	throws SolrServerException{
