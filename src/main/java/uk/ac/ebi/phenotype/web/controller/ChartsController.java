@@ -183,7 +183,19 @@ public class ChartsController {
 	 * @throws SolrServerException
 	 */
 	@RequestMapping("/chart")
-	public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber, @RequestParam(required = false, value = "accession") String[] accession, @RequestParam(required = false, value = "strain_accession_id") String strain, @RequestParam(required = false, value = "allele_accession_id") String alleleAccession, @RequestParam(required = false, value = "metadata_group") String metadataGroup, @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId, @RequestParam(required = false, value = "gender") String[] gender, @RequestParam(required = false, value = "zygosity") String[] zygosity, @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter, @RequestParam(required = false, value = "strategy") String[] strategies, @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId, @RequestParam(required = false, value = "chart_type") ChartType chartType, @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
+	public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber, 
+						@RequestParam(required = false, value = "accession") String[] accession, 
+						@RequestParam(required = false, value = "strain_accession_id") String strain, 
+						@RequestParam(required = false, value = "allele_accession_id") String alleleAccession, 
+						@RequestParam(required = false, value = "metadata_group") String metadataGroup, 
+						@RequestParam(required = false, value = "parameter_stable_id") String parameterStableId, 
+						@RequestParam(required = false, value = "gender") String[] gender, 
+						@RequestParam(required = false, value = "zygosity") String[] zygosity, 
+						@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter, 
+						@RequestParam(required = false, value = "strategy") String[] strategies, 
+						@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId, 
+						@RequestParam(required = false, value = "chart_type") ChartType chartType, 
+						@RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
 	throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
 
 		UnidimensionalDataSet unidimensionalChartDataSet = null;

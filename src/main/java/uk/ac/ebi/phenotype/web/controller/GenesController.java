@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONException;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex2;
@@ -63,6 +65,7 @@ import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -161,6 +164,7 @@ public class GenesController {
 
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
+		
 		if (gene == null) {
 			log.warn("Gene object from database for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
@@ -174,11 +178,8 @@ public class GenesController {
 		try {
 
 			geneStatus = solrIndex.getGeneStatus(acc);
-			model.addAttribute("geneStatus", geneStatus);// if gene status is
-															// null then the jsp
-															// declares a
-															// warning message
-															// at status div
+			model.addAttribute("geneStatus", geneStatus);
+			// if gene status is null then the jsp declares a warning message at status div
 
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -267,6 +268,9 @@ public class GenesController {
 			model.addAttribute("countIKMCAllelesError", Boolean.TRUE);
 			e.printStackTrace();
 		}
+		
+		
+		
 		
 		processPhenotypes(acc, model, "", request);
 

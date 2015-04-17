@@ -54,12 +54,13 @@ public class ImageService {
 		SolrQuery query = new SolrQuery();
 		
 		query.setQuery("*:*")
-			.addFilterQuery(ImageDTO.MA_ID + ":\"" + maId + "\"")
+			.addFilterQuery("(" + ImageDTO.MA_ID + ":\"" + maId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + maId +"\")")
 			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
 			.setRows(100000)
 			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY, ImageDTO.MA_ID, 
 						ImageDTO.MA_TERM, ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, 
-						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, ImageDTO.PHENOTYPING_CENTER);
+						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, 
+						ImageDTO.PHENOTYPING_CENTER, ImageDTO.MA_ID, ImageDTO.MA_TERM);
 
 		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query );
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
@@ -72,13 +73,47 @@ public class ImageService {
 			} 
 			res.put(row.getKey(), row);
 		}
+				
+		return new ArrayList (res.values());
+	}
+		
+	
+	public List<DataTableRow> getImagesForGene(String geneAccession) 
+	throws SolrServerException{
+		
+		System.out.println("Getting getImagesForMA");
+		
+		Map<String,AnatomyPageTableRow> res = new HashMap();
+		SolrQuery query = new SolrQuery();
+		
+		query.setQuery("*:*")
+			.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAccession + "\"")
+			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
+			.setRows(100000)
+			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY, ImageDTO.MA_ID, 
+						ImageDTO.MA_TERM, ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, 
+						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, ImageDTO.PHENOTYPING_CENTER);
+
+		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query );
+		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
+		
+		for (ImageDTO image: response){
+			for (String maId : image.getMaTermId()){
+				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl") ); 
+				if (res.containsKey(row.getKey())){
+					row = res.get(row.getKey());
+					row.addSex(image.getSex());
+				} 
+				res.put(row.getKey(), row);
+			}
+		}
 		
 		System.out.println("# rows added : " + res.size());
 		
 		return new ArrayList (res.values());
 		
 	}
-		
+	
 	
 	public long getNumberOfDocuments( List<String> resourceName, boolean experimentalOnly ) 
 	throws SolrServerException{

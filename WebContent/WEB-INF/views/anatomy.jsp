@@ -133,13 +133,14 @@
 	</c:if>
 	
 					<div class="section"> 
-						<h2 class="title">Expression data for ${anatomy.term}</h2>
+						<h2 class="title">Gene with reporter expression for ${anatomy.term}</h2>
 						<div class="inner">
-						<table id="genes" class="table tableSorter">
+						<table id="anatomy" class="table tableSorter">
 					    <thead>
 					    <tr>
 					        <th class="headerSort">Gene/Allele</th>
 					        <th class="headerSort">Expression</th>
+					        <th class="headerSort">Anatomy</th>					        
 					        <th class="headerSort">Zygosity</th>
 					        <th class="headerSort">Sex</th>
 					        <th class="headerSort">Parameter</th>
@@ -153,6 +154,7 @@
 					        <tr>
 					            <td><a href="${baseUrl}/genes/${row.gene.id.accession}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span></td>
 					            <td>${row.expression}</td>
+					           	<td>${row.anatomyLinks}</td>
 					            <td>${row.zygosity}</td>
 					            <td>
 					                <c:set var="count" value="0" scope="page"/>
@@ -168,7 +170,7 @@
 					            </td>				
 					            <td>${row.parameter.name}</td>
 					            <td>${row.phenotypingCenter} </td>
-					            <td><a href="${row.imageUrl}"><i class="fa fa-file-image-o" alt="Images"></i></a></td>	
+					            <td><a href='${row.imageUrl}'><i class="fa fa-image" alt="Images"></i></a></td>	
 					            <!-- http://localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=(ma_term:%22olfactory%20lobe%22)&q=*:*&fq=symbol:%22Adh5%22&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath -->			
 					        </tr>
 					    </c:forEach>
@@ -195,7 +197,7 @@
 		    initGenePhenotypesTable();
 		  function initGenePhenotypesTable(){
 				var aDataTblCols = [0,1,2,3,4,5,6];
-				$('table#genes').dataTable( {
+				$('table#anatomy').dataTable( {
 						"aoColumns": [
 						              { "sType": "html", "mRender":function( data, type, full ) {
 						            	  return (type === "filter") ? $(data).text() : data;
@@ -203,6 +205,7 @@
 						              { "sType": "html", "mRender":function( data, type, full ) {
 						            	  return (type === "filter") ? $(data).text() : data;
 						              }},
+						              { "sType": "string"},
 						              { "sType": "string"},
 						              { "sType": "string"},
 						              { "sType": "string"},
