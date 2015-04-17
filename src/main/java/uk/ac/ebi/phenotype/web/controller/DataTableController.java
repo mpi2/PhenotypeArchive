@@ -592,8 +592,11 @@ public class DataTableController {
                     String smallThumbNailPath = thumbnailPath + "/200";  //width in pixel
                     String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
-
-                    imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+                    if(doc.getString("download_url").contains("annotation")){
+                    	imgLink = "<a href='" + doc.getString("download_url") + "'>" + img + "</a>";
+                    }else{
+                    	imgLink = "<a class='fancybox' fullres='" + fullSizePath +  "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+                    }
                 } else {
                     imgLink = IMG_NOT_FOUND;
                 }
@@ -1072,14 +1075,14 @@ public class DataTableController {
                 String downloadUrl=doc.getString("download_url");
                 //System.out.println("download Url="+downloadUrl);
                 String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                if(downloadUrl.contains("/annotation/")){
-                	fullSizePath=downloadUrl;
-                }
                 String smallThumbNailPath = thumbnailPath + "/200";
                 String largeThumbNailPath = thumbnailPath + "/800";
-
                 String img = "<img src='" + smallThumbNailPath + "'/>";
-                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+                if(downloadUrl.contains("/annotation/")){
+                	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
+                }else{
+                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath +"'>" + img + "</a>";
+                }
             } else {
                 link = IMG_NOT_FOUND;
             }
