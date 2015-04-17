@@ -38,6 +38,10 @@ public class ImageDTO extends ObservationDTO {
 	public static final String MARKER_TYPE = SangerImageDTO.MARKER_TYPE;	
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
+
+	private static final String INTERMEDIATE_LEVEL_MA_TERM_ID = "intermediate_ma_term_id";
+	private static final String INTERMEDIATE_LEVEL_MA_TERM = "intermediate_ma_term";
+	private static final String INTERMEDIATE_LEVEL_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
@@ -122,6 +126,15 @@ public class ImageDTO extends ObservationDTO {
 	
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypeStatus;
+
+	@Field(INTERMEDIATE_LEVEL_MA_TERM_ID)
+	private ArrayList<String> intermediateLevelMaId;
+
+
+	@Field(INTERMEDIATE_LEVEL_MA_TERM)
+	private ArrayList<String> intermediateLevelMaTerm;
+	@Field(INTERMEDIATE_LEVEL_MA_TERM_SYNONYM)
+	private ArrayList<String> intermediateLevelMaTermSynonym;
 
 	
 	public String getImageLink() {
@@ -475,6 +488,39 @@ public class ImageDTO extends ObservationDTO {
 		int pos = maTermId.indexOf(maId);
 		return getParameterAssociationValue().get(pos);
 		
+	}
+
+
+	public void setIntermediateLevelMaId(ArrayList<String> intermediateLevelMaId) {
+		this.intermediateLevelMaId=intermediateLevelMaId;
+		
+	}
+
+
+	public void setIntermediateLevelMaTerm(ArrayList<String> intermediateLevelMaTerm) {
+		this.intermediateLevelMaTerm=intermediateLevelMaTerm;
+		
+	}
+
+
+	public void setIntermediateLevelMaTermSynonym(
+			ArrayList<String> intermediateLevelMaTermSynonym) {
+		this.intermediateLevelMaTermSynonym=intermediateLevelMaTermSynonym;
+		
+	}
+	
+	public static String getIntermediateLevelMaTermId() {
+		return INTERMEDIATE_LEVEL_MA_TERM_ID;
+	}
+
+
+	public static String getIntermediateLevelMaTerm() {
+		return INTERMEDIATE_LEVEL_MA_TERM;
+	}
+
+
+	public static String getIntermediateLevelMaTermSynonym() {
+		return INTERMEDIATE_LEVEL_MA_TERM_SYNONYM;
 	}
 	
 }

@@ -390,6 +390,9 @@
 	<field name="parameter_association_name" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="parameter_association_value" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="image_link" type="string" indexed="true" stored="true" multiValued="false" />
+	<field name="intermediate_ma_term_id" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="intermediate_ma_term" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="intermediate_ma_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
    
         <copyField source="symbol" dest="marker_symbol" />
         <copyField source="symbol" dest="auto_suggest" />

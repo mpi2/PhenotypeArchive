@@ -197,6 +197,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						ArrayList<String>topLevelMaIds=new ArrayList<>();
 						ArrayList<String>topLevelMaTerm=new ArrayList<>();
 						ArrayList<String>topLevelMaTermSynonym=new ArrayList<>();
+						
+						ArrayList<String>intermediateLevelMaIds=new ArrayList<>();
+						ArrayList<String>intermediateLevelMaTerm=new ArrayList<>();
+						ArrayList<String>intermediateLevelMaTermSynonym=new ArrayList<>();
 						for (String paramString : imageDTO.getParameterAssociationStableId()) {
 							if (parameterStableIdToMaTermIdMap
 									.containsKey(paramString)) {
@@ -216,6 +220,16 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 										topLevelMaIds.add(topLevel.getId());
 										topLevelMaTerm.add(topLevel.getName());
 										topLevelMaTermSynonym.addAll(topLevel
+												.getSynonyms());
+									}
+									
+									List<OntologyTermBean> intermediateLevels = maService
+											.getIntermediates(maTermId);
+									for (OntologyTermBean intermediateLevel : intermediateLevels) {
+										//System.out.println(topLevel.getName());
+										intermediateLevelMaIds.add(intermediateLevel.getId());
+										intermediateLevelMaTerm.add(intermediateLevel.getName());
+										intermediateLevelMaTermSynonym.addAll(intermediateLevel
 												.getSynonyms());
 									}
 								}
@@ -245,6 +259,15 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 						if(!topLevelMaTermSynonym.isEmpty()){
 							imageDTO.setTopLevelMaTermSynonym(topLevelMaTermSynonym);
+						}
+						if (!intermediateLevelMaIds.isEmpty()) {
+							imageDTO.setIntermediateLevelMaId(intermediateLevelMaIds);
+						}
+						if(!intermediateLevelMaTerm.isEmpty()){
+							imageDTO.setIntermediateLevelMaTerm(intermediateLevelMaTerm);
+						}
+						if(!intermediateLevelMaTermSynonym.isEmpty()){
+							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
 						}
 					}
 					server.addBean(imageDTO);
@@ -435,7 +458,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	public Map<String,String> populateParameterStableIdToMaIdMap() throws SQLException{
     	System.out.println("populating parameterStableId to MA map");
 		 Map<String,String> paramToMa = new HashMap<String, String>();
-		String query="SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 1000";
+		String query="SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)){
 		    ResultSet resultSet = statement.executeQuery();
 		   
