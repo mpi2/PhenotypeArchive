@@ -593,7 +593,7 @@ public class DataTableController {
                     String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
 
-                    imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+                    imgLink = "<a class='fancyboxPdf' fullres='" + fullSizePath + " original='" + doc.getString("download_url") + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
                 } else {
                     imgLink = IMG_NOT_FOUND;
                 }
@@ -1079,7 +1079,7 @@ public class DataTableController {
                 String largeThumbNailPath = thumbnailPath + "/800";
 
                 String img = "<img src='" + smallThumbNailPath + "'/>";
-                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "' original='"+downloadUrl+" '>" + img + "</a>";
             } else {
                 link = IMG_NOT_FOUND;
             }

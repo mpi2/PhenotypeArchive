@@ -16,10 +16,9 @@ allele = allele.replaceAll("##", "</sup>");
 <%--<jsp:doBody var="theBody"/>--%>
 <%@ attribute name="img" required="true" type="java.util.Map"%>
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
-<%@ attribute name="pdfThumbnailUrl" required="true" %>
+<%@ attribute name="pdfThumbnailUrl" required="false" %>
 <%@ attribute name="count" required="false" %>
 <%@ attribute name="href" required="false" %>
-
         <li>
          <!-- href specified as arg to tag as in the case of gene page to image picker links -->
          <!-- pdf annotation not image -->
