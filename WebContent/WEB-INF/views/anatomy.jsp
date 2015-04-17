@@ -133,7 +133,7 @@
 	</c:if>
 	
 					<div class="section"> 
-						<h2 class="title">Expression data for ${anatomy.term}</h2>
+						<h2 class="title">Gene with reporter expression for ${anatomy.term}</h2>
 						<div class="inner">
 						<table id="anatomy" class="table tableSorter">
 					    <thead>
