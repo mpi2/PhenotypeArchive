@@ -1593,5 +1593,38 @@ public class ObservationService extends BasicService {
 
         return new DataBatchesBySex(solr.query(q).getBeans(ObservationDTO.class));
     }
+    
+    /**
+     * Returns a list of <code>count</code> parameter stable ids matching <code>observationType</code>.
+     * 
+     * @param observationType desired observation type
+     * @param count the number of parameter stable ids to return
+     * 
+     * @return a list of <code>count</code> parameter stable ids matching <code>observationType</code>.
+     * @throws SolrServerException
+     */
+    public List<String> getParameterStableIdsByObservationType(ObservationType observationType, int count) throws SolrServerException {
+        List<String> retVal = new ArrayList();
+        
+        if (count < 1)
+            return retVal;
+        
+        SolrQuery query = new SolrQuery();
+        // http://ves-ebi-d0:8090/mi/impc/dev/solr/experiment/select?q=observation_type%3Acategorical&rows=12&wt=json&indent=true&facet=true&facet.field=parameter_stable_id
+        query
+            .setQuery("observation_type:" + observationType.name())
+            .addFacetField(ObservationDTO.PARAMETER_STABLE_ID)
+            .setFacetMinCount(1)
+            .setFacet(true)
+            .setRows(count)
+            .set("facet.limit", count);
+        
+        QueryResponse response = solr.query(query);
+        for (Count facet: response.getFacetField(ObservationDTO.PARAMETER_STABLE_ID).getValues()) {
+            retVal.add(facet.getName());
+        }
+        
+        return retVal;
+    }
 
 }
