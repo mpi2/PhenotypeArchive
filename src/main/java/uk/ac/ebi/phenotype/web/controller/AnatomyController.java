@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -113,7 +114,7 @@ public class AnatomyController {
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
 		int numberExpressionImagesFound = JSONRestUtil.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null);
+		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null);
                
 		model.addAttribute("anatomy", ma);
 		model.addAttribute("exampleImages", exampleImagesMap);
@@ -126,10 +127,17 @@ public class AnatomyController {
 	
 
     @RequestMapping(value = "/anatomyFrag/{anatomy_id}", method = RequestMethod.GET)
-	public String loadMaTable(@PathVariable String anatomy_id, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	public String loadMaTable(	@PathVariable String anatomy_id,
+								@RequestParam(required = false, value = "ma_term") List<String> maTerms,
+								@RequestParam(required = false, value = "parameter_association_value") List<String> parameterAssociationValue,
+								@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
+								@RequestParam(required = false, value = "procedure_name") List<String> procedureName,
+								Model model, 
+								HttpServletRequest request, 
+								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null);
+		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy_id));
 		System.out.println("ANATOMY FRAG\n");
@@ -143,9 +151,9 @@ public class AnatomyController {
     	Map<String, Map<String, Long>> temp = new HashMap<>();
 		try {
 			temp = is.getFacets(maId);
-			phenoFacets.put("anatomy", temp.get(ImageDTO.MA_TERM));
-			phenoFacets.put("expression", temp.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
-			phenoFacets.put("source", temp.get(ImageDTO.PHENOTYPING_CENTER));
+			phenoFacets.put("ma_term", temp.get(ImageDTO.MA_TERM));
+			phenoFacets.put("parameter_association_value", temp.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
+			phenoFacets.put("phenotyping_center", temp.get(ImageDTO.PHENOTYPING_CENTER));
 			phenoFacets.put("procedure_name", temp.get(ImageDTO.PROCEDURE_NAME));
 		} catch (SolrServerException e) {
 			e.printStackTrace();
