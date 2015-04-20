@@ -684,6 +684,7 @@ div.dataTables_info, div.dataTables_paginate {
 .thumb-image-holder{
 	width:200px;
 	height:200px;
+	margin:10px;
 	/* background-color: #999; */
  }
  

@@ -19,7 +19,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="pdfThumbnailUrl" required="false" %>
 <%@ attribute name="count" required="false" %>
 <%@ attribute name="href" required="false" %>
-        <li>
+        <li style="height:275px; max-height:275px; min-height:275px; word-wrap: break-word;width:23%">
          <!-- href specified as arg to tag as in the case of gene page to image picker links -->
          <!-- pdf annotation not image -->
          <!-- defaults to image -->
@@ -27,23 +27,23 @@ allele = allele.replaceAll("##", "</sup>");
         
          	<c:when test="${not empty href}">
          		<a href="${href}">
-         		<div class="thumb-image-holder">
-         		<img class="thumb-image" src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
+         		
+         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
          	</c:when>
          	
          	<c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		<a href="${img.download_url}" >
-         		<div class="thumb-image-holder">
-         		<img class="thumb-image" src="${pdfThumbnailUrl}/200"></a>
+         		
+         		<img  src="${pdfThumbnailUrl}/200"></a>
          	</c:when>
          	
          	<c:otherwise>
          		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}">
-         		<div class="thumb-image-holder">
-         		<img class="thumb-image" src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
+         		
+         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"></a>
          	</c:otherwise>
          </c:choose>
-                                                <div class="caption">
+                                                <div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
                                                 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                 <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach items="${img.parameter_association_name}" varStatus="status">
@@ -53,7 +53,7 @@ allele = allele.replaceAll("##", "</sup>");
                                                 </c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
                                                 </div> 
-          </div>
+          
            
                                                 
          </li>                                  
