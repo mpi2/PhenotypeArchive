@@ -58,6 +58,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Autowired
 	MaOntologyService maService;
 
+
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
