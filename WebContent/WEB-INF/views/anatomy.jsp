@@ -218,10 +218,10 @@
 			var dropdownsList = new Array();
 			
 			var allDropdowns = new Array();
-			allDropdowns[0] = $('#anatomy');
+			allDropdowns[0] = $('#ma_term');
 			allDropdowns[1] = $('#procedure_name');
-			allDropdowns[2] = $('#expression');
-			allDropdowns[3] = $('#source');
+			allDropdowns[2] = $('#parameter_association_value');
+			allDropdowns[3] = $('#phenotyping_center');
 			createDropdown(allDropdowns[3], "Source: All", allDropdowns);
 			createDropdown(allDropdowns[0],"Anatomy: All", allDropdowns);
 			createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
@@ -308,19 +308,18 @@
 			
 			function refreshAnatomyFrag(dropdownsList) {
 				var rootUrl = window.location.href;
-				console.log("...Called method (refreshAnatomyFrag) called with " + dropdownsList.length);
 				var newUrl = rootUrl.replace("anatomy", "anatomyFrag");
-				var output ='?';
+				newUrl += '?';
 				selectedFilters = "";
 				for (var it = 0; it < dropdownsList.length; it++){
 					if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
-						selectedFilters += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
+						selectedFilters += '&' + dropdownsList[it].name + '="' + dropdownsList[it].array+'"';
 					} 
 					if(dropdownsList[it].array.length > 1)	{
-						selectedFilters += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\" OR \"") + '\")';
+						selectedFilters += '&' + dropdownsList[it].name + '="' + dropdownsList[it].array.join('"&' + dropdownsList[it].name + '="') + '\"';
 					}			    			 
 				}
-				newUrl += output + selectedFilters;
+				newUrl += selectedFilters;
 				refreshPhenoTable(newUrl);
 		    console.log('...refresh genes AnatomyFrag called woth new url='+newUrl);
 				return false;

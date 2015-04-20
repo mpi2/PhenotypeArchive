@@ -45,7 +45,7 @@ public class ImageService {
 	}
 
 	
-	public List<DataTableRow> getImagesForMA(String maId, String filters) 
+	public List<DataTableRow> getImagesForMA(String maId, List<String> maTerms, List<String> phenotypingCenter, List<String> procedure, List<String> paramAssoc) 
 	throws SolrServerException{
 		
 		System.out.println("Getting getImagesForMA");
@@ -62,8 +62,19 @@ public class ImageService {
 						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, 
 						ImageDTO.PHENOTYPING_CENTER, ImageDTO.MA_ID, ImageDTO.MA_TERM);
 
-		if (filters != null){
-			query.setQuery("*:*" + filters);
+		System.out.println("PHENOTYPING CENTER : " + phenotypingCenter);
+		
+		if (maTerms != null){
+			query.addFilterQuery(ImageDTO.MA_TERM + ":" + StringUtils.join(maTerms, " OR " + ImageDTO.MA_TERM + ":") );
+		}
+		if (phenotypingCenter != null){
+			query.addFilterQuery(ImageDTO.PHENOTYPING_CENTER + ":" + StringUtils.join(phenotypingCenter, " OR " + ImageDTO.PHENOTYPING_CENTER + ":") );
+		}
+		if (procedure != null){
+			query.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":" + StringUtils.join(procedure, " OR " + ImageDTO.PROCEDURE_NAME + ":") );
+		}
+		if (paramAssoc != null){
+			query.addFilterQuery(ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":" + StringUtils.join(paramAssoc, " OR " + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":") );
 		}
 		
 		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query );
