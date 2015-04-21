@@ -76,8 +76,9 @@
                                         <tr><td>allele_name</td><td>string</td><td>the name of the allele</td></tr>
                                         <tr><td>allele_symbol</td><td>string</td><td>the allele symbol</td></tr>
                                         <tr><td>allele_accession_id</td><td>string</td><td>the allele accession id</td></tr>
-                                        <tr><td>strain_name</td><td>string</td><td>the name of the background strain</td></tr>
-                                        <tr><td>strain_accession_id</td><td>string</td><td>the accession id of the background strain</td></tr>
+                                        <tr><td>strain_name *</td><td>string</td><td>Deprecated. Please see genetic_background description</td></tr>
+                                        <tr><td>strain_accession_id</td><td>string</td><td>Background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td></tr>
+                                        <tr><td>genetic_background</td><td>string</td><td>indicating the background strain name of the specimen</td></tr>
                                         <tr><td>phenotyping_center</td><td>string</td><td>the center at which the phenotyping was performed</td></tr>
                                         <tr><td>project_external_id</td><td>string</td><td>(legacy) the identifier of the project at the phenotyping center at which the work was performed</td></tr>
                                         <tr><td>project_name</td><td>string</td><td>the shortname of the project for which the phenotyping was performed</td></tr>
