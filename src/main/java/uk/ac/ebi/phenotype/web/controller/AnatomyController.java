@@ -136,7 +136,6 @@ public class AnatomyController {
 
 		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue);
 		model.addAttribute("anatomyTable", anatomyTable);
-        model.addAttribute("phenoFacets", getFacets(anatomy_id));
 				
 		return "anatomyFrag";
 	}     
