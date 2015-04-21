@@ -138,7 +138,7 @@ public class ChartUtils {
 		
 		public static String getLabel(ZygosityType zyg, SexType sex){
 			
-			return StringUtils.capitalize(sex.getName()) + " " + (zyg == null ? "WT" : StringUtils.capitalize(zyg.getName())) ;
+			return StringUtils.capitalize(sex.getName()) + " " + (zyg == null ? "WT" : StringUtils.capitalize(zyg.getName().substring(0, 3) + ".")) ;
 		}
 	
 		
