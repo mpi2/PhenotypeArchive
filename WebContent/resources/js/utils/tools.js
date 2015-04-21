@@ -1679,7 +1679,7 @@
 
     $.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload) {
 
-        var table = $('<table></table>').attr({'id': id});
+        var table = $('<table></table>').attr({'id': id, 'class': 'table tableSorter'});
         var thead = theadStr;
         var tds = '';
         for (var i = 0; i < colNum; i++) {
@@ -2994,6 +2994,7 @@ $.fn.dataTableExt.oApi.fnStandingRedraw = function(oSettings) {
     // draw the 'current' page
     oSettings.oApi._fnDraw(oSettings);
 };
+
 //fix jQuery UIs autocomplete width
 $.extend($.ui.autocomplete.prototype.options, {
     open: function(event, ui) {
