@@ -150,8 +150,8 @@ public class TimeSeriesChartAndTableProvider {
 		Float minForChart = new Float(1000000000);
 		
 
-		String mColor = ChartColors.getMutantColor(ChartColors.alphaOpaque).replaceAll("'", "");
-		String wtColor = ChartColors.getWTColor(ChartColors.alphaOpaque).replaceAll("'", "");
+		String mColor = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
+		String wtColor = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 		
 		try {
 			int i = 0;
