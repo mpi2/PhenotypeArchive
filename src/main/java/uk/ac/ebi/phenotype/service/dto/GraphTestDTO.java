@@ -18,36 +18,36 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.www.testing.model;
+package uk.ac.ebi.phenotype.service.dto;
 
 /**
  * This class encapsulates the code and data necessary to represent the data
  * required to build a gene page link containing graph links for specific
  * chart types, such as UNIDIMENSIONAL_SCATTER_PLOT, UNIDIMENSIONAL_BOX_PLOT,
  * UNIDIMENSIONAL_ABR_PLOT, CATEGORICAL_STACKED_COLUMN, TIME_SERIES_LINE, PIE,
- * and TIME_SERIES_LINE_BODYWEIGHT, PREQC;
+ * and TIME_SERIES_LINE_BODYWEIGHT, PREQC. Functionally, it is a façade around
+ * the GeneDTO exposing only those fields required for graph testing.
  * 
  * The impetus for this class is a need to make a request by chart type to
  * produce a list of gene pages most likely to contain that chart type.
  * 
  * @author mrelac
  */
-public class GeneGraph {
-    private String geneAccessionId;
+public class GraphTestDTO {
+    private String mgiAccessionId;
     private String procedureName;
-    private String parameterName;
     private String parameterStableId;
+    private String parameterName;
     
-    public GeneGraph() {
-        
+    public GraphTestDTO() {
     }
 
-    public String getGeneAccessionId() {
-        return geneAccessionId;
+    public String getMgiAccessionId() {
+        return mgiAccessionId;
     }
 
-    public void setGeneAccessionId(String geneAccessionId) {
-        this.geneAccessionId = geneAccessionId;
+    public void setMgiAccessionId(String mgiAccessionId) {
+        this.mgiAccessionId = mgiAccessionId;
     }
 
     public String getProcedureName() {
@@ -58,14 +58,6 @@ public class GeneGraph {
         this.procedureName = procedureName;
     }
 
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
-    }
-
     public String getParameterStableId() {
         return parameterStableId;
     }
@@ -73,13 +65,22 @@ public class GeneGraph {
     public void setParameterStableId(String parameterStableId) {
         this.parameterStableId = parameterStableId;
     }
+
+    public String getParameterName() {
+        return parameterName;
+    }
+
+    public void setParameterName(String parameterName) {
+        this.parameterName = parameterName;
+    }
     
     public String getProcedureParameterName() {
-        return this.procedureName + " | " + this.parameterName;
+        return getParameterName() + " | " + getProcedureName();
     }
 
     @Override
     public String toString() {
-        return "GeneGraph{" + "geneAccessionId=" + geneAccessionId + ", procedureName=" + procedureName + ", parameterName=" + parameterName + ", parameterStableId=" + parameterStableId + '}';
+        return "GraphTestDTO{" + "mgiAccessionId=" + mgiAccessionId + ", procedureName=" + procedureName + ", parameterStableId=" + parameterStableId + ", parameterName=" + parameterName + '}';
     }
+
 }
