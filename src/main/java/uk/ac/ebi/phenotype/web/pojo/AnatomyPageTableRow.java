@@ -63,9 +63,10 @@ public class AnatomyPageTableRow extends DataTableRow{
 	        	anatomyTerms.add(anatomy);
         	}
         }
+               
         this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
-        this.setImageUrl(buildImageUrl(baseUrl, maId));
+        this.setImageUrl(buildImageUrl(baseUrl, maId, image.getMaTerm().get(image.getMaTermId().indexOf(maId))));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
         this.numberOfImages ++;
     }
@@ -84,7 +85,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     }
     
     
-    public String buildImageUrl(String baseUrl, String maId){
+    public String buildImageUrl(String baseUrl, String maId, String maTerm){
     	
     	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
         url += ImageDTO.MA_ID + ":\"";
@@ -92,7 +93,6 @@ public class AnatomyPageTableRow extends DataTableRow{
         url += " OR " + ImageDTO.INTERMEDIATE_LEVEL_MA_TERM_ID + ":\"" + maId + "\"";
     	
     	url += ") ";
-    //	url += " AND " + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"" + this.expression +"\"";
     	
     	if (getGene().getSymbol()!= null){
     		url += " AND " + ImageDTO.GENE_SYMBOL + ":" + this.getGene().getSymbol();		
@@ -100,6 +100,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     		url += " AND " + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":control";
     	}
     	
+    	url += "&title=gene " + this.getGene().getSymbol() + " in " + maTerm + ""; 
     	return url;
     }
     
