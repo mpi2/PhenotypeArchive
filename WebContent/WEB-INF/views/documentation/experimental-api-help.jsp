@@ -119,7 +119,7 @@
                 <tr>
                     <td>strain_accession_id</td>
                     <td>string</td>
-                    <td>indicating the background strain of the specimen</td>
+                    <td>Background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td>
                 </tr>
                 <tr>
                     <td>genetic_background</td>
