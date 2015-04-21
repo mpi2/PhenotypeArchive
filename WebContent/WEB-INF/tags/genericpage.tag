@@ -76,14 +76,13 @@
             <!--  NEW DESIGN CSS -->
 
             <!-- css -->
-            <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
-            <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+        <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
         <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
         <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
         <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
         <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
         <link rel="stylesheet" href="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.css">
-        <link rel="stylesheet" href="${baseUrl}/js/vendor/DataTables-1.10.4/media/css/jquery.dataTables.min.css">
         <link rel="stylesheet" href="${baseUrl}/js/vendor/DataTables-1.10.4/extensions/TableTools/css/dataTables.tableTools.min.css">
 
 
