@@ -34,7 +34,6 @@ public class JSONImageUtils {
 		//url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 		String url=config.get("internalSolrUrl")+"/images/select/?q=annotationTermId:"+anatomy_id+"&wt=json&start=0&rows="+numberOfImagesToDisplay+"&facet=on&fq=expName:\"Wholemount Expression\"&defType=edismax";
 		JSONObject result = JSONRestUtil.getResults(url);
-		System.out.println(result.toString());
 		return result;
 	}
 }

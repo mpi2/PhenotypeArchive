@@ -307,10 +307,10 @@
 				selectedFilters = "";
 				for (var it = 0; it < dropdownsList.length; it++){
 					if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
-						selectedFilters += '&' + dropdownsList[it].name + '="' + dropdownsList[it].array+'"';
+						selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array;
 					} 
 					if(dropdownsList[it].array.length > 1)	{
-						selectedFilters += '&' + dropdownsList[it].name + '="' + dropdownsList[it].array.join('"&' + dropdownsList[it].name + '="') + '\"';
+						selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
 					}			    			 
 				}
 				newUrl += selectedFilters;
