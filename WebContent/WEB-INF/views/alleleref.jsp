@@ -13,9 +13,13 @@
         <style type="text/css">
 
             div#tableTool {
-                position: absolute;
-                top: 140px;
-                right: 20px;
+                position: relative;
+                top: -70px;
+                right: 0px;
+            }
+            div#alleleRef_filter {
+            	float: left;
+            	clear: right;
             }
             table.dataTable span.highlight {
                 background-color: yellow;
@@ -47,9 +51,8 @@
                 top: 54px;
                 left: -25px;
             }
-            
             div#toolBox {
-                top: -38px;
+                top: -58px;
                 right: 35px;
             }
         </style>
@@ -63,7 +66,7 @@
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
 
-                var tableHeader = "<thead><th class='headerSort'>Allele symbol</th><th class='headerSort'>Paper title</th><th class='headerSort'>Journal</th><th class='headerSort'>Date of publication</th><th class='headerSort' title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
+                var tableHeader = "<thead><th>Allele symbol</th><th>Paper title</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
                 var tableCols = 6;
 
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
@@ -80,11 +83,10 @@
             function fetchAlleleRefDataTable(oConf) {
             	var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#alleleRef').dataTable({
-                    "bSort": true,
+                    "bSort": true, // true is default 
                     "processing": true,
                     "paging": false,
-                    "serverSide": true,
-                    //"sDom": "<lr><'#caption'>tip",
+                    //"serverSide": false,  // do not want sorting to be processed from server, false by default
                     "sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
                     "sPaginationType": "bootstrap",
                     "searchHighlight": true,
@@ -93,12 +95,12 @@
                         "sSearch": "Filter: "
                     },
                     "aoColumns": [
-                        {"bSearchable": true, "sType": "string"},
-                        {"bSearchable": true, "sType": "string"},
-                        {"bSearchable": true, "sType": "string"},
-                        {"bSearchable": true, "sType": "string"},
-                        {"bSearchable": true, "sType": "string"},
-                        {"bSearchable": false, "sType": "string"}
+                        {"bSearchable": true, "sType": "html", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": false, "sType": "html", "bSortable": true}
                     ],
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
 
@@ -133,7 +135,7 @@
                                 }
                         );
                     }
-                });//.addClass('table tableSorter');
+                });
             }
         </script>
         
