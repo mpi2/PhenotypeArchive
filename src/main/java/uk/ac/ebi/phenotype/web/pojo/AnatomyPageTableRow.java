@@ -27,7 +27,8 @@ public class AnatomyPageTableRow extends DataTableRow{
         super();
     }
     
-    public AnatomyPageTableRow(ImageDTO image, String maId, String baseUrl) {
+    
+    public AnatomyPageTableRow(ImageDTO image, String maId, String baseUrl, String expressionValue) {
 
     	super();
         List<String> sex = new ArrayList<String>();
@@ -42,7 +43,6 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setSexes(sex);
         this.setDataSourceName(image.getDataSourceName());
         this.setZygosity(ZygosityType.valueOf(image.getZygosity()));
-        this.setExpression(image.getExpression(maId));
         Procedure proc = new Procedure();
         proc.setName(image.getProcedureName());
         proc.setStableId(image.getProcedureStableId());
@@ -51,16 +51,20 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setProcedure(proc);
         this.setParameter(param);
         this.setPhenotypingCenter(image.getPhenotypingCenter());
+              
         List<OntologyTerm> anatomyTerms = new ArrayList<>();
         for (int i = 0; i < image.getMaTermId().size(); i++){
-        	OntologyTerm anatomy = new OntologyTerm();
-        	DatasourceEntityId maIdDei = new DatasourceEntityId(image.getMaTermId().get(i), -1);
-        	anatomy.setId(maIdDei);
-        	anatomy.setName(image.getMaTerm().get(i));
-        	anatomyTerms.add(anatomy);
+        	if (image.getExpression(image.getMaTermId().get(i)).equalsIgnoreCase(expressionValue)){
+	        	OntologyTerm anatomy = new OntologyTerm();
+	        	DatasourceEntityId maIdDei = new DatasourceEntityId(image.getMaTermId().get(i), -1);
+	        	anatomy.setId(maIdDei);
+	        	anatomy.setName(image.getMaTerm().get(i));
+	        	anatomyTerms.add(anatomy);
+        	}
         }
+        this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
-        this.setImageUrl(buildImageUrl(maId, baseUrl));
+        this.setImageUrl(buildImageUrl(baseUrl, maId));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
     }
     
@@ -78,12 +82,15 @@ public class AnatomyPageTableRow extends DataTableRow{
     }
     
     
-    public String buildImageUrl(String maId, String baseUrl){
+    public String buildImageUrl(String baseUrl, String maId){
     	
-    	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(" + ImageDTO.MA_ID + ":\"";
-    	url += maId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + maId + "\"";
-    //	url += " OR " + ImageDTO. + ":" + this.getAnatomyTerm().getName();
+    	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
+        url += ImageDTO.MA_ID + ":\"";
+        url += maId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + maId + "\"";
+        url += " OR " + ImageDTO.INTERMEDIATE_LEVEL_MA_TERM_ID + ":\"" + maId + "\"";
+    	
     	url += ") ";
+    //	url += " AND " + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"" + this.expression +"\"";
     	
     	if (getGene().getSymbol()!= null){
     		url += " AND " + ImageDTO.GENE_SYMBOL + ":" + this.getGene().getSymbol();		

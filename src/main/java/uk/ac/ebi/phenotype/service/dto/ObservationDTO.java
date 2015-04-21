@@ -1,12 +1,14 @@
 package uk.ac.ebi.phenotype.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 public class ObservationDTO {
@@ -288,6 +290,10 @@ public class ObservationDTO {
         parameterAssociationDimId.add(id);
     }
 
+    public HashSet<String> getDistinctParameterAssociationsValue(){
+    	return new HashSet(parameterAssociationValue);
+    }
+    
     /**
      * helper methods
      * 

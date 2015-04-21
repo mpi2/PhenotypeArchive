@@ -47,9 +47,7 @@ public class ImageService {
 	
 	public List<DataTableRow> getImagesForMA(String maId, List<String> maTerms, List<String> phenotypingCenter, List<String> procedure, List<String> paramAssoc) 
 	throws SolrServerException{
-		
-		System.out.println("Getting getImagesForMA");
-		
+				
 		Map<String,AnatomyPageTableRow> res = new HashMap();
 		SolrQuery query = new SolrQuery();
 		
@@ -61,8 +59,6 @@ public class ImageService {
 						ImageDTO.MA_TERM, ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, 
 						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID, ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME, 
 						ImageDTO.PHENOTYPING_CENTER, ImageDTO.MA_ID, ImageDTO.MA_TERM);
-
-		System.out.println("PHENOTYPING CENTER : " + phenotypingCenter);
 		
 		if (maTerms != null){
 			query.addFilterQuery(ImageDTO.MA_TERM + ":" + StringUtils.join(maTerms, " OR " + ImageDTO.MA_TERM + ":") );
@@ -81,12 +77,15 @@ public class ImageService {
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 		
 		for (ImageDTO image: response){
-			AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl") ); 
-			if (res.containsKey(row.getKey())){
-				row = res.get(row.getKey());
-				row.addSex(image.getSex());
-			} 
-			res.put(row.getKey(), row);
+			
+			for (String expressionValue: image.getDistinctParameterAssociationsValue()){
+				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl"), expressionValue); 
+				if (res.containsKey(row.getKey())){
+					row = res.get(row.getKey());
+					row.addSex(image.getSex());
+				} 
+				res.put(row.getKey(), row);
+			}
 		}
 				
 		return new ArrayList (res.values());
@@ -130,8 +129,6 @@ public class ImageService {
 	public List<DataTableRow> getImagesForGene(String geneAccession) 
 	throws SolrServerException{
 		
-		System.out.println("Getting getImagesForMA");
-		
 		Map<String,AnatomyPageTableRow> res = new HashMap();
 		SolrQuery query = new SolrQuery();
 		
@@ -148,7 +145,7 @@ public class ImageService {
 		
 		for (ImageDTO image: response){
 			for (String maId : image.getMaTermId()){
-				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl") ); 
+				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl"), "expression" ); 
 				if (res.containsKey(row.getKey())){
 					row = res.get(row.getKey());
 					row.addSex(image.getSex());
