@@ -63,7 +63,7 @@
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
 
-                var tableHeader = "<thead><th>Allele symbol</th><th>Paper title</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
+                var tableHeader = "<thead><th class='headerSort'>Allele symbol</th><th class='headerSort'>Paper title</th><th class='headerSort'>Journal</th><th class='headerSort'>Date of publication</th><th class='headerSort' title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
                 var tableCols = 6;
 
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
@@ -78,7 +78,7 @@
             });
 
             function fetchAlleleRefDataTable(oConf) {
-
+            	var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#alleleRef').dataTable({
                     "bSort": true,
                     "processing": true,
@@ -92,12 +92,13 @@
                     "oLanguage": {
                         "sSearch": "Filter: "
                     },
-                    "aoColumns": [{"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": false}
+                    "aoColumns": [
+                        {"bSearchable": true, "sType": "string"},
+                        {"bSearchable": true, "sType": "string"},
+                        {"bSearchable": true, "sType": "string"},
+                        {"bSearchable": true, "sType": "string"},
+                        {"bSearchable": true, "sType": "string"},
+                        {"bSearchable": false, "sType": "string"}
                     ],
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
 
@@ -132,7 +133,7 @@
                                 }
                         );
                     }
-                });
+                });//.addClass('table tableSorter');
             }
         </script>
         
