@@ -222,9 +222,9 @@
                 <td>MGI ID of the allele</td>
             </tr>
             <tr>
-                <td>strain_name</td>
-                <td>string *</td>
-                <td>Please see genetic_background description</td>
+                <td>strain_name *</td>
+                <td>string</td>
+                <td>Deprecated. Please see genetic_background description</td>
             </tr>
             <tr>
                 <td>genetic_background</td>
