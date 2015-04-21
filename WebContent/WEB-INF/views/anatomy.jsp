@@ -153,11 +153,7 @@
                         <div class="clear"></div>
                      </form>
                  </c:if>
-                    						
-								 <div id="anatomy_wrapper">
-							 		  <jsp:include page="anatomyFrag.jsp"></jsp:include>
-								 </div>
-								 
+                 <jsp:include page="anatomyFrag.jsp"></jsp:include>						 
 							</div>
 				    </div>
 				 </div>	
@@ -201,14 +197,13 @@
 		  }
 		  
 			
-			function refreshPhenoTable(newUrl){
+			function refreshAnatomyTable(newUrl){
 				$.ajax({
 					url: newUrl,
 					cache: false
 				}).done(function( html ) {
 					$("#anatomy_wrapper").html(html);
-					initAnatomyPhenotypesTable();
-					alert('calling new table in anatomy.jsp');
+					initAnatomyDataTable();
 				});
 			}
 			
@@ -262,14 +257,12 @@
 						var ddI  = 1; 
 						for (var ii=0; ii<allDd.length; ii++) { 
 							if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-//								console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
 								dd = new Object();
 								dd.name = allDd[ii].attr('id'); 
 								dd.array = allDd[ii].val() || []; 
 								dropdownsList[ddI++] = dd;
 							}
 						}
-//						console.log("call with " + dropdownsList.length);
 						refreshAnatomyFrag(dropdownsList);
 					}, textFormatFunction: function(options) {
 						var selectedOptions = options.filter(":selected");
@@ -320,10 +313,11 @@
 					}			    			 
 				}
 				newUrl += selectedFilters;
-				refreshPhenoTable(newUrl);
+				refreshAnatomyTable(newUrl);
 		    console.log('...refresh genes AnatomyFrag called woth new url='+newUrl);
 				return false;
 			}
+			
 	});				
 	</script>
 	
