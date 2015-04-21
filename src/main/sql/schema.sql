@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specific language governing permissiopns and
  * limitations under the License.
  */
 
@@ -841,7 +841,7 @@ CREATE TABLE phenotype_pipeline (
 	stable_id                  VARCHAR(40) NOT NULL,
 	db_id                      INT(10) NOT NULL,
 	name                       VARCHAR(100) NOT NULL,
-	description                VARCHAR(200),
+	description                VARCHAR(2000),
 	major_version              INT(10) NOT NULL DEFAULT 1,
 	minor_version              INT(10) NOT NULL DEFAULT 0,
 	stable_key                 INT(10) DEFAULT 0,

@@ -237,7 +237,11 @@ public class ImpcImagesController {
 			//model.addAttribute("q", newQueryString);
 			model.addAttribute("q", qStr);
 			model.addAttribute("qBaseStr", qBaseStr);
+			if(request.getParameter("title")!=null){//if title is provided as a parameter use that for the title
+				titleString=request.getParameter("title");
+			}
 			model.addAttribute("titleString", titleString);
+			
 			// model.addAttribute("filterQueries", filterQueries);
 			// model.addAttribute("filterField", filterField);
 			// model.addAttribute("qf", qf);//e.g. auto_suggest

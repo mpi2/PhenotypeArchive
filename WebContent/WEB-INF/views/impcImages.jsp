@@ -4,7 +4,7 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">${queryTerms} IMPC Images Information b</jsp:attribute>
+    <jsp:attribute name="title">${queryTerms} IMPC Images Information</jsp:attribute>
 
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&facet=impc_images">IMPC Images</a> &raquo; Results</jsp:attribute>
 
