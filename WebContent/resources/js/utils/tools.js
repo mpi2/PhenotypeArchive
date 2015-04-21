@@ -895,7 +895,7 @@
 	                    $.fn.cursorUpdate(facet, 'pointer');
 	
 	                    //var foundMatch = {'Phenotype': 0, 'Anatomy': 0, 'Procedure': 0, 'Gene': 0};
-	                    var foundMatch = {'Procedure': 0};
+	                    var foundMatch = {'Procedure': 0, 'Anatomy': 0};
 	                    
 	                    var oSubFacets = {
 	                        /*'annotatedHigherLevelMpTermName':'Phenotype',
@@ -903,8 +903,8 @@
 	                         'expName':'Procedure',
 	                         'subtype':'Gene'*/
 	                        //'top_level_mp_term': 'Phenotype',
-	                        'procedure_name': 'Procedure'};
-	                        //'selected_top_level_ma_term': 'Anatomy',
+	                        'procedure_name': 'Procedure',
+	                        'selected_top_level_ma_term': 'Anatomy'};
 	                        //'marker_type': 'Gene'};
 	
 	                    for (var facetStr in oSubFacets) {
