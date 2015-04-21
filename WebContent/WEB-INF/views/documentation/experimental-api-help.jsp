@@ -118,6 +118,11 @@
                 </tr>
                 <tr>
                     <td>strain_name</td>
+                    <td>string *</td>
+                    <td>Please see genetic_background description</td>
+                </tr>
+                <tr>
+                    <td>genetic_background</td>
                     <td>string</td>
                     <td>indicating the background strain name of the specimen</td>
                 </tr>
