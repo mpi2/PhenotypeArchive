@@ -4,7 +4,7 @@
 
 <!-- time series charts here-->
 <c:if test="${timeSeriesChartsAndTable.chart!=null}">
-    
+    <br/> <br/>
 		<div id="timechart${experimentNumber}"> </div>		
 		    
 	  <p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
@@ -27,9 +27,10 @@
 							<c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}"
 								varStatus="column">
 	
-								<td><c:if
-										test="${lineMap.value[timeRow.index].discreteTime==lineKey}">${lineMap.value[timeRow.index].data} (${lineMap.value[timeRow.index].count})</td>
-								</c:if>
+								<td><c:if test="${lineMap.value[timeRow.index].discreteTime==lineKey}">
+										${lineMap.value[timeRow.index].data} (${lineMap.value[timeRow.index].count})
+									</c:if>
+								</td>
 	
 							</c:forEach>
 						</tr>
