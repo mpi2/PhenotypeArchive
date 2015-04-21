@@ -79,13 +79,15 @@ public class ImageService {
 		for (ImageDTO image: response){
 			
 			for (String expressionValue: image.getDistinctParameterAssociationsValue()){
-				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl"), expressionValue); 
-				if (res.containsKey(row.getKey())){
-					row = res.get(row.getKey());
-					row.addSex(image.getSex());
-					row.addImage();
-				} 
-				res.put(row.getKey(), row);
+				if (paramAssoc == null || paramAssoc.contains(expressionValue)){
+					AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, config.get("baseUrl"), expressionValue); 
+					if (res.containsKey(row.getKey())){
+						row = res.get(row.getKey());
+						row.addSex(image.getSex());
+						row.addImage();
+					} 
+					res.put(row.getKey(), row);
+				}				
 			}
 		}
 				
