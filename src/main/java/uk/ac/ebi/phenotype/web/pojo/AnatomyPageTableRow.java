@@ -22,7 +22,8 @@ public class AnatomyPageTableRow extends DataTableRow{
 	String imageUrl;
     List<OntologyTerm> anatomy;
     String anatomyLinks;
-	
+    int numberOfImages = 0;
+    
     public AnatomyPageTableRow() {
         super();
     }
@@ -66,6 +67,7 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setAnatomy(anatomyTerms);
         this.setImageUrl(buildImageUrl(baseUrl, maId));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
+        this.numberOfImages ++;
     }
     
     
@@ -101,6 +103,10 @@ public class AnatomyPageTableRow extends DataTableRow{
     	return url;
     }
     
+    public void addImage(){
+    	this.numberOfImages ++;
+    }
+    
 	@Override
 	public int compareTo(DataTableRow o) {
 
@@ -124,8 +130,18 @@ public class AnatomyPageTableRow extends DataTableRow{
 	public boolean equals(AnatomyPageTableRow obj) {
 	    return this.getKey().equalsIgnoreCase(obj.getKey());
 	}
-
 	
+	public int getNumberOfImages() {
+	
+		return numberOfImages;
+	}
+	
+	public void setNumberOfImages(int numberOfImages) {
+	
+		this.numberOfImages = numberOfImages;
+	}
+
+
 	public void addSex(String sex){
 		
 		if (!sexes.contains(sex)){

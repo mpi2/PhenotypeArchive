@@ -45,7 +45,7 @@ public class ImageService {
 	}
 
 	
-	public List<DataTableRow> getImagesForMA(String maId, List<String> maTerms, List<String> phenotypingCenter, List<String> procedure, List<String> paramAssoc) 
+	public List<AnatomyPageTableRow> getImagesForMA(String maId, List<String> maTerms, List<String> phenotypingCenter, List<String> procedure, List<String> paramAssoc) 
 	throws SolrServerException{
 				
 		Map<String,AnatomyPageTableRow> res = new HashMap();
@@ -83,6 +83,7 @@ public class ImageService {
 				if (res.containsKey(row.getKey())){
 					row = res.get(row.getKey());
 					row.addSex(image.getSex());
+					row.addImage();
 				} 
 				res.put(row.getKey(), row);
 			}

@@ -54,6 +54,7 @@ import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.web.pojo.Anatomy;
+import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
 @Controller
@@ -111,12 +112,10 @@ public class AnatomyController {
 
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
-		int numberExpressionImagesFound = JSONRestUtil.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null);
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null);
                
 		model.addAttribute("anatomy", ma);
-		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy_id));
@@ -135,7 +134,7 @@ public class AnatomyController {
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue);
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy_id));
 				

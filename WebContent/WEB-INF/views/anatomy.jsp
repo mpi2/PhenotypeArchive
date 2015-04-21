@@ -173,7 +173,7 @@
 			
 		  function initAnatomyDataTable(){
 			  
-				var aDataTblCols = [0,1,2,3,4,5,6,7];
+				var aDataTblCols = [0,1,2,3,4,5,6,7,8];
 				$('table#anatomy').dataTable( {
 						"aoColumns": [
 						              { "sType": "html", "mRender":function( data, type, full ) {
@@ -187,6 +187,7 @@
 						              { "sType": "string"},
 						              { "sType": "string"},
 						              { "sType": "string"},
+						              { "sType": "integer"},
 						              { "sType": "html"}
 						              ],
 							"bDestroy": true,
