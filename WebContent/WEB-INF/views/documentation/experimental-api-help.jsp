@@ -112,14 +112,14 @@
                     <td>list showing all relevant metadata in effect when the data was collected</td>
                 </tr>
                 <tr>
-                    <td>strain_accession_id</td>
-                    <td>string</td>
-                    <td>indicating the background strain of the specimen</td>
-                </tr>
-                <tr>
                     <td>strain_name *</td>
                     <td>string</td>
                     <td>Deprecated. Please see genetic_background description</td>
+                </tr>
+                <tr>
+                    <td>strain_accession_id</td>
+                    <td>string</td>
+                    <td>indicating the background strain of the specimen</td>
                 </tr>
                 <tr>
                     <td>genetic_background</td>
