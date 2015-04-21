@@ -290,7 +290,7 @@ public class ChartsController {
 	}
 	
 		
-	if (ChartUtils.getPlotParameter(parameter.getStableId()) != null){
+	if (!ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())){
 		parameter = pipelineDAO.getParameterByStableId(ChartUtils.getPlotParameter(parameter.getStableId()));
 		chartType = ChartUtils.getPlotType(parameterStableId);
 	}
