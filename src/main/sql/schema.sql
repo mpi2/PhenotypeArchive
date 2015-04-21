@@ -958,7 +958,7 @@ CREATE TABLE phenotype_parameter (
 	description               TEXT,
 	major_version             INT(10) NOT NULL DEFAULT 1,
 	minor_version             INT(10) NOT NULL DEFAULT 0,
-	unit                      VARCHAR(20) NOT NULL,
+	unit                      VARCHAR(40) NOT NULL,
 	datatype                  VARCHAR(20) NOT NULL,
 	parameter_type            VARCHAR(30) NOT NULL,
 	formula                   TEXT,
