@@ -140,7 +140,9 @@ public class ReportsService {
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> allTable = new ArrayList<>();
     	List<String[]> countsTable = new ArrayList<>();
+    	List<String[]> genesTable = new ArrayList<>();
     	HashMap<String, Integer> countsByCategory = new HashMap<>();
+    	HashMap<String, HashSet<String>> genesByVia = new HashMap<>();
     	
     	try {
     		QueryResponse response = oService.getViabilityData(resources);
@@ -148,6 +150,7 @@ public class ReportsService {
     		allTable.add(header);
     		for ( SolrDocument doc : response.getResults()){
     			String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
+    			HashSet genes = new HashSet<>();
     			String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
     				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category};
     			allTable.add(row);
@@ -156,15 +159,44 @@ public class ReportsService {
     			}else {
     				countsByCategory.put(category, 1);
     			}
-    			
+    			if (genesByVia.containsKey(category)){
+    				genes = genesByVia.get(category);
+    			} 
+    			genes.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
+				genesByVia.put(category, genes);
     		}
       		
       		for (String cat: countsByCategory.keySet()){
       			String[] row = {cat, countsByCategory.get(cat).toString()};
       			countsTable.add(row);
       		}
-
+      		
+      		String[] genesHeader = {"Category", "# genes", "Genes"};
+    		genesTable.add(genesHeader);
+    		for (String cat : genesByVia.keySet()){
+    			String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesByVia.get(cat), ", ")};
+    			genesTable.add(row);
+    		}
+      		
+      		HashSet<String> conflicts = new HashSet<>();
+      		for (String cat : genesByVia.keySet()){
+      			for (String otherCat : genesByVia.keySet()){
+      				if (!otherCat.equalsIgnoreCase(cat)){
+      					Set<String> conflictingGenes = genesByVia.get(otherCat);
+      					conflictingGenes.retainAll(genesByVia.get(cat));
+      					conflicts.addAll(conflictingGenes);
+      				}
+      			}
+      		}
+      		String[] empty = {""};
+      		genesTable.add(empty); 
+      		String[] row = {"Conflicting", "" + conflicts.size(), StringUtils.join(conflicts, ", ")};
+    		genesTable.add(row); 
+    		String[] note = {"NOTE: Symbols in the conflicting list represent genes that are included in more than one viability category."};
+    		genesTable.add(note);    		
+    		
       		res.add(countsTable);
+      		res.add(genesTable);
       		res.add(allTable);
 		
 		} catch (SolrServerException e) {
