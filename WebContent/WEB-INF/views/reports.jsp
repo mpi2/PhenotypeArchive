@@ -34,6 +34,8 @@
 									<p>	<a href="${baseUrl}/reports/getLaczSpreadsheet">LacZ Expression</a> </p>
 									<p> <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-3.0/csv/">All genotype-phenotype data</a></p>
 
+									<p> <a href="${baseUrl}/reports/phenotype-overview-per-gene">Phenotype overview per gene</a></p>
+
 								</div>
 							</div>
 							

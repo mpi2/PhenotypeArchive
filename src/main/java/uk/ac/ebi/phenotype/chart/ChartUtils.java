@@ -47,8 +47,8 @@ public class ChartUtils {
      * @param max
      * @return a list of <code>ChartData</code>
      */
-    public static List<ChartData> alterMinAndMaxYAxisOfCharts(List<ChartData> chartsAndTablesForParameter,
-                                                              Float min, Float max) {
+    public static List<ChartData> alterMinAndMaxYAxisOfCharts(List<ChartData> chartsAndTablesForParameter, Float min, Float max) {
+    	
         for (ChartData chartNTable : chartsAndTablesForParameter) {
             //for each chart replace the strings that set the min and max values
             String chartString = chartNTable.getChart();
@@ -60,6 +60,7 @@ public class ChartUtils {
         return chartsAndTablesForParameter;
     }
 
+    
     /**
      * Return decimal places as an int.
      * 
@@ -87,6 +88,7 @@ public class ChartUtils {
         return numberOfDecimalPlaces;
     }
 
+    
     /**
      * Return <code>number</code> to specified number of decimals.
      * 
@@ -108,6 +110,7 @@ public class ChartUtils {
         return decFloat;
     }
 
+    
     public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
         String url = baseUrl;
         url += "/charts?accession=" + geneAcc;
@@ -127,6 +130,7 @@ public class ChartUtils {
         return url;
     }
 
+    
     public static Map<String, Float> getMinMaxXAxis(List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
 
         Float min = new Float(Integer.MAX_VALUE);
@@ -174,10 +178,12 @@ public class ChartUtils {
         return res;
     }
 
+    
     public static String getLabel(ZygosityType zyg, SexType sex) {
 
         return StringUtils.capitalize(sex.getName()) + " " + (zyg == null ? "WT" : StringUtils.capitalize(zyg.getName().substring(0, 3) + "."));
     }
+    
 
     public static String getPlotParameter(String parameter) {
 
@@ -192,6 +198,7 @@ public class ChartUtils {
         return parameter;
     }
 
+    
     public static ChartType getPlotType(String parameter) {
 
         if (ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
