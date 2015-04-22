@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <version>1.2.8</version>
+    <version>1.2.9</version>
     <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
@@ -824,7 +824,6 @@
                                 <include>**/phenotype/error/**</include>
                                 <include>**/generic/util/*</include>
                                 <include>**/web/util/*</include>
-                                <include>**/www/testing/model/**</include>
                             </includes>
                         </configuration>
                     </plugin>
