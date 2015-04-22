@@ -288,8 +288,17 @@ public class ChartsController {
 		}
 		return "chart";
 	}
+	
 		
+	if (!ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())){
+		parameter = pipelineDAO.getParameterByStableId(ChartUtils.getPlotParameter(parameter.getStableId()));
+		chartType = ChartUtils.getPlotType(parameterStableId);
+	}
+	
 	experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+	
+	System.out.println("CHART TYPE : "+ chartType + "\n PARAMETER " + parameter.getStableId());
+	
 	if (experiment != null) {
 
 			if (pipeline == null) {
@@ -356,12 +365,6 @@ public class ChartsController {
 							break;
 
 						case TIME_SERIES_LINE:
-
-							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
-							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
-							break;
-
-						case TIME_SERIES_LINE_BODYWEIGHT:
 
 							timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
 							model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);

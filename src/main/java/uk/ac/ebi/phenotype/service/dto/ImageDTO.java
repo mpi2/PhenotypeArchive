@@ -39,9 +39,9 @@ public class ImageDTO extends ObservationDTO {
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 
-	private static final String INTERMEDIATE_LEVEL_MA_TERM_ID = "intermediate_ma_term_id";
-	private static final String INTERMEDIATE_LEVEL_MA_TERM = "intermediate_ma_term";
-	private static final String INTERMEDIATE_LEVEL_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
+	public static final String INTERMEDIATE_LEVEL_MA_TERM_ID = "intermediate_ma_term_id";
+	public static final String INTERMEDIATE_LEVEL_MA_TERM = "intermediate_ma_term";
+	public static final String INTERMEDIATE_LEVEL_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;

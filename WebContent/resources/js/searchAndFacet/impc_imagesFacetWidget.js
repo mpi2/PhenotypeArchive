@@ -67,8 +67,8 @@
   	    	
   	    		// using copyFields so that solr query field is consistent across facets
   	    		+ "&facet.field=procedure_name"
+  	    		+ "&facet.field=selected_top_level_ma_term"
   	    		//+ "&facet.field=top_level_mp_term"
-  	    		//+ "&facet.field=selected_top_level_ma_term"
   	    		;
   	    		
   	    		//console.log('IMPC_IMAGES WIDGET: ' + paramStr);	
@@ -81,12 +81,13 @@
   	    		'success': function(json) {
   	    			
   	    			//var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};  
-  	    			var foundMatch = {'Procedure':0};  
+  	    			var foundMatch = {'Procedure':0, 'Anatomy':0};  
+  	    			
   	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..  	
   	    			
   	    			// appearance order of subfacets
   	    			//var aSubFacetNames = ['top_level_mp_term','selected_top_level_ma_term','procedure_name','marker_type'];
-  	    			var aSubFacetNames = ['procedure_name'];
+  	    			var aSubFacetNames = ['procedure_name', 'selected_top_level_ma_term'];
   	    			
   	    			var displayLabel = {
   	    								/*annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
@@ -96,8 +97,7 @@
   	    					            */
   	    					//top_level_mp_term: 'Phenotype',
   	    					procedure_name : 'Procedure',	    					            
-  	    					//selected_top_level_ma_term: 'Anatomy',
-  	    					
+  	    					selected_top_level_ma_term: 'Anatomy'
   	    			};	    			    			    			
   	    			    			
   	    			   

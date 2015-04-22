@@ -222,14 +222,19 @@
                 <td>MGI ID of the allele</td>
             </tr>
             <tr>
-                <td>strain_name</td>
+                <td>strain_name *</td>
                 <td>string</td>
-                <td>Background strain name</td>
+                <td>Deprecated. Please see genetic_background description</td>
             </tr>
             <tr>
                 <td>strain_accession_id</td>
                 <td>string</td>
                 <td>Background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td>
+            </tr>
+            <tr>
+                <td>genetic_background</td>
+                <td>string</td>
+                <td>indicating the background strain name of the specimen</td>
             </tr>
             <tr>
                 <td>sex</td>

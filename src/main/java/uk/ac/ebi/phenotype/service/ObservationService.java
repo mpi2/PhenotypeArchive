@@ -19,11 +19,13 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -35,10 +37,12 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
+import org.mousephenotype.www.testing.model.TestUtils.HTTP_PROTOCOL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
@@ -1071,7 +1075,7 @@ public class ObservationService extends BasicService {
         query.set("group", true);
         query.set("group.field", ObservationDTO.PHENOTYPING_CENTER);
 
-        List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+        List<Group> groups = solr.query(query, METHOD.POST).getGroupResponse().getValues().get(0).getValues();
         for (Group gr : groups) {
             centers.add((String) gr.getGroupValue());
         }

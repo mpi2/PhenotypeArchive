@@ -168,7 +168,7 @@ config.qfield2facet = {
 	
 	//'impcImg_marker_type'                : 'images',
 	//'impcImg_top_level_mp_term'          : 'images',
-	//'impcImg_selected_top_level_ma_term' : 'images',
+	'impcImg_selected_top_level_ma_term' : 'impc_images',
 	'impcImg_procedure_name'             : 'impc_images'
 		
 }
@@ -395,7 +395,7 @@ config.facetParams = {
 	 impc_imagesFacet: {		
 		 type: 'impc_images',
 		 name: 'impc_Images',
-		 subFacetFqFields: ['procedure_name'],
+		 subFacetFqFields: ['procedure_name', 'selected_top_level_ma_term'],
 		 solrCoreName: 'impc_images',
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 

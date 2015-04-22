@@ -74,10 +74,8 @@ public class ChartColors {
 		for(int i=0; i<ChartColors.maleRgb.size(); i++) {
 			colorStrings.add(getRgbaString(SexType.female, i, alphaTranslucid70));
 			colorStrings.add(getRgbaString(SexType.male, i, alphaTranslucid70));
-		}
-		
-		return colorStrings;
-		
+		}		
+		return colorStrings;		
 	}
     
 	public static List<String> getMaleColorsRgba(Double alpha) {

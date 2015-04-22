@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,11 @@ import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 public class ChartUtils {
 	
-	
+	static List<String> eslim702 = Arrays.asList("ESLIM_009_001_003", "ESLIM_010_001_003", "ESLIM_011_001_011", "ESLIM_012_001_005", "ESLIM_013_001_018", "ESLIM_022_001_001");
+	static List<String> eslim701 = Arrays.asList("ESLIM_001_001_001", "ESLIM_002_001_001", "ESLIM_003_001_001", "ESLIM_004_001_001", "ESLIM_005_001_001", "ESLIM_020_001_001", "ESLIM_022_001_001");
+	static List<String> impcBwt = Arrays.asList("IMPC_GRS_003_001", "IMPC_CAL_001_001", "IMPC_DXA_001_001", "IMPC_HWT_007_001", "IMPC_PAT_049_001", "IMPC_BWT_001_001", "IMPC_ABR_001_001", "IMPC_CHL_001_001", "TCP_CHL_001_001", "HMGU_ROT_004_001");
+
+
 	private static final Logger logger = Logger.getLogger(ChartUtils.class);
 
 	/**
@@ -133,8 +138,31 @@ public class ChartUtils {
 		
 		public static String getLabel(ZygosityType zyg, SexType sex){
 			
-			return StringUtils.capitalize(sex.getName()) + " " + (zyg == null ? "WT" : StringUtils.capitalize(zyg.getName())) ;
+			return StringUtils.capitalize(sex.getName()) + " " + (zyg == null ? "WT" : StringUtils.capitalize(zyg.getName().substring(0, 3) + ".")) ;
 		}
 	
+		
+		public static String getPlotParameter(String parameter){
+							
+			if (eslim702.contains(parameter)){
+				return "ESLIM_022_001_702";
+			} else if (eslim701.contains(parameter)){
+				return "ESLIM_022_001_701";
+			} else if (impcBwt.contains(parameter)){
+				return "IMPC_BWT_008_001";
+			}
+			
+			return parameter;
+		}
+		
+		public static ChartType getPlotType(String parameter){
+			
+			if (eslim702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || eslim701.contains(parameter) || parameter.equals("ESLIM_022_001_701") ||
+				impcBwt.contains(parameter) || parameter.equals("IMPC_BWT_008_001")){
+				return ChartType.TIME_SERIES_LINE;
+			}
+			
+			return null;
+		}
 		
 }

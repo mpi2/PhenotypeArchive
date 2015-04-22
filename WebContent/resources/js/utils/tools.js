@@ -895,7 +895,7 @@
 	                    $.fn.cursorUpdate(facet, 'pointer');
 	
 	                    //var foundMatch = {'Phenotype': 0, 'Anatomy': 0, 'Procedure': 0, 'Gene': 0};
-	                    var foundMatch = {'Procedure': 0};
+	                    var foundMatch = {'Procedure': 0, 'Anatomy': 0};
 	                    
 	                    var oSubFacets = {
 	                        /*'annotatedHigherLevelMpTermName':'Phenotype',
@@ -903,8 +903,8 @@
 	                         'expName':'Procedure',
 	                         'subtype':'Gene'*/
 	                        //'top_level_mp_term': 'Phenotype',
-	                        'procedure_name': 'Procedure'};
-	                        //'selected_top_level_ma_term': 'Anatomy',
+	                        'procedure_name': 'Procedure',
+	                        'selected_top_level_ma_term': 'Anatomy'};
 	                        //'marker_type': 'Gene'};
 	
 	                    for (var facetStr in oSubFacets) {
@@ -1679,7 +1679,7 @@
 
     $.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload) {
 
-        var table = $('<table></table>').attr({'id': id});
+        var table = $('<table></table>').attr({'id': id, 'class': 'table tableSorter'});
         var thead = theadStr;
         var tds = '';
         for (var i = 0; i < colNum; i++) {
@@ -2974,7 +2974,9 @@ $.extend($.fn.dataTableExt.oSort, {
         return a.match(/alt="(.*?)"/)[1].toLowerCase();
     },
     "alt-string-asc": function(a, b) {
-        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        console.log("SOORTING");
+    	return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        
     },
     "alt-string-desc": function(a, b) {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
@@ -2994,6 +2996,7 @@ $.fn.dataTableExt.oApi.fnStandingRedraw = function(oSettings) {
     // draw the 'current' page
     oSettings.oApi._fnDraw(oSettings);
 };
+
 //fix jQuery UIs autocomplete width
 $.extend($.ui.autocomplete.prototype.options, {
     open: function(event, ui) {

@@ -13,6 +13,7 @@
 					        <th class="headerSort">Sex</th>
 					        <th class="headerSort">Parameter</th>
 					        <th class="headerSort">Phenotyping Center</th>
+					        <th class="headerSort"># LacZ images</th>
 					        <th class="headerSort">Images</th>
 					    </tr>
 					    </thead>
@@ -38,8 +39,8 @@
 					            </td>				
 					            <td>${row.parameter.name}</td>
 					            <td>${row.phenotypingCenter} </td>
+					            <td>${row.numberOfImages} </td>
 					            <td><a href='${row.imageUrl}'><i class="fa fa-image" alt="Images"></i></a></td>	
-					            <!-- http://localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=(ma_term:%22olfactory%20lobe%22)&q=*:*&fq=symbol:%22Adh5%22&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath -->			
 					        </tr>
 					    </c:forEach>
 					    </tbody>
