@@ -7,8 +7,6 @@ import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
@@ -368,25 +366,72 @@ public class ReportsService {
     		}
     		
 			res.add(zygosityTable);
-			
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+
+	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
+
     	return res;
     	
     }
-    
-    
-    public List<List<String[]>> getMpCallDistribution(){
+
+
+	/**
+	 * This will return a report of genes with counts of MP term associations.
+	 * The count is
+	 *   - Sexes are collapsed,
+	 *     if both sexes have the same MP call, count once
+	 *     if one sex has an MP call, but the other doesn't, count once
+	 *     if one sex has an MP call, and the other has a different call, count twice
+	 *
+	 * @return
+	 */
+	public List<String[]> getHitsPerGene(){
+
+		List<String[]> res = new ArrayList<>();
+		String [] headerParams  ={"Marker symbol", "# phenotype hits", "phenotype hits"};
+		res.add(headerParams);
+
+		try {
+
+			List<GenotypePhenotypeDTO> gps = gpService.getAllGenotypePhenotypes(resources);
+
+			Map<String, Set<String>> geneToPhenotypes = new HashMap<>();
+
+			for (GenotypePhenotypeDTO gp : gps) {
+
+				// Exclude LacZ calls
+				if(gp.getParameterStableId().contains("ALZ")) {
+					continue;
+				}
+
+				if( ! geneToPhenotypes.containsKey(gp.getMarkerSymbol())) {
+					geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<String>());
+				}
+
+				geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
+			}
+
+			for (String geneSymbol : geneToPhenotypes.keySet()) {
+				String [] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol),": ")};
+				res.add(row);
+			}
+
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+
+		return res;
+
+	}
+
+	public List<List<String[]>> getMpCallDistribution(){
     	
     	Float pVal = (float) 0.0001;
     	TreeMap<String, Long> significant = srService.getDistributionOfAnnotationsByMPTopLevel(resources, pVal);
-    	TreeMap<String, Long> all = new TreeMap<String, Long>(String.CASE_INSENSITIVE_ORDER);
+    	TreeMap<String, Long> all = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     	all.putAll(srService.getDistributionOfAnnotationsByMPTopLevel(resources, null));
+
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> table = new ArrayList<>();
     	String[] header = new String[4];
@@ -443,15 +488,11 @@ public class ReportsService {
 		    		table.add(row);
 		   		}
 	    	}
-    	} catch (SolrServerException e) {
+    	} catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
+	    }
 
-    	res.add(new ArrayList<>(table));
+	    res.add(new ArrayList<>(table));
     	
     	table = new ArrayList<>();
     	String[] headerGenes = new String[4];
@@ -481,11 +522,7 @@ public class ReportsService {
 		    		table.add(row);
 		   		}
 	    	}
-    	} catch (SolrServerException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
     	
@@ -516,4 +553,6 @@ public class ReportsService {
         }
         return res;
     }
+
+
 }

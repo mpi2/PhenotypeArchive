@@ -121,5 +121,12 @@ public class ReportsController {
 		return "reports";
 	}
 
+	@RequestMapping(value="/reports/phenotype-overview-per-gene", method=RequestMethod.GET)
+	public void getPhenotypeOverviewPerGene(HttpServletResponse response) throws IOException {
+
+		List<String[]> result = rService.getHitsPerGene();
+		ControllerUtils.writeAsCSV(result, "hits_per_gene.csv", response);
+	}
+
 }
 
