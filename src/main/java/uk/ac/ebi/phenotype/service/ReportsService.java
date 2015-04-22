@@ -1,7 +1,9 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -41,16 +44,65 @@ public class ReportsService {
     
 	private static 
 	ArrayList<String> resources;
+
+	public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
+	public static final String FEMALE_FERTILITY_PARAMETER = "IMPC_FER_019_001";
+	
     
     public ReportsService(){
     	resources = new ArrayList<>();
     	resources.add("IMPC");
     	resources.add("3i");
     }
+		
+	public List<String[]> getBmdIpdttReport(String parameter)
+	throws SolrServerException {
 
-	public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
-	public static final String FEMALE_FERTILITY_PARAMETER = "IMPC_FER_019_001";
+		List<String[]> report = new ArrayList<>();
+		String[] header = {"Sex", "Zygosity" , "Mean", "Median", "SD", "N"};
+		report.add(header);
+		report.addAll(getBmpIpgttStats(oService.getDatapointsByZyg(resources, parameter, SexType.female), SexType.female));
+		report.addAll(getBmpIpgttStats(oService.getDatapointsByZyg(resources, parameter, SexType.female), SexType.male));
+		return report;
+	}
+	
 
+	public List<String[]> getBmpIpgttStats(HashMap<String, List<Float>> datapoints, SexType sex){
+		
+		List<String[]> rows = new ArrayList<>();
+        DescriptiveStatistics stats; 
+		
+		for (String zygosity : datapoints.keySet()) {
+			 stats = new DescriptiveStatistics(); 
+			 for (Float dataPoint: datapoints.get(zygosity)){
+                stats.addValue(dataPoint);
+			 }			 
+			 
+			 Float median = getMedian(datapoints.get(zygosity));
+			 String[] row = { sex.getName(), zygosity, "" + stats.getMean(), "" + median, "" + stats.getStandardDeviation(), "" + datapoints.get(zygosity).size()};
+			 rows.add(row);	 
+        }
+		
+		System.out.println("ZYGOSITIES: " + datapoints.keySet());
+		
+		return rows;
+	}
+	
+	public Float getMedian(List<Float> list){
+		
+		Float median = (float)0.0;
+		int middle = list.size()/2;
+		Collections.sort(list);
+		
+		if (list.size() % 2 == 0){
+			median = (list.get(middle - 1) + list.get(middle)) /2;
+		}else {
+			median = list.get(middle);
+		}
+		
+		return median;
+	}
+	
 	/**
 	 * Generate the report for fertility data
 	 *   Fertile, Infertile, male & female infertiliy
@@ -62,9 +114,7 @@ public class ReportsService {
 		List<String[]> report = new ArrayList<>();
 
 		try {
-			List<String> ALLOWED_DATASOURCES = Arrays.asList("IMPC", "3i");
-
-
+			
 			List<ObservationDTO> results;
 			Map<String, Set<String>> maleColonies = new HashMap<>();
 			Map<String, Set<String>> femaleColonies = new HashMap<>();
@@ -91,7 +141,7 @@ public class ReportsService {
 
 			results = oService.getObservationsByParameterStableId(MALE_FERTILITY_PARAMETER);
 			for (ObservationDTO result : results) {
-				if (ALLOWED_DATASOURCES.contains(result.getDataSourceName())) {
+				if (resources.contains(result.getDataSourceName())) {
 					String key = result.getCategory();
 					maleColonies.get(key).add(result.getColonyId());
 					maleGenes.get(key).add(result.getGeneSymbol());
@@ -100,7 +150,7 @@ public class ReportsService {
 
 			results = oService.getObservationsByParameterStableId(FEMALE_FERTILITY_PARAMETER);
 			for (ObservationDTO result : results) {
-				if (ALLOWED_DATASOURCES.contains(result.getDataSourceName())) {
+				if (resources.contains(result.getDataSourceName())) {
 					String key = result.getCategory();
 					femaleColonies.get(key).add(result.getColonyId());
 					femaleGenes.get(key).add(result.getGeneSymbol());

@@ -74,16 +74,58 @@ public class ObservationService extends BasicService {
     private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
     private final HttpSolrServer solr;
 
+    
     public ObservationService() {
 
         this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
     }
+    
 
     public ObservationService(String solrUrl) {
         System.out.println("setting observationService solrUrl=" + solrUrl);
         solr = new HttpSolrServer(solrUrl);
     }
 
+    
+    public HashMap<String, List<Float>> getDatapointsByZyg(ArrayList<String> resourceName, String parameterStableId, SexType sex) 
+    throws SolrServerException{
+    	 
+    	SolrQuery q = new SolrQuery();
+        
+    	if (resourceName != null) {
+            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        } else {
+            q.setQuery("*:*");
+        }
+        
+    	if (parameterStableId != null){
+    		q.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+    	}
+        
+    	// NOTE: Grouping doesn't work. Takes minutes for a single query, in the browser it timeouts before any result.
+        	
+    	q.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY);
+        q.setRows(1000000);
+        
+        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        SolrDocumentList response = solr.query(q).getResults();
+        HashMap<String, List<Float>> res  = new HashMap<>();
+        
+        for (SolrDocument doc: response) {
+        	
+        	String zyg = doc.containsKey(ObservationDTO.ZYGOSITY) ? doc.getFieldValue(ObservationDTO.ZYGOSITY).toString() : "WT";
+            List<Float> datapoints = new ArrayList<>();
+            if (res.containsKey(zyg)){
+            	datapoints = res.get(zyg);
+            }
+            datapoints.add((float) doc.getFieldValue(ObservationDTO.DATA_POINT)) ;            
+            res.put(zyg, datapoints);
+        }       
+        
+     	return res;
+     	
+    }
+    
     public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
             throws SolrServerException, InterruptedException, ExecutionException {
 
