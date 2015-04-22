@@ -254,8 +254,12 @@ public class ChartsController {
 			log.debug("pipe stable id=" + pipelineStableId);
 			pipeline = pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
 			pipelineId = pipeline.getId();
+			model.addAttribute("pipeline", pipeline);
+			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
 		}
 
+		model.addAttribute("phenotypingCenter", phenotypingCenter);
+		
 		ExperimentDTO experiment = null;
 		if (parameterStableId.startsWith("IMPC_VIA_")) {
 			// Its a viability outcome param which means its a line level query
@@ -265,10 +269,6 @@ public class ChartsController {
 			model.addAttribute("viabilityDTO", viabilityDTO);
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
-			model.addAttribute("pipeline", pipeline);
-			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
-			model.addAttribute("phenotypingCenter", phenotypingCenter);
-			return "chart";
 		}
 		
 		if (parameterStableId.startsWith("IMPC_FER_")) {
@@ -282,15 +282,12 @@ public class ChartsController {
 			model.addAttribute("fertilityDTO", fertilityDTO);
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
 			setTitlesForGraph(model, expBiologicalModel);
-			model.addAttribute("pipeline", pipeline);
-			model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
-			model.addAttribute("phenotypingCenter", phenotypingCenter);
 		}
 		return "chart";
 	}
 	
 		
-	if (ChartUtils.getPlotParameter(parameter.getStableId()) != null){
+	if (!ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())){
 		parameter = pipelineDAO.getParameterByStableId(ChartUtils.getPlotParameter(parameter.getStableId()));
 		chartType = ChartUtils.getPlotType(parameterStableId);
 	}
