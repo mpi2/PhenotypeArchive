@@ -355,10 +355,12 @@
        		$(function() {
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
+	       				
+	       				var qfStr = request.term.match(/^\*|\*$/) ? 'auto_suggest' : 'string auto_suggest';
 		       			$.ajax({
 		       				
 		       				// use double qf fields to deal with exact and partial string match
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=" + qfStr + "&defType=edismax" + solrBq,	
 			       			//url: "${solrUrl}/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax",
 			       			dataType: "jsonp",
 			       			'jsonp': 'json.wrf',
