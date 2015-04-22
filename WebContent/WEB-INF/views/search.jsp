@@ -356,7 +356,10 @@
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
 	       				
-	       				var qfStr = request.term.match(/^\*|\*$/) ? 'auto_suggest' : 'string auto_suggest';
+	       				// when search string contains *, use auto_suggest only for qf (as string won't work)
+	       				// string is used for exact match
+	       				var qfStr = request.term.match(/\*/) ? 'auto_suggest' : 'string auto_suggest';
+	       				
 		       			$.ajax({
 		       				
 		       				// use double qf fields to deal with exact and partial string match
