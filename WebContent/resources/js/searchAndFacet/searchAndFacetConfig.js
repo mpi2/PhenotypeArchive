@@ -93,8 +93,11 @@ config.geneStatuses = ['Phenotype Data Available',
                'Assigned for ES Cell Production',
                'Not Assigned for ES Cell Production'];
 
+
+
 config.phenotypingStatuses = {
-	'Complete':{'fq':'imits_phenotype_complete','val':'Phenotyping Complete'}, 
+	'Approved':{'fq':'imits_phenotype_complete','val':'Phenotyping Complete'}, 
+	//'Complete':{'fq':'imits_phenotype_complete','val':'Phenotyping Complete'}, 
     'Started':{'fq':'imits_phenotype_started','val':'Phenotyping Started'}, 
     'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'},
     'Legacy':{'fq':'legacy_phenotype_status', 'val':'1'}
@@ -106,7 +109,8 @@ config.phenotypingVal2Field = {
 	};
 
 config.phenotypingStatusFq2Label = {
-		'imits_phenotype_complete' : 'Complete',
+		//'imits_phenotype_complete' : 'Complete',
+		'imits_phenotype_complete' : 'Approved',
 		'imits_phenotype_started'  : 'Started',
 		'imits_phenotype_status'   : 'Attempt Registered'
 };
@@ -405,7 +409,7 @@ config.facetParams = {
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
-		 gridFields: 'omero_id,procedure_name, gene_symbol, gene_accession_id, jpeg_url',
+		 gridFields: 'omero_id, procedure_name, gene_symbol, gene_accession_id, ma_term, ma_id, jpeg_url',
 		 gridName: 'impc_imagesGrid',
 		 topLevelName: '',
 		 /*imgViewSwitcherDisplay: 'Show Annotation View',
@@ -418,7 +422,7 @@ config.facetParams = {
 		 showImgView: false,		 
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'IMPC_images',
-		 filterParams: {'fl' : 'omero_id,procedure_name,gene_symbol,gene_accession_id,jpeg_url,download_url,parameter_association_name,parameter_association_value,allele_symbol'
+		 filterParams: {'fl' : 'omero_id,procedure_name,gene_symbol,gene_accession_id,ma_term,ma_id,jpeg_url,download_url,parameter_association_name,parameter_association_value,allele_symbol'
 			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
 			 //'fq' : '*:*'
 		 },	

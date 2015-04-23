@@ -252,7 +252,7 @@ public class SolrIndex {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 			if (!showImgView) {
-				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.mincount=1&facet.limit=-1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_term&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("IMPC_IMG PARAMS: " + url); 
 		} else if (mode.equals("imagesGrid")) {
@@ -458,6 +458,7 @@ public class SolrIndex {
 		Map<String, String> hm = new HashMap<String, String>();
 		hm.put("symbol_gene", "Gene");
 		hm.put("procedure_name", "Procedure");
+		//hm.put("selected_top_level_ma_term", "MA");
 		
 		// Initialize a list on creation using an inner anonymous class
 		List<String> facetNames = new ArrayList<String>() {
@@ -465,8 +466,8 @@ public class SolrIndex {
 			{
 				add("symbol_gene");  // facet field name
 				add("procedure_name");
+				//add("selected_top_level_ma_term");
 				//add("mpTermName");
-				//add("maTermName");
 			}
 		};
 		for (String facet : facetNames) {
@@ -488,6 +489,13 @@ public class SolrIndex {
 					annotNameValCount.id = fields[1];
 					annotNameValCount.link = baseUrl + "/genes/" + fields[1];
 				}
+//				else if (facet.equals("symbol_gene") ){
+//					annotNameValCount.facet = "gene_symbol"; // query field name
+//					String[] fields = annotNameValCount.val.split("_");
+//					annotNameValCount.val = fields[0];
+//					annotNameValCount.id = fields[1];
+//					annotNameValCount.link = baseUrl + "/genes/" + fields[1];
+//				}
 				annotNameValCount.imgCount = Integer.parseInt(arr.get(i+1).toString());
 				annots.add(annotNameValCount);
 			}
