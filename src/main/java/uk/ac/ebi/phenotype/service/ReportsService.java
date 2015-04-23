@@ -323,18 +323,60 @@ public class ReportsService {
 		}
 		   	
     	res.add(linesPerCenter);
-    	
-    	List<List<String[]>> overview13procedures = new ArrayList<>();
-    	List<String> genes;
+
+
+    	List<String> genesAll;
+		List<String> genesComplete;
+		List<String[]>  mpTable = new ArrayList<>();
+
     	try {
-    		genes = oService.getGenesWithMoreProcedures(13, resources);
-    		overview13procedures.addAll(gpService.getOverviewForGenesInList(genes, resources));
+
+		    genesAll = oService.getGenesWithMoreProcedures(1, resources);
+		    genesComplete = oService.getGenesWithMoreProcedures(13, resources);
+
+		    // Process top level MP terms
+		    String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+		    Map<String, List<String>> topLevelMpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
+		    Map<String, List<String>> topLevelMpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
+
+		    String[] headerTopLevel = {"Top Level MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
+		    mpTable.add(headerTopLevel);
+		    for(String mpTerm : topLevelMpTermByGeneMapAll.keySet()) {
+			    String[] row = {
+				    mpTerm,
+				    new Integer(topLevelMpTermByGeneMapAll.get(mpTerm).size()).toString(),
+				    new Float((float) topLevelMpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
+				    new Integer(topLevelMpTermByGeneMapComplete.get(mpTerm).size()).toString(),
+				    new Float((float) topLevelMpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
+			    mpTable.add(row);
+		    }
+
+		    String[] emptyRow = {""};
+		    mpTable.add(emptyRow);
+
+		    // Process granular MP terms
+		    String mpGenePivot = GenotypePhenotypeDTO.MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+		    Map<String, List<String>> mpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
+		    Map<String, List<String>> mpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
+
+		    String[] headerMp = {"MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
+		    mpTable.add(headerMp);
+		    for(String mpTerm : mpTermByGeneMapAll.keySet()) {
+			    String[] row = {
+				    mpTerm,
+				    new Integer(mpTermByGeneMapAll.get(mpTerm).size()).toString(),
+				    new Float((float) mpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
+				    new Integer(mpTermByGeneMapComplete.get(mpTerm).size()).toString(),
+				    new Float((float) mpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
+			    mpTable.add(row);
+		    }
+
 		} catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
     	
-    	res.addAll(overview13procedures);
-    	
+		res.add(mpTable);
+
 		return res;
     }
     

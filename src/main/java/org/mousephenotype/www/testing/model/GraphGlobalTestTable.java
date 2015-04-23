@@ -23,7 +23,6 @@ package org.mousephenotype.www.testing.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -35,45 +34,34 @@ import uk.ac.ebi.phenotype.util.Utils;
  * components of a graph page 'globalTest' HTML table.
  */
 public class GraphGlobalTestTable {
+    private final String graphUrl;
     private Double mpAssociationPvalue = null;
     private final List<String> sexEffectPvalues = new ArrayList();
     private final List<String> sexEffects = new ArrayList();
-    public final String graphUrl;
-    private boolean hasGlobalTestTable;
     
     /**
      * Creates a new <code>GraphGlobalTestTable</code> instance initialized with
      * the given headings
-     * @param driver A <code>WebDriver</code> instance pointing to the graph page
-     * with the globalTest table with thead and tbody definitions.
+     * 
+     * @param graphUrl the graph url
+     * @param globalTestTableElement A <code>WebElement</code> instance pointing
+     * to this section's globalTest table with thead and tbody definitions.
      */
-    public GraphGlobalTestTable(WebDriver driver) {
-        graphUrl = driver.getCurrentUrl();
-        hasGlobalTestTable = false;
-        
-        WebElement tableElement;
-        try {
-            tableElement = driver.findElement(By.xpath("//table[@id='globalTest']"));
-        } catch (Exception e) {
-            return;
-        } 
-        hasGlobalTestTable = true;
+    public GraphGlobalTestTable(String graphUrl, WebElement globalTestTableElement) {
+        this.graphUrl = graphUrl;
         
         // Get the MP Association p-value.
-        WebElement mpAssociationPvalueElement;
-        try {
-            mpAssociationPvalueElement = driver.findElement(By.xpath("//table[@id='globalTest']/tbody/tr/td[@class='globalTestValue']"));
-            mpAssociationPvalue = Utils.tryParseDouble(mpAssociationPvalueElement.getText());
-        } catch (Exception e) {
-            return;
+        List<WebElement> mpAssociationPvalueElements = globalTestTableElement.findElements(By.xpath("./tbody/tr/td[@class='globalTestValue']"));
+        if ( ! mpAssociationPvalueElements.isEmpty()) {
+            mpAssociationPvalue = Utils.tryParseDouble(mpAssociationPvalueElements.get(0).getText());
         }
         
         // Get the sex components: p-value and effect
-        List<WebElement> wePvalues = tableElement.findElements(By.cssSelector("tbody tr td.pvalue"));
+        List<WebElement> wePvalues = globalTestTableElement.findElements(By.cssSelector("tbody tr td.pvalue"));
         for (WebElement we : wePvalues) {
             sexEffectPvalues.add(we.getText());
         }
-        List<WebElement> weEffects = tableElement.findElements(By.cssSelector("tbody tr td.effect"));
+        List<WebElement> weEffects = globalTestTableElement.findElements(By.cssSelector("tbody tr td.effect"));
         for (WebElement we : weEffects) {
             sexEffects.add(we.getText());
         }
@@ -89,7 +77,7 @@ public class GraphGlobalTestTable {
         
         // Verify that there is an MP Association p-value.
         if (mpAssociationPvalue == null) {
-            status.addError("ERROR: Expected MP Association p-value.");
+            status.addError("ERROR: Expected MP Association p-value. URL: " + graphUrl);
         }
         
         boolean hasError = false;
@@ -135,6 +123,7 @@ public class GraphGlobalTestTable {
         return true;
     }
     
+    
     // GETTERS AND SETTERS
     
     
@@ -149,13 +138,4 @@ public class GraphGlobalTestTable {
     public List<String> getSexEffects() {
         return sexEffects;
     }
-
-    public String getGraphUrl() {
-        return graphUrl;
-    }
-
-    public boolean hasGlobalTestTable() {
-        return hasGlobalTestTable;
-    }
-    
 }

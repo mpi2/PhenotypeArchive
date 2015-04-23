@@ -24,50 +24,38 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 /**
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary to represent the important
- * components of a graph page 'catTable' HTML table.
+ * This class encapsulates the code and data necessary to represent the
+ * important components of a graph page 'catTable' HTML table. NOTE: A
+ * categorical graph page can contain more than one GraphCatTable.
  */
 public class GraphCatTable {
-    public final String graphUrl;
-    private boolean hasCatTable;
-    private ArrayList<Row> bodyRowsList = new ArrayList();
-    private ArrayList<String> headingList = new ArrayList();
+    private final List<Row> bodyRowsList = new ArrayList();
+    private final List<String> headingList = new ArrayList();
     
     /**
-     * Creates a new <code>GraphGlobalTestTable</code> instance initialized with
-     * the given headings
-     * @param driver A <code>WebDriver</code> instance pointing to the graph page
-     * with the globalTest table with thead and tbody definitions.
+     * Creates a new <code>GraphCatTable</code> instance.
+     *
+     * @param catTableElement A <code>WebElement</code> instance pointing to an
+     * HTML table with id 'catTable' with thead and tbody definitions.
      */
-    public GraphCatTable(WebDriver driver) {
-        graphUrl = driver.getCurrentUrl();
-        hasCatTable = false;
-        
-        WebElement table;
-        try {
-            table = driver.findElement(By.xpath("//table[@id='catTable']"));
-        } catch (Exception e) {
-            return;
-        }
-        hasCatTable = true;
+    public GraphCatTable(WebElement catTableElement) {
         
         // Save the heading values.
-        List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
+        List<WebElement> headingElementList = catTableElement.findElements(By.cssSelector("thead tr th"));
         if ( ! headingElementList.isEmpty()) {
             for (WebElement headingElement : headingElementList) {
                 headingList.add(headingElement.getText());
             }
         }
-        
+
         // Save the body values.
-        List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
+        List<WebElement> bodyRowElementsList = catTableElement.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 ArrayList<String> row = new ArrayList();
@@ -75,21 +63,17 @@ public class GraphCatTable {
                 for (WebElement bodyRowElement : bodyRowElementList) {
                     row.add(bodyRowElement.getText());
                 }
-                bodyRowsList.add(new Row(row));
+                bodyRowsList.add(new Row(row, headingList));
             }
         }
     }
 
-    public ArrayList<Row> getBodyRowsList() {
+    public List<Row> getBodyRowsList() {
         return bodyRowsList;
     }
 
-    public ArrayList<String> getHeadingList() {
+    public List<String> getHeadingList() {
         return headingList;
-    }
-
-    public boolean hasCatTable() {
-        return hasCatTable;
     }
     
     public class Row {
@@ -99,7 +83,7 @@ public class GraphCatTable {
         public final String zygosity;
         private final HashMap<String, String> categoryHash;                     // key = category name. Value = category value.
         
-        public Row(ArrayList<String> row) {
+        public Row(ArrayList<String> row, List<String> headingList) {
             this.row = row;
             
             String[] controlHomHet = row.get(0).split(" ");
@@ -144,5 +128,4 @@ public class GraphCatTable {
         CONTROL,
         EXPERIMENTAL
     }
-
 }

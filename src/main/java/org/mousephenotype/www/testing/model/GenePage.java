@@ -181,6 +181,33 @@ public class GenePage {
     }
     
     /**
+     * Return a list of this page's graph urls matching the given procedure and 
+     * parameter names.
+     * 
+     * @param procedureName desired procedure name
+     * @param parameterName desired parametr name
+     * 
+     * @return a list of this page's graph urls matching the given procedure and 
+     * parameter names.
+     */
+    public List<String> getGraphUrls(String procedureName, String parameterName) {
+        List<String> urls = new ArrayList();
+        
+        if (hasGraphs()) {
+            if (geneTable.genesTableIsNotEmpty()) {
+                geneTable.load();
+                List<List<String>> preAndPostQcList = geneTable.getPreAndPostQcList();
+                for (List<String> row : preAndPostQcList) {
+                    if (row.get(GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER).equals(procedureName + " | " + parameterName)) {
+                        urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
+                    }
+                }
+            }
+        }
+        return urls;
+    }
+    
+    /**
      * @return the number at the end of the gene page string 'Total number of results: xxxx'
      */
     public int getResultsCount() {
