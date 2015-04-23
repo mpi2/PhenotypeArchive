@@ -142,73 +142,48 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         	return res;
         
     }
-    
-    public List<List<String[]>> getOverviewForGenesInList(List<String> geneSymbols, ArrayList<String> resourceName)
+
+
+    public Map<String, List<String>> getMpTermByGeneMap(List<String> geneSymbols, String facetPivot, ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
 
-    	List<List<String[]>>  res = new ArrayList<>();
-    	List<String[]>  mpTable = new ArrayList<>();
-    	List<String[]>  topLevelMpTable = new ArrayList<>();
-    	    	
-    	SolrQuery q = new SolrQuery();
-    	
-    	if (resourceName != null){
+        Map<String, List<String>> mpTermsByGene = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        SolrQuery q = new SolrQuery().setFacet(true).setRows(1);
+        q.set("facet.limit", -1);
+
+        if (resourceName != null){
             q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
         }else {
             q.setQuery("*:*");
-        }   
-    	
-    	String mpGenePivot = GenotypePhenotypeDTO.MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-    	String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-    	
-    	q.add("facet.pivot", mpGenePivot);
-    	q.add("facet.pivot", mpTopLevelGenePivot);
-    	
-    	q.setFacet(true);
-    	q.setRows(1);
-    	q.set("facet.limit", -1); 
-    	
-    	System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
-    	QueryResponse response = solr.query(q);
-    	
-    	String[] headerTopLevel = {"Top Level MP term", "# associated genes with >13 procedures done", "% associated genes of all genes with > 13 procedures done"};
-    	topLevelMpTable.add(headerTopLevel);
-    	
-    	for (PivotField pivot : response.getFacetPivot().get(mpTopLevelGenePivot)){
-    		String mpTerm = pivot.getValue().toString();
-    		Float geneNo = (float) 0;
-    		for (PivotField genePivot : pivot.getPivot()){
-    			String gene = genePivot.getValue().toString();
-    			if (geneSymbols.contains(gene)){
-    				geneNo ++;
-    			}
-    		}
-    		String[] row = {mpTerm, ""+geneNo, ""+(geneNo/geneSymbols.size()*100)}; 
-    		topLevelMpTable.add(row);
-    	}
-    	res.add(topLevelMpTable);        	
-    	
-    	String[] header = {"MP term", "# associated genes with >13 procedures done", "% associated genes of all genes with > 13 procedures done"};
-    	mpTable.add(header);
-    	
-    	for (PivotField pivot : response.getFacetPivot().get(mpGenePivot)){
-    		String mpTerm = pivot.getValue().toString();
-    		Float geneNo = (float) 0;
-    		for (PivotField genePivot : pivot.getPivot()){
-    			String gene = genePivot.getValue().toString();
-    			if (geneSymbols.contains(gene)){
-    				geneNo ++;
-    			}
-    		}
-    		String[] row = {mpTerm, ""+geneNo, ""+(geneNo/geneSymbols.size()*100)}; 
-    		mpTable.add(row);
-    	}
-    	res.add(mpTable);
-        	
-    	return res;
+        }
+
+        if (facetPivot != null) {
+            q.add("facet.pivot", facetPivot);
+        }
+
+        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+
+        QueryResponse response = solr.query(q);
+        for (PivotField pivot : response.getFacetPivot().get(facetPivot)){
+
+            String mpTerm = pivot.getValue().toString();
+
+            if( ! mpTermsByGene.containsKey(mpTerm)) {
+                mpTermsByGene.put(mpTerm, new ArrayList<String>());
+            }
+
+            for (PivotField genePivot : pivot.getPivot()){
+                String gene = genePivot.getValue().toString();
+                if (geneSymbols.contains(gene)){
+                    mpTermsByGene.get(mpTerm).add(gene);
+                }
+            }
+        }
+
+        return mpTermsByGene;
     }
-    
-    
+
     private List<String[]> getHitsDistributionBySomething(String field, ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
 
