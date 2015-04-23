@@ -86,7 +86,10 @@ public class ExperimentService {
      * @throws URISyntaxException
      */
 
-    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosities, String strain, String metaDataGroup, Boolean includeResults, String alleleAccession) throws SolrServerException, IOException, URISyntaxException {
+    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, 
+    SexType sex, Integer phenotypingCenterId, List<String> zygosities, String strain, String metaDataGroup, 
+    Boolean includeResults, String alleleAccession) 
+    throws SolrServerException, IOException, URISyntaxException {
 
         LOG.debug("metadataGroup parmeter is=" + metaDataGroup);
 

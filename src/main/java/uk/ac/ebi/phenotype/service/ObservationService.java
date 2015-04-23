@@ -47,6 +47,7 @@ import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
+import uk.ac.ebi.phenotype.pojo.Observation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -71,18 +72,52 @@ public class ObservationService extends BasicService {
     private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
     private final HttpSolrServer solr;
 
+    
     public ObservationService() {
 
         this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
     }
+    
 
     public ObservationService(String solrUrl) {
         System.out.println("setting observationService solrUrl=" + solrUrl);
         solr = new HttpSolrServer(solrUrl);
     }
-
-    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName) throws SolrServerException, InterruptedException, ExecutionException {
-
+    
+    public  List<Group> getDatapointsByColony(ArrayList<String> resourceName, String parameterStableId, String biologicalSampleGroup) 
+    throws SolrServerException{
+    	 
+    	SolrQuery q = new SolrQuery();
+    	if (resourceName != null) {
+            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        } else {
+            q.setQuery("*:*");
+        }
+        
+    	if (parameterStableId != null){
+    		q.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+    	}
+    	
+    	q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSampleGroup);
+                
+    	q.set("group", true);
+    	q.set("group.field", ObservationDTO.COLONY_ID);
+    	q.set("group.limit", 10000);
+    	q.set("group.sort" , ObservationDTO.DATE_OF_EXPERIMENT + " ASC");
+    	
+    	q.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.DATE_OF_EXPERIMENT, 
+			ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID , ObservationDTO.ALLELE_ACCESSION_ID,
+			ObservationDTO.PIPELINE_ID, ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
+			ObservationDTO.PARAMETER_ID);
+        q.setRows(10000);
+        
+        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        return solr.query(q).getGroupResponse().getValues().get(0).getValues();
+                   	
+    }
+    
+    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
+    throws SolrServerException, InterruptedException, ExecutionException {
         List<String> genes = new ArrayList<>();
         SolrQuery q = new SolrQuery();
 

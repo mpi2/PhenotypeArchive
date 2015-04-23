@@ -21,66 +21,34 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary to represent the
- * important components of a graph page 'continuousTable' HTML table. NOTE: A
- * unidimensional graph page can contain more than one GraphContinuousTable.
+ * This class encapsulates the code and data necessary to represent a graph
+ * section summary (i.e. the table beneath the graph. E.g. categorical graph
+ * sections have a summary HTML table with id 'catTable'; unidimensional graph
+ * sections have a summary HTML table with id 'continuousTable', etc.)
  */
-public class GraphContinuousTable {
-    private String[][] data;
+public class GraphSummary {
     private final List<Row> bodyRowsList = new ArrayList();
     private final List<String> headingList = new ArrayList();
     
-    // Column offsets
-    public final int COL_INDEX_CONTROL_HOM_HET = 0;
-    public final int COL_INDEX_MEAN = 1;
-    public final int COL_INDEX_STANDARD_ERROR = 2;
-    public final int COL_INDEX_COUNT = 3;
-    
     /**
-     * Creates a new <code>ContinuousGraphTable</code> instance initialized with
-     * data.
-     * 
-     * @param continuousTableElement A <code>WebElement</code> instance pointing
-     * to an HTML table with id 'continuousTable' with thead and tbody
-     * definitions.
+     * Creates a new <code>GraphCatTable</code> instance.
+     *
+     * @param table A <code>WebElement</code> instance pointing to an HTML table
+     * with id 'catTable' with thead and tbody definitions.
      */
-    public GraphContinuousTable(WebElement continuousTableElement) {
-        data = new String[0][0];
-        List<WebElement> bodyRowList = continuousTableElement.findElements(By.cssSelector("tbody tr"));
-
-        WebElement headingRow = continuousTableElement.findElement(By.cssSelector("thead tr"));  // Get the heading row.
-        List<WebElement> headingElements = headingRow.findElements(By.cssSelector("th"));
-        data = new String[1 + bodyRowList.size()][headingElements.size()];      // Allocate space for the array elements (and one for the header).
-
-        int colIndex = 0;
-        for (WebElement headingElement : headingElements) {                     // Save the column headeings.
-            data[0][colIndex] = headingElement.getText();
-            colIndex++;
-        }
-
-        int rowIndex = 1;
-        for (WebElement bodyRow : bodyRowList) {
-            List<WebElement> bodyElements = bodyRow.findElements(By.cssSelector("td"));
-            colIndex = 0;
-            for (WebElement bodyElement : bodyElements) {                       // Save the column values.
-                data[rowIndex][colIndex] = bodyElement.getText();
-                colIndex++;
-            }
-
-            rowIndex++;
-        }
-
+    public GraphSummary(WebElement table) {
+        
         // Save the heading values.
-        List<WebElement> headingElementList = continuousTableElement.findElements(By.cssSelector("thead tr th"));
+        List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
         if ( ! headingElementList.isEmpty()) {
             for (WebElement headingElement : headingElementList) {
                 headingList.add(headingElement.getText());
@@ -88,7 +56,7 @@ public class GraphContinuousTable {
         }
 
         // Save the body values.
-        List<WebElement> bodyRowElementsList = continuousTableElement.findElements(By.cssSelector("tbody tr"));
+        List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 ArrayList<String> row = new ArrayList();
@@ -114,7 +82,7 @@ public class GraphContinuousTable {
         public final Sex sex;
         public final Group group;
         public final String zygosity;
-        public final int count;
+        private final HashMap<String, String> categoryHash;                     // key = category name. Value = category value.
         
         public Row(ArrayList<String> row, List<String> headingList) {
             this.row = row;
@@ -139,8 +107,16 @@ public class GraphContinuousTable {
                     zygosity = controlHomHet[1];
             }
             
-            Integer tempCount = Utils.tryParseInt(row.get(COL_INDEX_COUNT));
-            count = (tempCount == null ? 0 : tempCount);
+            categoryHash = new HashMap();
+            // Save each category and its value to the categoryHash. Skip these columns:
+            //     "Control/Hom/Het" (col 0), "P Value" (col n - 2), and "Effect Size" (col n - 1).
+            for (int i = 1; i < row.size() - 2; i++) {
+                categoryHash.put(headingList.get(i), row.get(i));
+            }
+        }
+
+        public HashMap<String, String> getCategoryHash() {
+            return categoryHash;
         }
     }
     
@@ -153,4 +129,5 @@ public class GraphContinuousTable {
         CONTROL,
         EXPERIMENTAL
     }
+
 }

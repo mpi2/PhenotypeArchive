@@ -108,8 +108,6 @@ public class DataTableController {
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException {
 
-        System.out.println("iDisplayStart param: " + iDisplayStart);
-
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 
         String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");

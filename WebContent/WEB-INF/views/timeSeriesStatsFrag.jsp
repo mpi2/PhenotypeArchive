@@ -3,7 +3,8 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <!-- time series charts here-->
-<c:if test="${timeSeriesChartsAndTable.chart!=null}">
+	<c:if test="${timeSeriesChartsAndTable.chart!=null}">
+	
     <br/> <br/>
 		<div id="timechart${experimentNumber}"> </div>		
 		    

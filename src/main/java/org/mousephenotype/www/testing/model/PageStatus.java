@@ -35,10 +35,12 @@ import java.util.List;
 public class PageStatus {
     private final List<String> errorMessages;
     private final List<String> warningMessages;
+    private int successCount;
 
     public PageStatus() {
         errorMessages = new ArrayList();
         warningMessages = new ArrayList();
+        successCount = 0;
     }
 
     public List<String> getErrorMessages() {
@@ -52,6 +54,7 @@ public class PageStatus {
     public void add(PageStatus pageStatus) {
         errorMessages.addAll(pageStatus.errorMessages);
         warningMessages.addAll(pageStatus.warningMessages);
+        successCount += pageStatus.successCount;
     }
 
     public void addError(String errorMessage) {
@@ -78,9 +81,21 @@ public class PageStatus {
         return (warningMessages.size() > 0);
     }
 
+    public int getSuccessCount() {
+        return successCount;
+    }
+
+    public void setSuccessCount(int successCount) {
+        this.successCount = successCount;
+    }
+    
+    public void incrementSuccessCount() {
+        this.successCount++;
+    }
+    
     @Override
     public String toString() {
-        return "total fail messages: " + errorMessages.size();
+        return "PageStatus{" + "errors=" + errorMessages.size() + ", warnings=" + warningMessages.size() + ", successCount=" + successCount + '}';
     }
 
     /**
