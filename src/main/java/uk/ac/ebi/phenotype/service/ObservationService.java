@@ -50,6 +50,7 @@ import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
+import uk.ac.ebi.phenotype.pojo.Observation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -87,11 +88,12 @@ public class ObservationService extends BasicService {
     }
 
     
-    public HashMap<String, List<Float>> getDatapointsByZyg(ArrayList<String> resourceName, String parameterStableId, SexType sex) 
+    public  List<Group> getDatapointsByColony(ArrayList<String> resourceName, String parameterStableId, String biologicalSampleGroup) 
     throws SolrServerException{
     	 
     	SolrQuery q = new SolrQuery();
-        
+        // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=parameter_stable_id:IMPC_IPG_010_001
+    	// &group=true&group.field=colony_id&fl=sex,data_point,gene_symbol&rows=10000&group.limit=10000
     	if (resourceName != null) {
             q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         } else {
@@ -101,29 +103,25 @@ public class ObservationService extends BasicService {
     	if (parameterStableId != null){
     		q.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
     	}
+    	
+    	q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSampleGroup);
         
     	// NOTE: Grouping doesn't work. Takes minutes for a single query, in the browser it timeouts before any result.
-        	
-    	q.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY);
-        q.setRows(1000000);
+        
+    	q.set("group", true);
+    	q.set("group.field", ObservationDTO.COLONY_ID);
+    	q.set("group.limit", 10000);
+    	q.set("group.sort" , ObservationDTO.DATE_OF_EXPERIMENT + " ASC");
+    	
+    	q.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.DATE_OF_EXPERIMENT, 
+			ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID , ObservationDTO.ALLELE_ACCESSION_ID,
+			ObservationDTO.PIPELINE_ID, ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
+			ObservationDTO.PARAMETER_ID);
+        q.setRows(10000);
         
         System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
-        SolrDocumentList response = solr.query(q).getResults();
-        HashMap<String, List<Float>> res  = new HashMap<>();
-        
-        for (SolrDocument doc: response) {
-        	
-        	String zyg = doc.containsKey(ObservationDTO.ZYGOSITY) ? doc.getFieldValue(ObservationDTO.ZYGOSITY).toString() : "WT";
-            List<Float> datapoints = new ArrayList<>();
-            if (res.containsKey(zyg)){
-            	datapoints = res.get(zyg);
-            }
-            datapoints.add((float) doc.getFieldValue(ObservationDTO.DATA_POINT)) ;            
-            res.put(zyg, datapoints);
-        }       
-        
-     	return res;
-     	
+        return solr.query(q).getGroupResponse().getValues().get(0).getValues();
+                   	
     }
     
     public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)

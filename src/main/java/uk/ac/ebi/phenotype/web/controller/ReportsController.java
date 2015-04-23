@@ -53,12 +53,14 @@ public class ReportsController {
 		ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
 	}
 	
+	
 	@RequestMapping(value = "/reports/getBmdIpdtt", method = RequestMethod.GET)
 	public void getBmdIpdtt(@RequestParam(required = false, value = "param") String parameter,HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException, SolrServerException {
 
 		List<String[]> result = rService.getBmdIpdttReport(parameter);
 		ControllerUtils.writeAsCSV(result, "stats_" + parameter + ".csv", response);
 	}
+	
 	
 	@RequestMapping(value = "/reports/sexualDimorphism", method = RequestMethod.GET)
 	public void getSexualDimorphismReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -132,6 +134,13 @@ public class ReportsController {
 	public String defaultAction(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		return "reports";
+	}
+
+	@RequestMapping(value="/reports/phenotype-overview-per-gene", method=RequestMethod.GET)
+	public void getPhenotypeOverviewPerGene(HttpServletResponse response) throws IOException {
+
+		List<String[]> result = rService.getHitsPerGene();
+		ControllerUtils.writeAsCSV(result, "hits_per_gene.csv", response);
 	}
 
 }

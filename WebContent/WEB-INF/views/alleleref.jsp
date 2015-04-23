@@ -26,6 +26,9 @@
                 font-weight: bold;
                 color: black;
             }
+            table#alleleRef {
+            	clear: left;
+            }
             table#alleleRef th:first-child, table#alleleRef th:nth-child(2) {
                 width: 150px !important;
             }
@@ -58,11 +61,14 @@
         </style>
         
         <script type='text/javascript'>
+        
             $(document).ready(function () {
                 'use strict';
-
+                
+				// test only
                 //var baseUrl = '//dev.mousephenotype.org/data';
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
+                
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
 
@@ -81,6 +87,7 @@
             });
 
             function fetchAlleleRefDataTable(oConf) {
+            	
             	var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#alleleRef').dataTable({
                     "bSort": true, // true is default 
@@ -94,6 +101,9 @@
                     "oLanguage": {
                         "sSearch": "Filter: "
                     },
+                    "columnDefs": [                
+                        { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
+                    ],
                     "aoColumns": [
                         {"bSearchable": true, "sType": "html", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},

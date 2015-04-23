@@ -36,6 +36,8 @@
 									<p>	<a href="${baseUrl}/reports/getBmdIpdtt?param=IMPC_DXA_005_001">BMD stats (Bone Mineral Content excluding skull)</a></p>
 									<p>	<a href="${baseUrl}/reports/getBmdIpdtt?param=IMPC_IPG_010_001">IpGTT stats (Fasted blood glucose concentration)</a></p>
 									<p>	<a href="${baseUrl}/reports/getBmdIpdtt?param=IMPC_IPG_012_001">IpGTT stats (Area under the curve glucose response)</a></p>
+									<p> <a href="${baseUrl}/reports/phenotype-overview-per-gene">Phenotype overview per gene</a></p>
+
 								</div>
 							</div>
 							
