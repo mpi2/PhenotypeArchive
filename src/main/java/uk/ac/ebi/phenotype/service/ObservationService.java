@@ -19,7 +19,6 @@ package uk.ac.ebi.phenotype.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -37,12 +36,10 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
-import org.mousephenotype.www.testing.model.TestUtils.HTTP_PROTOCOL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
@@ -84,8 +81,7 @@ public class ObservationService extends BasicService {
         solr = new HttpSolrServer(solrUrl);
     }
 
-    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
-            throws SolrServerException, InterruptedException, ExecutionException {
+    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName) throws SolrServerException, InterruptedException, ExecutionException {
 
         List<String> genes = new ArrayList<>();
         SolrQuery q = new SolrQuery();
@@ -109,7 +105,7 @@ public class ObservationService extends BasicService {
         QueryResponse response = solr.query(q);
 
         for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
-            if (pivot.getPivot().size() >= 13) {
+            if (pivot.getPivot().size() >= n) {
                 genes.add(pivot.getValue().toString());
             }
         }
