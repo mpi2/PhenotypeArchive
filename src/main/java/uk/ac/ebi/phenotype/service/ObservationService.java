@@ -88,8 +88,6 @@ public class ObservationService extends BasicService {
     throws SolrServerException{
     	 
     	SolrQuery q = new SolrQuery();
-        // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=parameter_stable_id:IMPC_IPG_010_001
-    	// &group=true&group.field=colony_id&fl=sex,data_point,gene_symbol&rows=10000&group.limit=10000
     	if (resourceName != null) {
             q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         } else {
@@ -101,9 +99,7 @@ public class ObservationService extends BasicService {
     	}
     	
     	q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSampleGroup);
-        
-    	// NOTE: Grouping doesn't work. Takes minutes for a single query, in the browser it timeouts before any result.
-        
+                
     	q.set("group", true);
     	q.set("group.field", ObservationDTO.COLONY_ID);
     	q.set("group.limit", 10000);
