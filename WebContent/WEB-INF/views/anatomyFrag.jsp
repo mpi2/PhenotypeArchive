@@ -21,7 +21,14 @@
 					    <c:forEach var="row" items="${anatomyTable}" varStatus="status">
 					        <c:set var="europhenome_gender" value="Both-Split"/>
 					        <tr>
-					            <td><a href="${baseUrl}/genes/${row.gene.id.accession}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span></td>
+					            <td>
+					            	<c:if test="${row.gene.id.accession != null}">
+					            	 	<a href="${baseUrl}/genes/${row.gene.id.accession}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span>
+					             	</c:if>
+					             	<c:if test="${row.gene.id.accession == null}">
+					            	 	&nbsp;control
+					             	</c:if>
+					             	</td>
 					            <td>${row.expression}</td>
 					           	<td>${row.anatomyLinks}</td>
 					            <td>${row.zygosity}</td>
