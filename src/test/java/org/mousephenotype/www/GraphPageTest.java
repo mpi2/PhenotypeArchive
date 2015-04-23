@@ -206,7 +206,7 @@ public class GraphPageTest {
     
     // Tests known graph URLs that have historically been broken or are interesting cases, such as 2 graphs per page.
     @Test
-@Ignore
+//@Ignore
     public void testKnownGraphs() throws GraphTestException {
         String testName = "testKnownGraphs";
         Date start = new Date();
@@ -234,7 +234,7 @@ public class GraphPageTest {
     }
     
     @Test
-@Ignore
+//@Ignore
     public void testPreQcGraphs() throws GraphTestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PREQC, 100);
@@ -263,7 +263,7 @@ public class GraphPageTest {
     }
     
     @Test
-@Ignore
+//@Ignore
     public void testCategoricalGraphs() throws GraphTestException {
         String testName = "testCategoricalGraphs";
         
