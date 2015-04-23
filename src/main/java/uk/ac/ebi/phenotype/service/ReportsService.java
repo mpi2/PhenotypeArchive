@@ -503,12 +503,20 @@ public class ReportsService {
 				geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
 			}
 
+			Set<String> allGenes = new HashSet<>(oService.getGenesWithMoreProcedures(1, resources));
+			allGenes.removeAll(geneToPhenotypes.keySet());
+
 			for (String geneSymbol : geneToPhenotypes.keySet()) {
 				String [] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol),": ")};
 				res.add(row);
 			}
 
-		} catch (SolrServerException e) {
+			for (String geneSymbol : allGenes) {
+				String [] row = {geneSymbol, "0", ""};
+				res.add(row);
+			}
+
+		} catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 
