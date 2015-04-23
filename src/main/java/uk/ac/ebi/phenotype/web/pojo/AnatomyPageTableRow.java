@@ -43,7 +43,7 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setAllele(allele);
         this.setSexes(sex);
         this.setDataSourceName(image.getDataSourceName());
-        this.setZygosity(ZygosityType.valueOf(image.getZygosity()));
+        this.setZygosity(image.getZygosity() != null ? ZygosityType.valueOf(image.getZygosity()) : ZygosityType.not_applicable);
         Procedure proc = new Procedure();
         proc.setName(image.getProcedureName());
         proc.setStableId(image.getProcedureStableId());
