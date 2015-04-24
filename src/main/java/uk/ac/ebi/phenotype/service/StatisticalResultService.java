@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
@@ -130,7 +132,204 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     
 	}
 	
-	
+
+	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample, String[] center, String[] sex)
+	throws SolrServerException {
+
+		String urlParams = "";
+		SolrQuery query = new SolrQuery().addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
+		String q = (strains.size() > 1) ? "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
+		if (strains.size() > 0) {
+			urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
+		}
+
+		if (center != null && center.length > 0) {
+			q += " AND (";
+			q += (center.length > 1) ? StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"" : StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"";
+			q += ")";
+			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
+		}
+
+		if (sex != null && sex.length == 1) {
+			q += " AND " + StatisticalResultDTO.SEX + ":\"" + sex[0] + "\"";
+		}
+
+		query.setQuery(q);
+		query.setRows(10000000);
+		query.setFields(StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.FEMALE_CONTROL_MEAN, StatisticalResultDTO.MARKER_SYMBOL,
+			StatisticalResultDTO.FEMALE_MUTANT_MEAN, StatisticalResultDTO.MALE_CONTROL_MEAN, StatisticalResultDTO.MALE_MUTANT_MEAN,
+			StatisticalResultDTO.FEMALE_CONTROL_COUNT, StatisticalResultDTO.FEMALE_MUTANT_COUNT, StatisticalResultDTO.MALE_CONTROL_COUNT, StatisticalResultDTO.MALE_MUTANT_COUNT);
+		query.set("group", true);
+		query.set("group.field", StatisticalResultDTO.COLONY_ID);
+		query.set("group.limit", 1);
+
+		
+		System.out.println("SOLR URL FOR OVERVIEW CHARTS ::: " + solr.getBaseURL() + "/select?" + query);
+		
+		// for each colony get the mean & put it in the array of data to plot
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		double[] meansArray = new double[groups.size()];
+		String[] genesArray = new String[groups.size()];
+		String[] geneSymbolArray = new String[groups.size()];
+		int i = 0;
+		
+		for (Group gr : groups) {
+			SolrDocumentList resDocs = gr.getResult();
+			String sexToDisplay = null;
+			genesArray[i] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
+			geneSymbolArray[i] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
+			
+			if (sex != null && sex.length == 1){
+				if (sex[0].equalsIgnoreCase(SexType.male.getName())) {
+					sexToDisplay = 	SexType.male.getName();
+				}
+				if (sex[0].equalsIgnoreCase(SexType.female.getName())) {
+					sexToDisplay = 	SexType.female.getName();
+				}
+			}
+			if (sex == null || sex.length == 0 || sex.length == 2) {
+				if ( resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&
+					 resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  
+					 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&
+					 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN)){
+					sexToDisplay = null;
+				}
+				else if (resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&
+				 resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  
+				 (! resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) ||
+				 !resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN))){
+					sexToDisplay = SexType.female.getName();
+				}
+				else if (!resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) ||
+				 !resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  
+				 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&
+				 !resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN)){
+					sexToDisplay = SexType.male.getName();
+				}
+			}
+			
+			if (sex == null ) {					
+				System.out.println("BOTH SEXES");
+				
+				Float totalMutant = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString())
+						+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString());
+				Float ratioMale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) / totalMutant;
+				Float ratioFemale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) / totalMutant;
+				meansArray[i] =  Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString()) * ratioFemale 
+					+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString()) * ratioMale;
+				
+				System.out.println(genesArray[i]  + "  " + ratioMale + " " + ratioFemale + " => " + meansArray[i] );
+				
+				totalMutant = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString())
+					+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString());
+				ratioMale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) / totalMutant;
+				ratioFemale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) / totalMutant;				
+				meansArray[i] = (Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString()) * ratioFemale 
+					+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString()) * ratioMale);		
+
+				System.out.println(genesArray[i]  + "   " + ratioMale + " " + ratioFemale + " => " + meansArray[i]);
+				
+			} else if (sexToDisplay.equalsIgnoreCase(SexType.male.getName())){
+				System.out.println("MALE ONLY");
+				meansArray[i] = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString()) / Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString());
+			} else if (sexToDisplay.equalsIgnoreCase(SexType.female.getName())) {
+				System.out.println("FEMALE ONLY");
+				meansArray[i] = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString()) / Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString());
+			}
+			
+			i++;
+		}
+
+		// we do the binning for all the data but fill the bins after that to
+		// keep tract of phenotype associations
+		int binCount = Math.min((int) Math.floor((double) groups.size() / 2), 20);
+		ArrayList<String> mutantGenes = new ArrayList<String>();
+		ArrayList<String> controlGenes = new ArrayList<String>();
+		ArrayList<String> mutantGeneAcc = new ArrayList<String>();
+		ArrayList<String> controlGeneAcc = new ArrayList<String>();
+		ArrayList<Double> upperBounds = new ArrayList<Double>();
+		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
+		if (meansArray.length > 0) {
+			distribution.load(meansArray);
+			for (double bound : distribution.getUpperBounds()) {
+				upperBounds.add(bound);
+			}
+			// we we need to distribute the control mutants and the
+			// phenotype-mutants in the bins
+			ArrayList<Double> controlM = new ArrayList<Double>();
+			ArrayList<Double> phenMutants = new ArrayList<Double>();
+
+			for (int j = 0; j < upperBounds.size(); j++) {
+				controlM.add((double) 0);
+				phenMutants.add((double) 0);
+				controlGenes.add("");
+				mutantGenes.add("");
+				controlGeneAcc.add("");
+				mutantGeneAcc.add("");
+			}
+
+			for (int j = 0; j < groups.size(); j++) {
+				// find out the proper bin
+				int binIndex = getBin(upperBounds, meansArray[j]);
+				if (genes.contains(genesArray[j])) {
+					phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
+					String genesString = mutantGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j])) {
+						if (genesString.equals("")) {
+							mutantGenes.set(binIndex, geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, "accession=" + genesArray[j]);
+						} else {
+							mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&accession=" + genesArray[j]);
+						}
+					}
+				} else { // treat as control because they don't have this
+							// phenotype association
+					String genesString = controlGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j])) {
+						if (genesString.equalsIgnoreCase("")) {
+							controlGenes.set(binIndex, geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, "accession=" + genesArray[j]);
+						} else {
+							controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, controlGeneAcc.get(binIndex) + "&accession=" + genesArray[j]);
+						}
+					}
+					controlM.set(binIndex, 1 + controlM.get(binIndex));
+				}
+			}
+			// System.out.println(" Mutants list " + phenMutants);
+
+			// add the rest of parameters to the graph urls
+			for (int t = 0; t < controlGeneAcc.size(); t++) {
+				controlGeneAcc.set(t, controlGeneAcc.get(t) + urlParams);
+				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
+			}
+
+			StackedBarsData data = new StackedBarsData();
+			data.setUpperBounds(upperBounds);
+			data.setControlGenes(controlGenes);
+			data.setControlMutatns(controlM);
+			data.setMutantGenes(mutantGenes);
+			data.setPhenMutants(phenMutants);
+			data.setControlGeneAccesionIds(controlGeneAcc);
+			data.setMutantGeneAccesionIds(mutantGeneAcc);
+			return data;
+		}
+
+		return null;
+	}
+
+
+	private int getBin(List<Double> bins, Double valueToBin) {
+
+		for (Double upperBound : bins) {
+			if (valueToBin < upperBound) { return bins.indexOf(upperBound); }
+		}
+		return bins.size() - 1;
+	}
+
+
     public Map<String, ArrayList<String>> getDistributionOfLinesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
@@ -170,6 +369,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		return res;
 	}
    
+    
     public Map<String, ArrayList<String>> getDistributionOfGenesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
