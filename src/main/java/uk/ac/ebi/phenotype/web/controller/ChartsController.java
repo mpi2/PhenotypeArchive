@@ -35,7 +35,6 @@ import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.chart.FertilityChartAndDataProvider;
-import uk.ac.ebi.phenotype.chart.FertilityDTO;
 import uk.ac.ebi.phenotype.chart.GraphUtils;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
@@ -59,6 +58,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+import javax.annotation.Resource;
 
 @Controller
 public class ChartsController {
@@ -109,6 +109,8 @@ public class ChartsController {
 
     @Autowired
     Utilities impressUtilities;
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -157,6 +159,18 @@ public class ChartsController {
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
 
         System.out.println("charts ::: chart_type=" + chartType);
+        
+        
+        
+        if ((pipelineStableIds != null) && (pipelineStableIds.length > 0) && (pipelineStableIds[0].contains("_FER_")
+                                        && (accessionsParams != null) && (accessionsParams.length > 0)))
+        {
+            String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
+            return "redirect:" + url;
+        }
+            
+            
+            
         return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
     }
 
@@ -201,6 +215,11 @@ public class ChartsController {
 
         boolean statsError = false;
 
+        if (parameterStableId.startsWith("IMPC_FER_")) {
+            String url = config.get("baseUrl") + "/genes/" + accession[0];
+            return "redirect:" + url;
+        }
+
 		// TODO need to check we don't have more than one accession and one
         // parameter throw and exception if we do
         // get the parameter object from the stable id
@@ -219,7 +238,7 @@ public class ChartsController {
         if (parameterUnits.length > 1) {
             yUnits = parameterUnits[1];
         }
-
+        
         ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
         log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
 
@@ -270,18 +289,23 @@ public class ChartsController {
         }
 
         if (parameterStableId.startsWith("IMPC_FER_")) {
-			// Its a fertility outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/query?q=parameter_stable_id:IMPC_FER_*&facet=true&facet.field=parameter_stable_id&rows=300&fq=gene_accession_id:%22MGI:1918788%22
-            //http://localhost:8080/phenotype-archive/charts?accession=MGI:1918788&parameter_stable_id=IMPC_FER_001_001
-            FertilityDTO fertility = experimentService.getSpecificFertilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
-            FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
-            if (fertilityDTO != null) {
-                model.addAttribute("fertilityDTO", fertilityDTO);
-                BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
-                setTitlesForGraph(model, expBiologicalModel);
-            }
-            return "chart";
+            String url = config.get("baseUrl") + "/genes/" + accession[0];
+            return "redirect:" + url;
+            
+            
+            
+//			// Its a fertility outcome param which means its a line level query
+//            // so we don't use the normal experiment query in experiment service
+//            //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/query?q=parameter_stable_id:IMPC_FER_*&facet=true&facet.field=parameter_stable_id&rows=300&fq=gene_accession_id:%22MGI:1918788%22
+//            //http://localhost:8080/phenotype-archive/charts?accession=MGI:1918788&parameter_stable_id=IMPC_FER_001_001
+//            FertilityDTO fertility = experimentService.getSpecificFertilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
+//            FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
+//            if (fertilityDTO != null) {
+//                model.addAttribute("fertilityDTO", fertilityDTO);
+//                BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
+//                setTitlesForGraph(model, expBiologicalModel);
+//            }
+//            return "chart";
         }
 
         if ( ! ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
