@@ -245,10 +245,19 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 						if (!maIds.isEmpty()) {
 							imageDTO.setMaTermId(maIds);
+							
+							ArrayList<String>maIdTerms=new ArrayList<>();
+							for( int i=0; i< maIds.size(); i++ ){
+								String maId = maIds.get(i);
+								String maTerm = maTerms.get(i);
+								maIdTerms.add(maId+"_"+maTerm);
+							}
+							imageDTO.setMaIdTerm(maIdTerms);
 						}
 						if (!maTerms.isEmpty()) {
 							imageDTO.setMaTerm(maTerms);
 						}
+						
 						if (!maTermSynonyms.isEmpty()) {
 							imageDTO.setMaTermSynonym(maTermSynonyms);
 						}

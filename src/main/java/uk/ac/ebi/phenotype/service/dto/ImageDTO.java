@@ -17,6 +17,7 @@ public class ImageDTO extends ObservationDTO {
 	public static final String IMAGE_LINK = "image_link";
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
+	public static final String MA_ID_TERM = "ma_id_term";
 	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
 	public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
@@ -63,6 +64,9 @@ public class ImageDTO extends ObservationDTO {
 	
 	@Field(MA_TERM)
 	private List<String> maTerm;
+	
+	@Field(MA_ID_TERM)
+	private List<String> maIdTerm;
 	
 	@Field(MA_TERM_SYNONYM)
 	private List<String> maTermSynonym;
@@ -199,15 +203,21 @@ public class ImageDTO extends ObservationDTO {
 		return maTermId;
 	}
 
-
-
-	
 	public void setMaTermId(List<String> maTermId) {
 	
 		this.maTermId = maTermId;
 	}
 
-
+	public List<String> getMaIdTerm() {
+		
+		return maIdTerm;
+	}
+	
+	public void setMaIdTerm(List<String> maIdTerms) {
+		
+		this.maIdTerm = maIdTerms;
+	}
+	
 
 	public String getDownloadUrl() {
 	
