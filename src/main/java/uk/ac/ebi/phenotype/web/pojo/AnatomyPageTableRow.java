@@ -22,12 +22,14 @@ public class AnatomyPageTableRow extends DataTableRow{
 	String imageUrl;
     List<OntologyTerm> anatomy;
     String anatomyLinks;
-	
+    int numberOfImages = 0;
+    
     public AnatomyPageTableRow() {
         super();
     }
     
-    public AnatomyPageTableRow(ImageDTO image, String maId, String baseUrl) {
+    
+    public AnatomyPageTableRow(ImageDTO image, String maId, String baseUrl, String expressionValue) {
 
     	super();
         List<String> sex = new ArrayList<String>();
@@ -41,8 +43,7 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setAllele(allele);
         this.setSexes(sex);
         this.setDataSourceName(image.getDataSourceName());
-        this.setZygosity(ZygosityType.valueOf(image.getZygosity()));
-        this.setExpression(image.getExpression(maId));
+        this.setZygosity(image.getZygosity() != null ? ZygosityType.valueOf(image.getZygosity()) : ZygosityType.not_applicable);
         Procedure proc = new Procedure();
         proc.setName(image.getProcedureName());
         proc.setStableId(image.getProcedureStableId());
@@ -51,17 +52,23 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setProcedure(proc);
         this.setParameter(param);
         this.setPhenotypingCenter(image.getPhenotypingCenter());
+              
         List<OntologyTerm> anatomyTerms = new ArrayList<>();
         for (int i = 0; i < image.getMaTermId().size(); i++){
-        	OntologyTerm anatomy = new OntologyTerm();
-        	DatasourceEntityId maIdDei = new DatasourceEntityId(image.getMaTermId().get(i), -1);
-        	anatomy.setId(maIdDei);
-        	anatomy.setName(image.getMaTerm().get(i));
-        	anatomyTerms.add(anatomy);
+        	if (image.getExpression(image.getMaTermId().get(i)).equalsIgnoreCase(expressionValue)){
+	        	OntologyTerm anatomy = new OntologyTerm();
+	        	DatasourceEntityId maIdDei = new DatasourceEntityId(image.getMaTermId().get(i), -1);
+	        	anatomy.setId(maIdDei);
+	        	anatomy.setName(image.getMaTerm().get(i));
+	        	anatomyTerms.add(anatomy);
+        	}
         }
+               
+        this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
-        this.setImageUrl(buildImageUrl(maId, baseUrl));
+        this.setImageUrl(buildImageUrl(baseUrl, maId, image.getMaTerm().get(image.getMaTermId().indexOf(maId))));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
+        this.numberOfImages ++;
     }
     
     
@@ -78,11 +85,13 @@ public class AnatomyPageTableRow extends DataTableRow{
     }
     
     
-    public String buildImageUrl(String maId, String baseUrl){
+    public String buildImageUrl(String baseUrl, String maId, String maTerm){
     	
-    	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(" + ImageDTO.MA_ID + ":\"";
-    	url += maId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + maId + "\"";
-    //	url += " OR " + ImageDTO. + ":" + this.getAnatomyTerm().getName();
+    	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
+        url += ImageDTO.MA_ID + ":\"";
+        url += maId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + maId + "\"";
+        url += " OR " + ImageDTO.INTERMEDIATE_LEVEL_MA_TERM_ID + ":\"" + maId + "\"";
+    	
     	url += ") ";
     	
     	if (getGene().getSymbol()!= null){
@@ -91,7 +100,12 @@ public class AnatomyPageTableRow extends DataTableRow{
     		url += " AND " + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":control";
     	}
     	
+    	url += "&title=gene " + this.getGene().getSymbol() + " in " + maTerm + ""; 
     	return url;
+    }
+    
+    public void addImage(){
+    	this.numberOfImages ++;
     }
     
 	@Override
@@ -117,8 +131,18 @@ public class AnatomyPageTableRow extends DataTableRow{
 	public boolean equals(AnatomyPageTableRow obj) {
 	    return this.getKey().equalsIgnoreCase(obj.getKey());
 	}
-
 	
+	public int getNumberOfImages() {
+	
+		return numberOfImages;
+	}
+	
+	public void setNumberOfImages(int numberOfImages) {
+	
+		this.numberOfImages = numberOfImages;
+	}
+
+
 	public void addSex(String sex){
 		
 		if (!sexes.contains(sex)){

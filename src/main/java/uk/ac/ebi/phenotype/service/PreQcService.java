@@ -26,7 +26,7 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.www.testing.model.GeneGraph;
+import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 public class PreQcService extends AbstractGenotypePhenotypeService {
@@ -42,16 +42,16 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
     }
     
     /**
-     * Returns a list of <code>count GeneGraph</code> instances.
+     * Returns a list of <code>count GraphTestDTO</code> instances.
      *
-     * @param count the number of <code>GeneGraph</code> instances to return
+     * @param count the number of <code>GraphTestDTO</code> instances to return
      *
-     * @return a list of <code>count GeneGraph</code> instances.
+     * @return a list of <code>count GraphTestDTO</code> instances.
      * 
      * @throws SolrServerException
      */
-    public List<GeneGraph> getGeneAccessionIds(int count) throws SolrServerException {
-        List<GeneGraph> retVal = new ArrayList();
+    public List<GraphTestDTO> getGeneAccessionIds(int count) throws SolrServerException {
+        List<GraphTestDTO> retVal = new ArrayList();
         
         if (count < 1)
             return retVal;
@@ -73,10 +73,10 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
             for (Group group : groups) {
                 SolrDocumentList docs = group.getResult();
                 
-                SolrDocument doc = docs.get(0);                                                    // All elements in this collection have the same mgi_accession_id.
-                GeneGraph geneGraph = new GeneGraph();
+                SolrDocument doc = docs.get(0);                                 // All elements in this collection have the same mgi_accession_id.
+                GraphTestDTO geneGraph = new GraphTestDTO();
                 geneGraph.setParameterStableId((String)doc.get("parameter_stable_id"));
-                geneGraph.setGeneAccessionId((String)doc.get("marker_accession_id"));
+                geneGraph.setMgiAccessionId((String)doc.get("marker_accession_id"));
                 geneGraph.setParameterName((String)doc.get("parameter_name"));
                 geneGraph.setProcedureName((String)doc.get("procedure_name"));
                 retVal.add(geneGraph);

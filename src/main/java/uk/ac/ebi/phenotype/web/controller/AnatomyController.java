@@ -54,6 +54,7 @@ import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.web.pojo.Anatomy;
+import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
 @Controller
@@ -108,17 +109,13 @@ public class AnatomyController {
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
 		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config);
-		Map<String, JSONObject> exampleImagesMap = getExampleImages(anatomy_id);
 
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
-		int numberExpressionImagesFound = JSONRestUtil.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null);
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null);
                
 		model.addAttribute("anatomy", ma);
-		model.addAttribute("exampleImages", exampleImagesMap);
-		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy_id));
@@ -137,10 +134,8 @@ public class AnatomyController {
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		List<DataTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue);
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue);
 		model.addAttribute("anatomyTable", anatomyTable);
-        model.addAttribute("phenoFacets", getFacets(anatomy_id));
-		System.out.println("ANATOMY FRAG\n");
 				
 		return "anatomyFrag";
 	}     
@@ -161,40 +156,6 @@ public class AnatomyController {
         return phenoFacets;
     }
     
-    
-    
-	/**
-	 * Get control and experimental example images for the top of the MP page
-	 * 
-	 * @param accession
-	 *            MP Accession
-	 * @return map containing control and experimental images with those as keys
-	 * @throws SolrServerException
-	 * @throws URISyntaxException
-	 * @throws IOException
-	 */
-	private Map<String, JSONObject> getExampleImages(String accession)
-			throws SolrServerException, IOException, URISyntaxException {
-		System.out.println("calling get anatomy image with accession:"
-				+ accession);
-		if (accession.equals("MA:0002950")) {
-			// right eye examlple images
-			// map.put("control",
-			// "https://dev.mousephenotype.org/data/media/images/1253/M01211663_00032438_download_tn_small.jpg");
-			// 255874
-			Map<String, JSONObject> map = solrIndex.getExampleImages(255874,
-					76516);
-			// getImageDoc(255874, solrDocumentList);
-			return map;
-			// map.put("experimental",
-			// "https://www.mousephenotype.org/data/media/images/550/M00226962_00007295_download_tn_small.jpg");
-			// 76516
-
-		}
-		// if no rule for this return empty map
-		return Collections.emptyMap();
-	}
-
 	
 	@ExceptionHandler(Exception.class)
 	public ModelAndView handleGenericException(Exception exception) {

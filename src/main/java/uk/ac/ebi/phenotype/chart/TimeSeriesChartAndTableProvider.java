@@ -70,8 +70,9 @@ public class TimeSeriesChartAndTableProvider {
 			
 			logger.debug("finished putting control to data points");
 			TimeSeriesStats stats = new TimeSeriesStats();
+			String label = ChartUtils.getLabel(null, sex);
 			List<DiscreteTimePoint> controlMeans = stats.getMeanDataPoints(controlDataPoints);
-			lines.put(WordUtils.capitalize(sex.name())+" Control", controlMeans);
+			lines.put(label, controlMeans);
 			
 			for (ZygosityType zType : experiment.getZygosities()) {
 			
@@ -99,7 +100,8 @@ public class TimeSeriesChartAndTableProvider {
 
 				logger.debug("doing mutant data");
 				List<DiscreteTimePoint> mutantMeans = stats.getMeanDataPoints(mutantData);
-				lines.put(WordUtils.capitalize(sex.name())+" "+WordUtils.capitalize(zType.name()), mutantMeans);
+				label = ChartUtils.getLabel(zType, sex);
+				lines.put(label, mutantMeans);
 			}
 		}
 
@@ -147,25 +149,35 @@ public class TimeSeriesChartAndTableProvider {
 		Float maxForChart = new Float(0);
 		Float minForChart = new Float(1000000000);
 		
+
+		String mColor = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
+		String wtColor = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
+		
 		try {
 			int i = 0;
 			for (String key : lines.keySet()) {// key is control hom or het
+				String color = mColor;
 				JSONObject object = new JSONObject();
+				System.out.println("KEY ::: " + key);
 				JSONArray data = new JSONArray();
 				object.put("name", key);
-				SexType sexType=SexType.male;
+				SexType sexType = SexType.male;
+				
 				if(key.contains("Female")) {
-					sexType=SexType.female;
+					sexType = SexType.female;
 				}
-				String colorString=ChartColors.getRgbaString(sexType, i, ChartColors.alphaTranslucid70);
-				object.put("color", colorString);
+				
+				if (key.contains("WT")){
+					color = wtColor;
+				}
 
 				JSONObject errorBarsObject = null;
+				
 				try {
 					errorBarsObject = new JSONObject();// "{ name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5, 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8, 5.1], [2.2, 3.0], [5.1, 8] ] } ");
 					errorBarsObject.put("name", "Standard Deviation");
 					errorBarsObject.put("type", "errorbar");
-					errorBarsObject.put("color", colorString);
+					errorBarsObject.put("color", color);
 
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -173,6 +185,7 @@ public class TimeSeriesChartAndTableProvider {
 
 				JSONArray errorsDataJson = new JSONArray();
 				for (DiscreteTimePoint pt : lines.get(key)) {
+										
 					JSONArray pair = new JSONArray();
 					pair.put(pt.getDiscreteTime());
 					pair.put(pt.getData());
@@ -189,28 +202,18 @@ public class TimeSeriesChartAndTableProvider {
 
 				}
 				object.put("data", data);
-				// add a placholder string so we can add a tooltip method
+				object.put("color", color);
+				// add a placeholder string so we can add a tooltip method
 				// specifically for data that is not error bars later on in this
 				// code
 				String placeholderString = "placeholder";
 				object.put(placeholderString, placeholderString);
 				series.put(object);
-				// we now want to add different tooltips for thses data sets
-				// which we can't do for java json objects so we need to deal
-				// with strings sooner
-
 				series.put(errorBarsObject);
-				// if(i==0) {
-				// seriesString+=",";
-				// }
-				// seriesString+=","+object.toString()+","+errorBarsObject.toString();
-				// System.out.println("seriesString="+seriesString);
-				// categoriesMap.put(key);
 				i++;
 			}
 
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -237,9 +240,7 @@ public class TimeSeriesChartAndTableProvider {
 				+ "pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y"
 				+ decimalFormatString + "}" + yUnitsLabel + "</b> '}";
 		String escapedPlaceholder = "\"placeholder\":\"placeholder\"";
-		seriesString = series.toString().replace(escapedPlaceholder,
-				pointToolTip);
-
+		seriesString = series.toString().replace(escapedPlaceholder, pointToolTip);
 		String errorBarsToolTip = "tooltip: { pointFormat: 'SD: {point.low"
 				+ decimalFormatString + "}-{point.high" + decimalFormatString
 				+ "}<br/>' }";
@@ -248,15 +249,13 @@ public class TimeSeriesChartAndTableProvider {
 		seriesString = seriesString.replace(escapedErrorString,
 				escapedErrorString + "," + errorBarsToolTip);
 		String axisFontSize = "15";
-		
-		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaTranslucid70);
-//		JSONArray colorArray = new JSONArray(colors);
+
 		
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
-//				+" colors:"+colorArray
+		//		+" colors:" + colors + ", "
 				+" chart: {  zoomType: 'x', renderTo: 'timechart"
 				+ expNumber
-				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
+				+ "', type: 'line' }, title: { text: '"
 				+ title				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
 				+ parameter.getStableId()
 				+ "', x: -20 }, xAxis: { "
@@ -269,7 +268,7 @@ public class TimeSeriesChartAndTableProvider {
 				+ axisFontSize
 				+ " }}, title: { text: ' "
 				+ yUnitsLabel
-				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] },  legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, "
+				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] }, "
 				+ "tooltip: {shared: true},"
 				+ "series: "
 				+ seriesString
@@ -278,6 +277,7 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setChart(javascript);
 		chartAndTable.setOrganisation(organisation);
 		chartAndTable.setId(expNumber);
+		System.out.println("TIMESERIES CHART :: " + javascript);
 		return chartAndTable;
 	}
 

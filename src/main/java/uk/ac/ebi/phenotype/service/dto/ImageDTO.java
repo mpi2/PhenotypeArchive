@@ -17,6 +17,7 @@ public class ImageDTO extends ObservationDTO {
 	public static final String IMAGE_LINK = "image_link";
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
+	public static final String MA_ID_TERM = "ma_id_term";
 	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
 	public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
@@ -39,9 +40,9 @@ public class ImageDTO extends ObservationDTO {
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 
-	private static final String INTERMEDIATE_LEVEL_MA_TERM_ID = "intermediate_ma_term_id";
-	private static final String INTERMEDIATE_LEVEL_MA_TERM = "intermediate_ma_term";
-	private static final String INTERMEDIATE_LEVEL_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
+	public static final String INTERMEDIATE_LEVEL_MA_TERM_ID = "intermediate_ma_term_id";
+	public static final String INTERMEDIATE_LEVEL_MA_TERM = "intermediate_ma_term";
+	public static final String INTERMEDIATE_LEVEL_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
 	
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
@@ -63,6 +64,9 @@ public class ImageDTO extends ObservationDTO {
 	
 	@Field(MA_TERM)
 	private List<String> maTerm;
+	
+	@Field(MA_ID_TERM)
+	private List<String> maIdTerm;
 	
 	@Field(MA_TERM_SYNONYM)
 	private List<String> maTermSynonym;
@@ -199,15 +203,21 @@ public class ImageDTO extends ObservationDTO {
 		return maTermId;
 	}
 
-
-
-	
 	public void setMaTermId(List<String> maTermId) {
 	
 		this.maTermId = maTermId;
 	}
 
-
+	public List<String> getMaIdTerm() {
+		
+		return maIdTerm;
+	}
+	
+	public void setMaIdTerm(List<String> maIdTerms) {
+		
+		this.maIdTerm = maIdTerms;
+	}
+	
 
 	public String getDownloadUrl() {
 	

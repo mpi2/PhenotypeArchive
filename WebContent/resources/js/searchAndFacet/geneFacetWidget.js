@@ -106,13 +106,15 @@
 	    	
 	    	if (numFound > 0){
 	    		
+	    		var phenoCompleteLabel = "Approved";
+	    		
 	    		// subfacet: IMPC mouse phenotyping status	    		
 	    		var phenoStatusSect = $("<li class='fcatsection phenotyping' + ></li>");		 
 	    		phenoStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Phenotyping Status'));	    		
 	    		
 	    		var pheno_count = {};
 	    		
-	    		var aImitsPhenos = {'Phenotyping Complete':'Complete', 
+	    		var aImitsPhenos = {'Phenotyping Complete':phenoCompleteLabel, 
 									'Phenotyping Started':'Started', 
 									'Phenotype Attempt Registered':'Attempt Registered'};
 	    		
@@ -142,7 +144,7 @@
     			
 	    		var phenoUlContainer = $("<ul></ul>");
 	    		
-	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered', 'Legacy'];	    		
+	    		var aPhenos = [phenoCompleteLabel, 'Started', 'Attempt Registered', 'Legacy'];	    		
 	    		for ( var i=0; i<aPhenos.length; i++ ){
 					var phenotypingStatusFq = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].fq;
 					var phenotypingStatusVal = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].val; 

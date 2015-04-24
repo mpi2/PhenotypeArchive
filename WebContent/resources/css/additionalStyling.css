@@ -1,5 +1,15 @@
 /* Additional styling written at EBI */
 
+table.dataTable thead .sorting {
+  background: url("../js/vendor/DataTables-1.10.4/media/images/sort_both.png") no-repeat center right;
+}
+table.dataTable thead .sorting_asc {
+  background: url("../js/vendor/DataTables-1.10.4/media/images/sort_asc.png") no-repeat center right;
+}
+table.dataTable thead .sorting_desc {
+  background: url("../js/vendor/DataTables-1.10.4/media/images/sort_desc.png") no-repeat center right;
+}
+
 p.chartTitle{
 	margin:auto;
 	text-align: center;

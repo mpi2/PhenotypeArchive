@@ -112,8 +112,6 @@ public class ScatterChartAndTableProvider {
 			+ "    }); "
 			+ "	}); ";
 				
-		System.out.println("charty here " + chartString);
-		
 		return chartString;
 	}
 

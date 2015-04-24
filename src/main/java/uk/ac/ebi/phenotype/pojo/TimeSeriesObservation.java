@@ -98,13 +98,13 @@ public class TimeSeriesObservation extends Observation {
 		
 		try {
 
-			if (unit.equals("minutes") || unit.equals("number") || unit.equals("") || unit.equals("Time in hours relative to lights out")) {
+//			if (unit.equals("minutes") || unit.equals("number") || unit.equals("") || unit.equals("Time in hours relative to lights out")) {
 				
 				float value = Float.parseFloat(timePoint);
 				this.setTimePoint(experimentDate);
 				this.setDiscretePoint(value);
 
-			} else if ( Boolean.FALSE) {
+//			} else if ( Boolean.FALSE) {
 
 //				float value = Float.parseFloat(timePoint);
 //				this.setTimePoint(experimentDate);
@@ -143,7 +143,7 @@ public class TimeSeriesObservation extends Observation {
 //				} catch (NumberFormatException ex) {
 //
 //				}					
-			}
+//			}
 
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block

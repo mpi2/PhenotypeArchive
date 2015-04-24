@@ -895,7 +895,7 @@
 	                    $.fn.cursorUpdate(facet, 'pointer');
 	
 	                    //var foundMatch = {'Phenotype': 0, 'Anatomy': 0, 'Procedure': 0, 'Gene': 0};
-	                    var foundMatch = {'Procedure': 0};
+	                    var foundMatch = {'Procedure': 0, 'Anatomy': 0};
 	                    
 	                    var oSubFacets = {
 	                        /*'annotatedHigherLevelMpTermName':'Phenotype',
@@ -903,8 +903,8 @@
 	                         'expName':'Procedure',
 	                         'subtype':'Gene'*/
 	                        //'top_level_mp_term': 'Phenotype',
-	                        'procedure_name': 'Procedure'};
-	                        //'selected_top_level_ma_term': 'Anatomy',
+	                        'procedure_name': 'Procedure',
+	                        'selected_top_level_ma_term': 'Anatomy'};
 	                        //'marker_type': 'Gene'};
 	
 	                    for (var facetStr in oSubFacets) {
@@ -1142,9 +1142,13 @@
 
             var filterTxt = qValue;
             if (facet == 'gene') {
-               
+               console.log("qField: " + qField);
+               console.log("qValue: " + qValue);
                 if (qValue == '1') {
                     filterTxt = 'Legacy Phenotyping';
+                }
+                else if (qValue == 'Phenotyping Complete'){
+                	filterTxt = 'Approved';
                 }
                 else if (qValue == 'Phenotype Attempt Registered' || qField == 'status' || qField == 'marker_type') {
                    // filterTxt = qValue.toLowerCase();
@@ -1156,6 +1160,7 @@
                 else if (qField == 'latest_phenotyping_centre') {
                     filterTxt = 'mice phenotyped at ' + qValue;
                 }
+                
             }
 
             var pipelineName, a;
@@ -1679,7 +1684,7 @@
 
     $.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload) {
 
-        var table = $('<table></table>').attr({'id': id});
+        var table = $('<table></table>').attr({'id': id, 'class': 'table tableSorter'});
         var thead = theadStr;
         var tds = '';
         for (var i = 0; i < colNum; i++) {
@@ -2974,7 +2979,9 @@ $.extend($.fn.dataTableExt.oSort, {
         return a.match(/alt="(.*?)"/)[1].toLowerCase();
     },
     "alt-string-asc": function(a, b) {
-        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        console.log("SOORTING");
+    	return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        
     },
     "alt-string-desc": function(a, b) {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
@@ -2994,6 +3001,7 @@ $.fn.dataTableExt.oApi.fnStandingRedraw = function(oSettings) {
     // draw the 'current' page
     oSettings.oApi._fnDraw(oSettings);
 };
+
 //fix jQuery UIs autocomplete width
 $.extend($.ui.autocomplete.prototype.options, {
     open: function(event, ui) {

@@ -730,8 +730,11 @@ public class AlleleIndexer extends AbstractIndexer {
     
     private void populateLegacyLookup() throws SolrServerException {
 
-        String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
-
+    	// old query
+        //String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
+        // new query
+    	String query = "SELECT DISTINCT external_db_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (external_db_id = 12 OR external_db_id = 20)";
+        
         try (PreparedStatement ps = connection.prepareStatement(query)) {
 
             ResultSet rs = ps.executeQuery();

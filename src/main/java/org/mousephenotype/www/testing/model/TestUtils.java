@@ -22,6 +22,7 @@
 
 package org.mousephenotype.www.testing.model;
 
+import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
 import static com.thoughtworks.selenium.SeleneseTestBase.fail;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,8 +40,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.Resource;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -50,17 +49,21 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.stereotype.Component;
-import uk.ac.ebi.generic.util.JSONRestUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.chart.ChartType;
+import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
+import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.PreQcService;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -77,7 +80,6 @@ import uk.ac.ebi.phenotype.util.Utils;
  * </ul>
  * If the property is still not found, the value specified in DEFAULT_COUNT is used.
  */
-@Component
 public class TestUtils {
     public final int DEFAULT_COUNT = 10;
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -85,6 +87,37 @@ public class TestUtils {
     
     @Resource(name="testIterationsHash")
     Map<String, String> testIterationsHash;
+    
+    @Autowired
+    ObservationService observationService;
+    
+    @Autowired
+    PostQcService postQcService;
+    
+    @Autowired
+    PreQcService preQcService;
+    
+    /**
+     * Defines the download types.
+     */
+    public enum DownloadType {
+        TSV("tsv")
+      , XLS("xls");
+      
+      private final String name;
+      DownloadType(String name) {
+          this.name = name;
+      }
+      
+      public String getName() {
+          return name;
+      }
+      
+      @Override
+      public String toString() {
+          return getName();
+      }
+    }
     
     /**
      * Adds <code>snippet</code> to <code>source</code>, delmited by <code>
@@ -181,17 +214,40 @@ public class TestUtils {
     }
     
     /**
-     * Compares <code>pageValue</code> and <code>downloadValue</code> and, if
-     * <code>pageValue</code> is not empty, returns true if <code>pageValue</code>
-     * equals <code>downloadValue</code>. If <code>pageValue</code> is empty,
-     * compares against the string 'No information available', returning true
-     * if true; false otherwise.
-     * @param pageValue Page value string (must not be null)
-     * @param downloadValue Download value string (must not be null)
-     * @return 
+     * Return target count prioritized as follows:
+     * <p><b>NOTE: If the returned target size is less than the collection size,
+     * the collection is shuffled (i.e. randomized)</b></p>
+     * <ul>
+     * <li>if there is a system property matching <i>testMethodName</i>, that value is used</li>
+     * <li>else if <i>testMethodName</i> appears in the <code>testIterations.properties</code> file, that value is used</li>
+     * <li>else if <i>defaultCount</i> is not null, it is used</li>
+     * <li>else the value defined by <i>DEFAULT_COUNT</i> is used</li>
+     * </ul>
+     * @param testMethodName the method to which the target count applies
+     * @param defaultCount if not null, the value to use if it was not specified as a -D parameter on the command line
+     *                     and no match was found for <i>testMethodName</i> in <code>testIterations.properties</code>
+     * @return target count
      */
-    public static boolean pageEqualsDownload(String pageValue, String downloadValue) {
-        return isEqual(pageValue, downloadValue, "\\|", true);
+    public int getTargetCount(String testMethodName, Integer defaultCount) {
+        Integer targetCount = null;
+        
+        if (defaultCount != null)
+            targetCount = defaultCount;
+        
+        if (testIterationsHash.containsKey(testMethodName)) {
+            if (Utils.tryParseInt(testIterationsHash.get(testMethodName)) != null) {
+                targetCount = Utils.tryParseInt(testIterationsHash.get(testMethodName));
+            }
+        }
+        if (Utils.tryParseInt(System.getProperty(testMethodName)) != null) {
+            targetCount = Utils.tryParseInt(System.getProperty(testMethodName));
+        }
+        
+        if (targetCount == null) {
+            targetCount = DEFAULT_COUNT;
+        }
+        
+        return targetCount;
     }
 
     /**
@@ -620,7 +676,9 @@ public class TestUtils {
      * @param successList the success list
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
+     * @Deprecated Please use the printEpilogue that contains a PageStatus.
      */
+    @Deprecated
     public static void printEpilogue(String testName, Date start, List<String> errorList, List<String> exceptionList, List<String> successList, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
@@ -649,6 +707,40 @@ public class TestUtils {
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
+    }
+    
+    /**
+     * Given a test name, test start time, error list, exception list, success list,
+     * and total number of expected records to be processed, writes the given
+     * information to stdout.
+     * 
+     * @param testName the test name (must not be null)
+     * @param start the test start time (must not be null)
+     * @param status the <code>PageStatus</code> instance
+     * @param totalRecords the total number of expected records to process
+     * @param totalPossible the total number of possible records to process
+     */
+    public static void printEpilogue(String testName, Date start, PageStatus status, int totalRecords, int totalPossible) {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
+        Date stop;
+        
+        if (status.hasWarnings()) {
+            System.out.println(status.getWarningMessages().size() + " records had warnings:");
+            System.out.println(status.toStringWarningMessages());
+        }
+        
+        if (status.hasErrors()) {
+            System.out.println(status.getErrorMessages().size() + " records failed:");
+            System.out.println(status.toStringErrorMessages());
+        }
+        
+        stop = new Date();
+        String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
+        System.out.println(dateFormat.format(stop) + ": " + status.getSuccessCount() + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + Tools.dateDiff(start, stop) + ".");
+        if (status.hasErrors()) {
+            fail("ERRORS: " + status.getErrorMessages().size());
         }
     }
     
@@ -825,44 +917,6 @@ public class TestUtils {
     }
     
     /**
-     * Returns a list of <code>count</code> graph URLs of type <code>graphType</code>.
-     * @param solrUrl The solr URL as defined in the pom or the app-config.xml file
-     * @param graphType The desired <code>ObservationType</code>
-     * @param count The number of graph URLs to return
-     * @return A list of <code>count</code> graph URLs of type <code>graphType</code>.
-     */
-    public static List<GraphData> getGraphUrls(String solrUrl, ObservationType graphType, Integer count) {
-        List<GraphData> graphUrls = new ArrayList();
-        
-        String rowsPhrase = (count != null ? "&rows=" + count.toString() : "");
-        
-        String newQueryString = "/statistical-result/select?q=data_type:" + graphType.toString() + "&facet=true&facet.field=marker_accession_id&fl=data_type+p_value+marker_accession_id&fq=p_value%3A%5B*+TO+0.00001%5D&wt=json" + rowsPhrase;
-        JSONObject jsonData;
-        JSONArray docs = null;
-        try {
-            String url = solrUrl + newQueryString;
-            logger.debug("TestUtils.getGraphUrls(): trying " + url);
-            jsonData = JSONRestUtil.getResults(url);
-            docs = JSONRestUtil.getDocArray(jsonData);
-        } catch (Exception e) {
-            System.out.println("ERROR: JSON results are null for graph type '" + graphType + "'. Local error message:\n" + e.getLocalizedMessage());
-            throw new RuntimeException(e);
-        }
-        
-        if (docs != null) {
-            for (int i = 0; i < docs.size(); i++) {
-                double pValue = docs.getJSONObject(i).getDouble("p_value");
-                String geneId = docs.getJSONObject(i).getString("marker_accession_id");
-                String observationType = docs.getJSONObject(i).getString("data_type");
-                GraphData graphData = new GraphData(geneId, observationType, pValue);
-                graphUrls.add(graphData);
-            }
-        }
-        
-        return graphUrls;
-    }
-    
-    /**
      * Queries the preqc core for <code>count</code> mpIds of phenotype pages that
      * contain preqc links.
      * @param solrUrl The solr URL as defined in the pom or the app-config.xml file
@@ -921,45 +975,92 @@ public class TestUtils {
         return new ArrayList(geneIds);
     }
     
-    public static class GraphData {
-        private double pValue;
-        private String geneId;
-        private ObservationType graphType;
-
-        public GraphData() {
-            this("", "", 0);
-        }
+    /**
+     * Returns <em>count</em> <code>GraphTestDTO</code> instances matching genes
+     * with graph links of type <code>chartType</code>.
+     * 
+     * @param chartType the desired chart type
+     * @param count the desired number of instances to be returned. If -1,
+     * MAX_INT instances will be returned.
+     * 
+     * @return <em>count</em> <code>GraphTestDTO</code> instances matching genes
+     * with graph links of type <code>chartType</code>.
+     * 
+     * @throws GraphTestException
+     */
+    public List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws GraphTestException {
+        List<GraphTestDTO> geneGraphs = new ArrayList();
         
-        public GraphData(String geneId, String observationType, double pValue) throws IllegalArgumentException {
-            this.geneId = geneId;
-            this.graphType = ObservationType.valueOf(observationType);
-            this.pValue = pValue;
-        }
+        if (count == -1)
+            count = Integer.MAX_VALUE;
         
-        public double getpValue() {
-            return pValue;
+        switch (chartType) {
+            case CATEGORICAL_STACKED_COLUMN:
+                try {
+                    List<String> parameterStableIds = observationService.getParameterStableIdsByObservationType(ObservationType.categorical, count);
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new GraphTestException("TestUtils.getGeneGraphs() CATEGORICAL_STACKED_COLUMN EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+                
+            case PIE:
+                try {
+                    List<String> parameterStableIds = Arrays.asList(new String[] { "_VIA_" });
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new GraphTestException("TestUtils.getGeneGraphs() PIE EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+                
+            case UNIDIMENSIONAL_ABR_PLOT:
+                try {
+                    List<String> parameterStableIds = Arrays.asList(new String[] { "_ABR_" });
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new GraphTestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_ABR_PLOT EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+                
+            case UNIDIMENSIONAL_BOX_PLOT:
+            case UNIDIMENSIONAL_SCATTER_PLOT:
+                try {
+                    List<String> parameterStableIds = observationService.getParameterStableIdsByObservationType(ObservationType.unidimensional, count);
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new GraphTestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_XXX EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+                
+            case PREQC:
+                try {
+                    geneGraphs = preQcService.getGeneAccessionIds(count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new GraphTestException("TestUtils.getGeneGraphs() PREQC EXCEPTION: " + e.getLocalizedMessage());
+                }
+            break;
+                
+            case TIME_SERIES_LINE:
+            case TIME_SERIES_LINE_BODYWEIGHT:
+                try {
+                    List<String> parameterStableIds = new ArrayList();
+                    parameterStableIds.addAll(ChartUtils.ESLIM_701);
+                    parameterStableIds.addAll(ChartUtils.ESLIM_702);
+                    parameterStableIds.addAll(ChartUtils.IMPC_BWT);
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new GraphTestException("TestUtils.getGeneGraphs() TIME_SERIES_XXX EXCEPTION: " + e.getLocalizedMessage());
+                }
+            break;
+                
         }
 
-        public void setpValue(double pValue) {
-            this.pValue = pValue;
-        }
-
-        public String getGeneId() {
-            return geneId;
-        }
-
-        public void setGeneId(String geneId) {
-            this.geneId = geneId;
-        }
-
-        public ObservationType getGraphType() {
-            return graphType;
-        }
-
-        public void setGraphType(ObservationType graphType) {
-            this.graphType = graphType;
-        }
-        
-        
+        return geneGraphs;
     }
 }

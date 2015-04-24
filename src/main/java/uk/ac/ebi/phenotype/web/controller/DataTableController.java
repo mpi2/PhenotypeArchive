@@ -108,8 +108,6 @@ public class DataTableController {
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException {
 
-        System.out.println("iDisplayStart param: " + iDisplayStart);
-
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 
         String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");
@@ -603,7 +601,7 @@ public class DataTableController {
 
                 try {
 					//ArrayList<String> mp = new ArrayList<String>();
-                    //ArrayList<String> ma = new ArrayList<String>();
+                	ArrayList<String> ma = new ArrayList<String>();
                     ArrayList<String> procedures = new ArrayList<String>();
 
                     int counter = 0;
@@ -630,6 +628,22 @@ public class DataTableController {
 //							counter++;
 //						}
 //					}	
+					
+					if (doc.has("ma_id")) {
+						JSONArray termIds   = doc.getJSONArray("ma_id");
+						JSONArray termNames = doc.getJSONArray("ma_term");
+						for( Object s : termIds ){														
+							
+							log.debug(i + " - MA: " + termNames.get(counter).toString());
+							String name = termNames.get(counter).toString();
+							String maid = termIds.get(counter).toString();	
+							String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
+							ma.add("<a href='" + url + "'>" + name + "</a>");
+							
+							counter++;
+						}
+					}	
+					
                     if (doc.has("procedure_name")) {
                         String procedureName = doc.getString("procedure_name");
                         procedures.add(procedureName);
@@ -644,13 +658,13 @@ public class DataTableController {
 //					}
 //					
 //					
-//					if ( ma.size() == 1 ){
-//						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
-//					}
-//					else if ( ma.size() > 1 ){
-//						String list = "<ul class='imgMa'><li>" + StringUtils.join(ma, "</li><li>") + "</li></ul>";
-//						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list + "</span>";
-//					}
+					if ( ma.size() == 1 ){
+						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
+					}
+					else if ( ma.size() > 1 ){
+						String list = "<ul class='imgMa'><li>" + StringUtils.join(ma, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list + "</span>";
+					}
                     if (procedures.size() == 1) {
                         annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + StringUtils.join(procedures, ", ") + "</span>";
                     } else if (procedures.size() > 1) {
@@ -1514,8 +1528,26 @@ public class DataTableController {
         j.put("iTotalRecords", references.size());
         j.put("iTotalDisplayRecords", references.size());
         
+        // MMM to digit conversion
+        Map<String, String> m2d = new HashMap<>();
+        // the digit part is set as such to work with the default non-natural sort behavior so that
+        // 9 will not be sorted after 10
+        m2d.put("Jan","11");
+        m2d.put("Feb","12");
+        m2d.put("Mar","13");
+        m2d.put("Apr","14");
+        m2d.put("May","15");
+        m2d.put("Jun","16");
+        m2d.put("Jul","17");
+        m2d.put("Aug","18");
+        m2d.put("Sep","19");
+        m2d.put("Oct","20");
+        m2d.put("Nov","21");
+        m2d.put("Dec","22");
+        
         for (ReferenceDTO reference : references) {
-            List<String> rowData = new ArrayList<>();
+
+        	List<String> rowData = new ArrayList<>();
             List<String> alleleLinks = new ArrayList<>();
             int alleleAccessionIdCount = reference.getAlleleAccessionIds().size();
             
@@ -1543,7 +1575,24 @@ public class DataTableController {
 
             rowData.add(reference.getTitle());
             rowData.add(reference.getJournal());
-            rowData.add(reference.getDateOfPublication());
+            
+            String oriPubDate = reference.getDateOfPublication();
+          
+            String altStr = null;
+            oriPubDate = oriPubDate.trim();
+            if ( oriPubDate.matches("^\\d+$") ){
+            	altStr = oriPubDate + "-23"; // so that YYYY will be sorted after YYYY MMM
+            }
+            else {
+            	String[] parts = oriPubDate.split(" ");
+            	altStr = parts[0] + "-" + m2d.get(parts[1]);
+            }
+            
+            // alt is for alt-string sorting in dataTable for date_of_publication field
+            // The format is either YYYY or YYYY Mmm (2012 Jul, eg)
+            // I could not get sorting to work with this column using dataTable datetime-moment plugin (which supports self-defined format)
+            // but I managed to get it to work with alt-string
+            rowData.add("<span alt='" + altStr + "'>" + oriPubDate + "</span>");
             
             List<String> agencyList = new ArrayList();
             int agencyCount = reference.getGrantAgencies().size();

@@ -13,14 +13,21 @@
         <style type="text/css">
 
             div#tableTool {
-                position: absolute;
-                top: 140px;
-                right: 20px;
+                position: relative;
+                top: -70px;
+                right: 0px;
+            }
+            div#alleleRef_filter {
+            	float: left;
+            	clear: right;
             }
             table.dataTable span.highlight {
                 background-color: yellow;
                 font-weight: bold;
                 color: black;
+            }
+            table#alleleRef {
+            	clear: left;
             }
             table#alleleRef th:first-child, table#alleleRef th:nth-child(2) {
                 width: 150px !important;
@@ -47,19 +54,21 @@
                 top: 54px;
                 left: -25px;
             }
-            
             div#toolBox {
-                top: -38px;
+                top: -58px;
                 right: 35px;
             }
         </style>
         
         <script type='text/javascript'>
+        
             $(document).ready(function () {
                 'use strict';
-
+                
+				// test only
                 //var baseUrl = '//dev.mousephenotype.org/data';
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
+                
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
 
@@ -78,13 +87,13 @@
             });
 
             function fetchAlleleRefDataTable(oConf) {
-
+            	
+            	var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#alleleRef').dataTable({
-                    "bSort": true,
+                    "bSort": true, // true is default 
                     "processing": true,
                     "paging": false,
-                    "serverSide": true,
-                    //"sDom": "<lr><'#caption'>tip",
+                    //"serverSide": false,  // do not want sorting to be processed from server, false by default
                     "sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
                     "sPaginationType": "bootstrap",
                     "searchHighlight": true,
@@ -92,12 +101,16 @@
                     "oLanguage": {
                         "sSearch": "Filter: "
                     },
-                    "aoColumns": [{"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": true},
-                        {"bSearchable": false}
+                    "columnDefs": [                
+                        { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
+                    ],
+                    "aoColumns": [
+                        {"bSearchable": true, "sType": "html", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
+                        {"bSearchable": false, "sType": "html", "bSortable": true}
                     ],
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
 

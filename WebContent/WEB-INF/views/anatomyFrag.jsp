@@ -13,6 +13,7 @@
 					        <th class="headerSort">Sex</th>
 					        <th class="headerSort">Parameter</th>
 					        <th class="headerSort">Phenotyping Center</th>
+					        <th class="headerSort"># LacZ images</th>
 					        <th class="headerSort">Images</th>
 					    </tr>
 					    </thead>
@@ -20,7 +21,14 @@
 					    <c:forEach var="row" items="${anatomyTable}" varStatus="status">
 					        <c:set var="europhenome_gender" value="Both-Split"/>
 					        <tr>
-					            <td><a href="${baseUrl}/genes/${row.gene.id.accession}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span></td>
+					            <td>
+					            	<c:if test="${row.gene.id.accession != null}">
+					            	 	<a href="${baseUrl}/genes/${row.gene.id.accession}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span>
+					             	</c:if>
+					             	<c:if test="${row.gene.id.accession == null}">
+					            	 	&nbsp;control
+					             	</c:if>
+					             	</td>
 					            <td>${row.expression}</td>
 					           	<td>${row.anatomyLinks}</td>
 					            <td>${row.zygosity}</td>
@@ -38,8 +46,8 @@
 					            </td>				
 					            <td>${row.parameter.name}</td>
 					            <td>${row.phenotypingCenter} </td>
+					            <td>${row.numberOfImages} </td>
 					            <td><a href='${row.imageUrl}'><i class="fa fa-image" alt="Images"></i></a></td>	
-					            <!-- http://localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=(ma_term:%22olfactory%20lobe%22)&q=*:*&fq=symbol:%22Adh5%22&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath -->			
 					        </tr>
 					    </c:forEach>
 					    </tbody>
