@@ -263,7 +263,7 @@ public class FileExportController {
         System.out.println("------------\nEXPORT \n---------");
 
         String query = "*:*"; // default
-
+       
         log.debug("solr params: " + solrFilters);
 
         String[] pairs = solrFilters.split("&");
@@ -323,7 +323,9 @@ public class FileExportController {
             } else if (doAlleleRef) {
                 dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode);
             } else {
+            	
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
+              
                 dataRows = composeDataTableExportRows(query, solrCoreName, json, rowStart, length, showImgView, solrFilters, request, legacyOnly);
             }
         }
@@ -446,7 +448,7 @@ public class FileExportController {
         return rows;
     }
 
-    public List<String> composeDataTableExportRows(String query, String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request, boolean legacyOnly) {
+    public List<String> composeDataTableExportRows(String query, String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request, boolean legacyOnly) throws IOException, URISyntaxException {
         List<String> rows = null;
 
         if (solrCoreName.equals("gene")) {
@@ -641,7 +643,7 @@ public class FileExportController {
         return rowData;
     }
 
-    private List<String> composeImpcImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
+    private List<String> composeImpcImageDataTableRows(String query, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) throws IOException, URISyntaxException {
         //System.out.println("query: "+ query + " -- "+ solrParams);
 
     	// currently just use the solr field value
@@ -656,14 +658,14 @@ public class FileExportController {
 
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
             //rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tProcedure\tGene symbol\tGene symbol link\tImage link"); // column names	
-            rowData.add("Procedure\tGene symbol\tGene symbol link\tImage link"); // column names	
+            rowData.add("Procedure\tGene symbol\tGene symbol link\tMA term\tMA term link\tImage link"); // column names	
 
             for (int i = 0; i < docs.size(); i ++) {
                 List<String> data = new ArrayList();
                 JSONObject doc = docs.getJSONObject(i);
 
                 //String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
-                String[] fields = {"procedure_name", "gene_symbol"};
+                String[] fields = {"procedure_name", "gene_symbol", "ma_term"};
                 for (String fld : fields) {
                     if (doc.has(fld)) {
                         List<String> lists = new ArrayList();
@@ -673,8 +675,23 @@ public class FileExportController {
                             data.add(doc.getString("gene_symbol"));
                             data.add(hostName + geneBaseUrl + doc.getString("gene_accession_id"));
 
-                        } else if (fld.equals("procedure_name")) {
+                        } 
+                        else if (fld.equals("procedure_name")) {
                             data.add(doc.getString("procedure_name"));
+                        }
+                        else if (fld.equals("ma_term")) {
+                        	JSONArray maTerms = doc.getJSONArray("ma_term");
+                        	JSONArray maIds = doc.getJSONArray("ma_id");
+                        	List<String> ma_Terms = new ArrayList<>();
+                        	List<String> ma_links = new ArrayList<>();
+                        	for( int m=0; m<maTerms.size(); m++ ){
+                        		ma_Terms.add(maTerms.get(m).toString());
+                        		ma_links.add(hostName + maBaseUrl + maIds.get(m).toString());
+                        	}
+                        	
+                            data.add(StringUtils.join(ma_Terms, "|"));
+                            data.add(StringUtils.join(ma_links, "|"));
+                            
                         }
                     } else {
                         /*if ( fld.equals("annotationTermId") ){
@@ -687,7 +704,12 @@ public class FileExportController {
                         if (fld.equals("gene_symbol")) {
                             data.add(NO_INFO_MSG);
                             data.add(NO_INFO_MSG);
-                        } else {
+                        } 
+                        else if (fld.equals("procedure_name")) {
+                            data.add(NO_INFO_MSG);
+                        }
+                        else if (fld.equals("ma_term")) {
+                            data.add(NO_INFO_MSG);
                             data.add(NO_INFO_MSG);
                         }
                     }
@@ -705,18 +727,6 @@ public class FileExportController {
             //rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
             rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
 
-//            String fqStr = query;	
-//			//System.out.println("fq: "+fqOri); //&fq=(impcImg_procedure_name:"Combined SHIRPA and Dysmorphology")
-//			String defaultQStr = "q=observation_type:image_record";
-//			String defaultFqStr = "fq=(biological_sample_group:experimental)";
-//			//System.out.println("fqStr: " + fqStr);
-//			
-//			
-//			if ( !query.contains("fq=*:*") ){
-//				fqStr = fqStr.replace("&fq=","");
-//				defaultQStr = defaultQStr + " AND " + fqStr; 
-//				defaultFqStr = defaultFqStr + " AND " + fqStr;
-//			}
             String fqStr = query;
 
             String defaultQStr = "observation_type:image_record&qf=auto_suggest&defType=edismax";
@@ -736,20 +746,12 @@ public class FileExportController {
             }
 
             JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-
+           
             	//JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
             List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
 
             //int numFacets = sumFacets.size();
             int numFacets = annots.size();
-            /*int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
-             int remainder = (numFacets / 2) % iDisplayLength;
-             int start = iDisplayStart * 2;  // 2 elements(name, count), hence multiply by 2
-             int end = iDisplayStart == quotient * iDisplayLength ? (iDisplayStart + remainder) * 2 : (iDisplayStart + iDisplayLength) * 2;
-             */
-
-            //int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
-            //int remainder = (numFacets / 2) % iDisplayLength;
             int start = iDisplayStart;  // 2 elements(name, count), hence multiply by 2
             int end = iDisplayStart + iDisplayLength;
             end = end > numFacets ? numFacets : end;
@@ -765,7 +767,7 @@ public class FileExportController {
 
                 String annotVal = annot.val;
                 data.add(annotVal);
-
+                
                 if (annot.id != null) {
                     data.add(annot.id);
                     data.add(annot.link);
@@ -774,7 +776,22 @@ public class FileExportController {
                     data.add(NO_INFO_MSG);
                 }
 
-                int imgCount = annot.imgCount;
+                String currFqStr = null;
+                if (displayAnnotName.equals("Gene")) {
+                    currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+                } 
+                else if (displayAnnotName.equals("Procedure")) {
+                    currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+                }
+                else if (displayAnnotName.equals("MA")) {
+                    currFqStr = defaultFqStr + " AND ma_term:\"" + annotVal + "\"";
+                }
+                
+                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(fqStr, currFqStr);
+                
+                //int imgCount = annot.imgCount;
+                int imgCount = (int) pathAndImgCount.get(1);
+                
                 StringBuilder sb = new StringBuilder();
                 sb.append("");
                 sb.append(imgCount);
@@ -784,14 +801,7 @@ public class FileExportController {
                 String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
 
                 query = annot.facet + ":\"" + annotVal + "\"";
-
-                String currFqStr = null;
-                if (displayAnnotName.equals("Gene")) {
-                    currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
-                } else if (displayAnnotName.equals("Procedure")) {
-                    currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
-                }
-
+                
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
                 //String thisImgUrl = "http:" + mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
                 String thisImgUrl = mediaBaseUrl + "?" + defaultQStr + '&' + currFqStr;
@@ -803,6 +813,7 @@ public class FileExportController {
 				// image path
                 //String imgPath = fetchImpcImagePathByAnnotName(query, defaultFqStr);
                 //rowData1.add(imgPath);
+               
                 rowData.add(StringUtils.join(data, "\t"));
 
             }

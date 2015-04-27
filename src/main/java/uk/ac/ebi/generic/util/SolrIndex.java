@@ -55,11 +55,16 @@ import org.springframework.stereotype.Service;
 
 
 
+
+
+
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class SolrIndex {
+
+	private static final String IMG_NOT_FOUND = "No information available";;
 
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
@@ -70,9 +75,6 @@ public class SolrIndex {
 
 	private Object Json;
 	
-	
-	
-    
     public static Map<String,Integer> getGoCodeRank(){
 
     	//GO evidence code ranking mapping
@@ -205,6 +207,7 @@ public class SolrIndex {
 				//length, false);
 		String url = composeSolrUrl(core, "", "", gridSolrParams, start,
 				length, showImgView);
+		
 		log.debug("Export data URL: " + url);
 		return getResults(url);
 	}
@@ -237,6 +240,7 @@ public class SolrIndex {
 		String url = internalSolrUrl + "/" + core + "/select?";
 					
 //		System.out.println(("BASEURL: " + url));
+		
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";
@@ -252,7 +256,7 @@ public class SolrIndex {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 			if (!showImgView) {
-				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_term&facet.mincount=1&facet.limit=-1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("IMPC_IMG PARAMS: " + url); 
 		} else if (mode.equals("imagesGrid")) {
@@ -289,7 +293,7 @@ public class SolrIndex {
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
 			else if (core.equals("impc_images") && !showImgView) {				
-				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.mincount=1&facet.limit=-1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
@@ -397,6 +401,62 @@ public class SolrIndex {
 		return hm;
 	}
 
+	public List fetchImpcImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException {
+
+    	List pathAndCount = new ArrayList<>();
+		//String mediaBaseUrl = config.get("mediaBaseUrl");
+        final int maxNum = 4; // max num of images to display in grid column
+
+        String queryUrl = config.get("internalSolrUrl")
+                + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
+                + "&" + fqStr
+                + "&rows=" + maxNum;
+
+        String queryUrlCount = config.get("internalSolrUrl")
+                + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
+                + "&" + fqStr
+                + "&rows=0";
+        
+        List<String> imgPath = new ArrayList<String>();
+
+        JSONObject imgCountJson = getResults(queryUrlCount);
+        JSONObject thumbnailJson = getResults(queryUrl);
+
+        Integer imgCount = imgCountJson.getJSONObject("response").getInt("numFound");
+        JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
+        
+        int dataLen = docs.size() < 5 ? docs.size() : maxNum;
+
+        for (int i = 0; i < dataLen; i ++) {
+            JSONObject doc = docs.getJSONObject(i);
+
+            String link = null;
+
+            if (doc.containsKey("jpeg_url")) {
+                String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+                String downloadUrl=doc.getString("download_url");
+                //System.out.println("download Url="+downloadUrl);
+                String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
+                String smallThumbNailPath = thumbnailPath + "/200";
+                String largeThumbNailPath = thumbnailPath + "/800";
+                String img = "<img src='" + smallThumbNailPath + "'/>";
+                if(downloadUrl.contains("/annotation/")){
+                	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
+                }else{
+                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath +"'>" + img + "</a>";
+                }
+            } else {
+                link = IMG_NOT_FOUND;
+            }
+            imgPath.add(link);
+        }
+        
+        pathAndCount.add(StringUtils.join(imgPath, ""));
+        pathAndCount.add(imgCount);
+        
+        return pathAndCount;
+    }
+	
 	/**
 	 * Merge all the facets together based on whether they include an underscore
 	 * because underscore facet names means that the solr field name represents
@@ -458,7 +518,7 @@ public class SolrIndex {
 		Map<String, String> hm = new HashMap<String, String>();
 		hm.put("symbol_gene", "Gene");
 		hm.put("procedure_name", "Procedure");
-		//hm.put("selected_top_level_ma_term", "MA");
+		hm.put("ma_id_term", "MA");
 		
 		// Initialize a list on creation using an inner anonymous class
 		List<String> facetNames = new ArrayList<String>() {
@@ -466,38 +526,40 @@ public class SolrIndex {
 			{
 				add("symbol_gene");  // facet field name
 				add("procedure_name");
-				//add("selected_top_level_ma_term");
+				add("ma_id_term");
 				//add("mpTermName");
 			}
 		};
 		for (String facet : facetNames) {
 			
 			//JSONObject arr = facetFields.getJSONArray(facet);
-			JSONArray arr = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray(facet);
-			for (int i = 0; i < arr.size(); i = i + 2) {
-				
-				AnnotNameValCount annotNameValCount = new AnnotNameValCount();
-				
-				annotNameValCount.name     = hm.get(facet);
-				annotNameValCount.facet    = facet;
-				annotNameValCount.val      = arr.get(i).toString();
-				
-				if ( facet.equals("symbol_gene") ){
-					annotNameValCount.facet = "gene_symbol"; // query field name
-					String[] fields = annotNameValCount.val.split("_");
-					annotNameValCount.val = fields[0];
-					annotNameValCount.id = fields[1];
-					annotNameValCount.link = baseUrl + "/genes/" + fields[1];
+			if (json.getJSONObject("facet_counts").getJSONObject("facet_fields").containsKey(facet)){
+				JSONArray arr = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray(facet);
+				for (int i = 0; i < arr.size(); i = i + 2) {
+					
+					AnnotNameValCount annotNameValCount = new AnnotNameValCount();
+					
+					annotNameValCount.name  = hm.get(facet);
+					annotNameValCount.facet = facet;
+					annotNameValCount.val   = arr.get(i).toString();
+					
+					if ( facet.equals("symbol_gene") ){
+						annotNameValCount.facet = "gene_symbol"; // query field name
+						String[] fields = annotNameValCount.val.split("_");
+						annotNameValCount.val = fields[0];
+						annotNameValCount.id = fields[1];
+						annotNameValCount.link = baseUrl + "/genes/" + fields[1];
+					}
+					else if (facet.equals("ma_id_term") ){
+						annotNameValCount.facet = "ma_term"; // query field name
+						String[] fields = annotNameValCount.val.split("_");
+						annotNameValCount.val = fields[1];
+						annotNameValCount.id = fields[0];
+						annotNameValCount.link = baseUrl + "/anatomy/" + fields[0];
+					}
+					annotNameValCount.imgCount = Integer.parseInt(arr.get(i+1).toString());
+					annots.add(annotNameValCount);
 				}
-//				else if (facet.equals("symbol_gene") ){
-//					annotNameValCount.facet = "gene_symbol"; // query field name
-//					String[] fields = annotNameValCount.val.split("_");
-//					annotNameValCount.val = fields[0];
-//					annotNameValCount.id = fields[1];
-//					annotNameValCount.link = baseUrl + "/genes/" + fields[1];
-//				}
-				annotNameValCount.imgCount = Integer.parseInt(arr.get(i+1).toString());
-				annots.add(annotNameValCount);
 			}
 		}
 		
@@ -587,7 +649,7 @@ public class SolrIndex {
 			URISyntaxException {
 		
 		log.debug("GETTING CONTENT FROM: " + url);
-		log.info("GETTING CONTENT FROM: " + url);
+		
 		HttpProxy proxy = new HttpProxy();
 		
 		try {

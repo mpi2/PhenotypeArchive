@@ -154,7 +154,7 @@ public class GraphPage {
         try {
             downloadDataSections = getAllDownloadData();
         } catch (DownloadException e) {
-            throw new GraphTestException(e);
+            throw new GraphTestException("Exception. URL: " + graphUrl,  e);
         }
         
         // Populate download downloadSections data.
