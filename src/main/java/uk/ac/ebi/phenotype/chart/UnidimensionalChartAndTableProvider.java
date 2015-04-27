@@ -367,7 +367,7 @@ public class UnidimensionalChartAndTableProvider {
 		if (map == null) { return new ChartData(); }
 		String title = parameter.getName();
 		String subtitle = procedureName;
-		String xLabel = parameter.getUnit();
+		String xLabel = "Ratio (mutantMean / controlMean)";//parameter.getUnit();
 		ArrayList<Double> control = map.getControlMutatns();
 		ArrayList<Double> mutant = map.getPhenMutants();
 		ArrayList<String> labels = new ArrayList<String>();
