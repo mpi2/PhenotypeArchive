@@ -20,18 +20,11 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.util.Utils;
-
 /**
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary to validate a categorical
+ * This class encapsulates the code and data necessary to validate an ABR
  * graph.
  */
 public class GraphValidatorABR extends GraphValidator {

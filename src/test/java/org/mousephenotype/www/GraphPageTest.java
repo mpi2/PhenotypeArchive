@@ -32,6 +32,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -43,9 +44,11 @@ import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.GraphPage;
 import org.mousephenotype.www.testing.model.GraphSection;
 import org.mousephenotype.www.testing.model.GraphValidator;
+import org.mousephenotype.www.testing.model.GraphValidatorABR;
 import org.mousephenotype.www.testing.model.GraphValidatorCategorical;
 import org.mousephenotype.www.testing.model.GraphValidatorPreqc;
 import org.mousephenotype.www.testing.model.GraphValidatorUnidimensional;
+import org.mousephenotype.www.testing.model.GraphValidatorViability;
 import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.WebDriver;
@@ -238,6 +241,7 @@ public class GraphPageTest {
     public void testPreQcGraphs() throws GraphTestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PREQC, 100);
+        assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         String target;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -268,6 +272,7 @@ public class GraphPageTest {
         String testName = "testCategoricalGraphs";
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
+        assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         testEngine(testName, geneGraphs, new GraphValidatorCategorical());
     }
     
@@ -277,6 +282,37 @@ public class GraphPageTest {
         String testName = "testUnidimensionalGraphs";
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
+        assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         testEngine(testName, geneGraphs, new GraphValidatorUnidimensional());
+    }
+    
+    @Test
+//@Ignore
+    public void testABRGraphs() throws GraphTestException {
+        String testName = "testABRGraphs";
+        
+        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
+        assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
+        testEngine(testName, geneGraphs, new GraphValidatorABR());
+    }
+    
+    @Test
+//@Ignore
+    public void testPieGraphs() throws GraphTestException {
+        String testName = "testViabilityGraphs";
+        
+        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PIE, 100);
+        assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
+        testEngine(testName, geneGraphs, new GraphValidatorViability());
+    }
+    
+    @Test
+//@Ignore
+    public void testTimeSeriesGraphs() throws GraphTestException {
+        String testName = "testViabilityGraphs";
+        
+        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);
+        assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
+        testEngine(testName, geneGraphs, new GraphValidatorViability());
     }
 }
