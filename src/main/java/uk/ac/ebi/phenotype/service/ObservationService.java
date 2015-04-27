@@ -47,7 +47,6 @@ import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
-import uk.ac.ebi.phenotype.pojo.Observation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -115,7 +114,7 @@ public class ObservationService extends BasicService {
         return solr.query(q).getGroupResponse().getValues().get(0).getValues();
                    	
     }
-    
+
     public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
         List<String> genes = new ArrayList<>();
