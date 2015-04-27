@@ -263,7 +263,8 @@ public class TimeSeriesChartAndTableProvider {
 				+ " labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }},   title: {   text: '"
-				+ xUnitsLabel
+			//	+ xUnitsLabel
+				+ "Weeks since birth (rounded)"
 				+ "'   }  }, yAxis: { labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }}, title: { text: ' "
