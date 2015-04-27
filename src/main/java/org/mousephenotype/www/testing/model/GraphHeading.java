@@ -196,7 +196,7 @@ public class GraphHeading {
      */
     private void parse() {
         // Wait for all charts to load.
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[starts-with(@id, 'chartdivChart_')]/div[starts-with(@class, 'highcharts-container')]")));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
         
         List<WebElement> titleElements = chartElement.findElements(By.xpath("./h2[@id='section-associations']"));
         if (titleElements.isEmpty()) {
@@ -261,6 +261,11 @@ public class GraphHeading {
                 throw e;
             }
         }
+
+        @Override
+        public String toString() {
+            return "Line1Parser{" + "background=" + background + ", phenotypingCenter=" + phenotypingCenter + ", pipelineName=" + pipelineName + ", pipelineLinkElement=" + pipelineLinkElement + '}';
+        }
     }
     
     private class Line2Parser {
@@ -283,6 +288,11 @@ public class GraphHeading {
                 throw e;
             }
         }
+
+        @Override
+        public String toString() {
+            return "Line2Parser{" + "metadataGroup=" + metadataGroup + '}';
+        }
     }
     
     private class ParameterParser {
@@ -304,12 +314,17 @@ public class GraphHeading {
                 parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
             }
             
-            elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle'] | ./p[@class='chartSubtitle']/a"));
+            elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']/a | ./p[@class='chartSubtitle']/a"));
             if (elements.isEmpty()) {
                 sopLinkElement = null;
             } else {
                 sopLinkElement = elements.get(0);
             }
+        }
+
+        @Override
+        public String toString() {
+            return "ParameterParser{" + "parameterName=" + parameterName + ", parameterObject=" + parameterObject + ", parameterStableId=" + parameterStableId + ", sopLinkElement=" + sopLinkElement + '}';
         }
     }
     

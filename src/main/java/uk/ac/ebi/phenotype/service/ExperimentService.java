@@ -93,7 +93,7 @@ public class ExperimentService {
 
         LOG.debug("metadataGroup parmeter is=" + metaDataGroup);
 
-        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, geneAccession, zygosities, phenotypingCenterId, strain, sex, metaDataGroup, alleleAccession);
+        List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterId, pipelineId, geneAccession, zygosities, phenotypingCenterId, strain, sex, metaDataGroup, alleleAccession);
         Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 
         for (ObservationDTO observation : observations) {
@@ -465,7 +465,7 @@ public class ExperimentService {
         ViabilityDTO viabilityDTO=new ViabilityDTO();
         Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
             //for viability we don't need to filter on Sex or Zygosity
-        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+        List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
         ObservationDTO outcomeObservation = observations.get(0);  
         System.out.println("specific outcome="+observations);
            System.out.println("category of observation="+outcomeObservation.getCategory());
@@ -490,7 +490,7 @@ public class ExperimentService {
     	FertilityDTO fertilityDTO=new FertilityDTO();
         Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
             //for viability we don't need to filter on Sex or Zygosity
-        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
+        List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterId, pipelineId, acc, null, phenotypingCenterId, strain, null, metadataGroup, alleleAccession);
         ObservationDTO outcomeObservation = observations.get(0);  
         System.out.println("specific outcome="+observations);
            System.out.println("category of observation="+outcomeObservation.getCategory());

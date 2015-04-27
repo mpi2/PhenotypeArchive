@@ -30,7 +30,7 @@ package org.mousephenotype.www.testing.model;
 
 public abstract class GraphValidator {
     protected GraphSection pageSection;
-    
+    public static final String IMPC_PIPELINE = "IMPC Pipeline";
     public GraphValidator() {
         
     }

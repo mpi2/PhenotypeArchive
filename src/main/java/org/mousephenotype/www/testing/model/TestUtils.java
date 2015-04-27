@@ -1007,7 +1007,7 @@ public class TestUtils {
                 
             case PIE:
                 try {
-                    List<String> parameterStableIds = Arrays.asList(new String[] { "_VIA_" });
+                    List<String> parameterStableIds = Arrays.asList(new String[] { "*_VIA_*" });
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1017,7 +1017,7 @@ public class TestUtils {
                 
             case UNIDIMENSIONAL_ABR_PLOT:
                 try {
-                    List<String> parameterStableIds = Arrays.asList(new String[] { "_ABR_" });
+                    List<String> parameterStableIds = Arrays.asList(new String[] { "*_ABR_*" });
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();
