@@ -1142,9 +1142,13 @@
 
             var filterTxt = qValue;
             if (facet == 'gene') {
-               
+               console.log("qField: " + qField);
+               console.log("qValue: " + qValue);
                 if (qValue == '1') {
                     filterTxt = 'Legacy Phenotyping';
+                }
+                else if (qValue == 'Phenotyping Complete'){
+                	filterTxt = 'Approved';
                 }
                 else if (qValue == 'Phenotype Attempt Registered' || qField == 'status' || qField == 'marker_type') {
                    // filterTxt = qValue.toLowerCase();
@@ -1156,6 +1160,7 @@
                 else if (qField == 'latest_phenotyping_centre') {
                     filterTxt = 'mice phenotyped at ' + qValue;
                 }
+                
             }
 
             var pipelineName, a;

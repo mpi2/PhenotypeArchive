@@ -601,7 +601,7 @@ public class DataTableController {
 
                 try {
 					//ArrayList<String> mp = new ArrayList<String>();
-                    //ArrayList<String> ma = new ArrayList<String>();
+                	ArrayList<String> ma = new ArrayList<String>();
                     ArrayList<String> procedures = new ArrayList<String>();
 
                     int counter = 0;
@@ -628,6 +628,22 @@ public class DataTableController {
 //							counter++;
 //						}
 //					}	
+					
+					if (doc.has("ma_id")) {
+						JSONArray termIds   = doc.getJSONArray("ma_id");
+						JSONArray termNames = doc.getJSONArray("ma_term");
+						for( Object s : termIds ){														
+							
+							log.debug(i + " - MA: " + termNames.get(counter).toString());
+							String name = termNames.get(counter).toString();
+							String maid = termIds.get(counter).toString();	
+							String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
+							ma.add("<a href='" + url + "'>" + name + "</a>");
+							
+							counter++;
+						}
+					}	
+					
                     if (doc.has("procedure_name")) {
                         String procedureName = doc.getString("procedure_name");
                         procedures.add(procedureName);
@@ -642,13 +658,13 @@ public class DataTableController {
 //					}
 //					
 //					
-//					if ( ma.size() == 1 ){
-//						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
-//					}
-//					else if ( ma.size() > 1 ){
-//						String list = "<ul class='imgMa'><li>" + StringUtils.join(ma, "</li><li>") + "</li></ul>";
-//						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list + "</span>";
-//					}
+					if ( ma.size() == 1 ){
+						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
+					}
+					else if ( ma.size() > 1 ){
+						String list = "<ul class='imgMa'><li>" + StringUtils.join(ma, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + list + "</span>";
+					}
                     if (procedures.size() == 1) {
                         annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + StringUtils.join(procedures, ", ") + "</span>";
                     } else if (procedures.size() > 1) {
