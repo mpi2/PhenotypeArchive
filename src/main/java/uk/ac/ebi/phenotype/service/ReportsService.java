@@ -228,8 +228,13 @@ public class ReportsService {
     			}
     			if (genesByVia.containsKey(category)){
     				genes = genesByVia.get(category);
-    			} 
-    			genes.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
+    			}
+
+			    if (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) {
+				    genes.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
+			    } else {
+				    System.out.println("  ERROR: Could not get solr document field gene_symbol for document: " + doc);
+			    }
 				genesByVia.put(category, genes);
     		}
       		
