@@ -71,27 +71,9 @@ public class GraphValidatorABR extends GraphValidator {
         
         status.add(super.validate());                                           // Validate common components.
         
-        if (pageSection.getHeading().getObservationType() != ObservationType.categorical) {
-            status.addError("ERROR: Expected categorical graph but found " + pageSection.getHeading().getObservationType().name());
-        }
-        
         // Verify title contains 'Allele'.
         if ( ! pageSection.getHeading().title.startsWith("Allele -")) {
             status.addError("ERROR: expected title to start with 'Allele -'. Title is '" + pageSection.getHeading().title + "'. URL: " + pageSection.graphUrl);
-        }
-        
-        // Verify parameter name on graph matches that in the Parameter instance.
-        String parameterObjectName = pageSection.getHeading().parameterObject.getName().trim();
-        if (parameterObjectName.compareToIgnoreCase(pageSection.getHeading().parameterName) != 0) {
-            status.addError("ERROR: parameter name mismatch. parameter on graph: '" 
-                    + pageSection.getHeading().parameterName
-                    + "'. From parameterObject: " + parameterObjectName
-                    + ". URL: " + pageSection.graphUrl);
-        }
-        
-        // Validate that the required HTML table 'catTable' exists.
-        if (pageSection.getCatTable() == null) {
-            status.addError("ERROR: categorical graph has no catTable. URL: " + pageSection.graphUrl);
         }
         
         status.add(validateDownload());                                         // Validate download streams.
@@ -99,19 +81,7 @@ public class GraphValidatorABR extends GraphValidator {
         return status;
     }
     
-    
-    
-    
-    // FOR TIME SERIES GRAPHS ONLY:
-////////        // Verify parameter name on graph matches that in the Parameter instance.
-////////        // NOTE: Time Series graphs have the string 'MEAN ' prepended to the parameter name!!! Test accordingly.
-////////        String expectedParameterName = pageSection.getHeading().parameterObject.getName().trim();
-////////        if (graphType == ObservationType.time_series)
-////////            expectedParameterName = "MEAN " + expectedParameterName;
-////////        if (expectedParameterName.compareToIgnoreCase(parameterName) != 0) {
-////////            status.addError("ERROR: parameter name mismatch. parameter on graph: '" + parameterName + "'. from parameterDAO: " + parameterObject.getName() + ". URL: " + target);
-////////        }
-    
+
     // PRIVATE METHODS
     
     
@@ -152,22 +122,7 @@ public class GraphValidatorABR extends GraphValidator {
                 file = h.geneSymbol.toLowerCase().trim();
                 if ((! group.equals("control")) && (! page.equals(file)))
                     status.addError(downloadType + " gene symbol mismatch. Page: " + row[GENE_SYMBOL] + ". Download: " + h.geneSymbol + ". URL: " + pageSection.graphUrl);
-                
-                page = row[METADATA_GROUP].toLowerCase().trim();
-                file = h.metadataGroup.toLowerCase().trim();
-                if ( ! page.equals(file))
-                    status.addError(downloadType + " metadata group mismatch. Page: " + row[METADATA_GROUP] + ". Download: " + h.metadataGroup + ". URL: " + pageSection.graphUrl);
-                
-                page = row[PARAMETER_NAME].toLowerCase().trim();
-                file = h.parameterName.toLowerCase().trim();
-                if ( ! page.equals(file))
-                    status.addError(downloadType + " parameter name mismatch. Page: " + row[PARAMETER_NAME] + ". Download: " + h.parameterName + ". URL: " + pageSection.graphUrl);
-                
-                page = row[PARAMETER_STABLE_ID].toLowerCase().trim();
-                file = h.parameterStableId.toLowerCase().trim();
-                if ( ! page.equals(file))
-                    status.addError(downloadType + " parameter stable id mismatch. Page: " + row[PARAMETER_STABLE_ID] + ". Download: " + h.parameterStableId + ". URL: " + pageSection.graphUrl);
-                
+
                 page = row[PHENOTYPING_CENTER].toLowerCase().trim();
                 file = h.phenotypingCenter.toLowerCase().trim();
                 if ( ! page.equals(file))
@@ -175,113 +130,14 @@ public class GraphValidatorABR extends GraphValidator {
                 
                 page = row[PIPELINE_NAME].toLowerCase().trim();
                 file = h.pipelineName.toLowerCase().trim();
-                if ( ! page.equals(file))
-                    status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
-            }
-            
-            status.add(validateDownloadCounts(pageSection.getCatTable(), downloadSection));
-        }
-
-        return status;
-    }
-    
-    /**
-     * Validates download counts against categorical graph section totals.
-     *
-     * @param catTable a single graph's catTable
-     * @param downloadData download data segment for this catTable, including
-     * heading
-     * 
-     * @return validation status
-     * 
-     */
-    private PageStatus validateDownloadCounts(GraphCatTable catTable, String[][] downloadData) {
-        PageStatus status = new PageStatus();
-        
-        // key = "Control" or "Experimental". value is zygosity hash map.
-        HashMap<String, HashMap<String, HashMap<String, HashMap<String, Integer>>>> groupHash = new HashMap();
-        
-        // Walk the download stream summing the counts.
-        // Layout:      HashMap groupHash
-        //                  "Control"
-        //                  "Experimental"
-        //                                  HashMap zygosity
-        //                                      "Control"
-        //                                      "Homozygote"
-        //                                                      HashMap category
-        //                                                          "Absent"
-        //                                                          "Present"
-        //                                                                          HashMap sex
-        //                                                                              "Female"
-        //                                                                              "Male"
-        //                                                                                          Integer
-        
-        // Skip over heading (first row). Also, sometimes there are extra blank lines at the end of the stream.
-        // lowercase the hash keys on put and use lowercase when retrieving.
-        int colCountFirstRow = 0;
-        for (int i = 1; i < downloadData.length; i++) {
-            if (i == 1)
-                colCountFirstRow = downloadData[i].length;                      // Save the column count, then check it each time. Skip rows with mismatched column counts.
-            if (downloadData[i].length != colCountFirstRow)
-                continue;
-            
-            String[] row = downloadData[i];
-            
-            String zygosity = row[ZYGOSITY].toLowerCase();
-            String sex = row[SEX].toLowerCase();
-            String group = row[GROUP].toLowerCase();
-            String category = row[CATEGORY].toLowerCase();
-            
-            if ( ! groupHash.containsKey(group)) {
-                groupHash.put(group, new HashMap<String, HashMap<String, HashMap<String, Integer>>>());
-            }
-            HashMap<String, HashMap<String, HashMap<String, Integer>>> zygosityHash = groupHash.get(group);
-            // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
-            if (group.toLowerCase().equals("control")) {
-                zygosity = group.toLowerCase();
-            }
-            if ( ! zygosityHash.containsKey(zygosity)) {
-                zygosityHash.put(zygosity, new HashMap<String, HashMap<String, Integer>>());
-            }
-            HashMap<String, HashMap<String, Integer>> categoryHash = zygosityHash.get(zygosity);
-            if ( ! categoryHash.containsKey(category)) {
-                categoryHash.put(category, new HashMap<String, Integer>());
-            }
-            HashMap<String, Integer> sexHash = categoryHash.get(category);
-            if ( ! sexHash.containsKey(sex)) {
-                sexHash.put(sex, 0);
-            }
-            sexHash.put(sex, sexHash.get(sex) + 1);
-        }
-        
-        // We now have all the counts. Compare them against the page values.
-        List<GraphCatTable.Row> rows = catTable.getBodyRowsList();
-        for (GraphCatTable.Row row : rows) {                                    // For all of the Control/Hom/Het rows in catTable ...
-            Iterator<Entry<String, String>> categoryIt = row.getCategoryHash().entrySet().iterator();
-            while (categoryIt.hasNext()) {                                      // ... For all of the categories ...
-                Entry<String, String> entry = categoryIt.next();
-                Integer pageValue = Utils.tryParseInt(entry.getValue());
-                
-                // If this is a control, set 'zygosity' (which is otherwise blank) to 'control'.
-                String zygosityKey = (row.group == GraphCatTable.Group.CONTROL ? row.group.toString().toLowerCase() : row.zygosity.toLowerCase());
-
-                // Sometimes some of these components are null. Wrap this in a try block.
-                Integer downloadValue = null;
-                try {
-                    downloadValue = groupHash
-                            .get(row.group.toString().toLowerCase())
-                            .get(zygosityKey)
-                            .get(entry.getKey().toLowerCase())
-                            .get(row.sex.toString().toLowerCase());
-                } catch (Exception e) { }
-                downloadValue = (downloadValue == null ? 0 : downloadValue);    // 0 count values on the page have no hash entry (i.e. returned hash value is null).
-                if ( ! pageValue.equals(downloadValue)) {
-                    status.addError("ERROR: validating " + row.group.toString() + "." + row.zygosity + "." + entry.getKey() + "." + row.sex.toString() + ": " +
-                            "page value = '" + pageValue + "'. download value = '" + downloadValue + "'.");
+                if ( ! page.equals(file)) {
+                    if ( ! file.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
+                        status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                    }
                 }
             }
         }
-        
+
         return status;
     }
 }

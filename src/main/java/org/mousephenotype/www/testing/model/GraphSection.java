@@ -132,7 +132,7 @@ public class GraphSection {
     private void load() {
         
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[starts-with(@id, 'chartdivChart_')]/div[starts-with(@class, 'highcharts-container')]")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
             
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
             if ( ! elements.isEmpty()) {
