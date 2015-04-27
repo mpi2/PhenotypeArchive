@@ -139,20 +139,25 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
 		String urlParams = "";
 		SolrQuery query = new SolrQuery().addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
-		String q = (strains.size() > 1) ? "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
+		String q = "*:*";
+		query.addFilterQuery((strains.size() > 1) ? "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"");
 		if (strains.size() > 0) {
 			urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
 		}
 
 		if (center != null && center.length > 0) {
-			q += " AND (";
-			q += (center.length > 1) ? StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"" : StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"";
-			q += ")";
+			query.addFilterQuery( "(" + ((center.length > 1) ? StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"" : StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"") + ")");
 			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
 		}
 
 		if (sex != null && sex.length == 1) {
-			q += " AND " + StatisticalResultDTO.SEX + ":\"" + sex[0] + "\"";
+			if (sex[0].equalsIgnoreCase("male")){
+				query.addFilterQuery( StatisticalResultDTO.MALE_CONTROL_COUNT + ":[1 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.MALE_MUTANT_COUNT + ":[1 TO 100000]");
+			} else {
+				query.addFilterQuery( StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[1 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.FEMALE_MUTANT_COUNT + ":[1 TO 100000]");
+			}
 		}
 
 		query.setQuery(q);
