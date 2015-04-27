@@ -1119,8 +1119,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     		
     		Double ratio = null;		
     		
-    		if (sexToDisplay.equalsIgnoreCase("both") ) {					
-    			System.out.println("BOTH SEXES");
+    		if (sexToDisplay.equalsIgnoreCase("both") ) {	
     			if (nMMutant > 0 && nFMutant > 0){
     				Double totalMutant = nFMutant + nMMutant;
     				Double ratioMale = nMMutant / totalMutant;
@@ -1134,12 +1133,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     			}
     		} else if (sexToDisplay.equalsIgnoreCase(SexType.male.getName())){
     			if (nMMutant > 0){
-    				System.out.println("MALE ONLY");
     				ratio = meanMMutant / meanMControl;
     			}
     		} else if (sexToDisplay.equalsIgnoreCase(SexType.female.getName())) {
     			if (nFMutant > 0){
-    				System.out.println("FEMALE ONLY");
     				ratio = meanFMutant / meanFControl;
     			}
     		}
