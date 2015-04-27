@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -155,6 +156,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		}
 
 		query.setQuery(q);
+		query.addFilterQuery("(" + StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[1 TO 100000] OR " + StatisticalResultDTO.MALE_CONTROL_COUNT + ":[1 TO 100000])");
 		query.setRows(10000000);
 		query.setFields(StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.FEMALE_CONTROL_MEAN, StatisticalResultDTO.MARKER_SYMBOL,
 			StatisticalResultDTO.FEMALE_MUTANT_MEAN, StatisticalResultDTO.MALE_CONTROL_MEAN, StatisticalResultDTO.MALE_MUTANT_MEAN,
@@ -171,13 +173,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		double[] meansArray = new double[groups.size()];
 		String[] genesArray = new String[groups.size()];
 		String[] geneSymbolArray = new String[groups.size()];
-		int i = 0;
+		int size = 0;
 		
 		for (Group gr : groups) {
 			SolrDocumentList resDocs = gr.getResult();
 			String sexToDisplay = null;
-			genesArray[i] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
-			geneSymbolArray[i] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
 			
 			if (sex != null && sex.length == 1){
 				if (sex[0].equalsIgnoreCase(SexType.male.getName())) {
@@ -187,57 +187,35 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 					sexToDisplay = 	SexType.female.getName();
 				}
 			}
+			
 			if (sex == null || sex.length == 0 || sex.length == 2) {
-				if ( resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&
-					 resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  
-					 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&
-					 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN)){
-					sexToDisplay = null;
+				if ( resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) && Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 0 && 
+					 resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) && Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0 &&  
+					 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) && Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 0 && 
+					 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) && Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0 ){
+					sexToDisplay = "both";
 				}
-				else if (resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&
-				 resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  
-				 (! resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) ||
-				 !resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN))){
+				else if (resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&  Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 0 && 
+				resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0 
+				 ){
 					sexToDisplay = SexType.female.getName();
 				}
-				else if (!resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) ||
-				 !resDocs.get(0).containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  
-				 resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&
-				 !resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN)){
+				else if (resDocs.get(0).containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&  Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 0 && 
+				resDocs.get(0).containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) &&  Double.parseDouble(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0 ){
 					sexToDisplay = SexType.male.getName();
 				}
 			}
 			
-			if (sex == null ) {					
-				System.out.println("BOTH SEXES");
-				
-				Float totalMutant = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString())
-						+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString());
-				Float ratioMale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) / totalMutant;
-				Float ratioFemale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) / totalMutant;
-				meansArray[i] =  Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString()) * ratioFemale 
-					+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString()) * ratioMale;
-				
-				System.out.println(genesArray[i]  + "  " + ratioMale + " " + ratioFemale + " => " + meansArray[i] );
-				
-				totalMutant = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString())
-					+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString());
-				ratioMale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) / totalMutant;
-				ratioFemale = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) / totalMutant;				
-				meansArray[i] = (Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString()) * ratioFemale 
-					+ Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString()) * ratioMale);		
-
-				System.out.println(genesArray[i]  + "   " + ratioMale + " " + ratioFemale + " => " + meansArray[i]);
-				
-			} else if (sexToDisplay.equalsIgnoreCase(SexType.male.getName())){
-				System.out.println("MALE ONLY");
-				meansArray[i] = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString()) / Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString());
-			} else if (sexToDisplay.equalsIgnoreCase(SexType.female.getName())) {
-				System.out.println("FEMALE ONLY");
-				meansArray[i] = Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString()) / Float.parseFloat(resDocs.get(0).get(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString());
+			Double ratio = getPlotRatio(resDocs.get(0), sexToDisplay);
+			
+			if (ratio != null){
+				genesArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
+				geneSymbolArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
+				System.out.println("Added geneSymbol : " + size + " " + geneSymbolArray[size]);
+				meansArray[size] = ratio;
+				size++;
 			}
 			
-			i++;
 		}
 
 		// we do the binning for all the data but fill the bins after that to
@@ -249,7 +227,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		ArrayList<String> controlGeneAcc = new ArrayList<String>();
 		ArrayList<Double> upperBounds = new ArrayList<Double>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
-		if (meansArray.length > 0) {
+		if (size > 0) {
 			distribution.load(meansArray);
 			for (double bound : distribution.getUpperBounds()) {
 				upperBounds.add(bound);
@@ -268,7 +246,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 				mutantGeneAcc.add("");
 			}
 
-			for (int j = 0; j < groups.size(); j++) {
+			for (int j = 0; j < size; j++) {
 				// find out the proper bin
 				int binIndex = getBin(upperBounds, meansArray[j]);
 				if (genes.contains(genesArray[j])) {
@@ -305,7 +283,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 				controlGeneAcc.set(t, controlGeneAcc.get(t) + urlParams);
 				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
 			}
-
+			
 			StackedBarsData data = new StackedBarsData();
 			data.setUpperBounds(upperBounds);
 			data.setControlGenes(controlGenes);
@@ -321,6 +299,47 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
+	private Double getPlotRatio(SolrDocument doc, String sexToDisplay){
+		
+		Double ratio = null;		
+		
+		if (sexToDisplay.equalsIgnoreCase("both") ) {					
+			System.out.println("BOTH SEXES");
+			if (Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0 && 
+				Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0){
+				Double totalMutant = Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString())
+						+ Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString());
+				Double ratioMale = Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) / totalMutant;
+				Double ratioFemale = Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) / totalMutant;
+				ratio =  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString()) * ratioFemale 
+					+ Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString()) * ratioMale;
+				
+				System.out.println(doc.get(StatisticalResultDTO.MARKER_SYMBOL)  + "  " + ratioMale + " " + ratioFemale + " => " + ratio );
+				
+				totalMutant = Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString())
+					+ Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString());
+				ratioMale = Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) / totalMutant;
+				ratioFemale = Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) / totalMutant;				
+				ratio = ratio/(Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString()) * ratioFemale 
+					+ Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString()) * ratioMale);		
+
+				System.out.println(doc.get(StatisticalResultDTO.MARKER_SYMBOL)  + "   " + ratioMale + " " + ratioFemale + " => " + ratio);
+			}
+		} else if (sexToDisplay.equalsIgnoreCase(SexType.male.getName())){
+			if (Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0){
+				System.out.println("MALE ONLY");
+				ratio = Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString()) / Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString());
+			}
+		} else if (sexToDisplay.equalsIgnoreCase(SexType.female.getName())) {
+			if (Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0){
+				System.out.println("FEMALE ONLY");
+				ratio = Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString()) / Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString());
+			}
+		}
+		
+		return ratio;
+	}
+	
 	private int getBin(List<Double> bins, Double valueToBin) {
 
 		for (Double upperBound : bins) {
