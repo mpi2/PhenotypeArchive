@@ -98,9 +98,6 @@ public class OverviewChartsController {
 				// We need to know centers for the controls, otherwise we show all controls
 				Set <String> tempCenters = os.getCenters(p, genes, OVERVIEW_STRAINS, "experimental");
 				centerToFilter = tempCenters.toArray(new String[0]);
-			} else {
-
-				System.out.println("CENTER :: " + center.length + " " + center[0]);
 			}
 			
 			if( impressUtilities.checkType(p).equals(ObservationType.categorical) ){

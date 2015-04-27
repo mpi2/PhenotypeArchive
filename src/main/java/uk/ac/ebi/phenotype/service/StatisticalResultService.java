@@ -170,8 +170,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		query.set("group.field", StatisticalResultDTO.COLONY_ID);
 		query.set("group.limit", 1);
 		
-		System.out.println("SOLR URL FOR OVERVIEW CHARTS ::: " + solr.getBaseURL() + "/select?" + query);
-		
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		double[] meansArray = new double[groups.size()];
 		String[] genesArray = new String[groups.size()];
