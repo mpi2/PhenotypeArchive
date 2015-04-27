@@ -315,8 +315,6 @@ public class ChartsController {
 
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
 
-        System.out.println("CHART TYPE : " + chartType + "\n PARAMETER " + parameter.getStableId());
-
         if (experiment != null) {
 
             if (pipeline == null) {

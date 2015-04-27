@@ -83,11 +83,9 @@ public class GraphUtils {
 			for (String pipeStableId : pipelineStableIdStrings) {
 				for (String center : centersList) {
 					try {
-						// encode the phenotype center to get around harwell
-						// spaces
+						// encode the phenotype center to get around harwell spaces
 						center = URLEncoder.encode(center, "UTF-8");
 					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					for (String strain : strains) {
@@ -98,14 +96,11 @@ public class GraphUtils {
 							if (metaDataGroupStrings != null) {
 								for (String metaGroup : metaDataGroupStrings) {
 									urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "=" + center + "" + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId + seperator + ObservationDTO.METADATA_GROUP + "=" + metaGroup);
-
 								}
 							}
 							else {
-								// if metadataGroup is null then don't add it to
-								// the request
+								// if metadataGroup is null then don't add it to the request
 								urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "=" + center + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
-
 							}
 						}
 					}
