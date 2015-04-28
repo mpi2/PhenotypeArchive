@@ -175,8 +175,11 @@ public class GraphValidatorUnidimensional extends GraphValidator {
                 
                 file = row[PIPELINE_NAME].toLowerCase().trim();
                 page = h.pipelineName.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                if ( ! file.equals(page)) {
+                    if ( ! page.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
+                        status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                    }
+                }
             }
             
             status.add(validateDownloadCounts(downloadSection));

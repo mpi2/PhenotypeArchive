@@ -20,12 +20,7 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *

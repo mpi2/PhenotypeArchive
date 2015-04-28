@@ -50,8 +50,16 @@ public class GraphGlobalTestTable {
     public GraphGlobalTestTable(String graphUrl, WebElement globalTestTableElement) {
         this.graphUrl = graphUrl;
         
-        // Get the MP Association p-value.
-        List<WebElement> mpAssociationPvalueElements = globalTestTableElement.findElements(By.xpath("./tbody/tr/td[@class='globalTestValue']"));
+        // Get the MP Association p-value. Loop around a few times ... sometimes it's not quite finished loading when this block gets hit.
+        List<WebElement> mpAssociationPvalueElements = new ArrayList();
+        for (int i = 0; i < 10; i++) {
+            mpAssociationPvalueElements = globalTestTableElement.findElements(By.xpath("./tbody/tr/td[@class='globalTestValue']"));
+            if (mpAssociationPvalueElements.isEmpty()) {
+                TestUtils.sleep(50);
+            } else {
+                break;
+            }
+        }
         if ( ! mpAssociationPvalueElements.isEmpty()) {
             mpAssociationPvalue = Utils.tryParseDouble(mpAssociationPvalueElements.get(0).getText());
         }
