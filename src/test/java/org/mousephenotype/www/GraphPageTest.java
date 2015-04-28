@@ -47,6 +47,7 @@ import org.mousephenotype.www.testing.model.GraphValidator;
 import org.mousephenotype.www.testing.model.GraphValidatorABR;
 import org.mousephenotype.www.testing.model.GraphValidatorCategorical;
 import org.mousephenotype.www.testing.model.GraphValidatorPreqc;
+import org.mousephenotype.www.testing.model.GraphValidatorTimeSeries;
 import org.mousephenotype.www.testing.model.GraphValidatorUnidimensional;
 import org.mousephenotype.www.testing.model.GraphValidatorViability;
 import org.mousephenotype.www.testing.model.PageStatus;
@@ -176,7 +177,7 @@ public class GraphPageTest {
         return status;
     }
     
-    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, /*ChartType chartType, */GraphValidator validator) throws GraphTestException {
+    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, GraphValidator validator) throws GraphTestException {
         String target;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -214,18 +215,20 @@ public class GraphPageTest {
         String testName = "testKnownGraphs";
         Date start = new Date();
         GraphValidatorCategorical graphValidatorCategorical = new GraphValidatorCategorical();
+        GraphValidatorUnidimensional graphValidatorUnidimensional = new GraphValidatorUnidimensional();
         PageStatus status = new PageStatus();
         
         List<String> graphUrls = Arrays.asList( new String[] {
-            "http://dev.mousephenotype.org/data/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
-          , "http://dev.mousephenotype.org/data/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
-//          , "https://dev.mousephenotype.org/data/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
-//          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"
+            "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"
         });
         List<GraphValidator> validators = Arrays.asList( new GraphValidator[] {
             graphValidatorCategorical
           , graphValidatorCategorical
-                
+          , graphValidatorUnidimensional
+          , graphValidatorUnidimensional
         });
         
         for (int i = 0; i < graphUrls.size(); i++) {
@@ -299,7 +302,7 @@ public class GraphPageTest {
     @Test
 //@Ignore
     public void testPieGraphs() throws GraphTestException {
-        String testName = "testViabilityGraphs";
+        String testName = "testPieGraphs";
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PIE, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
@@ -309,10 +312,10 @@ public class GraphPageTest {
     @Test
 //@Ignore
     public void testTimeSeriesGraphs() throws GraphTestException {
-        String testName = "testViabilityGraphs";
+        String testName = "testTimeSeriesGraphs";
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, new GraphValidatorViability());
+        testEngine(testName, geneGraphs, new GraphValidatorTimeSeries());
     }
 }
