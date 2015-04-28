@@ -75,7 +75,8 @@ public class OverviewChartsController {
 			return "overviewChart";
 	}
 	
-	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) 
+	throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
@@ -84,6 +85,7 @@ public class OverviewChartsController {
 		ChartData chartRes = null;
 		List<String> genes = null;
 		String[] centerToFilter = center;
+		
 		
 		// Assuming that different versions of a procedure will keep the same name. 
 		String procedureName = p.getProcedures().iterator().next().getName();

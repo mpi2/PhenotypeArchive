@@ -102,10 +102,13 @@ public class GraphHeading {
             }
         }
         
-        // 1. Check if sopLink is not null. Warning if it is.
+        // 1. Check if sopLink is not null. Warning if it is and the
+        //    observation type is not time-series.
         // 2. If link is not null, check it contains '/impress/'.
         if (sopLinkElement == null) {
-            status.addWarning("WARNING: sop link element is missing.");
+            if ( observationType != ObservationType.time_series) {
+                status.addWarning("WARNING: sop link element is missing.");
+            }
         } else {
             String url = sopLinkElement.getAttribute("href");
             if ( ! url.contains("/impress/")) {
@@ -250,7 +253,7 @@ public class GraphHeading {
                 String[] part2 = part1[1].split("Pipeline -");
                 phenotypingCenter = part2[0].replace("Phenotyping Center -", "").replace("&nbsp;", "").trim();
                 pipelineName = part2[1].replace("Pipeline -", "").replace("&nbsp;", "").trim();
-                List<WebElement> elements = line1Element.findElements(By.xpath("./a"));
+                List<WebElement> elements = line1Element.findElements(By.xpath(".//a"));
                 if (elements.isEmpty()) {
                     pipelineLinkElement = null;
                 } else {
@@ -296,31 +299,40 @@ public class GraphHeading {
     }
     
     private class ParameterParser {
-        public final String parameterName;
-        public final Parameter parameterObject;
-        public final String parameterStableId;
-        public final WebElement sopLinkElement;
+        public String parameterName = "";
+        public Parameter parameterObject = null;
+        public String parameterStableId = "";
+        public WebElement sopLinkElement = null;
         
         public ParameterParser() {
             List<WebElement> elements = chartElement.findElements(By.xpath(".//span[@data-parameterstableid]"));
-            if (elements.isEmpty()) {
-                parameterName = null;
-                parameterObject = null;
-                parameterStableId = null;
-            } else {
+            if ( ! elements.isEmpty()) {
+                // For all but time-series
                 WebElement parameterElement = elements.get(0);
                 parameterName = parameterElement.getText();
                 parameterStableId = parameterElement.getAttribute("data-parameterstableid");
                 parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
-            }
             
-            elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']/a | ./p[@class='chartSubtitle']/a"));
-            if (elements.isEmpty()) {
-                sopLinkElement = null;
+                elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']/a | ./p[@class='chartSubtitle']/a"));
+                if (elements.isEmpty()) {
+                    sopLinkElement = null;
+                } else {
+                    sopLinkElement = elements.get(0);
+                }
             } else {
-                sopLinkElement = elements.get(0);
+                // For time-series only.
+                elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-title']"));
+                if ( ! elements.isEmpty()) {
+                    parameterName = elements.get(0).getText();
+                }
+                elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-subtitle']"));
+                if ( ! elements.isEmpty()) {
+                    parameterStableId = elements.get(0).getText();
+                    parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+                }
             }
         }
+            
 
         @Override
         public String toString() {

@@ -1086,14 +1086,13 @@ public class ObservationService extends BasicService {
         Set<String> centers = new HashSet<String>();
         SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
         String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
-
-        q += " AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control";
+        String fq = "";
         if (genes != null && genes.size() > 0) {
-            q += " AND (";
-            q += (genes.size() > 1) ? ObservationDTO.GENE_ACCESSION_ID + ":\"" + StringUtils.join(genes.toArray(), "\" OR " + ObservationDTO.GENE_ACCESSION_ID + ":\"") + "\"" : ObservationDTO.GENE_ACCESSION_ID + ":\"" + genes.get(0) + "\"";
-            q += ")";
+            fq += " (";
+            fq += (genes.size() > 1) ? ObservationDTO.GENE_ACCESSION_ID + ":\"" + StringUtils.join(genes.toArray(), "\" OR " + ObservationDTO.GENE_ACCESSION_ID + ":\"") + "\"" : ObservationDTO.GENE_ACCESSION_ID + ":\"" + genes.get(0) + "\"";
+            fq += ")";
         }
-
+        query.addFilterQuery(fq);
         query.setQuery(q);
         query.setRows(100000000);
         query.setFields(ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.DATA_POINT);
@@ -1104,6 +1103,8 @@ public class ObservationService extends BasicService {
         for (Group gr : groups) {
             centers.add((String) gr.getGroupValue());
         }
+   
+        System.out.println("CENTERS ::: " + centers);
         return centers;
     }
     

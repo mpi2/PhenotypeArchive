@@ -20,18 +20,11 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.util.Utils;
-
 /**
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary to validate a categorical
+ * This class encapsulates the code and data necessary to validate an ABR
  * graph.
  */
 public class GraphValidatorABR extends GraphValidator {
@@ -108,30 +101,30 @@ public class GraphValidatorABR extends GraphValidator {
             for (int i = 1; i < downloadSection.length; i++) {                  // Skip over first [heading] row by starting at 1.
                 String[] row = downloadSection[i];
                 String group = downloadSection[i][GROUP];
-                String page = row[ALLELE_SYMBOL].toLowerCase().trim();
-                String file = h.alleleSymbol.toLowerCase().trim();
-                if ((! group.equals("control")) && (! page.equals(file)))
+                String file = row[ALLELE_SYMBOL].toLowerCase().trim();
+                String page = h.alleleSymbol.toLowerCase().trim();
+                if ((! group.equals("control")) && (! file.equals(page)))
                     status.addError(downloadType + " allele symbol mismatch. Page: " + row[ALLELE_SYMBOL] + ". Download: " + h.alleleSymbol + ". URL: " + pageSection.graphUrl);
                 
-                page = row[GENETIC_BACKGROUND].toLowerCase().trim();
-                file = h.geneticBackground.toLowerCase().trim();
-                if ( ! page.equals(file))
+                file = row[GENETIC_BACKGROUND].toLowerCase().trim();
+                page = h.geneticBackground.toLowerCase().trim();
+                if ( ! file.equals(page))
                     status.addError(downloadType + " genetic background mismatch. Page: " + row[GENETIC_BACKGROUND] + ". Download: " + h.geneticBackground + ". URL: " + pageSection.graphUrl);
                 
-                page = row[GENE_SYMBOL].toLowerCase().trim();
-                file = h.geneSymbol.toLowerCase().trim();
-                if ((! group.equals("control")) && (! page.equals(file)))
+                file = row[GENE_SYMBOL].toLowerCase().trim();
+                page = h.geneSymbol.toLowerCase().trim();
+                if ((! group.equals("control")) && (! file.equals(page)))
                     status.addError(downloadType + " gene symbol mismatch. Page: " + row[GENE_SYMBOL] + ". Download: " + h.geneSymbol + ". URL: " + pageSection.graphUrl);
 
-                page = row[PHENOTYPING_CENTER].toLowerCase().trim();
-                file = h.phenotypingCenter.toLowerCase().trim();
-                if ( ! page.equals(file))
+                file = row[PHENOTYPING_CENTER].toLowerCase().trim();
+                page = h.phenotypingCenter.toLowerCase().trim();
+                if ( ! file.equals(page))
                     status.addError(downloadType + " phenotyping center mismatch. Page: " + row[PHENOTYPING_CENTER] + ". Download: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
                 
-                page = row[PIPELINE_NAME].toLowerCase().trim();
-                file = h.pipelineName.toLowerCase().trim();
-                if ( ! page.equals(file)) {
-                    if ( ! file.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
+                file = row[PIPELINE_NAME].toLowerCase().trim();
+                page = h.pipelineName.toLowerCase().trim();
+                if ( ! file.equals(page)) {
+                    if ( ! page.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
                         status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
                     }
                 }
