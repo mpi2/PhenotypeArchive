@@ -1070,62 +1070,6 @@ public class DataTableController {
         return gene;
     }
 
-    public List fetchImpcImagePathByAnnotNameXXX(String query, String fqStr) throws IOException, URISyntaxException {
-
-    	List pathAndCount = new ArrayList<>();
-		//String mediaBaseUrl = config.get("mediaBaseUrl");
-        final int maxNum = 4; // max num of images to display in grid column
-
-        String queryUrl = config.get("internalSolrUrl")
-                + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
-                + "&" + fqStr
-                + "&rows=" + maxNum;
-
-        String queryUrlCount = config.get("internalSolrUrl")
-                + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
-                + "&" + fqStr
-                + "&rows=0";
-        
-        List<String> imgPath = new ArrayList<String>();
-
-        JSONObject imgCountJson = solrIndex.getResults(queryUrlCount);
-        JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
-
-        Integer imgCount = imgCountJson.getJSONObject("response").getInt("numFound");
-        JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
-        
-        int dataLen = docs.size() < 5 ? docs.size() : maxNum;
-
-        for (int i = 0; i < dataLen; i ++) {
-            JSONObject doc = docs.getJSONObject(i);
-
-            String link = null;
-
-            if (doc.containsKey("jpeg_url")) {
-                String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-                String downloadUrl=doc.getString("download_url");
-                //System.out.println("download Url="+downloadUrl);
-                String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                String smallThumbNailPath = thumbnailPath + "/200";
-                String largeThumbNailPath = thumbnailPath + "/800";
-                String img = "<img src='" + smallThumbNailPath + "'/>";
-                if(downloadUrl.contains("/annotation/")){
-                	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
-                }else{
-                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath +"'>" + img + "</a>";
-                }
-            } else {
-                link = IMG_NOT_FOUND;
-            }
-            imgPath.add(link);
-        }
-        
-        pathAndCount.add(StringUtils.join(imgPath, ""));
-        pathAndCount.add(imgCount);
-        
-        return pathAndCount;
-    }
-
     public String fetchImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException {
 
         String mediaBaseUrl = config.get("mediaBaseUrl");
