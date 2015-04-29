@@ -27,7 +27,7 @@
 			<span class="documentation" ><a href="" id='generalPanel' class="fa fa-question-circle pull-right"></a></span>
 		</h2>
 		
-	  <p>Background	- ${geneticBackgroundString}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	  <p>Background	- <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	    Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	  	<c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
 	  </p> 
