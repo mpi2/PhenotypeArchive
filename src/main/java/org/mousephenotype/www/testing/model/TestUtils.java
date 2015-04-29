@@ -689,7 +689,7 @@ public class TestUtils {
         if (successList == null) successList = new ArrayList();
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " records failed:");
+            System.out.println(errorList.size() + " errors:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
@@ -733,7 +733,7 @@ public class TestUtils {
         }
         
         if (status.hasErrors()) {
-            System.out.println(status.getErrorMessages().size() + " records failed:");
+            System.out.println(status.getErrorMessages().size() + " errors:");
             System.out.println(status.toStringErrorMessages());
         }
         
