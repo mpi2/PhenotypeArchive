@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import org.mousephenotype.www.testing.exception.GraphTestException;
+
 /**
  *
  * @author mrelac
@@ -59,7 +61,7 @@ public class GraphValidatorABR extends GraphValidator {
     }
     
     @Override
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         PageStatus status = new PageStatus();
         
         status.add(super.validate());                                           // Validate common components.
@@ -124,7 +126,7 @@ public class GraphValidatorABR extends GraphValidator {
                 file = row[PIPELINE_NAME].toLowerCase().trim();
                 page = h.pipelineName.toLowerCase().trim();
                 if ( ! file.equals(page)) {
-                    if ( ! page.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
+                    if ( ! file.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
                         status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
                     }
                 }

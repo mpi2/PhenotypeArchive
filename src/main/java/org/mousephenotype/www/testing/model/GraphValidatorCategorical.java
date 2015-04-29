@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import org.mousephenotype.www.testing.exception.GraphTestException;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -66,7 +67,7 @@ public class GraphValidatorCategorical extends GraphValidator {
     }
     
     @Override
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         PageStatus status = new PageStatus();
         
         status.add(super.validate());                                           // Validate common components.
@@ -160,11 +161,14 @@ public class GraphValidatorCategorical extends GraphValidator {
                 page = h.phenotypingCenter.toLowerCase().trim();
                 if ( ! file.equals(page))
                     status.addError(downloadType + " phenotyping center mismatch. Page: " + row[PHENOTYPING_CENTER] + ". Download: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
-                
+
                 file = row[PIPELINE_NAME].toLowerCase().trim();
                 page = h.pipelineName.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                if ( ! file.equals(page)) {
+                    if ( ! file.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
+                        status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                    }
+                }
             }
             
             status.add(validateDownloadCounts(pageSection.getCatTable(), downloadSection));

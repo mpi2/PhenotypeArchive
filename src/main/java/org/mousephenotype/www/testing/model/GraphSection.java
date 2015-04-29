@@ -23,6 +23,7 @@ package org.mousephenotype.www.testing.model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -30,6 +31,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 /**
@@ -61,6 +63,7 @@ public class GraphSection {
     private GraphGlobalTestTable globalTestTable;
     private GraphHeading heading;
     private MoreStatisticsLink moreStatisticsLink;
+    private ChartType chartType;
     
     /**
      * Creates a new <code>GraphPage</code> instance
@@ -71,13 +74,17 @@ public class GraphSection {
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element
+     * @param chartType the chart type. Used to determine which validator to use.
+     * 
+     * @throws GraphTestException
      */
-    public GraphSection(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) {
+    public GraphSection(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement, ChartType chartType) throws GraphTestException {
         this.driver = driver;
         this.wait = wait;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.chartElement = chartElement;
+        this.chartType = chartType;
 
         load();
     }
@@ -129,7 +136,7 @@ public class GraphSection {
     /**
      * Load the section data.
      */
-    private void load() {
+    private void load() throws GraphTestException {
         
         try {
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
@@ -144,7 +151,7 @@ public class GraphSection {
                 this.continuousTable = new GraphContinuousTable(elements.get(0));
             }
             
-            this.heading = new GraphHeading(wait, phenotypePipelineDAO, chartElement);
+            this.heading = new GraphHeading(wait, phenotypePipelineDAO, chartElement, graphUrl, chartType);
             
             elements = chartElement.findElements(By.xpath("./p/a/i[starts-with(@id, 'toggle_table_buttondivChart_')]"));
             if ( ! elements.isEmpty()) {
@@ -160,8 +167,9 @@ public class GraphSection {
             System.out.println("Expected graph page url but found none. Graph URL:\n\t" + graphUrl);
             throw te;
         } catch (Exception e) {
-            System.out.println("EXCEPTION processing page: " + e.getLocalizedMessage() + ". Graph URL:\n\t" + graphUrl);
-            throw e;
+            String message = "EXCEPTION processing page: " + e.getLocalizedMessage() + ". Graph URL:\n\t" + graphUrl;
+            System.out.println(message);
+            throw new GraphTestException(message, e);
         }
     }
     

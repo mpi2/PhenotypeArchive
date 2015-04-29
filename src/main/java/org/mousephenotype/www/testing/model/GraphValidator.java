@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import org.mousephenotype.www.testing.exception.GraphTestException;
+
 /**
  * This abstract class encapsulates the common code and data necessary to
  * validate a graph section. Subclasses handle validation for specific graph
@@ -44,7 +46,7 @@ public abstract class GraphValidator {
     }
     
     
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         return pageSection.getHeading().validate();
     }
 }

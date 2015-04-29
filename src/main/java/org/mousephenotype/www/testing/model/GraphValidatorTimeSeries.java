@@ -20,6 +20,7 @@
 
 package org.mousephenotype.www.testing.model;
 
+import org.mousephenotype.www.testing.exception.GraphTestException;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 
 /**
@@ -61,7 +62,7 @@ public class GraphValidatorTimeSeries extends GraphValidator {
     }
     
     @Override
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         PageStatus status = new PageStatus();
         
         status.add(super.validate());                                           // Validate common components.
@@ -162,10 +163,13 @@ public class GraphValidatorTimeSeries extends GraphValidator {
                 if ( ! file.equals(page))
                     status.addError(downloadType + " phenotyping center mismatch. Page: " + row[PHENOTYPING_CENTER] + ". Download: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
                 
-                page = row[PIPELINE_NAME].toLowerCase().trim();
-                file = h.pipelineName.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                file = row[PIPELINE_NAME].toLowerCase().trim();
+                page = h.pipelineName.toLowerCase().trim();
+                if ( ! file.equals(page)) {
+                    if ( ! file.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
+                        status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                    }
+                }
             }
         }
 

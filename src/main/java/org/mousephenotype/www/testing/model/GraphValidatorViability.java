@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import org.mousephenotype.www.testing.exception.GraphTestException;
+
 /**
  *
  * @author mrelac
@@ -34,7 +36,7 @@ public class GraphValidatorViability extends GraphValidator {
     }
     
     @Override
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         PageStatus status = new PageStatus();
         
         status.add(super.validate());                                           // Validate common components.

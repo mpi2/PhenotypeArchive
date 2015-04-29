@@ -40,8 +40,9 @@ public class GraphGlobalTestTable {
     private final List<String> sexEffects = new ArrayList();
     
     /**
-     * Creates a new <code>GraphGlobalTestTable</code> instance initialized with
-     * the given headings
+     * Creates a new <code>GraphGlobalTestTable</code> instance. Some have a
+     * globalTestValue and some don't, depending on the calculation algorithm
+     * that was used.
      * 
      * @param graphUrl the graph url
      * @param globalTestTableElement A <code>WebElement</code> instance pointing
@@ -49,17 +50,9 @@ public class GraphGlobalTestTable {
      */
     public GraphGlobalTestTable(String graphUrl, WebElement globalTestTableElement) {
         this.graphUrl = graphUrl;
-        
-        // Get the MP Association p-value. Loop around a few times ... sometimes it's not quite finished loading when this block gets hit.
-        List<WebElement> mpAssociationPvalueElements = new ArrayList();
-        for (int i = 0; i < 10; i++) {
-            mpAssociationPvalueElements = globalTestTableElement.findElements(By.xpath("./tbody/tr/td[@class='globalTestValue']"));
-            if (mpAssociationPvalueElements.isEmpty()) {
-                TestUtils.sleep(50);
-            } else {
-                break;
-            }
-        }
+
+        // Try to get the MP Association p-value. Loop around a few times ... sometimes it's not quite finished loading when this block gets hit.
+        List<WebElement> mpAssociationPvalueElements = globalTestTableElement.findElements(By.xpath("./tbody/tr/td[@class='globalTestValue']"));
         if ( ! mpAssociationPvalueElements.isEmpty()) {
             mpAssociationPvalue = Utils.tryParseDouble(mpAssociationPvalueElements.get(0).getText());
         }
@@ -83,25 +76,16 @@ public class GraphGlobalTestTable {
     public final PageStatus validate() {
         PageStatus status = new PageStatus();
         
-        // Verify that there is an MP Association p-value.
-        if (mpAssociationPvalue == null) {
-            status.addError("ERROR: Expected MP Association p-value. URL: " + graphUrl);
+        if ((sexEffectPvalues.isEmpty()) || sexEffectPvalues.size() != sexEffects.size()) {
+            status.addError("ERROR: pvalue/effect is empty/missing. URL: " + graphUrl);
         }
         
-        boolean hasError = false;
-        // Verify that there is one MP association P Value and a sex Effect for every body row in the table.
-        for (String pvalue : sexEffectPvalues) {
-            if (pvalue.trim().isEmpty()) {
-                hasError = true;
+        for (int i = 0; i < sexEffectPvalues.size(); i++) {
+            String pvalue = sexEffectPvalues.get(i);
+            String effect = sexEffects.get(i);
+            if ((pvalue.isEmpty()) || effect.isEmpty()) {
+                status.addError("ERROR: Expected an Effect and a P Value for every result. URL: " + graphUrl);
             }
-        }
-        for (String effect : sexEffects) {
-            if (effect.trim().isEmpty()) {
-                hasError = true;
-            }
-        }
-        if (hasError) {
-            status.addError("ERROR: Expected an Effect and a P Value for every result. URL: " + graphUrl);
         }
         
         return status;

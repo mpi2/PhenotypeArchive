@@ -30,6 +30,8 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 
 import java.util.List;
+import org.mousephenotype.www.testing.exception.GraphTestException;
+import uk.ac.ebi.phenotype.chart.ChartType;
 
 /**
  *
@@ -62,6 +64,8 @@ public class GraphHeading {
     protected String pipelineName;
     protected WebElement pipelineLinkElement;
     protected WebElement sopLinkElement;
+    protected String graphUrl;
+    protected ChartType chartType;
     
     // Database parameter variables
     protected ObservationType observationType;
@@ -74,45 +78,88 @@ public class GraphHeading {
      * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element
+     * @param graphUrl the url of the graph page (used for error/warning reporting)
+     * @param chartType the chart type. Used to determine which validator to use.
+     * 
+     * @throws GraphTestException
      */
-    public GraphHeading(WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, WebElement chartElement) {
+    public GraphHeading(WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, WebElement chartElement, String graphUrl, ChartType chartType) throws GraphTestException {
         this.wait = wait;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.chartElement = chartElement;
+        this.graphUrl = graphUrl;
+        this.chartType = chartType;
         
-        parse();
+        parse(chartType);
     }
     
     /**
      * Validates the elements common to all graph headings.
      * 
      * @return status
+     * 
+     * @throws GraphTestException
      */
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         PageStatus status = new PageStatus();
+        boolean validatePipeline;
+        boolean validateSop;
         
-        // 1. Check pipeline link is not null. Warning if it is.
-        // 2. If link is not null, check it contains '/impress/'.
-        if (pipelineLinkElement == null) {
-            status.addWarning("WARNING: pipeline link element is missing.");
-        } else {
-            String url = pipelineLinkElement.getAttribute("href");
-            if ( ! url.contains("/impress/")) {
-                status.addError("ERROR: expected pipeline link URL to contain 'impress'. URL: " + url);
+        switch (chartType) {
+            case CATEGORICAL_STACKED_COLUMN:
+                validatePipeline = true;
+                validateSop = true;
+                break;
+                
+            case PIE:
+                validatePipeline = true;
+                validateSop = false;
+                break;
+                
+            case TIME_SERIES_LINE:
+            case TIME_SERIES_LINE_BODYWEIGHT:
+                validatePipeline = true;
+                validateSop = false;
+                break;
+                
+            case UNIDIMENSIONAL_ABR_PLOT:
+                validatePipeline = true;
+                validateSop = true;
+                break;
+                
+            case UNIDIMENSIONAL_BOX_PLOT:
+            case UNIDIMENSIONAL_SCATTER_PLOT:
+                validatePipeline = true;
+                validateSop = true;
+                break;
+                
+            default:
+                throw new GraphTestException("Unknown chart type " + chartType);
+        }
+        
+        if (validatePipeline) {
+            // 1. Check pipeline link is not null. Error if it is.
+            // 2. Check it contains '/impress/'.
+            if (pipelineLinkElement == null) {
+                status.addError("ERROR: pipeline link element is missing.");
+            } else {
+                String url = pipelineLinkElement.getAttribute("href");
+                if ( ! url.contains("/impress/")) {
+                    status.addError("ERROR: expected pipeline link URL to contain 'impress'. Graph URL: " + graphUrl + "\n\tpipeline link URL: " + url);
+                }
             }
         }
         
-        // 1. Check if sopLink is not null. Warning if it is and the
-        //    observation type is not time-series.
-        // 2. If link is not null, check it contains '/impress/'.
-        if (sopLinkElement == null) {
-            if ( observationType != ObservationType.time_series) {
-                status.addWarning("WARNING: sop link element is missing.");
-            }
-        } else {
-            String url = sopLinkElement.getAttribute("href");
-            if ( ! url.contains("/impress/")) {
-                status.addError("ERROR: expected sop link URL to contain 'impress'. URL: " + url);
+        if (validateSop) {
+            // 1. Check if sopLink is not null. Error if it is.
+            // 2. Check it contains '/impress/'.
+            if (sopLinkElement == null) {
+                    status.addError("ERROR: sop link element is missing. Graph URL: " + graphUrl);
+            } else {
+                String url = sopLinkElement.getAttribute("href");
+                if ( ! url.contains("/impress/")) {
+                    status.addError("ERROR: expected sop link URL to contain 'impress'. Graph URL: " + graphUrl + "\n\tsop URL: " + url);
+                }
             }
         }
         
@@ -197,7 +244,7 @@ public class GraphHeading {
     /**
      * Parse the headings.
      */
-    private void parse() {
+    private void parse(ChartType chartType) throws GraphTestException {
         // Wait for all charts to load.
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
         
@@ -213,19 +260,19 @@ public class GraphHeading {
         AlleleParser alleleParser = new AlleleParser(rawAllele, sup);
         Line1Parser line1Parser = new Line1Parser();
         Line2Parser line2Parser = new Line2Parser();
-        ParameterParser parameterParser = new ParameterParser();
+        ParameterParser parameterParser = new ParameterParser(chartType);
 
         this.alleleSymbol = alleleParser.toString();
         this.geneticBackground = line1Parser.background;
         this.geneSymbol = alleleParser.gene;
         this.metadataGroup = line2Parser.metadataGroup;
-        this.parameterName = parameterParser.parameterName;
-        this.parameterStableId = parameterParser.parameterStableId;
+        this.parameterName = parameterParser.getParameterName();
+        this.parameterStableId = parameterParser.getParameterStableId();
         this.phenotypingCenter = line1Parser.phenotypingCenter;
         this.pipelineName = line1Parser.pipelineName;
         this.pipelineLinkElement = line1Parser.pipelineLinkElement;
-        this.parameterObject = parameterParser.parameterObject;
-        this.sopLinkElement = parameterParser.sopLinkElement;
+        this.parameterObject = parameterParser.getParameterObject();
+        this.sopLinkElement = parameterParser.getSopLinkElement();
 
         // Set the graph type from the parameterDAO.
         if (parameterObject != null) {
@@ -237,7 +284,7 @@ public class GraphHeading {
     // PRIVATE CLASSES
     
     
-    private class Line1Parser {
+    protected class Line1Parser {
         public final String background;
         public final String phenotypingCenter;
         public final String pipelineName;
@@ -271,7 +318,7 @@ public class GraphHeading {
         }
     }
     
-    private class Line2Parser {
+    protected class Line2Parser {
         public String metadataGroup = "";
         
         public Line2Parser() {
@@ -298,38 +345,61 @@ public class GraphHeading {
         }
     }
     
-    private class ParameterParser {
-        public String parameterName = "";
-        public Parameter parameterObject = null;
-        public String parameterStableId = "";
-        public WebElement sopLinkElement = null;
+    protected class ParameterParser {
+        private String parameterName = "";
+        private Parameter parameterObject = null;
+        private String parameterStableId = "";
+        private WebElement sopLinkElement = null;
         
-        public ParameterParser() {
-            List<WebElement> elements = chartElement.findElements(By.xpath(".//span[@data-parameterstableid]"));
-            if ( ! elements.isEmpty()) {
-                // For all but time-series
-                WebElement parameterElement = elements.get(0);
-                parameterName = parameterElement.getText();
-                parameterStableId = parameterElement.getAttribute("data-parameterstableid");
-                parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+        public ParameterParser(ChartType chartType) throws GraphTestException {
+            List<WebElement> elements;
+            WebElement element;
             
-                elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']/a | ./p[@class='chartSubtitle']/a"));
-                if (elements.isEmpty()) {
-                    sopLinkElement = null;
-                } else {
-                    sopLinkElement = elements.get(0);
-                }
-            } else {
-                // For time-series only.
-                elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-title']"));
-                if ( ! elements.isEmpty()) {
-                    parameterName = elements.get(0).getText();
-                }
-                elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-subtitle']"));
-                if ( ! elements.isEmpty()) {
-                    parameterStableId = elements.get(0).getText();
+            switch (chartType) {
+                case CATEGORICAL_STACKED_COLUMN:
+                case UNIDIMENSIONAL_BOX_PLOT:
+                case UNIDIMENSIONAL_SCATTER_PLOT:
+                    elements = chartElement.findElements(By.xpath(".//span[@data-parameterstableid]"));
+                    element = elements.get(0);
+                    parameterName = element.getText();
+                    parameterStableId = element.getAttribute("data-parameterstableid");
                     parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
-                }
+                    elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']//a | ./p[@class='chartSubtitle']//a"));
+                    if (elements.isEmpty()) {
+                        sopLinkElement = null;
+                    } else {
+                        sopLinkElement = elements.get(0);
+                    }
+                    break;
+                    
+                case PIE:
+                    // Nothing to do.
+                    break;
+                    
+                case UNIDIMENSIONAL_ABR_PLOT:
+                    elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']//a"));
+                    if (elements.isEmpty()) {
+                        sopLinkElement = null;
+                    } else {
+                        sopLinkElement = elements.get(0);
+                    }
+                    break;
+                    
+                case TIME_SERIES_LINE:
+                case TIME_SERIES_LINE_BODYWEIGHT:
+                    elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-title']"));
+                    if ( ! elements.isEmpty()) {
+                        parameterName = elements.get(0).getText();
+                    }
+                    elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-subtitle']"));
+                    if ( ! elements.isEmpty()) {
+                        parameterStableId = elements.get(0).getText();
+                        parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+                    }
+                    break;
+                    
+                default:
+                    throw new GraphTestException("Unknown chart type " + chartType);
             }
         }
             
@@ -338,6 +408,24 @@ public class GraphHeading {
         public String toString() {
             return "ParameterParser{" + "parameterName=" + parameterName + ", parameterObject=" + parameterObject + ", parameterStableId=" + parameterStableId + ", sopLinkElement=" + sopLinkElement + '}';
         }
+
+        public String getParameterName() {
+            return parameterName;
+        }
+
+        public Parameter getParameterObject() {
+            return parameterObject;
+        }
+
+        public String getParameterStableId() {
+            return parameterStableId;
+        }
+
+        public WebElement getSopLinkElement() {
+            return sopLinkElement;
+        }
+        
+        
     }
     
     private class SvgDivParser {
