@@ -174,10 +174,11 @@ public class GraphValidatorUnidimensional extends GraphValidator {
                 if ( ! file.equals(page))
                     status.addError(downloadType + " phenotyping center mismatch. Page: " + row[PHENOTYPING_CENTER] + ". Download: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
                 
-                file = row[PIPELINE_NAME].toLowerCase().trim();
-                page = h.pipelineName.toLowerCase().trim();
-                if ( ! file.equals(page)) {
-                    if ( ! file.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
+                // If this is a control, don't check the pipeline name. It can be anything.
+                if ( ! row[GROUP].toLowerCase().equals("control")) {
+                    file = row[PIPELINE_NAME].toLowerCase().trim();
+                    page = h.pipelineName.toLowerCase().trim();
+                    if ( ! file.equals(page)) {
                         status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
                     }
                 }
