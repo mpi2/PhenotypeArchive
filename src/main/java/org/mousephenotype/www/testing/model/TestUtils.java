@@ -708,6 +708,8 @@ public class TestUtils {
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
+        
+        System.out.println();
     }
     
     /**
