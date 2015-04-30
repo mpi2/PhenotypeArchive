@@ -1018,7 +1018,7 @@
             <properties>
                 <baseUrl>http://dev.mousephenotype.org/data</baseUrl>
                 <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-                <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
                 <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
@@ -1068,7 +1068,7 @@
             <properties>
                 <baseUrl>http://beta.mousephenotype.org/data</baseUrl>
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
-                <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
+                <internalSolrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</internalSolrUrl>
                 <drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
                 <impcMediaBaseUrl>//wwwdev.ebi.ac.uk/mi/media/omero/webgateway</impcMediaBaseUrl>
