@@ -103,7 +103,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		procedureIdToParams = populateParamIdToProcedureIdListMap();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap();
 		pipelines = populateProcedureIdToPipelineMap();
-		System.out.println(pipelines);
+		//System.out.println(pipelines);
 		pppidsToGfMpBeans = populateGfAccAndMp();
 		mgiToAlleleMap = IndexerMap.getGeneToAlleles(alleleCore);
 		mpIdToMp = populateMpIdToMp();
@@ -141,7 +141,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					String paramStableName = row
 							.get(ObservationDTO.PARAMETER_NAME);
 					pipe.setParameterStableId(paramStableId);
-					System.out.println("parameterStableId="+paramStableId);
+					//System.out.println("parameterStableId="+paramStableId);
 					pipe.setParameterStableKey(row.get("stable_key"));
 					// where="pproc_id=phenotype_procedure_parameter.procedure_id">
 					// need to change pipelineDTOs to have multiple procedures
@@ -426,9 +426,9 @@ public class PipelineIndexer extends AbstractIndexer {
 						}
 					}
 					documentCount++;
-					System.out.println("documentCount="+documentCount);
 					pipelineCore.addBean(pipe);
 					if(documentCount % 10000==0){
+						System.out.println("documentCount="+documentCount);
 						pipelineCore.commit();
 					}
 				}
