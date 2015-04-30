@@ -104,6 +104,7 @@
                     "columnDefs": [                
                         { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
                     ],
+                    "aaSorting": [[ 3, "desc" ]],  // default sort column order
                     "aoColumns": [
                         {"bSearchable": true, "sType": "html", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},

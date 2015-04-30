@@ -1512,30 +1512,41 @@ public class DataTableController {
         for (ReferenceDTO reference : references) {
 
         	List<String> rowData = new ArrayList<>();
-            List<String> alleleLinks = new ArrayList<>();
-            int alleleAccessionIdCount = reference.getAlleleAccessionIds().size();
+        	Map<String,String> alleleSymbolinks = new LinkedHashMap<String,String>();
             
+            int alleleAccessionIdCount = reference.getAlleleAccessionIds().size();
             for (int i = 0; i < alleleAccessionIdCount; i++) {
-                String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+
                 String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
                 String alleleLink;
+                String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+                
                 if (i < reference.getImpcGeneLinks().size()) {
-                    alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
+                		alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
                 } else {
                     if (i > 0) {
-                        alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
+                    	alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
                     } else {
-                        alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
+                    	alleleLink = alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
                     }
                 }
-                alleleLinks.add(alleleLink);
+                alleleSymbolinks.put(symbol, alleleLink);
             }
-            // show/hide toggle
-            if (alleleLinks.size() > 5) {
-                int num = alleleLinks.size();
-                alleleLinks.add("<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
+            
+            if (alleleSymbolinks.size() > 5){
+            	int num = alleleSymbolinks.size();
+            	alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
             }
-            rowData.add(StringUtils.join(alleleLinks, ""));
+            
+            List<String> alLinks = new ArrayList<>();
+            Iterator it = alleleSymbolinks.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                alLinks.add(pair.getValue().toString());
+                it.remove(); // avoids a ConcurrentModificationException
+            }
+            
+            rowData.add(StringUtils.join(alLinks, ""));
 
             rowData.add(reference.getTitle());
             rowData.add(reference.getJournal());
