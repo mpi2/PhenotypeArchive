@@ -16,6 +16,8 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
@@ -130,7 +133,204 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     
 	}
 	
+
+	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample, String[] center, String[] sex)
+	throws SolrServerException {
+
+		String urlParams = "";
+		SolrQuery query = new SolrQuery().addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
+		String q = "*:*";
+		query.addFilterQuery((strains.size() > 1) ? "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"");
+		if (strains.size() > 0) {
+			urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
+		}
+
+		if (center != null && center.length > 0) {
+			query.addFilterQuery( "(" + ((center.length > 1) ? StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"" : StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"") + ")");
+			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
+		}
+
+		if (sex != null && sex.length == 1) {
+			if (sex[0].equalsIgnoreCase("male")){
+				query.addFilterQuery( StatisticalResultDTO.MALE_CONTROL_COUNT + ":[1 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.MALE_MUTANT_COUNT + ":[1 TO 100000]");
+			} else {
+				query.addFilterQuery( StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[1 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.FEMALE_MUTANT_COUNT + ":[1 TO 100000]");
+			}
+		}
+
+		query.setQuery(q);
+		query.addFilterQuery("(" + StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[1 TO 100000] OR " + StatisticalResultDTO.MALE_CONTROL_COUNT + ":[1 TO 100000])");
+		query.setRows(10000000);
+		query.setFields(StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.FEMALE_CONTROL_MEAN, StatisticalResultDTO.MARKER_SYMBOL,
+			StatisticalResultDTO.FEMALE_MUTANT_MEAN, StatisticalResultDTO.MALE_CONTROL_MEAN, StatisticalResultDTO.MALE_MUTANT_MEAN,
+			StatisticalResultDTO.FEMALE_CONTROL_COUNT, StatisticalResultDTO.FEMALE_MUTANT_COUNT, StatisticalResultDTO.MALE_CONTROL_COUNT, StatisticalResultDTO.MALE_MUTANT_COUNT);
+		query.set("group", true);
+		query.set("group.field", StatisticalResultDTO.COLONY_ID);
+		query.set("group.limit", 1);
+		
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		double[] meansArray = new double[groups.size()];
+		String[] genesArray = new String[groups.size()];
+		String[] geneSymbolArray = new String[groups.size()];
+		int size = 0;
+		
+		for (Group gr : groups) {
+			
+			SolrDocumentList resDocs = gr.getResult();
+			String sexToDisplay = null;		
+			OverviewRatio overviewRatio = new OverviewRatio();
+			
+			for (SolrDocument doc : resDocs){			
+				sexToDisplay = getSexToDisplay(sex, sexToDisplay, doc);	
+				overviewRatio.add(doc);			
+			}
+			
+			Double ratio = overviewRatio.getPlotRatio(sexToDisplay);
+			if (ratio != null){
+				genesArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
+				geneSymbolArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
+				meansArray[size] = ratio;
+				System.out.println("Added geneSymbol : " + size + " " + meansArray[size]);
+				size++;
+			}
+
+		}
+
+		// we do the binning for all the data but fill the bins after that to
+		// keep tract of phenotype associations
+		int binCount = Math.min((int) Math.floor((double) groups.size() / 2), 20);
+		ArrayList<String> mutantGenes = new ArrayList<String>();
+		ArrayList<String> controlGenes = new ArrayList<String>();
+		ArrayList<String> mutantGeneAcc = new ArrayList<String>();
+		ArrayList<String> controlGeneAcc = new ArrayList<String>();
+		ArrayList<Double> upperBounds = new ArrayList<Double>();
+		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
+		if (size > 0) {
+			distribution.load(meansArray);
+			for (double bound : distribution.getUpperBounds()) {
+				upperBounds.add(bound);
+			}
+			// we we need to distribute the control mutants and the
+			// phenotype-mutants in the bins
+			ArrayList<Double> controlM = new ArrayList<Double>();
+			ArrayList<Double> phenMutants = new ArrayList<Double>();
+
+			for (int j = 0; j < upperBounds.size(); j++) {
+				controlM.add((double) 0);
+				phenMutants.add((double) 0);
+				controlGenes.add("");
+				mutantGenes.add("");
+				controlGeneAcc.add("");
+				mutantGeneAcc.add("");
+			}
+
+			for (int j = 0; j < size; j++) {
+				// find out the proper bin
+				int binIndex = getBin(upperBounds, meansArray[j]);
+				if (genes.contains(genesArray[j])) {
+					phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
+					String genesString = mutantGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j])) {
+						if (genesString.equals("")) {
+							mutantGenes.set(binIndex, geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, "accession=" + genesArray[j]);
+						} else {
+							mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&accession=" + genesArray[j]);
+						}
+					}
+				} else { // treat as control because they don't have this phenotype association
+					String genesString = controlGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j])) {
+						if (genesString.equalsIgnoreCase("")) {
+							controlGenes.set(binIndex, geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, "accession=" + genesArray[j]);
+						} else {
+							controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, controlGeneAcc.get(binIndex) + "&accession=" + genesArray[j]);
+						}
+					}
+					controlM.set(binIndex, 1 + controlM.get(binIndex));
+				}
+			}
+			// System.out.println(" Mutants list " + phenMutants);
+
+			// add the rest of parameters to the graph urls
+			for (int t = 0; t < controlGeneAcc.size(); t++) {
+				controlGeneAcc.set(t, controlGeneAcc.get(t) + urlParams);
+				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
+			}
+			
+			StackedBarsData data = new StackedBarsData();
+			data.setUpperBounds(upperBounds);
+			data.setControlGenes(controlGenes);
+			data.setControlMutatns(controlM);
+			data.setMutantGenes(mutantGenes);
+			data.setPhenMutants(phenMutants);
+			data.setControlGeneAccesionIds(controlGeneAcc);
+			data.setMutantGeneAccesionIds(mutantGeneAcc);
+			return data;
+		}
+
+		return null;
+	}
+
+	private String getSexToDisplay(String[] sex, String oldSexToDisplay, SolrDocument doc){
+		
+		String sexToDisplay = null;
+		
+		if (sex != null && sex.length == 1 && oldSexToDisplay == null){
+			if (sex[0].equalsIgnoreCase(SexType.male.getName())) {
+				sexToDisplay = 	SexType.male.getName();
+			}
+			if (sex[0].equalsIgnoreCase(SexType.female.getName())) {
+				sexToDisplay = 	SexType.female.getName();
+			}
+		}
+		
+		if (sex == null || sex.length == 0 || sex.length == 2) {
+			if ( doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 0 && 
+				 doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0 &&  
+				 doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 0 && 
+				 doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0 ){
+				sexToDisplay = "both";
+			}
+			else if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 0 && 
+			doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0 
+			 ){
+				if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.male.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()) )){
+					sexToDisplay = "both";	
+				}
+				else {	
+					sexToDisplay = SexType.female.getName();
+				}
+			}
+			else if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 0 && 
+			doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0 ){
+				if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.female.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()) )){
+					sexToDisplay = "both";	
+				}
+				else {	
+					sexToDisplay = SexType.male.getName();
+				}
+			}
+		}
+		
+		return sexToDisplay;
+	}
 	
+	
+	private int getBin(List<Double> bins, Double valueToBin) {
+
+		for (Double upperBound : bins) {
+			if (valueToBin < upperBound) { return bins.indexOf(upperBound); }
+		}
+		return bins.size() - 1;
+	}
+
+
     public Map<String, ArrayList<String>> getDistributionOfLinesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
@@ -170,6 +370,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		return res;
 	}
    
+    
     public Map<String, ArrayList<String>> getDistributionOfGenesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
@@ -852,4 +1053,100 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
+    class OverviewRatio {
+    	Double meanFControl;
+    	Double meanFMutant;
+    	Double meanMControl;
+    	Double meanMMutant;
+
+    	Double nFControl;
+    	Double nFMutant;
+    	Double nMControl;
+    	Double nMMutant;
+    	
+    	public OverviewRatio(){
+    		meanFControl = (double) 0;
+    		meanFMutant = (double) 0;
+    		meanMMutant = (double) 0;
+    		meanMControl = (double) 0;
+
+    		nFControl = (double) 0;
+    		nFMutant = (double) 0;
+    		nMControl = (double) 0;
+    		nMMutant = (double) 0;
+    	}
+    	
+    	public void add (	Double meanFControl, Double meanFMutant, Double meanMControl, Double meanMMutant, Double nFControl, Double nFMutant, Double nMControl, Double nMMutant){
+
+    		this.meanFControl += meanFControl;
+    		this.meanFMutant += meanFMutant;
+    		this.meanMMutant += meanMMutant;
+    		this.meanMControl += meanMControl;
+
+    		this.nFControl += nFControl;
+    		this.nFMutant += nFMutant;
+    		this.nMControl += nMControl;
+    		this.nMMutant += nMMutant;
+    	}
+    	
+    	public void add (SolrDocument doc){
+
+    		if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN)){
+    			this.meanFControl += Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString());
+    		}
+    		if (doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN)){
+    			this.meanFMutant += Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString());
+    		}
+    		if (doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN)){
+    			this.meanMMutant += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString());
+    		}
+    		if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN)){
+    			this.meanMControl += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString());
+    		}
+    		if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_COUNT)){
+    			this.nFControl += Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString());
+    		}
+    		if (doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_COUNT)){
+    			this.nFMutant += Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString());
+    		}
+    		if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_COUNT)){
+    			this.nMControl += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString());
+    		}
+    		if (doc.containsKey(StatisticalResultDTO.MALE_MUTANT_COUNT)){
+    			this.nMMutant += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString());
+    		}
+    	}
+    	
+    	
+    	public Double getPlotRatio(String sexToDisplay){
+    		
+    		Double ratio = null;		
+    		
+    		if (sexToDisplay.equalsIgnoreCase("both") ) {	
+    			if (nMMutant > 0 && nFMutant > 0){
+    				Double totalMutant = nFMutant + nMMutant;
+    				Double ratioMale = nMMutant / totalMutant;
+    				Double ratioFemale = nFMutant / totalMutant;
+    				ratio =  meanFMutant * ratioFemale + meanMMutant * ratioMale;
+    					
+    				totalMutant = nFControl	+ nMControl;
+    				ratioMale = nMControl / totalMutant;
+    				ratioFemale = nFControl / totalMutant;				
+    				ratio = ratio/(meanFControl * ratioFemale + meanMControl * ratioMale);		
+    			}
+    		} else if (sexToDisplay.equalsIgnoreCase(SexType.male.getName())){
+    			if (nMMutant > 0){
+    				ratio = meanMMutant / meanMControl;
+    			}
+    		} else if (sexToDisplay.equalsIgnoreCase(SexType.female.getName())) {
+    			if (nFMutant > 0){
+    				ratio = meanFMutant / meanFControl;
+    			}
+    		}
+    		
+    		return ratio;
+    	}
+    	
+    }
+
 }

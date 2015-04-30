@@ -199,6 +199,9 @@
        		    	var re = new RegExp("^'(.*)'$");
        		    	input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
        		    	
+       		    	// NOTE: solr special characters to escape
+       		    	// + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+       		    	
        		    	input = encodeURIComponent(input);
 
        		    	input = input.replace("%5B", "\\[");
@@ -216,6 +219,8 @@
        				input = input.replace("%60", "\\`");
        				input = input.replace("~"  , "\\~"); 
        				input = input.replace("%"  , "\\%");
+       				input = input.replace("!"  , "\\!");
+       				input = input.replace("%21", "\\!");
        				
        				if ( /^\\%22.+%22$/.test(input) ){	
        					input = input.replace(/\\/g, ''); //remove starting \ before double quotes	

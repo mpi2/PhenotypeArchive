@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
@@ -17,8 +18,10 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
+import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -39,6 +42,10 @@ public class OverviewChartsController {
 	
 	@Autowired
 	PostQcService gpService;
+	
+
+	@Autowired
+	StatisticalResultService srs;
 
 	@Autowired
 	Utilities impressUtilities;
@@ -68,7 +75,8 @@ public class OverviewChartsController {
 			return "overviewChart";
 	}
 	
-	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) 
+	throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
@@ -78,7 +86,8 @@ public class OverviewChartsController {
 		List<String> genes = null;
 		String[] centerToFilter = center;
 		
-		// Working under the assumption that different versions of a procedure will keep the same name. 
+		
+		// Assuming that different versions of a procedure will keep the same name. 
 		String procedureName = p.getProcedures().iterator().next().getName();
 		
 		if (p != null){
@@ -112,7 +121,7 @@ public class OverviewChartsController {
 			}
 			
 			else if ( impressUtilities.checkType(p).equals(ObservationType.unidimensional) ){
-				StackedBarsData data = os.getUnidimensionalData(p, genes, OVERVIEW_STRAINS, "experimental", centerToFilter, sex);
+				StackedBarsData data = srs.getUnidimensionalData(p, genes, OVERVIEW_STRAINS, "experimental", centerToFilter, sex);
 				chartRes = uctp.getStackedHistogram(data, p, procedureName);
 			}
 			

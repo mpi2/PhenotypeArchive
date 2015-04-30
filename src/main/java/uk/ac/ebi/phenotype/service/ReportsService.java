@@ -1,6 +1,8 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
@@ -10,14 +12,15 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -26,11 +29,14 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class ReportsService {
 
-    @Autowired
+	@Autowired
 	StatisticalResultService srService;
 
     @Autowired
 	ObservationService oService;
+
+	@Autowired
+	GeneService geneService;
     
     @Autowired
 	ExperimentService experimentService;
@@ -47,15 +53,19 @@ public class ReportsService {
     
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
+
+	@Resource(name = "globalConfiguration")
+	Map<String, String> config;
     
 	private static 
 	ArrayList<String> resources;
 
 	public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
 	public static final String FEMALE_FERTILITY_PARAMETER = "IMPC_FER_019_001";
-	
-    
-    public ReportsService(){
+	public static final String[] EMPTY_ROW = new String[]{""};
+
+
+	public ReportsService(){
     	resources = new ArrayList<>();
     	resources.add("IMPC");
     	resources.add("3i");
@@ -66,7 +76,7 @@ public class ReportsService {
 
 		Long time = System.currentTimeMillis();
 		List<String[]> report = new ArrayList<>();
-		String[] header = { "Gene", "Allele" , "Colony", "First date", "Last date", 
+		String[] header = { "Gene", "Allele" , "Colony", "Phenotyping Center", "First date", "Last date", 
 							"Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male", 
 							"Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male", 
 							"Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male", 
@@ -91,7 +101,7 @@ public class ReportsService {
 				IpGTTStats stats;
 				stats = new IpGTTStats(group);
 				
-				String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony, stats.firstDate, stats.lastDate,
+				String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
 						"" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
 						"" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
 						"" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
@@ -245,8 +255,8 @@ public class ReportsService {
       				}
       			}
       		}
-      		String[] empty = {""};
-      		genesTable.add(empty); 
+
+		    genesTable.add(EMPTY_ROW);
       		String[] row = {"Conflicting", "" + conflicts.size(), StringUtils.join(conflicts, ", ")};
     		genesTable.add(row); 
     		String[] note = {"NOTE: Symbols in the conflicting list represent genes that are included in more than one viability category."};
@@ -517,7 +527,7 @@ public class ReportsService {
 	 *     if one sex has an MP call, but the other doesn't, count once
 	 *     if one sex has an MP call, and the other has a different call, count twice
 	 *
-	 * @return
+	 * @return list of string arrays for populating a CSV file
 	 */
 	public List<String[]> getHitsPerGene(){
 
@@ -565,6 +575,135 @@ public class ReportsService {
 		return res;
 
 	}
+
+
+	/**
+	 * This will return a report of genes with MP term associations brokwn down by zygosity..  It will also list
+	 * the viability call(s) for that gene.
+	 *
+	 * @return list of string arrays for populating a CSV file
+	 */
+	public List<String[]> getGeneByZygosity() {
+		List<String[]> res = new ArrayList<>();
+		String [] headerParams  ={"MP Term", "Zygosity", "# Genes", "Genes" };
+		res.add(headerParams);
+
+		Map<String, Set<String>> geneViability = new HashMap<>();
+
+		Map<Pair<String, ZygosityType>, Set<String>> mps = new TreeMap<>();
+
+		List<ZygosityType> zTypes = Arrays.asList(ZygosityType.homozygote, ZygosityType.heterozygote, ZygosityType.hemizygote);
+		Map<Pair<String, ZygosityType>, Set<String>> genes = new TreeMap<>();
+
+		try {
+
+			// Get the list of phenotype calls
+			List<GenotypePhenotypeDTO> gps = gpService.getAllGenotypePhenotypes(resources);
+
+			for (GenotypePhenotypeDTO gp : gps) {
+
+				// Exclude LacZ calls
+				if(gp.getParameterStableId().contains("ALZ")) {
+					continue;
+				}
+				final String symbol = gp.getMarkerSymbol();
+				final ZygosityType zygosity = ZygosityType.valueOf(gp.getZygosity());
+				final List<String> mpTerm = gp.getTopLevelMpTermName();
+
+				if (mpTerm==null) continue;
+
+				// Collect all the top level MP term information
+				for (String mp : mpTerm) {
+					Pair<String, ZygosityType> k = new ImmutablePair<>(mp, zygosity);
+					if ( ! mps.containsKey(k)) {
+						mps.put(k, new HashSet<String>());
+					}
+					mps.get(k).add(symbol);
+				}
+
+
+
+				if ( ! genes.containsKey(new ImmutablePair<>(symbol, zygosity))) {
+					for (ZygosityType z : zTypes) {
+						Pair<String, ZygosityType> k = new ImmutablePair<>(symbol, z);
+						genes.put(k, new HashSet<String>());
+					}
+				}
+
+				// Exclude Viability calls from the counts of genes by zygosity
+				if(gp.getParameterStableId().contains("VIA")) {
+					continue;
+				}
+
+				genes.get(new ImmutablePair<>(symbol, zygosity)).add(gp.getMpTermName());
+
+			}
+
+			for (Pair<String, ZygosityType> k : mps.keySet()) {
+				final String symbol = k.getLeft();
+				final String zygosity = k.getRight().getName();
+
+				String[] row = {symbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mps.get(k), ": ") };
+				res.add(row);
+			}
+
+
+			res.add(EMPTY_ROW);
+			res.add(EMPTY_ROW);
+
+			// Get the viability data from the experiment core directly
+			for (ObservationDTO obs : oService.getObservationsByParameterStableId("IMPC_VIA_001_001")) {
+
+				// Skip records that are not for the resources we are interested in
+				if ( ! resources.contains(obs.getDataSourceName())) {
+					continue;
+				}
+
+				String symbol = obs.getGeneSymbol();
+
+				if ( ! geneViability.containsKey(symbol)) {
+					geneViability.put(symbol, new HashSet<String>());
+				}
+
+				geneViability.get(symbol).add(obs.getCategory());
+			}
+
+
+			String [] resetHeaderParams = {"Marker symbol", "Viability", "Hom", "Het", "Hemi", "Link to Gene page" };
+			res.add(resetHeaderParams);
+
+			Set<String> geneSymbols = new HashSet<>();
+			for (Pair<String, ZygosityType> g : genes.keySet()) {
+				geneSymbols.add(g.getLeft());
+			}
+
+			for (String geneSymbol : geneSymbols) {
+				String homCount = Integer.toString(genes.get(new ImmutablePair<>(geneSymbol, ZygosityType.homozygote)).size());
+				String hetCount = Integer.toString(genes.get(new ImmutablePair<>(geneSymbol, ZygosityType.heterozygote)).size());
+				String hemiCount = Integer.toString(genes.get(new ImmutablePair<>(geneSymbol, ZygosityType.hemizygote)).size());
+
+				GeneDTO gene = geneService.getGeneByGeneSymbol(geneSymbol);
+				String geneLink = "";
+				if (gene!=null) {
+					geneLink = config.get("drupalBaseUrl") + "/data/genes/" + gene.getMgiAccessionId();
+				}
+
+				String[] row = {geneSymbol, StringUtils.join(geneViability.get(geneSymbol), ": "), homCount, hetCount, hemiCount, geneLink };
+				res.add(row);
+			}
+
+
+
+
+
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return res;
+
+	}
+
+
 
 	public List<List<String[]>> getMpCallDistribution(){
     	
@@ -703,6 +842,7 @@ public class ReportsService {
     	String colony;
     	String firstDate;
     	String lastDate;
+    	String phenotypingCenter;
     	// < sex, <zygosity, <datapoints>>>
     	HashMap<String, HashMap<String, ArrayList<Float>>> datapoints;
     	HashMap<String, HashMap<String, DescriptiveStatistics>> stats;
@@ -713,6 +853,7 @@ public class ReportsService {
     		SolrDocumentList docList = group.getResult();
     		colony = group.getGroupValue();
     		SolrDocument doc = docList.get(0);
+    		phenotypingCenter = doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString();
     		alleleSymbol = doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL).toString();
     		geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
     		firstDate = doc.getFieldValue(ObservationDTO.DATE_OF_EXPERIMENT).toString();
@@ -720,6 +861,7 @@ public class ReportsService {
     		datapoints = new HashMap<>();
     		stats = new HashMap<>();
 
+    		
     		List<String> zygosities = new ArrayList<>();  
     		List<String> sexes = new ArrayList<>();    		
     		

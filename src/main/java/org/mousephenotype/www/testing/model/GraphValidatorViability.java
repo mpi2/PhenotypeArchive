@@ -23,30 +23,29 @@ package org.mousephenotype.www.testing.model;
 import org.mousephenotype.www.testing.exception.GraphTestException;
 
 /**
- * This abstract class encapsulates the common code and data necessary to
- * validate a graph section. Subclasses handle validation for specific graph
- * types.
- * 
+ *
  * @author mrelac
+ * 
+ * This class encapsulates the code and data necessary to validate a Viability
+ * graph.
  */
-
-public abstract class GraphValidator {
-    protected GraphSection pageSection;
-    public static final String IMPC_PIPELINE = "IMPC Pipeline";
-    public GraphValidator() {
-        
-    }
-
-    public GraphSection getPageSection() {
-        return pageSection;
-    }
-
-    public void setPageSection(GraphSection pageSection) {
-        this.pageSection = pageSection;
+public class GraphValidatorViability extends GraphValidator {
+    
+    public GraphValidatorViability() {
+        super();
     }
     
-    
+    @Override
     public PageStatus validate() throws GraphTestException {
-        return pageSection.getHeading().validate();
+        PageStatus status = new PageStatus();
+        
+        status.add(super.validate());                                           // Validate common components.
+        
+        // Verify title contains 'Allele'.
+        if ( ! pageSection.getHeading().title.startsWith("Allele -")) {
+            status.addError("ERROR: expected title to start with 'Allele -'. Title is '" + pageSection.getHeading().title + "'. URL: " + pageSection.graphUrl);
+        }
+        
+        return status;
     }
 }

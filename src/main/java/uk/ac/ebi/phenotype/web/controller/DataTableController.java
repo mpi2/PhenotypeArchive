@@ -143,7 +143,6 @@ public class DataTableController {
             showImgView = jParams.getBoolean("showImgView");
         }
         JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-
         String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
@@ -563,6 +562,7 @@ public class DataTableController {
         //System.out.println("baseurl: "+ baseUrl);
 
         if (showImgView) {
+        	
             // image view: one image per row
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
             int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -579,8 +579,7 @@ public class DataTableController {
                 List<String> rowData = new ArrayList<String>();
                 JSONObject doc = docs.getJSONObject(i);
                 String annots = "";
-
-                //System.out.println("JSON: " + doc.toString());
+                
                 String imgLink = null;
 
                 if (doc.containsKey("jpeg_url")) {
@@ -633,7 +632,7 @@ public class DataTableController {
 						JSONArray termIds   = doc.getJSONArray("ma_id");
 						JSONArray termNames = doc.getJSONArray("ma_term");
 						for( Object s : termIds ){														
-							
+							log.info(i + " - MA: " + termNames.get(counter).toString());
 							log.debug(i + " - MA: " + termNames.get(counter).toString());
 							String name = termNames.get(counter).toString();
 							String maid = termIds.get(counter).toString();	
@@ -739,11 +738,10 @@ public class DataTableController {
                 List<String> rowData = new ArrayList<String>();
 
                 AnnotNameValCount annot = annots.get(i);
-
+               
                 String displayAnnotName = annot.name;
                 String annotVal = annot.val;
-                int imgCount = annot.imgCount;
-                String unit = imgCount > 1 ? "images" : "image";
+                String annotId = annot.id;
 
                 String link = annot.link != null ? annot.link : "";
                 String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
@@ -752,24 +750,35 @@ public class DataTableController {
 
                 //https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
                 String imgSubSetLink = null;
+                String thisImgUrl = null;
+                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, defaultFqStr);
+               
+                int imgCount = (int) pathAndImgCount.get(1);
+                
+                String unit = imgCount > 1 ? "images" : "image";
+                
                 if (imgCount == 0) {
                     imgSubSetLink = imgCount + " " + unit;
                 } else {
                     String currFqStr = null;
                     if (displayAnnotName.equals("Gene")) {
                         currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
-                    } else if (displayAnnotName.equals("Procedure")) {
+                    } 
+                    else if (displayAnnotName.equals("Procedure")) {
                         currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+                    }
+                    else if  (displayAnnotName.equals("MA")) {
+                        currFqStr = defaultFqStr + " AND ma_id:\"" + annotId + "\"";
                     }
 
                     //String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-                    String thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
+                    thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
+                    
                     imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
                 }
+                
                 rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
-
-                String imgPath = fetchImpcImagePathByAnnotName(query, defaultFqStr);
-                rowData.add(imgPath);
+                rowData.add(pathAndImgCount.get(0).toString());
 
                 j.getJSONArray("aaData").add(rowData);
 
@@ -1061,51 +1070,6 @@ public class DataTableController {
         return gene;
     }
 
-    public String fetchImpcImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException {
-
-		//String mediaBaseUrl = config.get("mediaBaseUrl");
-        final int maxNum = 4; // max num of images to display in grid column
-
-        String queryUrl = config.get("internalSolrUrl")
-                + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
-                + "&" + fqStr
-                + "&rows=" + maxNum;
-
-        //System.out.println("QUERYURL: "+queryUrl );
-        List<String> imgPath = new ArrayList<String>();
-
-        JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
-        JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
-
-        int dataLen = docs.size() < 5 ? docs.size() : maxNum;
-
-        for (int i = 0; i < dataLen; i ++) {
-            JSONObject doc = docs.getJSONObject(i);
-
-            String link = null;
-
-            if (doc.containsKey("jpeg_url")) {
-                String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-                String downloadUrl=doc.getString("download_url");
-                //System.out.println("download Url="+downloadUrl);
-                String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                String smallThumbNailPath = thumbnailPath + "/200";
-                String largeThumbNailPath = thumbnailPath + "/800";
-                String img = "<img src='" + smallThumbNailPath + "'/>";
-                if(downloadUrl.contains("/annotation/")){
-                	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
-                }else{
-                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath +"'>" + img + "</a>";
-                }
-            } else {
-                link = IMG_NOT_FOUND;
-            }
-            imgPath.add(link);
-        }
-
-        return StringUtils.join(imgPath, "");
-    }
-
     public String fetchImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException {
 
         String mediaBaseUrl = config.get("mediaBaseUrl");
@@ -1287,7 +1251,7 @@ public class DataTableController {
 
 		// fetch allele id, gene id of this allele symbol
         // and update acc and gacc fields of allele_ref table
-        System.out.println("set allele: " + sqla);
+        //System.out.println("set allele: " + sqla);
 
         String alleleAcc = "";
         String geneAcc = "";
@@ -1299,7 +1263,7 @@ public class DataTableController {
             while (resultSet.next()) {
                 alleleAcc = resultSet.getString("acc");
                 geneAcc = resultSet.getString("gf_acc");
-                System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
+                //System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1320,8 +1284,8 @@ public class DataTableController {
 
             j.put("reviewed", "yes");
             j.put("symbol", alleleSymbol);
-            System.out.println("sql: " + sql);
-            System.out.println("setting acc and gacc -> " + alleleAcc + " --- " + geneAcc);
+            //System.out.println("sql: " + sql);
+            //System.out.println("setting acc and gacc -> " + alleleAcc + " --- " + geneAcc);
         } catch (SQLException se) {
             //Handle errors for JDBC
             se.printStackTrace();

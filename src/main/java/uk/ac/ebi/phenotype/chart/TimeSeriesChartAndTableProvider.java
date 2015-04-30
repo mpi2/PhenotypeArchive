@@ -263,7 +263,8 @@ public class TimeSeriesChartAndTableProvider {
 				+ " labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }},   title: {   text: '"
-				+ xUnitsLabel
+			//	+ xUnitsLabel
+				+ "Age - rounded to nearest week"
 				+ "'   }  }, yAxis: { labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }}, title: { text: ' "

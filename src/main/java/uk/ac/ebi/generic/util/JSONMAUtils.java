@@ -8,10 +8,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.ebi.phenotype.web.pojo.Anatomy;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import uk.ac.ebi.phenotype.web.pojo.Anatomy;
 
 public class JSONMAUtils {
 
@@ -47,7 +46,13 @@ public class JSONMAUtils {
 			ma.setChildTerms(terms);
 			ma.setChildIds(ids);
 		}
-		//the fields below don't exist anymore in the schema - do we replace these with something or not??? JW
+		
+		if (maJson.containsKey("ma_term_synonym")){
+			ArrayList<String> synList = new ArrayList<String>( JSONArray.toCollection(maJson.getJSONArray("ma_term_synonym") , String.class));
+			ma.setSynonyms(synList);
+		}
+		
+		// the fields below don't exist anymore in the schema - do we replace these with something or not??? JW
 //		if(maJson.containsKey("ma_2_mp_id")) {
 //			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_id") , String.class);
 //			mpIds=getDistinct(mpIds);
