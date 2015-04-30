@@ -167,7 +167,6 @@ public class GraphPageTest {
     
     private PageStatus graphValidator(String graphUrl, ChartType chartType, GraphValidator validator) throws GraphTestException {
         PageStatus status = new PageStatus();
-        int successCount = 0;
         
         GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl, chartType);
         for (GraphSection pageSection : graphPage.getDownloadSections()) {
@@ -239,7 +238,7 @@ public class GraphPageTest {
           , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
           , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"
           , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
-          ,"http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1915392&allele_accession=MGI:4436542&zygosity=heterozygote&parameter_stable_id=IMPC_OFD_017_001&pipeline_stable_id=IMPC_001&phenotyping_center=ICS"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1915392&allele_accession=MGI:4436542&zygosity=heterozygote&parameter_stable_id=IMPC_OFD_017_001&pipeline_stable_id=IMPC_001&phenotyping_center=ICS"
           , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"
         });
         List<GraphValidator> validators = Arrays.asList(new GraphValidator[] {

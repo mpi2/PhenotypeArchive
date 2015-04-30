@@ -1016,7 +1016,7 @@
             <id>dev-web-tests</id>
 
             <properties>
-                <baseUrl>http://dev.mousephenotype.org/data</baseUrl>
+                <baseUrl>http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive</baseUrl>
                 <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
                 <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
                 <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>

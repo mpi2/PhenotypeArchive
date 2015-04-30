@@ -387,10 +387,6 @@ public class GraphHeading {
                     
                 case TIME_SERIES_LINE:
                 case TIME_SERIES_LINE_BODYWEIGHT:
-                    elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-title']"));
-                    if ( ! elements.isEmpty()) {
-                        parameterName = elements.get(0).getText();
-                    }
                     elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-subtitle']"));
                     if ( ! elements.isEmpty()) {
                         parameterStableId = elements.get(0).getText();
