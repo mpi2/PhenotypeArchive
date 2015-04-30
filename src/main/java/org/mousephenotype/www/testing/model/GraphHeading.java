@@ -20,18 +20,25 @@
 
 package org.mousephenotype.www.testing.model;
 
-import org.openqa.selenium.*;
+import java.util.List;
+import org.mousephenotype.www.testing.exception.GraphTestException;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import uk.ac.ebi.phenotype.chart.ChartType;
+import static uk.ac.ebi.phenotype.chart.ChartType.CATEGORICAL_STACKED_COLUMN;
+import static uk.ac.ebi.phenotype.chart.ChartType.PIE;
+import static uk.ac.ebi.phenotype.chart.ChartType.TIME_SERIES_LINE;
+import static uk.ac.ebi.phenotype.chart.ChartType.TIME_SERIES_LINE_BODYWEIGHT;
+import static uk.ac.ebi.phenotype.chart.ChartType.UNIDIMENSIONAL_ABR_PLOT;
+import static uk.ac.ebi.phenotype.chart.ChartType.UNIDIMENSIONAL_BOX_PLOT;
+import static uk.ac.ebi.phenotype.chart.ChartType.UNIDIMENSIONAL_SCATTER_PLOT;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-
-import java.util.List;
-import org.mousephenotype.www.testing.exception.GraphTestException;
-import uk.ac.ebi.phenotype.chart.ChartType;
 
 /**
  *
@@ -63,6 +70,7 @@ public class GraphHeading {
     protected String phenotypingCenter;
     protected String pipelineName;
     protected WebElement pipelineLinkElement;
+    protected String procedureName;
     protected WebElement sopLinkElement;
     protected String graphUrl;
     protected ChartType chartType;
@@ -237,6 +245,10 @@ public class GraphHeading {
         return parameterObject;
     }
 
+    public String getProcedureName() {
+        return procedureName;
+    }
+
     
     // PRIVATE METHODS
 
@@ -296,11 +308,19 @@ public class GraphHeading {
 
                 String line1 = line1Element.getText();
                 String[] part1 = line1.split("Phenotyping Center - ");
-                background = part1[0].replace("Background -", "").replace("&nbsp;", "").trim();
+                
+                // If <sup> tag found, wrap it in "<  >".
+                List<WebElement> elements = line1Element.findElements(By.xpath(".//sup"));
+                if ( ! elements.isEmpty()) {
+                    String sup = elements.get(0).getText();
+                    background = part1[0].replace("Background -", "").replace("&nbsp;", "").trim().replace(sup, "<" + sup + ">");
+                } else {
+                    background = part1[0].replace("Background -", "").replace("&nbsp;", "").trim();
+                }
                 String[] part2 = part1[1].split("Pipeline -");
                 phenotypingCenter = part2[0].replace("Phenotyping Center -", "").replace("&nbsp;", "").trim();
                 pipelineName = part2[1].replace("Pipeline -", "").replace("&nbsp;", "").trim();
-                List<WebElement> elements = line1Element.findElements(By.xpath(".//a"));
+                elements = line1Element.findElements(By.xpath(".//a"));
                 if (elements.isEmpty()) {
                     pipelineLinkElement = null;
                 } else {
@@ -382,6 +402,7 @@ public class GraphHeading {
                         sopLinkElement = null;
                     } else {
                         sopLinkElement = elements.get(0);
+                        procedureName = sopLinkElement.getText();
                     }
                     break;
                     

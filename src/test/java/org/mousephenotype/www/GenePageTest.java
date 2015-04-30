@@ -77,6 +77,7 @@ import uk.ac.ebi.phenotype.util.Utils;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class GenePageTest {
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     
     @Autowired
     protected GeneService geneService;
@@ -101,8 +102,6 @@ public class GenePageTest {
     
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
-
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     
     @Before
     public void setup() {
@@ -170,7 +169,7 @@ public class GenePageTest {
             i++;
             
             target = baseUrl + "/genes/" + geneId;
-            System.out.println("gene[" + i + "] URL: " + target);
+            logger.debug("gene[" + i + "] URL: " + target);
 
             try {
                 driver.get(target);
@@ -669,7 +668,7 @@ public class GenePageTest {
 //if (i == 2) geneId = "MGI:1096574";
 //if (i == 3) geneId = "MGI:1352464";
             target = baseUrl + "/genes/" + geneId;
-            System.out.println("gene[" + i + "] URL: " + target);
+            logger.debug("gene[" + i + "] URL: " + target);
             
             try {
                 driver.get(target);

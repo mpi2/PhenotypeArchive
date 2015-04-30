@@ -128,7 +128,7 @@ public class PipelineDTO {
 	private String parameterStableKey;
 
 	@Field(ID_ID_ID)
-	private List<String> ididid;
+	private String ididid;
 
 	//
 	// Gene fields
@@ -173,6 +173,59 @@ public class PipelineDTO {
 
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypingStatus;
+
+	@Override
+	public String toString() {
+		return "PipelineDTO [parameterId=" + parameterId
+				+ ", parameterStableId=" + parameterStableId
+				+ ", parameterName=" + parameterName + ", procedureId="
+				+ procedureId + ", procedureStableId=" + procedureStableId
+				+ ", procedureName=" + procedureName + ", mappedProcedureName="
+				+ mappedProcedureName + ", pipelineId=" + pipelineId
+				+ ", pipelineStableId=" + pipelineStableId
+				+ ", pipelineStableKey=" + pipelineStableKey
+				+ ", pipelineName=" + pipelineName + ", pipeProcId="
+				+ pipeProcId + ", procedureStableKey=" + procedureStableKey
+				+ ", procedureNameId=" + procedureNameId
+				+ ", procedureParamStableId=" + procedureParamStableId
+				+ ", procedureParamName=" + procedureParamName
+				+ ", parameterStableKey=" + parameterStableKey + ", ididid="
+				+ ididid + ", mgiAccession=" + mgiAccession + ", markerType="
+				+ markerType + ", markerSymbol=" + markerSymbol
+				+ ", markerSynonyms=" + markerSynonyms + ", markerName="
+				+ markerName + ", humanGeneSymbol=" + humanGeneSymbol
+				+ ", status=" + status + ", imitsPhenotypeStarted="
+				+ imitsPhenotypeStarted + ", imitsPhenotypeComplete="
+				+ imitsPhenotypeComplete + ", imitsPhenotypeStatus="
+				+ imitsPhenotypeStatus + ", latestProductionCentre="
+				+ latestProductionCentre + ", latestPhenotypingCentre="
+				+ latestPhenotypingCentre + ", latestPhenotypingStatus="
+				+ latestPhenotypingStatus + ", legacyPhenotypingStatus="
+				+ legacyPhenotypingStatus + ", alleleName=" + alleleName
+				+ ", mpId=" + mpId + ", mpTerm=" + mpTerm + ", mpTermSynonym="
+				+ mpTermSynonym + ", ontologySubset=" + ontologySubset
+				+ ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm="
+				+ topLevelMpTerm + ", topLevelMpTermSynonym="
+				+ topLevelMpTermSynonym + ", intermediateMpId="
+				+ intermediateMpId + ", intermediateMpTerm="
+				+ intermediateMpTerm + ", intermediateMpTermSynonym="
+				+ intermediateMpTermSynonym + ", childMpId=" + childMpId
+				+ ", childMpTerm=" + childMpTerm + ", childMpTermSynonym="
+				+ childMpTermSynonym + ", hpId=" + hpId + ", hpTerm=" + hpTerm
+				+ ", inferredMaId=" + inferredMaId + ", inferredMaTerm="
+				+ inferredMaTerm + ", inferredMaTermSynonym="
+				+ inferredMaTermSynonym + ", selectedTopLevelMaId="
+				+ selectedTopLevelMaId + ", inferredSelectedTopLevelMaTerm="
+				+ inferredSelectedTopLevelMaTerm
+				+ ", inferredSelectedToLevelMaTermSynonym="
+				+ inferredSelectedToLevelMaTermSynonym + ", inferredChildMaId="
+				+ inferredChildMaId + ", inferredChildMaTerm="
+				+ inferredChildMaTerm + ", inferredChildMaTermSynonym="
+				+ inferredChildMaTermSynonym
+				+ ", inferredSelectedTopLevelMaId="
+				+ inferredSelectedTopLevelMaId + "]";
+	}
+
 
 	@Field(LEGACY_PHENOTYPE_STATUS)
 	private List<String> legacyPhenotypingStatus;
@@ -572,13 +625,13 @@ public class PipelineDTO {
 	}
 
 
-	public List<String> getIdidid() {
+	public String getIdidid() {
 
 		return ididid;
 	}
 
 
-	public void setIdidid(List<String> ididid) {
+	public void setIdidid(String ididid) {
 
 		this.ididid = ididid;
 	}
@@ -1030,7 +1083,7 @@ public class PipelineDTO {
 	}
 
 
-	public void setIdIdId(List<String> ididid) {
+	public void setIdIdId(String ididid) {
 
 		this.ididid = ididid;
 
@@ -1446,13 +1499,4 @@ public class PipelineDTO {
 		
 	}
 
-
-	public void addIdIdId(String ididid) {
-
-		if (this.ididid== null) {
-			this.ididid = new ArrayList<>();
-		}
-		this.ididid.add(ididid);
-		
-	}
 }

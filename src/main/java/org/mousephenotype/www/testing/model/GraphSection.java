@@ -63,7 +63,7 @@ public class GraphSection {
     private GraphGlobalTestTable globalTestTable;
     private GraphHeading heading;
     private MoreStatisticsLink moreStatisticsLink;
-    private ChartType chartType;
+    private final ChartType chartType;
     
     /**
      * Creates a new <code>GraphPage</code> instance
