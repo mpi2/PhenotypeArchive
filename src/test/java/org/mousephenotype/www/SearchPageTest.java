@@ -1185,6 +1185,7 @@ public class SearchPageTest {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
+                    TestUtils.sleep(1000);
 //searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
 //TestUtils.sleep(5000);
                     System.out.println("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 

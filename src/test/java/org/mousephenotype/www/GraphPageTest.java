@@ -167,7 +167,6 @@ public class GraphPageTest {
     
     private PageStatus graphValidator(String graphUrl, ChartType chartType, GraphValidator validator) throws GraphTestException {
         PageStatus status = new PageStatus();
-        int successCount = 0;
         
         GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl, chartType);
         for (GraphSection pageSection : graphPage.getDownloadSections()) {
@@ -252,7 +251,7 @@ public class GraphPageTest {
           , graphValidatorUnidimensional
           , graphValidatorUnidimensional
           , graphValidatorUnidimensional
-          , graphValidatorUnidimensional
+          , graphValidatorABR
         });
         
         List<ChartType> chartTypes = Arrays.asList(new ChartType[] {
@@ -265,7 +264,7 @@ public class GraphPageTest {
           , ChartType.UNIDIMENSIONAL_BOX_PLOT
           , ChartType.UNIDIMENSIONAL_BOX_PLOT       // Has 2 graphs with globalTest tables different from each other.
           , ChartType.UNIDIMENSIONAL_BOX_PLOT
-          , ChartType.UNIDIMENSIONAL_BOX_PLOT
+          , ChartType.UNIDIMENSIONAL_ABR_PLOT
         });
         
         for (int i = 0; i < graphUrls.size(); i++) {
