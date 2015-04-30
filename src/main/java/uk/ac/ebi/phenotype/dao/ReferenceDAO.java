@@ -104,11 +104,18 @@ public class ReferenceDAO {
      * @throws SQLException
      */
     public List<ReferenceDTO> getReferenceRows(String filter) throws SQLException {
-        if (filter == null) 
+
+    	Connection connection = admintoolsDataSource.getConnection();
+    	// need to set max length for group_concat() otherwise some values would get chopped off !!
+    	String gcsql = "SET SESSION GROUP_CONCAT_MAX_LEN = 100000000";
+    	
+    	PreparedStatement pst = connection.prepareStatement(gcsql);
+    	pst.executeQuery();
+    	
+    	if (filter == null) 
             filter = "";
         
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
-        Connection connection = admintoolsDataSource.getConnection();
         String pmidsToOmit = getPmidsToOmit();
         String notInClause = (pmidsToOmit.isEmpty() ? "" : "  AND pmid NOT IN (" + pmidsToOmit + ")\n");
         String searchClause = "";
@@ -128,17 +135,23 @@ public class ReferenceDAO {
         
         String whereClause =
                 "WHERE\n"
-              + "      reviewed = 'yes'\n"
+              + "  reviewed = 'yes'\n"
               + "  AND symbol != ''\n"
+              + "  AND gacc != ''\n"
+              + "  AND acc != ''\n"
               + notInClause
               + searchClause;
         
         String query =
                 "SELECT\n"
-              + "  GROUP_CONCAT(DISTINCT symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
-              + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
-              + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
-              + ", GROUP_CONCAT(DISTINCT name      SEPARATOR \"|||\") AS alleleNames\n"
+             // + "  GROUP_CONCAT(DISTINCT symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
+             // + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
+             // + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
+             // + ", GROUP_CONCAT(DISTINCT name      SEPARATOR \"|||\") AS alleleNames\n"
+              + "  GROUP_CONCAT( symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
+              + ", GROUP_CONCAT( acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
+              + ", GROUP_CONCAT( gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
+              + ", GROUP_CONCAT( name      SEPARATOR \"|||\") AS alleleNames\n"
               + ", title\n"
               + ", journal\n"
               + ", pmid\n"
@@ -150,6 +163,8 @@ public class ReferenceDAO {
               + whereClause
               + "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
+        
+        //System.out.println("alleleRef query: " + query);
         
         List<ReferenceDTO> results = new ArrayList<>();
         
