@@ -184,7 +184,7 @@ public class PhenotypePageTest {
             boolean found = false;
             
             target = baseUrl + "/phenotypes/" + phenotypeId;
-            logger.info("phenotype[" + i + "] URL: " + target);
+            logger.debug("phenotype[" + i + "] URL: " + target);
             
             try {
                 driver.get(target);
@@ -365,7 +365,7 @@ public class PhenotypePageTest {
         
         for (int i = 0; i < phenotypeIdArray.length; i++) {
             target = baseUrl + "/phenotypes/" + phenotypeIdArray[i];
-            System.out.println("phenotype[" + i + "] URL: " + target);
+            logger.debug("phenotype[" + i + "] URL: " + target);
         
             try {
                 PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);

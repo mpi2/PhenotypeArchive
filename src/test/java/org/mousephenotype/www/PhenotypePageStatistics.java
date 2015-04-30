@@ -79,6 +79,7 @@ import uk.ac.ebi.phenotype.util.Utils;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class PhenotypePageStatistics {
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     
     @Autowired
     protected MpService mpService;
@@ -96,7 +97,6 @@ public class PhenotypePageStatistics {
     protected TestUtils testUtils;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
@@ -177,7 +177,7 @@ public class PhenotypePageStatistics {
 //if (i == 1) phenotypeId = "MP:0001304";
             
             target = baseUrl + "/phenotypes/" + phenotypeId;
-            System.out.println("phenotype[" + i + "] URL: " + target);
+            logger.debug("phenotype[" + i + "] URL: " + target);
             
             try {
                 driver.get(target);

@@ -99,7 +99,9 @@ public class AnatomyPageTableRow extends DataTableRow{
     	} else {
     		url += " AND " + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":control";
     	}
-    	
+    	if (getParameter() != null){
+    		url += " AND " + ImageDTO.PARAMETER_NAME + ":\"" + getParameter().getName() + "\"";
+    	}
     	url += "&title=gene " + this.getGene().getSymbol() + " in " + maTerm + ""; 
     	return url;
     }
