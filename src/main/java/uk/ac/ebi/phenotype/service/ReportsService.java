@@ -76,7 +76,7 @@ public class ReportsService {
 
 		Long time = System.currentTimeMillis();
 		List<String[]> report = new ArrayList<>();
-		String[] header = { "Gene", "Allele" , "Colony", "First date", "Last date", 
+		String[] header = { "Gene", "Allele" , "Colony", "Phenotyping Center", "First date", "Last date", 
 							"Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male", 
 							"Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male", 
 							"Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male", 
@@ -101,7 +101,7 @@ public class ReportsService {
 				IpGTTStats stats;
 				stats = new IpGTTStats(group);
 				
-				String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony, stats.firstDate, stats.lastDate,
+				String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
 						"" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
 						"" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
 						"" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
@@ -842,6 +842,7 @@ public class ReportsService {
     	String colony;
     	String firstDate;
     	String lastDate;
+    	String phenotypingCenter;
     	// < sex, <zygosity, <datapoints>>>
     	HashMap<String, HashMap<String, ArrayList<Float>>> datapoints;
     	HashMap<String, HashMap<String, DescriptiveStatistics>> stats;
@@ -852,6 +853,7 @@ public class ReportsService {
     		SolrDocumentList docList = group.getResult();
     		colony = group.getGroupValue();
     		SolrDocument doc = docList.get(0);
+    		phenotypingCenter = doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString();
     		alleleSymbol = doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL).toString();
     		geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
     		firstDate = doc.getFieldValue(ObservationDTO.DATE_OF_EXPERIMENT).toString();
@@ -859,6 +861,7 @@ public class ReportsService {
     		datapoints = new HashMap<>();
     		stats = new HashMap<>();
 
+    		
     		List<String> zygosities = new ArrayList<>();  
     		List<String> sexes = new ArrayList<>();    		
     		
