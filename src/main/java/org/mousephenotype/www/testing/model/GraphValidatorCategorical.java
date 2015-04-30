@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import org.mousephenotype.www.testing.exception.GraphTestException;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -66,7 +67,7 @@ public class GraphValidatorCategorical extends GraphValidator {
     }
     
     @Override
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         PageStatus status = new PageStatus();
         
         status.add(super.validate());                                           // Validate common components.
@@ -129,42 +130,46 @@ public class GraphValidatorCategorical extends GraphValidator {
                 String file = row[ALLELE_SYMBOL].toLowerCase().trim();
                 String page = h.alleleSymbol.toLowerCase().trim();
                 if ((! group.equals("control")) && (! file.equals(page)))
-                    status.addError(downloadType + " allele symbol mismatch. Page: " + row[ALLELE_SYMBOL] + ". Download: " + h.alleleSymbol + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " allele symbol mismatch. Download: " + row[ALLELE_SYMBOL] + ". Page: " + h.alleleSymbol + ". URL: " + pageSection.graphUrl);
                 
                 file = row[GENETIC_BACKGROUND].toLowerCase().trim();
                 page = h.geneticBackground.toLowerCase().trim();
                 if ( ! file.equals(page))
-                    status.addError(downloadType + " genetic background mismatch. Page: " + row[GENETIC_BACKGROUND] + ". Download: " + h.geneticBackground + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " genetic background mismatch. Download: " + row[GENETIC_BACKGROUND] + ". Page: " + h.geneticBackground + ". URL: " + pageSection.graphUrl);
                 
                 file = row[GENE_SYMBOL].toLowerCase().trim();
                 page = h.geneSymbol.toLowerCase().trim();
                 if ((! group.equals("control")) && (! file.equals(page)))
-                    status.addError(downloadType + " gene symbol mismatch. Page: " + row[GENE_SYMBOL] + ". Download: " + h.geneSymbol + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " gene symbol mismatch. Download: " + row[GENE_SYMBOL] + ". Page: " + h.geneSymbol + ". URL: " + pageSection.graphUrl);
                 
                 file = row[METADATA_GROUP].toLowerCase().trim();
                 page = h.metadataGroup.toLowerCase().trim();
                 if ( ! file.equals(page))
-                    status.addError(downloadType + " metadata group mismatch. Page: " + row[METADATA_GROUP] + ". Download: " + h.metadataGroup + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " metadata group mismatch. Download: " + row[METADATA_GROUP] + ". Page: " + h.metadataGroup + ". URL: " + pageSection.graphUrl);
                 
                 file = row[PARAMETER_NAME].toLowerCase().trim();
                 page = h.parameterName.toLowerCase().trim();
                 if ( ! file.equals(page))
-                    status.addError(downloadType + " parameter name mismatch. Page: " + row[PARAMETER_NAME] + ". Download: " + h.parameterName + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " parameter name mismatch. Download: " + row[PARAMETER_NAME] + ". Page: " + h.parameterName + ". URL: " + pageSection.graphUrl);
                 
                 file = row[PARAMETER_STABLE_ID].toLowerCase().trim();
                 page = h.parameterStableId.toLowerCase().trim();
                 if ( ! file.equals(page))
-                    status.addError(downloadType + " parameter stable id mismatch. Page: " + row[PARAMETER_STABLE_ID] + ". Download: " + h.parameterStableId + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " parameter stable id mismatch. Download: " + row[PARAMETER_STABLE_ID] + ". Page: " + h.parameterStableId + ". URL: " + pageSection.graphUrl);
                 
                 file = row[PHENOTYPING_CENTER].toLowerCase().trim();
                 page = h.phenotypingCenter.toLowerCase().trim();
                 if ( ! file.equals(page))
-                    status.addError(downloadType + " phenotyping center mismatch. Page: " + row[PHENOTYPING_CENTER] + ". Download: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " phenotyping center mismatch. Download: " + row[PHENOTYPING_CENTER] + ". Page: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
                 
-                file = row[PIPELINE_NAME].toLowerCase().trim();
-                page = h.pipelineName.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                // If this is a control, don't check the pipeline name. It can be anything.
+                if ( ! row[GROUP].toLowerCase().equals("control")) {
+                    file = row[PIPELINE_NAME].toLowerCase().trim();
+                    page = h.pipelineName.toLowerCase().trim();
+                    if ( ! file.equals(page)) {
+                        status.addError(downloadType + " pipeline name mismatch. Download: " + row[PIPELINE_NAME] + ". Page: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                    }
+                }
             }
             
             status.add(validateDownloadCounts(pageSection.getCatTable(), downloadSection));

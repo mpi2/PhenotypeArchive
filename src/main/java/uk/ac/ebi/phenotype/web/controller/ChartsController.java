@@ -160,17 +160,15 @@ public class ChartsController {
 
         System.out.println("charts ::: chart_type=" + chartType);
         
-        
-        
-        if ((pipelineStableIds != null) && (pipelineStableIds.length > 0) && (pipelineStableIds[0].contains("_FER_")
-                                        && (accessionsParams != null) && (accessionsParams.length > 0)))
-        {
-            String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
-            return "redirect:" + url;
+        if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
+            for (String parameterStableId : parameterIds) {
+                if (parameterStableId.contains("_FER_")) {
+                    String url = config.get("baseUrl") + "/genes/" + accessionsParams[0];
+                    return "redirect:" + url;
+                }
+            }
         }
-            
-            
-            
+        
         return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
     }
 
@@ -288,12 +286,10 @@ public class ChartsController {
             setTitlesForGraph(model, expBiologicalModel);
         }
 
-        if (parameterStableId.startsWith("IMPC_FER_")) {
-            String url = config.get("baseUrl") + "/genes/" + accession[0];
-            return "redirect:" + url;
-            
-            
-            
+        // 29-Apr-2015 (mrelac) The team has determined that we don't display fertility graphs because Impress does not require all the supporting
+        // data to be uploaded, and some centers don't upload it, so we don't know if the data is valid or not.
+        
+//        if (parameterStableId.startsWith("IMPC_FER_")) {
 //			// Its a fertility outcome param which means its a line level query
 //            // so we don't use the normal experiment query in experiment service
 //            //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/query?q=parameter_stable_id:IMPC_FER_*&facet=true&facet.field=parameter_stable_id&rows=300&fq=gene_accession_id:%22MGI:1918788%22
@@ -306,7 +302,7 @@ public class ChartsController {
 //                setTitlesForGraph(model, expBiologicalModel);
 //            }
 //            return "chart";
-        }
+//        }
 
         if ( ! ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
             parameter = pipelineDAO.getParameterByStableId(ChartUtils.getPlotParameter(parameter.getStableId()));

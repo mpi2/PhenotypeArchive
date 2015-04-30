@@ -218,8 +218,8 @@ public class SearchPageTest {
     public void testAutosuggestForSpecificKnownGenes() throws Exception {
         testCount++;
         String testName = "testAutosuggestForSpecificKnownGenes";
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
         Date start = new Date();
 
         successList.clear();
@@ -274,7 +274,8 @@ public class SearchPageTest {
     	 testCount++;
          System.out.println();
          String testName = "testAutosuggestMinCharacters";
-         System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
 
          String queryStr = baseUrl + "/search";
          //System.out.println(queryStr);
@@ -304,7 +305,8 @@ public class SearchPageTest {
         testCount++;
         System.out.println();
         String testName = "testTickingFacetFilters";
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
         System.out.println("TESTING clicking on a facet checkbox will add a filter to the filter summary box");
         System.out.println("TESTING removing a filter on the list will uncheck a corresponding checkbox");
 
@@ -407,8 +409,8 @@ public class SearchPageTest {
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "testQueryingRandomGeneSymbols";
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
         Date start = new Date();
 
         successList.clear();
@@ -478,7 +480,8 @@ public class SearchPageTest {
         testCount++;
         System.out.println();
         String testName = "testRandomMgiIds";
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
 
         successList.clear();
         errorList.clear();
@@ -577,7 +580,8 @@ public class SearchPageTest {
         testCount++;
         System.out.println();
         String testName = "testPagination";
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
         String target;
         String message;
         final String showing_1 = "Showing 1 to ";
@@ -642,7 +646,8 @@ public class SearchPageTest {
         testCount++;
         System.out.println();
         String testName = "testFacetCountsNoSearchTerm";
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
         Date start = new Date();
         
         successList.clear();
@@ -745,7 +750,8 @@ public class SearchPageTest {
         testCount++;
         System.out.println();
         String testName = "testFacetCountsSpecialCharacters";
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
         Date start = new Date();
         
         successList.clear();
@@ -812,7 +818,8 @@ public class SearchPageTest {
         testCount++;
         System.out.println();
         String testName = "testMPII_806";
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
 
          String queryStr = baseUrl + "/search";
          driver.get(queryStr);
@@ -856,8 +863,7 @@ public class SearchPageTest {
         if (searchString == null)
             searchString = "";
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         try {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
@@ -958,8 +964,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         Facet facet;
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         try {
             String target = baseUrl + "/search";
@@ -1002,8 +1007,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         Facet facet;
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         try {
             String target = baseUrl + "/search";
@@ -1043,8 +1047,7 @@ public class SearchPageTest {
         Date start = new Date();
         PageStatus status = new PageStatus();
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         try {
             String target = baseUrl + "/search";
@@ -1081,8 +1084,7 @@ public class SearchPageTest {
         String searchString = "Wnt1";
         String target = baseUrl + "/search";
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
@@ -1100,8 +1102,7 @@ public class SearchPageTest {
         String searchString = "Hox";
         String target = baseUrl + "/search";
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
@@ -1122,8 +1123,7 @@ public class SearchPageTest {
         String searchString = "Hox*";
         String target = baseUrl + "/search";
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
@@ -1158,8 +1158,7 @@ public class SearchPageTest {
         if (searchString == null)
             searchString = "";
         
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        System.out.println("\n\n----- " + testName + " -----");
         
         try {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
@@ -1185,6 +1184,7 @@ public class SearchPageTest {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
+                    TestUtils.sleep(1000);
 //searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
 //TestUtils.sleep(5000);
                     System.out.println("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 
@@ -1227,7 +1227,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         String message;
         
-        System.out.println("facetCountEngine(): Page target URL: " + target);
+//        System.out.println("facetCountEngine(): Page target URL: " + target);
         
         // Get the solarUrlCounts.
         Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
@@ -1303,8 +1303,8 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
     private void specialStrQueryTest(String testName, String qry) throws Exception {
         testCount++;
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
+        
+        System.out.println("\n\n----- " + testName + " -----");
 
         successList.clear();
         errorList.clear();

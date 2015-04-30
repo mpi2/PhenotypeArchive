@@ -84,7 +84,6 @@ public class AnatomyController {
 	private Map<String, String> config;
 	
 	
-	
 	private static final int numberOfImagesToDisplay=5;
 
 	
@@ -108,7 +107,7 @@ public class AnatomyController {
 	
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
-		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config);
+		Anatomy ma = JSONMAUtils.getMA(anatomy_id, config);
 
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);

@@ -20,6 +20,8 @@
 
 package org.mousephenotype.www.testing.model;
 
+import org.mousephenotype.www.testing.exception.GraphTestException;
+
 /**
  *
  * @author mrelac
@@ -59,7 +61,7 @@ public class GraphValidatorABR extends GraphValidator {
     }
     
     @Override
-    public PageStatus validate() {
+    public PageStatus validate() throws GraphTestException {
         PageStatus status = new PageStatus();
         
         status.add(super.validate());                                           // Validate common components.
@@ -93,6 +95,7 @@ public class GraphValidatorABR extends GraphValidator {
      */
      private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
+        String message;
         
         GraphHeading h = pageSection.getHeading();
         
@@ -104,33 +107,46 @@ public class GraphValidatorABR extends GraphValidator {
                 String file = row[ALLELE_SYMBOL].toLowerCase().trim();
                 String page = h.alleleSymbol.toLowerCase().trim();
                 if ((! group.equals("control")) && (! file.equals(page)))
-                    status.addError(downloadType + " allele symbol mismatch. Page: " + row[ALLELE_SYMBOL] + ". Download: " + h.alleleSymbol + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " allele symbol mismatch. Download: " + row[ALLELE_SYMBOL] + ". Page: " + h.alleleSymbol + ". URL: " + pageSection.graphUrl);
                 
                 file = row[GENETIC_BACKGROUND].toLowerCase().trim();
                 page = h.geneticBackground.toLowerCase().trim();
                 if ( ! file.equals(page))
-                    status.addError(downloadType + " genetic background mismatch. Page: " + row[GENETIC_BACKGROUND] + ". Download: " + h.geneticBackground + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " genetic background mismatch. Download: " + row[GENETIC_BACKGROUND] + ". Page: " + h.geneticBackground + ". URL: " + pageSection.graphUrl);
                 
                 file = row[GENE_SYMBOL].toLowerCase().trim();
                 page = h.geneSymbol.toLowerCase().trim();
                 if ((! group.equals("control")) && (! file.equals(page)))
-                    status.addError(downloadType + " gene symbol mismatch. Page: " + row[GENE_SYMBOL] + ". Download: " + h.geneSymbol + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " gene symbol mismatch. Download: " + row[GENE_SYMBOL] + ". Page: " + h.geneSymbol + ". URL: " + pageSection.graphUrl);
 
                 file = row[PHENOTYPING_CENTER].toLowerCase().trim();
                 page = h.phenotypingCenter.toLowerCase().trim();
                 if ( ! file.equals(page))
-                    status.addError(downloadType + " phenotyping center mismatch. Page: " + row[PHENOTYPING_CENTER] + ". Download: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
+                    status.addError(downloadType + " phenotyping center mismatch. Download: " + row[PHENOTYPING_CENTER] + ". Page: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
                 
-                file = row[PIPELINE_NAME].toLowerCase().trim();
-                page = h.pipelineName.toLowerCase().trim();
-                if ( ! file.equals(page)) {
-                    if ( ! page.equals(IMPC_PIPELINE)) {                        // "IMPC Pipeline" is also allowed.
-                        status.addError(downloadType + " pipeline name mismatch. Page: " + row[PIPELINE_NAME] + ". Download: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
+                // If this is a control, don't check the pipeline name. It can be anything.
+                if ( ! row[GROUP].toLowerCase().equals("control")) {
+                    file = row[PIPELINE_NAME].toLowerCase().trim();
+                    page = h.pipelineName.toLowerCase().trim();
+                    if ( ! file.equals(page)) {
+                        status.addError(downloadType + " pipeline name mismatch. Download: " + row[PIPELINE_NAME] + ". Page: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
                     }
+                }
+
+                file = row[PROCEDURE_NAME].toLowerCase().trim();
+                if (h.procedureName == null) {
+                    message = downloadType + " procedure name is NULL. Download procedure name: " + row[PROCEDURE_NAME] + ". URL: " + pageSection.graphUrl;
+                    if ( ! status.getErrorMessages().contains(message)) {       // Only write the error message once.
+                        status.addError(message);
+                    }
+                } else {
+                    page = h.procedureName.toLowerCase().trim();
+                    if ( ! file.equals(page))
+                        status.addError(downloadType + " procedure name mismatch. Download: " + row[PROCEDURE_NAME] + ". Page: " + h.procedureName + ". URL: " + pageSection.graphUrl);
                 }
             }
         }
-
+        
         return status;
     }
 }

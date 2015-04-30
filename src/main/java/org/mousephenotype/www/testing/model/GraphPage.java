@@ -31,6 +31,7 @@ import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 /**
@@ -53,6 +54,7 @@ public class GraphPage {
     protected final String graphUrl;
     protected final String baseUrl;
     protected final List<GraphSection> downloadSections = new ArrayList();
+    protected final ChartType chartType;
     
     /**
      * Creates a new <code>GraphPage</code> instance
@@ -64,12 +66,13 @@ public class GraphPage {
      * @param baseUrl the base url pointing to the downloads
      * @throws GraphTestException
      */
-    public GraphPage(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, String baseUrl) throws GraphTestException {
+    public GraphPage(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, String baseUrl, ChartType chartType) throws GraphTestException {
         this.driver = driver;
         this.wait = wait;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.baseUrl = baseUrl;
+        this.chartType = chartType;
         
         load();
     }
@@ -173,7 +176,7 @@ public class GraphPage {
 
             for (int i = 0; i < chartElements.size(); i++) {
                 WebElement chartElement = chartElements.get(i);
-                GraphSection downloadSection = new GraphSection(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+                GraphSection downloadSection = new GraphSection(driver, wait, phenotypePipelineDAO, graphUrl, chartElement, chartType);
 
                 List<String[][]> allTsvSectionData = downloadDataSections.get(TestUtils.DownloadType.TSV);
                 List<String[][]> allXlsSectionData = downloadDataSections.get(TestUtils.DownloadType.XLS);

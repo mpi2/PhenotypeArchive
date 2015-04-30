@@ -165,10 +165,10 @@ public class GraphPageTest {
     // PRIVATE METHODS
     
     
-    private PageStatus graphValidator(String graphUrl, GraphValidator validator) throws GraphTestException {
+    private PageStatus graphValidator(String graphUrl, ChartType chartType, GraphValidator validator) throws GraphTestException {
         PageStatus status = new PageStatus();
         
-        GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
+        GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl, chartType);
         for (GraphSection pageSection : graphPage.getDownloadSections()) {
             validator.setPageSection(pageSection);
             status.add(validator.validate());
@@ -177,30 +177,38 @@ public class GraphPageTest {
         return status;
     }
     
-    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, GraphValidator validator) throws GraphTestException {
+    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, ChartType chartType, GraphValidator validator) throws GraphTestException {
         String target;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus statuses = new PageStatus();
+        int successCount = 0;
         
         int targetCount = testUtils.getTargetCount(testName, geneGraphs, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graph pages.");
         
-        for (int i = 0; i < targetCount; i++) {
-            GraphTestDTO geneGraph = geneGraphs.get(i);
+        int i = 1;
+        for (GraphTestDTO geneGraph : geneGraphs) {
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+            
+            // Skip gene pages without graphs.
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
             List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName());
-            if ( ! graphUrls.isEmpty()) {
-                PageStatus status = graphValidator(graphUrls.get(0), validator);
-                if ( ! status.hasErrors())
-                    status.incrementSuccessCount();
-                statuses.add(status);
+            if (graphUrls.isEmpty())
+                continue;
+            
+            PageStatus status = graphValidator(graphUrls.get(0), chartType, validator);
+            if ( ! status.hasErrors()) {
+                successCount++;
+            }
+            statuses.add(status);
+            if (i++ >= targetCount) {
+                break;
             }
         }
         
-        TestUtils.printEpilogue(testName, start, statuses, targetCount, geneGraphs.size());
+        TestUtils.printEpilogue(testName, start, statuses, successCount, targetCount, geneGraphs.size());
         System.out.println();
     }
     
@@ -214,28 +222,67 @@ public class GraphPageTest {
     public void testKnownGraphs() throws GraphTestException {
         String testName = "testKnownGraphs";
         Date start = new Date();
+        
+        GraphValidatorABR graphValidatorABR = new GraphValidatorABR();
         GraphValidatorCategorical graphValidatorCategorical = new GraphValidatorCategorical();
         GraphValidatorUnidimensional graphValidatorUnidimensional = new GraphValidatorUnidimensional();
-        PageStatus status = new PageStatus();
+        GraphValidatorTimeSeries graphValidatorTimeSeries = new GraphValidatorTimeSeries();
+        PageStatus statuses = new PageStatus();
+        int successCount = 0;
         
         List<String> graphUrls = Arrays.asList( new String[] {
-            "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
+            "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1860086&allele_accession=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:107160&allele_accession=MGI:1857493&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2149209&allele_accession=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2146574&allele_accession=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1929878&allele_accession=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC Harwell"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
           , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
           , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
           , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1915392&allele_accession=MGI:4436542&zygosity=heterozygote&parameter_stable_id=IMPC_OFD_017_001&pipeline_stable_id=IMPC_001&phenotyping_center=ICS"
         });
-        List<GraphValidator> validators = Arrays.asList( new GraphValidator[] {
-            graphValidatorCategorical
+        List<GraphValidator> validators = Arrays.asList(new GraphValidator[] {
+            graphValidatorABR
+          , graphValidatorTimeSeries
+          , graphValidatorTimeSeries
+          , graphValidatorABR
+          , graphValidatorABR
+          , graphValidatorUnidimensional
           , graphValidatorCategorical
+          , graphValidatorCategorical
+          , graphValidatorUnidimensional
+          , graphValidatorUnidimensional
           , graphValidatorUnidimensional
           , graphValidatorUnidimensional
         });
         
+        List<ChartType> chartTypes = Arrays.asList(new ChartType[] {
+            ChartType.UNIDIMENSIONAL_ABR_PLOT
+          , ChartType.TIME_SERIES_LINE
+          , ChartType.TIME_SERIES_LINE
+          , ChartType.UNIDIMENSIONAL_ABR_PLOT
+          , ChartType.UNIDIMENSIONAL_ABR_PLOT
+          , ChartType.UNIDIMENSIONAL_BOX_PLOT
+          , ChartType.CATEGORICAL_STACKED_COLUMN
+          , ChartType.CATEGORICAL_STACKED_COLUMN
+          , ChartType.UNIDIMENSIONAL_BOX_PLOT
+          , ChartType.UNIDIMENSIONAL_BOX_PLOT
+          , ChartType.UNIDIMENSIONAL_BOX_PLOT       // Has 2 graphs with globalTest tables different from each other.
+          , ChartType.UNIDIMENSIONAL_BOX_PLOT
+        });
+        
         for (int i = 0; i < graphUrls.size(); i++) {
-            status.add(graphValidator(graphUrls.get(i), validators.get(i)));
+            PageStatus status = graphValidator(graphUrls.get(i), chartTypes.get(i), validators.get(i));
+            if ( ! status.hasErrors()) {
+                successCount++;
+            }
+            statuses.add(status);
         }
             
-        TestUtils.printEpilogue(testName, start, status, graphUrls.size(), graphUrls.size());
+        TestUtils.printEpilogue(testName, start, statuses, successCount, graphUrls.size(), graphUrls.size());
         System.out.println();
     }
     
@@ -249,6 +296,7 @@ public class GraphPageTest {
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus statuses = new PageStatus();
+        int successCount = 0;
         
         int targetCount = testUtils.getTargetCount(testName, geneGraphs, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graphs.");
@@ -261,11 +309,11 @@ public class GraphPageTest {
             GraphValidatorPreqc validator = new GraphValidatorPreqc();
             PageStatus status = validator.validate(driver, genePage, geneGraph);
             if ( ! status.hasErrors())
-                status.incrementSuccessCount();
+                successCount++;
             statuses.add(status);
         }
         
-        TestUtils.printEpilogue(testName, start, statuses, targetCount, geneGraphs.size());
+        TestUtils.printEpilogue(testName, start, statuses, successCount, targetCount, geneGraphs.size());
         System.out.println();
     }
     
@@ -276,7 +324,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, new GraphValidatorCategorical());
+        testEngine(testName, geneGraphs, ChartType.CATEGORICAL_STACKED_COLUMN, new GraphValidatorCategorical());
     }
     
     @Test
@@ -286,7 +334,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, new GraphValidatorUnidimensional());
+        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_BOX_PLOT, new GraphValidatorUnidimensional());
     }
     
     @Test
@@ -296,7 +344,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, new GraphValidatorABR());
+        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_ABR_PLOT, new GraphValidatorABR());
     }
     
     @Test
@@ -306,7 +354,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PIE, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, new GraphValidatorViability());
+        testEngine(testName, geneGraphs, ChartType.PIE, new GraphValidatorViability());
     }
     
     @Test
@@ -316,6 +364,6 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, new GraphValidatorTimeSeries());
+        testEngine(testName, geneGraphs, ChartType.TIME_SERIES_LINE, new GraphValidatorTimeSeries());
     }
 }

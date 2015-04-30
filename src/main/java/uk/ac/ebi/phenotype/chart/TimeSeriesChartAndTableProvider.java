@@ -264,7 +264,7 @@ public class TimeSeriesChartAndTableProvider {
 				+ axisFontSize
 				+ " }},   title: {   text: '"
 			//	+ xUnitsLabel
-				+ "Weeks since birth (rounded)"
+				+ "Age - rounded to nearest week"
 				+ "'   }  }, yAxis: { labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }}, title: { text: ' "

@@ -689,7 +689,7 @@ public class TestUtils {
         if (successList == null) successList = new ArrayList();
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " records failed:");
+            System.out.println(errorList.size() + " errors:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
@@ -708,6 +708,8 @@ public class TestUtils {
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
+        
+        System.out.println();
     }
     
     /**
@@ -718,10 +720,11 @@ public class TestUtils {
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
      * @param status the <code>PageStatus</code> instance
+     * @param successRecords the number of success records processed
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
-    public static void printEpilogue(String testName, Date start, PageStatus status, int totalRecords, int totalPossible) {
+    public static void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
@@ -732,13 +735,13 @@ public class TestUtils {
         }
         
         if (status.hasErrors()) {
-            System.out.println(status.getErrorMessages().size() + " records failed:");
+            System.out.println(status.getErrorMessages().size() + " errors:");
             System.out.println(status.toStringErrorMessages());
         }
         
         stop = new Date();
         String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
-        System.out.println(dateFormat.format(stop) + ": " + status.getSuccessCount() + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + Tools.dateDiff(start, stop) + ".");
+        System.out.println(dateFormat.format(stop) + ": " + successRecords + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + Tools.dateDiff(start, stop) + ".");
         if (status.hasErrors()) {
             fail("ERRORS: " + status.getErrorMessages().size());
         }
