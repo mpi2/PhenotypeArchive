@@ -155,7 +155,7 @@
     <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/> 
     <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="true"/> 
 	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" multiValued="true"/> 
-	<field name="ididid" type="string" indexed="true" stored="true" required="true" multiValued="true" /> 
+	<field name="ididid" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
 
 	<!-- MP stuff -->
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -284,7 +284,7 @@
    <field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>   
 	
  </fields>
-    <uniqueKey>parameter_stable_id</uniqueKey>
+    <uniqueKey>ididid</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>text</defaultSearchField>

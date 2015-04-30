@@ -27,7 +27,17 @@ public class Anatomy {
 	private Collection<String> childTerms=new ArrayList<String>();
 	private Collection<String> mpIds=new ArrayList<String>();
 	private Collection<String> mpTerms=new ArrayList<String>();
+	private Collection<String> synonyms = new ArrayList<String>();	
 	
+	
+	public Collection<String> getSynonyms() {
+		return synonyms;
+	}
+	
+	public void setSynonyms(Collection<String> synonyms) {	
+		this.synonyms = synonyms;
+	}
+
 	public Collection<String> getMpTerms() {
 		return mpTerms;
 	}

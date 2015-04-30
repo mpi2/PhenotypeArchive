@@ -44,8 +44,8 @@
         <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly
             to EBI servers for performance -->
         <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-        <!--  <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl> -->
-        <internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
+        <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl> 
+        <!-- internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl-->
         <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes</buildIndexesSolrUrl>
         <preqcXmlfile>
             /nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/PhenotypeCallSummary.xml
