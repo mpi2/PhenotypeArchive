@@ -589,16 +589,15 @@ public class ReportsService {
 	 * @return list of string arrays for populating a CSV file
 	 */
 	public List<String[]> getGeneByZygosity() {
+
 		List<String[]> res = new ArrayList<>();
-		String [] headerParams  ={"MP Term", "Zygosity", "# Genes", "Genes" };
-		res.add(headerParams);
-
-		Map<String, Set<String>> geneViability = new HashMap<>();
-
 		Map<Pair<String, ZygosityType>, Set<String>> mps = new TreeMap<>();
 
-		List<ZygosityType> zTypes = Arrays.asList(ZygosityType.homozygote, ZygosityType.heterozygote, ZygosityType.hemizygote);
-		Map<Pair<String, ZygosityType>, Set<String>> genes = new TreeMap<>();
+		Map<GeneCenterZygosity, List<String>> data = new HashMap<>();
+		Map<GeneCenterZygosity, List<String>> viabilityData = new HashMap<>();
+
+		String [] headerParams  ={"MP Term", "Zygosity", "# Genes", "Genes" };
+		res.add(headerParams);
 
 		try {
 
@@ -607,18 +606,24 @@ public class ReportsService {
 
 			for (GenotypePhenotypeDTO gp : gps) {
 
+				// Exclude Viability calls from the counts of genes by zygosity
+				if(gp.getParameterStableId().contains("VIA")) {
+					continue;
+				}
+
 				// Exclude LacZ calls
 				if(gp.getParameterStableId().contains("ALZ")) {
 					continue;
 				}
+
 				final String symbol = gp.getMarkerSymbol();
 				final ZygosityType zygosity = ZygosityType.valueOf(gp.getZygosity());
-				final List<String> mpTerm = gp.getTopLevelMpTermName();
+				final List<String> topLevelMpTermName = gp.getTopLevelMpTermName();
 
-				if (mpTerm==null) continue;
+				if (topLevelMpTermName==null) continue;
 
-				// Collect all the top level MP term information
-				for (String mp : mpTerm) {
+				// Collect top level MP term information
+				for (String mp : topLevelMpTermName) {
 					Pair<String, ZygosityType> k = new ImmutablePair<>(mp, zygosity);
 					if ( ! mps.containsKey(k)) {
 						mps.put(k, new HashSet<String>());
@@ -626,21 +631,16 @@ public class ReportsService {
 					mps.get(k).add(symbol);
 				}
 
-
-
-				if ( ! genes.containsKey(new ImmutablePair<>(symbol, zygosity))) {
-					for (ZygosityType z : zTypes) {
-						Pair<String, ZygosityType> k = new ImmutablePair<>(symbol, z);
-						genes.put(k, new HashSet<String>());
-					}
+				// Collect gene center zygosity -> mp term
+				GeneCenterZygosity g = new GeneCenterZygosity();
+				g.setGeneSymbol(symbol);
+				g.setZygosity(ZygosityType.valueOf(gp.getZygosity()));
+				g.setPhenotypeCenter(gp.getPhenotypingCenter());
+				if( ! data.containsKey(g)) {
+					data.put(g, new ArrayList<String>());
 				}
 
-				// Exclude Viability calls from the counts of genes by zygosity
-				if(gp.getParameterStableId().contains("VIA")) {
-					continue;
-				}
-
-				genes.get(new ImmutablePair<>(symbol, zygosity)).add(gp.getMpTermName());
+				data.get(g).add(gp.getMpTermName());
 
 			}
 
@@ -659,6 +659,7 @@ public class ReportsService {
 			// Get the viability data from the experiment core directly
 			for (ObservationDTO obs : oService.getObservationsByParameterStableId("IMPC_VIA_001_001")) {
 
+
 				// Skip records that are not for the resources we are interested in
 				if ( ! resources.contains(obs.getDataSourceName())) {
 					continue;
@@ -666,39 +667,74 @@ public class ReportsService {
 
 				String symbol = obs.getGeneSymbol();
 
-				if ( ! geneViability.containsKey(symbol)) {
-					geneViability.put(symbol, new HashSet<String>());
+				GeneCenterZygosity g = new GeneCenterZygosity();
+				g.setGeneSymbol(symbol);
+				g.setZygosity(ZygosityType.valueOf(obs.getZygosity()));
+				g.setPhenotypeCenter(obs.getPhenotypingCenter());
+				if( ! viabilityData.containsKey(g)) {
+					viabilityData.put(g, new ArrayList<String>());
 				}
 
-				geneViability.get(symbol).add(obs.getCategory());
+				viabilityData.get(g).add(obs.getCategory());
+
 			}
 
 
-			String [] resetHeaderParams = {"Marker symbol", "Viability", "Hom", "Het", "Hemi", "Link to Gene page" };
+			String [] resetHeaderParams = {"Marker symbol", "Center", "Viability", "Hom", "Het", "Hemi", "Link to Gene page" };
 			res.add(resetHeaderParams);
 
 			Set<String> geneSymbols = new HashSet<>();
-			for (Pair<String, ZygosityType> g : genes.keySet()) {
-				geneSymbols.add(g.getLeft());
+			for (GeneCenterZygosity g : data.keySet()) {
+				geneSymbols.add(g.getGeneSymbol());
 			}
+
+			Set<String> centers = new HashSet<>();
+			for (GeneCenterZygosity g : viabilityData.keySet()) {
+				geneSymbols.add(g.getGeneSymbol());
+				centers.add(g.getPhenotypeCenter());
+			}
+
 
 			for (String geneSymbol : geneSymbols) {
-				String homCount = Integer.toString(genes.get(new ImmutablePair<>(geneSymbol, ZygosityType.homozygote)).size());
-				String hetCount = Integer.toString(genes.get(new ImmutablePair<>(geneSymbol, ZygosityType.heterozygote)).size());
-				String hemiCount = Integer.toString(genes.get(new ImmutablePair<>(geneSymbol, ZygosityType.hemizygote)).size());
 
 				GeneDTO gene = geneService.getGeneByGeneSymbol(geneSymbol);
-				String geneLink = "";
-				if (gene!=null) {
-					geneLink = config.get("drupalBaseUrl") + "/data/genes/" + gene.getMgiAccessionId();
+
+				for (String center : centers) {
+
+					boolean include = false;
+
+					List<String> via = new ArrayList<>();
+
+					GeneCenterZygosity candidate = new GeneCenterZygosity();
+					candidate.setPhenotypeCenter(center);
+					candidate.setGeneSymbol(geneSymbol);
+
+					candidate.setZygosity(ZygosityType.homozygote);
+					String homCount = (data.get(candidate)!=null) ? Integer.toString(data.get(candidate).size()) : "";
+					if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
+					include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
+
+					candidate.setZygosity(ZygosityType.heterozygote);
+					String hetCount = (data.get(candidate)!=null) ? Integer.toString(data.get(candidate).size()) : "";
+					if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
+					include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
+
+					candidate.setZygosity(ZygosityType.hemizygote);
+					String hemiCount = (data.get(candidate)!=null) ? Integer.toString(data.get(candidate).size()) : "";
+					if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
+					include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
+
+					String geneLink = "";
+					if (gene!=null) {
+						geneLink = config.get("drupalBaseUrl") + "/data/genes/" + gene.getMgiAccessionId();
+					}
+
+					String[] row = {geneSymbol, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink };
+					if (include) res.add(row);
+
 				}
 
-				String[] row = {geneSymbol, StringUtils.join(geneViability.get(geneSymbol), ": "), homCount, hetCount, hemiCount, geneLink };
-				res.add(row);
 			}
-
-
-
 
 
 		} catch (SolrServerException e) {
@@ -709,6 +745,80 @@ public class ReportsService {
 	}
 
 
+	private class GeneCenterZygosity {
+		private String geneSymbol;
+		private String phenotypeCenter;
+		private ZygosityType zygosity;
+
+
+		public String getGeneSymbol() {
+
+			return geneSymbol;
+		}
+
+
+		public void setGeneSymbol(String geneSymbol) {
+
+			this.geneSymbol = geneSymbol;
+		}
+
+
+		public String getPhenotypeCenter() {
+
+			return phenotypeCenter;
+		}
+
+
+		public void setPhenotypeCenter(String phenotypeCenter) {
+
+			this.phenotypeCenter = phenotypeCenter;
+		}
+
+
+		public ZygosityType getZygosity() {
+
+			return zygosity;
+		}
+
+
+		public void setZygosity(ZygosityType zygosity) {
+
+			this.zygosity = zygosity;
+		}
+
+
+		@Override
+		public boolean equals(Object o) {
+
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof GeneCenterZygosity)) {
+				return false;
+			}
+
+			GeneCenterZygosity that = (GeneCenterZygosity) o;
+
+			if (geneSymbol != null ? !geneSymbol.equals(that.geneSymbol) : that.geneSymbol != null) {
+				return false;
+			}
+			if (phenotypeCenter != null ? !phenotypeCenter.equals(that.phenotypeCenter) : that.phenotypeCenter != null) {
+				return false;
+			}
+			return zygosity == that.zygosity;
+
+		}
+
+
+		@Override
+		public int hashCode() {
+
+			int result = geneSymbol != null ? geneSymbol.hashCode() : 0;
+			result = 31 * result + (phenotypeCenter != null ? phenotypeCenter.hashCode() : 0);
+			result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
+			return result;
+		}
+	}
 
 	public List<List<String[]>> getMpCallDistribution(){
     	
