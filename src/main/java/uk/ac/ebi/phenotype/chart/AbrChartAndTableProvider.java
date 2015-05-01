@@ -51,7 +51,7 @@ public class AbrChartAndTableProvider {
 
 	
 	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList, 
-			Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession){
+			Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession, String chartId){
 
     	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
     	data.put(ChartUtils.getLabel(null,  SexType.female), new ArrayList<UnidimensionalStatsObject>() );
@@ -60,7 +60,7 @@ public class AbrChartAndTableProvider {
         	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.male), new ArrayList<UnidimensionalStatsObject>() );
         	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.female), new ArrayList<UnidimensionalStatsObject>() );
     	}
-    	
+    	    	
 		UnidimensionalStatsObject emptyObj = new UnidimensionalStatsObject();
 		emptyObj.setMean(null);
 		emptyObj.setSd(null);
@@ -105,11 +105,11 @@ public class AbrChartAndTableProvider {
 			}
     	}
     	
-		return getCustomChart(data, procedureUrl, unit, zygosities);
+		return getCustomChart(data, procedureUrl, unit, zygosities, chartId);
 	}
 	
 	
-	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities){
+	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities, String chartId){
 				
 		JSONArray categories = new JSONArray();
 		String title = "Evoked ABR Threshold (6, 12, 18, 24, 30 kHz)";
@@ -218,7 +218,7 @@ public class AbrChartAndTableProvider {
 		
 		String chart =
 			"$(function () {"+
-				"$('#chartABR').highcharts({"+
+				"$('#" + chartId + "').highcharts({"+
 				"  title: { text: '" + title + "' },"+
 				"  subtitle: {  useHTML: true,  text: '" + procedureLink + "'}, " +
 				"  xAxis: {   categories: "  + categories + "},"+
@@ -265,7 +265,7 @@ public class AbrChartAndTableProvider {
 				chart += " ]" +
 				"});" +
 			"});" ; 
-				
+			
 		return chart;
 		}
 	

@@ -152,16 +152,16 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
 		if (sex != null && sex.length == 1) {
 			if (sex[0].equalsIgnoreCase("male")){
-				query.addFilterQuery( StatisticalResultDTO.MALE_CONTROL_COUNT + ":[1 TO 100000]");
-				query.addFilterQuery( StatisticalResultDTO.MALE_MUTANT_COUNT + ":[1 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.MALE_CONTROL_COUNT + ":[4 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.MALE_MUTANT_COUNT + ":[4 TO 100000]");
 			} else {
-				query.addFilterQuery( StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[1 TO 100000]");
-				query.addFilterQuery( StatisticalResultDTO.FEMALE_MUTANT_COUNT + ":[1 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[4 TO 100000]");
+				query.addFilterQuery( StatisticalResultDTO.FEMALE_MUTANT_COUNT + ":[4 TO 100000]");
 			}
 		}
 
 		query.setQuery(q);
-		query.addFilterQuery("(" + StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[1 TO 100000] OR " + StatisticalResultDTO.MALE_CONTROL_COUNT + ":[1 TO 100000])");
+		query.addFilterQuery("(" + StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[4 TO 100000] OR " + StatisticalResultDTO.MALE_CONTROL_COUNT + ":[4 TO 100000])");
 		query.setRows(10000000);
 		query.setFields(StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.FEMALE_CONTROL_MEAN, StatisticalResultDTO.MARKER_SYMBOL,
 			StatisticalResultDTO.FEMALE_MUTANT_MEAN, StatisticalResultDTO.MALE_CONTROL_MEAN, StatisticalResultDTO.MALE_MUTANT_MEAN,
@@ -186,16 +186,16 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 				sexToDisplay = getSexToDisplay(sex, sexToDisplay, doc);	
 				overviewRatio.add(doc);			
 			}
-			
-			Double ratio = overviewRatio.getPlotRatio(sexToDisplay);
-			if (ratio != null){
-				genesArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
-				geneSymbolArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
-				meansArray[size] = ratio;
-				System.out.println("Added geneSymbol : " + size + " " + meansArray[size]);
-				size++;
+						
+			if (sexToDisplay != null){
+				Double ratio = overviewRatio.getPlotRatio(sexToDisplay);
+				if (ratio != null){
+					genesArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
+					geneSymbolArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
+					meansArray[size] = ratio;
+					size++;
+				}
 			}
-
 		}
 
 		// we do the binning for all the data but fill the bins after that to
@@ -208,7 +208,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		ArrayList<Double> upperBounds = new ArrayList<Double>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 		if (size > 0) {
-			distribution.load(meansArray);
+			distribution.load(ArrayUtils.subarray(meansArray, 0, size-1));
 			for (double bound : distribution.getUpperBounds()) {
 				upperBounds.add(bound);
 			}
@@ -291,14 +291,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		}
 		
 		if (sex == null || sex.length == 0 || sex.length == 2) {
-			if ( doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 0 && 
-				 doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0 &&  
-				 doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 0 && 
-				 doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0 ){
+			if ( doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 3 && 
+				 doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 3 &&  
+				 doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 3 && 
+				 doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 3 ){
 				sexToDisplay = "both";
 			}
-			else if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 0 && 
-			doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 0 
+			else if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 3 && 
+			doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 3 
 			 ){
 				if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.male.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()) )){
 					sexToDisplay = "both";	
@@ -307,8 +307,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 					sexToDisplay = SexType.female.getName();
 				}
 			}
-			else if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 0 && 
-			doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 0 ){
+			else if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 3 && 
+			doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 3 ){
 				if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.female.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()) )){
 					sexToDisplay = "both";	
 				}

@@ -157,8 +157,6 @@ public class ChartsController {
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
                          Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
-
-        System.out.println("charts ::: chart_type=" + chartType);
         
         if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
             for (String parameterStableId : parameterIds) {
@@ -319,7 +317,6 @@ public class ChartsController {
             }
 
             String xAxisTitle = xUnits;
-
             BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
             setTitlesForGraph(model, expBiologicalModel);
 
@@ -357,7 +354,7 @@ public class ChartsController {
                         case UNIDIMENSIONAL_ABR_PLOT:
 
                             // get experiments for other parameters too
-                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession));
+                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
                             break;
 
                         case UNIDIMENSIONAL_BOX_PLOT:
@@ -395,7 +392,6 @@ public class ChartsController {
             }
 
             model.addAttribute("pipeline", pipeline);
-            //model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
             model.addAttribute("phenotypingCenter", phenotypingCenter);
             model.addAttribute("experimentNumber", experimentNumber);
             model.addAttribute("statsError", statsError);

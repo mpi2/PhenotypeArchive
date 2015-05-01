@@ -5,9 +5,9 @@
 
 <!-- categorical here -->
 
-<c:if test="${abrChart!=null}">
+<c:if test="${abrChart != null}">
 
-	<div id="chartABR"></div>
+	<div id="abrChart${experimentNumber}"></div>
 	<script type="text/javascript">
 		${abrChart}
 	</script>

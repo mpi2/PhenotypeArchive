@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
@@ -38,10 +39,33 @@ public class ImpcImagesController {
 	@Autowired
 	ImageService imageService;
 
+	@RequestMapping("/impcImages/laczimages/{acc}/{topLevelMa}")
+	public String laczImages(@PathVariable String acc, @PathVariable String topLevelMa, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
 
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
+
+		System.out.println("calling laczImages web page");
+
+		imageService.getLacDataForGene(acc, topLevelMa, model);
+
+		return "laczImages";
+	}
+	
+	@RequestMapping("/impcImages/laczimages/{acc}")
+	public String laczImages(@PathVariable String acc, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
+
+		imageService.getLacDataForGene(acc, null, model);
+
+		return "laczImages";
+	}
+
+	
 	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
-	public String imagePicker(@PathVariable String acc, @PathVariable String parameter_stable_id, Model model)
-	throws SolrServerException {
+	public String imagePicker(@PathVariable String acc,
+			@PathVariable String parameter_stable_id, Model model)
+			throws SolrServerException {
 
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
@@ -51,7 +75,9 @@ public class ImpcImagesController {
 		// we will also want to call the getControls method and display side by
 		// side
 		SolrDocumentList experimental = new SolrDocumentList();
-		QueryResponse responseExperimental2 = imageService.getImagesForGeneByParameter(acc, parameter_stable_id, "experimental", 10000, null, null, null);
+		QueryResponse responseExperimental2 = imageService
+				.getImagesForGeneByParameter(acc, parameter_stable_id,
+						"experimental", 10000, null, null, null);
 		if (responseExperimental2 != null) {
 			experimental.addAll(responseExperimental2.getResults());
 		}
@@ -62,21 +88,39 @@ public class ImpcImagesController {
 		// "control", 6, null, null, null);
 		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
 		int numberOfControlsPerSex = 5;
-		//int daysEitherSide = 30;// get a month either side
+		// int daysEitherSide = 30;// get a month either side
 		for (SexType sex : SexType.values()) {
-			SolrDocumentList list=new SolrDocumentList();
-			list=imageService.getControls(numberOfControlsPerSex, list, sex, imgDoc);
+			SolrDocumentList list = new SolrDocumentList();
+			list = imageService.getControls(numberOfControlsPerSex, list, sex,
+					imgDoc);
 			controls.addAll(list);
-//			QueryResponse responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControlsPerSex, sex, daysEitherSide);
-//
-//			if (responseControl != null && responseControl.getResults().size() > 0) {
-//				controls.addAll(responseControl.getResults());
-//			} else {
-//				daysEitherSide = 120;// try a bigger window of time to get
-//										// controls
-//				responseControl = imageService.getControlImagesForProcedure((String) imgDoc.get(ObservationDTO.METADATA_GROUP), (String) imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String) imgDoc.get(ObservationDTO.STRAIN_NAME), (String) imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String) imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT), numberOfControlsPerSex, sex, daysEitherSide);
-//				controls.addAll(responseControl.getResults());
-//			}
+			// QueryResponse responseControl =
+			// imageService.getControlImagesForProcedure((String)
+			// imgDoc.get(ObservationDTO.METADATA_GROUP), (String)
+			// imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String)
+			// imgDoc.get(ObservationDTO.STRAIN_NAME), (String)
+			// imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String)
+			// imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date)
+			// imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT),
+			// numberOfControlsPerSex, sex, daysEitherSide);
+			//
+			// if (responseControl != null &&
+			// responseControl.getResults().size() > 0) {
+			// controls.addAll(responseControl.getResults());
+			// } else {
+			// daysEitherSide = 120;// try a bigger window of time to get
+			// // controls
+			// responseControl =
+			// imageService.getControlImagesForProcedure((String)
+			// imgDoc.get(ObservationDTO.METADATA_GROUP), (String)
+			// imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String)
+			// imgDoc.get(ObservationDTO.STRAIN_NAME), (String)
+			// imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String)
+			// imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date)
+			// imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT),
+			// numberOfControlsPerSex, sex, daysEitherSide);
+			// controls.addAll(responseControl.getResults());
+			// }
 		}
 
 		System.out.println("experimental size=" + experimental.size());
@@ -85,7 +129,6 @@ public class ImpcImagesController {
 		model.addAttribute("controls", controls);
 		return "imagePicker";
 	}
-
 
 	@RequestMapping("/imageComparator")
 	public String imageComparator(HttpServletRequest request, Model model) {
@@ -107,7 +150,6 @@ public class ImpcImagesController {
 		return page;
 	}
 
-
 	@RequestMapping("/imageNavigator")
 	public String imageControlNavigator(HttpServletRequest request, Model model) {
 
@@ -116,10 +158,10 @@ public class ImpcImagesController {
 		return page;
 	}
 
-
 	@RequestMapping("/impcImages/ContAndExp*")
-	public String imagesControlAndExperimental(HttpServletRequest request, Model model)
-	throws SolrServerException, IOException, URISyntaxException {
+	public String imagesControlAndExperimental(HttpServletRequest request,
+			Model model) throws SolrServerException, IOException,
+			URISyntaxException {
 
 		System.out.println("calling imagesContAndExp");
 		String solrQueryString = request.getQueryString();
@@ -129,16 +171,17 @@ public class ImpcImagesController {
 		String parameterStableId = request.getParameter("parameter_stable_id");
 		List<Count> filteredCounts = new ArrayList<Count>();
 		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
-		imageService.getControlAndExperimentalImpcImages(acc, model, procedureName, parameterStableId, 5, 100, null, filteredCounts, facetToDocs);
+		imageService.getControlAndExperimentalImpcImages(acc, model,
+				procedureName, parameterStableId, 5, 100, null, filteredCounts,
+				facetToDocs);
 		model.addAttribute("impcImageFacets", filteredCounts);
 		model.addAttribute("impcFacetToDocs", facetToDocs);
 		return "impcImagesContAndExp";
 	}
 
-
 	@RequestMapping("/impcImages/images*")
 	public String allImages(HttpServletRequest request, Model model)
-	throws SolrServerException, IOException, URISyntaxException {
+			throws SolrServerException, IOException, URISyntaxException {
 
 		// http://localhost:8080/phenotype-archive/impcImages?q=observation_type:image_record&rows=100
 		String solrQueryString = request.getQueryString();
@@ -149,12 +192,11 @@ public class ImpcImagesController {
 		return "impcImages";
 	}
 
-
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
-	throws IOException, URISyntaxException, SolrServerException {
-		String titleString="";
+			throws IOException, URISyntaxException, SolrServerException {
+		String titleString = "";
 		String queryString = request.getQueryString();
-		System.out.println("QUERY: "+queryString );
+		System.out.println("QUERY: " + queryString);
 		String startString = "0";
 		String rowsString = "25";// the number of images passed back for each
 									// solr request
@@ -176,7 +218,7 @@ public class ImpcImagesController {
 		Enumeration keys = request.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
-			//System.out.println("key=" + key);
+			// System.out.println("key=" + key);
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
@@ -197,51 +239,54 @@ public class ImpcImagesController {
 					System.out.println("VALUE ARRAY" + valueArray[i]);
 				}
 			}
-			if ( key.equals("q") ){
-				
+			if (key.equals("q")) {
+
 				qStr = value;
-				//get rid of wierd solr comments etc so more human readable
-				titleString=qStr;
-				titleString=titleString.replace("observation_type:image_record AND", " ");
-			
+				// get rid of wierd solr comments etc so more human readable
+				titleString = qStr;
+				titleString = titleString.replace(
+						"observation_type:image_record AND", " ");
+
 				// also check what is in fq
-				if ( request.getParameterValues("fq") != null ){ 
-					
+				if (request.getParameterValues("fq") != null) {
+
 					String[] fqStrings = request.getParameterValues("fq");
 					fqStr = fqStrings[0];
-					if (titleString.equals("*:*") && fqStr.equals("*:*") ){
+					if (titleString.equals("*:*") && fqStr.equals("*:*")) {
 						titleString = "IMPC image dataset";
-					}
-					else if ( titleString.equals("*:*") && !fqStr.equals("*:*") ){
+					} else if (titleString.equals("*:*")
+							&& !fqStr.equals("*:*")) {
 						titleString = fqStr;
-					}
-					else {
+					} else {
 						titleString += " AND " + fqStr;
 					}
-					
-					titleString=titleString.replace("\"", " ");
-					titleString=titleString.replace("(", " ");
-					titleString=titleString.replace(")", " ");
-					titleString=titleString.replace("_", " ");
+
+					titleString = titleString.replace("\"", " ");
+					titleString = titleString.replace("(", " ");
+					titleString = titleString.replace(")", " ");
+					titleString = titleString.replace("_", " ");
 				}
-			}	
+			}
 		}
 		String qBaseStr = newQueryString;
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
-		QueryResponse imageResponse = imageService.getResponseForSolrQuery(newQueryString);
+		QueryResponse imageResponse = imageService
+				.getResponseForSolrQuery(newQueryString);
 		if (imageResponse.getResults() != null) {
 			model.addAttribute("images", imageResponse.getResults());
 			Long totalNumberFound = imageResponse.getResults().getNumFound();
 			// System.out.println("image count=" + numberFound);
 			model.addAttribute("imageCount", totalNumberFound);
-			//model.addAttribute("q", newQueryString);
+			// model.addAttribute("q", newQueryString);
 			model.addAttribute("q", qStr);
 			model.addAttribute("qBaseStr", qBaseStr);
-			if(request.getParameter("title")!=null){//if title is provided as a parameter use that for the title
-				titleString=request.getParameter("title");
+			if (request.getParameter("title") != null) {// if title is provided
+														// as a parameter use
+														// that for the title
+				titleString = request.getParameter("title");
 			}
 			model.addAttribute("titleString", titleString);
-			
+
 			// model.addAttribute("filterQueries", filterQueries);
 			// model.addAttribute("filterField", filterField);
 			// model.addAttribute("qf", qf);//e.g. auto_suggest
