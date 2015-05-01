@@ -842,8 +842,6 @@ public class ImageService {
 		List<Count> filteredTopLevelMaTerms=new ArrayList<>();
 		for (Count topLevelMa : topLevelMaTerms) {
 			if ((topMaNameFilter == null || topMaNameFilter.equals(topLevelMa.getName()))) {
-				System.out.println("field name=" + topLevelMa.getName());
-				System.out.println(topLevelMa.getCount());
 				filteredTopLevelMaTerms.add(topLevelMa);
 				for (SolrDocument doc : imagesResponse) {
 					ArrayList<String> tops = (ArrayList<String>) doc
