@@ -83,13 +83,13 @@ public class GeneService {
 				+ latestProductionCentre + "\")";
 		solrQuery.setQuery(queryString);
 		solrQuery.setRows(1000000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID);
+		solrQuery.setFields(GeneDTO.MARKER_ACCESSION);
 		QueryResponse rsp = null;
 		rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		HashSet<String> allGenes = new HashSet<String>();
 		for (SolrDocument doc : res) {
-			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
+			allGenes.add((String) doc.getFieldValue(GeneDTO.MARKER_ACCESSION));
 		}
 
 		log.debug("getGenesByLatestPhenotypeStatusAndProductionCentre: solrQuery = "
@@ -121,13 +121,13 @@ public class GeneService {
 				+ latestPhenotypeCentre + "\")";
 		solrQuery.setQuery(queryString);
 		solrQuery.setRows(1000000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID);
+		solrQuery.setFields(GeneDTO.MARKER_ACCESSION);
 		QueryResponse rsp = null;
 		rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		HashSet<String> allGenes = new HashSet<String>();
 		for (SolrDocument doc : res) {
-			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
+			allGenes.add((String) doc.getFieldValue(GeneDTO.MARKER_ACCESSION));
 		}
 
 		log.debug("getGenesByLatestPhenotypeStatusAndPhenotypeCentre: solrQuery = "
@@ -144,15 +144,15 @@ public class GeneService {
 	public Set<String> getAllGenes() throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(GeneDTO.MGI_ACCESSION_ID + ":*");
+		solrQuery.setQuery(GeneDTO.MARKER_ACCESSION + ":*");
 		solrQuery.setRows(1000000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID);
+		solrQuery.setFields(GeneDTO.MARKER_ACCESSION);
 		QueryResponse rsp = null;
 		rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		HashSet<String> allGenes = new HashSet<String>();
 		for (SolrDocument doc : res) {
-			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
+			allGenes.add((String) doc.getFieldValue(GeneDTO.MARKER_ACCESSION));
 		}
 		return allGenes;
 	}
@@ -183,15 +183,15 @@ public class GeneService {
 	public Set<String> getAllNonConformingGenes() throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("-" + GeneDTO.MGI_ACCESSION_ID + ":MGI*");
+		solrQuery.setQuery("-" + GeneDTO.MARKER_ACCESSION + ":MGI*");
 		solrQuery.setRows(1000000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID);
+		solrQuery.setFields(GeneDTO.MARKER_ACCESSION);
 		QueryResponse rsp = null;
 		rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		HashSet<String> allGenes = new HashSet<String>();
 		for (SolrDocument doc : res) {
-			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
+			allGenes.add((String) doc.getFieldValue(GeneDTO.MARKER_ACCESSION));
 		}
 		return allGenes;
 	}
@@ -201,7 +201,7 @@ public class GeneService {
 			throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
-		query.setQuery("mgi_accession_id:\"" + geneId + "\"");
+		query.setQuery(GeneDTO.MARKER_ACCESSION + ":\"" + geneId + "\"");
 		QueryResponse response = solr.query(query);
 		SolrDocument doc = response.getResults().get(0);
 
@@ -218,7 +218,7 @@ public class GeneService {
 	 *         Registered) as appropriate for this gene
 	 */
 	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport, boolean legacyOnly) {
-		String mgiId = doc.getString("mgi_accession_id");
+		String mgiId = doc.getString(GeneDTO.MARKER_ACCESSION);
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 
 		final String statusField = GeneDTO.LATEST_PHENOTYPE_STATUS ;
@@ -326,7 +326,7 @@ public class GeneService {
 	 */
 	public String getEsCellStatus(JSONObject doc, HttpServletRequest request, boolean toExport){
 		
-		String mgiId = doc.getString("mgi_accession_id");
+		String mgiId = doc.getString(GeneDTO.MARKER_ACCESSION);
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 				
 		String status = null;
@@ -715,9 +715,9 @@ public class GeneService {
 		Map<String, String> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+		solrQuery.setFilterQueries(GeneDTO.MARKER_ACCESSION + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
 		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS);
+		solrQuery.setFields(GeneDTO.MARKER_ACCESSION,GeneDTO.LATEST_MOUSE_STATUS);
 		
 		System.out.println("getProductionStatusForGeneSet solr url " + solr.getBaseURL() + "/select?" + solrQuery);
 		
@@ -726,7 +726,7 @@ public class GeneService {
 		SolrDocumentList res = rsp.getResults();
 		for (SolrDocument doc : res) {
 			
-			String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
+			String accession = (String)doc.getFieldValue(GeneDTO.MARKER_ACCESSION);//each doc should have an accession
 			if (doc.containsKey(GeneDTO.LATEST_MOUSE_STATUS)) {
 				// String field = (String)doc.getFieldValue(GeneDTO.LATEST_MOUSE_STATUS);
 				// productionStatus=this.getMouseProducedForGene(field);
@@ -756,17 +756,17 @@ public class GeneService {
 		SolrQuery solrQuery = new SolrQuery();
 		String query="*:*";
 		solrQuery.setQuery(query);
-		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+		solrQuery.setFilterQueries(GeneDTO.MARKER_ACCESSION + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
 		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID);
+		solrQuery.setFields(GeneDTO.MARKER_ACCESSION,GeneDTO.TOP_LEVEL_MP_ID);
 
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 		System.out.println("solr query in basicbean=" + solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		for (SolrDocument doc : res) {
-		String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
+		String accession = (String)doc.getFieldValue(GeneDTO.MARKER_ACCESSION);//each doc should have an accession
 		List<String> topLevelMpIds=Collections.emptyList();
-			if (doc.containsKey("top_level_mp_id")) {
+			if (doc.containsKey(GeneDTO.TOP_LEVEL_MP_ID)) {
 				Collection<Object> topLevels = doc.getFieldValues(GeneDTO.TOP_LEVEL_MP_ID);
 				topLevelMpIds=new ArrayList(topLevels);
 			}
@@ -806,9 +806,9 @@ public class GeneService {
 
 	public GeneDTO getGeneById(String mgiId) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + mgiId + "\"")
+			.setQuery(GeneDTO.MARKER_ACCESSION + ":\"" + mgiId + "\"")
 			.setRows(1)
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID, GeneDTO.MARKER_SYMBOL);
+			.setFields(GeneDTO.MARKER_ACCESSION,GeneDTO.TOP_LEVEL_MP_ID, GeneDTO.MARKER_SYMBOL);
 
 		QueryResponse rsp = solr.query(solrQuery);
 		if (rsp.getResults().getNumFound() > 0) {
@@ -821,7 +821,7 @@ public class GeneService {
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL + ":\"" + symbol + "\"")
 			.setRows(1)
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
+			.setFields(GeneDTO.MARKER_ACCESSION,GeneDTO.MARKER_SYMBOL);
 
 		QueryResponse rsp = solr.query(solrQuery);
 		if (rsp.getResults().getNumFound() > 0) {
@@ -840,7 +840,7 @@ public class GeneService {
 		HashMap<String, Long> res = new HashMap<>();
 		
 		// build query for these genes
-		String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
+		String geneQuery = GeneDTO.MARKER_ACCESSION + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
 		System.out.println("geneQuery: " + geneQuery);
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(geneQuery)
@@ -885,15 +885,15 @@ public class GeneService {
 		SolrQuery solrQuery = new SolrQuery();
 
 		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+		solrQuery.setFilterQueries(GeneDTO.MARKER_ACCESSION + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
 		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.DISEASE_ID, GeneDTO.LATEST_PHENOTYPE_STATUS);
+		solrQuery.setFields(GeneDTO.MARKER_ACCESSION, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.DISEASE_ID, GeneDTO.LATEST_PHENOTYPE_STATUS);
 		log.info("server query is: {}", solrQuery.toString());
 		QueryResponse rsp = solr.query(solrQuery);
 
 		List<GeneDTO> genes = rsp.getBeans(GeneDTO.class);
 		for (GeneDTO gene : genes) {
-			geneToHumanOrthologMap.put(gene.getMgiAccessionId(), gene);
+			geneToHumanOrthologMap.put(gene.getMarkerAccession(), gene);
 		}
 
 		return geneToHumanOrthologMap;

@@ -184,8 +184,8 @@ public class ImpcImagesTest {
 
         for (String gene : genes) {
             GeneDTO geneDto = geneService.getGeneByGeneSymbol(gene);
-            logger.debug("geneDto=" + geneDto.getMgiAccessionId());
-            geneIds.add(geneDto.getMgiAccessionId());
+            logger.debug("geneDto=" + geneDto.getMarkerAccession());
+            geneIds.add(geneDto.getMarkerAccession());
         }
         geneIdsTestEngine(testName, geneIds);
 

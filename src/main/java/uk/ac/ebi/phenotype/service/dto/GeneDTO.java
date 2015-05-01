@@ -8,13 +8,13 @@ import java.util.List;
 public class GeneDTO {
 
 	public static final String DATA_TYPE = "dataType";
-	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
-	
-	public static final String MARKER_SYMBOL = "marker_symbol";
-	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
-	public static final String MARKER_NAME = "marker_name";
-	public static final String MARKER_SYNONYM = "marker_synonym";
+
+	public static final String MARKER_SYMBOL = SolrField.MARKER_SYMBOL;
+	public static final String MARKER_ACCESSION = SolrField.MARKER_ACCESSION;
+	public static final String MARKER_NAME = SolrField.MARKER_NAME;
+	public static final String MARKER_SYNONYMS = SolrField.MARKER_SYNONYMS;
 	public static final String MARKER_TYPE = "marker_type";
+	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
 	public static final String IMITS_PHENOTYPE_STARTED = "imits_phenotype_started";
 	public static final String IMITS_PHENOTYPE_COMPLETE = "imits_phenotype_complete";
 	public static final String IMITS_PHENOTYPE_STATUS = "imits_phenotype_status";
@@ -190,8 +190,8 @@ public class GeneDTO {
 	@Field(DATA_TYPE)
 	String dataType;
 
-	@Field(MGI_ACCESSION_ID)
-	String mgiAccessionId;
+	@Field(MARKER_ACCESSION)
+	String markerAccession;
 
 	@Field(MARKER_SYMBOL)
 	String markerSymbol;
@@ -202,8 +202,8 @@ public class GeneDTO {
 	@Field(MARKER_NAME)
 	String markerName;
 
-	@Field(MARKER_SYNONYM)
-	List<String> markerSynonym;
+	@Field(MARKER_SYNONYMS)
+	List<String> markerSynonyms;
 
 	@Field(MARKER_TYPE)
 	String markerType;
@@ -597,15 +597,15 @@ public class GeneDTO {
 	}
 
 
-	public String getMgiAccessionId() {
+	public String getMarkerAccession() {
 
-		return mgiAccessionId;
+		return markerAccession;
 	}
 
 
-	public void setMgiAccessionId(String mgiAccessionId) {
+	public void setMarkerAccession(String markerAccession) {
 
-		this.mgiAccessionId = mgiAccessionId;
+		this.markerAccession = markerAccession;
 	}
 
 
@@ -647,13 +647,13 @@ public class GeneDTO {
 
 	public List<String> getMarkerSynonym() {
 
-		return markerSynonym;
+		return markerSynonyms;
 	}
 
 
 	public void setMarkerSynonym(List<String> markerSynonym) {
 
-		this.markerSynonym = markerSynonym;
+		this.markerSynonyms = markerSynonym;
 	}
 
 
@@ -1946,10 +1946,10 @@ public class GeneDTO {
 		if (markerName != null ? !markerName.equals(geneDTO.markerName) : geneDTO.markerName != null) return false;
 		if (markerSymbol != null ? !markerSymbol.equals(geneDTO.markerSymbol) : geneDTO.markerSymbol != null)
 			return false;
-		if (markerSynonym != null ? !markerSynonym.equals(geneDTO.markerSynonym) : geneDTO.markerSynonym != null)
+		if (markerSynonyms != null ? !markerSynonyms.equals(geneDTO.markerSynonyms) : geneDTO.markerSynonyms != null)
 			return false;
 		if (markerType != null ? !markerType.equals(geneDTO.markerType) : geneDTO.markerType != null) return false;
-		if (mgiAccessionId != null ? !mgiAccessionId.equals(geneDTO.mgiAccessionId) : geneDTO.mgiAccessionId != null)
+		if (markerAccession != null ? !markerAccession.equals(geneDTO.markerAccession) : geneDTO.markerAccession != null)
 			return false;
 		if (mgiPredicted != null ? !mgiPredicted.equals(geneDTO.mgiPredicted) : geneDTO.mgiPredicted != null)
 			return false;
@@ -2020,11 +2020,11 @@ public class GeneDTO {
 		result = 31 * result + (selectedTopLevelMaTermSynonym != null ? selectedTopLevelMaTermSynonym.hashCode() : 0);
 		result = 31 * result + (mgiPredictedKnownGene != null ? mgiPredictedKnownGene.hashCode() : 0);
 		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
-		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
+		result = 31 * result + (markerAccession != null ? markerAccession.hashCode() : 0);
 		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
 		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
-		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
+		result = 31 * result + (markerSynonyms != null ? markerSynonyms.hashCode() : 0);
 		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
 		result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
 		result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
@@ -2100,8 +2100,8 @@ public class GeneDTO {
 	public String toString() {
 		return String
 				.format("GeneDTO [impcNovelPredictedInLocus=%s, selectedTopLevelMaId=%s, selectedTopLevelMaTermSynonym=%s, mgiPredictedKnownGene=%s, dataType=%s, mgiAccessionId=%s, markerSymbol=%s, humanGeneSymbol=%s, markerName=%s, markerSynonym=%s, markerType=%s, imitsPhenotypeStarted=%s, imitsPhenotypeComplete=%s, imitsPhenotypeStatus=%s, status=%s, latestEsCellStatus=%s, latestMouseStatus=%s, latestPhenotypeStatus=%s, latestProjectStatus=%s, latestProductionCentre=%s, latestPhenotypingCentre=%s, diseaseHumanPhenotypes=%s, hasQc=%s, legacy_phenotype_status=%s, alleleName=%s, alleleAccessionIds=%s, imitsEsCellStatus=%s, esCellStatus=%s, imitsMouseStatus=%s, mouseStatus=%s, phenotypeStatus=%s, productionCentre=%s, phenotypingCentre=%s, p_value=%s, mpId=%s, mpTerm=%s, mpTermSynonym=%s, mpTermDefinition=%s, maId=%s, maTerm=%s, maTermSynonym=%s, maTermDefinition=%s, hpId=%s, hpTerm=%s, childMpId=%s, childMpTerm=%s, childMpTermSynonym=%s, topLevelMpId=%s, topLevelMpTerm=%s, topLevelMpTermSynonym=%s, topLevelMpDefinition=%s, intermediateMpId=%s, intermediateMpTerm=%s, intermediateMpTermSynonym=%s, ontologySubset=%s, inferredMaId=%s, inferredMaTerm=%s, inferredMaTermSynonym=%s, inferredSelectedTopLevelMaId=%s, inferredSelectedTopLevelMaTerm=%s, inferredSelectedTopLevelMaTermSynonym=%s, inferredChildMaId=%s, inferredChildMaTerm=%s, inferredChildMaTermSynonym=%s, type=%s, diseaseId=%s, diseaseSource=%s, diseaseTerm=%s, diseaseAlts=%s, diseaseClasses=%s, humanCurated=%s, mouseCurated=%s, mgiPredicted=%s, impcPredicted=%s, mgiPredictedInLocus=%s, impcPredictedInLocus=%s, pipelineName=%s, pipelineStableId=%s, procedureName=%s, procedureStableId=%s, parameterName=%s, parameterStableId=%s, procParamName=%s, procParamStableId=%s, expName=%s, subtype=%s, annotatedHigherLevelMpTermName=%s, text=%s, autoSuggest=%s, selectedTopLevelMaTerm=%s, goTermIds=%s, goTermNames=%s, goTermDefs=%s, goTermEvids=%s, goTermDomains=%s, uniprotAccs=%s, pfama_jsons=%s, scdb_ids=%s, scdb_links=%s, clan_ids=%s, clan_accs=%s, clan_descs=%s, pfama_ids=%s, pfama_accs=%s, pfama_go_ids=%s, pfama_go_terms=%s, pfama_go_cats=%s]",
-						impcNovelPredictedInLocus, selectedTopLevelMaId, selectedTopLevelMaTermSynonym, mgiPredictedKnownGene, dataType, mgiAccessionId,
-						markerSymbol, humanGeneSymbol, markerName, markerSynonym, markerType, imitsPhenotypeStarted, imitsPhenotypeComplete,
+						impcNovelPredictedInLocus, selectedTopLevelMaId, selectedTopLevelMaTermSynonym, mgiPredictedKnownGene, dataType, markerAccession,
+						markerSymbol, humanGeneSymbol, markerName, markerSynonyms, markerType, imitsPhenotypeStarted, imitsPhenotypeComplete,
 						imitsPhenotypeStatus, status, latestEsCellStatus, latestMouseStatus, latestPhenotypeStatus, latestProjectStatus,
 						latestProductionCentre, latestPhenotypingCentre, diseaseHumanPhenotypes, hasQc, legacy_phenotype_status, alleleName,
 						alleleAccessionIds, imitsEsCellStatus, esCellStatus, imitsMouseStatus, mouseStatus, phenotypeStatus, productionCentre,

@@ -43,6 +43,7 @@ import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
@@ -956,11 +957,11 @@ public class FileExportController {
             List<String> data = new ArrayList();
             JSONObject doc = docs.getJSONObject(i);
 
-            data.add(doc.getString("marker_symbol"));
+            data.add(doc.getString(GeneDTO.MARKER_SYMBOL));
 
-            if (doc.has("human_gene_symbol")) {
+            if (doc.has(GeneDTO.HUMAN_GENE_SYMBOL)) {
                 List<String> hsynData = new ArrayList();
-                JSONArray hs = doc.getJSONArray("human_gene_symbol");
+                JSONArray hs = doc.getJSONArray(GeneDTO.HUMAN_GENE_SYMBOL);
                 for (int s = 0; s < hs.size(); s ++) {
                     hsynData.add(hs.getString(s));
                 }
@@ -970,20 +971,20 @@ public class FileExportController {
             }
 
             // MGI gene id
-            data.add(doc.getString("mgi_accession_id"));
+            data.add(doc.getString(GeneDTO.MARKER_ACCESSION));
 
             // Sanger problem, they should have use string for marker_name and not array
             //data.add(doc.getJSONArray("marker_name").getString(0));
             // now corrected using httpdatasource in dataImportHandler
-            if (doc.has("marker_name")) {
-                data.add(doc.getString("marker_name"));
+            if (doc.has(GeneDTO.MARKER_NAME)) {
+                data.add(doc.getString(GeneDTO.MARKER_NAME));
             } else {
                 data.add(NO_INFO_MSG);
             }
 
-            if (doc.has("marker_synonym")) {
+            if (doc.has(GeneDTO.MARKER_SYNONYMS)) {
                 List<String> synData = new ArrayList();
-                JSONArray syn = doc.getJSONArray("marker_synonym");
+                JSONArray syn = doc.getJSONArray(GeneDTO.MARKER_SYNONYMS);
                 for (int s = 0; s < syn.size(); s ++) {
                     synData.add(syn.getString(s));
                 }

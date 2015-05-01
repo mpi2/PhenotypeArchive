@@ -106,7 +106,7 @@ public class GeneIndexer extends AbstractIndexer {
             for (AlleleDTO allele : alleles) {
                 //System.out.println("allele="+allele.getMarkerSymbol());
                 GeneDTO gene = new GeneDTO();
-                gene.setMgiAccessionId(allele.getMgiAccessionId());
+                gene.setMarkerAccession(allele.getMgiAccessionId());
                 gene.setDataType(allele.getDataType());
                 gene.setMarkerType(allele.getMarkerType());
                 gene.setMarkerSymbol(allele.getMarkerSymbol());

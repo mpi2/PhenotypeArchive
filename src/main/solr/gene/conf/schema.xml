@@ -132,11 +132,11 @@
 
 	<!-- gene level fields -->
 	<field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="marker_accession" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="marker_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 	<field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />
-    <field name="marker_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="marker_synonyms" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />
    	<field name="imits_phenotype_started" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_complete" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -307,10 +307,10 @@
  <defaultSearchField>text</defaultSearchField>
 
 	<copyField source="*" dest="text"/>
-	<copyField source="mgi_accession_id" dest="auto_suggest"/>
+	<copyField source="marker_accession" dest="auto_suggest"/>
 	<copyField source="marker_symbol" dest="auto_suggest"/>
 	<copyField source="marker_name" dest="auto_suggest"/>
-	<copyField source="marker_synonym" dest="auto_suggest"/>
+	<copyField source="marker_synonyms" dest="auto_suggest"/>
 	<copyField source="human_gene_symbol" dest="auto_suggest"/>
 	<copyField source="latest_production_centre" dest="auto_suggest"/>
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
@@ -336,10 +336,10 @@
 	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
 	
 	<!--  qf bucket list -->
-	<copyField source="mgi_accession_id" dest="geneQf" />
+	<copyField source="marker_accession" dest="geneQf" />
 	<copyField source="marker_symbol" dest="geneQf" />
 	<copyField source="marker_name" dest="geneQf" />
-	<copyField source="marker_synonym" dest="geneQf" />
+	<copyField source="marker_synonyms" dest="geneQf" />
 	
 	
 	<copyField source="mp_id" dest="mpQf" />

@@ -233,8 +233,8 @@ public class DiseaseIndexer extends AbstractIndexer {
                         geneLookup.put(d, new GeneData());
                     }
 
-                    if (gene.getMgiAccessionId() != null) {
-                        geneLookup.get(d).MGI_ACCESSION_ID.add(gene.getMgiAccessionId());
+                    if (gene.getMarkerAccession() != null) {
+                        geneLookup.get(d).MGI_ACCESSION_ID.add(gene.getMarkerAccession());
                     }
                     if (gene.getMarkerSymbol() != null) {
                         geneLookup.get(d).MARKER_SYMBOL.add(gene.getMarkerSymbol());

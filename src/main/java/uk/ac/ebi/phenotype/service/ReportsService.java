@@ -685,7 +685,7 @@ public class ReportsService {
 				GeneDTO gene = geneService.getGeneByGeneSymbol(geneSymbol);
 				String geneLink = "";
 				if (gene!=null) {
-					geneLink = config.get("drupalBaseUrl") + "/data/genes/" + gene.getMgiAccessionId();
+					geneLink = config.get("drupalBaseUrl") + "/data/genes/" + gene.getMarkerAccession();
 				}
 
 				String[] row = {geneSymbol, StringUtils.join(geneViability.get(geneSymbol), ": "), homCount, hetCount, hemiCount, geneLink };

@@ -32,10 +32,10 @@ public class PipelineDTO {
 	private static final String PIPE_PROC_SID = "pipe_proc_sid";
 	private static final String ID_ID_ID = "ididid";
 
-	public static final String MGI_ACCESSION_ID = GeneDTO.MGI_ACCESSION_ID;
+	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String MARKER_TYPE = GeneDTO.MARKER_TYPE;
 	public static final String MARKER_SYMBOL = GeneDTO.MARKER_SYMBOL;
-	public static final String MARKER_SYNONYM = GeneDTO.MARKER_SYNONYM;
+	public static final String MARKER_SYNONYM = "marker_synonym";
 	public static final String MARKER_NAME = GeneDTO.MARKER_NAME;
 	public static final String HUMAN_GENE_SYMBOL = GeneDTO.HUMAN_GENE_SYMBOL;
 	public static final String STATUS = GeneDTO.STATUS;

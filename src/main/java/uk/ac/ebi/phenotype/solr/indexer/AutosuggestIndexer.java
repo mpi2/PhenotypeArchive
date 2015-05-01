@@ -155,7 +155,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     private void populateGeneAutosuggestTerms() throws SolrServerException, IOException {
 
-        List<String> geneFields = Arrays.asList(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.ALLELE_ACCESSION_ID);
+        List<String> geneFields = Arrays.asList(GeneDTO.MARKER_ACCESSION, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYNONYMS, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.ALLELE_ACCESSION_ID);
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -172,10 +172,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 a.setDocType("gene");
 
                 switch (field) {
-                    case GeneDTO.MGI_ACCESSION_ID:
-                        mapKey = gene.getMgiAccessionId();
+                    case GeneDTO.MARKER_ACCESSION:
+                        mapKey = gene.getMarkerAccession();
                         if (mgiAccessionIdSet.add(mapKey)) {
-                            a.setMgiAccessionID(gene.getMgiAccessionId());
+                            a.setMgiAccessionID(gene.getMarkerAccession());
                             beans.add(a);
                         }
                         break;
@@ -193,7 +193,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                             beans.add(a);
                         }
                         break;
-                    case GeneDTO.MARKER_SYNONYM:
+                    case GeneDTO.MARKER_SYNONYMS:
                         if (gene.getMarkerSynonym() != null) {
                             for (String s : gene.getMarkerSynonym()) {
                                 mapKey = s;
