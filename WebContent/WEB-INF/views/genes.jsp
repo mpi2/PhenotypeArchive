@@ -374,38 +374,17 @@
                                    <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
 		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
                                     <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
-																<c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}"></c:set>
-																 <a href="${href}">Expression link</a>
-										<%-- </c:when> --%>
-										
-										<%-- <c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
-
-
-                                            <c:forEach var="doc" items="${impcExpressionFacetToDocs[entry.name]}">
-                                                <div id="impc-images-heading" class="accordion-group">    
-
-                                                    <div class="accordion-heading">
-                                                        ${doc.parameter_name}(${entry.count}) 
-                                                    </div>
-                                                    <div class="accordion-body">
-                                                        <ul>
-																
+										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
+                                           
+                                                <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
                                                             <a href="${href}">
-                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}" count="${entry.count}"></t:impcimgdisplay2>
-                                                                </a>
+                                                    ${entry.name} (${entry.count})
+                                                    </a>&nbsp;
+                                                
+                                               
+                                        </c:forEach><!-- solrFacets end -->
 
-                                                            </ul>
-
-
-                                                         <div class="clear"></div>
-                                                            <c:if test="${entry.count>5}">
-                                                                <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
-                                                            </c:if>
-                                                    </div><!--  end of accordion body -->
-                                                </div>
-                                            </c:forEach>
-
-                                        </c:forEach> --%>
+                                        
                                     </div>
                                 </div>
                            <%--  </c:if> --%>

@@ -69,10 +69,7 @@
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
                                                         </c:forEach>
                                                     </ul>
-                                                    <div class="clear"></div>
-                                                    <c:if test="${entry.count>5}">
-                                                        <p class="textright"><a href="${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=parameter_stable_id:${entry.name}&rows=100000"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
-                                                    </c:if>
+                                                   
                                                 </div><!--  end of accordion body -->
                                             </div>
                                         </c:forEach><!-- solrFacets end -->

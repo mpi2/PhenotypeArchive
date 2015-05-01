@@ -543,8 +543,8 @@ public class GenesController {
 	 */
 	private void getImpcExpressionImages(String acc, Model model)
 	throws SolrServerException {
-
-		imageService.getLacDataForGene(acc, model);
+		imageService.getLacDataForGene(acc, null,  model);
+		
 	}
 
 	/**

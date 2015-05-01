@@ -39,15 +39,24 @@ public class ImpcImagesController {
 	@Autowired
 	ImageService imageService;
 
-	@RequestMapping("/impcImages/laczimages/{acc}")
-	public String laczImages(@PathVariable String acc, Model model)
+	@RequestMapping("/impcImages/laczimages/{acc}/{topLevelMa}")
+	public String laczImages(@PathVariable String acc, @PathVariable String topLevelMa, Model model)
 			throws SolrServerException, IOException, URISyntaxException {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
 		System.out.println("calling laczImages web page");
 
-		imageService.getLacDataForGene(acc, model);
+		imageService.getLacDataForGene(acc, topLevelMa, model);
+
+		return "laczImages";
+	}
+	
+	@RequestMapping("/impcImages/laczimages/{acc}")
+	public String laczImages(@PathVariable String acc, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
+
+		imageService.getLacDataForGene(acc, null, model);
 
 		return "laczImages";
 	}
