@@ -322,7 +322,6 @@ public class GenesController {
 
 		// facet field example for project name and higher level mp term with
 		// gene as query :
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true
 		// //top_level_mp_term_name
 		if (queryString == null) {
 			queryString = "";

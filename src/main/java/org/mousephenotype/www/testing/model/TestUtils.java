@@ -946,7 +946,6 @@ public class TestUtils {
             SolrQuery solrQuery = new SolrQuery();
             solrQuery
                     .setQuery("*:*")
-//                    .setFields("marker_accession_id")
                     .setRows(Integer.MAX_VALUE)
                     .add("group", "true")
                     .add("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION)
