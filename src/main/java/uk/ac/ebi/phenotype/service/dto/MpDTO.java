@@ -61,8 +61,8 @@ public class MpDTO {
 	public static final String P_VALUE = "p_value";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String PHENO_CALLS = "pheno_calls";
-	public static final String MARKER_SYMBOL = "marker_symbol";
-	public static final String MARKER_ACCESSION_ID = "marker_accession_id";
+	public static final String MARKER_SYMBOL = SolrField.MARKER_SYMBOL;
+	public static final String MARKER_ACCESSION_ID = SolrField.MARKER_ACCESSION;
 	public static final String PREQC_GENE_ID = "preqc_gene_id";
 	public static final String MARKER_NAME = "marker_name";
 	public static final String MARKER_SYNONYM = "marker_synonym";

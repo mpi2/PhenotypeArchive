@@ -243,7 +243,7 @@
                         LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc"
                     where="id=stats_result.experimental_id">
 
-                <field name="marker_accession_id" column="acc"/>
+                <field name="marker_accession" column="acc"/>
                 <field name="marker_symbol" column="symbol"/>
                 <field name="allele_accession_id" column="allele_accession"/>
                 <field name="allele_symbol" column="allele_symbol"/>

@@ -43,8 +43,12 @@
 
         <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly
             to EBI servers for performance -->
-        <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-        <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl> 
+        <!-- solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+        <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl--> 
+        
+        <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci</solrUrl>
+        <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci</internalSolrUrl> 
+                
         <!-- internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl-->
         <buildIndexesSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes</buildIndexesSolrUrl>
         <preqcXmlfile>
@@ -955,7 +959,7 @@
             <!-- Internal development uses the default POM properties -->
             <properties>
                 <baseUrl>/data</baseUrl>
-                <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci</internalSolrUrl>
                 <liveSite>false</liveSite>
             </properties>
 

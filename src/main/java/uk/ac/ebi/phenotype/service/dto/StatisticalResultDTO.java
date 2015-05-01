@@ -56,8 +56,8 @@ public class StatisticalResultDTO {
     public final static String PARAMETER_ID = "parameter_id";
 
     public final static String COLONY_ID = "colony_id"; 
-    public final static String MARKER_SYMBOL = "marker_symbol";
-    public final static String MARKER_ACCESSION_ID = "marker_accession_id";
+    public final static String MARKER_SYMBOL = SolrField.MARKER_SYMBOL;
+    public final static String MARKER_ACCESSION_ID = SolrField.MARKER_ACCESSION;
     public final static String ALLELE_SYMBOL = "allele_symbol";
     public final static String ALLELE_NAME = "allele_name";
     public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
