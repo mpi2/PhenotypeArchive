@@ -47,50 +47,12 @@ public class ImpcImagesController {
 
 		System.out.println("calling laczImages web page");
 
-		QueryResponse laczResponse = imageService.getLaczFacetsForGene(acc);
-		SolrDocumentList imagesResponse = laczResponse.getResults();
-		System.out.println("lacZimages found=" + imagesResponse.getNumFound());
-		List<FacetField> fields = laczResponse.getFacetFields();
-		System.out.println(fields);
-
-		// we have the unique ma top level terms associated and all the images
-		// now we need lists of images with these top level ma terms in their
-		// annotation
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<>();
-		String noTopMa = "NA";
-		facetToDocs.put(noTopMa, new SolrDocumentList());
-		for (Count count : fields.get(0).getValues()) {
-
-			System.out.println("field name=" + count.getName());
-			System.out.println(count.getCount());
-			for (SolrDocument doc : imagesResponse) {
-				ArrayList<String> tops = (ArrayList<String>) doc
-						.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
-				if (tops==null) {
-					// top = "NA";
-					System.out.println("top is null");
-					facetToDocs.get(noTopMa).add(doc);
-				} else {
-					for (String top : tops) {
-
-						System.out.println("top level ma=" + top);
-						SolrDocumentList list = null;
-						if (!facetToDocs.containsKey(top)) {
-							facetToDocs.put(top, new SolrDocumentList());
-						}
-						list = facetToDocs.get(top);
-						list.add(doc);
-					}
-				}
-			}
-		}
-		// Map<String, SolrDocumentList> facetToDocs;
-		model.addAttribute("impcImageFacets", fields.get(0).getValues());
-		model.addAttribute("impcFacetToDocs", facetToDocs);
+		imageService.getLacDataForGene(acc, model);
 
 		return "laczImages";
 	}
 
+	
 	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
 	public String imagePicker(@PathVariable String acc,
 			@PathVariable String parameter_stable_id, Model model)

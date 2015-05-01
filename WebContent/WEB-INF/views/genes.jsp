@@ -26,6 +26,9 @@
                             <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                             </c:if>
+                            <c:if test="${not empty impcExpressionFacets}">
+                            <li><a href="#section-impc_expression">Expression</a></li>
+                            </c:if>
                             <c:if test="${not empty impcImageFacets}">
                             <li><a href="#section-impc-images">Impc Images</a></li>
                             </c:if>
@@ -363,12 +366,56 @@
                                 </div>
                             </c:if>
 
+ 							<!-- section for expression data here -->
+							<%-- <c:if test="${not empty impcExpressionFacets}"> --%>
+                                <div class="section">
+                                    <h2 class="title" id="section-impc_expression">Expression <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <div class="inner">
+                                   <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
+		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
+                                    <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
+																<c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}"></c:set>
+																 <a href="${href}">Expression link</a>
+										<%-- </c:when> --%>
+										
+										<%-- <c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
+
+
+                                            <c:forEach var="doc" items="${impcExpressionFacetToDocs[entry.name]}">
+                                                <div id="impc-images-heading" class="accordion-group">    
+
+                                                    <div class="accordion-heading">
+                                                        ${doc.parameter_name}(${entry.count}) 
+                                                    </div>
+                                                    <div class="accordion-body">
+                                                        <ul>
+																
+                                                            <a href="${href}">
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}" count="${entry.count}"></t:impcimgdisplay2>
+                                                                </a>
+
+                                                            </ul>
+
+
+                                                         <div class="clear"></div>
+                                                            <c:if test="${entry.count>5}">
+                                                                <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+                                                            </c:if>
+                                                    </div><!--  end of accordion body -->
+                                                </div>
+                                            </c:forEach>
+
+                                        </c:forEach> --%>
+                                    </div>
+                                </div>
+                           <%--  </c:if> --%>
+                                    
 
                             <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
                                     <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
+                                
                                     <div class="inner">
                                         <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
 
@@ -381,14 +428,7 @@
                                                     </div>
                                                     <div class="accordion-body">
                                                         <ul>
-															<c:choose>
-															<c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}">
-																<c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}"></c:set>
-															</c:when>
-															<c:otherwise>
 																<c:set var="href" scope="page" value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
-															</c:otherwise>
-															</c:choose>
                                                             <a href="${href}">
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}" count="${entry.count}"></t:impcimgdisplay2>
                                                                 </a>

@@ -496,7 +496,7 @@ public class ImageService {
 	 */
 	public void getImpcImagesForGenePage(String acc, Model model, int numberOfControls, int numberOfExperimental, boolean getForAllParameters)
 	throws SolrServerException {
-		String excludeProcedureName="";
+		String excludeProcedureName="Adult LacZ";//exclude adult lacz from the images section as this will now be in the expression section on the gene page
 		QueryResponse solrR = this.getProcedureFacetsForGeneByProcedure(acc, "experimental");
 		if (solrR == null) {
 			logger.error("no response from solr data source for acc=" + acc);
@@ -534,7 +534,7 @@ public class ImageService {
 				}
 
 				for (Count procedure : procedureFacet.getValues()) {
-
+					System.out.println("procedure name="+procedure.getName());
 					if (!procedure.getName().equals(excludeProcedureName)) {
 						this.getControlAndExperimentalImpcImages(acc, model, procedure.getName(), null, 0, 1, excludeProcedureName, filteredCounts, facetToDocs);
 
@@ -637,7 +637,6 @@ public class ImageService {
 																	// gene page
 					if (!count.getName().equals(excludedProcedureName)) {
 						QueryResponse responseExperimental = this.getImagesForGeneByParameter(acc, count.getName(), "experimental", 1, null, null, null);
-
 						if (responseExperimental.getResults().size() > 0) {
 							// for(SexType sex : SexType.values()){
 							SolrDocument imgDoc = responseExperimental.getResults().get(0);
@@ -705,6 +704,50 @@ public class ImageService {
 		return response;
 
 	}
+	
+	public void getLacDataForGene(String acc, Model model)
+			throws SolrServerException {
+		QueryResponse laczResponse = getLaczFacetsForGene(acc);
+		SolrDocumentList imagesResponse = laczResponse.getResults();
+		System.out.println("lacZimages found=" + imagesResponse.getNumFound());
+		List<FacetField> fields = laczResponse.getFacetFields();
+		System.out.println(fields);
+
+		// we have the unique ma top level terms associated and all the images
+		// now we need lists of images with these top level ma terms in their
+		// annotation
+		Map<String, SolrDocumentList> facetToDocs = new HashMap<>();
+		String noTopMa = "NA";
+		facetToDocs.put(noTopMa, new SolrDocumentList());
+		for (Count count : fields.get(0).getValues()) {
+
+			System.out.println("field name=" + count.getName());
+			System.out.println(count.getCount());
+			for (SolrDocument doc : imagesResponse) {
+				ArrayList<String> tops = (ArrayList<String>) doc
+						.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
+				if (tops==null) {
+					// top = "NA";
+					System.out.println("top is null");
+					facetToDocs.get(noTopMa).add(doc);
+				} else {
+					for (String top : tops) {
+
+						System.out.println("top level ma=" + top);
+						SolrDocumentList list = null;
+						if (!facetToDocs.containsKey(top)) {
+							facetToDocs.put(top, new SolrDocumentList());
+						}
+						list = facetToDocs.get(top);
+						list.add(doc);
+					}
+				}
+			}
+		}
+		model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
+		model.addAttribute("impcExpressionFacetToDocs", facetToDocs);
+	}
+
 
 }
 
