@@ -64,8 +64,6 @@ public class ImpressService {
 				.setQuery(PipelineDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
 				.setFields(PipelineDTO.PIPELINE_STABLE_KEY);
 
-			System.out.println("Pipeline query : " + solr.getBaseURL() + "/select?" + query);
-			
 			QueryResponse response = solr.query(query);
 
 			return response.getBeans(PipelineDTO.class).get(0).getPipelineStableKey();
