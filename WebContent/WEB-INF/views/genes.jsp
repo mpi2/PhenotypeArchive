@@ -26,7 +26,7 @@
                             <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                             </c:if>
-                            <c:if test="${not empty impcExpressionFacets}">
+                            <c:if test="${not empty impcExpressionImageFacets}">
                             <li><a href="#section-impc_expression">Expression</a></li>
                             </c:if>
                             <c:if test="${not empty impcImageFacets}">
@@ -367,7 +367,7 @@
                             </c:if>
 
  							<!-- section for expression data here -->
-							<%-- <c:if test="${not empty impcExpressionFacets}"> --%>
+							<c:if test="${not empty impcExpressionImageFacets}"> 
                                 <div class="section">
                                     <h2 class="title" id="section-impc_expression">Expression <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <div class="inner">
@@ -387,7 +387,7 @@
                                         
                                     </div>
                                 </div>
-                           <%--  </c:if> --%>
+                            </c:if> 
                                     
 
                             <!-- nicolas accordion for images here -->
