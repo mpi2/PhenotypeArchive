@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.service;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -26,6 +27,8 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
@@ -60,9 +63,10 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
         query
             .setQuery("*:*")
             .setRows(count)
-            .setFields("parameter_stable_id, marker_accession_id", "procedure_name", "parameter_name")
+            .setFields(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, GenotypePhenotypeDTO.MARKER_ACCESSION,
+            	GenotypePhenotypeDTO.PROCEDURE_NAME, GenotypePhenotypeDTO.PARAMETER_NAME)
             .add("group", "true")
-            .add("group.field", "marker_accession_id")
+            .add("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION)
             .add("group.limit", Integer.toString(count))
         ;
         
@@ -75,10 +79,10 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
                 
                 SolrDocument doc = docs.get(0);                                 // All elements in this collection have the same mgi_accession_id.
                 GraphTestDTO geneGraph = new GraphTestDTO();
-                geneGraph.setParameterStableId((String)doc.get("parameter_stable_id"));
-                geneGraph.setMgiAccessionId((String)doc.get("marker_accession_id"));
-                geneGraph.setParameterName((String)doc.get("parameter_name"));
-                geneGraph.setProcedureName((String)doc.get("procedure_name"));
+                geneGraph.setParameterStableId((String)doc.get(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
+                geneGraph.setMgiAccessionId((String)doc.get(GenotypePhenotypeDTO.MARKER_ACCESSION));
+                geneGraph.setParameterName((String)doc.get(GenotypePhenotypeDTO.PARAMETER_NAME));
+                geneGraph.setProcedureName((String)doc.get(GenotypePhenotypeDTO.PROCEDURE_NAME));
                 retVal.add(geneGraph);
                 count--;
                 if (count == 0) {

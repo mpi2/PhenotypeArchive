@@ -18,8 +18,8 @@ public class GenotypePhenotypeDTO {
     public static final String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";
     public static final String INTERMEDIATE_MP_TERM_DEFINITION = "intermediate_mp_term_definition";
     public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_term_synonym";
-    public static final String MARKER_SYMBOL = "marker_symbol";
-    public static final String MARKER_ACCESSION_ID = "marker_accession_id";
+    public static final String MARKER_SYMBOL = SolrField.MARKER_SYMBOL;
+    public static final String MARKER_ACCESSION = SolrField.MARKER_ACCESSION;
     public static final String COLONY_ID = "colony_id";
     public static final String ALLELE_NAME = "allele_name";
     public static final String ALLELE_SYMBOL = "allele_symbol";
@@ -86,7 +86,7 @@ public class GenotypePhenotypeDTO {
     @Field(MARKER_SYMBOL)
     String markerSymbol;
 
-    @Field(MARKER_ACCESSION_ID)
+    @Field(MARKER_ACCESSION)
     String markerAccessionId;
 
     @Field(COLONY_ID)

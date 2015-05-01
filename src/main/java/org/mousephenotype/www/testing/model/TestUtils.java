@@ -22,8 +22,10 @@
 
 package org.mousephenotype.www.testing.model;
 
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
 import static com.thoughtworks.selenium.SeleneseTestBase.fail;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -39,7 +41,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -57,6 +61,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
@@ -944,7 +949,7 @@ public class TestUtils {
 //                    .setFields("marker_accession_id")
                     .setRows(Integer.MAX_VALUE)
                     .add("group", "true")
-                    .add("group.field", "marker_accession_id")
+                    .add("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION)
                     .add("group.limit", "0")
 //                    .add("rows", "0")
                     ;
@@ -964,7 +969,7 @@ public class TestUtils {
                     Iterator<SolrDocument> it = docs.iterator();
                     while (it.hasNext()) {
                         SolrDocument doc = it.next();
-                        String mgiAccessionId = (String)doc.get("marker_accession_id");
+                        String mgiAccessionId = (String)doc.get(GenotypePhenotypeDTO.MARKER_ACCESSION);
                         geneIds.add(mgiAccessionId);
                     }
                 }

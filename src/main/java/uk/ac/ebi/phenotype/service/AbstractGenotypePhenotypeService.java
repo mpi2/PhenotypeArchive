@@ -249,7 +249,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         List<String> fields = Arrays.asList(GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.MP_TERM_ID,
                                             GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
                                             GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME,
-                                            GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+                                            GenotypePhenotypeDTO.COLONY_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MARKER_ACCESSION);
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -319,7 +319,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
                 + phenotype_id + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\") AND ("
                 + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\") AND "
                 + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + parameterStableId + "\"").setRows(100000000);
-        query.set("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+        query.set("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION);
         query.set("group", true);
         List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
         for (Group gr : groups) {
@@ -342,15 +342,15 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             throws SolrServerException {
 
         SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":*");
+        solrQuery.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION + ":*");
         solrQuery.setRows(1000000);
-        solrQuery.setFields(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+        solrQuery.setFields(GenotypePhenotypeDTO.MARKER_ACCESSION);
         QueryResponse rsp = null;
         rsp = solr.query(solrQuery);
         SolrDocumentList res = rsp.getResults();
         HashSet<String> allGenes = new HashSet<String>();
         for (SolrDocument doc : res) {
-            allGenes.add((String) doc.getFieldValue(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
+            allGenes.add((String) doc.getFieldValue(GenotypePhenotypeDTO.MARKER_ACCESSION));
         }
         return allGenes;
     }
@@ -441,9 +441,9 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
         String query;
         if (gene.equalsIgnoreCase("*")) {
-            query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene + " AND ";
+            query = GenotypePhenotypeDTO.MARKER_ACCESSION + ":" + gene + " AND ";
         } else {
-            query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND ";
+            query = GenotypePhenotypeDTO.MARKER_ACCESSION + ":\"" + gene + "\" AND ";
 
         }
 
@@ -466,7 +466,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     public SolrDocumentList getPhenotypes(String gene)
             throws SolrServerException {
 
-        SolrDocumentList result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
+        SolrDocumentList result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION + ":\"" + gene + "\"");
         return result;
     }
 
@@ -485,7 +485,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) throws SolrServerException {
-        SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
+        SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION + ":\"" + gene + "\"")
                 .setRows(Integer.MAX_VALUE);
 
         return solr.query(query).getBeans(GenotypePhenotypeDTO.class);
@@ -509,9 +509,9 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
         SolrQuery query = new SolrQuery();
         if (gene.equalsIgnoreCase("*")) {
-            query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene);
+            query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION + ":" + gene);
         } else {
-            query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
+            query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION + ":\"" + gene + "\"");
         }
         query.setRows(10000000);
         if (zyg != null) {
@@ -600,7 +600,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             throws IOException, URISyntaxException {
 
         String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-        solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"" + "&fq=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + "&fq=" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccession + "\"" + "&fq=" + GenotypePhenotypeDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+        solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION + ":\"" + accession + "\"" + "&fq=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + "&fq=" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccession + "\"" + "&fq=" + GenotypePhenotypeDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
 //		System.out.println("solr url for stats results=" + solrUrl);
         List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
         return statisticalResult;
@@ -626,7 +626,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             start = false;
         }
 
-        solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + geneClause.toString() + "\")" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+        solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION + ":(\"" + geneClause.toString() + "\")" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
 //		System.out.println("\n\n\n SOLR URL = " + solrUrl);
         return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
     }
@@ -656,7 +656,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     public PhenotypeFacetResult getMPByGeneAccessionAndFilter(String accId, String queryString)
             throws IOException, URISyntaxException {
 
-        String solrUrl = solr.getBaseURL() + "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accId + "\""
+        String solrUrl = solr.getBaseURL() + "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION + ":\"" + accId + "\""
                 + "&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet.mincount=1&facet=true&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "";
         if (queryString.startsWith("&")) {
             solrUrl += queryString;
@@ -861,7 +861,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             GenomicFeature gf = new GenomicFeature();
             gf.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));
             DatasourceEntityId geneEntity = new DatasourceEntityId();
-            geneEntity.setAccession(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
+            geneEntity.setAccession(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION));
             gf.setId(geneEntity);
             sum.setGene(gf);
         }
