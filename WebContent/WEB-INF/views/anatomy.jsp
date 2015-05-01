@@ -265,7 +265,7 @@
 			
 			function refreshAnatomyFrag(dropdownsList) {
 				var rootUrl = window.location.href;
-				var newUrl = rootUrl.replace("anatomy", "anatomyFrag");
+				var newUrl = rootUrl.replace("anatomy", "anatomyFrag").split("#")[0];
 				newUrl += '?';
 				selectedFilters = "";
 				for (var it = 0; it < dropdownsList.length; it++){
