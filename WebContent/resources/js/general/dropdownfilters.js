@@ -254,7 +254,7 @@ $(document).ready(function(){
 	
 	function refreshGenesPhenoFrag(dropdownsList) {
 		var rootUrl=window.location.href;
-		var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
+		var newUrl=rootUrl.replace("genes", "genesPhenoFrag").split("#")[0];
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
 			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or

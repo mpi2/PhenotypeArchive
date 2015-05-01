@@ -241,12 +241,10 @@ $(document).ready(function(){
 	
 	function refreshGenesPhenoFrag(dropdownsList) {
 		var rootUrl=window.location.href;
-//		console.log("genesPhenFrag method (refreshGenesPhenoFrag) called with "+dropdownsList.length);
-		var newUrl=rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable");
+		var newUrl=rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
 		var output ='?';
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
-//			console.log(dropdownsList[it].array);
 			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
 				selectedFilters += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
 			} 

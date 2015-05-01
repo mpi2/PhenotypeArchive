@@ -676,9 +676,10 @@ public class ObservationService extends BasicService {
         if (alleleAccession != null) {
             query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
         }
-
+        
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
+        
         return resultsDTO;
     }
 
