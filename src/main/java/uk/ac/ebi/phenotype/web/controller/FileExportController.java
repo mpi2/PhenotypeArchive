@@ -1395,13 +1395,13 @@ public class FileExportController {
         for (int i = 0; i < docs.size(); i ++) {
 
             JSONObject doc = docs.getJSONObject(i);
-            String gId = doc.getString("mgi_accession_id");
-            String phenoStatus = doc.containsKey("latest_phenotype_status") ? doc.getString("latest_phenotype_status") : NOINFO;
+            String gId = doc.getString(GeneDTO.MARKER_ACCESSION);
+            String phenoStatus = doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : NOINFO;
 
-            if ( ! doc.containsKey("evidCodeRank")) {
+            if ( ! doc.containsKey(GeneDTO.EVID_CODE_RANK)) {
 
                 List<String> data = new ArrayList();
-                data.add(doc.getString("marker_symbol"));
+                data.add(doc.getString(GeneDTO.MARKER_SYMBOL));
                 data.add(hostName + baseUrl + gId);
                 data.add(phenoStatus);
                 data.add(NOINFO);
@@ -1414,24 +1414,24 @@ public class FileExportController {
                 rowData.add(StringUtils.join(data, "\t"));
             } else if (gocollapse) {
                 List<String> data = new ArrayList();
-                data.add(doc.getString("marker_symbol"));
+                data.add(doc.getString(GeneDTO.MARKER_SYMBOL));
                 data.add(hostName + baseUrl + gId);
-                data.add(Integer.toString(doc.getInt("go_count")));
+                data.add(Integer.toString(doc.getInt(GeneDTO.GO_COUNT)));
 
-                int evidCodeRank = doc.getInt("evidCodeRank");
+                int evidCodeRank = doc.getInt(GeneDTO.EVID_CODE_RANK);
                 data.add(evidRankCat.get(evidCodeRank));
 
                 rowData.add(StringUtils.join(data, "\t"));
 
             } else {
 
-                int evidCodeRank = doc.getInt("evidCodeRank");
+                int evidCodeRank = doc.getInt(GeneDTO.EVID_CODE_RANK);
 
-                JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
-                JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name") : new JSONArray();
-                JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid") : new JSONArray();
-                JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain") : new JSONArray();
-                JSONArray _goUniprotAccs = doc.containsKey("go_uniprot") ? doc.getJSONArray("go_uniprot") : new JSONArray();
+                JSONArray _goTermIds = doc.containsKey(GeneDTO.GO_TERM_ID) ? doc.getJSONArray(GeneDTO.GO_TERM_ID) : new JSONArray();
+                JSONArray _goTermNames = doc.containsKey(GeneDTO.GO_TERM_NAME) ? doc.getJSONArray(GeneDTO.GO_TERM_NAME) : new JSONArray();
+                JSONArray _goTermEvids = doc.containsKey(GeneDTO.GO_TERM_EVID) ? doc.getJSONArray(GeneDTO.GO_TERM_EVID) : new JSONArray();
+                JSONArray _goTermDomains = doc.containsKey(GeneDTO.GO_TERM_DOMAIN) ? doc.getJSONArray(GeneDTO.GO_TERM_DOMAIN) : new JSONArray();
+                JSONArray _goUniprotAccs = doc.containsKey(GeneDTO.GO_UNIPROT) ? doc.getJSONArray(GeneDTO.GO_UNIPROT) : new JSONArray();
 
                 for (int j = 0; j < _goTermEvids.size(); j ++) {
 
@@ -1441,7 +1441,7 @@ public class FileExportController {
 
                         List<String> data = new ArrayList();
 
-                        data.add(doc.getString("marker_symbol"));
+                        data.add(doc.getString(GeneDTO.MARKER_SYMBOL));
                         data.add(hostName + baseUrl + gId);
                         data.add(phenoStatus);
 

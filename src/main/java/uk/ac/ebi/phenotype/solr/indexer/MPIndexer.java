@@ -29,7 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.*;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
@@ -38,6 +40,7 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -1076,8 +1079,8 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void addPreQc(MpDTO mp, String gfAcc) {
-        SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id:\"" + gfAcc + "\"");
-        query.setFields("mp_term_id", "marker_accession_id");
+        SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND " + GenotypePhenotypeDTO.MARKER_ACCESSION + ":\"" + gfAcc + "\"");
+        query.setFields("mp_term_id", GenotypePhenotypeDTO.MARKER_ACCESSION);
         try {
             QueryResponse response = preqcCore.query(query);
             for (SolrDocument doc : response.getResults()) {
