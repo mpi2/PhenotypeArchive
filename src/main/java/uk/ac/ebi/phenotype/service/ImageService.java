@@ -43,6 +43,20 @@ public class ImageService {
 
 		solr = new HttpSolrServer(solrUrl);
 	}
+	
+	public QueryResponse getLaczFacetsForGene(String mgiAccession)
+			throws SolrServerException {
+
+				SolrQuery solrQuery = new SolrQuery();
+				solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+				solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR "+ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+				solrQuery.setFacetMinCount(1);
+				solrQuery.setFacet(true);
+				solrQuery.addFacetField("selected_top_level_ma_term");
+				solrQuery.setRows(10000);
+				QueryResponse response = solr.query(solrQuery);
+				return response;
+			}
 
 	
 	public List<AnatomyPageTableRow> getImagesForMA(String maId, List<String> maTerms, List<String> phenotypingCenter, List<String> procedure, List<String> paramAssoc) 

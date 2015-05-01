@@ -381,9 +381,16 @@
                                                     </div>
                                                     <div class="accordion-body">
                                                         <ul>
-
-                                                            <a href="${baseUrl}/imagePicker/${acc}/${entry.name}">
-                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}" href="${baseUrl}/imagePicker/${acc}/${entry.name}" count="${entry.count}"></t:impcimgdisplay2>
+															<c:choose>
+															<c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}">
+																<c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}"></c:set>
+															</c:when>
+															<c:otherwise>
+																<c:set var="href" scope="page" value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
+															</c:otherwise>
+															</c:choose>
+                                                            <a href="${href}">
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}" count="${entry.count}"></t:impcimgdisplay2>
                                                                 </a>
 
                                                             </ul>

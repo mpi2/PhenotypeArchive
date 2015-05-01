@@ -432,6 +432,7 @@ public class UnidimensionalChartAndTableProvider {
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
+	
 		return chartAndTable;
 	}
 
