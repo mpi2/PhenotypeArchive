@@ -26,6 +26,9 @@
                             <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                             </c:if>
+                            <c:if test="${not empty impcExpressionImageFacets}">
+                            <li><a href="#section-impc_expression">Expression</a></li>
+                            </c:if>
                             <c:if test="${not empty impcImageFacets}">
                             <li><a href="#section-impc-images">Impc Images</a></li>
                             </c:if>
@@ -363,12 +366,35 @@
                                 </div>
                             </c:if>
 
+ 							<!-- section for expression data here -->
+							<c:if test="${not empty impcExpressionImageFacets}"> 
+                                <div class="section">
+                                    <h2 class="title" id="section-impc_expression">Expression <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <div class="inner">
+                                   <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
+		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
+                                    <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
+										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
+                                           
+                                                <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+                                                            <a href="${href}">
+                                                    ${entry.name} (${entry.count})
+                                                    </a>&nbsp;
+                                                
+                                               
+                                        </c:forEach><!-- solrFacets end -->
+
+                                        
+                                    </div>
+                                </div>
+                            </c:if> 
+                                    
 
                             <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
                                     <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
+                                
                                     <div class="inner">
                                         <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
 
@@ -381,14 +407,7 @@
                                                     </div>
                                                     <div class="accordion-body">
                                                         <ul>
-															<c:choose>
-															<c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}">
-																<c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}"></c:set>
-															</c:when>
-															<c:otherwise>
 																<c:set var="href" scope="page" value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
-															</c:otherwise>
-															</c:choose>
                                                             <a href="${href}">
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}" pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}" count="${entry.count}"></t:impcimgdisplay2>
                                                                 </a>

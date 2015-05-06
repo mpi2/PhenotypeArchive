@@ -1226,17 +1226,33 @@ public class DataTableController {
 
     public String setAlleleSymbol(int dbid, String alleleSymbol) throws SQLException {
 
+    	Connection connKomp2 = komp2DataSource.getConnection();
+        Connection conn = admintoolsDataSource.getConnection();
+        
         JSONObject j = new JSONObject();
 
-        Connection connKomp2 = komp2DataSource.getConnection();
-        Connection conn = admintoolsDataSource.getConnection();
+        // when symbol is set to be empty, change reviewed status, too
+        if ( alleleSymbol.equals("") ){
+        	
+        	// update acc, gacc and reviewed field
+        	String uptSql = "UPDATE allele_ref SET symbol='', reviewed='no', acc='', gacc='' WHERE dbid=?";
+            PreparedStatement stmt = conn.prepareStatement(uptSql);
+            stmt.setInt(1, dbid);
+            stmt.executeUpdate();
+
+            j.put("reviewed", "no");
+            j.put("symbol", "");
+    		return j.toString();
+    	}
 
         String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
 
         // if there are multiple allele symbols, it should have been separated by comma
+        // IN PROGRESS
         if (alleleSymbol.contains(",")) {
             int symCount = alleleSymbol.split(",").length;
             List<String> placeHolders = new ArrayList<>();
+            
             for (int c = 0; c < symCount; c ++) {
                 placeHolders.add("?");
             }
@@ -1246,7 +1262,8 @@ public class DataTableController {
              syms.add("\"" + symbols[s] + "\"");
              }
              alleleSymbol = StringUtils.join(syms, ",");*/
-            sqla = "SELECT acc, gf_acc FROM allele WHERE symbol in (placeHolderStr)";
+            sqla = "SELECT acc, gf_acc FROM allele WHERE symbol in (" + placeHolderStr + ")";
+            //System.out.println("multiples: " + sqla);
         }
 
 		// fetch allele id, gene id of this allele symbol
@@ -1267,23 +1284,29 @@ public class DataTableController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            connKomp2.close();
-        }
-
-        String sql = "UPDATE allele_ref SET symbol=?, reviewed='yes', acc=?, gacc=? WHERE dbid=?";
-
-        PreparedStatement stmt = conn.prepareStatement(sql);
+        } 
 
         try {
-            stmt.setString(1, alleleSymbol);
-            stmt.setString(2, alleleAcc);
-            stmt.setString(3, geneAcc);
-            stmt.setInt(4, dbid);
-            stmt.executeUpdate();
-
-            j.put("reviewed", "yes");
-            j.put("symbol", alleleSymbol);
+	        String uptSql = "UPDATE allele_ref SET symbol=?, acc=?, reviewed=?, gacc=? WHERE dbid=?";
+	        PreparedStatement stmt = conn.prepareStatement(uptSql);
+	        stmt.setString(1, alleleAcc.equals("") ? "" : alleleSymbol);
+	        stmt.setString(2, alleleAcc);
+	        stmt.setString(3, alleleAcc.equals("") ? "no" : "yes");
+	        stmt.setString(4, geneAcc);
+	        stmt.setInt(5, dbid);
+	        stmt.executeUpdate();
+        
+        	if ( alleleAcc.equals("") ){
+        		// update acc, gacc and reviewed field
+        		
+        		j.put("reviewed", "no");
+                j.put("symbol", "");
+                j.put("alleleIdNotFound", "yes");
+        	}
+        	else {
+	            j.put("reviewed", "yes");
+	            j.put("symbol", alleleSymbol);
+        	}
             //System.out.println("sql: " + sql);
             //System.out.println("setting acc and gacc -> " + alleleAcc + " --- " + geneAcc);
         } catch (SQLException se) {
@@ -1294,6 +1317,7 @@ public class DataTableController {
 
         } finally {
             conn.close();
+            connKomp2.close();
         }
 
         return j.toString();
@@ -1302,14 +1326,14 @@ public class DataTableController {
     // allele reference stuff
     @RequestMapping(value = "/dataTableAlleleRefEdit", method = RequestMethod.GET)
     public ResponseEntity<String> dataTableAlleleRefEditJson(
-            @RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
-            @RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
+            @RequestParam(value = "iDisplayStart", required = false) Integer iDisplayStart,
+            @RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
             @RequestParam(value = "sSearch", required = false) String sSearch,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException, SQLException {
 
-        String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch);
+    	String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch);
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
@@ -1462,7 +1486,13 @@ public class DataTableController {
                 //rowData.add(resultSet.getString("name"));
                 String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
                 rowData.add(pmid);
+                
+                
+                
+                
                 rowData.add(resultSet.getString("date_of_publication"));
+                
+                
                 rowData.add(resultSet.getString("grant_id"));
                 rowData.add(resultSet.getString("agency"));
                 rowData.add(resultSet.getString("acronym"));

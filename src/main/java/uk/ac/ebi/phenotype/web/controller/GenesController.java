@@ -249,6 +249,7 @@ public class GenesController {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
 			getImpcImages(acc, model);
+			getImpcExpressionImages(acc, model);
 			
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
@@ -542,33 +543,8 @@ public class GenesController {
 	 */
 	private void getImpcExpressionImages(String acc, Model model)
 	throws SolrServerException {
-
-		QueryResponse solrExpressionR = imagesSolrDao.getExpressionFacetForGeneAccession(acc);
-		if (solrExpressionR == null) {
-			log.error("no response from solr data source for acc=" + acc);
-			return;
-		}
-
-		List<FacetField> expressionfacets = solrExpressionR.getFacetFields();
-		if (expressionfacets == null) {
-			log.error("no expression facets from solr data source for acc=" + acc);
-			return;
-		}
-
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
-
-		for (FacetField facet : expressionfacets) {
-			if (facet.getValueCount() != 0) {
-				for (Count value : facet.getValues()) {
-					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName", value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
-					if (response != null) {
-						facetToDocs.put(value.getName(), response.getResults());
-					}
-				}
-			}
-			model.addAttribute("expressionFacets", expressionfacets.get(0).getValues());
-			model.addAttribute("expFacetToDocs", facetToDocs);
-		}
+		imageService.getLacDataForGene(acc, null,  model);
+		
 	}
 
 	/**

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- Use the correct properties files for this context -->
+    <bean id="propertyPlaceholderConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:appConfig.properties</value>
+                <value>file:${user.home}/configfiles/jenkinsDatasourcesConfig.properties</value>
+                <value>file:${user.home}/configfiles/jenkinsAppConfig.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <import resource="index-beans.xml"/>
+
+</beans>

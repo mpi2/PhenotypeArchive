@@ -160,11 +160,11 @@
    		});
    		
         function fetchAlleleRefDataTable(oConf) {
-       
+       	console.log(oConf);
    		  	var oTable = $('table#alleleRef').dataTable({
-   	            "bSort": true,
+   	            "bSort": false,
    	        	"processing": true,
-   	        	"serverSide": true,
+   	        	"serverSide": true,  
    	            //"sDom": "<lr><'#caption'>tip",
    	         	"sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
    	            "sPaginationType": "bootstrap",
@@ -178,15 +178,36 @@
        	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ alleles records",
        	         	"sSearch": "Filter: "
    	        	},
-   	        	"aoColumns": [{ "bSearchable": false },
-   	        	              { "bSearchable": true },
-   	        	           	  { "bSearchable": true },
-	        	              { "bSearchable": true },
-	        	              { "bSearchable": true },
-	        	              { "bSearchable": true },
-   	        	              { "bSearchable": true },
-   	        	              { "bSearchable": false }
+   	        	/* "aoColumns": [{ "bSearchable": false, "bSortable": false },
+   	        	              { "bSearchable": true, "bSortable": false },
+   	        	           	  { "bSearchable": true, "bSortable": false },
+	        	              { "bSearchable": true, "bSortable": false },
+	        	              { "bSearchable": true, "bSortable": false },
+	        	              { "bSearchable": true, "bSortable": false },
+   	        	              { "bSearchable": true, "bSortable": false },
+   	        	              { "bSearchable": false, "bSortable": false }
+   	        	              ], */
+   	        	           "aoColumns": [{ "bSearchable": false },
+   	       	        	              { "bSearchable": true },
+   	       	        	           	  { "bSearchable": true },
+   	    	        	              { "bSearchable": true },
+   	    	        	              { "bSearchable": true },
+   	    	        	              { "bSearchable": true},
+   	       	        	              { "bSearchable": true},
+   	       	        	              { "bSearchable": false}
+   	       	        	              ],
+   	        	"columnDefs": [                
+   	        	              { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
    	        	              ],
+            	"aaSorting": [[ 3, "desc" ]],  // default sort column order
+                 /*"aoColumns": [
+                     {"bSearchable": true, "sType": "html", "bSortable": true},
+                     {"bSearchable": true, "sType": "string", "bSortable": true},
+                     {"bSearchable": true, "sType": "string", "bSortable": true},
+                     {"bSearchable": true, "sType": "string", "bSortable": true},
+                     {"bSearchable": true, "sType": "string", "bSortable": true},
+                     {"bSearchable": false, "sType": "html", "bSortable": true}
+                 ], */
    	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
    	            	
    	            	// download tool
@@ -208,6 +229,9 @@
 	   	            	$(this).find('tr td:nth-child(2)').editable(baseUrl + '/dataTableAlleleRef', {
 	   	                 "callback": function( jsonStr, y ) {
 	   	                		var j = JSON.parse(jsonStr);
+	   	                		if ( j.alleleIdNotFound == 'yes'){
+	   	                			alert("Curation ignored as the allele symbol could not be mapped to an MGI allele Id" + j.symbol);
+	   	                		}
 	   	                     	$(this).text(j.symbol);
 	   	                  		$(this).parent().find('td:first-child').text(j.reviewed);
 	   	                 },

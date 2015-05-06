@@ -39,58 +39,29 @@ public class ImpcImagesController {
 	@Autowired
 	ImageService imageService;
 
-	@RequestMapping("/impcImages/laczimages/{acc}")
-	public String laczImages(@PathVariable String acc, Model model)
+	@RequestMapping("/impcImages/laczimages/{acc}/{topLevelMa}")
+	public String laczImages(@PathVariable String acc, @PathVariable String topLevelMa, Model model)
 			throws SolrServerException, IOException, URISyntaxException {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
 		System.out.println("calling laczImages web page");
 
-		QueryResponse laczResponse = imageService.getLaczFacetsForGene(acc);
-		SolrDocumentList imagesResponse = laczResponse.getResults();
-		System.out.println("lacZimages found=" + imagesResponse.getNumFound());
-		List<FacetField> fields = laczResponse.getFacetFields();
-		System.out.println(fields);
+		imageService.getLacDataForGene(acc, topLevelMa, model);
 
-		// we have the unique ma top level terms associated and all the images
-		// now we need lists of images with these top level ma terms in their
-		// annotation
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<>();
-		String noTopMa = "NA";
-		facetToDocs.put(noTopMa, new SolrDocumentList());
-		for (Count count : fields.get(0).getValues()) {
+		return "laczImages";
+	}
+	
+	@RequestMapping("/impcImages/laczimages/{acc}")
+	public String laczImages(@PathVariable String acc, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
 
-			System.out.println("field name=" + count.getName());
-			System.out.println(count.getCount());
-			for (SolrDocument doc : imagesResponse) {
-				ArrayList<String> tops = (ArrayList<String>) doc
-						.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
-				if (tops==null) {
-					// top = "NA";
-					System.out.println("top is null");
-					facetToDocs.get(noTopMa).add(doc);
-				} else {
-					for (String top : tops) {
-
-						System.out.println("top level ma=" + top);
-						SolrDocumentList list = null;
-						if (!facetToDocs.containsKey(top)) {
-							facetToDocs.put(top, new SolrDocumentList());
-						}
-						list = facetToDocs.get(top);
-						list.add(doc);
-					}
-				}
-			}
-		}
-		// Map<String, SolrDocumentList> facetToDocs;
-		model.addAttribute("impcImageFacets", fields.get(0).getValues());
-		model.addAttribute("impcFacetToDocs", facetToDocs);
+		imageService.getLacDataForGene(acc, null, model);
 
 		return "laczImages";
 	}
 
+	
 	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
 	public String imagePicker(@PathVariable String acc,
 			@PathVariable String parameter_stable_id, Model model)
