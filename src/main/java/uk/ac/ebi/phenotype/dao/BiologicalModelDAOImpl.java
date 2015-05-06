@@ -139,7 +139,7 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 	public LiveSample getLiveSampleBySampleIdAndOrganisationId(String sampleId, Integer organisationId) {
 
 		return (LiveSample) getCurrentSession()
-			.createQuery("FROM LiveSample AS live INNER JOIN live.organisation AS o WHERE stableId = ? AND o.id=?")
+			.createQuery("FROM LiveSample AS live INNER JOIN live.organisation AS o WHERE live.stableId = ? AND o.id=?")
 			.setString(0, sampleId)
 			.setInteger(1, organisationId)
 			.uniqueResult();
