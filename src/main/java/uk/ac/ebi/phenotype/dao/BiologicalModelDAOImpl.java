@@ -23,20 +23,13 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.phenotype.pojo.*;
 
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.BiologicalSample;
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.LiveSample;
-import uk.ac.ebi.phenotype.pojo.Organisation;
+import java.util.LinkedList;
+import java.util.List;
 
 public class BiologicalModelDAOImpl extends HibernateDAOImpl implements BiologicalModelDAO {
 
@@ -141,13 +134,18 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		return liveSamples;
 	}
 
+
 	@Transactional(readOnly = true)
-	public LiveSample getLiveSampleBySampleId(String sampleId){
-		return (LiveSample)getCurrentSession().createQuery("FROM LiveSample WHERE stableId = ?")
-				.setString(0, sampleId)
-				.uniqueResult();
+	public LiveSample getLiveSampleBySampleIdAndOrganisationId(String sampleId, Integer organisationId) {
+
+		return (LiveSample) getCurrentSession()
+			.createQuery("FROM LiveSample AS live INNER JOIN live.organisation AS o WHERE stableId = ? AND o.id=?")
+			.setString(0, sampleId)
+			.setInteger(1, organisationId)
+			.uniqueResult();
 	}
-	
+
+
 	@Transactional(readOnly = true)
 	public BiologicalModel getBiologicalModelById(int modelId) {
 		return (BiologicalModel) getCurrentSession().createQuery("from BiologicalModel as m where m.id = ?").setInteger(0, modelId).uniqueResult();

@@ -23,13 +23,9 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
-import java.util.List;
+import uk.ac.ebi.phenotype.pojo.*;
 
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.BiologicalSample;
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.LiveSample;
-import uk.ac.ebi.phenotype.pojo.Organisation;
+import java.util.List;
 
 public interface BiologicalModelDAO extends HibernateDAO {
 
@@ -44,7 +40,7 @@ public interface BiologicalModelDAO extends HibernateDAO {
 	public void saveLiveSample(LiveSample sample);
 	public int deleteAllLiveSamplesByDatasource(Datasource datasource);
 	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource);
-	public LiveSample getLiveSampleBySampleId(String sampleId);
+	public LiveSample getLiveSampleBySampleIdAndOrganisationId(String sampleId, Integer organisationId);
 
 	
 
