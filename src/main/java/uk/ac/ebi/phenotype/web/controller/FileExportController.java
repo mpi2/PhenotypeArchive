@@ -725,9 +725,8 @@ public class FileExportController {
 
         	// annotation view: images group by annotationTerm per row
             String baseUrl = config.get("baseUrl").replace("https:", "http:");
-            String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
+            String mediaBaseUrl = "http:" + config.get("impcMediaBaseUrl");
 
-            //rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
             rowData.add("Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column names	
 
             String fqStr = query;
@@ -741,19 +740,11 @@ public class FileExportController {
             }
 
             String defaultFqStr = "fq=(biological_sample_group:experimental)";
-
-            if ( ! fqStr.contains("fq=*:*")) {
-                fqStr = fqStr.replace("&fq=", "");
-                //defaultQStr = defaultQStr + " AND " + fqStr; 
-                defaultFqStr = defaultFqStr + " AND " + fqStr;
-            }
-
+            
             JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
            
-            	//JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
             List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
 
-            //int numFacets = sumFacets.size();
             int numFacets = annots.size();
             int start = iDisplayStart;  // 2 elements(name, count), hence multiply by 2
             int end = iDisplayStart + iDisplayLength;
@@ -767,7 +758,7 @@ public class FileExportController {
 
                 String displayAnnotName = annot.name;
                 data.add(displayAnnotName);
-
+                
                 String annotVal = annot.val;
                 data.add(annotVal);
                 
@@ -779,20 +770,10 @@ public class FileExportController {
                     data.add(NO_INFO_MSG);
                 }
 
-                String currFqStr = null;
-                if (displayAnnotName.equals("Gene")) {
-                    currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
-                } 
-                else if (displayAnnotName.equals("Procedure")) {
-                    currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
-                }
-                else if (displayAnnotName.equals("MA")) {
-                    currFqStr = defaultFqStr + " AND ma_term:\"" + annotVal + "\"";
-                }
+                String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
                 
-                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(fqStr, currFqStr + " AND " + fqStrOri);
+                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
                 
-                //int imgCount = annot.imgCount;
                 int imgCount = (int) pathAndImgCount.get(1);
                 
                 StringBuilder sb = new StringBuilder();
@@ -800,21 +781,11 @@ public class FileExportController {
                 sb.append(imgCount);
                 data.add(sb.toString());
 
-                String link = annot.link != null ? annot.link : "";
-                String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
-
-                query = annot.facet + ":\"" + annotVal + "\"";
-                
-				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-                //String thisImgUrl = "http:" + mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-                String thisImgUrl = mediaBaseUrl + "?" + defaultQStr + '&' + currFqStr;
-                //String imgSubSetLink = "<a href='" + thisImgUrl + "'>" + thisImgUrl + "</a>";
-                String imgSubSetLink = thisImgUrl;
+                String imgSubSetLink = mediaBaseUrl + "?" + thisFqStr;
 
                 data.add(imgSubSetLink);
                
                 rowData.add(StringUtils.join(data, "\t"));
-
             }
         }
 
