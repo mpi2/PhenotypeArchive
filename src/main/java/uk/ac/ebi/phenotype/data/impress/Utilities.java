@@ -123,6 +123,10 @@ public class Utilities {
 
 					observationType = ObservationType.text;
 
+				} else if (datatype.equals("DATETIME")) {
+
+					observationType = ObservationType.datetime;
+
 				} else if (datatype.equals("BOOL")) {
 
 					observationType = ObservationType.categorical;

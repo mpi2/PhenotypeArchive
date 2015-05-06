@@ -674,7 +674,7 @@ CREATE TABLE observation (
 	parameter_id               INT(10) UNSIGNED NOT NULL,
 	parameter_stable_id        VARCHAR(30) NOT NULL,
 	population_id              INT(10) UNSIGNED NOT NULL,
-	observation_type           ENUM('categorical', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
+	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
 	parameter_status           VARCHAR(50) DEFAULT NULL,
 	parameter_status_message   VARCHAR(450) DEFAULT NULL,
@@ -797,6 +797,22 @@ CREATE TABLE time_series_observation (
 	KEY data_point_idx(data_point, time_point)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/**
+ * datetime_observation
+ * A datetime observation is a point in time observation
+ * (or space).
+ */
+CREATE TABLE datetime_observation (
+
+	id                        INT(10) UNSIGNED NOT NULL,
+	datetime_point            datetime,
+
+	PRIMARY KEY(id),
+	KEY datetime_point_idx(datetime_point)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 /**
  * metadata_observation

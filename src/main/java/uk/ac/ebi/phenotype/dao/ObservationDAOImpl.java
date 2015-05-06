@@ -22,39 +22,19 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
-import java.sql.Connection;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.phenotype.pojo.*;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.apache.log4j.Logger;
-import org.hibernate.Query;
-import org.hibernate.SessionFactory;
-import org.springframework.transaction.annotation.Transactional;
-
-import uk.ac.ebi.phenotype.pojo.BiologicalSample;
-import uk.ac.ebi.phenotype.pojo.CategoricalObservation;
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.Experiment;
-import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
-import uk.ac.ebi.phenotype.pojo.MetaDataObservation;
-import uk.ac.ebi.phenotype.pojo.Observation;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Organisation;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.TextObservation;
-import uk.ac.ebi.phenotype.pojo.TimeSeriesObservation;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalObservation;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationDAO {
 
@@ -618,6 +598,27 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			unidimensionalObservation.setType(observationType);
 
 			obs = unidimensionalObservation;
+		} else if (observationType == ObservationType.datetime) {
+
+			 /* Unidimensional information */
+
+			logger.debug("Datetime string:" + firstDimensionValue);
+			DatetimeObservation datetimeObservation = new DatetimeObservation();
+
+			// Use JAXB to parse the datetime because java SimpleDateFormat cannot parse ISO8601 dates correctly
+			if (javax.xml.bind.DatatypeConverter.parseDateTime(firstDimensionValue).getTime() == null) {
+				datetimeObservation.setMissingFlag(true);
+			} else {
+				datetimeObservation.setDatetimePoint(javax.xml.bind.DatatypeConverter.parseDateTime(firstDimensionValue).getTime());
+			}
+
+			datetimeObservation.setDatasource(datasource);
+			datetimeObservation.setExperiment(experiment);
+			datetimeObservation.setParameter(parameter);
+			datetimeObservation.setSample(sample);
+			datetimeObservation.setType(observationType);
+
+			obs = datetimeObservation;
 		} else if (observationType == ObservationType.text) {
 
 			 /* Unidimensional information */								 
