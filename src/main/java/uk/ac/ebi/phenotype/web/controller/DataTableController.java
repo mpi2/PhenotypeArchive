@@ -718,7 +718,6 @@ public class DataTableController {
 
             if ( ! fqOri.contains("fq=*:*")) {
                 fqStr = fqStr.replace("&fq=", "");
-                //defaultQStr = defaultQStr + " AND " + fqStr; 
                 defaultFqStr = defaultFqStr + " AND " + fqStr;
             }
 
@@ -746,12 +745,12 @@ public class DataTableController {
                 String link = annot.link != null ? annot.link : "";
                 String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
 
-                query = annot.facet + ":\"" + annotVal + "\"";
-
+                String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
+                
                 //https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
                 String imgSubSetLink = null;
                 String thisImgUrl = null;
-                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, defaultFqStr);
+                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
                
                 int imgCount = (int) pathAndImgCount.get(1);
                 
