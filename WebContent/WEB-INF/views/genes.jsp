@@ -370,22 +370,29 @@
 							<c:if test="${not empty impcExpressionImageFacets}"> 
                                 <div class="section">
                                     <h2 class="title" id="section-impc_expression">Expression <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <div class="inner">
+                                    <div class="inner" style="display: block;">
+                                     <div class="accordion-body" style="display: block;">
                                    <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
 		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
                                     <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
+										<a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
 										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
                                            
                                                 <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
-                                                            <a href="${href}">
-                                                    ${entry.name} (${entry.count})
-                                                    </a>&nbsp;
+                                                            <%-- <a href="${href}"> --%>
+                                                    <%-- ${entry.name} (${entry.count}) --%>
+                                                   <%--  <img  src="${impcMediaBaseUrl}/render_thumbnail/${impcExpressionFacetToDocs[entry.name][0].omero_id}/200" style="max-height: 200px;"> --%>
+                                                    <ul>
+                                                    <t:impcimgdisplay2 category="${entry.name}(${entry.count})" href="${href}" img="${impcExpressionFacetToDocs[entry.name][0]}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                    </ul>
+                                                    <!-- </a>&nbsp; -->
                                                 
                                                
                                         </c:forEach><!-- solrFacets end -->
 
                                         
                                     </div>
+                                </div>
                                 </div>
                             </c:if> 
                                     

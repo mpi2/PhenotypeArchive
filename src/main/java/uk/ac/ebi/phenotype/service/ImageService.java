@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -52,8 +54,9 @@ public class ImageService {
 				+ ":\"LacZ Images Wholemount\"");
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
+		solrQuery.setFields("omero_id",ImageDTO.JPEG_URL,ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE,ImageDTO.ZYGOSITY,ImageDTO.SEX,ImageDTO.ALLELE_SYMBOL,ImageDTO.DOWNLOAD_URL);
 		solrQuery.addFacetField("selected_top_level_ma_term");
-		solrQuery.setRows(10000);
+		solrQuery.setRows(100000);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -866,9 +869,14 @@ public class ImageService {
 				}
 			}
 		}
+		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
+		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 		model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
 		model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
+		//System.out.println(" expFacetToDocs="+expFacetToDocs);
 
 	}
+
+	
 
 }
