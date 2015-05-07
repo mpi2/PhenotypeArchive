@@ -38,10 +38,11 @@ public class ImageServiceUtil {
 		 public int compare(Count o1, Count o2) {
 								String paramAssName=o1.getName();
 								String paramAssName2=o2.getName();
-								//only compare the first association most only have one
+								System.out.println("param name for comp "+paramAssName);
 				if(paramAssName!=null && paramAssName2!=null){
 								return paramAssName.compareTo(paramAssName2);
 				}
+				System.out.println("returning 0");
 				return 0;//should never get this far???
 			}
 	 };

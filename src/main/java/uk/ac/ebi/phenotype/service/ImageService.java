@@ -46,7 +46,7 @@ public class ImageService {
 
 	public QueryResponse getLaczFacetsForGene(String mgiAccession)
 			throws SolrServerException {
-
+//e.g. http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME
@@ -831,7 +831,7 @@ public class ImageService {
 			Model model) throws SolrServerException {
 		QueryResponse laczResponse = getLaczFacetsForGene(acc);
 		SolrDocumentList imagesResponse = laczResponse.getResults();
-		//System.out.println("lacZimages found=" + imagesResponse.getNumFound());
+		System.out.println("lacZimages found=" + imagesResponse.getNumFound());
 		List<FacetField> fields = laczResponse.getFacetFields();
 		// System.out.println(fields);
 
@@ -839,36 +839,48 @@ public class ImageService {
 		// now we need lists of images with these top level ma terms in their
 		// annotation
 		Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
-		String noTopMa = "NA";
+		String noTopMa = "Z Top Level MA";
 		expFacetToDocs.put(noTopMa, new SolrDocumentList());
-		List<Count> topLevelMaTerms = fields.get(0).getValues();
-		List<Count> filteredTopLevelMaTerms=new ArrayList<>();
-		for (Count topLevelMa : topLevelMaTerms) {
-			if ((topMaNameFilter == null || topMaNameFilter.equals(topLevelMa.getName()))) {
-				filteredTopLevelMaTerms.add(topLevelMa);
+		
+		
 				for (SolrDocument doc : imagesResponse) {
 					ArrayList<String> tops = (ArrayList<String>) doc
 							.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
 					if (tops == null) {
 						// top = "NA";
-						// System.out.println("top is null");
+						//System.out.println("top is null");
 						expFacetToDocs.get(noTopMa).add(doc);
 					} else {
 
 						for (String top : tops) {
 							SolrDocumentList list = null;
+							System.out.println("top is "+top);
 							if (!expFacetToDocs.containsKey(top)) {
 								expFacetToDocs.put(top, new SolrDocumentList());
 							}
 							list = expFacetToDocs.get(top);
+							//System.out.println("adding doc="+doc);
 							list.add(doc);
 
 						}
 
 					}
 				}
-			}
-		}
+			
+				List<Count> topLevelMaTerms = fields.get(0).getValues();
+				//Count dummyCountForImagesWithNoHigherLevelMa=new Count(new FacetField(noTopMa),noTopMa,expFacetToDocs.get(noTopMa).size());
+				//topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
+				List<Count> filteredTopLevelMaTerms=new ArrayList<>();
+				if(topMaNameFilter!=null){
+					for(Count topLevel:topLevelMaTerms){
+						if(topLevel.getName().equals(topMaNameFilter)){
+							filteredTopLevelMaTerms.add(topLevel);
+						}
+					}
+				}else{
+					filteredTopLevelMaTerms=topLevelMaTerms;
+				}
+
 		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
 		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 		model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
