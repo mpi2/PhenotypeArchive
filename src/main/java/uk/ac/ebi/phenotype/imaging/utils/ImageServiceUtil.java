@@ -52,7 +52,6 @@ public class ImageServiceUtil {
 	 */
 	public static Map<String, SolrDocumentList> sortDocsByExpressionAlphabetically(Map<String, SolrDocumentList> expFacetToDocs) {
 		for(String key: expFacetToDocs.keySet()){
-			System.out.println("Higher level term name="+key);
 			SolrDocumentList docs = expFacetToDocs.get(key);
 			Collections.sort(docs, PARAMETER_NAME_ORDER);	
 		}

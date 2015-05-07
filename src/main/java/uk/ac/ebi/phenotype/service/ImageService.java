@@ -831,7 +831,7 @@ public class ImageService {
 			Model model) throws SolrServerException {
 		QueryResponse laczResponse = getLaczFacetsForGene(acc);
 		SolrDocumentList imagesResponse = laczResponse.getResults();
-		System.out.println("lacZimages found=" + imagesResponse.getNumFound());
+		//System.out.println("lacZimages found=" + imagesResponse.getNumFound());
 		List<FacetField> fields = laczResponse.getFacetFields();
 		// System.out.println(fields);
 
