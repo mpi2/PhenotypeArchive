@@ -37,7 +37,7 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
-	public QueryResponse getLaczFacetsForGene(String mgiAccession)
+	public QueryResponse getLaczFacetsForGene(String mgiAccession, String... fields)
 			throws SolrServerException {
 //e.g. http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		SolrQuery solrQuery = new SolrQuery();
@@ -47,7 +47,7 @@ public class ImageService {
 				+ ":\"LacZ Images Wholemount\"");
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
-		solrQuery.setFields("omero_id",ImageDTO.JPEG_URL,ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE,ImageDTO.ZYGOSITY,ImageDTO.SEX,ImageDTO.ALLELE_SYMBOL,ImageDTO.DOWNLOAD_URL);
+		solrQuery.setFields(fields);
 		solrQuery.addFacetField("selected_top_level_ma_term");
 		solrQuery.setRows(100000);
 		QueryResponse response = solr.query(solrQuery);
@@ -820,9 +820,14 @@ public class ImageService {
 
 	}
 
-	public void getLacDataForGene(String acc, String topMaNameFilter,
+	public void getLacDataForGene(String acc, String topMaNameFilter,boolean overview,
 			Model model) throws SolrServerException {
-		QueryResponse laczResponse = getLaczFacetsForGene(acc);
+		QueryResponse laczResponse = null;
+		if(overview){
+			laczResponse=getLaczFacetsForGene(acc, ImageDTO.OMERO_ID,ImageDTO.JPEG_URL,ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE);
+		}else{
+			laczResponse=getLaczFacetsForGene(acc, ImageDTO.OMERO_ID,ImageDTO.JPEG_URL,ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE,ImageDTO.ZYGOSITY,ImageDTO.SEX,ImageDTO.ALLELE_SYMBOL,ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK);
+		}
 		SolrDocumentList imagesResponse = laczResponse.getResults();
 		System.out.println("lacZimages found=" + imagesResponse.getNumFound());
 		List<FacetField> fields = laczResponse.getFacetFields();
@@ -847,7 +852,6 @@ public class ImageService {
 
 						for (String top : tops) {
 							SolrDocumentList list = null;
-							System.out.println("top is "+top);
 							if (!expFacetToDocs.containsKey(top)) {
 								expFacetToDocs.put(top, new SolrDocumentList());
 							}

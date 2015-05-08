@@ -46,14 +46,18 @@ allele = allele.replaceAll("##", "</sup>");
          </c:choose>
                                                 <div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>
+                                                <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
+                                                <c:if test="${not empty img.zygosity}">${img.zygosity}<br/></c:if>
                                                 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                 <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach items="${img.parameter_association_name}" varStatus="status">
                                                 		<c:out value="${img.parameter_association_name[status.index]}"/>
                                                 		<c:out value="${img.parameter_association_value[status.index]}"/>
+                                                		<br/>
                                                 	</c:forEach>
                                                 </c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
+                                            
                                                 </div> 
           
            
