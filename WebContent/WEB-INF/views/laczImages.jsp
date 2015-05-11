@@ -59,11 +59,11 @@
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
                                         <c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
-                                            <div class="accordion-group">
+                                            <div class="accordion-group open">
                                                 <div class="accordion-heading">
                                                     ${entry.name} (${entry.count})
                                                 </div>
-                                                <div class="accordion-body">
+                                                <div class="accordion-body" style="display: block;">
                                                     <ul>
                                                         <c:forEach var="doc" items="${impcExpressionFacetToDocs[entry.name]}">
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
