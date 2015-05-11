@@ -30,6 +30,7 @@ public class GraphUtils {
 	List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
 	throws SolrServerException {
 
+		System.out.println("Starting with :: " + alleleAccession );
 		// each url should be unique and so we use a set
 		Set<String> urls = new LinkedHashSet<String>();
 		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameter.getStableId(), pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
@@ -38,6 +39,7 @@ public class GraphUtils {
 		List<String> metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
 		List<String> alleleAccessionStrings = keyList.get(ObservationDTO.ALLELE_ACCESSION_ID);
 		List<String> pipelineStableIdStrings = keyList.get(ObservationDTO.PIPELINE_STABLE_ID);
+		System.out.println("Now I have alleles :: " + alleleAccessionStrings);
 		// if(metaDataGroupStrings==null){
 		// metaDataGroupStrings=new ArrayList<String>();
 		// metaDataGroupStrings.add("");
