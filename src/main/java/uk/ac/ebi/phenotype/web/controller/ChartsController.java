@@ -204,7 +204,7 @@ public class ChartsController {
                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
-
+   	
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
@@ -423,8 +423,9 @@ public class ChartsController {
         }
     }
 
-    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
-            throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, 
+    			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
+    throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
 
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);
@@ -477,7 +478,8 @@ public class ChartsController {
 
 				// instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, chartType, alleleAccessions);
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList, 
+                								strainsList, metadataGroups, chartType, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
             }// end of parameterId iterations
