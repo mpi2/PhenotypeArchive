@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.SignificantType;
@@ -24,8 +23,6 @@ import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -36,30 +33,28 @@ public class ReleaseController {
 
 	@Autowired
 	private AnalyticsDAO analyticsDAO;
-	@Autowired 
+
+	@Autowired
 	private StatisticalResultDAO statisticalResultDAO;
 
 	@Autowired
 	private PostQcService gpService;
-	@Autowired 
-	AlleleService as;
-	@Autowired 
-	ObservationService os;
+
+	@Autowired
+	private AlleleService as;
+
+	@Autowired
+	private ObservationService os;
 	
 	@Autowired
 	private UnidimensionalChartAndTableProvider chartProvider;	
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
-	
-	public static Map<String, String> statisticalMethodsShortName = new HashMap<String, String>();
-	
-	static {
 
+	public static Map<String, String> statisticalMethodsShortName = new HashMap<>();
+	static {
 		statisticalMethodsShortName.put("Fisher's exact test", "Fisher");
 		statisticalMethodsShortName.put("Wilcoxon rank sum test with continuity correction", "Wilcoxon");
 		statisticalMethodsShortName.put("Mixed Model framework, generalized least squares, equation withoutWeight", "MMgls");
 		statisticalMethodsShortName.put("Mixed Model framework, linear mixed-effects model, equation withoutWeight", "MMlme");
-		
 	}
 
 	@RequestMapping(value="/release.json", method=RequestMethod.GET)
@@ -79,9 +74,7 @@ public class ReleaseController {
 
 	@RequestMapping(value="/release", method=RequestMethod.GET)
 	public String getReleaseInformation(
-		Model model,
-		HttpServletRequest request,
-		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		Map<String, String> metaInfo = analyticsDAO.getMetaData();
 		
