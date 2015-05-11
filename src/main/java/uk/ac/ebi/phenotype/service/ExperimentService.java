@@ -544,7 +544,7 @@ public class ExperimentService {
         
     	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
-
+              
         // if gender list is size 2 assume both sexes so no filter needed
         if (genderList.isEmpty() || genderList.size() == 2) {
 
