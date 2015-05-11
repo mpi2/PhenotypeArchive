@@ -198,7 +198,7 @@ public class ExperimentService {
             experimentsMap.put(experimentKey, experiment);
 
         }
-
+        
         // Set to record the experiments that don't have control data
         Set<String> noControls = new HashSet<>();
 
@@ -544,12 +544,7 @@ public class ExperimentService {
         
     	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
-        
-        System.out.println("PARAMETERS for getSpecificExperimentDTO id:" + id + " pipelineId: " + pipelineId
-        	+"  acc: " + acc  + " genderList " + genderList 
-        	+ " Zyg: " + zyList + " phenotypingCenterId: " + phenotypingCenterId + " strain: " + strain
-        	+ " metadata: " + metadataGroup + " allele: " + alleleAccession);
-       
+               
         // if gender list is size 2 assume both sexes so no filter needed
         if (genderList.isEmpty() || genderList.size() == 2) {
 
@@ -573,7 +568,7 @@ public class ExperimentService {
             return null;// return null if no experiments
         }
         if (experimentList.size() > 1) {
-            throw new SpecificExperimentException("too many experiments returned - should only be one from this method call");
+            throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
         return experimentList.get(0);
     }
