@@ -133,7 +133,7 @@ function getAnnoataionsDisplayString(doc){
 	var label= annotationBreak+doc.sex+annotationBreak+doc.full_resolution_file_path.substring(doc.full_resolution_file_path.lastIndexOf("/")+1, doc.full_resolution_file_path.length);
 	
 	if(doc.biological_sample_group === 'experimental'){
-		label+=annotationBreak+doc.zygosity+annotationBreak+doc.allele_symbol;
+		label+=annotationBreak+doc.zygosity+annotationBreak+superscriptSymbol(doc.allele_symbol);
 	}
 	
 	if(doc.parameter_association_name){
@@ -145,6 +145,13 @@ function getAnnoataionsDisplayString(doc){
 //	console.log('changing image');
 //    iframe.attr('src', locations[++i % len]);
 //}, 3000);
-
+function superscriptSymbol(allele){
+	console.log('allele='+allele);
+	var newString=allele.replace('<', '££');
+	newString=newString.replace('>', '##');
+	newString=newString.replace('££','<sup>');
+	newString=newString.replace('##','</sup>');
+	return newString;
+}
 
 });

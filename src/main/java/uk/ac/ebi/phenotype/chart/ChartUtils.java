@@ -114,7 +114,7 @@ public class ChartUtils {
     public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
         String url = baseUrl;
         url += "/charts?accession=" + geneAcc;
-        url += "&allele_accession=" + alleleAcc;
+        url += "&allele_accession_id=" + alleleAcc;
         if (zygosity != null) {
             url += "&zygosity=" + zygosity.name();
         }

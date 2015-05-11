@@ -544,7 +544,12 @@ public class ExperimentService {
         
     	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
-
+        
+        System.out.println("PARAMETERS for getSpecificExperimentDTO id:" + id + " pipelineId: " + pipelineId
+        	+"  acc: " + acc  + " genderList " + genderList 
+        	+ " Zyg: " + zyList + " phenotypingCenterId: " + phenotypingCenterId + " strain: " + strain
+        	+ " metadata: " + metadataGroup + " allele: " + alleleAccession);
+       
         // if gender list is size 2 assume both sexes so no filter needed
         if (genderList.isEmpty() || genderList.size() == 2) {
 
