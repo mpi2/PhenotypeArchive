@@ -305,6 +305,9 @@ public class ChartsController {
         if ( ! ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
             parameter = pipelineDAO.getParameterByStableId(ChartUtils.getPlotParameter(parameter.getStableId()));
             chartType = ChartUtils.getPlotType(parameterStableId);
+            if (chartType.equals(ChartType.TIME_SERIES_LINE)){
+            	metaDataGroupString = null;
+            }
         }
 
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);

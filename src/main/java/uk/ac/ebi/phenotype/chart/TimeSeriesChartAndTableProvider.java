@@ -158,7 +158,6 @@ public class TimeSeriesChartAndTableProvider {
 			for (String key : lines.keySet()) {// key is control hom or het
 				String color = mColor;
 				JSONObject object = new JSONObject();
-				System.out.println("KEY ::: " + key);
 				JSONArray data = new JSONArray();
 				object.put("name", key);
 				SexType sexType = SexType.male;
@@ -278,7 +277,6 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setChart(javascript);
 		chartAndTable.setOrganisation(organisation);
 		chartAndTable.setId(expNumber);
-		System.out.println("TIMESERIES CHART :: " + javascript);
 		return chartAndTable;
 	}
 
