@@ -147,7 +147,7 @@
                                 parameterStableId: paramIdList,
                                 zygosity: zygosity,
                                 sex: sex,
-                                allele: allele,
+                                allele_accession: allele,
                                 strains: strains,
                                 phenotypingCenter: phenotypingCenter,
                                 pipelineStableId: pipelineStableId,

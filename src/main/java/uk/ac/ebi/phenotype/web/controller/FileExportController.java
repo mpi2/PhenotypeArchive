@@ -402,7 +402,7 @@ public class FileExportController {
     String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException {
 
     	System.out.println("parameterStableId: "  + StringUtils.join(parameterStableId) + 
-    	"   parameterStableId: "  + StringUtils.join(parameterStableId) +
+    	"   allele: "  + StringUtils.join(allele) +
        	"   geneAccession: "  + StringUtils.join(geneAccession) + 
        	"   strain: "  + StringUtils.join(strain) +
        	"   pipelines: "  + StringUtils.join(pipelines) +

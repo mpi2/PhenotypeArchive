@@ -58,6 +58,12 @@ public class ExperimentDTO {
             }
             rows.add(obs.tabbedToString(ppDAO));
         }
+        for (ObservationDTO obs : hemizygoteMutants) {
+            if (rows.size() == 0) {
+                rows.add(obs.getTabbedFields());
+            }
+            rows.add(obs.tabbedToString(ppDAO));
+        }
         for (ObservationDTO obs : controls) {
             if (rows.size() == 0) {
                 rows.add(obs.getTabbedFields());
