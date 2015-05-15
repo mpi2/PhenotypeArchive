@@ -400,17 +400,7 @@ public class FileExportController {
 
     public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, 
     String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException {
-
-    	System.out.println("parameterStableId: "  + StringUtils.join(parameterStableId) + 
-    	"   allele: "  + StringUtils.join(allele) +
-       	"   geneAccession: "  + StringUtils.join(geneAccession) + 
-       	"   strain: "  + StringUtils.join(strain) +
-       	"   pipelines: "  + StringUtils.join(pipelines) +
-       	"   zygosity: "  + zygosity +
-       	"   gender: "  + gender +
-       	"   phenotypingCenterIds: "  + phenotypingCenterIds );
-    	
-    	
+  	
         List<String> rows = new ArrayList();
         SexType sex = null;
         if (gender != null) {
