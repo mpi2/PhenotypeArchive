@@ -369,7 +369,7 @@
  							<!-- section for expression data here -->
 							<c:if test="${not empty impcExpressionImageFacets}"> 
                                 <div class="section">
-                                    <h2 class="title" id="section-impc_expression">IMPC Expression Images<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <div class="inner" style="display: block;">
                                      <div class="accordion-body" style="display: block;">
                                    <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());

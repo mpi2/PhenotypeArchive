@@ -13,6 +13,24 @@ public class UnidimensionalStatsObject {
 	private Float sd = new Float(0);
 	private Integer sampleSize = 0;
 	private String label = "Not set"; // label to display on x Axis. Need this at least for ABR
+	private String mpTermId;
+	private String mpTermName;
+
+	public String getMpTermId() {
+		return mpTermId;
+	}
+
+	public void setMpTermId(String mpTermId) {
+		this.mpTermId = mpTermId;
+	}
+
+	public String getMpTermName() {
+		return mpTermName;
+	}
+
+	public void setMpTermName(String mpTermName) {
+		this.mpTermName = mpTermName;
+	}
 
 	public Integer getSampleSize() {
 		return sampleSize;

@@ -112,6 +112,18 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
     @Column(name = "gender_male_ko_pvalue")
     private Double genderMaleKoPValue;
 
+	private String mpTermId;
+
+	public String getMpTermId() {
+		return mpTermId;
+	}
+
+	public String getMpTermName() {
+		return mpTermName;
+	}
+
+	private String mpTermName;
+
     /**
      * pValue is reported by the mixed model code as the nullTestSignificance
      * Rather than store pValue twice, just alias the getter/setter
@@ -675,7 +687,9 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
                 + ", genderFemaleKoPValue=" + genderFemaleKoPValue
                 + ", genderMaleKoEstimate=" + genderMaleKoEstimate
                 + ", genderMaleKoStandardErrorEstimate=" + genderMaleKoStandardErrorEstimate
-                + ", genderMaleKoPValue=" + genderMaleKoPValue + "]";
+                + ", genderMaleKoPValue=" + genderMaleKoPValue
+                + ", mpTermId=" + mpTermId
+                + "]";
     }
 
     /**
@@ -715,5 +729,15 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
         }
 
     }
+
+	public void setMpTermId(String mpTermId) {
+		this.mpTermId=mpTermId;
+		
+	}
+
+	public void setMpTermName(String mpTermName) {
+		this.mpTermName=mpTermName;
+		
+	}
 
 }

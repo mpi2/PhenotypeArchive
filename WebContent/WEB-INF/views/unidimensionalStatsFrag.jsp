@@ -2,6 +2,10 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
+<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
+<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+${data.mpTermId}
+</c:if>
 <!-- unidimensional here -->
 <c:if test="${unidimensionalChartDataSet!=null}">
 	<c:if

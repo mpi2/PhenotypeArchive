@@ -231,6 +231,7 @@ public class AbrChartAndTableProvider {
 				for (SexType sex: sexes){
 					for (ZygosityType zyg: zygosities){
 						String label = ChartUtils.getLabel(zyg, sex);
+						if(lines.get(label)!=null){
 						chart += "   { name: '"+ label + "'," +
 						"    data: " + lines.get(label).toString() + "," +
 						"    zIndex: 1," +
@@ -244,9 +245,11 @@ public class AbrChartAndTableProvider {
 						"    color: " + colors.get(1) +","+
 						"    tooltip: { pointFormat: ' (SD: {point.low:." + decimalNumber + "f} - {point.high:." + decimalNumber + "f} )<br/>', shared:true }" +
 						"  },";
+						}
 					}
 
 					String label = ChartUtils.getLabel(null, sex);
+					if(lines.get(label)!=null){
 					chart += "{" +
 					"    name: '" + label + "',"+
 					"    data: " + lines.get(label).toString() + "," +
@@ -261,6 +264,7 @@ public class AbrChartAndTableProvider {
 					"    color: "+ colors.get(0) +","+
 					"    tooltip: { pointFormat: ' (SD: {point.low:." + decimalNumber + "f} - {point.high:." + decimalNumber + "f}) <br/>' }" +
 					"  },";
+					}
 				}
 				chart += " ]" +
 				"});" +

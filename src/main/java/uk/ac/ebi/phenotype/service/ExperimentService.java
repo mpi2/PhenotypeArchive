@@ -179,7 +179,7 @@ public class ExperimentService {
                 ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
 
                 List<? extends StatisticalResult> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenotypingCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
-
+                System.out.println("results="+results);
                 experiment.setResults(results);
 
             }
