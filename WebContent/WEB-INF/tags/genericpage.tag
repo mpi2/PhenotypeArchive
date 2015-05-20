@@ -213,6 +213,11 @@
                     <div class="breadcrumb">
                         <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
                     </div>
+                    
+                     <div class="alert messages error">
+                                            <h5><i style="color:red" class="fa fa-exclamation-circle"></i> Notice</h5>
+                                            <p>Images may be unavailable on Thursday the 21st May from 9am - 4pm GMT. This is due to essential maintanance. Sorry for any inconvenience.</p>
+                     </div> 
                     <jsp:doBody />
                 </div>
                 <!-- /main -->
