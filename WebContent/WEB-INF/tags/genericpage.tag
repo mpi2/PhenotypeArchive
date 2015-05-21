@@ -1,14 +1,21 @@
 <%@ tag description="Overall Page template" pageEncoding="UTF-8" 
-        import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray,java.net.URLEncoder"
+        import="uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,java.net.URLEncoder"
         %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@ taglib uri="http://htmlcompressor.googlecode.com/taglib/compressor" prefix="compress" %>
 
+
+<%-- -------------------------------------------------------------------------- --%>
+<%-- NOTE: All "magic" variables are defined in the DeploymentInterceptor class --%>
+<%-- This includes such variables asbaseUrl, drupalBaseUrl and releaseVersion.. --%>
+<%-- -------------------------------------------------------------------------- --%>
+
+
 <%
     /*
-     Get the menu JSON array from drupal, fallsback to a default menu when drupal
+     Get the menu JSON array from drupal, fallback to a default menu when drupal
      cannot be contacted
      */
     DrupalHttpProxy proxy = new DrupalHttpProxy(request);
@@ -21,12 +28,7 @@
     jspContext.setAttribute("baseUrl", baseUrl);
 
 
-    /*String pageUrl = request.getRequestURL().toString();
-     System.out.println("pageUrl = " + pageUrl);
-    
-     String pageParams = request.getQueryString();
-     System.out.println("pageParams = " + pageParams);*/
-        // Use the drupal destination parameter to redirect back to this page
+    // Use the drupal destination parameter to redirect back to this page
     // after logging in
     String dest = (String) request.getAttribute("javax.servlet.forward.request_uri");
     String destUnEncoded = dest;
@@ -50,11 +52,8 @@
 <%@attribute name="bodyTag" fragment="true"%>
 <%@attribute name="addToFooter" fragment="true"%>
 
-<% // the baseUrl variable is set from the DeploymentInterceptor class %>
-
 <c:set var="uri">${pageContext.request.requestURL}</c:set>
 <c:set var="domain">${pageContext.request.serverName}</c:set>
-
 
 <c:set var="queryStringPlaceholder">
     <c:choose>
@@ -242,7 +241,7 @@
 
                                 <div id="vnavi">
                                     <ul>
-                                        <li><a href="${drupalBaseUrl}/data/release">Release: <c:out value="3.0" escapeXml="false" /></a></li>
+                                        <li><a href="${drupalBaseUrl}/data/release">Release: ${releaseVersion}</a></li>
                                         <li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">FTP</a></li>
                                         <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
                                         <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>

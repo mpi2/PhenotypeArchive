@@ -1,5 +1,11 @@
 package uk.ac.ebi.phenotype.dao;
 
+import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,14 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
-
-import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
-import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 
 
 
@@ -266,6 +264,22 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 		
 		return results;
 	}
-	
+
+	public String getCurrentRelease() {
+
+		String query = "SELECT property_value as release_version FROM meta_info WHERE property_key='data_release_version'";
+		String releaseVersion = "";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			ResultSet rs = statement.executeQuery();
+			if (rs.next()) {
+				releaseVersion = rs.getString("release_version");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return releaseVersion;
+	}
 	
 }
