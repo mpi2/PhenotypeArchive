@@ -103,16 +103,11 @@
 						<div id="phenotypesDiv">
 							<div class="container span12">
 
-								<h3>Data release 3.0</h3>
+								<h3>Data release 3.1</h3>
 
-								<p>In data release 3.0, we now have 1,456 mouse lines with phenotype data that has
-									passed quality control. This is a marked increase since data release 2.0 and
-									demonstrates the acceleration of data generation for the IMPC effort.</p>
-
-								<h3>Statistical Analysis</h3>
-
-								<p>The statistical analysis package used in data release 2.0 (PhenStat) has been updated
-									to Version: 2.0.1.</p>
+								<p>Data release 3.1 is a minor release to exclude "no data" categories when calculating significance of categorical results.
+									This release also includes more 3I project data and removes legacy data for colony HEPD0522_7_H06_10308
+									at the request of the production center.</p>
 
 							</div>
 							<div class="clear"></div>
