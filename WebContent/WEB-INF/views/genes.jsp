@@ -395,6 +395,28 @@
                                 </div>
                                 </div>
                             </c:if> 
+                            
+                            <!-- section for expression data here -->
+							<c:if test="${not empty mutantAnatomyToRow}"> 
+                                <div class="section">
+                                    <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <div class="inner" style="display: block;">
+                                     
+                                     <table>
+                                     <tr><th>Anatomy</th><th>#HET specimens</th><th>HOM Images?</th><th>Wild-type #images (expressed/ambiguous/total)</th><th>Mutant #images(expressed/ambiguous/total)</th><th>Mutant #specimens(expressed/ambiguous/total)</th></tr>
+                                     	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
+                                     		<tr><td>${mapEntry.key}</td><td>${mapEntry.value.numberOfHet}</td><td>${mapEntry.value.homImages}</td>
+                                     		<td>(${mapEntry.value.wildTypeExpression}/${controlAnatomyToRow[mapEntry.key].expressed} / ${controlAnatomyToRow[mapEntry.key].ambiguousExpression} / ${controlAnatomyToRow[mapEntry.key].total})</td><td>(${mapEntry.value.expressed}
+                                     		/ ${mapEntry.value.expressed} / ${mapEntry.value.total})</td></tr>
+                                     	</c:forEach>
+                                     
+                                     </table>
+                                     
+                                     
+                                     
+                                	</div>
+                                </div>
+                            </c:if> 
                                     
 
                             <!-- nicolas accordion for images here -->
