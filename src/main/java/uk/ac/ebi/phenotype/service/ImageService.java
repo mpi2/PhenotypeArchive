@@ -1024,7 +1024,7 @@ public class ImageService {
 
 	private ExpressionRowBean getAnatomyRow(String anatomy,
 			Map<String, SolrDocumentList> anatomyToDocs) {
-		int hets=0; int homs=0; int expressed=0; int notExpressed=0;int imagesAmbiguous=0;
+		int hets=0; int homs=0; 
 		ExpressionRowBean row = new ExpressionRowBean();
 		if (anatomyToDocs.containsKey(anatomy)) {
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
@@ -1051,14 +1051,7 @@ public class ImageService {
 			row.homImages = true;
 		}
 		row.numberOfHet = hets;
-		if (expressed > 0) {
-			row.expression = true;
-			row.setExpressed(expressed);
-		}
 
-		row.setNotExpressed(notExpressed);
-
-		
 		return row;
 	}
 
