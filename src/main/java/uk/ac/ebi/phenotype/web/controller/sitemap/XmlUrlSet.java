@@ -23,6 +23,8 @@ package uk.ac.ebi.phenotype.web.controller.sitemap;
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
 
 /**
  *
@@ -31,12 +33,29 @@ import java.util.Collection;
 @XmlAccessorType(value = XmlAccessType.NONE)
 @XmlRootElement(name = "urlset")
 public class XmlUrlSet {
+
+    private final static int MAX_SITEMAP_ENTRIES = 500;
+
     @XmlElements({@XmlElement(name = "url", type = XmlUrl.class)})
-    private final Collection<XmlUrl> xmlUrls = new ArrayList();
+    private final List<XmlUrl> xmlUrls = new ArrayList();
 
     public void addUrl(XmlUrl xmlUrl) {
-        xmlUrls.add(xmlUrl);
+
+        final int size = xmlUrls.size();
+
+        // Reservoir sampling to get random entries in the sitemap (this will get them all
+        // eventually, but not exceed the sitemap entry size restriction)
+        if (size >= MAX_SITEMAP_ENTRIES) {
+            // Randomly replace elements in the reservoir with a decreasing probability.
+            int idx = new Double(Math.floor(Math.random() * size)).intValue();
+            if (idx < MAX_SITEMAP_ENTRIES) {
+                xmlUrls.set(idx, xmlUrl);
+            }
+        } else {
+            xmlUrls.add(xmlUrl);
+        }
     }
+
 
     public Collection<XmlUrl> getXmlUrls() {
         return xmlUrls;
