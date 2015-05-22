@@ -403,11 +403,31 @@
                                     <div class="inner" style="display: block;">
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET specimens</th><th>HOM Images?</th><th>Wild-type #images (expressed/ambiguous/total)</th><th>Mutant #images(expressed/ambiguous/total)</th><th>Mutant #specimens(expressed/ambiguous/total)</th></tr>
+                                     <tr><th>Anatomy</th><th>#HET specimens</th><th>HOM Images?</th><th>Wild-type Expression #images (expressed/not expressed/ambiguous)</th><th>Mutant #images(expressed/not expressed/ambiguous)</th><th>Mutant specimen (#images expressed)</th></tr>
                                      	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
                                      		<tr><td>${mapEntry.key}</td><td>${mapEntry.value.numberOfHet}</td><td>${mapEntry.value.homImages}</td>
-                                     		<td>(${mapEntry.value.wildTypeExpression}/${controlAnatomyToRow[mapEntry.key].expressed} / ${controlAnatomyToRow[mapEntry.key].ambiguousExpression} / ${controlAnatomyToRow[mapEntry.key].total})</td><td>(${mapEntry.value.expressed}
-                                     		/ ${mapEntry.value.expressed} / ${mapEntry.value.total})</td></tr>
+                                     		<td>
+                                     		<c:choose>
+                                     			<c:when test="${mapEntry.value.wildTypeExpression}"><i class="fa fa-check" style="color:#0978a1"></i>
+                                     			</c:when>
+                                     			<c:otherwise>
+                                     				<i class="fa fa-times" style="color:gray"></i>
+                                     			</c:otherwise>
+                                     		</c:choose>
+                                     		(${controlAnatomyToRow[mapEntry.key].expressed} / ${controlAnatomyToRow[mapEntry.key].notExpressed} / ${controlAnatomyToRow[mapEntry.key].ambiguousExpression})</td>
+                                     		<td>
+                                     		<c:choose>
+                                     			<c:when test="${mapEntry.value.expression}"><i class="fa fa-check" style="color:#0978a1"></i>
+                                     			</c:when>
+                                     			<c:otherwise>
+                                     				<i class="fa fa-times" style="color:gray"></i>
+                                     			</c:otherwise>
+                                     		</c:choose>
+                                     		(${mapEntry.value.expressed}/ ${mapEntry.value.notExpressed} / ${mapEntry.value.ambiguousExpression})</td>
+                                     		<td>
+                                     		<c:forEach var="specimen" items="${mapEntry.value.specimenExpressed}">
+                                     		${specimen.key}(${specimen.value})
+                                     		</c:forEach></td></tr>
                                      	</c:forEach>
                                      
                                      </table>

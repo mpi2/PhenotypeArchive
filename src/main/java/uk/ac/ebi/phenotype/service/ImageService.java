@@ -972,7 +972,7 @@ public class ImageService {
 				ImageDTO.PARAMETER_ASSOCIATION_NAME,
 				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
-				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP);
+				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP, ImageDTO.EXTERNAL_SAMPLE_ID);
 
 		QueryResponse laczControlResponse = null;
 
@@ -981,7 +981,7 @@ public class ImageService {
 				ImageDTO.PARAMETER_ASSOCIATION_NAME,
 				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
-				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP);
+				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP, ImageDTO.EXTERNAL_SAMPLE_ID);
 
 		SolrDocumentList controlResponse = laczControlResponse.getResults();
 		System.out.println("Controls data found="
@@ -1080,12 +1080,15 @@ public class ImageService {
 
 						row.setExpression(true);
 						row.setExpressed(row.getExpressed()+1);
+						row.addSpecimenExpressed((String)doc.get(ImageDTO.EXTERNAL_SAMPLE_ID), 1);
 					}
 					else if(paramAssValue.equalsIgnoreCase("ambiguous")){
 						row.setAmbiguousExpression(row.getAmbiguousExpression()+1);
+						//row.setSpecimenAmbiguous(row.getSpecimenAmbiguous()+1);
 					}
 					else if(paramAssValue.equalsIgnoreCase("no expression")){
 						row.setNotExpressed(row.getNotExpressed()+1);
+						//row.setSpecimenNotExpressed(row.getSpecimenNotExpressed()+1);
 					}
 				}
 
@@ -1176,7 +1179,7 @@ public class ImageService {
 		int expressed;
 		int notExpressed;
 		int ambiguousExpression;
-		int specimenExpressed;
+		Map<String, Integer> specimenExpressed=new HashMap<>();
 		
 		public int getAmbiguousExpression() {
 			return ambiguousExpression;
@@ -1186,12 +1189,16 @@ public class ImageService {
 			this.ambiguousExpression = ambiguousExpression;
 		}
 
-		public int getSpecimenExpressed() {
+		public Map<String, Integer> getSpecimenExpressed() {
 			return specimenExpressed;
 		}
 
-		public void setSpecimenExpressed(int specimenExpressed) {
-			this.specimenExpressed = specimenExpressed;
+		public void addSpecimenExpressed(String specimenId, int specimenExpressed) {
+			if(!this.getSpecimenExpressed().containsKey(specimenId)){
+				this.getSpecimenExpressed().put(specimenId,0);
+			}
+			Integer current=this.getSpecimenExpressed().get(specimenId);
+			this.specimenExpressed.put(specimenId, current+specimenExpressed);
 		}
 
 		public int getSpecimenNotExpressed() {
