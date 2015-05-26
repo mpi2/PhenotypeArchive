@@ -8,6 +8,7 @@ $(document).ready(function(){
 //var omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
 var solrUrl='//wwwdev.ebi.ac.uk/mi/impc/dev/solr';
 var omero_gateway_root="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway";
+var backTo;//where should the back button point
 if(window.location.href.indexOf('beta') > -1){
 	solrUrl='//www.ebi.ac.uk/mi/impc/beta/solr';
 	omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
@@ -107,6 +108,17 @@ var docs;
 //	        	frame.attr('src', url+doc.omero_id);
 //	        	$('#annotations').html(getAnnoataionsDisplayString(doc));
 	        });
+	        if(doc.gene_accession_id){
+	        backTo='../imagePicker/'+doc.gene_accession_id+'/'+doc.parameter_stable_id;
+	        $("#back").addClass("btn").html("back to image picker");
+	        
+	        }
+	        $('#back').click(function(){
+	        	//console.log('nextControl clicked');
+	        	goBack();
+//	        	frame.attr('src', url+doc.omero_id);
+//	        	$('#annotations').html(getAnnoataionsDisplayString(doc));
+	        });
 	
 	        
 	    }
@@ -127,13 +139,13 @@ var docs;
 function displayDocAnnotations(doc, frame){
 	frame.attr('src', doc.jpeg_url.replace('render_image', 'img_detail').replace('http://','//'));//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
 	//frame.attr('src','http://omeroweb.jax.org/omero/webgateway/img_detail/7541/?c=1%7C0:255$FF0000,2%7C0:255$00FF00,3%7C0:255$0000FF&m=c&p=normal&ia=0&q=0.9&zm=6.25&t=1&z=1&x=50824&y=19576');
-	$('#annotations').html(getAnnoataionsDisplayString(doc));
+	$('#annotations').html(getAnnotationsDisplayString(doc));
 }
-function getAnnoataionsDisplayString(doc){
+function getAnnotationsDisplayString(doc){
 	var label= annotationBreak+doc.sex+annotationBreak+doc.full_resolution_file_path.substring(doc.full_resolution_file_path.lastIndexOf("/")+1, doc.full_resolution_file_path.length);
 	
 	if(doc.biological_sample_group === 'experimental'){
-		label+=annotationBreak+doc.zygosity+annotationBreak+doc.allele_symbol;
+		label+=annotationBreak+doc.zygosity+annotationBreak+superscriptSymbol(doc.allele_symbol);
 	}
 	
 	if(doc.parameter_association_name){
@@ -145,6 +157,18 @@ function getAnnoataionsDisplayString(doc){
 //	console.log('changing image');
 //    iframe.attr('src', locations[++i % len]);
 //}, 3000);
+function superscriptSymbol(allele){
+	console.log('allele='+allele);
+	var newString=allele.replace('<', '££');
+	newString=newString.replace('>', '##');
+	newString=newString.replace('££','<sup>');
+	newString=newString.replace('##','</sup>');
+	return newString;
+}
 
+function goBack() {
+    console.log('backTo='+backTo);
+    window.parent.location=backTo;
+}
 
 });

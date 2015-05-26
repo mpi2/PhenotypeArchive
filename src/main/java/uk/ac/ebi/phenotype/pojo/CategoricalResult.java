@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.pojo;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 
 /**
@@ -54,7 +55,23 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     @Column(name = "effect_size")
     private Double categoricalEffectSize;
 
-    /**
+	private String mpTermId;
+	
+	private String mpTermName;
+
+    public String getMpTermName() {
+		return mpTermName;
+	}
+
+	public void setMpTermName(String mpTermName) {
+		this.mpTermName = mpTermName;
+	}
+
+	public String getMpTermId() {
+		return mpTermId;
+	}
+
+	/**
      * @return the controlSex
      */
     public SexType getControlSex() {
@@ -272,6 +289,11 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     public String toString() {
         return "CategoricalResult [controlSex=" + controlSex + ", experimentalSex=" + experimentalSex + ", experimentalZygosity=" + experimentalZygosity + ", categoryA=" + categoryA + ", categoryB=" + categoryB + ", pValue=" + pValue + ", effectSize=" + categoricalEffectSize + "]";
     }
+
+	public void setMpTermId(String mpTermId) {
+		this.mpTermId=mpTermId;
+		
+	}
 
     
 }

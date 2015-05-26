@@ -711,6 +711,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if(result.getWeightEffectParameterEstimate()!= null) r.setWeightParameterEstimate(new Double(result.getWeightEffectParameterEstimate()));
         if(result.getWeightEffectStderrEstimate()!= null) r.setWeightStandardErrorEstimate(new Double(result.getWeightEffectStderrEstimate()));
         if(result.getZygosity()!= null) r.setZygosityType(ZygosityType.valueOf(result.getZygosity()));
+        if(result.getMpTermId()!= null){
+        	System.out.println("setting mptermId="+result.getMpTermId());
+        	r.setMpTermId(result.getMpTermId());
+        }
+        if(result.getMpTermName()!= null) r.setMpTermName(result.getMpTermName());
 
         return r;
     }
@@ -743,6 +748,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if(result.getSex()!= null) r.setControlSex(SexType.valueOf(result.getSex()));
         r.setEffectSize(result.getEffectSize());
         if(result.getSex()!= null) r.setExperimentalSex(SexType.valueOf(result.getSex()));
+        if(result.getMpTermId()!= null) r.setMpTermId(result.getMpTermId());
+        if(result.getMpTermName()!= null) r.setMpTermName(result.getMpTermName());
 
         return r;
     }

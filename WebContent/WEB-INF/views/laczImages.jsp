@@ -4,7 +4,7 @@
 
 <t:genericpage>
 
-	 <jsp:attribute name="title">${queryTerms} IMPC Images Information b</jsp:attribute>
+	 <jsp:attribute name="title">${queryTerms} IMPC Images LacZ</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*&core=images">Images</a> &raquo; Results</jsp:attribute>
 	<jsp:attribute name="bodyTag">
@@ -55,15 +55,15 @@
                   <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcExpressionImageFacets}">
                                 <div class="section">
-                                    <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <h2 class="title" id="section-images">LacZ images for gene ${symbol}<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
                                         <c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
-                                            <div class="accordion-group">
+                                            <div class="accordion-group open">
                                                 <div class="accordion-heading">
                                                     ${entry.name} (${entry.count})
                                                 </div>
-                                                <div class="accordion-body">
+                                                <div class="accordion-body" style="display: block;">
                                                     <ul>
                                                         <c:forEach var="doc" items="${impcExpressionFacetToDocs[entry.name]}">
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>

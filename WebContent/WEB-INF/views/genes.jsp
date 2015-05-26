@@ -178,7 +178,7 @@
                                         <span class="label">ENSEMBL Links</span>
                                         <a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Gene&nbsp;View</a>&nbsp;&nbsp;
                                         <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.id.accession};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels"><i class="fa fa-external-link"></i>&nbsp;Location&nbsp;View</a>&nbsp;&nbsp;     
-                                        <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=601;db=core;g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a> 
+                                        <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a> 
                                     </p>
 
                                     <p><a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>
@@ -274,7 +274,7 @@
 
                                         </c:when>
                                         <c:otherwise>
-                                            <div class="alert alert-info">There are currently no post QC phenotype associations for the gene ${gene.symbol} </div> <br/>
+                                            <div class="alert alert-info">There are currently no IMPC phenotype associations for the gene ${gene.symbol} </div> <br/>
                                         </c:otherwise>
                                     </c:choose>
 
@@ -369,23 +369,73 @@
  							<!-- section for expression data here -->
 							<c:if test="${not empty impcExpressionImageFacets}"> 
                                 <div class="section">
-                                    <h2 class="title" id="section-impc_expression">Expression <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <div class="inner">
+                                    <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <div class="inner" style="display: block;">
+                                     <div class="accordion-body" style="display: block;">
                                    <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
 		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
                                     <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
+										<a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
 										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
                                            
                                                 <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
-                                                            <a href="${href}">
-                                                    ${entry.name} (${entry.count})
-                                                    </a>&nbsp;
+                                                            <%-- <a href="${href}"> --%>
+                                                    <%-- ${entry.name} (${entry.count}) --%>
+                                                   <%--  <img  src="${impcMediaBaseUrl}/render_thumbnail/${impcExpressionFacetToDocs[entry.name][0].omero_id}/200" style="max-height: 200px;"> --%>
+                                                    <ul>
+                                                    <t:impcimgdisplay2 category="${entry.name}(${entry.count})" href="${href}" img="${impcExpressionFacetToDocs[entry.name][0]}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                    </ul>
+                                                    <!-- </a>&nbsp; -->
                                                 
                                                
                                         </c:forEach><!-- solrFacets end -->
 
                                         
                                     </div>
+                                </div>
+                                </div>
+                            </c:if> 
+                            
+                            <!-- section for expression data here -->
+							<c:if test="${not empty mutantAnatomyToRow}"> 
+                                <div class="section">
+                                    <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <div class="inner" style="display: block;">
+                                     
+                                     <table>
+                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimen ids</th></tr>
+                                     	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
+                                     		<tr><td>${mapEntry.key}</td><td> <i title="#het images with expression ${mapEntry.value.numberOfHet}">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mapEntry.value.homImages}</td>
+                                     		<td>
+                                     		<c:choose>
+                                     			<c:when test="${controlAnatomyToRow[mapEntry.key].wildTypeExpression}"><i title="#images expressed=${controlAnatomyToRow[mapEntry.key].expressed} not expressed=${controlAnatomyToRow[mapEntry.key].notExpressed} ambiguous=${controlAnatomyToRow[mapEntry.key].ambiguousExpression}" class="fa fa-check" style="color:#0978a1"></i>
+                                     			</c:when>
+                                     			<c:otherwise>
+                                     				<i title="No wild type images with expression found" class="fa fa-times" style="color:gray"></i>
+                                     			</c:otherwise>
+                                     		</c:choose>
+                                     		</td>
+                                     		<td>
+                                     		<c:choose>
+                                     			<c:when test="${mapEntry.value.expression}"><i title="#images expressed=${mapEntry.value.expressed} not expressed=${mapEntry.value.notExpressed} ambiguous=${mapEntry.value.ambiguousExpression})" class="fa fa-check" style="color:#0978a1"></i>
+                                     			</c:when>
+                                     			<c:otherwise>
+                                     				<i title="No mutant images with expression found" class="fa fa-times" style="color:gray"></i>
+                                     			</c:otherwise>
+                                     		</c:choose>
+                                     		</td>
+                                     		<td>
+                                     		<c:forEach var="specimen" items="${mapEntry.value.specimenExpressed}">
+                                     		<a href="/impcImages/images?q=*:*&amp;defType=edismax&amp;wt=json&amp;fq=(ma_id:&quot;MA:0000058&quot; OR selected_top_level_ma_id:&quot;MA:0000058&quot; OR intermediate_ma_term_id:&quot;MA:0000058&quot;)  AND biological_sample_group:control AND parameter_name:&quot;LacZ Images Wholemount&quot;&amp;title=gene null in white adipose tissue"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
+                                     		</a>
+                                     		</c:forEach></td></tr>
+                                     	</c:forEach>
+                                     
+                                     </table>
+                                     
+                                     
+                                     
+                                	</div>
                                 </div>
                             </c:if> 
                                     

@@ -15,10 +15,10 @@
  */
 package uk.ac.ebi.phenotype.dao;
 
+import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
+
 import java.util.List;
 import java.util.Map;
-
-import uk.ac.ebi.phenotype.analytics.bean.*;
 
 
 public interface AnalyticsDAO {
@@ -68,4 +68,10 @@ public interface AnalyticsDAO {
 	 * @return a list of releases
 	 */
 	List<String> getReleases(String excludeRelease);
+
+	/**
+	 * Return current release number
+	 * @return a string representing the current release number
+	 */
+	String getCurrentRelease();
 }

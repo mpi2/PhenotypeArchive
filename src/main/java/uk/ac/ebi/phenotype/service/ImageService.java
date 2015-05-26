@@ -1,13 +1,5 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -22,12 +14,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 
+import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
+
+import javax.annotation.Resource;
+
+import java.util.*;
 
 public class ImageService {
 
@@ -42,21 +39,7 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
-	public QueryResponse getLaczFacetsForGene(String mgiAccession)
-			throws SolrServerException {
-
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
-		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME
-				+ ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
-				+ ":\"LacZ Images Wholemount\"");
-		solrQuery.setFacetMinCount(1);
-		solrQuery.setFacet(true);
-		solrQuery.addFacetField("selected_top_level_ma_term");
-		solrQuery.setRows(10000);
-		QueryResponse response = solr.query(solrQuery);
-		return response;
-	}
+	
 
 	public List<AnatomyPageTableRow> getImagesForMA(String maId,
 			List<String> maTerms, List<String> phenotypingCenter,
@@ -824,51 +807,5 @@ public class ImageService {
 
 	}
 
-	public void getLacDataForGene(String acc, String topMaNameFilter,
-			Model model) throws SolrServerException {
-		QueryResponse laczResponse = getLaczFacetsForGene(acc);
-		SolrDocumentList imagesResponse = laczResponse.getResults();
-		System.out.println("lacZimages found=" + imagesResponse.getNumFound());
-		List<FacetField> fields = laczResponse.getFacetFields();
-		// System.out.println(fields);
-
-		// we have the unique ma top level terms associated and all the images
-		// now we need lists of images with these top level ma terms in their
-		// annotation
-		Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
-		String noTopMa = "NA";
-		expFacetToDocs.put(noTopMa, new SolrDocumentList());
-		List<Count> topLevelMaTerms = fields.get(0).getValues();
-		List<Count> filteredTopLevelMaTerms=new ArrayList<>();
-		for (Count topLevelMa : topLevelMaTerms) {
-			if ((topMaNameFilter == null || topMaNameFilter.equals(topLevelMa.getName()))) {
-				filteredTopLevelMaTerms.add(topLevelMa);
-				for (SolrDocument doc : imagesResponse) {
-					ArrayList<String> tops = (ArrayList<String>) doc
-							.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
-					if (tops == null) {
-						// top = "NA";
-						// System.out.println("top is null");
-						expFacetToDocs.get(noTopMa).add(doc);
-					} else {
-
-						for (String top : tops) {
-							SolrDocumentList list = null;
-							if (!expFacetToDocs.containsKey(top)) {
-								expFacetToDocs.put(top, new SolrDocumentList());
-							}
-							list = expFacetToDocs.get(top);
-							list.add(doc);
-
-						}
-
-					}
-				}
-			}
-		}
-		model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
-		model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
-
-	}
-
+	
 }

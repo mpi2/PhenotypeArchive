@@ -24,8 +24,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.ExpressionService;
+import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
@@ -38,6 +42,12 @@ public class ImpcImagesController {
 
 	@Autowired
 	ImageService imageService;
+	
+	@Autowired
+	ExpressionService expressionService;
+	
+	@Autowired
+	GeneService geneService;
 
 	@RequestMapping("/impcImages/laczimages/{acc}/{topLevelMa}")
 	public String laczImages(@PathVariable String acc, @PathVariable String topLevelMa, Model model)
@@ -46,8 +56,9 @@ public class ImpcImagesController {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
 		System.out.println("calling laczImages web page");
-
-		imageService.getLacDataForGene(acc, topLevelMa, model);
+		addGeneSymbolToPage(acc, model);
+		boolean overview=false;
+		expressionService.getLacDataForGene(acc, topLevelMa,overview, false, model);
 
 		return "laczImages";
 	}
@@ -55,10 +66,17 @@ public class ImpcImagesController {
 	@RequestMapping("/impcImages/laczimages/{acc}")
 	public String laczImages(@PathVariable String acc, Model model)
 			throws SolrServerException, IOException, URISyntaxException {
-
-		imageService.getLacDataForGene(acc, null, model);
+		addGeneSymbolToPage(acc, model);
+		boolean overview=false;
+		expressionService.getLacDataForGene(acc, null, overview, false, model);
 
 		return "laczImages";
+	}
+
+	private void addGeneSymbolToPage(String acc, Model model)
+			throws SolrServerException {
+		GeneDTO gene = geneService.getGeneById(acc);
+		model.addAttribute("symbol", gene.getMarkerSymbol());
 	}
 
 	

@@ -99,6 +99,8 @@ public class GenesController {
 	@Autowired
 	ImageService imageService;
 	@Autowired
+	ExpressionService expressionService;
+	@Autowired
 	private GeneService geneService;
 
 	@Autowired private StatisticalResultService statsResultsService;
@@ -543,8 +545,10 @@ public class GenesController {
 	 */
 	private void getImpcExpressionImages(String acc, Model model)
 	throws SolrServerException {
-		imageService.getLacDataForGene(acc, null,  model);
-		
+		boolean overview=true;
+		boolean expressionOverview=true;
+		expressionService.getLacDataForGene(acc, null, overview, expressionOverview, model);
+		expressionService.getExpressionDataForGene(acc, model);
 	}
 
 	/**

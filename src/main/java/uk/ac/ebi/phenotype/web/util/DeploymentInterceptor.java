@@ -1,19 +1,22 @@
 package uk.ac.ebi.phenotype.web.util;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Map;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Map;
 
 public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+
+    @Autowired
+    DataReleaseVersionManager dataReleaseVersionManager;
 
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -35,6 +38,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
         }
 
         request.setAttribute("baseUrl", request.getContextPath());
+        request.setAttribute("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
 
         String mappedHostname = "http://" + (String)request.getServerName();
         if (request.getServerPort() != 80) {

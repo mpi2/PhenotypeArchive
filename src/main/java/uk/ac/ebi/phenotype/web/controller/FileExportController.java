@@ -229,7 +229,7 @@ public class FileExportController {
             @RequestParam(value = "fileType", required = true) String fileType,
             @RequestParam(value = "fileName", required = true) String fileName,
             @RequestParam(value = "legacyOnly", required = false, defaultValue = "false") Boolean legacyOnly,
-            @RequestParam(value = "allele", required = false) String[] allele,
+            @RequestParam(value = "allele_accession", required = false) String[] allele,
             @RequestParam(value = "rowStart", required = false) Integer rowStart,
             @RequestParam(value = "length", required = false) Integer length,
             @RequestParam(value = "panel", required = false) String panelName,
@@ -350,8 +350,9 @@ public class FileExportController {
         return facetCount;
     }
 
-    public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException {
-
+    public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, 
+    String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException {
+  	
         List<String> rows = new ArrayList();
         SexType sex = null;
         if (gender != null) {

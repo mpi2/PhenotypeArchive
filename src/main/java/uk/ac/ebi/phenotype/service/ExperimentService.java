@@ -179,7 +179,7 @@ public class ExperimentService {
                 ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
 
                 List<? extends StatisticalResult> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenotypingCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
-
+                System.out.println("results="+results);
                 experiment.setResults(results);
 
             }
@@ -198,7 +198,7 @@ public class ExperimentService {
             experimentsMap.put(experimentKey, experiment);
 
         }
-
+        
         // Set to record the experiments that don't have control data
         Set<String> noControls = new HashSet<>();
 
@@ -544,7 +544,7 @@ public class ExperimentService {
         
     	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
-
+               
         // if gender list is size 2 assume both sexes so no filter needed
         if (genderList.isEmpty() || genderList.size() == 2) {
 
@@ -568,7 +568,7 @@ public class ExperimentService {
             return null;// return null if no experiments
         }
         if (experimentList.size() > 1) {
-            throw new SpecificExperimentException("too many experiments returned - should only be one from this method call");
+            throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
         return experimentList.get(0);
     }
