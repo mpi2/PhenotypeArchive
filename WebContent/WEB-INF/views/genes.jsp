@@ -403,30 +403,31 @@
                                     <div class="inner" style="display: block;">
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET Images</th><th>HOM Images?</th><th>Wild-type Expression #images (expressed/not expressed/ambiguous)</th><th>Mutant #images(expressed/not expressed/ambiguous)</th><th>Mutant specimen (#images expressed)</th></tr>
+                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimen ids</th></tr>
                                      	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
-                                     		<tr><td>${mapEntry.key}</td><td>${mapEntry.value.numberOfHet}</td><td>${mapEntry.value.homImages}</td>
+                                     		<tr><td>${mapEntry.key}</td><td> <i title="#het images with expression ${mapEntry.value.numberOfHet}">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mapEntry.value.homImages}</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${mapEntry.value.wildTypeExpression}"><i class="fa fa-check" style="color:#0978a1"></i>
+                                     			<c:when test="${controlAnatomyToRow[mapEntry.key].wildTypeExpression}"><i title="#images expressed=${controlAnatomyToRow[mapEntry.key].expressed} not expressed=${controlAnatomyToRow[mapEntry.key].notExpressed} ambiguous=${controlAnatomyToRow[mapEntry.key].ambiguousExpression}" class="fa fa-check" style="color:#0978a1"></i>
                                      			</c:when>
                                      			<c:otherwise>
-                                     				<i class="fa fa-times" style="color:gray"></i>
+                                     				<i title="No wild type images with expression found" class="fa fa-times" style="color:gray"></i>
                                      			</c:otherwise>
                                      		</c:choose>
-                                     		(${controlAnatomyToRow[mapEntry.key].expressed} / ${controlAnatomyToRow[mapEntry.key].notExpressed} / ${controlAnatomyToRow[mapEntry.key].ambiguousExpression})</td>
+                                     		</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${mapEntry.value.expression}"><i class="fa fa-check" style="color:#0978a1"></i>
+                                     			<c:when test="${mapEntry.value.expression}"><i title="#images expressed=${mapEntry.value.expressed} not expressed=${mapEntry.value.notExpressed} ambiguous=${mapEntry.value.ambiguousExpression})" class="fa fa-check" style="color:#0978a1"></i>
                                      			</c:when>
                                      			<c:otherwise>
-                                     				<i class="fa fa-times" style="color:gray"></i>
+                                     				<i title="No mutant images with expression found" class="fa fa-times" style="color:gray"></i>
                                      			</c:otherwise>
                                      		</c:choose>
-                                     		(${mapEntry.value.expressed}/ ${mapEntry.value.notExpressed} / ${mapEntry.value.ambiguousExpression})</td>
+                                     		</td>
                                      		<td>
                                      		<c:forEach var="specimen" items="${mapEntry.value.specimenExpressed}">
-                                     		${specimen.key}(${specimen.value})
+                                     		<a href="/impcImages/images?q=*:*&amp;defType=edismax&amp;wt=json&amp;fq=(ma_id:&quot;MA:0000058&quot; OR selected_top_level_ma_id:&quot;MA:0000058&quot; OR intermediate_ma_term_id:&quot;MA:0000058&quot;)  AND biological_sample_group:control AND parameter_name:&quot;LacZ Images Wholemount&quot;&amp;title=gene null in white adipose tissue"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
+                                     		</a>
                                      		</c:forEach></td></tr>
                                      	</c:forEach>
                                      
