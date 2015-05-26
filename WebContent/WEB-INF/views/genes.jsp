@@ -403,7 +403,7 @@
                                     <div class="inner" style="display: block;">
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET specimens</th><th>HOM Images?</th><th>Wild-type Expression #images (expressed/not expressed/ambiguous)</th><th>Mutant #images(expressed/not expressed/ambiguous)</th><th>Mutant specimen (#images expressed)</th></tr>
+                                     <tr><th>Anatomy</th><th>#HET Images</th><th>HOM Images?</th><th>Wild-type Expression #images (expressed/not expressed/ambiguous)</th><th>Mutant #images(expressed/not expressed/ambiguous)</th><th>Mutant specimen (#images expressed)</th></tr>
                                      	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
                                      		<tr><td>${mapEntry.key}</td><td>${mapEntry.value.numberOfHet}</td><td>${mapEntry.value.homImages}</td>
                                      		<td>

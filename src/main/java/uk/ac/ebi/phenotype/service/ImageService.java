@@ -13,6 +13,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
+
 import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
@@ -22,6 +23,7 @@ import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
 import javax.annotation.Resource;
+
 import java.util.*;
 
 public class ImageService {
@@ -989,8 +991,8 @@ public class ImageService {
 		SolrDocumentList mutantResponse = laczResponse.getResults();
 		System.out.println("Expression data found="
 				+ mutantResponse.getNumFound());
-		Map<String, ExpressionRowBean> mutantAnatomyToRow = new HashMap<>();
-		Map<String, ExpressionRowBean> controlAnatomyToRow = new HashMap<String, ExpressionRowBean>();
+		Map<String, ExpressionRowBean> mutantAnatomyToRow = new TreeMap<>();
+		Map<String, ExpressionRowBean> controlAnatomyToRow = new TreeMap<String, ExpressionRowBean>();
 		
 		Map<String, SolrDocumentList> controlAnatomyToDocs = getAnatomyToDocs(controlResponse);
 		Map<String, SolrDocumentList> mutantAnatomyToDocs = getAnatomyToDocs(mutantResponse);
@@ -1016,7 +1018,7 @@ public class ImageService {
 			mutantAnatomyToRow.put(anatomy, mutantRow);
 
 		}
-
+		
 		model.addAttribute("mutantAnatomyToRow", mutantAnatomyToRow);
 		model.addAttribute("controlAnatomyToRow", controlAnatomyToRow);
 
