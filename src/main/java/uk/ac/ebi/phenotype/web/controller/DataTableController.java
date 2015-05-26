@@ -18,8 +18,14 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
@@ -43,6 +50,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -83,6 +91,249 @@ public class DataTableController {
     @Autowired
     private ReferenceDAO referenceDAO;
 
+    /**
+     <p>
+     * deals with batchQuery
+     * Return jQuery dataTable from server-side for lazy-loading.
+     * </p>
+     * @throws SolrServerException 
+     * 
+     */
+    
+    @RequestMapping(value = "/dataTable_bq", method = RequestMethod.POST)
+    public ResponseEntity<String> bqDataTableJson(
+    		@RequestParam(value = "idlist", required = true) String idlist,
+    		@RequestParam(value = "fllist", required = true) String fllist,
+    		@RequestParam(value = "corename", required = true) String solrCoreName,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Model model) throws IOException, URISyntaxException, SolrServerException {
+
+    	System.out.println("idlist: "+ idlist);
+    	System.out.println("fllist: "+ fllist);
+    	System.out.println("corename: "+ solrCoreName);
+    	
+    	String content = null;
+    	
+    	if ( solrCoreName.equals("hp") ){
+    		// need to combine query results from phenodigm and mp cores
+    		
+    		// fetch all mp ids mapped to the hp ids requested
+    		try {
+    			QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, "hp_id,hp_term,mp_id", "phenodigm");
+    			JSONObject j = prepareHpMpMapping(solrResponse);
+
+        		String mpIdlist = j.get("idlist").toString();
+        		QueryResponse solrResponse2 = solrIndex.getBatchQueryJson(mpIdlist, fllist, "mp");
+        		Map<String, List<String>> hp2mp = (Map<String, List<String>>) j.get("map");
+        		
+        		content = fetchBatchQueryDataTableJson2(solrResponse2, fllist, hp2mp);
+    		}
+    		catch (Exception e){
+    			System.out.println(e.getMessage());
+    		}
+    	}
+    	else {
+    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
+    		content = fetchBatchQueryDataTableJson(solrResponse, fllist);
+    	}
+    	
+    	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+    }
+		
+    private String fetchBatchQueryDataTableJson2( QueryResponse solrResponse, String fllist, Map<String, List<String>> hp2mp ) {
+    	
+    	SolrDocumentList results = solrResponse.getResults();
+    	Map<String, MpAnnotations> mpAnnotations = new HashMap<>();
+    	
+    	List<String> fields = new ArrayList<String>(Arrays.asList(fllist.split(",")));
+    	fields.subList(0, 3).clear();  // remove first 3 fields: hp_id, hp_term, mp_id
+		
+    	for (int i = 0; i < results.size(); ++i) {
+			SolrDocument doc = results.get(i);
+			Map<String, Object> docMap = doc.getFieldValueMap();
+			
+			String mp_id = docMap.get("mp_id").toString();
+			mpAnnotations.put(mp_id, new MpAnnotations());
+			
+			for ( String fieldName : fields ){
+				String value = docMap.get(fieldName) != null ? docMap.get(fieldName).toString() : "";
+				if ( fieldName.equals("mp_term") ){
+					mpAnnotations.get(mp_id).mp_term = value;
+				}
+				else if ( fieldName.equals("mp_definition") ){
+					mpAnnotations.get(mp_id).mp_definition = value;
+				}
+				else if ( fieldName.equals("top_level_mp_id") ){
+					mpAnnotations.get(mp_id).top_level_mp_id = value;
+				}
+				else if ( fieldName.equals("top_level_mp_term") ){
+					mpAnnotations.get(mp_id).top_level_mp_term = value;
+				}
+				else if ( fieldName.equals("mgi_accession_id") ){
+					mpAnnotations.get(mp_id).mgi_accession_id = value;
+				}
+				else if ( fieldName.equals("marker_symbol") ){
+					mpAnnotations.get(mp_id).marker_symbol = value;
+				}
+				else if ( fieldName.equals("human_gene_symbol") ){
+					mpAnnotations.get(mp_id).human_gene_symbol = value;
+				}
+				else if ( fieldName.equals("disease_id") ){
+					mpAnnotations.get(mp_id).disease_id = value;
+				}
+				else if ( fieldName.equals("disease_term") ){
+					mpAnnotations.get(mp_id).disease_term = value;
+				}
+			}
+    	}
+
+    	int totalDocs = hp2mp.size();
+    	
+    	JSONObject j = new JSONObject();
+        j.put("aaData", new Object[0]);
+
+		j.put("iTotalRecords", totalDocs);
+		j.put("iTotalDisplayRecords", totalDocs);
+		
+		for (Map.Entry<String, List<String>> entry : hp2mp.entrySet()){
+		    List<String> mpids = entry.getValue();
+		    
+		    String[] hpIdTerm = entry.getKey().split("_");
+		    String hp_id = hpIdTerm[0];
+		    String hp_term = hpIdTerm[1];
+		    
+		    List<String> rowData = new ArrayList<String>();
+		    
+		    rowData.add(hp_id);
+		    rowData.add(hp_term);
+		    rowData.add(StringUtils.join(mpids, "|"));
+		    
+		    for ( String fieldName : fields ){
+		    	List<String> vals = new ArrayList<>();
+			    for ( String mp_id : mpids){
+			    	//System.out.println("mpid:" + mp_id + " - field" + fieldName);
+			    	if ( fieldName.equals("mp_term") ){
+			    		vals.add(mpAnnotations.get(mp_id).mp_term);	
+					}
+					else if ( fieldName.equals("mp_definition") ){
+						vals.add(mpAnnotations.get(mp_id).mp_definition);	
+					}
+					else if ( fieldName.equals("top_level_mp_id") ){
+						vals.add(mpAnnotations.get(mp_id).top_level_mp_id);
+					}
+					else if ( fieldName.equals("top_level_mp_term") ){
+						vals.add(mpAnnotations.get(mp_id).top_level_mp_term);
+					}
+					else if ( fieldName.equals("mgi_accession_id") ){
+						vals.add(mpAnnotations.get(mp_id).mgi_accession_id);
+					}
+					else if ( fieldName.equals("marker_symbol") ){
+						vals.add(mpAnnotations.get(mp_id).marker_symbol);
+					}
+					else if ( fieldName.equals("human_gene_symbol") ){
+						vals.add(mpAnnotations.get(mp_id).human_gene_symbol);
+					}
+					else if ( fieldName.equals("disease_id") ){
+						vals.add(mpAnnotations.get(mp_id).disease_id);
+					}
+					else if ( fieldName.equals("disease_term") ){
+						vals.add(mpAnnotations.get(mp_id).disease_term);
+					}
+			    }
+			    rowData.add(StringUtils.join(vals, "|"));
+		    } 
+		    j.getJSONArray("aaData").add(rowData);
+		}
+
+    	return j.toString();
+    }
+    
+    private JSONObject prepareHpMpMapping(QueryResponse solrResponse) {
+    	
+    	JSONObject j = new JSONObject();
+    	//Map<String, List<HpTermMpId>> hp2mp = new HashMap<>();
+    	Map<String, List<String>> hp2mp = new HashMap<>();
+    	Set<String> mpids = new HashSet<>();
+
+    	SolrDocumentList results = solrResponse.getResults();
+		for (int i = 0; i < results.size(); ++i) {
+			SolrDocument doc = results.get(i);
+			
+			Map<String, Object> docMap = doc.getFieldValueMap();
+			//String hp_id = (String) docMap.get("hp_id");
+			//String hp_term = (String) docMap.get("hp_term");
+			String hpidTerm = (String) docMap.get("hp_id") + "_" + (String) docMap.get("hp_term");
+			String mp_id = (String) docMap.get("mp_id");
+			mpids.add("\"" + mp_id + "\"");
+			
+			if ( ! hp2mp.containsKey(hpidTerm) ){
+				hp2mp.put(hpidTerm, new ArrayList<String>());
+			}
+			hp2mp.get(hpidTerm).add(mp_id);
+		}
+    	
+		j.put("map", hp2mp);
+		
+		List<String> ids = new ArrayList<>();
+		ids.addAll(mpids);
+		String idlist = StringUtils.join(ids, ",");
+		j.put("idlist",  idlist);
+		
+    	return j;
+    }
+    
+    public String fetchBatchQueryDataTableJson(QueryResponse solrResponse, String fllist) {
+    	
+    	String[] flList = StringUtils.split(fllist, ",");
+    	
+    	SolrDocumentList results = solrResponse.getResults();
+    	int totalDocs = results.size();
+    	
+    	JSONObject j = new JSONObject();
+        j.put("aaData", new Object[0]);
+
+		j.put("iTotalRecords", totalDocs);
+		j.put("iTotalDisplayRecords", totalDocs);
+		
+		//System.out.println("totaldocs:" + totalDocs);
+		for (int i = 0; i < results.size(); ++i) {
+			SolrDocument doc = results.get(i);
+		
+			List<String> rowData = new ArrayList<String>();
+			
+			Map<String, Object> docMap = doc.getFieldValueMap();
+			
+			//for (String fieldName : doc.getFieldNames()) {
+			for ( int k=0; k<flList.length; k++ ){
+				String fieldName = flList[k];
+				//System.out.println(fieldName + " - value: " + docMap.get(fieldName));
+				
+				if ( docMap.get(fieldName) == null ){
+					rowData.add("");
+				}
+				else {
+					try {
+						String value = docMap.get(fieldName).toString();
+						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
+						rowData.add(value);
+					} catch(Exception e){
+						if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
+							int val = (int) docMap.get(fieldName);
+							String value = Integer.toString(val);
+							rowData.add(value);
+						}
+					}
+				}
+			}
+			j.getJSONArray("aaData").add(rowData);
+			
+		}
+		 
+		//System.out.println(j.toString());
+		return j.toString();
+    }
+    
     /**
      * <p>
      * Return jQuery dataTable from server-side for lazy-loading.
@@ -183,9 +434,10 @@ public class DataTableController {
         } else if (mode.equals("gene2go")) {
             jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
         }
+        
         return jsonStr;
     }
-
+    
     public String parseJsonforGoDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, String evidRank) {
 
         String hostName = request.getAttribute("mappedHostname").toString();
@@ -1664,5 +1916,18 @@ public class DataTableController {
         //System.out.println("Got " + rowCount + " rows");
         return j.toString();
     }
-
+    
+    public class MpAnnotations {
+    	public String mp_id;
+    	public String mp_term;
+    	public String mp_definition;
+    	public String top_level_mp_id;
+    	public String top_level_mp_term;
+    	public String mgi_accession_id;
+    	public String marker_symbol;
+    	public String human_gene_symbol;
+    	public String disease_id;
+    	public String disease_term;
+		
+    }
 }

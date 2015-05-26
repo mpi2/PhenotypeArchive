@@ -40,30 +40,24 @@ import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-//import com.google.gson.Gson;
-//import com.google.gson.GsonBuilder;
-//import com.google.gson.JsonObject;
-//import com.google.gson.stream.JsonReader;
-
-
-
-
-
-
-
-
 
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class SolrIndex {
-
+	
 	private static final String IMG_NOT_FOUND = "No information available";;
 
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
@@ -101,7 +95,7 @@ public class SolrIndex {
     	return codeRank;
     }
     
-    public static Map<Integer, String> getGoEvidRankCategory(){
+    public static Map<Integer, String> getGomapCategory(){
     	
     	Map<Integer, String> evidRank = new HashMap<>();
 		
@@ -113,6 +107,21 @@ public class SolrIndex {
 		
 		return evidRank;
     }
+    
+    public static Map<String, String> coreIdQMap(){
+    	
+    	Map<String, String> map = new HashMap<>();
+		
+		map.put("gene", "mgi_accession_id");
+		map.put("mp", "mp_id");
+		map.put("disease", "disease_id");
+		map.put("hp", "hp_id");
+		map.put("phenodigm", "hp_id");
+		map.put("impc_images", "gene_accession_id");
+		
+		return map;
+    }
+    
 	/**
 	 * Return the number of documents found for a specified solr query on a
 	 * specified core.
@@ -171,6 +180,46 @@ public class SolrIndex {
 
 	}
 
+	
+	public QueryResponse getBatchQueryJson(String idlist, String fllist, String solrCoreName) throws SolrServerException {
+		
+		HttpSolrServer server = null;
+		
+		Map<String, String> coreIdQMap = coreIdQMap();
+		String qField = coreIdQMap.get(solrCoreName);
+		
+		if ( solrCoreName.equals("phenodigm") ){
+			//server = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
+			server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+		}
+		else {
+			server = new HttpSolrServer(config.get("internalSolrUrl") + "/" + solrCoreName);
+		}
+		System.out.println("solrurl: " + server);
+		
+		String[] idList = StringUtils.split(idlist);
+		String querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
+		System.out.println("queryStr: " + querystr);
+		
+		SolrQuery query = new SolrQuery();
+		query.setQuery(querystr);
+		
+		if ( solrCoreName.equals("phenodigm") ){ 
+			query.setFilterQueries("type:hp_mp");
+		}
+		
+		query.setStart(0);
+		query.setRows(10);  // default
+		
+		// retrieves wanted fields
+		query.setFields(fllist);
+
+		QueryResponse response = server.query(query, METHOD.POST);
+		System.out.println("response: "+ response);
+		
+		return response;
+	}
+	
 	/**
 	 * Get rows for saving to an external file.
 	 * 
@@ -212,6 +261,28 @@ public class SolrIndex {
 		return getResults(url);
 	}
 
+	public JSONObject getBqDataTableExportRows(String core, String gridFields, String idList)
+			throws IOException, URISyntaxException {
+		
+		Map<String, String> idMap = coreIdQMap();
+		String qField = idMap.get(core);
+		if ( core.equals("hp") ){
+			qField = "hp_id";
+			core = "mp"; // use mp core to fetch for hp data
+		}
+		
+		String internalSolrUrl = config.get("internalSolrUrl");
+		String url = internalSolrUrl + "/" + core + "/select?";
+					
+		url += "q=" + qField + ":(" + idList + ")";
+		url += "&start=0&rows=999999&wt=json&fl=" + gridFields;
+		
+		System.out.println("Export data URL: " + url);
+		
+		return getResults(url);
+	}
+
+	
 	/**
 	 * Prepare a url for querying the solr indexes based on the passed in
 	 * arguments.
