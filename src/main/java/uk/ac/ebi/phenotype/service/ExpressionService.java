@@ -292,7 +292,7 @@ public class ExpressionService {
 
 	private ExpressionRowBean getExpressionCountForAnatomyTerm(String anatomy,
 			ExpressionRowBean row, SolrDocument doc) {
-		System.out.println("anatomy="+anatomy);
+		//System.out.println("anatomy="+anatomy);
 		if (doc.containsKey(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
 			List<String> paramAssNames = (List<String>) doc
 					.get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
@@ -307,11 +307,11 @@ public class ExpressionService {
 					if (paramAssValue.equalsIgnoreCase("expression")) {
 
 						row.setExpression(true);
-						System.out.println("row get expressed="+row.getExpressed());
+						//System.out.println("row get expressed="+row.getExpressed());
 						row.setExpressed(row.getExpressed()+1);
-						System.out.println("zyg="+(String)doc.get(ImageDTO.ZYGOSITY));
+						//System.out.println("zyg="+(String)doc.get(ImageDTO.ZYGOSITY));
 						row.addSpecimenExpressed((String)doc.get(ImageDTO.EXTERNAL_SAMPLE_ID),(String)doc.get(ImageDTO.ZYGOSITY),  1);
-						System.out.println("paramAssValue=" + paramAssValue);
+						//System.out.println("paramAssValue=" + paramAssValue);
 					}
 					else if(paramAssValue.equalsIgnoreCase("ambiguous")){
 						row.setAmbiguousExpression(row.getAmbiguousExpression()+1);
