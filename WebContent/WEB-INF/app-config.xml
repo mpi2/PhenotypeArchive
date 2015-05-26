@@ -284,8 +284,6 @@
 	  	</property>  
  	</bean>  
   
- 	<bean id="fileValidator" class="uk.ac.ebi.generic.util.FileValidator" />  
-  
  	<bean id="multipartResolver"  
   		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />  
 
