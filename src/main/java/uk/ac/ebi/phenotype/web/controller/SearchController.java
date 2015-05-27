@@ -15,19 +15,37 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import uk.ac.ebi.generic.util.Tools;
 
 
 @Controller
 public class SearchController {
+	
+	//LinkedList<FileMeta> files = new LinkedList<FileMeta>();
+    //FileMeta fileMeta = null;
 	
 	/**
 	 * redirect calls to the base url to the search page
@@ -40,11 +58,10 @@ public class SearchController {
 	}
 
 	/**
-	 * Controller for the search page
+	 * search page
 	 * 
 	 */
 
-	//@RequestMapping("/search")	
 	@RequestMapping(value="/search", method=RequestMethod.GET)
 	public String loadAutosuggestSearchFacetPage(
 			@RequestParam(value = "q", required = false) String q,
@@ -64,4 +81,28 @@ public class SearchController {
 				
 		return "search";
 	}	
+
+	@RequestMapping(value="/batchquery2", method=RequestMethod.GET)
+	public @ResponseBody String fetchDataFields(
+			@RequestParam(value = "core", required = false) String core,
+			HttpServletRequest request, 
+			Model model) {			
+		
+		return Tools.fetchOutputFieldsCheckBoxesHtml(core);
+		
+	}	
+	
+	@RequestMapping(value="/batchQuery", method=RequestMethod.GET)
+	public String loadBatchQueryPage(
+			@RequestParam(value = "core", required = false) String core,
+			HttpServletRequest request, 
+			Model model) {			
+		
+		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+		model.addAttribute("outputFields", outputFieldsHtml);
+			
+		return "batchQuery";
+	}	
+	
+	
 }
