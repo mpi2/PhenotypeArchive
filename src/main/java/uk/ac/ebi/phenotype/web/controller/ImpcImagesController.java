@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.ExpressionService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
@@ -41,6 +42,10 @@ public class ImpcImagesController {
 
 	@Autowired
 	ImageService imageService;
+	
+	@Autowired
+	ExpressionService expressionService;
+	
 	@Autowired
 	GeneService geneService;
 
@@ -53,7 +58,7 @@ public class ImpcImagesController {
 		System.out.println("calling laczImages web page");
 		addGeneSymbolToPage(acc, model);
 		boolean overview=false;
-		imageService.getLacDataForGene(acc, topLevelMa,overview, false, model);
+		expressionService.getLacDataForGene(acc, topLevelMa,overview, false, model);
 
 		return "laczImages";
 	}
@@ -63,7 +68,7 @@ public class ImpcImagesController {
 			throws SolrServerException, IOException, URISyntaxException {
 		addGeneSymbolToPage(acc, model);
 		boolean overview=false;
-		imageService.getLacDataForGene(acc, null, overview, false, model);
+		expressionService.getLacDataForGene(acc, null, overview, false, model);
 
 		return "laczImages";
 	}
