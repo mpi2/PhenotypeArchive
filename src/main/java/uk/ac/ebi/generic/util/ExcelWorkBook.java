@@ -15,23 +15,13 @@
  */
 package uk.ac.ebi.generic.util;
 
-import java.net.URLEncoder;
-import java.util.List;
-
-
-
-import org.apache.commons.httpclient.util.URIUtil;
-// XSSF
 import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFHyperlink;
-import org.apache.poi.xssf.usermodel.XSSFPrintSetup;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
+
+import java.net.URI;
+
+// XSSF
 
 
 /*
@@ -84,7 +74,7 @@ public class ExcelWorkBook {
     		XSSFRow row = sheet.createRow(k+1);  // data starts from row 1	
     		for (int l = 0; l < tableData[k].length; l++) {  
     			XSSFCell cell = row.createCell(l);   
-    			String cellStr = null;
+    			String cellStr;
     			
     			try{
     				cellStr = tableData[k][l].toString();
@@ -98,7 +88,8 @@ public class ExcelWorkBook {
     			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
     				
     				//need to encode URI for this version of ExcelWorkBook
-    				cellStr = URIUtil.encodePath(cellStr,"UTF-8");
+//    				cellStr = URIUtil.encodePath(cellStr,"UTF-8");
+				    cellStr = new URI(cellStr).toASCIIString();
     				
     				cellStr = cellStr.replace("%3F","?");  // so that url link would work
     				

@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
@@ -42,8 +40,10 @@ import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -55,8 +55,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
-import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
@@ -65,9 +63,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-
-import uk.ac.ebi.phenotype.service.MpService;
-import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 
 @Controller
 public class FileExportController {

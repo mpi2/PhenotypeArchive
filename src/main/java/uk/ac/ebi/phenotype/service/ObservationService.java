@@ -22,7 +22,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -43,7 +42,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
-import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
@@ -677,7 +675,7 @@ public class ObservationService extends BasicService {
             query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
         }
         
-        System.out.println("get experiment :: " + solr.getBaseURL() + "/select?" + query );
+        //System.out.println("get experiment :: " + solr.getBaseURL() + "/select?" + query );
         
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
