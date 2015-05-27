@@ -108,9 +108,7 @@ public class ImpcImagesController {
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
 		for (SexType sex : SexType.values()) {
-			SolrDocumentList list = new SolrDocumentList();
-			list = imageService.getControls(numberOfControlsPerSex, list, sex,
-					imgDoc);
+			SolrDocumentList list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
 			controls.addAll(list);
 		}
 
@@ -149,9 +147,8 @@ public class ImpcImagesController {
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
 		for (SexType sex : SexType.values()) {
-			SolrDocumentList list = new SolrDocumentList();
-			list = imageService.getControls(numberOfControlsPerSex, list, sex,
-					imgDoc);
+			SolrDocumentList list = null;
+			list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
 			controls.addAll(list);
 		}
 

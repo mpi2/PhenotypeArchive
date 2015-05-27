@@ -622,9 +622,6 @@ public class ImageService {
 	 *
 	 * @param numberOfControls
 	 *            how many control images to collect
-	 * @param list
-	 *            this is an in/out parameter that gets modified by this method
-	 *            (!)
 	 * @param sex
 	 *            the sex of the specimen in the images
 	 * @param imgDoc
@@ -634,9 +631,9 @@ public class ImageService {
 	 * @throws SolrServerException
 	 */
 	public SolrDocumentList getControls(int numberOfControls,
-			SolrDocumentList list, SexType sex, SolrDocument imgDoc)
+			SexType sex, SolrDocument imgDoc)
 			throws SolrServerException {
-
+		SolrDocumentList list=new SolrDocumentList();
 		final String metadataGroup = (String) imgDoc
 				.get(ObservationDTO.METADATA_GROUP);
 		final String center = (String) imgDoc
@@ -711,7 +708,7 @@ public class ImageService {
 		for (FacetField facet : facets) {
 			if (facet.getValueCount() != 0) {
 				for (Count count : facet.getValues()) {
-					SolrDocumentList list = new SolrDocumentList();// list of
+					SolrDocumentList list = null;// list of
 																	// image
 																	// docs to
 																	// return to
@@ -743,8 +740,7 @@ public class ImageService {
 											(String) imgDoc
 													.get(ObservationDTO.STRAIN_NAME));
 
-							list = getControls(numberOfControls, list, null,
-									imgDoc);
+							list = getControls(numberOfControls, null, imgDoc);
 
 							if (responseExperimental2 != null) {
 								list.addAll(responseExperimental2.getResults());

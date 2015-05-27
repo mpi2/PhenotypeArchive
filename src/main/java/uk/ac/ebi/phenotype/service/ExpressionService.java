@@ -39,21 +39,21 @@ public class ExpressionService {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
-		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
+		solrQuery.addFilterQuery(ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
 				+ experimentOrControl);
 		if (StringUtils.isNotEmpty(metadataGroup)) {
-			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":"
+			solrQuery.addFilterQuery(ImageDTO.METADATA_GROUP + ":"
 					+ metadataGroup);
 		}
 		if (StringUtils.isNotEmpty(strain)) {
-			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
+			solrQuery.addFilterQuery(ImageDTO.STRAIN_NAME + ":" + strain);
 		}
 		if (sex != null) {
 			solrQuery.addFilterQuery("sex:" + sex.name());
 		}
 		if (StringUtils.isNotEmpty(anatomy)) {
-			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_VALUE + ":"
-					+ anatomy);
+			solrQuery.addFilterQuery(ImageDTO.PARAMETER_ASSOCIATION_NAME + ":\""
+					+ anatomy+"\"");
 		}
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
