@@ -202,6 +202,9 @@ public class Tools {
 			additionalInfos.add("disease_id");
 			additionalInfos.add("disease_term");
 
+			// impc images link
+            additionalInfos.add("images_link");
+			
 			//GO stuff for gene : not shown for now
 		}
 		else if ( corename.equals("disease") ) {

@@ -18,14 +18,12 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -35,7 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
@@ -50,7 +47,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -135,7 +131,7 @@ public class DataTableController {
     	}
     	else {
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
-    		content = fetchBatchQueryDataTableJson(solrResponse, fllist);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist);
     	}
     	
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
@@ -283,7 +279,7 @@ public class DataTableController {
     	return j;
     }
     
-    public String fetchBatchQueryDataTableJson(QueryResponse solrResponse, String fllist) {
+    public String fetchBatchQueryDataTableJson(HttpServletRequest request, QueryResponse solrResponse, String fllist) {
     	
     	String[] flList = StringUtils.split(fllist, ",");
     	
@@ -307,9 +303,16 @@ public class DataTableController {
 			//for (String fieldName : doc.getFieldNames()) {
 			for ( int k=0; k<flList.length; k++ ){
 				String fieldName = flList[k];
-				//System.out.println(fieldName + " - value: " + docMap.get(fieldName));
+				System.out.println(fieldName + " - value: " + docMap.get(fieldName));
 				
-				if ( docMap.get(fieldName) == null ){
+				if ( fieldName.equals("images_link") ){
+					//http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/impc_images/select?q=gene_accession_id:%22MGI:106209%22%20AND%20observation_type:image_record&fq=%28biological_sample_group:experimental%29
+					String baseUrl = config.get("solrUrl"); // external
+					String acc = docMap.get("mgi_accession_id").toString();
+					String imgLink = "<a target='_blank' href='" + baseUrl + "/impc_images/select?q=gene_accession_id:\"" + acc + "\" AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					rowData.add(imgLink);
+				}
+				else if ( docMap.get(fieldName) == null ){
 					rowData.add("");
 				}
 				else {

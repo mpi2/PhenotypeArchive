@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
@@ -42,8 +40,10 @@ import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -55,19 +55,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
-import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-
-import uk.ac.ebi.phenotype.service.MpService;
-import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 
 @Controller
 public class FileExportController {
@@ -1404,19 +1401,20 @@ public class FileExportController {
         
         JSONObject json = solrIndex.getBqDataTableExportRows(solrCoreName, gridFields, idList);
         
-        List<String> dataRows = composeBatchQueryDataTableRows(request, json, solrCoreName, gridFields);
+        List<String> dataRows = composeBatchQueryDataTableRows(json, solrCoreName, gridFields);
         System.out.println("datarows: "+ dataRows);
         Workbook wb = null;
         String fileName = "batch_query_dataset";
         writeOutputFile(response, dataRows, fileType, fileName, wb);
     }
     
-    private List<String> composeBatchQueryDataTableRows(HttpServletRequest request, JSONObject json, String solrCoreName, String gridFields) {
+    private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields) {
     	
     	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
     	System.out.println("docs found: "+ docs.size());
-    	String baseUrl = request.getAttribute("baseUrl") + "/disease/";
-
+    	//String baseUrl = (String) request.getAttribute("baseUrl");
+    	String baseUrl = config.get("solrUrl"); // external
+    	
     	List<String> rowData = new ArrayList();
       
     	// column names	
@@ -1435,7 +1433,15 @@ public class FileExportController {
           
     		for ( int j=0; j<cols.length; j++ ){
     			String fieldName = cols[j];
-        	    if ( doc.get(fieldName) == null ){
+    			
+    			if ( fieldName.equals("images_link") ){
+					String acc = doc.get("mgi_accession_id").toString();
+					String params = "q=gene_accession_id:\"" + acc + "\" AND observation_type:image_record&fq=biological_sample_group:experimental";
+					//String imgLink = baseUrl + "/impc_images/select?" + URLEncoder.encode(params);	
+					String imgLink = baseUrl + "/impc_images/select?" + params;
+					data.add(imgLink);
+    			}
+    			else if ( doc.get(fieldName) == null ){
     				data.add("");
     			}
     			else {
