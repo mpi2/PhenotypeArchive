@@ -15,7 +15,6 @@
  */
 package uk.ac.ebi.generic.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -136,19 +135,17 @@ public class Tools {
 		return result;
 	}
 	
-	public static String[][] composeXlsTableData(List<String> rows) throws UnsupportedEncodingException {
+	public static String[][] composeXlsTableData(List<String> rows) {
         int rowNum = rows.size();// - 1; // omit title row
         int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
         String[][] tableData = new String[rowNum][colNum];
 
+        // add one to omit title row
         for (int i = 0; i < rowNum; i ++) {
         	
             String[] colVals = rows.get(i).split("\t");
             for (int j = 0; j < colVals.length; j ++) {
-            	String val = colVals[j];
-            	//System.out.println("========val: "+ val);
-            	//System.out.println("========val: "+ URLEncoder.encode(val, "UTF-8"));
-                tableData[i][j] = val;
+                tableData[i][j] = colVals[j];
             }
         }
        
@@ -205,9 +202,6 @@ public class Tools {
 			additionalInfos.add("disease_id");
 			additionalInfos.add("disease_term");
 
-			// impc images link
-			additionalInfos.add("images_link");
-			
 			//GO stuff for gene : not shown for now
 		}
 		else if ( corename.equals("disease") ) {

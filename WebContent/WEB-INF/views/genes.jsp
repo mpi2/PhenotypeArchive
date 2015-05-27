@@ -432,7 +432,7 @@
                                      		</c:forEach></td>
                                      		
                                      		<td>
-                                     		<a href="${baseUrl}/imagePicker/${acc}/${entry.name}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
+                                     		<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
                                      		</a>
                                      		</td>
                                      		</tr>

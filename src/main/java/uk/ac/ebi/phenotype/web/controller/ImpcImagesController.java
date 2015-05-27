@@ -1,21 +1,8 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +10,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ExpressionService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 //import Glacier2.CannotCreateSessionException;
 //import Glacier2.PermissionDeniedException;
@@ -108,37 +95,48 @@ public class ImpcImagesController {
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
 		for (SexType sex : SexType.values()) {
-			SolrDocumentList list = new SolrDocumentList();
-			list = imageService.getControls(numberOfControlsPerSex, list, sex,
-					imgDoc);
+			SolrDocumentList list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
 			controls.addAll(list);
-			// QueryResponse responseControl =
-			// imageService.getControlImagesForProcedure((String)
-			// imgDoc.get(ObservationDTO.METADATA_GROUP), (String)
-			// imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String)
-			// imgDoc.get(ObservationDTO.STRAIN_NAME), (String)
-			// imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String)
-			// imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date)
-			// imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT),
-			// numberOfControlsPerSex, sex, daysEitherSide);
-			//
-			// if (responseControl != null &&
-			// responseControl.getResults().size() > 0) {
-			// controls.addAll(responseControl.getResults());
-			// } else {
-			// daysEitherSide = 120;// try a bigger window of time to get
-			// // controls
-			// responseControl =
-			// imageService.getControlImagesForProcedure((String)
-			// imgDoc.get(ObservationDTO.METADATA_GROUP), (String)
-			// imgDoc.get(ObservationDTO.PHENOTYPING_CENTER), (String)
-			// imgDoc.get(ObservationDTO.STRAIN_NAME), (String)
-			// imgDoc.get(ObservationDTO.PROCEDURE_NAME), (String)
-			// imgDoc.get(ObservationDTO.PARAMETER_STABLE_ID), (Date)
-			// imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT),
-			// numberOfControlsPerSex, sex, daysEitherSide);
-			// controls.addAll(responseControl.getResults());
-			// }
+		}
+
+		System.out.println("experimental size=" + experimental.size());
+		model.addAttribute("experimental", experimental);
+		System.out.println("controls size=" + controls.size());
+		model.addAttribute("controls", controls);
+		return "imagePicker";
+	}
+	
+	@RequestMapping("/expressionImagePicker/{acc}/{anatomy}")
+	public String expressionImagePicker(@PathVariable String acc,
+			@PathVariable String anatomy, Model model)
+			throws SolrServerException {
+
+		// good example url with control and experimental images
+		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
+		System.out.println("calling image picker");
+
+		// get experimental images
+		// we will also want to call the getControls method and display side by
+		// side
+		SolrDocumentList experimental = new SolrDocumentList();
+		QueryResponse responseExperimental2 = expressionService
+				.getExpressionImagesForGeneByAnatomy(acc, anatomy,
+						"experimental", 10000, null, null, null);
+		if (responseExperimental2 != null) {
+			experimental.addAll(responseExperimental2.getResults());
+		}
+		System.out.println("list size=" + experimental.size());
+		SolrDocumentList controls = new SolrDocumentList();
+		// QueryResponse responseControl =
+		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
+		// "control", 6, null, null, null);
+		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
+		int numberOfControlsPerSex = 5;
+		// int daysEitherSide = 30;// get a month either side
+		for (SexType sex : SexType.values()) {
+			SolrDocumentList list = null;
+			list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
+			controls.addAll(list);
 		}
 
 		System.out.println("experimental size=" + experimental.size());

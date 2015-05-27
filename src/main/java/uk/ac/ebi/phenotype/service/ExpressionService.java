@@ -1,24 +1,21 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.ui.Model;
-
 import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+
+import java.util.*;
 
 public class ExpressionService {
 
@@ -29,6 +26,36 @@ public class ExpressionService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 	
+	
+	public QueryResponse getExpressionImagesForGeneByAnatomy(String mgiAccession,
+			String anatomy, String experimentOrControl,
+			int numberOfImagesToRetrieve, SexType sex, String metadataGroup,
+			String strain) throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.addFilterQuery(ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
+				+ experimentOrControl);
+		if (StringUtils.isNotEmpty(metadataGroup)) {
+			solrQuery.addFilterQuery(ImageDTO.METADATA_GROUP + ":"
+					+ metadataGroup);
+		}
+		if (StringUtils.isNotEmpty(strain)) {
+			solrQuery.addFilterQuery(ImageDTO.STRAIN_NAME + ":" + strain);
+		}
+		if (sex != null) {
+			solrQuery.addFilterQuery("sex:" + sex.name());
+		}
+		if (StringUtils.isNotEmpty(anatomy)) {
+			solrQuery.addFilterQuery(ImageDTO.PARAMETER_ASSOCIATION_NAME + ":\""
+					+ anatomy+"\"");
+		}
+		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
+		// procedure_name + "\"");
+		solrQuery.setRows(numberOfImagesToRetrieve);
+		QueryResponse response = solr.query(solrQuery);
+		return response;
+	}
 	/**
 	 * 
 	 * @param mgiAccession
