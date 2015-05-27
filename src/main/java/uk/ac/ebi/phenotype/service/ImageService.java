@@ -13,7 +13,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
-
 import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
@@ -23,7 +22,6 @@ import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
 import javax.annotation.Resource;
-
 import java.util.*;
 
 public class ImageService {
@@ -1100,7 +1098,6 @@ public class ImageService {
 					.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
 			ArrayList<String> anatomies = (ArrayList<String>) doc
 					.get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-			System.out.println("anatomies=" + anatomies);
 			if (anatomies != null) {
 				SolrDocumentList anatomyList = null;
 				for (String anatomy : anatomies) {
