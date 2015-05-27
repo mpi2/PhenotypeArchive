@@ -18,14 +18,12 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -35,7 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
@@ -50,7 +47,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;

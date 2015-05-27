@@ -15,26 +15,14 @@
  */
 package uk.ac.ebi.generic.util;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
-import javax.sql.DataSource;
-
-import net.sf.json.JSONObject;
-
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class Tools {
 	
