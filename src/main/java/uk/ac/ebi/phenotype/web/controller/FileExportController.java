@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
+import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -220,7 +221,7 @@ public class FileExportController {
      * @return
      */
     @RequestMapping(value = "/export", method = RequestMethod.GET)
-    public String exportTableAsExcelTsv(
+    public void exportTableAsExcelTsv(
             /* ********************************************************************
              *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
              *  *******************************************************************/
@@ -326,64 +327,15 @@ public class FileExportController {
                 dataRows = composeGene2PfamClansDataRows(json, request);
             } else if (doAlleleRef) {
                 dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode);
-            } else {
-            	
+            } 
+            else {
                 JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length, showImgView);
-              
                 dataRows = composeDataTableExportRows(query, solrCoreName, json, rowStart, length, showImgView, solrFilters, request, legacyOnly, fqStr);
             }
         }
-
-        response.setHeader("Pragma", "no-cache");
-        response.setHeader("Expires", "0");
-
-        try {
-
-            if (fileType.equals("tsv")) {
-
-                response.setContentType("text/tsv; charset=utf-8");
-                response.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".tsv");
-				// ServletOutputStream output = response.getOutputStream();
-
-                // ckc note: switch to use getWriter() so that we don't get error like
-                // java.io.CharConversionException: Not an ISO 8859-1 character
-                // and if we do, the error will cause the dump to end prematurely 
-                // and we may not get the full rows (depending on which row causes error)        
-                PrintWriter output = response.getWriter();
-                for (String line : dataRows) {
-                    output.println(line);
-                }
-
-                output.flush();
-                output.close();
-            } else if (fileType.equals("xls")) {
-
-                response.setContentType("application/vnd.ms-excel");
-                response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
-
-                String sheetName = fileName;
-
-                String[] titles = new String[0];
-                String[][] tableData = new String[0][0];
-                if ( ! dataRows.isEmpty()) {
-                    // Remove the title row (row 0) from the list and assign it to
-                    // the string array for the spreadsheet
-                    titles = dataRows.remove(0).split("\t");
-                    tableData = Tools.composeXlsTableData(dataRows);
-                }
-
-                wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
-                ServletOutputStream output = response.getOutputStream();
-                try {
-                    wb.write(output);
-                } catch (IOException ioe) {
-                    log.error("ExcelWorkBook Error: " + ioe.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            log.error("Error: " + e.getMessage());
-        }
-        return null;
+        
+        writeOutputFile(response, dataRows, fileType, fileName, wb);
+        
     }
 
     private int parseMaxRow(String solrParams) {
@@ -1359,7 +1311,7 @@ public class FileExportController {
         Map<String, Integer> codeRank = SolrIndex.getGoCodeRank();
 
         // GO evidence rank to category mapping
-        Map<Integer, String> evidRankCat = SolrIndex.getGoEvidRankCategory();
+        Map<Integer, String> evidRankCat = SolrIndex.getGomapCategory();
 
         String NOINFO = "no info available";
 
@@ -1433,5 +1385,140 @@ public class FileExportController {
 
         return rowData;
     }
+  
+    @RequestMapping(value = "/bqExport", method = RequestMethod.POST)
+    public void exportBqTableAsExcelTsv(
+            /* ********************************************************************
+             *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
+             *  *******************************************************************/
+            @RequestParam(value = "fileType", required = true) String fileType,
+            @RequestParam(value = "coreName", required = true) String solrCoreName,
+            @RequestParam(value = "idList", required = true) String idList,
+            @RequestParam(value = "gridFields", required = true) String gridFields,
+            HttpSession session,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Model model) throws Exception {
 
+    	String dumpMode = "all";
+        
+        JSONObject json = solrIndex.getBqDataTableExportRows(solrCoreName, gridFields, idList);
+        
+        List<String> dataRows = composeBatchQueryDataTableRows(request, json, solrCoreName, gridFields);
+        System.out.println("datarows: "+ dataRows);
+        Workbook wb = null;
+        String fileName = "batch_query_dataset";
+        writeOutputFile(response, dataRows, fileType, fileName, wb);
+    }
+    
+    private List<String> composeBatchQueryDataTableRows(HttpServletRequest request, JSONObject json, String solrCoreName, String gridFields) {
+    	
+    	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+    	System.out.println("docs found: "+ docs.size());
+    	String baseUrl = request.getAttribute("baseUrl") + "/disease/";
+
+    	List<String> rowData = new ArrayList();
+      
+    	// column names	
+    	String[] cols = StringUtils.split(gridFields, ",");
+      
+    	List<String> colStr = new ArrayList<>();
+    	for ( int i=0; i<cols.length; i++ ){
+    		colStr.add(cols[i]);
+    	}
+    	rowData.add(StringUtils.join(colStr, "\t"));
+      
+    	for (int i = 0; i < docs.size(); i ++) {
+    	  
+    		List<String> data = new ArrayList();
+    		JSONObject doc = docs.getJSONObject(i);
+          
+    		for ( int j=0; j<cols.length; j++ ){
+    			String fieldName = cols[j];
+        	    if ( doc.get(fieldName) == null ){
+    				data.add("");
+    			}
+    			else {
+    				try {
+    					String value = doc.getString(fieldName).toString();
+    					if ( value.startsWith("[") ){
+    						value = value.replaceAll("\\[|\\]|\"", "");
+    						value = value.replaceAll(",", "|");
+    					}
+   					
+    					//System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
+    					data.add(value);
+    				} 
+    				catch(Exception e){
+    					if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
+    						int val = (int) doc.getInt(fieldName);
+    						String value = Integer.toString(val);
+    						data.add(value);
+    					}
+    				}
+    			}  
+    		}
+    		rowData.add(StringUtils.join(data, "\t"));
+      }
+      return rowData;
+    	
+    }
+    
+private void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName, Workbook wb){
+    	
+    	response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+    	String outfile = fileName + "." + fileType;
+        
+        try {
+
+            if (fileType.equals("tsv")) {
+
+                response.setContentType("text/tsv; charset=utf-8");
+                response.setHeader("Content-disposition", "attachment; filename=" + outfile);
+                
+				// ServletOutputStream output = response.getOutputStream();
+                // ckc note: switch to use getWriter() so that we don't get error like
+                // java.io.CharConversionException: Not an ISO 8859-1 character
+                // and if we do, the error will cause the dump to end prematurely 
+                // and we may not get the full rows (depending on which row causes error)        
+
+                PrintWriter output = response.getWriter();
+                for (String line : dataRows) {
+                	//System.out.println("line: " + line);
+                    output.println(line);
+                }
+                System.out.println("File to export: "+ outfile);
+
+                output.flush();
+                output.close();
+            } else if (fileType.equals("xls")) {
+
+                response.setContentType("application/vnd.ms-excel");
+                response.setHeader("Content-disposition", "attachment;filename=" + outfile);
+
+                String sheetName = fileName;
+
+                String[] titles = new String[0];
+                String[][] tableData = new String[0][0];
+                if ( ! dataRows.isEmpty()) {
+                    // Remove the title row (row 0) from the list and assign it to
+                    // the string array for the spreadsheet
+                    titles = dataRows.remove(0).split("\t");
+                    tableData = Tools.composeXlsTableData(dataRows);
+                }
+
+                wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
+                ServletOutputStream output = response.getOutputStream();
+                try {
+                    wb.write(output);
+                    output.close();
+                } catch (IOException ioe) {
+                    log.error("ExcelWorkBook Error: " + ioe.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error: " + e.getMessage());
+        }
+    }	
 }

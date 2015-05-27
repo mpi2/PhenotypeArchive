@@ -1105,6 +1105,10 @@ public class MPIndexer extends AbstractIndexer {
                     mp.getDiseaseSource().addAll(allele.getDiseaseSource());
                     mp.setDiseaseSource(new ArrayList<>(new HashSet<>(mp.getDiseaseSource())));
                 }
+                if (allele.getDiseaseId() != null) {
+                    mp.getDiseaseId().addAll(allele.getDiseaseId());
+                    mp.setDiseaseId(new ArrayList<>(new HashSet<>(mp.getDiseaseId())));
+                }
                 if (allele.getDiseaseTerm() != null) {
                     mp.getDiseaseTerm().addAll(allele.getDiseaseTerm());
                     mp.setDiseaseTerm(new ArrayList<>(new HashSet<>(mp.getDiseaseTerm())));
@@ -1195,6 +1199,7 @@ public class MPIndexer extends AbstractIndexer {
         if (mp.getType() == null) {
             mp.setType(new ArrayList<String>());
             mp.setDiseaseSource(new ArrayList<String>());
+            mp.setDiseaseId(new ArrayList<String>());
             mp.setDiseaseTerm(new ArrayList<String>());
             mp.setDiseaseAlts(new ArrayList<String>());
             mp.setDiseaseClasses(new ArrayList<String>());

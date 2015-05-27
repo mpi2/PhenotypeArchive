@@ -152,4 +152,153 @@ public class Tools {
         return tableData;
     }
 	
+	public static String fetchOutputFieldsCheckBoxesHtml(String corename) {
+		
+		corename = (corename == null) ? "gene" : corename; 
+		
+		String htmlStr1 = "";
+		String htmlStr2 = "";
+		
+		// main attrs.
+		List<String> mainAttrs = new ArrayList<>();
+		// additional information
+		List<String> additionalInfos = new ArrayList<>();
+					
+		if ( corename.equals("gene") ){
+			
+			// gene attr fields
+			
+			// these first 6 ones are checked by default
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+			mainAttrs.add("marker_name");
+			mainAttrs.add("marker_synonym");
+			mainAttrs.add("marker_type");
+		   
+			mainAttrs.add("latest_es_cell_status");
+			mainAttrs.add("latest_mouse_status");
+			mainAttrs.add("legacy_phenotype_status");
+			mainAttrs.add("latest_phenotype_status"); 
+			mainAttrs.add("latest_project_status"); 
+			mainAttrs.add("latest_production_centre"); 
+			mainAttrs.add("latest_phenotyping_centre"); 
+
+			// gene has QC: ie, a record in experiment core
+			additionalInfos.add("hasQc");
+
+			// annotated mp term 
+			additionalInfos.add("p_value");
+			additionalInfos.add("mp_id");
+			additionalInfos.add("mp_term");
+			additionalInfos.add("mp_term_synonym");
+			additionalInfos.add("mp_term_definition");
+
+			// mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+
+			// disease fields 
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term");
+
+			//GO stuff for gene : not shown for now
+		}
+		else if ( corename.equals("disease") ) {
+			mainAttrs.add("disease_id"); 
+			mainAttrs.add("disease_term");
+			
+			additionalInfos.add("mgi_accession_id");	
+			additionalInfos.add("marker_symbol");
+			additionalInfos.add("human_gene_symbol");
+
+			// annotated and inferred mp term
+			additionalInfos.add("p_value");
+			additionalInfos.add("mp_id");
+			additionalInfos.add("mp_term");
+			additionalInfos.add("mp_term_synonym");
+			
+			// mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+			
+		}
+		else if ( corename.equals("mp") ) {
+			mainAttrs.add("mp_id");
+			mainAttrs.add("mp_term");
+			mainAttrs.add("mp_definition");
+			mainAttrs.add("top_level_mp_id");
+			mainAttrs.add("top_level_mp_term");
+			
+			//  mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+			
+			// gene core stuff 
+			additionalInfos.add("mgi_accession_id");	
+			additionalInfos.add("marker_symbol");
+			//additionalInfos.add("pheno_calls");
+			additionalInfos.add("human_gene_symbol");
+			
+			//disease core stuff
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term"); 
+		}
+		
+		else if ( corename.equals("hp") ) {
+		
+			mainAttrs.add("hp_id");
+			mainAttrs.add("hp_term");
+					
+			//  hp to mp mapping
+			mainAttrs.add("mp_id");
+			mainAttrs.add("mp_term");
+			mainAttrs.add("mp_definition");
+			
+			additionalInfos.add("top_level_mp_id");
+			additionalInfos.add("top_level_mp_term");
+			
+			// gene core stuff 
+			additionalInfos.add("mgi_accession_id");	
+			additionalInfos.add("marker_symbol");
+			//additionalInfos.add("pheno_calls");
+			additionalInfos.add("human_gene_symbol");
+			
+			//disease core stuff
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term"); 
+		}
+		
+		
+		String dataType = corename.toUpperCase();
+		
+		htmlStr1 += "<div class='cat'>" + dataType + " attributes</div>";
+		for ( int i=0; i<mainAttrs.size(); i++ ){
+			String checked = ""; 
+			String checkedClass = "";
+			
+			if ( i < 6 ) {
+				checked = "checked";
+				checkedClass = "default";
+			}
+			
+			htmlStr1 += "<input type='checkbox' class=" + checkedClass + " name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + mainAttrs.get(i);
+			if ( (i+1) % 3 == 0 ){
+				htmlStr1 += "<br>";
+			}
+		}
+		
+		htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
+		for ( int i=0; i<additionalInfos.size(); i++ ){
+			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + additionalInfos.get(i);
+			if ( (i+1) % 3 == 0 ){
+				htmlStr2 += "<br>";
+			}
+		}
+		
+		String hrStr = "<hr>";
+		String checkAllBoxStr = "<button type='button' id='chkFields'>Check all fields</button>";
+		
+		return htmlStr1 + htmlStr2 + hrStr + checkAllBoxStr;
+	}
 }

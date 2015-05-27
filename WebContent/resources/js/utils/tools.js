@@ -2455,7 +2455,7 @@
 	                timeout: 5000,
 	                success: function(json) {
 	                    // prewarn users if dataset is big
-                            if (confirmDownloadIfExceedsThreshold(json.response.numFound)) {
+                        if (confirmDownloadIfExceedsThreshold(json.response.numFound)) {
 	                        $(form).appendTo('body').submit().remove();
 	                    }
 	                },
