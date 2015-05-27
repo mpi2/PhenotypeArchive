@@ -180,7 +180,7 @@ public class ExternalAnnotsController {
 		StringBuilder builder = new StringBuilder();
 		String legend = "F = molecular function<br>P = biological process<br><span id='legendBox'><div class='FP'>F and P</div><div class='F'>F</div><div class='P'>P</div></span>";
 
-		Map<Integer, String> evidRankCat = SolrIndex.getGoEvidRankCategory();
+		Map<Integer, String> evidRankCat = SolrIndex.getGomapCategory();
 
 		Map<String, String> domainMap = new HashMap<>();
 		domainMap.put("F", "molecular_function");
