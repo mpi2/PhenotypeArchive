@@ -100,16 +100,16 @@ public class ImpcImagesController {
 			experimental.addAll(responseExperimental2.getResults());
 		}
 		System.out.println("list size=" + experimental.size());
-		SolrDocumentList controls = new SolrDocumentList();
+		
 		// QueryResponse responseControl =
 		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
 		// "control", 6, null, null, null);
 		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
+		SolrDocumentList controls=null;
 		for (SexType sex : SexType.values()) {
-			SolrDocumentList list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
-			controls.addAll(list);
+			controls = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 		}
 
 		System.out.println("experimental size=" + experimental.size());
@@ -148,7 +148,7 @@ public class ImpcImagesController {
 		// int daysEitherSide = 30;// get a month either side
 		for (SexType sex : SexType.values()) {
 			SolrDocumentList list = null;
-			list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
+			list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, anatomy);
 			controls.addAll(list);
 		}
 
