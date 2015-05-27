@@ -441,7 +441,6 @@
                     <artifactId>jms</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Selenium dependencies -->
