@@ -154,6 +154,11 @@
 				padding: 0;
 				border: none;
 			}
+			span#resubmit {
+				font-size: 12px;
+				padding-left: 20px;
+				color: #8B0A50;
+			}
         </style>
         
         <script type='text/javascript'>
@@ -174,6 +179,7 @@
                 $('input#datatype').val("gene"); // default
                 $('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full GENE dataset");
                 freezeDefaultCheckboxes();
+                chkboxAllert();
                 var currDataType  = false;
                 
                 toggleAllFields();
@@ -199,6 +205,7 @@
                             	$('div#fieldList').html(htmlStr);
                             	freezeDefaultCheckboxes();
                             	toggleAllFields();
+                            	chkboxAllert();
                             },
                             error: function() {
                                 window.alert('AJAX error trying to register interest');
@@ -210,8 +217,15 @@
                 $('textarea#pastedList').val(''); // reset
                 $('input#fileupload').val(''); // reset
                 $('input#fulldata').attr('checked', false); // reset
+                
             });
             
+            function chkboxAllert() {
+            	// resubmit automatically whenever checkbox is clicked
+	        	$("div.fl2").find("input[class!='default']").click(function(){
+	        		resubmit();
+	        	});
+            }
             function freezeDefaultCheckboxes(){
             	$('input.default').click(function(){
         			return false;
@@ -229,6 +243,8 @@
                 		$(this).addClass('checkAll').html('Reset to default fields')
                 		$("div.fl2").find("input[type='checkbox']").prop('checked', true);
                 	}
+                	
+                	//showResubmitMsg();
                 	resubmit();
             	});
             }
@@ -283,7 +299,7 @@
             	}
             	else {
 	               	$('#bqResult').html('');
-	             
+	               	
 	               	$("#ajaxForm").ajaxForm({
 	                	success:function(jsonStr) { 
 	                      	//$('#bqResult').html(idList);
@@ -313,7 +329,6 @@
             function fetchFullDataset(){
             	
             	 if ( $('input#fulldata').is(':checked') ){
-                 	
             		refreshResult(); // refresh first 
             		
             		var fllist = fetchSelectedFieldList();
