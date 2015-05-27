@@ -58,6 +58,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -1399,19 +1401,20 @@ public class FileExportController {
         
         JSONObject json = solrIndex.getBqDataTableExportRows(solrCoreName, gridFields, idList);
         
-        List<String> dataRows = composeBatchQueryDataTableRows(request, json, solrCoreName, gridFields);
+        List<String> dataRows = composeBatchQueryDataTableRows(json, solrCoreName, gridFields);
         System.out.println("datarows: "+ dataRows);
         Workbook wb = null;
         String fileName = "batch_query_dataset";
         writeOutputFile(response, dataRows, fileType, fileName, wb);
     }
     
-    private List<String> composeBatchQueryDataTableRows(HttpServletRequest request, JSONObject json, String solrCoreName, String gridFields) {
+    private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields) {
     	
     	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
     	System.out.println("docs found: "+ docs.size());
-    	String baseUrl = request.getAttribute("baseUrl") + "/disease/";
-
+    	//String baseUrl = (String) request.getAttribute("baseUrl");
+    	String baseUrl = config.get("solrUrl"); // external
+    	
     	List<String> rowData = new ArrayList();
       
     	// column names	
@@ -1430,7 +1433,15 @@ public class FileExportController {
           
     		for ( int j=0; j<cols.length; j++ ){
     			String fieldName = cols[j];
-        	    if ( doc.get(fieldName) == null ){
+    			
+    			if ( fieldName.equals("images_link") ){
+					String acc = doc.get("mgi_accession_id").toString();
+					String params = "q=gene_accession_id:\"" + acc + "\" AND observation_type:image_record&fq=biological_sample_group:experimental";
+					//String imgLink = baseUrl + "/impc_images/select?" + URLEncoder.encode(params);	
+					String imgLink = baseUrl + "/impc_images/select?" + params;
+					data.add(imgLink);
+    			}
+    			else if ( doc.get(fieldName) == null ){
     				data.add("");
     			}
     			else {
