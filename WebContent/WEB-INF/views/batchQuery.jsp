@@ -244,7 +244,6 @@
                 		$("div.fl2").find("input[type='checkbox']").prop('checked', true);
                 	}
                 	
-                	//showResubmitMsg();
                 	resubmit();
             	});
             }
