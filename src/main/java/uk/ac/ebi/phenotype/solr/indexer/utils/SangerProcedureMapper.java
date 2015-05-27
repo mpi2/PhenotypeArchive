@@ -23,7 +23,7 @@ public class SangerProcedureMapper {
 	// 'Xray' : 'X-ray Imaging',
 	sangerProcedureToImpcMapping.put("Flow Cytometry", "FACS Analysis");
 	sangerProcedureToImpcMapping.put("Histology Slide", "Histopathology");
-	sangerProcedureToImpcMapping.put("Embryo Dysmorphology", "Combined SHIRPA and Dysmorphology");
+	sangerProcedureToImpcMapping.put("Embryo Dysmorphology", "Gross Morphology Embryo");
 	return Collections.unmodifiableMap(sangerProcedureToImpcMapping);
 	}
 	

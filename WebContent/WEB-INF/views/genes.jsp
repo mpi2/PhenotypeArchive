@@ -403,7 +403,7 @@
                                     <div class="inner" style="display: block;">
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimen ids</th></tr>
+                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimens</th><th>Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
                                      		<tr><td>${mapEntry.key}</td><td> <i title="#het images with expression ${mapEntry.value.numberOfHet}">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mapEntry.value.homImages}</td>
                                      		<td>
@@ -424,11 +424,18 @@
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
+                               
                                      		<td>
                                      		<c:forEach var="specimen" items="${mapEntry.value.specimenExpressed}">
-                                     		<a href="/impcImages/images?q=*:*&amp;defType=edismax&amp;wt=json&amp;fq=(ma_id:&quot;MA:0000058&quot; OR selected_top_level_ma_id:&quot;MA:0000058&quot; OR intermediate_ma_term_id:&quot;MA:0000058&quot;)  AND biological_sample_group:control AND parameter_name:&quot;LacZ Images Wholemount&quot;&amp;title=gene null in white adipose tissue"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
+                                     		<i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}">${specimen.key}</i>
+                                 
+                                     		</c:forEach></td>
+                                     		
+                                     		<td>
+                                     		<a href="${baseUrl}/imagePicker/${acc}/${entry.name}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
                                      		</a>
-                                     		</c:forEach></td></tr>
+                                     		</td>
+                                     		</tr>
                                      	</c:forEach>
                                      
                                      </table>
