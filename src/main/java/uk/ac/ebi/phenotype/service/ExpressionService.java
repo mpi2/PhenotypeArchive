@@ -301,6 +301,7 @@ public class ExpressionService {
 		SolrDocumentList imagesMutantResponse = laczResponse.getResults();
 		System.out.println("Images Expression data found="
 				+ imagesMutantResponse.getNumFound());
+		Map<String, ExpressionRowBean> expressionAnatomyToRow = new TreeMap<>();
 		Map<String, ExpressionRowBean> mutantAnatomyToRow = new TreeMap<>();
 		Map<String, ExpressionRowBean> controlAnatomyToRow = new TreeMap<String, ExpressionRowBean>();
 
@@ -319,6 +320,17 @@ public class ExpressionService {
 			// System.out.println("getting controls");
 			ExpressionRowBean expressionRow = getAnatomyRow(anatomy,
 					expressionAnatomyToDocs);
+			expressionAnatomyToRow.put(anatomy, expressionRow);
+			int expHetSpecimens=0;
+			for (String key : expressionRow.getSpecimenExpressed().keySet()) {
+				// System.out.println("specimen key="+key);
+				if (expressionRow.getSpecimenExpressed().get(key).getZyg()
+						.equalsIgnoreCase("heterozygote")) {
+					expHetSpecimens++;
+				}
+				
+			}
+			expressionRow.setNumberOfHetSpecimens(expHetSpecimens);
 			//System.out.println("expressionRow="+expressionRow.getExpressed());
 			ExpressionRowBean controlRow = getAnatomyRow(anatomy,
 					controlAnatomyToDocs);
@@ -336,15 +348,16 @@ public class ExpressionService {
 						.equalsIgnoreCase("heterozygote")) {
 					hetSpecimens++;
 				}
-				;
+				
 			}
+			
 			mutantRow.setNumberOfHetSpecimens(hetSpecimens);
 			mutantAnatomyToRow.put(anatomy, mutantRow);
 			//mutants parameter associations will contain some expression calls for the same docs as the categorical data - so will need to 
 			//screen them out somehow? experiment id?
 
 		}
-
+		model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
 		model.addAttribute("mutantAnatomyToRow", mutantAnatomyToRow);
 		model.addAttribute("controlAnatomyToRow", controlAnatomyToRow);
 
@@ -444,7 +457,7 @@ public class ExpressionService {
 						row.addSpecimenExpressed(
 								(String) doc.get(ImageDTO.EXTERNAL_SAMPLE_ID),
 								(String) doc.get(ImageDTO.ZYGOSITY), 1);
-						// System.out.println("paramAssValue=" + paramAssValue);
+						System.out.println("paramAssValue=" + paramAssValue);
 					} else if (paramAssValue.equalsIgnoreCase("tissue not available")) {
 						row.setAmbiguousExpression(row.getAmbiguousExpression() + 1);
 						// row.setSpecimenAmbiguous(row.getSpecimenAmbiguous()+1);

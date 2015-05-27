@@ -405,7 +405,7 @@
                                      <table>
                                      <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimens</th><th>Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
-                                     		<tr><td>${mapEntry.key}</td><td> <i title="#het images with expression ${mapEntry.value.numberOfHet}">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mapEntry.value.homImages}</td>
+                                     		<tr><td>${mapEntry.key}</td><td> <i title="#het images with expression ${mapEntry.value.numberOfHet}">${mapEntry.value.numberOfHetSpecimens} expr=${expressionAnatomyToRow[mapEntry.key].numberOfHetSpecimens}</i></td><td>${mapEntry.value.homImages}</td>
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${controlAnatomyToRow[mapEntry.key].wildTypeExpression}"><i title="#images expressed=${controlAnatomyToRow[mapEntry.key].expressed} not expressed=${controlAnatomyToRow[mapEntry.key].notExpressed} ambiguous=${controlAnatomyToRow[mapEntry.key].ambiguousExpression}" class="fa fa-check" style="color:#0978a1"></i>
@@ -430,6 +430,11 @@
                                      		<i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}">${specimen.key}</i>
                                  
                                      		</c:forEach></td>
+                                     		<td>
+                                     			<c:forEach var="specimen" items="${expressionAnatomyToRow[mapEntry.key].specimenExpressed}">
+                                     				<i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}">${specimen.key}</i>
+                                     			</c:forEach>
+                                     		</td>
                                      		
                                      		<td>
                                      		<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
