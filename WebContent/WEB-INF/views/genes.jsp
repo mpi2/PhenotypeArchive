@@ -405,10 +405,10 @@
                                      <table>
                                      <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimens</th><th>Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
-                                     		<tr><td>${mapEntry.key}</td><td> <i title="">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mapEntry.value.homImages}</td>
+                                     		<tr><td>${mapEntry.key}</td><td> <i title="">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mutantImagesAnatomyToRow[mapEntry.key].homImages}</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${controlAnatomyToRow[mapEntry.key].wildTypeExpression}"><i title="" class="fa fa-check" style="color:#0978a1"></i>
+                                     			<c:when test="${wtAnatomyToRow[mapEntry.key].wildTypeExpression}"><i title="" class="fa fa-check" style="color:#0978a1"></i>
                                      			</c:when>
                                      			<c:otherwise>
                                      				<i title="No wild type images with expression found" class="fa fa-times" style="color:gray"></i>

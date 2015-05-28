@@ -85,6 +85,8 @@ public class ExpressionService {
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME
 				+ ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
 				+ ":\"LacZ Images Wholemount\"");
+		solrQuery.addFilterQuery(ImageDTO.ZYGOSITY
+				+ ":Homozygote");
 		// solrQuery.setFacetMinCount(1);
 		// solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -262,10 +264,45 @@ public class ExpressionService {
 				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY);
 		SolrDocumentList mutantCategoricalAdultLacZData = laczDataResponse.getResults();
-		System.out.println("noImagesExpressionData found="
+		System.out.println("mutantCategoricalAdultLacZData found="
 				+ mutantCategoricalAdultLacZData.getNumFound());
 		Map<String, SolrDocumentList> expressionAnatomyToDocs = getAnatomyToDocsForCategorical(mutantCategoricalAdultLacZData);
 		Map<String, ExpressionRowBean> expressionAnatomyToRow = new TreeMap<>();
+		Map<String, ExpressionRowBean> wtAnatomyToRow = new TreeMap<>();
+		
+		QueryResponse wtLaczDataResponse = getCategoricalAdultLacZData(null,
+				ImageDTO.OMERO_ID, ImageDTO.JPEG_URL,
+				ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
+				ImageDTO.PARAMETER_ASSOCIATION_NAME,
+				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
+				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
+				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
+				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY);
+		SolrDocumentList wtCategoricalAdultLacZData = wtLaczDataResponse.getResults();
+		System.out.println("noImagesExpressionData found="
+				+ mutantCategoricalAdultLacZData.getNumFound());
+		Map<String, SolrDocumentList> wtAnatomyToDocs = getAnatomyToDocsForCategorical(wtCategoricalAdultLacZData);
+			
+			
+		QueryResponse laczImagesResponse = null;
+
+		laczImagesResponse = getExpressionTableDataImages(acc, ImageDTO.OMERO_ID,
+				ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
+				ImageDTO.PARAMETER_ASSOCIATION_NAME,
+				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
+				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
+				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
+				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE);
+		SolrDocumentList imagesMutantResponse = laczImagesResponse.getResults();
+		System.out.println("Images Expression data found="
+				+ imagesMutantResponse.getNumFound());
+		Map<String, ExpressionRowBean> mutantImagesAnatomyToRow = new TreeMap<>();
+//		Map<String, ExpressionRowBean> controlAnatomyToRow = new TreeMap<String, ExpressionRowBean>();
+//
+//		Map<String, SolrDocumentList> controlAnatomyToDocs = getAnatomyToDocs(imagesControlResponse);
+		Map<String, SolrDocumentList> mutantImagesAnatomyToDocs = getAnatomyToDocs(imagesMutantResponse);
+		
+		
 		for (String anatomy : expressionAnatomyToDocs.keySet()) {
 			
 			// System.out.println("getting controls");
@@ -284,16 +321,25 @@ public class ExpressionService {
 				expressionRow.setMutantExpression(true);
 			}
 			expressionAnatomyToRow.put(anatomy, expressionRow);
-
-//		QueryResponse laczResponse = null;
-//
-//		laczResponse = getExpressionTableDataImages(acc, ImageDTO.OMERO_ID,
-//				ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
-//				ImageDTO.PARAMETER_ASSOCIATION_NAME,
-//				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
-//				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
-//				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
-//				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE);
+			
+			
+			ExpressionRowBean wtRow = getAnatomyRow(anatomy,
+					wtAnatomyToDocs);
+			
+				//int wtHhetSpecimens=0;
+//				for (String key : wtRow.getSpecimen().keySet()) {
+//					// System.out.println("specimen key="+key);
+//					if (wtRow.getSpecimen().get(key).getZyg()
+//							.equalsIgnoreCase("heterozygote")) {
+//						wtHhetSpecimens++;
+//					}	
+//				}
+//				wtRow.setNumberOfHetSpecimens(wtHhetSpecimens);
+				if(wtRow.getSpecimenExpressed().keySet().size()>0){
+					wtRow.setWildTypeExpression(true);
+				}
+				wtAnatomyToRow.put(anatomy, wtRow);
+			
 //
 //		QueryResponse laczControlResponse = null;
 //
@@ -310,14 +356,7 @@ public class ExpressionService {
 //				.getResults();
 //		System.out.println("Images Controls data found="
 //				+ imagesControlResponse.getNumFound());
-//		SolrDocumentList imagesMutantResponse = laczResponse.getResults();
-//		System.out.println("Images Expression data found="
-//				+ imagesMutantResponse.getNumFound());
-//		Map<String, ExpressionRowBean> mutantAnatomyToRow = new TreeMap<>();
-//		Map<String, ExpressionRowBean> controlAnatomyToRow = new TreeMap<String, ExpressionRowBean>();
-//
-//		Map<String, SolrDocumentList> controlAnatomyToDocs = getAnatomyToDocs(imagesControlResponse);
-//		Map<String, SolrDocumentList> mutantAnatomyToDocs = getAnatomyToDocs(imagesMutantResponse);
+	
 		// now we have the docs seperated by anatomy terms lets get the data
 		// needed for the table
 		// should web be looking at experiment core? Are there expression
@@ -334,8 +373,8 @@ public class ExpressionService {
 //				controlRow.setWildTypeExpression(true);
 //			}
 //			// System.out.println("getting mutants");
-//			ExpressionRowBean mutantRow = getAnatomyRow(anatomy,
-//					mutantAnatomyToDocs);
+			ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy,
+					mutantImagesAnatomyToDocs);
 //			controlAnatomyToRow.put(anatomy, controlRow);
 //			int hetSpecimens = 0;
 //			for (String key : mutantRow.getSpecimenExpressed().keySet()) {
@@ -347,15 +386,15 @@ public class ExpressionService {
 //				
 //			}
 //			
-//			mutantRow.setNumberOfHetSpecimens(hetSpecimens);
-//			mutantAnatomyToRow.put(anatomy, mutantRow);
+			mutantImagesRow.setNumberOfHetSpecimens(hetSpecimens);
+			mutantImagesAnatomyToRow.put(anatomy, mutantImagesRow);
 			//mutants parameter associations will contain some expression calls for the same docs as the categorical data - so will need to 
 			//screen them out somehow? experiment id?
 
 		}
 		model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
-//		model.addAttribute("mutantAnatomyToRow", mutantAnatomyToRow);
-//		model.addAttribute("controlAnatomyToRow", controlAnatomyToRow);
+		model.addAttribute("mutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
+		model.addAttribute("wtAnatomyToRow", wtAnatomyToRow);
 
 	}
 
@@ -371,7 +410,7 @@ public class ExpressionService {
 					//System.out.println("categorical");
 					row=getExpressionCountForAnatomyTerm(anatomy, row, doc);
 				} else {//assume image with parameterAssociation
-					row = getExpressionCountForAnatomyTermFromImages(anatomy, row, doc);
+					row = homImages(anatomy, row, doc);
 				}
 			}
 
@@ -380,35 +419,53 @@ public class ExpressionService {
 		return row;
 	}
 
-	private ExpressionRowBean getExpressionCountForAnatomyTermFromImages(String anatomy,
+//	private ExpressionRowBean getExpressionCountForAnatomyTermFromImages(String anatomy,
+//			ExpressionRowBean row, SolrDocument doc) {
+//		// System.out.println("anatomy="+anatomy);
+//		if (doc.containsKey(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
+//			List<String> paramAssNames = (List<String>) doc
+//					.get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
+//			List<String> paramAssValues = (List<String>) doc
+//					.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
+//			for (int i = 0; i < paramAssNames.size(); i++) {
+//				String paramAssName = paramAssNames.get(i);
+//				String paramAssValue = paramAssValues.get(i);
+//				// System.out.println("paramAssName=" + paramAssName);
+//				// System.out.println("paramAssValue=" + paramAssValue);
+//				if (paramAssName.equalsIgnoreCase(anatomy)) {
+//					if (paramAssValue.equalsIgnoreCase("expression")) {
+//						// System.out.println("zyg="+(String)doc.get(ImageDTO.ZYGOSITY));
+//						row.addSpecimenExpressed(
+//								(String) doc.get(ImageDTO.EXTERNAL_SAMPLE_ID),
+//								(String) doc.get(ImageDTO.ZYGOSITY));
+//						// System.out.println("paramAssValue=" + paramAssValue);
+//					} else if (paramAssValue.equalsIgnoreCase("ambiguous")) {
+//						//row.setAmbiguousExpression(row.getAmbiguousExpression() + 1);
+//						// row.setSpecimenAmbiguous(row.getSpecimenAmbiguous()+1);
+//					} else if (paramAssValue.equalsIgnoreCase("no expression")) {
+//						//row.setNotExpressed(row.getNotExpressed() + 1);
+//						// row.setSpecimenNotExpressed(row.getSpecimenNotExpressed()+1);
+//					}
+//				}
+//
+//			}
+//		}
+//		return row;
+//	}
+	
+	/**
+	 * Are there hom images in this set (needed for the expression table on gene page
+	 * @param anatomy
+	 * @param row
+	 * @param doc
+	 * @return
+	 */
+	private ExpressionRowBean homImages(String anatomy,
 			ExpressionRowBean row, SolrDocument doc) {
 		// System.out.println("anatomy="+anatomy);
-		if (doc.containsKey(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
-			List<String> paramAssNames = (List<String>) doc
-					.get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-			List<String> paramAssValues = (List<String>) doc
-					.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
-			for (int i = 0; i < paramAssNames.size(); i++) {
-				String paramAssName = paramAssNames.get(i);
-				String paramAssValue = paramAssValues.get(i);
-				// System.out.println("paramAssName=" + paramAssName);
-				// System.out.println("paramAssValue=" + paramAssValue);
-				if (paramAssName.equalsIgnoreCase(anatomy)) {
-					if (paramAssValue.equalsIgnoreCase("expression")) {
-						// System.out.println("zyg="+(String)doc.get(ImageDTO.ZYGOSITY));
-						row.addSpecimenExpressed(
-								(String) doc.get(ImageDTO.EXTERNAL_SAMPLE_ID),
-								(String) doc.get(ImageDTO.ZYGOSITY));
-						// System.out.println("paramAssValue=" + paramAssValue);
-					} else if (paramAssValue.equalsIgnoreCase("ambiguous")) {
-						//row.setAmbiguousExpression(row.getAmbiguousExpression() + 1);
-						// row.setSpecimenAmbiguous(row.getSpecimenAmbiguous()+1);
-					} else if (paramAssValue.equalsIgnoreCase("no expression")) {
-						//row.setNotExpressed(row.getNotExpressed() + 1);
-						// row.setSpecimenNotExpressed(row.getSpecimenNotExpressed()+1);
-					}
-				}
-
+		if (doc.containsKey(ImageDTO.ZYGOSITY)) {
+			if(doc.get(ImageDTO.ZYGOSITY).equals("homozygous")){
+				row.setHomImages(true);
 			}
 		}
 		return row;
