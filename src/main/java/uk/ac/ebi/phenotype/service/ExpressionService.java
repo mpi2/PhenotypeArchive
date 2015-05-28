@@ -85,8 +85,8 @@ public class ExpressionService {
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME
 				+ ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
 				+ ":\"LacZ Images Wholemount\"");
-		solrQuery.addFilterQuery(ImageDTO.ZYGOSITY
-				+ ":Homozygote");
+		//solrQuery.addFilterQuery(ImageDTO.ZYGOSITY
+		//		+ ":Homozygote");
 		// solrQuery.setFacetMinCount(1);
 		// solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -392,6 +392,14 @@ public class ExpressionService {
 			//screen them out somehow? experiment id?
 
 		}
+		
+		//are there any images anatomy terms where there are no categorical ones?
+		Set<String> expressionAnatomies = expressionAnatomyToDocs.keySet();
+		TreeSet<String> tempExpSet = new TreeSet<String>(expressionAnatomies);
+		Set<String> imagesAnatomies=mutantImagesAnatomyToDocs.keySet();
+		tempExpSet.removeAll(imagesAnatomies);
+		System.out.println("tempExpSet="+tempExpSet);
+		
 		model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
 		model.addAttribute("mutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
 		model.addAttribute("wtAnatomyToRow", wtAnatomyToRow);
@@ -409,14 +417,25 @@ public class ExpressionService {
 						"categorical")) {
 					//System.out.println("categorical");
 					row=getExpressionCountForAnatomyTerm(anatomy, row, doc);
-				} else {//assume image with parameterAssociation
+				} else if(doc.get(ObservationDTO.OBSERVATION_TYPE).equals("image_record")) {//assume image with parameterAssociation
 					row = homImages(anatomy, row, doc);
+					row = imagesAvailable(anatomy, row, doc);
 				}
 			}
 
 		}
 		row.anatomy = anatomy;
 		return row;
+	}
+
+private ExpressionRowBean imagesAvailable(String anatomy,
+			ExpressionRowBean row, SolrDocument doc) {
+	//if (doc.containsKey(ImageDTO.DOWNLOAD_FILE_PATH)) {
+		System.out.println("setting images available");
+			row.setImagesAvailable(true);
+		
+	//}
+	return row;
 	}
 
 //	private ExpressionRowBean getExpressionCountForAnatomyTermFromImages(String anatomy,
@@ -464,7 +483,7 @@ public class ExpressionService {
 			ExpressionRowBean row, SolrDocument doc) {
 		// System.out.println("anatomy="+anatomy);
 		if (doc.containsKey(ImageDTO.ZYGOSITY)) {
-			if(doc.get(ImageDTO.ZYGOSITY).equals("homozygous")){
+			if(doc.get(ImageDTO.ZYGOSITY).equals("homozygote")){
 				row.setHomImages(true);
 			}
 		}
@@ -485,7 +504,7 @@ public class ExpressionService {
 						row.addSpecimenExpressed(
 								(String) doc.get(ImageDTO.EXTERNAL_SAMPLE_ID),
 								(String) doc.get(ImageDTO.ZYGOSITY));
-						System.out.println("paramAssValue=" + paramAssValue);
+						//System.out.println("paramAssValue=" + paramAssValue);
 					} else if (paramAssValue.equalsIgnoreCase("tissue not available")) {
 						//row.setAmbiguousExpression(row.getAmbiguousExpression() + 1);
 						// row.setSpecimenAmbiguous(row.getSpecimenAmbiguous()+1);
@@ -533,7 +552,7 @@ public class ExpressionService {
 					if (!anatomyToDocs.containsKey(anatomy)) {
 						anatomyToDocs.put(anatomy, new SolrDocumentList());
 					}
-					System.out.println("adding categorical anatomy "+anatomy);
+					//System.out.println("adding categorical anatomy "+anatomy);
 					anatomyList = anatomyToDocs.get(anatomy);
 					anatomyList.add(doc);
 		}
@@ -552,9 +571,18 @@ public class ExpressionService {
 		boolean homImages = false;
 		boolean wildTypeExpression=false;
 		boolean mutantExpression=false;
+		private boolean imagesAvailable;
 		
+		public boolean isImagesAvailable() {
+			return imagesAvailable;
+		}
+
 		public boolean isMutantExpression() {
 			return mutantExpression;
+		}
+
+		public void setImagesAvailable(boolean b) {
+			this.imagesAvailable=b;
 		}
 
 		public void setMutantExpression(boolean mutantExpression) {

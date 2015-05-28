@@ -436,8 +436,10 @@
                                      		</c:forEach></td>
                                      		                                     		
                                      		<td>
-                                     		<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
-                                     		</a>
+                                     		<c:if test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
+                                     			<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
+                                     			</a>
+                                     		</c:if>
                                      		</td>
                                      		</tr>
                                      	</c:forEach>
