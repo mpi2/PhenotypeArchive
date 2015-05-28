@@ -45,7 +45,7 @@ public class ImpcImagesController {
 		System.out.println("calling laczImages web page");
 		addGeneSymbolToPage(acc, model);
 		boolean overview=false;
-		expressionService.getLacDataForGene(acc, topLevelMa,overview, false, model);
+		expressionService.getLacImageDataForGene(acc, topLevelMa,overview, false, model);
 
 		return "laczImages";
 	}
@@ -55,7 +55,7 @@ public class ImpcImagesController {
 			throws SolrServerException, IOException, URISyntaxException {
 		addGeneSymbolToPage(acc, model);
 		boolean overview=false;
-		expressionService.getLacDataForGene(acc, null, overview, false, model);
+		expressionService.getLacImageDataForGene(acc, null, overview, false, model);
 
 		return "laczImages";
 	}
