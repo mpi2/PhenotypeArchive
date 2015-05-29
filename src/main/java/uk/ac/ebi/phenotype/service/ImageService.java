@@ -374,7 +374,7 @@ public class ImageService {
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		logger.info("images experimental query: {}/select?{}",
+		logger.debug("images experimental query: {}/select?{}",
 				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
@@ -645,7 +645,6 @@ public class ImageService {
 				}
 
 				for (Count procedure : procedureFacet.getValues()) {
-					System.out.println("procedure name=" + procedure.getName());
 					if (!procedure.getName().equals(excludeProcedureName)) {
 						this.getControlAndExperimentalImpcImages(acc, model,
 								procedure.getName(), null, 0, 1,
@@ -769,10 +768,9 @@ public class ImageService {
 										count.getName(), "experimental", 1,
 										null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
-							// for(SexType sex : SexType.values()){
+							
 							SolrDocument imgDoc = responseExperimental
 									.getResults().get(0);
-							// no sex filter on this request
 							QueryResponse responseExperimental2 = this
 									.getImagesForGeneByParameter(
 											acc,
@@ -792,17 +790,11 @@ public class ImageService {
 							if (responseExperimental2 != null) {
 								list.addAll(responseExperimental2.getResults());
 							}
-							// }
+							
 						}
 
-						for (SolrDocument doc : list) {
-							System.out
-									.println("group="
-											+ doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
-						}
 						facetToDocs.put(count.getName(), list);
-						// }
-						// }
+						
 					}
 				}
 
