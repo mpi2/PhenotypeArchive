@@ -122,6 +122,8 @@ public class ExpressionService {
 				+ ":\"LacZ Images Section\"");
 		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME
 				+ ":\"LacZ Images Wholemount\"");
+		solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE
+				+ ":\"categorical\"");
 		// solrQuery.setFacetMinCount(1);
 		// solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -264,8 +266,8 @@ public class ExpressionService {
 				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY);
 		SolrDocumentList mutantCategoricalAdultLacZData = laczDataResponse.getResults();
-		System.out.println("mutantCategoricalAdultLacZData found="
-				+ mutantCategoricalAdultLacZData.getNumFound());
+//		System.out.println("mutantCategoricalAdultLacZData found="
+//				+ mutantCategoricalAdultLacZData.getNumFound());
 		Map<String, SolrDocumentList> expressionAnatomyToDocs = getAnatomyToDocsForCategorical(mutantCategoricalAdultLacZData);
 		Map<String, ExpressionRowBean> expressionAnatomyToRow = new TreeMap<>();
 		Map<String, ExpressionRowBean> wtAnatomyToRow = new TreeMap<>();
@@ -399,13 +401,6 @@ public class ExpressionService {
 
 		}
 		
-		//are there any images anatomy terms where there are no categorical ones?
-		Set<String> expressionAnatomies = expressionAnatomyToDocs.keySet();
-		TreeSet<String> tempExpSet = new TreeSet<String>(expressionAnatomies);
-		Set<String> imagesAnatomies=mutantImagesAnatomyToDocs.keySet();
-		tempExpSet.removeAll(imagesAnatomies);
-		System.out.println("tempExpSet="+tempExpSet);
-		
 		model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
 		model.addAttribute("mutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
 		model.addAttribute("wtAnatomyToRow", wtAnatomyToRow);
@@ -429,13 +424,13 @@ public class ExpressionService {
 				}
 			}
 			if(row.getSpecimenExpressed().keySet().size()>0){
-				row.setMutantExpression(true);
+				row.setExpression(true);
 			}
 			if(row.getSpecimenNotExpressed().keySet().size()>0){
-				row.setMutantNotExpressed(true);
+				row.setNotExpressed(true);
 			}
 			if(row.getSpecimenNoTissueAvailable().keySet().size()>0){
-				row.setMutantNoTissueAvailable(true);
+				row.setNoTissueAvailable(true);
 			}
 
 		}
@@ -445,11 +440,7 @@ public class ExpressionService {
 
 private ExpressionRowBean imagesAvailable(String anatomy,
 			ExpressionRowBean row, SolrDocument doc) {
-	//if (doc.containsKey(ImageDTO.DOWNLOAD_FILE_PATH)) {
-		System.out.println("setting images available");
 			row.setImagesAvailable(true);
-		
-	//}
 	return row;
 	}
 
@@ -588,23 +579,35 @@ private ExpressionRowBean imagesAvailable(String anatomy,
 		String anatomy;
 		boolean homImages = false;
 		boolean wildTypeExpression=false;
-		boolean mutantExpression=false;
-		boolean mutantNotExpressed=false;
+		boolean expression=false;
+		public boolean isExpression() {
+			return expression;
+		}
+
+		public void setExpression(boolean expression) {
+			this.expression = expression;
+		}
+
+		public boolean isNotExpressed() {
+			return notExpressed;
+		}
+
+		public void setNotExpressed(boolean notExpressed) {
+			this.notExpressed = notExpressed;
+		}
+
+		public boolean isNoTissueAvailable() {
+			return noTissueAvailable;
+		}
+
+		public void setNoTissueAvailable(boolean noTissueAvailable) {
+			this.noTissueAvailable = noTissueAvailable;
+		}
+
+
+		boolean notExpressed=false;
+		boolean noTissueAvailable=false;
 		
-		public boolean isMutantNotExpressed() {
-			return mutantNotExpressed;
-		}
-
-
-		boolean mutantNoTissueAvailable=false;
-		
-		public boolean isMutantNoTissueAvailable() {
-			return mutantNoTissueAvailable;
-		}
-
-		public void setMutantNoTissueAvailable(boolean mutantNoTissueAvailable) {
-			this.mutantNoTissueAvailable = mutantNoTissueAvailable;
-		}
 
 
 		private boolean imagesAvailable;
@@ -613,21 +616,8 @@ private ExpressionRowBean imagesAvailable(String anatomy,
 			return imagesAvailable;
 		}
 
-		public void setMutantNotExpressed(boolean b) {
-			this.mutantNotExpressed=b;
-			
-		}
-
-		public boolean isMutantExpression() {
-			return mutantExpression;
-		}
-
 		public void setImagesAvailable(boolean b) {
 			this.imagesAvailable=b;
-		}
-
-		public void setMutantExpression(boolean mutantExpression) {
-			this.mutantExpression = mutantExpression;
 		}
 
 

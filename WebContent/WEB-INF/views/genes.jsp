@@ -403,18 +403,18 @@
                                     <div class="inner" style="display: block;">
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimens</th><th>Images</th></tr>
+                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th>Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
-                                     		<tr><td>${mapEntry.key}</td><td> <i title="">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mutantImagesAnatomyToRow[mapEntry.key].homImages}</td>
+                                     		<tr><td>${mapEntry.key}</td><td> <i title="">${mapEntry.value.numberOfHetSpecimens}</i></td><td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:#0978a1"</c:if>>${mutantImagesAnatomyToRow[mapEntry.key].homImages}</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${wtAnatomyToRow[mapEntry.key].mutantExpression}">
+                                     			<c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
                                      				<i class="fa fa-check" style="color:#0978a1"></i>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
-                          						<c:when test="${wtAnatomyToRow[mapEntry.key].mutantNotExpressed}">
+                          						<c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
                           							<i title="Not Expressed" class="fa fa-times" style="color:gray"></i>
                           						</c:when> 
-                          						<c:when test="${wtAnatomyToRow[mapEntry.key].mutantNoTissueAvailable}">
+                          						<c:when test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
                           							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
                           						</c:when>             			
                                      			
@@ -425,13 +425,13 @@
                                      		</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${mapEntry.value.mutantExpression}">
+                                     			<c:when test="${mapEntry.value.expression}">
                                      				<i class="fa fa-check" style="color:#0978a1"></i>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
-                          						<c:when test="${mapEntry.value.mutantNotExpressed}">
+                          						<c:when test="${mapEntry.value.notExpressed}">
                           							<i title="Not Expressed" class="fa fa-times" style="color:gray"></i>
                           						</c:when> 
-                          						<c:when test="${mapEntry.value.mutantNoTissueAvailable}">
+                          						<c:when test="${mapEntry.value.noTissueAvailable}">
                           							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
                           						</c:when>             			
                                      			
@@ -441,15 +441,12 @@
                                      		</c:choose>
                                      		</td>
                                
-                                     		<td>
-                                     		<c:forEach var="specimenExpressed" items="${mapEntry.value.specimenExpressed}">
-                                     		<i title="zygosity= ${specimenExpressed.value.zyg}">${specimenExpressed.key}</i>
-                                 
-                                     		</c:forEach>
+                                     		<%-- <td>
+                          
                                      		<c:forEach var="specimen" items="${mapEntry.value.specimen}">
                                      		<i title="zygosity= ${specimen.value.zyg}">${specimen.key}</i>
                                  
-                                     		</c:forEach></td>
+                                     		</c:forEach></td> --%>
                                      		                                     		
                                      		<td>
                                      		<c:if test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
