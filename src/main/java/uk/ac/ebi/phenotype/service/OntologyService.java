@@ -83,7 +83,7 @@ public abstract class OntologyService {
     protected final HashMap<String, String>   node2termMap = new HashMap();
     protected Map<String, List<String>>       synonymsMap = null;
     
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public OntologyService() {
         
@@ -479,18 +479,22 @@ public abstract class OntologyService {
     protected final void populateAncestorGraph() {
         Map<String, List<List<String>>> ancestorsMap = new HashMap();
         Set<Map.Entry<String, List<String>>> entrySet = id2nodesMap.entrySet();
+        
         for (Map.Entry<String, List<String>> entry : entrySet) {
             List<List<String>> ancestorList = new ArrayList();
             for (String sAncestorNodeId : entry.getValue()) {
-            List<String> nodeIds = new ArrayList();
+                List<String> nodeIds = new ArrayList();
                 Integer ancesterNodeId = Utils.tryParseInt(sAncestorNodeId);
-                String[] sNodeIds = ancestorMap.get(ancesterNodeId).split(" ");
-                for (String sNodeId : sNodeIds) {
-                    if (Utils.tryParseInt(sNodeId) != 0) {
-                        nodeIds.add(node2termMap.get(sNodeId));
-                    }
+                String ancestorNodeIdConcat = ancestorMap.get(ancesterNodeId);
+                if (ancestorNodeIdConcat !=  null) {
+                    String[] sNodeIds = ancestorMap.get(ancesterNodeId).split(" ");
+                        for (String sNodeId : sNodeIds) {
+                            if (Utils.tryParseInt(sNodeId) != 0) {
+                                nodeIds.add(node2termMap.get(sNodeId));
+                            }
+                        }
+                    ancestorList.add(nodeIds);
                 }
-                ancestorList.add(nodeIds);
             }
             ancestorsMap.put(entry.getKey(), ancestorList);
         }
