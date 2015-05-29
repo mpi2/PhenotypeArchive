@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -45,6 +46,7 @@ import uk.ac.ebi.phenotype.util.Utils;
  * validateDownload(String[][] data)</code>.
  */
 public abstract class SearchFacetTable {
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     public final String graphUrl;
     private boolean hasTable;
     protected String[] pageHeading;
@@ -74,7 +76,7 @@ public abstract class SearchFacetTable {
       }
     };
     
-    protected Map<TableComponent, By> byMap = new HashMap();
+    protected final Map<TableComponent, By> byMap;
     
     /**
      * Initializes the generic components of a <code>SearchFacetTable</code>.
@@ -91,7 +93,12 @@ public abstract class SearchFacetTable {
         this.wait = new WebDriverWait(driver, timeoutInSeconds);
         this.timeoutInSeconds = timeoutInSeconds;
         this.byMap = byMap;
-        setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
+        try {
+            setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
+        } catch (Exception e) {
+            logger.error("URL: " + graphUrl);
+            throw e;
+        }
     }
     
     public enum EntriesSelect {

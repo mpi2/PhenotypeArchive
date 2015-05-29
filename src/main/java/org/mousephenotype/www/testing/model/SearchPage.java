@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -58,6 +59,7 @@ public class SearchPage {
     private SearchAnatomyTable   anatomyTable;
     private SearchImpcImageTable impcImageTable;
     private SearchImageTable     imageTable;
+    private Map<SearchFacetTable.TableComponent, By> map;
     
     // These are the core names.
     public static final String GENE_CORE        = "gene";
@@ -171,10 +173,13 @@ public class SearchPage {
      * @param phenotypePipelineDAO
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
+     * @param map a map of HTML table-related definitions, keyed by <code>
+     * TableComponent</code>.
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
-        this(driver, timeoutInSeconds, null, phenotypePipelineDAO, baseUrl);
+    public SearchPage(WebDriver driver, int timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) {
+        this(driver, timeoutInSeconds, null, phenotypePipelineDAO, baseUrl, map);
         this.target = driver.getCurrentUrl();
+        this.map = map;
     }
     
     /**
@@ -186,13 +191,17 @@ public class SearchPage {
      * @param phenotypePipelineDAO
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
+     * @param map a map of HTML table-related definitions, keyed by <code>
+     * TableComponent</code>.
+     * 
      * @throws RuntimeException If the target cannot be set
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) throws RuntimeException {
+    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws RuntimeException {
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
+        this.map = map;
         wait = new WebDriverWait(driver, timeoutInSeconds);
         
         if ((target != null) && ( ! target.isEmpty())) {
@@ -662,6 +671,53 @@ public class SearchPage {
     }
     
     /**
+     * Returns an array of facet names.
+     * 
+     * @param facet the facet whose names are to be returned
+     * 
+     * @return an array of facet names
+     * 
+     * @throws Exception
+     */
+    public String[] getFacetNames(Facet facet) throws Exception {
+        ArrayList<String> names = new ArrayList();
+        String xpath = "";
+        
+        openFacet(facet);
+        
+        switch (facet) {
+            case GENES:
+                throw new Exception("Not implemented yet.");
+                
+            case PHENOTYPES:
+                xpath = "//*[@id='mp']//li";
+                break;
+                
+            case DISEASES:
+                throw new Exception("Not implemented yet.");
+                
+            case ANATOMY:
+                xpath = "//*[@id='ma']//li";
+                break;
+                
+            case IMPC_IMAGES:
+                throw new Exception("Not implemented yet.");
+                
+            case IMAGES:
+                throw new Exception("Not implemented yet.");
+        }
+        
+        List<WebElement> elements = driver.findElements(By.xpath(xpath));
+        if ( ! elements.isEmpty()) {
+            for (WebElement element: elements) {
+                names.add(element.getText());
+            }
+        }
+        
+        return names.toArray(new String[0]);
+    }
+    
+    /**
      * @return Returns the GENES table [geneGrid], if there is one; or an
  empty one if there is not
      */
@@ -696,7 +752,7 @@ public class SearchPage {
     public SearchImageTable getImageTable() {
         if (hasImageTable()) {
             if (imageTable == null) {
-                imageTable = new SearchImageTable(driver, timeoutInSeconds);
+                imageTable = new SearchImageTable(driver, timeoutInSeconds, map);
             }
         }
         
@@ -957,7 +1013,7 @@ public class SearchPage {
         } else if (hasGeneTable()) {
             geneTable = new SearchGeneTable(driver, timeoutInSeconds);
         } else if (hasImageTable()) {
-            imageTable = new SearchImageTable(driver, timeoutInSeconds);
+            imageTable = new SearchImageTable(driver, timeoutInSeconds, map);
         } else if (hasImageTable()) {
             impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
         } else if (hasPhenotypeTable()) {

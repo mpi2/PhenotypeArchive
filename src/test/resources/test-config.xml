@@ -76,7 +76,8 @@
     </bean>
 	
     <bean id="expressionService" class="uk.ac.ebi.phenotype.service.ExpressionService">
-            <constructor-arg value="${internalSolrUrl}/impc_images" />
+        <constructor-arg value="${internalSolrUrl}/experiment" />
+        <constructor-arg value="${internalSolrUrl}/impc_images" />
     </bean>
 	
     <bean id="alleleService" class="uk.ac.ebi.phenotype.service.AlleleService">
