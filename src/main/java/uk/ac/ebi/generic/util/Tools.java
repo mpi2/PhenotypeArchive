@@ -15,14 +15,26 @@
  */
 package uk.ac.ebi.generic.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.sql.DataSource;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import javax.sql.DataSource;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 public class Tools {
 	
@@ -190,6 +202,9 @@ public class Tools {
 			additionalInfos.add("disease_id");
 			additionalInfos.add("disease_term");
 
+			// impc images link
+            additionalInfos.add("images_link");
+			
 			//GO stuff for gene : not shown for now
 		}
 		else if ( corename.equals("disease") ) {
