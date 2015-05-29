@@ -20,6 +20,7 @@
 
 package uk.ac.ebi.phenotype.service;
 
+import java.sql.SQLException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -28,7 +29,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -65,6 +65,35 @@ public class MaOntologyServiceTest {
     @After
     public void tearDown() {
     }
+    
+    
+    // PRIVATE METHODS
+    
+    
+    private String joinIds(List<OntologyTermBean> terms) {
+        String retVal = "";
+        for (OntologyTermBean term : terms) {
+            if ( ! retVal.isEmpty())
+                retVal += ", ";
+            retVal += term.getId();
+        }
+        
+        return retVal;
+    }
+    
+    private String[] joinIdsAsArray(List<OntologyTermBean> terms) {
+        String[] retVal = new String[terms.size()];
+        
+        for (int i = 0; i < terms.size(); i++) {
+            retVal[i] = terms.get(i).getId();
+        }
+        
+        return retVal;
+    }
+    
+    
+    // TESTS
+    
     
     /**
      * Test of populateAncestorGraph method, of class MaOntologyService.
@@ -375,24 +404,14 @@ public class MaOntologyServiceTest {
         assertArrayEquals(errMsg, expectedTermsArray, actualTermIdsArray);
     }
     
-    private String joinIds(List<OntologyTermBean> terms) {
-        String retVal = "";
-        for (OntologyTermBean term : terms) {
-            if ( ! retVal.isEmpty())
-                retVal += ", ";
-            retVal += term.getId();
-        }
+//@Ignore
+    @Test
+    public void testBuildAncestorMap() throws SQLException {
+        instance.setShowAncestorMapWarnings(true);                              // Turn on ancestor map warnings.
+        instance.populateAncestorMap();
         
-        return retVal;
+        if (instance.hasAncestorMapWarnings())
+            fail("There are ancestor map warnings.");
     }
     
-    private String[] joinIdsAsArray(List<OntologyTermBean> terms) {
-        String[] retVal = new String[terms.size()];
-        
-        for (int i = 0; i < terms.size(); i++) {
-            retVal[i] = terms.get(i).getId();
-        }
-        
-        return retVal;
-    }
 }
