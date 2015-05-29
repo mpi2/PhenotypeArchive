@@ -258,12 +258,7 @@ public class ExpressionService {
 
 		
 		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc,
-				ImageDTO.OMERO_ID, ImageDTO.JPEG_URL,
-				ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
-				ImageDTO.PARAMETER_ASSOCIATION_NAME,
-				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
-				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
-				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
+				ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY);
 		SolrDocumentList mutantCategoricalAdultLacZData = laczDataResponse.getResults();
 //		System.out.println("mutantCategoricalAdultLacZData found="
@@ -273,31 +268,22 @@ public class ExpressionService {
 		Map<String, ExpressionRowBean> wtAnatomyToRow = new TreeMap<>();
 		
 		QueryResponse wtLaczDataResponse = getCategoricalAdultLacZData(null,
-				ImageDTO.OMERO_ID, ImageDTO.JPEG_URL,
-				ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
-				ImageDTO.PARAMETER_ASSOCIATION_NAME,
-				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
-				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
-				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
+				ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY);
 		SolrDocumentList wtCategoricalAdultLacZData = wtLaczDataResponse.getResults();
-		System.out.println("wtCategoricalAdultLacZData found="
-				+ wtCategoricalAdultLacZData.getNumFound());
+		//System.out.println("wtCategoricalAdultLacZData found="
+				//+ wtCategoricalAdultLacZData.getNumFound());
 		Map<String, SolrDocumentList> wtAnatomyToDocs = getAnatomyToDocsForCategorical(wtCategoricalAdultLacZData);
 			
 			
 		QueryResponse laczImagesResponse = null;
 
-		laczImagesResponse = getExpressionTableDataImages(acc, ImageDTO.OMERO_ID,
-				ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
+		laczImagesResponse = getExpressionTableDataImages(acc, ImageDTO.ZYGOSITY,
 				ImageDTO.PARAMETER_ASSOCIATION_NAME,
-				ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
-				ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
-				ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
-				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE);
+				ObservationDTO.OBSERVATION_TYPE);
 		SolrDocumentList imagesMutantResponse = laczImagesResponse.getResults();
-		System.out.println("imagesMutantResponse found="
-				+ imagesMutantResponse.getNumFound());
+		//System.out.println("imagesMutantResponse found="
+				//+ imagesMutantResponse.getNumFound());
 		Map<String, ExpressionRowBean> mutantImagesAnatomyToRow = new TreeMap<>();
 //		Map<String, ExpressionRowBean> controlAnatomyToRow = new TreeMap<String, ExpressionRowBean>();
 //
@@ -419,8 +405,8 @@ public class ExpressionService {
 					//System.out.println("categorical");
 					row=getExpressionCountForAnatomyTerm(anatomy, row, doc);
 				} else if(doc.get(ObservationDTO.OBSERVATION_TYPE).equals("image_record")) {//assume image with parameterAssociation
-					row = homImages(anatomy, row, doc);
-					row = imagesAvailable(anatomy, row, doc);
+					row = homImages(row, doc);
+					row.setImagesAvailable(true);
 				}
 			}
 			if(row.getSpecimenExpressed().keySet().size()>0){
@@ -438,11 +424,6 @@ public class ExpressionService {
 		return row;
 	}
 
-private ExpressionRowBean imagesAvailable(String anatomy,
-			ExpressionRowBean row, SolrDocument doc) {
-			row.setImagesAvailable(true);
-	return row;
-	}
 
 //	private ExpressionRowBean getExpressionCountForAnatomyTermFromImages(String anatomy,
 //			ExpressionRowBean row, SolrDocument doc) {
@@ -485,8 +466,7 @@ private ExpressionRowBean imagesAvailable(String anatomy,
 	 * @param doc
 	 * @return
 	 */
-	private ExpressionRowBean homImages(String anatomy,
-			ExpressionRowBean row, SolrDocument doc) {
+	private ExpressionRowBean homImages(ExpressionRowBean row, SolrDocument doc) {
 		// System.out.println("anatomy="+anatomy);
 		if (doc.containsKey(ImageDTO.ZYGOSITY)) {
 			if(doc.get(ImageDTO.ZYGOSITY).equals("homozygote")){
