@@ -408,19 +408,35 @@
                                      		<tr><td>${mapEntry.key}</td><td> <i title="">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mutantImagesAnatomyToRow[mapEntry.key].homImages}</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${wtAnatomyToRow[mapEntry.key].wildTypeExpression}"><i title="" class="fa fa-check" style="color:#0978a1"></i>
+                                     			<c:when test="${wtAnatomyToRow[mapEntry.key].mutantExpression}">
+                                     				<i class="fa fa-check" style="color:#0978a1"></i>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
+                          						<c:when test="${wtAnatomyToRow[mapEntry.key].mutantNotExpressed}">
+                          							<i title="Not Expressed" class="fa fa-times" style="color:gray"></i>
+                          						</c:when> 
+                          						<c:when test="${wtAnatomyToRow[mapEntry.key].mutantNoTissueAvailable}">
+                          							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
+                          						</c:when>             			
+                                     			
                                      			<c:otherwise>
-                                     				<i title="No wild type images with expression found" class="fa fa-times" style="color:gray"></i>
+                                     				<i title="Ambiguous" class="fa fa-circle" style="color:gray"></i>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${mapEntry.value.mutantExpression}"><i class="fa fa-check" style="color:#0978a1"></i> (${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                     			<c:when test="${mapEntry.value.mutantExpression}">
+                                     				<i class="fa fa-check" style="color:#0978a1"></i>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
+                          						<c:when test="${mapEntry.value.mutantNotExpressed}">
+                          							<i title="Not Expressed" class="fa fa-times" style="color:gray"></i>
+                          						</c:when> 
+                          						<c:when test="${mapEntry.value.mutantNoTissueAvailable}">
+                          							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
+                          						</c:when>             			
+                                     			
                                      			<c:otherwise>
-                                     				<i title="No mutant images with expression found" class="fa fa-times" style="color:gray"></i>
+                                     				<i title="Ambiguous" class="fa fa-circle" style="color:gray"></i>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
@@ -430,14 +446,14 @@
                                      		<i title="zygosity= ${specimenExpressed.value.zyg}">${specimenExpressed.key}</i>
                                  
                                      		</c:forEach>
-                                     		<c:forEach var="specimen" items="${mapEntry.value.specimenExpressed}">
+                                     		<c:forEach var="specimen" items="${mapEntry.value.specimen}">
                                      		<i title="zygosity= ${specimen.value.zyg}">${specimen.key}</i>
                                  
                                      		</c:forEach></td>
                                      		                                     		
                                      		<td>
                                      		<c:if test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
-                                     			<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
+                                     			<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i class="fa fa-image" alt="Images"></i>
                                      			</a>
                                      		</c:if>
                                      		</td>
