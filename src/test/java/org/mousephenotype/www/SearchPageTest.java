@@ -1378,7 +1378,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
      * 
      * @throws Exception
      */
-@Ignore
+//@Ignore
     @Test
     public void testMaTermNamesMatchFacetNames() throws Exception {
         System.out.println("testMaTermNamesMatchFacetNames");
