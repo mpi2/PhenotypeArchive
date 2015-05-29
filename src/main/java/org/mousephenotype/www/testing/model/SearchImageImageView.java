@@ -37,15 +37,23 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
  */
 public class SearchImageImageView extends SearchFacetTable {
     
-    public final static int COL_INDEX_ANNOTATION_TERMS    = 0;
-    public final static int COL_INDEX_ANNOTATION_IDS      = 1;
-    public final static int COL_INDEX_ANNOTATION_ID_LINKS = 2;
-    public final static int COL_INDEX_PROCEDURES          = 3;
-    public final static int COL_INDEX_GENE_SYMBOLS        = 4;
-    public final static int COL_INDEX_GENE_SYMBOL_LINKS   = 5;
-    public final static int COL_INDEX_IMAGE_LINK          = 6;
-    public static final int COL_INDEX_LAST = COL_INDEX_IMAGE_LINK;              // Should always point to the last (highest-numbered) index.
+    public final static int COL_INDEX_GENE_TERMS      =  0;
+    public final static int COL_INDEX_MA_TERMS        =  1;
+    public final static int COL_INDEX_MP_TERMS        =  2;
+    public final static int COL_INDEX_PROCEDURE_TERMS =  3;
     
+    public final static int COL_INDEX_GENE_IDS        =  4;
+    public final static int COL_INDEX_MA_IDS          =  5;
+    public final static int COL_INDEX_MP_IDS          =  6;
+    public final static int COL_INDEX_PROCEDURE_IDS   =  7;
+    
+    public final static int COL_INDEX_GENE_LINKS      =  8;
+    public final static int COL_INDEX_MA_LINKS        =  9;
+    public final static int COL_INDEX_MP_LINKS        = 10;
+    public final static int COL_INDEX_PROCEDURE_LINKS = 11;
+    
+    public final static int COL_INDEX_IMAGE_LINK      = 12;
+    public static final int COL_INDEX_LAST = COL_INDEX_IMAGE_LINK;              // Should always point to the last (highest-numbered) index.
     
     private final List<ImageRow> bodyRows = new ArrayList();
     private final GridMap pageData;
@@ -56,6 +64,12 @@ public class SearchImageImageView extends SearchFacetTable {
         MA,
         MP,
         Procedure
+    }
+    
+    public enum ComponentType {
+        Id,
+        Link,
+        Term
     }
     
     /**
@@ -84,15 +98,19 @@ public class SearchImageImageView extends SearchFacetTable {
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
         final Integer[] pageColumns = {
-              COL_INDEX_ANNOTATION_TERMS
-            , COL_INDEX_ANNOTATION_IDS
-            , COL_INDEX_ANNOTATION_ID_LINKS
+              COL_INDEX_PROCEDURE_TERMS
+            , COL_INDEX_GENE_TERMS
+            , COL_INDEX_GENE_LINKS
+            , COL_INDEX_MA_TERMS
+            , COL_INDEX_MA_LINKS
             , COL_INDEX_IMAGE_LINK
         };
         final Integer[] downloadColumns = {
-              DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_TERMS
-            , DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_IDS
-            , DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_ID_LINKS
+              DownloadSearchMapImagesImageView.COL_INDEX_PROCEDURE
+            , DownloadSearchMapImagesImageView.COL_INDEX_GENE_SYMBOL
+            , DownloadSearchMapImagesImageView.COL_INDEX_GENE_SYMBOL_LINK
+            , DownloadSearchMapImagesImageView.COL_INDEX_MA_TERM
+            , DownloadSearchMapImagesImageView.COL_INDEX_MA_TERM_LINK
             , DownloadSearchMapImagesImageView.COL_INDEX_IMAGE_LINK
         };
         
@@ -144,16 +162,20 @@ public class SearchImageImageView extends SearchFacetTable {
         if ( ! bodyRowElementsList.isEmpty()) {
             int sourceRowIndex = 1;
             
-            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERMS] = "";         // Insure there is always a non-null value.
-            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_IDS] = "";
-            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID_LINKS] = "";
+            pageArray[sourceRowIndex][COL_INDEX_PROCEDURE_TERMS] = "";         // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_GENE_TERMS] = "";
+            pageArray[sourceRowIndex][COL_INDEX_GENE_LINKS] = "";
+            pageArray[sourceRowIndex][COL_INDEX_MA_TERMS] = "";
+            pageArray[sourceRowIndex][COL_INDEX_MA_LINKS] = "";
             pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = "";
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 ImageRow bodyRow = new ImageRow(bodyRowElements);
                 
-                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERMS] = bodyRow.getTerms();
-                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_IDS] = bodyRow.getIds();
-                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID_LINKS] = bodyRow.getLinks();
+                pageArray[sourceRowIndex][COL_INDEX_PROCEDURE_TERMS] = bodyRow.toStringDetailList(bodyRow.procedureDetails, ComponentType.Term).replace("[", "").replace("]", "");
+                pageArray[sourceRowIndex][COL_INDEX_GENE_TERMS] = bodyRow.toStringDetailList(bodyRow.geneDetails, ComponentType.Term).replace("[", "").replace("]", "");
+                pageArray[sourceRowIndex][COL_INDEX_GENE_LINKS] = bodyRow.toStringDetailList(bodyRow.geneDetails, ComponentType.Link).replace("[", "").replace("]", "");
+                pageArray[sourceRowIndex][COL_INDEX_MA_TERMS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Term).replace("[", "").replace("]", "");
+                pageArray[sourceRowIndex][COL_INDEX_MA_LINKS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Link).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = bodyRow.getImageLink();
                 
                 sourceRowIndex++;
@@ -172,121 +194,58 @@ public class SearchImageImageView extends SearchFacetTable {
      * AnnotationDetail describes each Gene, MA, MP, or Procedure entry.
      */
     private class AnnotationDetail {
-        private String term;
         private String id;
         private String link;
+        private String term;
         
         public AnnotationDetail(String term) {
             this(term, "", "");
         }
         public AnnotationDetail(String term, String id, String link) {
-            this.term = term;
             this.id = id;
             this.link = link;
+            this.term = term;
         }
-        
+
         @Override
         public String toString() {
-            return term;
-        }
-    }
-    
-    /**
-     * Encapsulates term type and list of <code>AnnotationDetail</code>.
-     */
-    private class AnnotationTerm {
-        private AnnotationType         termType    = null;  
-        private List<AnnotationDetail> termDetails = new ArrayList();
-        
-        public AnnotationTerm(String termType) {
-            switch (termType.trim().toLowerCase()) {
-                case "gene":
-                    this.termType = AnnotationType.Gene;
-                    break;
-                    
-                case "ma":
-                    this.termType = AnnotationType.MA;
-                    break;
-                    
-                case "mp":
-                    this.termType = AnnotationType.MP;
-                    break;
-                    
-                case "procedure":
-                    this.termType = AnnotationType.Procedure;
-                    break;
-                    
-                default:
-                    throw new RuntimeException("ERROR: SearchImageTable.AnnotationTerm.AnnotationTerm(): Unsupported termType '" + termType + "'.");
-            }
+            return "AnnotationDetail{" + "id=" + id + ", link=" + link + ", term=" + term + '}';
         }
         
-        @Override
-        public String toString() {
+        public String toString(ComponentType componentType) {
             String retVal = "";
-            for (int i = 0; i < termDetails.size(); i++) {
-                AnnotationDetail detail = termDetails.get(i);
-                if (i > 0)
-                    retVal += "|";
-                retVal += termType + ":" + detail.term;
-            }
             
-            return retVal;
-        }
-        
-        public String toStringIds() {
-            String retVal = "";
-            for (int i = 0; i < termDetails.size(); i++) {
-                AnnotationDetail detail = termDetails.get(i);
-                if (i > 0)
-                    retVal += "|";
-                retVal += detail.id;
-            }
-            
-            return retVal;
-        }
-        
-        public String toStringLinks() {
-            String retVal = "";
-            for (int i = 0; i < termDetails.size(); i++) {
-                AnnotationDetail detail = termDetails.get(i);
-                if (i > 0)
-                    retVal += "|";
-                retVal += detail.link;
-            }
-            
-            return retVal;
-        }
-        
-        public String toStringTerms() {
-            String retVal = "";
-            for (int i = 0; i < termDetails.size(); i++) {
-                AnnotationDetail detail = termDetails.get(i);
-                if (i > 0)
-                    retVal += "|";
-                retVal += detail.term;
+            switch (componentType) {
+                case Id:
+                    if (id != null)
+                        retVal = id;
+                    break;
+                    
+                case Link:
+                    if (link != null)
+                        retVal = link;
+                    break;
+                    
+                case Term:
+                    if (term != null)
+                        retVal = term;
+                    break;
             }
             
             return retVal;
         }
     }
-    
-    private enum BuildTarget {
-        TERMS
-      , IDS
-      , LINKS
-    };
     
     /**
      * This class encapsulates the code and data representing a single search
      * page [image facet, Image view] image row.
      */
     private class ImageRow {
-        private AnnotationTerm geneTerm;
-        private AnnotationTerm maTerm;
-        private AnnotationTerm mpTerm;
-        private AnnotationTerm procedureTerm;
-        private String         imageLink;
+        private final List<AnnotationDetail> geneDetails = new ArrayList();
+        private final List<AnnotationDetail> maDetails = new ArrayList();
+        private final List<AnnotationDetail> mpDetails = new ArrayList();
+        private final List<AnnotationDetail> procedureDetails = new ArrayList();
+        private String                       imageLink;
         
         public ImageRow(WebElement trElement) {
             parse(trElement);
@@ -295,117 +254,83 @@ public class SearchImageImageView extends SearchFacetTable {
         public String getImageLink() {
             return imageLink;
         }
-        
-        public String getTerms() {
-            StringBuilder retVal = new StringBuilder();
-            List<StringBuilder> terms = new ArrayList();
+
+        @Override
+        public String toString() {
+            String retVal = "ImageRow{";
             
-            if (mpTerm != null) {
-                terms.add(buildString(mpTerm, BuildTarget.TERMS));
+            retVal += "geneDetails={";
+            if (geneDetails != null) {
+                retVal += toStringDetailList(geneDetails);
             }
+            retVal += "} ";
             
-            if (maTerm != null) {
-                terms.add(buildString(maTerm, BuildTarget.TERMS));
+            retVal += "maDetails={";
+            if (maDetails != null) {
+                retVal += toStringDetailList(maDetails);
             }
+            retVal += "} ";
             
-            if (procedureTerm != null) {
-                terms.add(buildString(procedureTerm, BuildTarget.TERMS));
+            retVal += "mpDetails={";
+            if (mpDetails != null) {
+                retVal += toStringDetailList(mpDetails);
             }
+            retVal += "} ";
             
-            if (geneTerm != null) {
-                terms.add(buildString(geneTerm, BuildTarget.TERMS));
+            retVal += "procedureDetails={";
+            if (procedureDetails != null) {
+                retVal += toStringDetailList(procedureDetails);
             }
+            retVal += "}";
             
-            for (StringBuilder sb : terms) {
-                if (retVal.length() > 0) {
-                    retVal.append("|");
-                }
-                retVal.append(sb);
-            }
-            
-            return retVal.toString();
+            return retVal;
         }
         
-        public String getIds() {
-            StringBuilder retVal = new StringBuilder();
-            List<StringBuilder> terms = new ArrayList();
-            
-            if (mpTerm != null) {
-                terms.add(buildString(mpTerm, BuildTarget.IDS));
+        public String toString(AnnotationType annotationType, ComponentType componentType) {
+            switch (annotationType) {
+                case Gene:
+                    return toStringDetailList(geneDetails, componentType);
+                case MA:
+                    return toStringDetailList(maDetails, componentType);
+                case MP:
+                    return toStringDetailList(mpDetails, componentType);
+                case Procedure:
+                    return toStringDetailList(procedureDetails, componentType);
             }
             
-            if (maTerm != null) {
-                terms.add(buildString(maTerm, BuildTarget.IDS));
-            }
-            
-            if (procedureTerm != null) {
-                terms.add(buildString(procedureTerm, BuildTarget.IDS));
-            }
-            
-            if (geneTerm != null) {
-                terms.add(buildString(geneTerm, BuildTarget.IDS));
-            }
-            
-            for (StringBuilder sb : terms) {
-                if (retVal.length() > 0) {
-                    retVal.append("|");
-                }
-                retVal.append(sb);
-            }
-            
-            return retVal.toString();
+            return "";
         }
         
-        public String getLinks() {
-            StringBuilder retVal = new StringBuilder();
-            List<StringBuilder> terms = new ArrayList();
+        
+        // PRIVATE METHODS
+        
+        
+        private String toStringDetailList(List<AnnotationDetail> detailList) {
+            String retVal = "";
+        
+            for (int i = 0; i < detailList.size(); i++) {
+                if (i > 0)
+                    retVal += "|";
             
-            if (mpTerm != null) {
-                terms.add(buildString(mpTerm, BuildTarget.LINKS));
+                AnnotationDetail detail = detailList.get(i);
+                retVal += "[" + detail.toString() + "]";
             }
             
-            if (maTerm != null) {
-                terms.add(buildString(maTerm, BuildTarget.LINKS));
-            }
-            
-            if (procedureTerm != null) {
-                terms.add(buildString(procedureTerm, BuildTarget.LINKS));
-            }
-            
-            if (geneTerm != null) {
-                terms.add(buildString(geneTerm, BuildTarget.LINKS));
-            }
-            
-            for (StringBuilder sb : terms) {
-                if (retVal.length() > 0) {
-                    retVal.append("|");
-                }
-                retVal.append(sb);
-            }
-            
-            return retVal.toString();
+            return retVal;
         }
         
-
-        private StringBuilder buildString(AnnotationTerm term, BuildTarget what) {
-            StringBuilder sb = new StringBuilder();
+        private String toStringDetailList(List<AnnotationDetail> detailList, ComponentType componentType) {
+            String retVal = "";
+        
+            for (int i = 0; i < detailList.size(); i++) {
+                if (i > 0)
+                    retVal += "|";
             
-            String buf = "";
-            switch (what) {
-                case IDS:     buf = term.toStringIds();     break;
-
-                case LINKS:   buf = term.toStringLinks();   break;
-
-                case TERMS:   buf = term.toString();        break;
-            }
-
-            if (buf.trim().isEmpty()) {
-                sb.append(NO_INFO_AVAILABLE);
-            } else {
-                sb.append(buf);
+                AnnotationDetail detail = detailList.get(i);
+                retVal += "[" + detail.toString(componentType) + "]";
             }
             
-            return sb;
+            return retVal;
         }
         
         /**
@@ -413,15 +338,15 @@ public class SearchImageImageView extends SearchFacetTable {
          * @param s Identifying string prepended to the first line of the output.
          * @param topElement The element whose self and children are to be dumped
          */
-        private void dumpElement(String s, WebElement topElement) {
-            List<WebElement> elements = topElement.findElements(By.cssSelector("*"));
-            System.out.println(s + ": Top element type: " + topElement.getTagName() + "(" + elements.size() + "). text = '" + topElement.getText() + "'. children:");
-            int index = 0;
-            for (WebElement element : elements) {
-                System.out.println("\telement [" + index++ + "] type: " + element.getTagName() + ". text = '" + element.getText() + "'");
-            }
-            System.out.println();
-        }
+//        private void dumpElement(String s, WebElement topElement) {
+//            List<WebElement> elements = topElement.findElements(By.cssSelector("*"));
+//            System.out.println(s + ": Top element type: " + topElement.getTagName() + "(" + elements.size() + "). text = '" + topElement.getText() + "'. children:");
+//            int index = 0;
+//            for (WebElement element : elements) {
+//                System.out.println("\telement [" + index++ + "] type: " + element.getTagName() + ". text = '" + element.getText() + "'");
+//            }
+//            System.out.println();
+//        }
         
         private void parse(WebElement trElement) {
 //dumpElement("trElement", trElement);
@@ -432,7 +357,7 @@ public class SearchImageImageView extends SearchFacetTable {
                 parseImageAnnots(imgAnnotsElement);
             }
             
-            imageLink = trElement.findElements(By.cssSelector("td")).get(1).findElement(By.cssSelector("a")).getAttribute("href");
+            imageLink = trElement.findElements(By.cssSelector("td")).get(1).findElement(By.cssSelector("a")).getAttribute("fullres");
             imageLink = TestUtils.urlDecode(imageLink);                         // Decode the link.
             imageLink = TestUtils.setProtocol(imageLink, TestUtils.HTTP_PROTOCOL.http); // remap protocol to http to facilitate match.
         }
@@ -478,9 +403,8 @@ public class SearchImageImageView extends SearchFacetTable {
             //            .
             //      </ul>
             // </span.imgAnnots>
-            String annotationType = spanAnnotTypeElement.getText().trim();            // term type, as String.
             List<WebElement> anchorElements = imgAnnotsElement.findElements(By.cssSelector("a"));
-            AnnotationTerm annotationTerm = new AnnotationTerm(annotationType);
+            AnnotationType annotationType = AnnotationType.valueOf(spanAnnotTypeElement.getText().trim());
             if (anchorElements.size() > 0) {
                 for (WebElement anchorElement : anchorElements) {
                     AnnotationDetail annotationDetail = new AnnotationDetail(anchorElement.getText().trim());
@@ -488,47 +412,33 @@ public class SearchImageImageView extends SearchFacetTable {
                     annotationDetail.link = TestUtils.urlDecode(annotationDetail.link);                         // Decode the link.
                     int pos = annotationDetail.link.lastIndexOf("/");
                     annotationDetail.id = annotationDetail.link.substring(pos + 1).trim();
-                    annotationTerm.termDetails.add(annotationDetail);
+                    addAnnotationDetail(annotationType, annotationDetail);
                 }
             } else {
                 // There are no anchor elements. This is the simplest case where
                 // there is only a term after the ":"; no 'a', no 'href'
-                AnnotationDetail annotationDetail = new AnnotationDetail(imgAnnotsElement.getText().split(":")[1].trim());
-                annotationTerm.termDetails.add(annotationDetail);
-            }
-            
-            switch (annotationTerm.termType) {
-                case Gene:
-                    geneTerm = annotationTerm;
-                    break;
-                    
-                case MA:
-                    maTerm = annotationTerm;
-                    break;
-                    
-                case MP:
-                    mpTerm = annotationTerm;
-                    break;
-                        
-                case Procedure:
-                    procedureTerm = annotationTerm;
-                    break;
+                addAnnotationDetail(annotationType, new AnnotationDetail(imgAnnotsElement.getText().split(":")[1].trim()));
             }
         }
         
-        @Override
-        public String toString() {
-            String retVal = "";
-            if (mpTerm != null)
-                retVal += "mpTerm: '" + mpTerm.toString() + "'. ";
-            if (maTerm != null)
-                retVal += "maTerm: '" + maTerm.toString() + "'. ";
-            if (procedureTerm != null)
-                retVal += "procedure: '" + procedureTerm + "'. ";
-            if (geneTerm != null)
-                retVal += "geneTerm: '" + geneTerm.toString() + "'.";
+        private void addAnnotationDetail(AnnotationType annotationType, AnnotationDetail annotationDetail) {
+            switch (annotationType) {
+                case Gene:
+                    geneDetails.add(annotationDetail);
+                    break;
 
-            return retVal;
+                case MA:
+                    maDetails.add(annotationDetail);
+                    break;
+
+                case MP:
+                    mpDetails.add(annotationDetail);
+                    break;
+
+                case Procedure:
+                    procedureDetails.add(annotationDetail);
+                    break;
+            }
         }
     }
 }
