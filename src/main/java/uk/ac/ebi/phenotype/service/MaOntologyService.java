@@ -47,6 +47,8 @@ public class MaOntologyService extends OntologyService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Map<String, String> subsets = new HashMap();
     private Map<String, List<Integer>> term2NodesMap = null;
+    private boolean showAncestorMapWarnings = false;
+    private boolean hasAncestorMapWarnings = false;
 
     public MaOntologyService() throws SQLException {
         
@@ -88,6 +90,18 @@ public class MaOntologyService extends OntologyService {
             logger.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean hasAncestorMapWarnings() {
+        return hasAncestorMapWarnings;
+    }
+
+    public boolean getShowAncestorMapWarnings() {
+        return showAncestorMapWarnings;
+    }
+
+    public void setShowAncestorMapWarnings(boolean showAncestorMapWarnings) {
+        this.showAncestorMapWarnings = showAncestorMapWarnings;
     }
     
     /**
@@ -193,6 +207,7 @@ public class MaOntologyService extends OntologyService {
                 int node = resultSet.getInt("node_id");
                 int selectedTopLevelNodeId = resultSet.getInt("top_level_node_id");
                 if (selectedTopLevelNodeId == 0) {
+                    hasAncestorMapWarnings = true;
                     logger.warn("node " + node + " in ma_node_2_selected_top_level_mapping has no top-level node.");
                     continue;
                 }
@@ -292,31 +307,36 @@ public class MaOntologyService extends OntologyService {
             }
         }
         
-        List<String> ancestorTermIdList = Arrays.asList(missingFromFullpathMap.keySet().toArray(new String[0]));
-        Collections.sort(ancestorTermIdList);
-        System.out.println("missingFromFullpath: " + ancestorTermIdList.size());
-        for (String ancestorTermId : ancestorTermIdList) {
-            List<Integer> ancestorNodeIdList = missingFromFullPathNodesList.get(ancestorTermId);
-            Collections.sort(ancestorNodeIdList);
-            String nodes = StringUtils.join(ancestorNodeIdList, ",");
-            String ancestorTerm = missingFromFullpathMap.get(ancestorTermId);
-            String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") is in topLevelNodeMap but not in the fullpath.";
+        if (showAncestorMapWarnings) {
+            List<String> ancestorTermIdList = Arrays.asList(missingFromFullpathMap.keySet().toArray(new String[0]));
+            Collections.sort(ancestorTermIdList);
+            System.out.println("missingFromFullpath: " + ancestorTermIdList.size());
+            for (String ancestorTermId : ancestorTermIdList) {
+                List<Integer> ancestorNodeIdList = missingFromFullPathNodesList.get(ancestorTermId);
+                Collections.sort(ancestorNodeIdList);
+                String nodes = StringUtils.join(ancestorNodeIdList, ",");
+                String ancestorTerm = missingFromFullpathMap.get(ancestorTermId);
+                String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") is in topLevelNodeMap but not in the fullpath.";
 
-            logger.warn(s);
-        }
+                hasAncestorMapWarnings = true;
+                logger.warn(s);
+            }
 
-        System.out.println();
+            System.out.println();
 
-        ancestorTermIdList = Arrays.asList(needsReviewByTerryCountNodesMap.keySet().toArray(new String[0]));
-        Collections.sort(ancestorTermIdList);
-        System.out.println("needsReviewByTerryCount: " + ancestorTermIdList.size());
-        for (String ancestorTermId : ancestorTermIdList) {
-            List<Integer> ancestorNodeIdList = needsReviewByTerryCountNodesMap.get(ancestorTermId);
-            Collections.sort(ancestorNodeIdList);
-            String nodes = StringUtils.join(ancestorNodeIdList, ",");
-            String ancestorTerm = needsReviewByTerryCountMap.get(ancestorTermId);
-            String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") needs to be reviewed by Terry for a selected top-level term.";
-            logger.warn(s);
+            ancestorTermIdList = Arrays.asList(needsReviewByTerryCountNodesMap.keySet().toArray(new String[0]));
+            Collections.sort(ancestorTermIdList);
+            System.out.println("needsReviewByTerryCount: " + ancestorTermIdList.size());
+            for (String ancestorTermId : ancestorTermIdList) {
+                List<Integer> ancestorNodeIdList = needsReviewByTerryCountNodesMap.get(ancestorTermId);
+                Collections.sort(ancestorNodeIdList);
+                String nodes = StringUtils.join(ancestorNodeIdList, ",");
+                String ancestorTerm = needsReviewByTerryCountMap.get(ancestorTermId);
+                String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") needs to be reviewed by Terry for a selected top-level term.";
+                
+                hasAncestorMapWarnings = true;
+                logger.warn(s);
+            }
         }
     }
     
