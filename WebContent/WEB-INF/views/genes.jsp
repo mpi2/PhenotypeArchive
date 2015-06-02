@@ -453,7 +453,7 @@
                                      		                                     		
                                      		<td>
                                      		<c:if test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
-                                     			<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i title="Images available (click on this icon to view images)" class="fa fa-image" alt="Images"></i>
+                                     			<a href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_term:"${fn:toLowerCase(mapEntry.key)}" AND marker_symbol:"${gene.symbol}")'><i title="Images available (click on this icon to view images)" class="fa fa-image" alt="Images"></i>
                                      			</a>
                                      		</c:if>
                                      		</td>

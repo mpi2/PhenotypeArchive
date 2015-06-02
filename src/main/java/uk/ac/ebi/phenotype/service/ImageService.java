@@ -211,46 +211,6 @@ public class ImageService {
 		return solr.query(query).getResults().getNumFound();
 	}
 
-	/**
-	 * 
-	 * @param query
-	 *            the url from the page name onwards e.g
-	 *            q=observation_type:image_record
-	 * @return
-	 * @throws SolrServerException
-	 */
-	public ResponseWrapper<ImageDTO> getImageDTOsForSolrQuery(String query)
-			throws SolrServerException {
-
-		SolrQuery solrQuery = new SolrQuery();
-		String[] paramsKeyValues = query.split("&");
-		for (String paramKV : paramsKeyValues) {
-			// System.out.println("paramKV=" + paramKV);
-			String[] keyValue = paramKV.split("=");
-			if (keyValue.length > 1) {
-				String key = keyValue[0];
-				String value = keyValue[1];
-				// System.out.println("param=" + key + " value=" + value);
-				solrQuery.setParam(key, value);
-			}
-
-		}
-		QueryResponse response = solr.query(solrQuery);
-		ResponseWrapper<ImageDTO> wrapper = new ResponseWrapper<ImageDTO>(
-				response.getBeans(ImageDTO.class));
-		List<FacetField> facetFields = response.getFacetFields();
-		// maybe we should go back to using the IMageDTO and add fields to the
-		// response wrapper???
-		if (facetFields != null) {
-			for (FacetField facetField : facetFields) {
-				// System.out.println("facetFields=" + facetField.getName() +
-				// facetField.getValueCount() + facetField.getValues());
-			}
-		}
-
-		wrapper.setTotalNumberFound(response.getResults().getNumFound());
-		return wrapper;
-	}
 
 	/**
 	 * 
@@ -519,7 +479,8 @@ public class ImageService {
 
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP
 				+ ":control", ObservationDTO.PHENOTYPING_CENTER + ":\""
-				+ center + "\"", ObservationDTO.STRAIN_NAME + ":" + strain,
+				+ center + "\"",
+				ObservationDTO.STRAIN_NAME + ":" + strain,
 				ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter,
 				ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
 		
@@ -540,7 +501,7 @@ public class ImageService {
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
 
-		logger.debug("getControlImagesForProcedure solr query: {}/select?{}",
+		logger.info("getControlImagesForProcedure solr query: {}/select?{}",
 				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
@@ -691,8 +652,14 @@ public class ImageService {
 				.get(ObservationDTO.PARAMETER_STABLE_ID);
 		final Date date = (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT);
 
-		QueryResponse responseControl = this.getControlImagesForExpressionData(
-				numberOfControls, anatomy);
+		
+		QueryResponse responseControl =null;
+		if(StringUtils.isNotEmpty(anatomy)){
+			responseControl=this.getControlImagesForExpressionData(numberOfControls, anatomy);
+		}else{
+			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
+		}
+				
 		logger.info("Found {} controls. Adding to list", responseControl
 				.getResults().getNumFound());
 		list.addAll(responseControl.getResults());

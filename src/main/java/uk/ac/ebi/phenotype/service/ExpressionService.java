@@ -259,7 +259,7 @@ public class ExpressionService {
 		
 		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc,
 				ImageDTO.ZYGOSITY,
-				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY);
+				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList mutantCategoricalAdultLacZData = laczDataResponse.getResults();
 //		System.out.println("mutantCategoricalAdultLacZData found="
 //				+ mutantCategoricalAdultLacZData.getNumFound());
@@ -269,7 +269,7 @@ public class ExpressionService {
 		
 		QueryResponse wtLaczDataResponse = getCategoricalAdultLacZData(null,
 				ImageDTO.ZYGOSITY,
-				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY);
+				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList wtCategoricalAdultLacZData = wtLaczDataResponse.getResults();
 		//System.out.println("wtCategoricalAdultLacZData found="
 				//+ wtCategoricalAdultLacZData.getNumFound());
@@ -280,7 +280,7 @@ public class ExpressionService {
 
 		laczImagesResponse = getExpressionTableDataImages(acc, ImageDTO.ZYGOSITY,
 				ImageDTO.PARAMETER_ASSOCIATION_NAME,
-				ObservationDTO.OBSERVATION_TYPE);
+				ObservationDTO.OBSERVATION_TYPE, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList imagesMutantResponse = laczImagesResponse.getResults();
 		//System.out.println("imagesMutantResponse found="
 				//+ imagesMutantResponse.getNumFound());
@@ -293,7 +293,7 @@ public class ExpressionService {
 		
 		for (String anatomy : expressionAnatomyToDocs.keySet()) {
 			
-			// System.out.println("getting controls");
+			System.out.println("getting exp row");
 			ExpressionRowBean expressionRow = getAnatomyRow(anatomy,
 					expressionAnatomyToDocs);
 			int hetSpecimens=0;
@@ -316,7 +316,7 @@ public class ExpressionService {
 //			}
 			expressionAnatomyToRow.put(anatomy, expressionRow);
 			
-			
+			System.out.println("getting control row");
 			ExpressionRowBean wtRow = getAnatomyRow(anatomy,
 					wtAnatomyToDocs);
 			
@@ -404,8 +404,13 @@ public class ExpressionService {
 						"categorical")) {
 					//System.out.println("categorical");
 					row=getExpressionCountForAnatomyTerm(anatomy, row, doc);
-				} else if(doc.get(ObservationDTO.OBSERVATION_TYPE).equals("image_record")) {//assume image with parameterAssociation
+				} else if(doc.get(ObservationDTO.OBSERVATION_TYPE).equals("image_record") && doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP).equals("experimental")) {//assume image with parameterAssociation
 					row = homImages(row, doc);
+					if(anatomy.equalsIgnoreCase("adrenal")){
+//						System.out.println("adrenal found");
+//						System.out.println("doc="+doc);
+//						System.out.println("control or exp="+doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
+					}
 					row.setImagesAvailable(true);
 				}
 			}

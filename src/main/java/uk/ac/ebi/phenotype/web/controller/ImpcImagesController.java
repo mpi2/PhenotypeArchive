@@ -94,9 +94,11 @@ public class ImpcImagesController {
 		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
-		SolrDocumentList controls=null;
+		SolrDocumentList controls=new SolrDocumentList();
 		for (SexType sex : SexType.values()) {
-			controls = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
+			
+			SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
+			controls.addAll(controlsTemp);
 		}
 
 		System.out.println("experimental size=" + experimental.size());
