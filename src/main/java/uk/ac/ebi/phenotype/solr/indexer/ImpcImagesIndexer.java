@@ -64,7 +64,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	private Map<String, List<AlleleDTO>> alleles;
 	private Map<String, ImageBean> imageBeans;
-	String excludeProcedureStableId="";
+	String excludeProcedureStableId="IMPC_PAT_002";
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 
