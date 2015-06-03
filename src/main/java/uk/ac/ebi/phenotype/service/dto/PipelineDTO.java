@@ -1509,4 +1509,9 @@ public class PipelineDTO {
 		
 	}
 
+
+	public String getAbnormalMaTermId() {
+		return abnormalMaTermId;
+	}
+
 }
