@@ -415,7 +415,7 @@
                                      				<i title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-check" style="color:#0978a1"></i>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
-                          							<i title="Not Expressed" class="fa fa-times" style="color:gray"></i>
+                          							<i title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-times" style="color:gray"></i>
                           						</c:when> 
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
                           							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
@@ -429,10 +429,10 @@
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${mapEntry.value.expression}">
-                                     				<i title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant mice" class="fa fa-check" style="color:#0978a1"></i>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                     				<i title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-check" style="color:#0978a1"></i>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
                           						<c:when test="${mapEntry.value.notExpressed}">
-                          							<i title="Not Expressed" class="fa fa-times" style="color:gray"></i>
+                          							<i title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-times" style="color:gray"></i>
                           						</c:when> 
                           						<c:when test="${mapEntry.value.noTissueAvailable}">
                           							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
@@ -453,7 +453,7 @@
                                      		                                     		
                                      		<td>
                                      		<c:if test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
-                                     			<a href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_term:"${fn:toLowerCase(mapEntry.key)}" AND marker_symbol:"${gene.symbol}")'><i title="Images available (click on this icon to view images)" class="fa fa-image" alt="Images"></i>
+                                     			<a href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.symbol}")'><i title="Images available (click on this icon to view images)" class="fa fa-image" alt="Images">(${mapEntry.value.numberOfImages})</i>
                                      			</a>
                                      		</c:if>
                                      		</td>

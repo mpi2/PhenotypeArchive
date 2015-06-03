@@ -281,8 +281,6 @@ public class ExpressionService {
 				ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList mutantCategoricalAdultLacZData = laczDataResponse
 				.getResults();
-		// System.out.println("mutantCategoricalAdultLacZData found="
-		// + mutantCategoricalAdultLacZData.getNumFound());
 		Map<String, SolrDocumentList> expressionAnatomyToDocs = getAnatomyToDocsForCategorical(mutantCategoricalAdultLacZData);
 		Map<String, ExpressionRowBean> expressionAnatomyToRow = new TreeMap<>();
 		Map<String, ExpressionRowBean> wtAnatomyToRow = new TreeMap<>();
@@ -293,8 +291,6 @@ public class ExpressionService {
 				ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList wtCategoricalAdultLacZData = wtLaczDataResponse
 				.getResults();
-		// System.out.println("wtCategoricalAdultLacZData found="
-		// + wtCategoricalAdultLacZData.getNumFound());
 		Map<String, SolrDocumentList> wtAnatomyToDocs = getAnatomyToDocsForCategorical(wtCategoricalAdultLacZData);
 
 		QueryResponse laczImagesResponse = null;
@@ -304,14 +300,7 @@ public class ExpressionService {
 				ObservationDTO.OBSERVATION_TYPE,
 				ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList imagesMutantResponse = laczImagesResponse.getResults();
-		// System.out.println("imagesMutantResponse found="
-		// + imagesMutantResponse.getNumFound());
 		Map<String, ExpressionRowBean> mutantImagesAnatomyToRow = new TreeMap<>();
-		// Map<String, ExpressionRowBean> controlAnatomyToRow = new
-		// TreeMap<String, ExpressionRowBean>();
-		//
-		// Map<String, SolrDocumentList> controlAnatomyToDocs =
-		// getAnatomyToDocs(imagesControlResponse);
 		Map<String, SolrDocumentList> mutantImagesAnatomyToDocs = getAnatomyToDocs(imagesMutantResponse);
 
 		for (String anatomy : expressionAnatomyToDocs.keySet()) {
@@ -328,86 +317,20 @@ public class ExpressionService {
 				}
 			}
 			expressionRow.setNumberOfHetSpecimens(hetSpecimens);
-			// if(expressionRow.getSpecimenExpressed().keySet().size()>0){
-			// expressionRow.setMutantExpression(true);
-			// }
-			// if(expressionRow.getSpecimenNotExpressed().keySet().size()>0){
-			// expressionRow.setMutantNotExpressed(true);
-			// }
-			// if(expressionRow.getSpecimenNoTissueAvailable().keySet().size()>0){
-			// expressionRow.setMutantNoTissueAvailable(true);
-			// }
 			expressionAnatomyToRow.put(anatomy, expressionRow);
 
 			System.out.println("getting control row");
 			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs);
 
-			// int wtHhetSpecimens=0;
-			// for (String key : wtRow.getSpecimen().keySet()) {
-			// // System.out.println("specimen key="+key);
-			// if (wtRow.getSpecimen().get(key).getZyg()
-			// .equalsIgnoreCase("heterozygote")) {
-			// wtHhetSpecimens++;
-			// }
-			// }
-			// wtRow.setNumberOfHetSpecimens(wtHhetSpecimens);
 			if (wtRow.getSpecimenExpressed().keySet().size() > 0) {
 				wtRow.setWildTypeExpression(true);
 			}
 			wtAnatomyToRow.put(anatomy, wtRow);
 
-			//
-			// QueryResponse laczControlResponse = null;
-			//
-			// laczControlResponse = getExpressionTableDataImages(null,
-			// ImageDTO.OMERO_ID, ImageDTO.JPEG_URL,
-			// ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
-			// ImageDTO.PARAMETER_ASSOCIATION_NAME,
-			// ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
-			// ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
-			// ImageDTO.IMAGE_LINK, ImageDTO.BIOLOGICAL_SAMPLE_GROUP,
-			// ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE);
-			//
-			// SolrDocumentList imagesControlResponse = laczControlResponse
-			// .getResults();
-			// System.out.println("Images Controls data found="
-			// + imagesControlResponse.getNumFound());
-
-			// now we have the docs seperated by anatomy terms lets get the data
-			// needed for the table
-			// should web be looking at experiment core? Are there expression
-			// parameters with no image??? Looks like there are 100 more from
-			// this
-			// query
-			// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=*:*&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
-			// vs
-			// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
-
-			// System.out.println("expressionRow="+expressionRow.getExpressed());
-			// ExpressionRowBean controlRow = getAnatomyRow(anatomy,
-			// controlAnatomyToDocs);
-			// if (controlRow.getExpressed() > 0) {
-			// controlRow.setWildTypeExpression(true);
-			// }
-			// // System.out.println("getting mutants");
 			ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy,
 					mutantImagesAnatomyToDocs);
-			// controlAnatomyToRow.put(anatomy, controlRow);
-			// int hetSpecimens = 0;
-			// for (String key : mutantRow.getSpecimenExpressed().keySet()) {
-			// // System.out.println("specimen key="+key);
-			// if (mutantRow.getSpecimenExpressed().get(key).getZyg()
-			// .equalsIgnoreCase("heterozygote")) {
-			// hetSpecimens++;
-			// }
-			//
-			// }
-			//
-			mutantImagesRow.setNumberOfHetSpecimens(hetSpecimens);
+						mutantImagesRow.setNumberOfHetSpecimens(hetSpecimens);
 			mutantImagesAnatomyToRow.put(anatomy, mutantImagesRow);
-			// mutants parameter associations will contain some expression calls
-			// for the same docs as the categorical data - so will need to
-			// screen them out somehow? experiment id?
 
 		}
 
@@ -422,6 +345,7 @@ public class ExpressionService {
 
 		ExpressionRowBean row = new ExpressionRowBean();
 		if (anatomyToDocs.containsKey(anatomy)) {
+			
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
 
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
@@ -452,12 +376,8 @@ public class ExpressionService {
 								.equals("experimental")) {// assume image with
 															// parameterAssociation
 					row = homImages(row, doc);
-					// if(anatomy.equalsIgnoreCase("adrenal")){
-					// System.out.println("adrenal found");
-					// System.out.println("doc="+doc);
-					// System.out.println("control or exp="+doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
-					// }
 					row.setImagesAvailable(true);
+					row.setNumberOfImages(row.getNumberOfImages()+1);
 				}
 			}
 			if (row.getSpecimenExpressed().keySet().size() > 0) {
@@ -613,8 +533,18 @@ public class ExpressionService {
 	public class ExpressionRowBean {
 		String anatomy;
 		String abnormalMaId;
+		private int numberOfImages;
+		public int getNumberOfImages() {
+			return numberOfImages;
+		}
+
 		public String getAbnormalMaId() {
 			return abnormalMaId;
+		}
+
+		public void setNumberOfImages(int numberOfImages) {
+			this.numberOfImages=numberOfImages;
+			
 		}
 
 		public void setAbnormalMaId(String abnormalMaId) {
