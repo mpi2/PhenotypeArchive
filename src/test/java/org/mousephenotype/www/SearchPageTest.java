@@ -19,6 +19,10 @@
  */
 package org.mousephenotype.www;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -50,8 +54,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 
 import static org.junit.Assert.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 /**
  *
  * @author ckchen@ebi.ac.uk (private methods)
@@ -97,6 +104,10 @@ public class SearchPageTest {
     @Autowired
     private PhenotypePipelineDAO phenotypePipelineDAO;
     
+    @Autowired
+    @Qualifier("komp2DataSource")
+    DataSource komp2DataSource;
+    
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     
@@ -128,6 +139,21 @@ public class SearchPageTest {
     private static String startTime;
     private static int testCount;
     private WebDriverWait wait;
+    protected Connection komp2Connection;
+    
+    private static final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
+    static {
+        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
+        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+        imageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
+    }
+    
+    private static final Map<SearchFacetTable.TableComponent, By> impcImageMap = new HashMap();
+    static {
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
+    }
 
     @Before
     public void setup() {
@@ -208,13 +234,212 @@ public class SearchPageTest {
             System.out.println("[FAILED] - SOME SEARCH PAGE TESTs NOT FINISHED");
         }
     }
+
+    
+    // PRIVATE METHODS
+    
+        @PostConstruct
+    public void initialize() throws RuntimeException {
+        try {
+            komp2Connection = komp2DataSource.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * Executes download verification. <code>searchPhrase</code> is used to
+     * specify the search characters to send to the server. It may be null or empty.
+     * @param testName the test name
+     * @param facet the facet to test. If null, no facet is selected before the test.
+     * @param searchString the search characters to be sent to the server. May
+     *        be null or empty. If not empty, must be terminated by a trailing
+     *        forward slash.
+     * @param map the image map to use (impc_image or image)
+     * @return status
+     */
+    private void downloadTestEngine(String testName, String searchString, Map<SearchFacetTable.TableComponent, By> map) throws Exception {
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        
+        if (searchString == null)
+            searchString = "";
+        
+        System.out.println("\n\n----- " + testName + " -----");
+        
+        try {
+            // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
+            String target = baseUrl + "/search";
+            logger.info("target: " + target);
+// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, map);
+            if (! searchString.isEmpty()) {
+                searchPage.submitSearch(searchString + "\n");
+            }
+
+            SearchPage.Facet[] facets = {
+                  SearchPage.Facet.ANATOMY
+                , SearchPage.Facet.DISEASES
+                , SearchPage.Facet.GENES
+                , SearchPage.Facet.IMAGES
+                , SearchPage.Facet.IMPC_IMAGES
+                , SearchPage.Facet.PHENOTYPES
+            };
+            
+            for (SearchPage.Facet facet : facets) {
+                if (searchPage.getFacetCount(facet) > 0) {
+                    searchPage.clickFacet(facet);
+                    searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
+                    searchPage.clickPageButton();
+                    TestUtils.sleep(1000);
+//searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
+//TestUtils.sleep(5000);
+                    System.out.println("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 
+                    status.add(searchPage.validateDownload(facet));
+                }
+            }
+        } catch (Exception e) {
+            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            System.out.println(message);
+            e.printStackTrace();
+            status.addError(message);
+        } finally {
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            } else {
+                successList.add(testName + ": SUCCESS.");
+            }
+
+            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        }
+    }
+
+
+    /**
+     * Invokes the facet count engine with no search term.
+     * @param target the page target URL
+     * @param map image map
+     * @return page status
+     */
+    private PageStatus facetCountEngine(String target, Map<SearchFacetTable.TableComponent, By> map) {
+        return facetCountEngine(target, null, map);
+    }
+    
+    /**
+     * Invokes the facet count engine with the specified, [already escaped if necessary] search term.
+     * @param target the page target URL
+     * @param searchTerm the desired search term
+     * @map image map
+     * @return page status
+     */
+    private PageStatus facetCountEngine(String target, SearchTermGroup searchTermGroup, Map<SearchFacetTable.TableComponent, By> map) {
+        PageStatus status = new PageStatus();
+        String message;
+        
+        // Get the solarUrlCounts.
+        Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
+        if (solrCoreCountMap == null) {
+            message = "FAIL: Unable to get facet count from Solr.";
+            status.addError(message);
+            System.out.println(message);
+            return status;
+        }
+
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, map);
+
+        // Verify that the core counts returned by solr match the facet counts on the page and the page.
+        for (String core : cores) {
+// 26-Mar-2015 (mrelac) Skip the core compare. The rules are fuzzy.
+if (core.equals(SearchPage.GENE_CORE)) {
+    System.out.println();
+//    continue;
+}
+            
+            int facetCountFromPage = searchPage.getFacetCount(core);
+            int facetCountFromSolr = (int)solrCoreCountMap.get(core);
+            
+            if (facetCountFromPage == facetCountFromSolr) {
+                // Null statement.
+            } else {
+                message = "FAIL: facet count from Solr: " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
+                status.addError(message);
+                System.out.println(message);
+            }
+        }
+        
+        return status;
+    }
+    
+    /**
+     * Queries each of the six search solr cores for the number of occurrences
+     * of <code>searchPhrase</code> (which may be null), returning a
+     * <code>Map</code> keyed by core name containing the occurrence count for
+     * each core.
+     *
+     * @param searchTermGroup The search phrase to use when querying the cores. If
+     * null, the count is unfiltered.
+     * @return the <code>searchPhrase</code> occurrence count
+     */
+    private Map<String, Integer> getSolrCoreCounts(SearchTermGroup searchTermGroup) {
+        Map<String, Integer> solrCoreCountMap = new HashMap();
+        
+        for (int i = 0; i < paramList.size(); i++) {
+            String solrQueryString = paramList.get(i);
+            try {
+                if (searchTermGroup != null) {
+                    solrQueryString = solrQueryString.replace("&q=*:*", "&q=" + searchTermGroup.solrTarget);
+                }
+        
+                String fqSolrQueryString = solrUrl + solrQueryString;
+                
+                JSONObject geneResults = JSONRestUtil.getResults(fqSolrQueryString);
+                int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");
+                String facet = cores.get(i);
+                solrCoreCountMap.put(facet, facetCountFromSolr);
+            } catch (TimeoutException te) {
+                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts() timeout!");
+                return null;
+            }
+            catch(Exception e){
+                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts(): " + e.getLocalizedMessage());
+                return null;
+            }
+        }
+        
+        return solrCoreCountMap;
+    }
+
+    private void specialStrQueryTest(String testName, String qry) throws Exception {
+        testCount++;
+        
+        System.out.println("\n\n----- " + testName + " -----");
+
+        successList.clear();
+        errorList.clear();
+
+        driver.get(baseUrl + "/search?q=" + qry);
+
+        new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));
+        String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
+        if ( foundMsg.isEmpty() ){
+            System.out.println("[FAILED] - queried " + qry);
+            sumErrorList.add("[FAILED] - queried " + qry);
+            fail("There were " + sumErrorList.size() + " errors.");
+        }
+        else {
+            System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
+            sumSuccessList.add("passed");
+        }
+        System.out.println();
+    }
     
     
     // TESTS
     
     
     @Test
-//@Ignore
+@Ignore
     public void testAutosuggestForSpecificKnownGenes() throws Exception {
         testCount++;
         String testName = "testAutosuggestForSpecificKnownGenes";
@@ -236,7 +461,7 @@ public class SearchPageTest {
         for (String geneSymbol : geneSymbols) {
             String target = baseUrl + "/search";
 
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             System.out.println("Testing symbol " + geneSymbol + ":\t. URL: " + driver.getCurrentUrl());
 
             List<SearchPage.AutosuggestRow> autoSuggestions = searchPage.getAutosuggest(geneSymbol);
@@ -268,7 +493,7 @@ public class SearchPageTest {
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testAutosuggestMinCharacters() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
@@ -315,7 +540,7 @@ public class SearchPageTest {
         errorList.clear();
         String target = baseUrl + "/search";
         logger.debug("target Page URL: " + target);
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
         
         // For each core:
         //   Click the first subfacet.
@@ -405,7 +630,7 @@ public class SearchPageTest {
         
     // Verify that random genes appear in the autosuggest list.
     @Test
-//@Ignore
+@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "testQueryingRandomGeneSymbols";
@@ -434,7 +659,7 @@ public class SearchPageTest {
             for (int i = 0; i<size; i++) {
                 String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
                 
-                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 searchPage.submitSearch(geneSymbol1);
                 TestUtils.sleep(5000);                                          // Sleep for a bit to allow autocomplete to catch up.
 
@@ -475,7 +700,7 @@ public class SearchPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
@@ -542,40 +767,40 @@ public class SearchPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testPhrase() throws Exception {
         specialStrQueryTest("testPhrase", "grip strength");
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testPhraseInQuotes() throws Exception {
         specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testLeadingWildcard() throws Exception {
         specialStrQueryTest("testLeadingWildcard", "*rik");
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("testTrailingWildcard", "hox*");
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testTwist1() throws Exception {
         String testName = "testTwist1";
         String searchString = "twist1";
         
-        downloadTestEngine(testName, searchString);
+        downloadTestEngine(testName, searchString, imageMap);
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
@@ -598,7 +823,7 @@ public class SearchPageTest {
             target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
             System.out.println("Testing URL: " + target);
             try {
-                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 searchPage.clickFacetById(core);
                 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
@@ -641,7 +866,7 @@ public class SearchPageTest {
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testFacetCountsNoSearchTerm() throws Exception {
         testCount++;
         System.out.println();
@@ -658,7 +883,7 @@ public class SearchPageTest {
         for (String core : cores) {
             recordCount++;
             String target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
-            PageStatus status = facetCountEngine(target);
+            PageStatus status = facetCountEngine(target, imageMap);
             if (status.hasErrors()) {
                 errorList.add("[FAILED] - " + testName + "\n" + status.toStringErrorMessages());
             } else {
@@ -672,7 +897,7 @@ public class SearchPageTest {
                 continue;
             
             recordCount++;
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             int facetCountFromSolr = (int)solrCoreCountMap.get(core);
             int resultCount = searchPage.getResultCount();
             
@@ -745,7 +970,7 @@ public class SearchPageTest {
         , new SearchTermGroup("ö",      "\\%C3%B6")         // ö    %C3%B6
     };
     @Test
-//@Ignore
+@Ignore
     public void testFacetCountsSpecialCharacters() throws Exception {
         testCount++;
         System.out.println();
@@ -785,7 +1010,7 @@ public class SearchPageTest {
             // Build the solarUrlCounts.
             String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
 
-            status.add(facetCountEngine(target, searchTermGroup));
+            status.add(facetCountEngine(target, searchTermGroup, imageMap));
         }
         
         if (status.hasErrors()) {
@@ -810,7 +1035,7 @@ public class SearchPageTest {
      * @throws Exception 
      */
     @Test
-//@Ignore
+@Ignore
     public void testMPII_806() throws Exception {
         Date start = new Date();
         successList.clear();
@@ -853,7 +1078,7 @@ public class SearchPageTest {
      * @throws Exception 
      */
     @Test
-//@Ignore
+@Ignore
     public void testMPII_1175() throws Exception {
         String testName = "testMPII_1175";
         String searchString = null;
@@ -869,7 +1094,7 @@ public class SearchPageTest {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             if (! searchString.isEmpty()) {
                 searchPage.submitSearch(searchString + "\n");
             }
@@ -918,45 +1143,45 @@ public class SearchPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testDefaultDownload() throws Exception {
         String testName = "testDefaultDownload";
         String searchString = null;
         
-        downloadTestEngine(testName, searchString);
+        downloadTestEngine(testName, searchString, imageMap);
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testBoneDownload() throws Exception {
         String testName = "testBoneDownload";
         String searchString = "bone";
         
-        downloadTestEngine(testName, searchString);
+        downloadTestEngine(testName, searchString, imageMap);
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testBrachydactyly() throws Exception {
         String testName = "testBrachydactyly";
         String searchString = "brachydactyly";
         
-        downloadTestEngine(testName, searchString);
+        downloadTestEngine(testName, searchString, imageMap);
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testLegDownload() throws Exception {
         String testName = "testLegDownload";
         String searchString = "leg";
         
-        downloadTestEngine(testName, searchString);
+        downloadTestEngine(testName, searchString, imageMap);
     }
     
     // This test doesn't use the download test engine as it requires an extra
     // click to switch to the Image facet's 'Image' view.
     @Test
-//@Ignore
+@Ignore
     public void testImageFacetImageView() throws Exception {
         String testName = "testImageFacetImageView";
         String searchString = "";
@@ -969,7 +1194,7 @@ public class SearchPageTest {
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
 
             facet = Facet.IMAGES;    
             searchPage.clickFacet(facet);
@@ -999,7 +1224,7 @@ public class SearchPageTest {
     // This test doesn't use the download test engine as it requires an extra
     // click to switch to the Image facet's 'Image' view.
     @Test
-//@Ignore
+@Ignore
     public void testImpcImageFacetImageView() throws Exception {
         String testName = "testImpcImageFacetImageView";
         String searchString = "";
@@ -1007,18 +1232,27 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         Facet facet;
         
+//        Map<SearchFacetTable.TableComponent, By> map = new HashMap();
+//        map.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
+//        map.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+//        map.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
+        
         System.out.println("\n\n----- " + testName + " -----");
         
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
             facet = Facet.IMPC_IMAGES;    
             searchPage.clickFacet(facet);
             searchPage.getImpcImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
 
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+            
+ searchPage.clickPageButton(PageDirective.LAST);
+ searchPage.getImpcImageTable().updateImageTableAfterChange();
+ TestUtils.sleep(2000);
             status.add(searchPage.validateDownload(facet));
             
         } catch (Exception e) {
@@ -1040,7 +1274,7 @@ public class SearchPageTest {
     // This test was spawned from testImageFacetImageView() when it came across
     // a 500 response from the server when the last page was selected.
     @Test
-//@Ignore
+@Ignore
     public void testImageFacetImageViewLastPage() throws Exception {
         String testName = "testImageFacetImageViewLastPage";
         String searchString = "";
@@ -1052,7 +1286,7 @@ public class SearchPageTest {
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             Facet facet = Facet.IMAGES;    
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
@@ -1078,7 +1312,7 @@ public class SearchPageTest {
     
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-//@Ignore
+@Ignore
     public void testWnt1IsAtTop() throws Exception {
         String testName = "testWnt1IsAtTop";
         String searchString = "Wnt1";
@@ -1086,7 +1320,7 @@ public class SearchPageTest {
         
         System.out.println("\n\n----- " + testName + " -----");
         
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedResult = "wnt1";
@@ -1096,7 +1330,7 @@ public class SearchPageTest {
     
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-//@Ignore
+@Ignore
     public void testHox() throws Exception {
         String testName = "testHox";
         String searchString = "Hox";
@@ -1104,7 +1338,7 @@ public class SearchPageTest {
         
         System.out.println("\n\n----- " + testName + " -----");
         
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
@@ -1117,7 +1351,7 @@ public class SearchPageTest {
     
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-//@Ignore
+@Ignore
     public void testHoxStar() throws Exception {
         String testName = "testHoxStar";
         String searchString = "Hox*";
@@ -1125,7 +1359,7 @@ public class SearchPageTest {
         
         System.out.println("\n\n----- " + testName + " -----");
         
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
@@ -1136,193 +1370,79 @@ public class SearchPageTest {
             assertTrue(errMsg, row.value.startsWith(expectedStartsWith));
         }
     }
-
-    
-    // PRIVATE METHODS
-    
     
     /**
-     * Executes download verification. <code>searchPhrase</code> is used to
-     * specify the search characters to send to the server. It may be null or empty.
-     * @param testName the test name
-     * @param facet the facet to test. If null, no facet is selected before the test.
-     * @param searchString the search characters to be sent to the server. May
-     *        be null or empty. If not empty, must be terminated by a trailing
-     *        forward slash.
-     * @return status
+     * Test ma facet names match Terry's higher_level_annotation table picks.
+     * 
+     * Expected result: ma facet names match higher_level_annotation.TERM_NAME values.
+     * 
+     * @throws Exception
      */
-    private void downloadTestEngine(String testName, String searchString) throws Exception {
-        Date start = new Date();
-        PageStatus status = new PageStatus();
+//@Ignore
+    @Test
+    public void testMaTermNamesMatchFacetNames() throws Exception {
+        System.out.println("testMaTermNamesMatchFacetNames");
+        String target = baseUrl + "/search";
         
-        if (searchString == null)
-            searchString = "";
-        
-        System.out.println("\n\n----- " + testName + " -----");
-        
-        try {
-            // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
-            String target = baseUrl + "/search";
-            logger.info("target: " + target);
-// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
-            if (! searchString.isEmpty()) {
-                searchPage.submitSearch(searchString + "\n");
-            }
-
-            SearchPage.Facet[] facets = {
-                  SearchPage.Facet.ANATOMY
-                , SearchPage.Facet.DISEASES
-                , SearchPage.Facet.GENES
-                , SearchPage.Facet.IMAGES
-                , SearchPage.Facet.IMPC_IMAGES
-                , SearchPage.Facet.PHENOTYPES
-            };
-            
-            for (SearchPage.Facet facet : facets) {
-                if (searchPage.getFacetCount(facet) > 0) {
-                    searchPage.clickFacet(facet);
-                    searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
-                    searchPage.clickPageButton();
-                    TestUtils.sleep(1000);
-//searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
-//TestUtils.sleep(5000);
-                    System.out.println("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl()); 
-                    status.add(searchPage.validateDownload(facet));
-                }
-            }
-        } catch (Exception e) {
-            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
-            System.out.println(message);
-            e.printStackTrace();
-            status.addError(message);
-        } finally {
-            if (status.hasErrors()) {
-                errorList.add(status.toStringErrorMessages());
-            } else {
-                successList.add(testName + ": SUCCESS.");
-            }
-
-            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
-        }
-    }
-
-
-    /**
-     * Invokes the facet count engine with no search term.
-     * @param target the page target URL
-     * @return page status
-     */
-    private PageStatus facetCountEngine(String target) {
-        return facetCountEngine(target, null);
-    }
-    
-    /**
-     * Invokes the facet count engine with the specified, [already escaped if necessary] search term.
-     * @param target the page target URL
-     * @param searchTerm the desired search term
-     * @return page status
-     */
-    private PageStatus facetCountEngine(String target, SearchTermGroup searchTermGroup) {
-        PageStatus status = new PageStatus();
-        String message;
-        
-//        System.out.println("facetCountEngine(): Page target URL: " + target);
-        
-        // Get the solarUrlCounts.
-        Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
-        if (solrCoreCountMap == null) {
-            message = "FAIL: Unable to get facet count from Solr.";
-            status.addError(message);
-            System.out.println(message);
-            return status;
-        }
-
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl);
-
-        // Verify that the core counts returned by solr match the facet counts on the page and the page.
-        for (String core : cores) {
-// 26-Mar-2015 (mrelac) Skip the core compare. The rules are fuzzy.
-if (core.equals(SearchPage.GENE_CORE)) {
-    continue;
-}
-            
-            int facetCountFromPage = searchPage.getFacetCount(core);
-            int facetCountFromSolr = (int)solrCoreCountMap.get(core);
-            
-            if (facetCountFromPage == facetCountFromSolr) {
-                // Null statement.
-            } else {
-                message = "FAIL: facet count from Solr: " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
-                status.addError(message);
-                System.out.println(message);
-            }
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
+        String[] pageMaFacetTermNames = searchPage.getFacetNames(Facet.ANATOMY);
+        for (int i = 0; i < pageMaFacetTermNames.length; i++) {
+            // Remove the newline and facet count.
+            int nl = pageMaFacetTermNames[i].lastIndexOf("\n");
+            pageMaFacetTermNames[i] = pageMaFacetTermNames[i].substring(0, nl);
         }
         
-        return status;
-    }
-    
-    /**
-     * Queries each of the six search solr cores for the number of occurrences
-     * of <code>searchPhrase</code> (which may be null), returning a
-     * <code>Map</code> keyed by core name containing the occurrence count for
-     * each core.
-     *
-     * @param searchTermGroup The search phrase to use when querying the cores. If
-     * null, the count is unfiltered.
-     * @return the <code>searchPhrase</code> occurrence count
-     */
-    private Map<String, Integer> getSolrCoreCounts(SearchTermGroup searchTermGroup) {
-        Map<String, Integer> solrCoreCountMap = new HashMap();
-        
-        for (int i = 0; i < paramList.size(); i++) {
-            String solrQueryString = paramList.get(i);
-            try {
-                if (searchTermGroup != null) {
-                    solrQueryString = solrQueryString.replace("&q=*:*", "&q=" + searchTermGroup.solrTarget);
-                }
-        
-                String fqSolrQueryString = solrUrl + solrQueryString;
+        ArrayList<String> dbMaFacetTermNames = new ArrayList();
                 
-                JSONObject geneResults = JSONRestUtil.getResults(fqSolrQueryString);
-                int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");
-                String facet = cores.get(i);
-                solrCoreCountMap.put(facet, facetCountFromSolr);
-            } catch (TimeoutException te) {
-                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts() timeout!");
-                return null;
+        String query =
+              "SELECT hla.TERM_ID, ti.name\n"
+            + "FROM komp2.higher_level_annotation hla\n"
+            + "JOIN ontodb_komp2.ma_term_infos ti ON ti.term_id = hla.TERM_ID\n"
+            + "ORDER BY ti.name\n";
+        PreparedStatement ps = null;
+        try {
+            ps = komp2Connection.prepareStatement(query);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                dbMaFacetTermNames.add(resultSet.getString("name"));
             }
-            catch(Exception e){
-                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts(): " + e.getLocalizedMessage());
-                return null;
+            ps.close();
+        } catch (SQLException sqle) {
+            if ( ps != null) {
+                try { ps.close(); } catch (SQLException sqle2) { }
             }
+            throw sqle;
         }
         
-        return solrCoreCountMap;
+        Set<String> pageSet = new HashSet(Arrays.asList(pageMaFacetTermNames));
+        Set<String> dbSet = new HashSet(dbMaFacetTermNames);
+        
+        if (pageSet.size() != dbSet.size()) {
+            System.out.println("facet name count mismatch:");
+            dumpLists(Arrays.asList(pageMaFacetTermNames), dbMaFacetTermNames);
+            fail("facet name count mismatch");
+        }
+        
+        for (int i = 0; i < pageSet.size(); i++) {
+            if ( ! pageMaFacetTermNames[i].equals(dbMaFacetTermNames.get(i))) {
+                dumpLists(Arrays.asList(pageMaFacetTermNames), dbMaFacetTermNames);
+                fail("facet name mismatch");
+            }
+        }
     }
-
-    private void specialStrQueryTest(String testName, String qry) throws Exception {
-        testCount++;
+    
+    // Dump the page and db lists.
+    private void dumpLists(List<String> pageList, List<String> dbList) {
+        Collections.sort(pageList);
+        Collections.sort(dbList);
         
-        System.out.println("\n\n----- " + testName + " -----");
-
-        successList.clear();
-        errorList.clear();
-
-        driver.get(baseUrl + "/search?q=" + qry);
-
-        new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));
-        String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
-        if ( foundMsg.isEmpty() ){
-            System.out.println("[FAILED] - queried " + qry);
-            sumErrorList.add("[FAILED] - queried " + qry);
-            fail("There were " + sumErrorList.size() + " errors.");
+        System.out.format("%30s %30s", "Page Value (" + pageList.size() + ")", "DB Value(" + dbList.size() + ")\n");
+        System.out.format("%30s %30s", "------------------------------", "------------------------------\n");
+        for (int i = 0; i < Math.max(pageList.size(), dbList.size()); i++) {
+            String pageValue = (i < pageList.size() ? pageList.get(i) : "");
+            String dbValue = (i < dbList.size() ? dbList.get(i) : "");
+            System.out.format("%30s %30s\n", pageValue, dbValue);
         }
-        else {
-            System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
-            sumSuccessList.add("passed");
-        }
-        System.out.println();
     }
     
 }

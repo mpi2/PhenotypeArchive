@@ -426,43 +426,65 @@
                             </c:if> 
                             
                             <!-- section for expression data here -->
-							<c:if test="${not empty mutantAnatomyToRow}"> 
+							<c:if test="${not empty expressionAnatomyToRow}"> 
                                 <div class="section">
                                     <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <div class="inner" style="display: block;">
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><th>Mutant specimens</th><th>Images</th></tr>
-                                     	<c:forEach var="mapEntry" items="${mutantAnatomyToRow}">
-                                     		<tr><td>${mapEntry.key}</td><td> <i title="#het images with expression ${mapEntry.value.numberOfHet}">${mapEntry.value.numberOfHetSpecimens}</i></td><td>${mapEntry.value.homImages}</td>
+                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th>Images</th></tr>
+                                     	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
+                                     		<tr><td><a href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalMaName}</a><c:if test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> (${mapEntry.key})</c:if></td><td><i title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</i></td>
+                                     			<td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:#0978a1"</c:if>>
+                                     			<i title="Homozygote Images are
+                                     			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available">${mutantImagesAnatomyToRow[mapEntry.key].homImages}</i></td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${controlAnatomyToRow[mapEntry.key].wildTypeExpression}"><i title="#images expressed=${controlAnatomyToRow[mapEntry.key].expressed} not expressed=${controlAnatomyToRow[mapEntry.key].notExpressed} ambiguous=${controlAnatomyToRow[mapEntry.key].ambiguousExpression}" class="fa fa-check" style="color:#0978a1"></i>
+                                     			<c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
+                                     				<i title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-check" style="color:#0978a1"></i>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
+                          						<c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
+                          							<i title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-times" style="color:gray"></i>
+                          						</c:when> 
+                          						<c:when test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
+                          							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
+                          						</c:when>             			
+                                     			
                                      			<c:otherwise>
-                                     				<i title="No wild type images with expression found" class="fa fa-times" style="color:gray"></i>
+                                     				<i title="Ambiguous" class="fa fa-circle" style="color:gray"></i>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
                                      		<td>
                                      		<c:choose>
-                                     			<c:when test="${mapEntry.value.expression}"><i title="#images expressed=${mapEntry.value.expressed} not expressed=${mapEntry.value.notExpressed} ambiguous=${mapEntry.value.ambiguousExpression})" class="fa fa-check" style="color:#0978a1"></i>
+                                     			<c:when test="${mapEntry.value.expression}">
+                                     				<i title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-check" style="color:#0978a1"></i>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
+                          						<c:when test="${mapEntry.value.notExpressed}">
+                          							<i title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-times" style="color:gray"></i>
+                          						</c:when> 
+                          						<c:when test="${mapEntry.value.noTissueAvailable}">
+                          							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
+                          						</c:when>             			
+                                     			
                                      			<c:otherwise>
-                                     				<i title="No mutant images with expression found" class="fa fa-times" style="color:gray"></i>
+                                     				<i title="Ambiguous" class="fa fa-circle" style="color:gray"></i>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
                                
-                                     		<td>
-                                     		<c:forEach var="specimen" items="${mapEntry.value.specimenExpressed}">
-                                     		<i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}">${specimen.key}</i>
+                                     		<%-- <td>
+                          
+                                     		<c:forEach var="specimen" items="${mapEntry.value.specimen}">
+                                     		<i title="zygosity= ${specimen.value.zyg}">${specimen.key}</i>
                                  
-                                     		</c:forEach></td>
-                                     		
+                                     		</c:forEach></td> --%>
+                                     		                                     		
                                      		<td>
-                                     		<a href="${baseUrl}/expressionImagePicker/${acc}/${mapEntry.key}"><i title=" ${specimen.key} #images for specimen=${specimen.value.numberOfExpressionImagesForSpecimen} zygosity= ${specimen.value.zyg}" class="fa fa-image" alt="Images"></i>
-                                     		</a>
+                                     		<c:if test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
+                                     			<a href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.symbol}")'><i title="Images available (click on this icon to view images)" class="fa fa-image" alt="Images">(${mapEntry.value.numberOfImages})</i>
+                                     			</a>
+                                     		</c:if>
                                      		</td>
                                      		</tr>
                                      	</c:forEach>

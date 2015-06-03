@@ -576,7 +576,7 @@ public class GenesController {
 	throws SolrServerException {
 		boolean overview=true;
 		boolean expressionOverview=true;
-		expressionService.getLacDataForGene(acc, null, overview, expressionOverview, model);
+		expressionService.getLacImageDataForGene(acc, null, overview, expressionOverview, model);
 		expressionService.getExpressionDataForGene(acc, model);
 	}
 

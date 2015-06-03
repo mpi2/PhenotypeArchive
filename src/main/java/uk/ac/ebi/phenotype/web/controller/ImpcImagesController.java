@@ -45,7 +45,7 @@ public class ImpcImagesController {
 		System.out.println("calling laczImages web page");
 		addGeneSymbolToPage(acc, model);
 		boolean overview=false;
-		expressionService.getLacDataForGene(acc, topLevelMa,overview, false, model);
+		expressionService.getLacImageDataForGene(acc, topLevelMa,overview, false, model);
 
 		return "laczImages";
 	}
@@ -55,7 +55,7 @@ public class ImpcImagesController {
 			throws SolrServerException, IOException, URISyntaxException {
 		addGeneSymbolToPage(acc, model);
 		boolean overview=false;
-		expressionService.getLacDataForGene(acc, null, overview, false, model);
+		expressionService.getLacImageDataForGene(acc, null, overview, false, model);
 
 		return "laczImages";
 	}
@@ -87,16 +87,18 @@ public class ImpcImagesController {
 			experimental.addAll(responseExperimental2.getResults());
 		}
 		System.out.println("list size=" + experimental.size());
-		SolrDocumentList controls = new SolrDocumentList();
+		
 		// QueryResponse responseControl =
 		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
 		// "control", 6, null, null, null);
 		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
+		SolrDocumentList controls=new SolrDocumentList();
 		for (SexType sex : SexType.values()) {
-			SolrDocumentList list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
-			controls.addAll(list);
+			
+			SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
+			controls.addAll(controlsTemp);
 		}
 
 		System.out.println("experimental size=" + experimental.size());
@@ -135,7 +137,7 @@ public class ImpcImagesController {
 		// int daysEitherSide = 30;// get a month either side
 		for (SexType sex : SexType.values()) {
 			SolrDocumentList list = null;
-			list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc);
+			list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, anatomy);
 			controls.addAll(list);
 		}
 

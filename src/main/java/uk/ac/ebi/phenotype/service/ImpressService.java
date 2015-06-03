@@ -4,9 +4,12 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+
 import uk.ac.ebi.phenotype.service.dto.PipelineDTO;
 
 import javax.annotation.Resource;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -113,5 +116,51 @@ public class ImpressService {
 			return config.get("drupalBaseUrl") + "/impress/procedures/" + pipelineKey.get(0);
 		}
 		else return "#";
+	}
+	
+	public Map<String,OntologyBean> getParameterStableIdToAbnormalMaMap(){
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/pipeline/select?q=*:*&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(abnormal_ma_id:*)&rows=100
+		Map<String,OntologyBean> idToAbnormalMaId=new HashMap<>();
+		List<PipelineDTO> pipelineDtos=null;
+			SolrQuery query = new SolrQuery()
+				.setQuery(PipelineDTO.ABNORMAL_MA_ID + ":*" )
+				.setFields(PipelineDTO.ABNORMAL_MA_ID, PipelineDTO.ABNORMAL_MA_NAME, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
+
+			QueryResponse response=null;
+			try {
+				response = solr.query(query);
+				pipelineDtos = response.getBeans(PipelineDTO.class);
+				for(PipelineDTO pipe:pipelineDtos){
+					if(!idToAbnormalMaId.containsKey(pipe.getParameterStableId())){
+						idToAbnormalMaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAbnormalMaTermId(),pipe.getAbnormalMaName()));
+					}
+				}
+			} catch (SolrServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return idToAbnormalMaId;
+	}
+	public class OntologyBean{
+		
+		public OntologyBean(String id, String name){
+			this.maId=id;
+			this.name=name;
+		}
+		
+		String maId;
+		public String getMaId() {
+			return maId;
+		}
+		public void setMaId(String maId) {
+			this.maId = maId;
+		}
+		String name;
+		public String getName() {
+			return name;
+		}
+		public void setName(String maName) {
+			this.name = maName;
+		}
 	}
 }

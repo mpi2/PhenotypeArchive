@@ -50,8 +50,7 @@
 
 	<jee:jndi-lookup id="admintoolsDataSource"
 		jndi-name="java:comp/env/jdbc/admintoolsDataSource" expected-type="javax.sql.DataSource" />
-	
-
+		
 	<!-- phenodigm external solr server via HTTP -->
 	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0" value="${phenodigm.solrserver}" />
@@ -97,6 +96,8 @@
 
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
 	</bean>
+	
+	 <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
 
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
 		<constructor-arg value="${internalSolrUrl}/statistical-result" />
@@ -112,6 +113,7 @@
 	</bean>
 	
 	<bean id="expressionService" class="uk.ac.ebi.phenotype.service.ExpressionService">
+	<constructor-arg value="${internalSolrUrl}/experiment" />
 		<constructor-arg value="${internalSolrUrl}/impc_images" />
 	</bean>
 

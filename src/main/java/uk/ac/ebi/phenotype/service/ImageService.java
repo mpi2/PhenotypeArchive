@@ -36,8 +36,6 @@ public class ImageService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
-	
-
 	public List<AnatomyPageTableRow> getImagesForMA(String maId,
 			List<String> maTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc)
@@ -213,46 +211,6 @@ public class ImageService {
 		return solr.query(query).getResults().getNumFound();
 	}
 
-	/**
-	 * 
-	 * @param query
-	 *            the url from the page name onwards e.g
-	 *            q=observation_type:image_record
-	 * @return
-	 * @throws SolrServerException
-	 */
-	public ResponseWrapper<ImageDTO> getImageDTOsForSolrQuery(String query)
-			throws SolrServerException {
-
-		SolrQuery solrQuery = new SolrQuery();
-		String[] paramsKeyValues = query.split("&");
-		for (String paramKV : paramsKeyValues) {
-			// System.out.println("paramKV=" + paramKV);
-			String[] keyValue = paramKV.split("=");
-			if (keyValue.length > 1) {
-				String key = keyValue[0];
-				String value = keyValue[1];
-				// System.out.println("param=" + key + " value=" + value);
-				solrQuery.setParam(key, value);
-			}
-
-		}
-		QueryResponse response = solr.query(solrQuery);
-		ResponseWrapper<ImageDTO> wrapper = new ResponseWrapper<ImageDTO>(
-				response.getBeans(ImageDTO.class));
-		List<FacetField> facetFields = response.getFacetFields();
-		// maybe we should go back to using the IMageDTO and add fields to the
-		// response wrapper???
-		if (facetFields != null) {
-			for (FacetField facetField : facetFields) {
-				// System.out.println("facetFields=" + facetField.getName() +
-				// facetField.getValueCount() + facetField.getValues());
-			}
-		}
-
-		wrapper.setTotalNumberFound(response.getResults().getNumFound());
-		return wrapper;
-	}
 
 	/**
 	 * 
@@ -376,7 +334,7 @@ public class ImageService {
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		logger.info("images experimental query: {}/select?{}",
+		logger.debug("images experimental query: {}/select?{}",
 				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
@@ -493,6 +451,20 @@ public class ImageService {
 		return res;
 	}
 
+	/**
+	 * 
+	 * @param metadataGroup
+	 * @param center
+	 * @param strain
+	 * @param procedure_name
+	 * @param parameter
+	 * @param date
+	 * @param numberOfImagesToRetrieve
+	 * @param sex
+	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
+	 * @return
+	 * @throws SolrServerException
+	 */
 	public QueryResponse getControlImagesForProcedure(String metadataGroup,
 			String center, String strain, String procedure_name,
 			String parameter, Date date, int numberOfImagesToRetrieve,
@@ -501,23 +473,25 @@ public class ImageService {
 		logger.info("Getting {} nearest controls around {}",
 				numberOfImagesToRetrieve, date);
 
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery("*:*")
-				.addFilterQuery(
-						ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control",
-						ObservationDTO.PHENOTYPING_CENTER + ":\"" + center
-								+ "\"",
-						ObservationDTO.STRAIN_NAME + ":" + strain,
-						ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter,
-						ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name
-								+ "\"")
-				.setRows(numberOfImagesToRetrieve)
-				.setSort(
-						"abs(ms(date_of_experiment,"
-								+ org.apache.solr.common.util.DateUtil
-										.getThreadLocalDateFormat()
-										.format(date) + "))",
-						SolrQuery.ORDER.asc);
+		SolrQuery solrQuery = new SolrQuery();
+
+		solrQuery.setQuery("*:*");
+
+		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP
+				+ ":control", ObservationDTO.PHENOTYPING_CENTER + ":\""
+				+ center + "\"",
+				ObservationDTO.STRAIN_NAME + ":" + strain,
+				ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter,
+				ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
+		
+
+			solrQuery.setSort("abs(ms(date_of_experiment,"
+					+ org.apache.solr.common.util.DateUtil
+							.getThreadLocalDateFormat().format(date) + "))",
+					SolrQuery.ORDER.asc);
+
+
+		solrQuery.setRows(numberOfImagesToRetrieve);
 
 		if (StringUtils.isNotEmpty(metadataGroup)) {
 			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":"
@@ -527,12 +501,48 @@ public class ImageService {
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
 
+		logger.info("getControlImagesForProcedure solr query: {}/select?{}",
+				solr.getBaseURL(), solrQuery);
+		QueryResponse response = solr.query(solrQuery);
+
+		return response;
+	}
+	
+	/**
+	 * 
+	 * @param metadataGroup
+	 * @param center
+	 * @param strain
+	 * @param procedure_name
+	 * @param parameter
+	 * @param date
+	 * @param numberOfImagesToRetrieve
+	 * @param sex
+	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String anatomy) throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery();
+
+		solrQuery.setQuery("*:*");
+
+		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP
+				+ ":control");
+		if (StringUtils.isNotEmpty(anatomy)) {
+			solrQuery.addFilterQuery(ImageDTO.PARAMETER_ASSOCIATION_NAME
+					+ ":\"" + anatomy + "\"");
+		}
+		solrQuery.setRows(numberOfImagesToRetrieve);
+
 		logger.debug("getControlImagesForProcedure solr query: {}/select?{}",
 				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
 	}
+
 
 	/**
 	 * Get the first control and then experimental images if available for the
@@ -596,7 +606,6 @@ public class ImageService {
 				}
 
 				for (Count procedure : procedureFacet.getValues()) {
-					System.out.println("procedure name=" + procedure.getName());
 					if (!procedure.getName().equals(excludeProcedureName)) {
 						this.getControlAndExperimentalImpcImages(acc, model,
 								procedure.getName(), null, 0, 1,
@@ -623,14 +632,15 @@ public class ImageService {
 	 *            the sex of the specimen in the images
 	 * @param imgDoc
 	 *            the solr document representing the image record
+	 * @param anatomy
+	 *            TODO
 	 * @return solr document list, now updated to include all appropriate
 	 *         control images
 	 * @throws SolrServerException
 	 */
-	public SolrDocumentList getControls(int numberOfControls,
-			SexType sex, SolrDocument imgDoc)
-			throws SolrServerException {
-		SolrDocumentList list=new SolrDocumentList();
+	public SolrDocumentList getControls(int numberOfControls, SexType sex,
+			SolrDocument imgDoc, String anatomy) throws SolrServerException {
+		SolrDocumentList list = new SolrDocumentList();
 		final String metadataGroup = (String) imgDoc
 				.get(ObservationDTO.METADATA_GROUP);
 		final String center = (String) imgDoc
@@ -642,9 +652,14 @@ public class ImageService {
 				.get(ObservationDTO.PARAMETER_STABLE_ID);
 		final Date date = (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT);
 
-		QueryResponse responseControl = this.getControlImagesForProcedure(
-				metadataGroup, center, strain, procedureName, parameter, date,
-				numberOfControls, sex);
+		
+		QueryResponse responseControl =null;
+		if(StringUtils.isNotEmpty(anatomy)){
+			responseControl=this.getControlImagesForExpressionData(numberOfControls, anatomy);
+		}else{
+			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
+		}
+				
 		logger.info("Found {} controls. Adding to list", responseControl
 				.getResults().getNumFound());
 		list.addAll(responseControl.getResults());
@@ -706,24 +721,23 @@ public class ImageService {
 			if (facet.getValueCount() != 0) {
 				for (Count count : facet.getValues()) {
 					SolrDocumentList list = null;// list of
-																	// image
-																	// docs to
-																	// return to
-																	// the
-																	// procedure
-																	// section
-																	// of the
-																	// gene page
+													// image
+													// docs to
+													// return to
+													// the
+													// procedure
+													// section
+													// of the
+													// gene page
 					if (!count.getName().equals(excludedProcedureName)) {
 						QueryResponse responseExperimental = this
 								.getImagesForGeneByParameter(acc,
 										count.getName(), "experimental", 1,
 										null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
-							// for(SexType sex : SexType.values()){
+							
 							SolrDocument imgDoc = responseExperimental
 									.getResults().get(0);
-							// no sex filter on this request
 							QueryResponse responseExperimental2 = this
 									.getImagesForGeneByParameter(
 											acc,
@@ -737,22 +751,17 @@ public class ImageService {
 											(String) imgDoc
 													.get(ObservationDTO.STRAIN_NAME));
 
-							list = getControls(numberOfControls, null, imgDoc);
+							list = getControls(numberOfControls, null, imgDoc,
+									null);
 
 							if (responseExperimental2 != null) {
 								list.addAll(responseExperimental2.getResults());
 							}
-							// }
+							
 						}
 
-						for (SolrDocument doc : list) {
-							System.out
-									.println("group="
-											+ doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP));
-						}
 						facetToDocs.put(count.getName(), list);
-						// }
-						// }
+						
 					}
 				}
 
@@ -800,5 +809,4 @@ public class ImageService {
 
 	}
 
-	
 }
