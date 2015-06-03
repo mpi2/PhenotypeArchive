@@ -16,6 +16,8 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -40,11 +42,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
+import uk.ac.ebi.phenotype.dao.GwasDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
@@ -52,6 +56,7 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.*;
+import uk.ac.ebi.phenotype.service.dto.GwasDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
@@ -63,10 +68,12 @@ import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.*;
 
 @Controller
@@ -81,11 +88,17 @@ public class GenesController {
 	private PhenotypeSummaryDAO phenSummary;
 	@Autowired
 	private GenomicFeatureDAO genesDao;
+	
+	@Autowired
+	private GwasDAO gwasDao;
+	
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
 
+	
+	
 	@Autowired
 	ObservationService observationService;
 
@@ -143,7 +156,7 @@ public class GenesController {
 
 	@RequestMapping("/genes/{acc}")
 	public String genes(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException {
 
                 String debug = request.getParameter("debug");
                 log.info("#### genesAllele2: debug: " + debug);        
@@ -159,7 +172,7 @@ public class GenesController {
 
 
 	private void processGeneRequest(String acc, Model model, HttpServletRequest request)
-	throws GenomicFeatureNotFoundException, URISyntaxException, IOException {
+	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException {
 
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
@@ -235,6 +248,14 @@ public class GenesController {
 			e.printStackTrace();
 		}
 
+		// GWAS Gene to IMPC gene mapping
+		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows(gene.getSymbol().toUpperCase());
+		
+		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
+		if ( gwasMappings.size() > 0 ){
+			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
+		}
+		
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
@@ -387,7 +408,18 @@ public class GenesController {
 
 	}
 
-
+	private JSONObject checkGwasMapping(GenomicFeature gene){
+		
+		JSONObject gw = new JSONObject(); 
+		String markerSymbol = gene.getSymbol();
+		
+		
+		
+		
+		return gw;
+	}
+	
+	
 	private Map<String, List<Map<String, String>>> getProviders(List<Map<String, String>> constructs)
 	throws org.json.JSONException {
 

@@ -108,6 +108,8 @@
             <script type="text/javascript">var gene_id = '${acc}';</script>
             <style>
                 #svgHolder div div {z-index:100;}
+                span.direct {color: #698B22;} 
+                span.indirect {color: #CD8500;}
             </style>
 
             <c:if test="${phenotypeStarted}">
@@ -180,6 +182,33 @@
                                         <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.id.accession};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels"><i class="fa fa-external-link"></i>&nbsp;Location&nbsp;View</a>&nbsp;&nbsp;     
                                         <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a> 
                                     </p>
+
+ 									
+                                    <c:if test="${gwasPhenoMapping != null }">
+                                    	
+                                       	<c:if test="${gwasPhenoMapping == 'no mapping' }">
+                               	 			<p class="with-label">
+                                   				<span class="label">GWAS mapping</span>
+                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
+                               				</p>
+                               			</c:if>	
+                               			<c:if test="${gwasPhenoMapping == 'indirect' }">
+                               	 			<p class="with-label">
+                                   				<span class="label">GWAS mapping</span>
+                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
+                                   				<a href="${baseUrl}/phenotype2gwas?symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                                   				
+                               				</p>
+                               			</c:if>
+                               			<c:if test="${gwasPhenoMapping == 'direct' }">
+                               	 			<p class="with-label">
+                                   				<span class="label">GWAS mapping</span>
+                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
+                                   				<a href="${baseUrl}/phenotype2gwas?symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                               				</p>
+                               			</c:if>
+                                   		
+                               		</c:if>
 
                                     <p><a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>
                                     </p>

@@ -159,6 +159,15 @@
 				padding-left: 20px;
 				color: #8B0A50;
 			}
+			form#dnld {
+            	padding: 5px;
+            	border-radius: 5px;
+			    background: #F2F2F2;
+            }
+            form#dnld button {
+            	text-decoration: none;
+            }
+            
         </style>
         
         <script type='text/javascript'>
@@ -443,8 +452,8 @@
                         		+ "<input name='fileType' value='' type='hidden' />"
                         		+ "<input name='gridFields' value='' type='hidden' />"
                         		+ "<input name='idList' value='' type='hidden' />"
-                        		+ "<button class='tsv fa fa-download gridDump gridDump'>TSV</button>"
-                        		+ " or<button class='xls fa fa-download gridDump gridDump'>XLS</button>"
+                        		+ "<button class='tsv fa fa-download gridDump'>TSV</button>"
+                        		+ " or<button class='xls fa fa-download gridDump'>XLS</button>"
                         		+ "</form>");
                    		
                    		$('button.gridDump').click(function(){

@@ -38,10 +38,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 public class Tools {
 	
-	@Autowired
-	@Qualifier("admintoolsDataSource")
-	private static DataSource admintoolsDataSource;
-	
 	// check a string contains only numbers
 	public static boolean isNumeric(String input) {
 		try {
