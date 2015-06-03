@@ -16,6 +16,7 @@ import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 
 import java.util.*;
 
@@ -25,6 +26,10 @@ public class ExpressionService {
 	private final HttpSolrServer imagesSolr;
 	@Autowired
 	ExperimentService experimentService;
+	@Autowired
+	MaOntologyService maService;
+	@Autowired
+	ImpressService impressService;
 
 	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl) {
 
@@ -259,7 +264,7 @@ public class ExpressionService {
 		
 		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc,
 				ImageDTO.ZYGOSITY,
-				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
+				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList mutantCategoricalAdultLacZData = laczDataResponse.getResults();
 //		System.out.println("mutantCategoricalAdultLacZData found="
 //				+ mutantCategoricalAdultLacZData.getNumFound());
@@ -400,6 +405,16 @@ public class ExpressionService {
 		if (anatomyToDocs.containsKey(anatomy)) {
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
 				//System.out.println("categorical"+ doc.get(ObservationDTO.OBSERVATION_TYPE));
+				//impressService.getParameterByStableId();
+				String termId="termIdFromPipelineService";
+				OntologyTermBean term = maService.getTerm(termId);
+				if(term!=null){
+					
+					row.setMaId(term.getId());
+				}else{
+					System.out.println("no ma id for anatomy term="+anatomy);
+				}
+				
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE) && doc.get(ObservationDTO.OBSERVATION_TYPE).equals(
 						"categorical")) {
 					//System.out.println("categorical");
@@ -562,6 +577,16 @@ public class ExpressionService {
 	 */
 	public class ExpressionRowBean {
 		String anatomy;
+		String maId;
+		public String getMaId() {
+			return maId;
+		}
+
+		public void setMaId(String maId) {
+			this.maId = maId;
+		}
+
+
 		boolean homImages = false;
 		boolean wildTypeExpression=false;
 		boolean expression=false;

@@ -50,6 +50,16 @@
 
 	<jee:jndi-lookup id="admintoolsDataSource"
 		jndi-name="java:comp/env/jdbc/admintoolsDataSource" expected-type="javax.sql.DataSource" />
+		
+	<jee:jndi-lookup id="ontodbDataSource"
+		jndi-name="java:comp/env/jdbc/ontodbDataSource" expected-type="javax.sql.DataSource" />
+		
+	 <!-- <bean id="ontodbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="${ontodburl}" />
+        <property name="username" value="${ontodbusername}" />
+        <property name="password" value="${ontodbpassword}" />
+    </bean> -->
 	
 
 	<!-- phenodigm external solr server via HTTP -->
@@ -97,6 +107,8 @@
 
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
 	</bean>
+	
+	 <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
 
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
 		<constructor-arg value="${internalSolrUrl}/statistical-result" />

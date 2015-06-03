@@ -106,6 +106,7 @@ public abstract class OntologyService {
         return null;
     }
     
+    
     protected List<List<String>> getAncestorGraphs(String id) {
         return ancestorGraphsMap.get(id);
     }
@@ -450,6 +451,7 @@ public abstract class OntologyService {
      */
     protected final void populateAllTerms(String query) throws SQLException {
         Map<String, OntologyTermBean> map = new HashMap();
+        
          
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
@@ -460,7 +462,7 @@ public abstract class OntologyService {
                 bean.setName(resultSet.getString("termName"));
                 bean.setDefinition(resultSet.getString("termDefinition") == null
                             ? "" : resultSet.getString("termDefinition"));
-                map.put(mapKey, bean);
+                map.put(mapKey, bean);            
                 id2nodesMap.put(mapKey, Arrays.asList(resultSet.getString("nodes").split(",")));
             }
             
@@ -468,6 +470,7 @@ public abstract class OntologyService {
         }
         
         this.allTermsMap = map;
+       
     }
     
     /**

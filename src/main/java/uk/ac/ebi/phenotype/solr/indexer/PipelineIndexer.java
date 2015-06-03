@@ -59,6 +59,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
 	private Map<String, MpDTO> mpIdToMp;
 	private Map<String, String> parameterStableIdToMaTermIdMap;
+	private Map<String, String> parameterStableIdToAbnormalMaMap;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
 	public PipelineIndexer() {
@@ -103,6 +104,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		procedureIdToParams = populateParamIdToProcedureIdListMap();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap();
 		pipelines = populateProcedureIdToPipelineMap();
+		parameterStableIdToAbnormalMaMap=populateParameterStableIdToAbnormalOntologyMap();
 		//System.out.println(pipelines);
 		pppidsToGfMpBeans = populateGfAccAndMp();
 		mgiToAlleleMap = IndexerMap.getGeneToAlleles(alleleCore);
@@ -141,6 +143,10 @@ public class PipelineIndexer extends AbstractIndexer {
 					String paramStableName = row
 							.get(ObservationDTO.PARAMETER_NAME);
 					pipe.setParameterStableId(paramStableId);
+					if(parameterStableIdToAbnormalMaMap.containsKey(paramStableId)){
+						pipe.setAbnormalMaTermId(parameterStableIdToAbnormalMaMap.get(paramStableId));
+					}
+					
 					//System.out.println("parameterStableId="+paramStableId);
 					pipe.setParameterStableKey(row.get("stable_key"));
 					// where="pproc_id=phenotype_procedure_parameter.procedure_id">
@@ -471,7 +477,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		logger.info("populating PCS pipeline info");
 		Map<Integer, Map<String, String>> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "select 'pipeline' as dataType, id, stable_id, name, stable_key from phenotype_parameter";
-
+//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
 		try (PreparedStatement p = komp2DbConnection
 				.prepareStatement(queryString)) {
 			ResultSet resultSet = p.executeQuery();
@@ -633,6 +639,30 @@ public class PipelineIndexer extends AbstractIndexer {
 		System.out.println("547+ should be and is in procIdToPipelineMap "
 				+ procIdToPipelineMap.size());
 		return procIdToPipelineMap;
+	}
+	
+	private Map<String,String> populateParameterStableIdToAbnormalOntologyMap(){
+		Map<String,String> parameterStableIdToOntology=new HashMap<>();
+		String sqlQuery="SELECT stable_id, ontology_acc FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 10000";
+		try (PreparedStatement p = komp2DbConnection
+				.prepareStatement(sqlQuery)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				
+				String parameterId = resultSet.getString("stable_id");
+				String maId = resultSet.getString("ontology_acc");
+				parameterStableIdToOntology.put(parameterId,maId);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("547+ should be and is in procIdToPipelineMap "
+				+ parameterStableIdToOntology.size());
+		
+		
+		return parameterStableIdToOntology;
 	}
 
 	public class PipelineBean {

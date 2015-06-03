@@ -405,7 +405,7 @@
                                      <table>
                                      <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th>Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
-                                     		<tr><td>${mapEntry.key}</td><td><i title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</i></td>
+                                     		<tr><td><a href="${baseUrl}/anatomy/${mapEntry.value.maId}">${mapEntry.key}</a></td><td><i title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</i></td>
                                      			<td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:#0978a1"</c:if>>
                                      			<i title="Homozygote Images are
                                      			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available">${mutantImagesAnatomyToRow[mapEntry.key].homImages}</i></td>

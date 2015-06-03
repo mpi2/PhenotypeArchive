@@ -71,6 +71,7 @@ public class PipelineDTO {
 	public static final String INFERRED_CHILD_MA_ID = MpDTO.INFERRED_CHILD_MA_ID;
 	public static final String INFERRED_CHILD_MA_TERM = MpDTO.INFERRED_CHILD_MA_TERM;
 	public static final String INFERRED_CHILD_MA_TERM_SYNONYM = MpDTO.INFERRED_CHILD_MA_TERM_SYNONYM;
+	public static final String ABNORMAL_MA_ID = "abnormal_ma_id";
 
 	//
 	// IMPReSS fields
@@ -311,6 +312,9 @@ public class PipelineDTO {
 
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> inferredSelectedTopLevelMaId;
+	
+	@Field(ABNORMAL_MA_ID)
+	private String abnormalMaTermId;
 
 
 	public List<String> getMpId() {
@@ -1496,6 +1500,12 @@ public class PipelineDTO {
 			this.pipeProcId = new ArrayList<>();
 		}
 		this.pipeProcId.add(pipeProcId);
+		
+	}
+
+
+	public void setAbnormalMaTermId(String abnormalMaTermId) {
+		this.abnormalMaTermId=abnormalMaTermId;
 		
 	}
 
