@@ -7,10 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.PipelineDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
@@ -50,6 +52,9 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Autowired
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
+	
+	@Autowired
+	MaOntologyService maOntologyService;
 
 	private Map<Integer, Map<String, String>> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> procedureIdToParams = null;
@@ -145,6 +150,8 @@ public class PipelineIndexer extends AbstractIndexer {
 					pipe.setParameterStableId(paramStableId);
 					if(parameterStableIdToAbnormalMaMap.containsKey(paramStableId)){
 						pipe.setAbnormalMaTermId(parameterStableIdToAbnormalMaMap.get(paramStableId));
+						OntologyTermBean term = maOntologyService.getTerm(parameterStableIdToAbnormalMaMap.get(paramStableId));
+						pipe.setAbnormalMaName(term.getName());
 					}
 					
 					//System.out.println("parameterStableId="+paramStableId);

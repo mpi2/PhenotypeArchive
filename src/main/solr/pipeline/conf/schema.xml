@@ -277,6 +277,8 @@
   	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="abnormal_ma_id" type="string" indexed="true" stored="true" multiValued="false"/>
+  	<field name="abnormal_ma_name" type="string" indexed="true" stored="true" multiValued="false"/>
+  	
 	
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->

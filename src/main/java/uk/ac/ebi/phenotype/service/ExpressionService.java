@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.ImpressService.OntologyBean;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
@@ -29,11 +30,9 @@ public class ExpressionService {
 	@Autowired
 	ExperimentService experimentService;
 	@Autowired
-	MaOntologyService maService;
-	@Autowired
 	ImpressService impressService;
 
-	Map<String, String> abnormalMaFromImpress = null;
+	Map<String, OntologyBean> abnormalMaFromImpress = null;
 
 	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl) {
 
@@ -357,13 +356,13 @@ public class ExpressionService {
 						String parameterStableId = (String) doc
 								.get(ImageDTO.PARAMETER_STABLE_ID);
 						row.setParameterStableId(parameterStableId);
-						String termId = abnormalMaFromImpress
+						OntologyBean ontologyBean = abnormalMaFromImpress
 								.get(parameterStableId);
-						OntologyTermBean term = maService.getTerm(termId);
-						if (term != null) {
+						
+						if (ontologyBean != null) {
 
-							row.setAbnormalMaId(term.getId());
-							row.setMaName(StringUtils.capitalize(term.getName()));
+							row.setAbnormalMaId(ontologyBean.getMaId());
+							row.setMaName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
 							System.out.println("no ma id for anatomy term="
 									+ anatomy);

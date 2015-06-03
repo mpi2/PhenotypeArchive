@@ -72,6 +72,7 @@ public class PipelineDTO {
 	public static final String INFERRED_CHILD_MA_TERM = MpDTO.INFERRED_CHILD_MA_TERM;
 	public static final String INFERRED_CHILD_MA_TERM_SYNONYM = MpDTO.INFERRED_CHILD_MA_TERM_SYNONYM;
 	public static final String ABNORMAL_MA_ID = "abnormal_ma_id";
+	public static final String ABNORMAL_MA_NAME = "abnormal_ma_name";
 
 	//
 	// IMPReSS fields
@@ -315,6 +316,19 @@ public class PipelineDTO {
 	
 	@Field(ABNORMAL_MA_ID)
 	private String abnormalMaTermId;
+	
+	@Field(ABNORMAL_MA_NAME)
+	private String abnormalMaName;
+
+
+	public String getAbnormalMaName() {
+		return abnormalMaName;
+	}
+
+
+	public void setAbnormalMaName(String abnormalMaName) {
+		this.abnormalMaName = abnormalMaName;
+	}
 
 
 	public List<String> getMpId() {

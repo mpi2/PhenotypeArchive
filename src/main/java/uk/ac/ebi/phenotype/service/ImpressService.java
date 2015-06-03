@@ -118,13 +118,13 @@ public class ImpressService {
 		else return "#";
 	}
 	
-	public Map<String,String> getParameterStableIdToAbnormalMaMap(){
+	public Map<String,OntologyBean> getParameterStableIdToAbnormalMaMap(){
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/pipeline/select?q=*:*&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(abnormal_ma_id:*)&rows=100
-		Map<String,String> idToAbnormalMaId=new HashMap<>();
+		Map<String,OntologyBean> idToAbnormalMaId=new HashMap<>();
 		List<PipelineDTO> pipelineDtos=null;
 			SolrQuery query = new SolrQuery()
 				.setQuery(PipelineDTO.ABNORMAL_MA_ID + ":*" )
-				.setFields(PipelineDTO.ABNORMAL_MA_ID, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
+				.setFields(PipelineDTO.ABNORMAL_MA_ID, PipelineDTO.ABNORMAL_MA_NAME, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
 
 			QueryResponse response=null;
 			try {
@@ -132,7 +132,7 @@ public class ImpressService {
 				pipelineDtos = response.getBeans(PipelineDTO.class);
 				for(PipelineDTO pipe:pipelineDtos){
 					if(!idToAbnormalMaId.containsKey(pipe.getParameterStableId())){
-						idToAbnormalMaId.put(pipe.getParameterStableId(),pipe.getAbnormalMaTermId());
+						idToAbnormalMaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAbnormalMaTermId(),pipe.getAbnormalMaName()));
 					}
 				}
 			} catch (SolrServerException e) {
@@ -140,5 +140,27 @@ public class ImpressService {
 				e.printStackTrace();
 			}
 			return idToAbnormalMaId;
+	}
+	public class OntologyBean{
+		
+		public OntologyBean(String id, String name){
+			this.maId=id;
+			this.name=name;
+		}
+		
+		String maId;
+		public String getMaId() {
+			return maId;
+		}
+		public void setMaId(String maId) {
+			this.maId = maId;
+		}
+		String name;
+		public String getName() {
+			return name;
+		}
+		public void setName(String maName) {
+			this.name = maName;
+		}
 	}
 }
