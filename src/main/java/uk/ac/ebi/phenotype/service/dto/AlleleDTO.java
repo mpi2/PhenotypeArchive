@@ -38,6 +38,7 @@ public class AlleleDTO {
 	public static final String MARKER_SYNONYM = "marker_synonym";
 	public static final String MARKER_NAME = "marker_name";
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
+	public static final String ENSEMBL_GENE_ID = "ensembl_gene_id";
 	public static final String GENE_LATEST_ES_CELL_STATUS = "gene_latest_es_cell_status";
 	public static final String LATEST_ES_CELL_STATUS = "latest_es_cell_status";
 	public static final String GENE_LATEST_MOUSE_STATUS = "gene_latest_mouse_status";
@@ -153,6 +154,9 @@ public class AlleleDTO {
 	@Field(HUMAN_GENE_SYMBOL)
 	private List<String> humanGeneSymbol;
 
+	@Field(ENSEMBL_GENE_ID)
+	private List<String> ensemblGeneIds;
+	
 	@Field(GENE_LATEST_ES_CELL_STATUS)
 	private String geneLatestEsCellStatus;
 	@Field(LATEST_ES_CELL_STATUS)
@@ -305,8 +309,6 @@ public class AlleleDTO {
 		this.legacyPhenotypeStatus = legacyPhenotypeStatus;
 	}
 
-
-
 	/**
 	 * @return the mgiAccessionId
 	 */
@@ -410,6 +412,21 @@ public class AlleleDTO {
 	 */
 	public void setHumanGeneSymbol(List<String> humanGeneSymbol) {
 		this.humanGeneSymbol = humanGeneSymbol;
+	}
+
+	/**
+	 * @return the ensemblGeneIds
+	 */
+	public List<String> getEnsemblGeneIds() {
+		return ensemblGeneIds;
+	}
+
+	/**
+	 * @param ensemblGeneIds
+	 *            the ensemblGeneIds to set
+	 */
+	public void setEnsemblGeneIds(List<String> ensemblGeneIds) {
+		this.ensemblGeneIds = ensemblGeneIds;
 	}
 
 	/**
@@ -1269,4 +1286,5 @@ public class AlleleDTO {
 						diseaseId, diseaseSource, diseaseTerm, diseaseAlts, diseaseClasses, humanCurated, mouseCurated, mgiPredicted, impcPredicted,
 						mgiPredictedKnownGene, impcPredictedKnownGene, mgiNovelPredictedInLocus, impcNovelPredictedInLocus, diseaseHumanPhenotypes);
 	}
+	
 }

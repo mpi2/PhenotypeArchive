@@ -135,6 +135,7 @@
     <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />
     <field name="marker_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />
+    <field name="ensembl_gene_id" type="string" indexed="true" stored="true" multiValued="true" />
    	<field name="imits_phenotype_started" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_complete" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>	
@@ -239,6 +240,7 @@
 	<copyField source="marker_name" dest="auto_suggest"/> 
 	<copyField source="marker_synonym" dest="auto_suggest"/>
 	<copyField source="human_gene_symbol" dest="auto_suggest"/>
+	<copyField source="ensembl_gene_id" dest="auto_suggest"/>
 	<copyField source="latest_production_centre" dest="auto_suggest"/>
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 	
