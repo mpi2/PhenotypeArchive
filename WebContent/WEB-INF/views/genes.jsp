@@ -100,16 +100,118 @@
             <!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
 
             <!-- JavaScript Local Imports -->
+            <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
 
-
-            <script type="text/javascript">var gene_id = '${acc}';</script>
+<!-- from tab tutorial -->
+<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
+<%-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> --%>
+  <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
+  
+  
+            <script type="text/javascript">var gene_id = '${acc}';
+            
+            $(function() {
+            	console.log('calling tabs now');
+                $( "#tabs" ).tabs();
+              });
+            </script>
             <style>
                 #svgHolder div div {z-index:100;}
                 span.direct {color: #698B22;} 
-                span.indirect {color: #CD8500;}
+                span.indirect {color: #CD8500;}  
+                
+                /* copied from CKs gwas page */
+                div#mk {
+        		margin-bottom: 10px;
+        	}
+        	span#mkLeft {
+        		font-size: 20px;
+        	}
+        	span#mkLeft a {
+        		text-decoration: none;
+        	}
+        	span#mkRight {
+        		float: right;
+        	}
+        	div#tabs {
+        		border: none;
+        	}
+        	ul.tabs {
+        		border: none;
+        		border-bottom: 1px solid #666;
+        		background: none;
+        	}
+        	ul.tabs li:nth-child(1) {
+        		font-size: 14px;
+        	}
+        	ul.tabs li a {
+        		margin-bottom: -1px;
+        		border: 1px solid #666;
+        		font-size: 12px;
+        	}
+        	ul.tabs li a:hover {
+        		color: white;
+        		background-color: gray; 
+        	}
+        	div#tabs table {
+        		font-size: 14px;
+        		color: #666;
+        	}
+        	div.ui-tabs-panel {
+        		padding: 0 !important;
+        	}
+        	table.dataTable caption {
+        		font-weight: bold;
+        		padding: 3px 5px;
+        		background-color: #F2F2F2;
+        		border-radius: 5px;
+        	}
+        	table.dataTable td a {
+        		text-decoration: none;
+        		color: #0978a1;
+        	}
+        	.trtName {
+        		font-family: Arial !important;
+        		font-weight: bold !important;
+        		font-size: 16px !important;
+        		color: black;
+        	}
+        	span.direct {color: #698B22;} 
+            span.indirect {color: #CD8500;}
+            
+            div.dataTables_info {
+            	font-size: 14px;
+            	padding-bottom: 20px !important;
+            }
+            div.dataTables_filter {
+            	font-size: 14px;
+            }
+            table.dataTable span.highlight {
+                background-color: yellow;
+                font-weight: bold;
+                color: black;
+            }
+            div#toolBox {
+            	font-size: 12px;
+            }
+            div#tableTool {
+                position: relative;
+                top: -70px;
+                float: right;
+            }
+            form#dnld {
+            	padding: 5px;
+            	border-radius: 5px;
+			    background: #F2F2F2;
+            }
+            form#dnld button {
+            	text-decoration: none;
+            }
+                     
             </style>
 
             <c:if test="${phenotypeStarted}">
@@ -216,8 +318,6 @@
                                 </div>	
 
                             </div><!-- section end -->
-
-
 
                             <!--  Phenotype Associations Panel -->
                             <div class="section">
@@ -395,41 +495,22 @@
                                 </div>
                             </c:if>
 
+<div class="section">
+	<div class="inner" style="display: block;">
+		<c:if test="${not empty impcExpressionImageFacets}"> 
  							<!-- section for expression data here -->
-							<c:if test="${not empty impcExpressionImageFacets}"> 
-                                <div class="section">
-                                    <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <div class="inner" style="display: block;">
-                                     <div class="accordion-body" style="display: block;">
-                                   <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
-		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
-                                    <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
-										<a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
-										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
-                                           
-                                                <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
-                                                            <%-- <a href="${href}"> --%>
-                                                    <%-- ${entry.name} (${entry.count}) --%>
-                                                   <%--  <img  src="${impcMediaBaseUrl}/render_thumbnail/${impcExpressionFacetToDocs[entry.name][0].omero_id}/200" style="max-height: 200px;"> --%>
-                                                    <ul>
-                                                    <t:impcimgdisplay2 category="${entry.name}(${entry.count})" href="${href}" img="${impcExpressionFacetToDocs[entry.name][0]}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
-                                                    </ul>
-                                                    <!-- </a>&nbsp; -->
-                                                
-                                               
-                                        </c:forEach><!-- solrFacets end -->
-
-                                        
-                                    </div>
-                                </div>
-                                </div>
-                            </c:if> 
-                            
-                            <!-- section for expression data here -->
-							<c:if test="${not empty expressionAnatomyToRow}"> 
-                                <div class="section">
-                                    <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <div class="inner" style="display: block;">
+ 							<div id="tabs">
+ 							<ul class='tabs'>
+							    <li><a href="#tabs-1">Expression Data Overview</a></li>
+							    <li><a href="#tabs-2">Expression Images View</a></li>
+							</ul>
+							
+							
+							<div id="tabs-1">
+                                
+                                    
+                                    <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    -->
                                      
                                      <table>
                                      <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th>Images</th></tr>
@@ -492,11 +573,61 @@
                                      
                                      </table>
                                      
-                                     
-                                     
-                                	</div>
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                   
                                 </div>
-                            </c:if> 
+                               
+                            
+                            
+                            
+                            
+                            <!-- section for expression data here -->
+							
+							
+
+							<div id="tabs-2">
+                               
+                                    <!--  <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                     -->
+                                    <!--  <div class="accordion-body" style="display: block;"> -->
+                                   <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
+		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
+                                    <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
+										<a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
+										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
+                                           
+                                                <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+                                                            <%-- <a href="${href}"> --%>
+                                                    <%-- ${entry.name} (${entry.count}) --%>
+                                                   <%--  <img  src="${impcMediaBaseUrl}/render_thumbnail/${impcExpressionFacetToDocs[entry.name][0].omero_id}/200" style="max-height: 200px;"> --%>
+                                                    <ul>
+                                                    <t:impcimgdisplay2 category="${entry.name}(${entry.count})" href="${href}" img="${impcExpressionFacetToDocs[entry.name][0]}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                    </ul>
+                                                    <!-- </a>&nbsp; -->
+                                                
+                                               
+                                        </c:forEach><!-- solrFacets end -->
+
+                                        
+                                    <!-- </div> -->
+                                
+                                     
+                            </div><!--  end of tabs-2 -->  
+                                	
+                                
+                      	</div><!-- end of tabs -->
+                      </c:if>
+              </div> <!-- end of inner -->
+                      
+        </div><!--  end of section -->
+
                                     
 
                             <!-- nicolas accordion for images here -->
@@ -651,7 +782,8 @@
                         </div> <!--end of node wrapper should be after all secions  -->
                     </div>
                 </div>
-            </div>
+          </div>
+           
 
             <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
             <script type="text/javascript">
@@ -678,6 +810,7 @@
                             var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
                             $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
                         }
+                        
                     });
             </script>
         </jsp:body>
