@@ -44,8 +44,7 @@ public class ExpressionService {
 	private void initialiseAbnormalMaMap() {
 		abnormalMaFromImpress = impressService
 				.getParameterStableIdToAbnormalMaMap();
-		System.out.println("setting abnormalMaMap to size"
-				+ abnormalMaFromImpress.keySet().size());
+		
 	}
 
 	public QueryResponse getExpressionImagesForGeneByAnatomy(
@@ -202,16 +201,14 @@ public class ExpressionService {
 					ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK);
 		}
 		SolrDocumentList imagesResponse = laczResponse.getResults();
-		// System.out.println("lacZimages found=" +
-		// imagesResponse.getNumFound());
+		
 		List<FacetField> fields = laczResponse.getFacetFields();
-		// System.out.println(fields);
 
 		// we have the unique ma top level terms associated and all the images
 		// now we need lists of images with these top level ma terms in their
 		// annotation
 		Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
-		String noTopMa = "Z Top Level MA";
+		String noTopMa = "No Top Level MA";
 		expFacetToDocs.put(noTopMa, new SolrDocumentList());
 
 		for (SolrDocument doc : imagesResponse) {
@@ -219,8 +216,6 @@ public class ExpressionService {
 					.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
 
 			if (tops == null) {
-				// top = "NA";
-				// System.out.println("top is null");
 				expFacetToDocs.get(noTopMa).add(doc);
 			} else {
 
@@ -230,7 +225,6 @@ public class ExpressionService {
 						expFacetToDocs.put(top, new SolrDocumentList());
 					}
 					list = expFacetToDocs.get(top);
-					// System.out.println("adding doc="+doc);
 					list.add(doc);
 
 				}
@@ -303,13 +297,12 @@ public class ExpressionService {
 		Map<String, SolrDocumentList> mutantImagesAnatomyToDocs = getAnatomyToDocs(imagesMutantResponse);
 
 		for (String anatomy : expressionAnatomyToDocs.keySet()) {
-
-			System.out.println("getting exp row");
+			
 			ExpressionRowBean expressionRow = getAnatomyRow(anatomy,
 					expressionAnatomyToDocs);
 			int hetSpecimens = 0;
 			for (String key : expressionRow.getSpecimen().keySet()) {
-				// System.out.println("specimen key="+key);
+				
 				if (expressionRow.getSpecimen().get(key).getZyg()
 						.equalsIgnoreCase("heterozygote")) {
 					hetSpecimens++;
@@ -318,7 +311,6 @@ public class ExpressionService {
 			expressionRow.setNumberOfHetSpecimens(hetSpecimens);
 			expressionAnatomyToRow.put(anatomy, expressionRow);
 
-			System.out.println("getting control row");
 			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs);
 
 			if (wtRow.getSpecimenExpressed().keySet().size() > 0) {
@@ -350,7 +342,7 @@ public class ExpressionService {
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
 						&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals(
 								"categorical")) {
-					// System.out.println("categorical");
+					
 					if (doc.containsKey(ImageDTO.PARAMETER_STABLE_ID)
 							&& row.getParameterStableId() == null) {
 						String parameterStableId = (String) doc
@@ -394,40 +386,6 @@ public class ExpressionService {
 		return row;
 	}
 
-	// private ExpressionRowBean
-	// getExpressionCountForAnatomyTermFromImages(String anatomy,
-	// ExpressionRowBean row, SolrDocument doc) {
-	// // System.out.println("anatomy="+anatomy);
-	// if (doc.containsKey(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
-	// List<String> paramAssNames = (List<String>) doc
-	// .get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-	// List<String> paramAssValues = (List<String>) doc
-	// .get(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
-	// for (int i = 0; i < paramAssNames.size(); i++) {
-	// String paramAssName = paramAssNames.get(i);
-	// String paramAssValue = paramAssValues.get(i);
-	// // System.out.println("paramAssName=" + paramAssName);
-	// // System.out.println("paramAssValue=" + paramAssValue);
-	// if (paramAssName.equalsIgnoreCase(anatomy)) {
-	// if (paramAssValue.equalsIgnoreCase("expression")) {
-	// // System.out.println("zyg="+(String)doc.get(ImageDTO.ZYGOSITY));
-	// row.addSpecimenExpressed(
-	// (String) doc.get(ImageDTO.EXTERNAL_SAMPLE_ID),
-	// (String) doc.get(ImageDTO.ZYGOSITY));
-	// // System.out.println("paramAssValue=" + paramAssValue);
-	// } else if (paramAssValue.equalsIgnoreCase("ambiguous")) {
-	// //row.setAmbiguousExpression(row.getAmbiguousExpression() + 1);
-	// // row.setSpecimenAmbiguous(row.getSpecimenAmbiguous()+1);
-	// } else if (paramAssValue.equalsIgnoreCase("no expression")) {
-	// //row.setNotExpressed(row.getNotExpressed() + 1);
-	// // row.setSpecimenNotExpressed(row.getSpecimenNotExpressed()+1);
-	// }
-	// }
-	//
-	// }
-	// }
-	// return row;
-	// }
 
 	/**
 	 * Are there hom images in this set (needed for the expression table on gene
@@ -439,7 +397,7 @@ public class ExpressionService {
 	 * @return
 	 */
 	private ExpressionRowBean homImages(ExpressionRowBean row, SolrDocument doc) {
-		// System.out.println("anatomy="+anatomy);
+		
 		if (doc.containsKey(ImageDTO.ZYGOSITY)) {
 			if (doc.get(ImageDTO.ZYGOSITY).equals("homozygote")) {
 				row.setHomImages(true);
@@ -450,27 +408,26 @@ public class ExpressionService {
 
 	private ExpressionRowBean getExpressionCountForAnatomyTerm(String anatomy,
 			ExpressionRowBean row, SolrDocument doc) {
-		// System.out.println("anatomy="+anatomy);
+		
 		if (doc.containsKey(ImageDTO.PARAMETER_NAME)) {
 			String paramAssName = (String) doc
 					.get(ObservationDTO.PARAMETER_NAME);
 			String paramAssValue = (String) doc.get(ObservationDTO.CATEGORY);
-			// System.out.println("paramAssName=" + paramAssName);
-			// System.out.println("paramAssValue=" + paramAssValue);
+			
 			String sampleId = (String) doc.get(ImageDTO.EXTERNAL_SAMPLE_ID);
 			String zyg = (String) doc.get(ImageDTO.ZYGOSITY);
 			if (paramAssName.equalsIgnoreCase(anatomy)) {
 				row.addSpecimen(sampleId, zyg);
 				if (paramAssValue.equalsIgnoreCase("expression")) {
 					row.addSpecimenExpressed(sampleId, zyg);
-					// System.out.println("paramAssValue=" + paramAssValue);
+					
 				} else if (paramAssValue
 						.equalsIgnoreCase("tissue not available")) {
 					row.addNoTissueAvailable(sampleId, zyg);
-					// row.setSpecimenAmbiguous(row.getSpecimenAmbiguous()+1);
+					
 				} else if (paramAssValue.equalsIgnoreCase("no expression")) {
 					row.addNotExpressed(sampleId, zyg);
-					// row.setSpecimenNotExpressed(row.getSpecimenNotExpressed()+1);
+					
 				}
 			}
 
@@ -485,7 +442,7 @@ public class ExpressionService {
 		for (SolrDocument doc : controlResponse) {
 			ArrayList<String> anatomies = (ArrayList<String>) doc
 					.get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-			// System.out.println("anatomies=" + anatomies);
+			
 			if (anatomies != null) {
 				SolrDocumentList anatomyList = null;
 				for (String anatomy : anatomies) {
@@ -493,7 +450,7 @@ public class ExpressionService {
 						anatomyToDocs.put(anatomy, new SolrDocumentList());
 					}
 					anatomyList = anatomyToDocs.get(anatomy);
-					// System.out.println("adding doc="+doc);
+					
 					anatomyList.add(doc);
 				}
 			}
@@ -514,7 +471,7 @@ public class ExpressionService {
 				if (!anatomyToDocs.containsKey(anatomy)) {
 					anatomyToDocs.put(anatomy, new SolrDocumentList());
 				}
-				// System.out.println("adding categorical anatomy "+anatomy);
+				
 				anatomyList = anatomyToDocs.get(anatomy);
 				anatomyList.add(doc);
 			}
