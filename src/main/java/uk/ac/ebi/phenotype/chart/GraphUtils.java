@@ -2,6 +2,9 @@ package uk.ac.ebi.phenotype.chart;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -18,6 +21,8 @@ public class GraphUtils {
 	private static final Logger log = Logger.getLogger(GraphUtils.class);
 	ExperimentService experimentService;
 
+    @Autowired
+    private PhenotypePipelineDAO pipelineDAO;
 
 	public GraphUtils(ExperimentService experimentService) {
 
@@ -39,7 +44,6 @@ public class GraphUtils {
 		List<String> metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
 		List<String> alleleAccessionStrings = keyList.get(ObservationDTO.ALLELE_ACCESSION_ID);
 		List<String> pipelineStableIdStrings = keyList.get(ObservationDTO.PIPELINE_STABLE_ID);
-		System.out.println("Now I have alleles :: " + alleleAccessionStrings);
 		// if(metaDataGroupStrings==null){
 		// metaDataGroupStrings=new ArrayList<String>();
 		// metaDataGroupStrings.add("");
@@ -47,7 +51,8 @@ public class GraphUtils {
 		// for each parameter we want the unique set of urls to make ajax
 		// requests for experiments
 		String seperator = "&";
-		String accessionAndParam = "accession=" + acc + seperator + "parameter_stable_id=" + parameter.getStableId();
+		String parameterStableId = parameter.getStableId();
+		String accessionAndParam = "accession=" + acc;
 
 		String phenoCenterString = "";
 		// for(String phenoCString: phenotypingCentersList) {
@@ -65,15 +70,26 @@ public class GraphUtils {
 			genderString += seperator + "gender=" + sex;
 		}
 		if (chartType != null) {
-			accessionAndParam += seperator + "chart_type=" + chartType;
 			if(chartType==ChartType.PIE){
 				urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
 				return urls;
 			}
-		}else {
-			// find out the default chart type
-			accessionAndParam += seperator + "chart_type=" + getDefaultChartType(parameter);			
+			
+		} else {
+			// default chart type
+			chartType = getDefaultChartType(parameter);			
 		}
+		
+		if ( ! ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
+            parameterStableId = ChartUtils.getPlotParameter(parameter.getStableId());
+            chartType = ChartUtils.getPlotType(parameterStableId);
+            if (chartType.equals(ChartType.TIME_SERIES_LINE)){
+            	metaDataGroupStrings = null;
+            }
+        }
+		accessionAndParam += seperator + "parameter_stable_id=" + parameterStableId;
+		accessionAndParam += seperator + "chart_type=" + chartType;
+		
 		// if not a phenotyping center returned in the keys for this gene and
 		// param then don't return a url
 		if (centersList == null || centersList.isEmpty()) {
@@ -97,12 +113,15 @@ public class GraphUtils {
 							String alleleAccessionString = "&" + ObservationDTO.ALLELE_ACCESSION_ID + "=" + alleleAcc;
 							if (metaDataGroupStrings != null) {
 								for (String metaGroup : metaDataGroupStrings) {
-									urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "=" + center + "" + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId + seperator + ObservationDTO.METADATA_GROUP + "=" + metaGroup);
+									urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER 
+										+ "=" + center + "" + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" 
+										+ pipeStableId + seperator + ObservationDTO.METADATA_GROUP + "=" + metaGroup);
 								}
 							}
 							else {
 								// if metadataGroup is null then don't add it to the request
-								urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "=" + center + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
+								urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "=" 
+								+ center + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
 							}
 						}
 					}
