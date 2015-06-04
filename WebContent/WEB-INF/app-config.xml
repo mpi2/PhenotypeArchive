@@ -97,8 +97,6 @@
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
 	</bean>
 	
-	 <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
-
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
 		<constructor-arg value="${internalSolrUrl}/statistical-result" />
 		<constructor-arg ref="phenotypePipelineDAO" />
