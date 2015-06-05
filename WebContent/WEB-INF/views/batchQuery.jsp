@@ -551,10 +551,11 @@
 							   		<h6 class='bq'>Datatype Input</h6>
 										<div id='query'>
 											<span class='cat'>ID:</span>
-										  	<input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >Gene
+										  	<input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:1409 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="hp" value="HP:0000118" name="dataType" class='bq'>HP
+										  <!-- 	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene -->
                 							<p class='note idnote'>For example: MGI:106209</p> <!--  default -->
 										  	
 										  	<div id="accordion">
