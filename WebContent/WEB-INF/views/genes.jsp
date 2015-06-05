@@ -117,6 +117,13 @@
             $(function() {
             	console.log('calling tabs now');
                 $( "#tabs" ).tabs();
+                
+                $('ul.tabs li a').click(function(){
+             	   $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+             	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+                });
+                
+                $('ul.tabs li:nth-child(1) a').click();  // activate this by default
               });
             </script>
             <style>
@@ -498,6 +505,18 @@
 <div class="section">
 	<div class="inner" style="display: block;">
 		<c:if test="${not empty impcExpressionImageFacets}"> 
+		<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
+		<c:set var="noTissueIcon" scope="page" value="fa fa-circle-o"/>
+		<c:set var="noExpressionIcon" scope="page" value="fa fa-times"/>
+		<c:set var="ambiguousIcon" scope="page" value="fa fa-circle"/>
+		<c:set var="yesColor" scope="page" value="#0978a1"/>
+		<c:set var="noColor" scope="page" value="gray"/>
+		
+		<span title="Expression" class="${expressionIcon}" style="color:${yesColor}">&nbspExpression</span>&nbsp&nbsp
+		<span title="No Expression" class="${noExpressionIcon}" style="color:gray">&nbspNo Expression</span>&nbsp&nbsp
+		<span title="No Tissue Available" class="${noTissueIcon}" style="color:gray">&nbspNo Tissue Available</span>&nbsp&nbsp
+		<span title="Ambiguous" class="${ambiguousIcon}" style="color:gray">&nbspAmbiguous</span>&nbsp&nbsp
+		
  							<!-- section for expression data here -->
  							<div id="tabs">
  							<ul class='tabs'>
@@ -506,7 +525,7 @@
 							</ul>
 							
 							
-							<div id="tabs-1">
+							<div id="tabs-1" style="height: 500px; overflow: auto;">
                                 
                                     
                                     <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
@@ -517,40 +536,40 @@
                                      	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
                                      		<tr><td><a href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalMaName}</a>
                                      				<c:if test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> <span title="IMPReSS Term differs from MA term">(${mapEntry.key})</span></c:if></td><td><span title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span></td>
-                                     			<td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:#0978a1"</c:if>>
+                                     			<td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:${yesColor}"</c:if>>
                                      			<span title="Homozygote Images are
                                      			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available">${mutantImagesAnatomyToRow[mapEntry.key].homImages}</span></td>
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
-                                     				<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-check" style="color:#0978a1"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
+                                     				<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
-                          							<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-times" style="color:gray"></span>
+                          							<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
-                          							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
+                          							<i title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></i>
                           						</c:when>             			
                                      			
                                      			<c:otherwise>
-                                     				<span title="Ambiguous" class="fa fa-circle" style="color:gray"></span>
+                                     				<span title="Ambiguous" class="${ambiguousIcon}" style="color:${noColor}"></span>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${mapEntry.value.expression}">
-                                     				<span title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-check" style="color:#0978a1"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                     				<span title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
                           						<c:when test="${mapEntry.value.notExpressed}">
-                          							<span title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-times" style="color:gray"></span>
+                          							<span title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${mapEntry.value.noTissueAvailable}">
-                          							<span title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></span>
+                          							<span title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></span>
                           						</c:when>             			
                                      			
                                      			<c:otherwise>
-                                     				<span title="Ambiguous" class="fa fa-circle" style="color:gray"></span>
+                                     				<span title="Ambiguous" class="${ambiguousIcon}" style="color:${noColor}"></span>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
@@ -619,8 +638,9 @@
                                 
                       	</div><!-- end of tabs -->
                       </c:if>
-              </div> <!-- end of inner -->
+              </div> 
                       
+        </div><!-- end of inner ide is wrong when displayed in browser these divs are needed-->
         </div><!--  end of section -->
 
                                     
