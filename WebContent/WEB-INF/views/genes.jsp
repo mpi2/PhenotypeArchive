@@ -503,6 +503,7 @@
                             </c:if>
 
 <div class="section">
+  <h2 class="title " id="impc-expression">Expression</h2>
 	<div class="inner" style="display: block;">
 		<c:if test="${not empty impcExpressionImageFacets}"> 
 		<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
@@ -538,7 +539,7 @@
                                      				<c:if test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> <span title="IMPReSS Term differs from MA term">(${mapEntry.key})</span></c:if></td><td><span title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span></td>
                                      			<td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:${yesColor}"</c:if>>
                                      			<span title="Homozygote Images are
-                                     			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available">${mutantImagesAnatomyToRow[mapEntry.key].homImages}</span></td>
+                                     			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available"><c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">Yes</c:if><c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">No</c:if></span></td>
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
