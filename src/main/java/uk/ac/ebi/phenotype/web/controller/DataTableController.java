@@ -333,7 +333,7 @@ public class DataTableController {
 				
 				if ( fieldName.equals("images_link") ){
 					
-					String baseUrl = config.get("baseUrl") + "/data/impcImages/images?";
+					String baseUrl = config.get("baseUrl") + "/impcImages/images?";
 					
 					String qryField = null;
 					String imgQryField = null;

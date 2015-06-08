@@ -1494,7 +1494,7 @@ public class FileExportController {
     	
     	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
     	//System.out.println("docs found: "+ docs.size());
-    	String baseUrl = config.get("baseUrl") + "/data/impcImages/images?";
+    	String baseUrl = config.get("baseUrl") + "/impcImages/images?";
     	
     	List<String> rowData = new ArrayList();
       
