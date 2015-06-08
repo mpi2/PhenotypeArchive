@@ -194,6 +194,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                         logger.info(" added {} unidimensional beans", count);
                     }
                 }
+                logger.info(" added {} unidimensional beans", count);
             }
 
             // Populate categorical statistic results
@@ -231,11 +232,50 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                         logger.info(" added {} categorical beans", count);
                     }
                 }
+                logger.info(" added {} categorical beans", count);
+            }
+
+            // Populate viability and fertility and manual results
+            query = "SELECT CONCAT(parameter.stable_id, '_', sr.id) as doc_id, " +
+	            "  'line' AS data_type, sr.id AS db_id, " +
+	            "  zygosity as experimental_zygosity, external_db_id, sr.pipeline_id, sr.procedure_id, parameter_id, sr.colony_id, sex, " +
+	            "  (select stable_id from phenotype_parameter where id=parameter_id) as dependent_variable, " +
+	            "  'Success' as status, exp.biological_model_id,  " +
+	            "  p_value as line_p_value, effect_size AS line_effect_size, " +
+	            "  mp_acc, exp.metadata_group, " +
+	            "  db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
+	            "  proj.name as project_name, proj.id as project_id, " +
+	            "  org.name as phenotyping_center, org.id as phenotyping_center_id " +
+	            "FROM phenotype_call_summary sr " +
+	            "INNER JOIN phenotype_parameter parameter ON parameter.id=sr.parameter_id " +
+	            "INNER JOIN external_db db on db.id=sr.external_db_id " +
+	            "INNER JOIN project proj on proj.id=sr.project_id " +
+	            "INNER JOIN organisation org on org.id=sr.organisation_id " +
+	            "  INNER JOIN experiment exp on sr.colony_id=exp.colony_id AND sr.procedure_id=exp.procedure_id " +
+	            "WHERE parameter.stable_id LIKE '%FER%' OR parameter.stable_id LIKE '%VIA%'";
+
+            try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+                p.setFetchSize(Integer.MIN_VALUE);
+                ResultSet r = p.executeQuery();
+                while (r.next()) {
+
+                    StatisticalResultDTO doc = parseLineResult(r);
+                    documentCount++;
+                    statResultCore.addBean(doc, 30000);
+                    count ++;
+
+                    if (count % 10000 == 0) {
+                        logger.info(" added {} line level parameter beans", count);
+                    }
+                }
+                logger.info(" added {} line level parameter beans", count);
             }
 
             // Final commit to save the rest of the docs
-            logger.info(" added {} totalbeans", count);
-            statResultCore.commit(true, true);              // waitflush & waitserver.
+            logger.info(" added {} total beans", count);
+
+            // waitflush, waitserver = true
+            statResultCore.commit(true, true);
 
         } catch (SQLException | IOException | SolrServerException e) {
             logger.error("Big error {}", e.getMessage(), e);
@@ -394,6 +434,26 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     }
 
+
+    /**
+     * parseLineResult changes a database result set for a line into a solr document
+     *
+     * @param r the result set
+     * @return a solr document
+     * @throws SQLException
+     */
+    private StatisticalResultDTO parseLineResult(ResultSet r) throws SQLException {
+
+        StatisticalResultDTO doc = parseLineResultCommonFields(r);
+        doc.setSex(r.getString("sex"));
+        doc.setpValue(r.getDouble("line_p_value"));
+        doc.setEffectSize(r.getDouble("line_effect_size"));
+
+        return doc;
+
+    }
+
+
     private StatisticalResultDTO parseResultCommonFields(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = new StatisticalResultDTO();
@@ -417,18 +477,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setProjectId(r.getInt("project_id"));
         doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
-        doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).id);
-        doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
-        doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
-        doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).stableId);
-        doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).id);
-        doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).stableKey);
-        doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
-        doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).stableId);
-        doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).id);
-        doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).stableKey);
-        doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
-        doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
         doc.setControlBiologicalModelId(r.getInt("control_id"));
         doc.setMutantBiologicalModelId(r.getInt("experimental_id"));
         doc.setZygosity(r.getString("experimental_zygosity"));
@@ -438,16 +486,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setOrganisationId(r.getInt("organisation_id"));
         doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
 
-        // Biological details
-        BiologicalDataBean b = biologicalDataMap.get(r.getInt("experimental_id"));
+	    addImpressData(r, doc);
 
-        doc.setMarkerAccessionId(b.geneAcc);
-        doc.setMarkerSymbol(b.geneSymbol);
-        doc.setAlleleAccessionId(b.alleleAccession);
-        doc.setAlleleName(b.alleleName);
-        doc.setAlleleSymbol(b.alleleSymbol);
-        doc.setStrainAccessionId(b.strainAcc);
-        doc.setStrainName(b.strainName);
+	    // Biological details
+	    addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
         // Data details
 
@@ -473,23 +515,101 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		/*
          TODO: The sexes can have different MP terms!!!  Need to handle this case
          */
-        OntologyTermBean bean = mpOntologyService.getTerm(r.getString("mp_acc"));
-        if (bean != null) {
-            doc.setMpTermId(bean.getId());
-            doc.setMpTermName(bean.getName());
-            
-            OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
-            doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-            doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
-            
-            doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-            doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-        }
+	    addMpTermData(r, doc);
 
         return doc;
     }
 
-    /**
+
+    private StatisticalResultDTO parseLineResultCommonFields(ResultSet r) throws SQLException {
+
+        StatisticalResultDTO doc = new StatisticalResultDTO();
+
+        doc.setDocId(r.getString("doc_id"));
+        doc.setDataType(r.getString("data_type"));
+        doc.setResourceId(r.getInt("resource_id"));
+        doc.setResourceName(r.getString("resource_name"));
+        doc.setResourceFullname(r.getString("resource_fullname"));
+        doc.setProjectId(r.getInt("project_id"));
+        doc.setProjectName(r.getString("project_name"));
+        doc.setPhenotypingCenter(r.getString("phenotyping_center"));
+        doc.setZygosity(r.getString("experimental_zygosity"));
+        doc.setDependentVariable(r.getString("dependent_variable"));
+        doc.setExternalDbId(r.getInt("external_db_id"));
+        doc.setDbId(r.getInt("db_id"));
+        doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
+	    doc.setColonyId(r.getString("colony_id"));
+	    doc.setStatus("Success");
+
+	    // Always set a metadata group here to allow for simpler searching for
+	    // unique results and to maintain parity with the observation index
+	    // where "empty string" metadata group means no required metadata.
+	    if (StringUtils.isNotEmpty(r.getString("metadata_group"))) {
+		    doc.setMetadataGroup(r.getString("metadata_group"));
+	    } else {
+		    doc.setMetadataGroup("");
+	    }
+
+	    // Impress pipeline data details
+	    addImpressData(r, doc);
+
+	    // Biological details
+        doc.setMutantBiologicalModelId(r.getInt("biological_model_id"));
+	    addBiologicalData(doc, doc.getMutantBiologicalModelId());
+
+        // MP Term details
+	    addMpTermData(r, doc);
+
+        return doc;
+    }
+
+
+	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
+		OntologyTermBean bean = mpOntologyService.getTerm(r.getString("mp_acc"));
+		if (bean != null) {
+		    doc.setMpTermId(bean.getId());
+		    doc.setMpTermName(bean.getName());
+
+		    OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+		    doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
+		    doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+
+		    doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
+		    doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
+		}
+	}
+
+
+	private void addImpressData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
+		doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).id);
+		doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
+		doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
+		doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).stableId);
+		doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).id);
+		doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).stableKey);
+		doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
+		doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).stableId);
+		doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).id);
+		doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).stableKey);
+		doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
+		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
+	}
+
+
+	private void addBiologicalData(StatisticalResultDTO doc, Integer biologicalModelId) {
+		BiologicalDataBean b = biologicalDataMap.get(biologicalModelId);
+
+		doc.setMarkerAccessionId(b.geneAcc);
+		doc.setMarkerSymbol(b.geneSymbol);
+		doc.setAlleleAccessionId(b.alleleAccession);
+		doc.setAlleleName(b.alleleName);
+		doc.setAlleleSymbol(b.alleleSymbol);
+		doc.setStrainAccessionId(b.strainAcc);
+		doc.setStrainName(b.strainName);
+	}
+
+
+	/**
      * Add all the relevant data required quickly looking up biological data
      * associated to a biological sample
      *
