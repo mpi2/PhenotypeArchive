@@ -9,7 +9,7 @@
 
 <%-- -------------------------------------------------------------------------- --%>
 <%-- NOTE: All "magic" variables are defined in the DeploymentInterceptor class --%>
-<%-- This includes such variables asbaseUrl, drupalBaseUrl and releaseVersion.. --%>
+<%-- This includes such variables isbaseUrl, drupalBaseUrl and releaseVersion.. --%>
 <%-- -------------------------------------------------------------------------- --%>
 
 
@@ -86,7 +86,7 @@
 
 
         <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
-        <link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
+        <%--<link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />--%>
 
         <!-- EBI CSS -->
         <link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
