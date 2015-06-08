@@ -27,23 +27,6 @@ public class ImageServiceTest {
 	private ImageService imageService;
 
 
-	@Test
-	public void testGetImageDTOsForSolrQuery() {
-
-		ResponseWrapper<ImageDTO> imageDTOs;
-		try {
-			// query is just the part after the core impcImages root
-			String query = "q=observation_type:image_record";
-			imageDTOs = imageService.getImageDTOsForSolrQuery(query);
-
-			// for(ImageDTO imageDTO:imageDTOs){
-			// System.out.println(imageDTO.getOmeroId());
-			// }
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 
 	@Test
@@ -88,7 +71,35 @@ public class ImageServiceTest {
 		String biologicalSampleGroup = "control";
 		try {
 			imagesResponse = imageService.getControlImagesForProcedure(metaDataGroup, "JAX", strain, procedureName, parameterStableId, null, 2, sex);
+			assertTrue(imagesResponse.getResults().getNumFound()>0);
+			for (SolrDocument doc : imagesResponse.getResults()) {
+				assertTrue(doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP).equals(biologicalSampleGroup));
+				assertTrue(doc.get(ObservationDTO.SEX).equals(sex.name()));
+				assertTrue(doc.get(ObservationDTO.PROCEDURE_NAME).equals(procedureName));
+			}
+			// assertTrue(imageDTOs.getList().size()>1);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+	}
+	
+	@Test
+	public void testFailingGetControlImagesForProcedure() {
+//http://localhost:8080/phenotype-archive/imagePicker/MGI:1913452/IMPC_XRY_034_001
+		QueryResponse imagesResponse;
+		String procedureName = "X-ray";
+		String parameterStableId = "IMPC_XRY_034_001";
+		String metaDataGroup = "9f99711a947ef9f7dacf34c176b42e1b";
+		String strain = "C57BL/6NTac";
+		SexType sex = SexType.female;
+		String biologicalSampleGroup = "control";
+		String phenotypingCentre="WTSI";
+		try {
+			imagesResponse = imageService.getControlImagesForProcedure(metaDataGroup, phenotypingCentre, strain, procedureName, parameterStableId, null, 2, sex);
+			System.out.println("docs found for control test="+imagesResponse.getResults().getNumFound());
+			assertTrue(imagesResponse.getResults().getNumFound()>0);
 			for (SolrDocument doc : imagesResponse.getResults()) {
 				assertTrue(doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP).equals(biologicalSampleGroup));
 				assertTrue(doc.get(ObservationDTO.SEX).equals(sex.name()));

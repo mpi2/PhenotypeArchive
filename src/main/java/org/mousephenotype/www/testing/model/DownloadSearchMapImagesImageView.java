@@ -28,8 +28,10 @@ package org.mousephenotype.www.testing.model;
  * imagesGrid HTML table.
  */
 public class DownloadSearchMapImagesImageView {
-    public final static int COL_INDEX_ANNOTATION_TERMS    = 0;
-    public final static int COL_INDEX_ANNOTATION_IDS      = 1;
-    public final static int COL_INDEX_ANNOTATION_ID_LINKS = 2;
-    public final static int COL_INDEX_IMAGE_LINK          = 3;
+    public final static int COL_INDEX_PROCEDURE        = 0;
+    public final static int COL_INDEX_GENE_SYMBOL      = 1;
+    public final static int COL_INDEX_GENE_SYMBOL_LINK = 2;
+    public final static int COL_INDEX_MA_TERM          = 3;
+    public final static int COL_INDEX_MA_TERM_LINK     = 4;
+    public final static int COL_INDEX_IMAGE_LINK       = 5;
 }

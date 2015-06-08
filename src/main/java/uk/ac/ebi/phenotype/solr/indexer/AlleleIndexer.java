@@ -72,7 +72,6 @@ public class AlleleIndexer extends AbstractIndexer {
     // Fetch all phenotyping started genes with MP calls from preqc core
     private static Set<String> preqcGenesLookup = new HashSet<>();
     
-    
     // Map gene MGI ID to sanger allele bean
     private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
 
@@ -100,7 +99,10 @@ public class AlleleIndexer extends AbstractIndexer {
 	private static Map<String, Set<PfamAnnotations>> uniprotAccPfamAnnotLookup = new HashMap<>();
 	//private static Map<String, Set<String>> uniprotAccPfamJsonLookup = new HashMap<>();
 
-    static {
+	// MGI gene id to Ensembl gene id mapping
+	private static Map<String, List<String>> mgiGeneId2EnsemblGeneId = new HashMap<>();
+	
+	static {
         ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
         ES_CELL_STATUS_MAPPINGS.put("ES Cell Production in Progress", "Assigned for ES Cell Production");
         ES_CELL_STATUS_MAPPINGS.put("ES Cell Targeting Confirmed", "ES Cells Produced");
@@ -170,7 +172,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
-
+System.out.println("Started allele indexing....");
     	int start = 0;
         long rows = 0;
         long startTime = new Date().getTime();
@@ -199,6 +201,9 @@ public class AlleleIndexer extends AbstractIndexer {
             populateLegacyLookup();
             logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
 
+            populateMgiGeneId2EnsemblGeneId();
+            logger.info("Populated Ensembl id to MGI gene id lookup, {} records", mgiGeneId2EnsemblGeneId.size());
+            
             // GoTerm from GO at EBI: MGI gene id to GO term mapping
             populateGoTermLookup();
             logger.info("Populated go terms lookup, {} records", goTermLookup.size());
@@ -227,6 +232,9 @@ public class AlleleIndexer extends AbstractIndexer {
                 // Look up the marker synonyms
                 lookupMarkerSynonyms(alleles);
 
+                // Look up ensembl id to MGI gene id mapping
+                lookupMgiGeneId2EnsemblGeneId(alleles);
+                
                 // Look up the human mouse symbols
                 lookupHumanMouseSymbols(alleles);
 
@@ -294,6 +302,29 @@ public class AlleleIndexer extends AbstractIndexer {
         }
     }
 
+    public Map<String, List<String>> populateMgiGeneId2EnsemblGeneId() {
+    	
+    	String query = "SELECT acc, xref_acc FROM xref WHERE db_id=3 AND xref_db_id=18";
+    	
+    	try (PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+            	String mgiGeneId = resultSet.getString("acc");
+            	String ensemblGeneId = resultSet.getString("xref_acc");
+            	
+            	if ( ! mgiGeneId2EnsemblGeneId.containsKey(mgiGeneId) ){
+            		mgiGeneId2EnsemblGeneId.put(mgiGeneId, new ArrayList<String>());
+            	}	
+            	mgiGeneId2EnsemblGeneId.get(mgiGeneId).add(ensemblGeneId);
+            }
+    	} catch (Exception e) {
+            e.printStackTrace();
+        } 
+    	
+    	return mgiGeneId2EnsemblGeneId;
+    }
+    
     public class GoAnnotations {
 
         public String goTermId;
@@ -922,7 +953,7 @@ public class AlleleIndexer extends AbstractIndexer {
             logger.error("SQL Exception looking up marker symbols: {}", sqle.getMessage());
         }
     }
-
+    
     private void lookupHumanMouseSymbols(Map<String, AlleleDTO> alleles) {
 
         for (String id : alleles.keySet()) {
@@ -937,6 +968,18 @@ public class AlleleIndexer extends AbstractIndexer {
         logger.debug("Finished human marker symbol lookup");
     }
 
+    private void lookupMgiGeneId2EnsemblGeneId(Map<String, AlleleDTO> alleles){
+    	for (String id : alleles.keySet()) {
+            AlleleDTO dto = alleles.get(id);
+
+            if (mgiGeneId2EnsemblGeneId.containsKey(id)) {
+                dto.setEnsemblGeneIds(new ArrayList<>(mgiGeneId2EnsemblGeneId.get(id)));
+            }
+        }
+
+        logger.debug("Finished MGI gene id to Ensembl gene id lookup");
+    }
+    
     private String buildIdQuery(Collection<String> ids) {
 
         StringBuilder lookup = new StringBuilder();

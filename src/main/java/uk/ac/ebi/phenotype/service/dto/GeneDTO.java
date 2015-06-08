@@ -15,6 +15,7 @@ public class GeneDTO {
 	public static final String MARKER_NAME = "marker_name";
 	public static final String MARKER_SYNONYM = "marker_synonym";
 	public static final String MARKER_TYPE = "marker_type";
+	public static final String ENSEMBL_GENE_ID = "ensembl_gene_id";
 	public static final String IMITS_PHENOTYPE_STARTED = "imits_phenotype_started";
 	public static final String IMITS_PHENOTYPE_COMPLETE = "imits_phenotype_complete";
 	public static final String IMITS_PHENOTYPE_STATUS = "imits_phenotype_status";
@@ -208,6 +209,9 @@ public class GeneDTO {
 	@Field(MARKER_TYPE)
 	String markerType;
 
+	@Field(ENSEMBL_GENE_ID)
+	List<String> ensemblGeneIds;
+	
 	@Field(IMITS_PHENOTYPE_STARTED)
 	String imitsPhenotypeStarted;
 
@@ -668,7 +672,17 @@ public class GeneDTO {
 		this.markerType = markerType;
 	}
 
+	
+	public List<String> getEnsemblGeneIds() {
+		return ensemblGeneIds;
+	}
 
+
+	public void setEnsemblGeneIds(List<String> ensemblGeneIds) {
+		this.ensemblGeneIds = ensemblGeneIds;
+	}
+
+	
 	public String getImitsPhenotypeStarted() {
 
 		return imitsPhenotypeStarted;

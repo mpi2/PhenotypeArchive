@@ -159,6 +159,15 @@
 				padding-left: 20px;
 				color: #8B0A50;
 			}
+			form#dnld {
+            	padding: 5px;
+            	border-radius: 5px;
+			    background: #F2F2F2;
+            }
+            form#dnld button {
+            	text-decoration: none;
+            }
+            
         </style>
         
         <script type='text/javascript'>
@@ -443,8 +452,8 @@
                         		+ "<input name='fileType' value='' type='hidden' />"
                         		+ "<input name='gridFields' value='' type='hidden' />"
                         		+ "<input name='idList' value='' type='hidden' />"
-                        		+ "<button class='tsv fa fa-download gridDump gridDump'>TSV</button>"
-                        		+ " or<button class='xls fa fa-download gridDump gridDump'>XLS</button>"
+                        		+ "<button class='tsv fa fa-download gridDump'>TSV</button>"
+                        		+ " or<button class='xls fa fa-download gridDump'>XLS</button>"
                         		+ "</form>");
                    		
                    		$('button.gridDump').click(function(){
@@ -542,10 +551,11 @@
 							   		<h6 class='bq'>Datatype Input</h6>
 										<div id='query'>
 											<span class='cat'>ID:</span>
-										  	<input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >Gene
+										  	<input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:1409 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="hp" value="HP:0000118" name="dataType" class='bq'>HP
+										  <!-- 	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene -->
                 							<p class='note idnote'>For example: MGI:106209</p> <!--  default -->
 										  	
 										  	<div id="accordion">

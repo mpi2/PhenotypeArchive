@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
@@ -42,6 +44,7 @@ import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.GwasDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
@@ -55,6 +58,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
@@ -115,6 +119,9 @@ public class FileExportController {
     @Autowired
     private ReferenceDAO referenceDAO;
 
+    @Autowired
+	private GwasDAO gwasDao;
+    
     /**
      * Return a TSV formatted response which contains all datapoints
      *
@@ -1383,19 +1390,81 @@ public class FileExportController {
         return rowData;
     }
   
+    @RequestMapping(value = "/impc2gwasExport", method = RequestMethod.GET)
+    public void exportImpc2GwasMappingAsExcelTsv(
+		 /* ********************************************************************
+         *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
+         *  *******************************************************************/
+        @RequestParam(value = "fileType", required = true) String fileType,
+        @RequestParam(value = "mgiGeneSymbol", required = true) String mgiGeneSymbol,
+        @RequestParam(value = "gridFields", required = true) String gridFields,
+        @RequestParam(value = "currentTraitName", required = false) String currentTraitName,
+        HttpSession session,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Model model) throws Exception {
+    	
+    	System.out.println("gwas export");
+    	System.out.println("trait: " + currentTraitName);
+    	System.out.println(request.toString());
+    	
+    	List<String> dataRows = fetchImpc2GwasMappingData(request, mgiGeneSymbol, gridFields, currentTraitName);
+    	Workbook wb = null;
+        String fileName = "impc_to_Gwas_mapping_dataset";
+        writeOutputFile(response, dataRows, fileType, fileName, wb);
+    }
+    
+    private List<String> fetchImpc2GwasMappingData(HttpServletRequest request, String mgiGeneSymbol, String gridFields, String currentTraitName) throws SQLException{
+		// GWAS Gene to IMPC gene mapping
+		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows(mgiGeneSymbol.toUpperCase());
+		
+		System.out.println("FileExportController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
+
+		List<String> rowData = new ArrayList();
+		rowData.add(gridFields);
+		
+		for ( GwasDTO gw : gwasMappings ) {
+			String traitName = gw.getDiseaseTrait();
+			
+			if ( currentTraitName != null && ! traitName.equals(currentTraitName) ){
+				continue;
+			}
+			
+			List<String> data = new ArrayList();
+			data.add(gw.getMgiGeneSymbol());
+			data.add(gw.getMgiGeneId());
+			data.add(gw.getMgiAlleleId());
+			data.add(gw.getMgiAlleleName());
+			data.add(gw.getMouseGender());
+			data.add(gw.getMpTermId());
+			data.add(gw.getMpTermName());
+			data.add(traitName);
+			data.add(Float.toString(gw.getPvalue()));
+			data.add(gw.getMappedGene());
+			data.add(gw.getReportedGene());
+			data.add(gw.getUpstreamGene());
+			data.add(gw.getDownstreamGene());
+			data.add(gw.getPhenoMappingCategory());
+			
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		
+		return rowData;
+	}
+    
     @RequestMapping(value = "/bqExport", method = RequestMethod.POST)
     public void exportBqTableAsExcelTsv(
-            /* ********************************************************************
-             *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
-             *  *******************************************************************/
-            @RequestParam(value = "fileType", required = true) String fileType,
-            @RequestParam(value = "coreName", required = true) String solrCoreName,
-            @RequestParam(value = "idList", required = true) String idList,
-            @RequestParam(value = "gridFields", required = true) String gridFields,
-            HttpSession session,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Model model) throws Exception {
+        /* ********************************************************************
+         *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
+         *  *******************************************************************/
+        @RequestParam(value = "fileType", required = true) String fileType,
+        @RequestParam(value = "coreName", required = true) String solrCoreName,
+        @RequestParam(value = "idList", required = true) String idList,
+        @RequestParam(value = "gridFields", required = true) String gridFields,
+        HttpSession session,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Model model) throws Exception {
 
     	String dumpMode = "all";
         

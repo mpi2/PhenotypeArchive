@@ -143,7 +143,7 @@ public class GenePage {
      */
     public List<String> getButtonLabels() {
         List<String> buttonLabels = new ArrayList();
-        List<WebElement> buttons = driver.findElements(By.className("btn"));
+        List<WebElement> buttons = driver.findElements(By.xpath("//*[contains(@class,'btn')]"));
         for (WebElement button : buttons) {
             buttonLabels.add(button.getText());
         }

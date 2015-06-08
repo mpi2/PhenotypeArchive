@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -38,9 +39,10 @@ import java.util.Set;
  * IndexOutOfBounds exception checking is done.
  */
 public class GridMap {
-    private final String[][] data;
+    private String[][] data;
     private final String target;
     private final HashMap<String, Integer> colNameHash = new HashMap();
+    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
     
     /**
      * Creates a <code>GridMap</code> instance
@@ -65,17 +67,23 @@ public class GridMap {
      * @param target the target URL of the page containing the data
      */
     public GridMap(List<List<String>> dataList, String target) {
-        data = new String[dataList.size()][dataList.get(0).size()];
-        for (int rowIndex = 0; rowIndex <  dataList.size(); rowIndex++) {
-            List<String> row = dataList.get(rowIndex);
-            for (int colIndex = 0; colIndex < row.size(); colIndex++) {
-                String cellValue = row.get(colIndex);
-                data[rowIndex][colIndex] = cellValue;
+            data = new String[0][0];
+        try {
+            data = new String[dataList.size()][dataList.get(0).size()];
+            for (int rowIndex = 0; rowIndex <  dataList.size(); rowIndex++) {
+                List<String> row = dataList.get(rowIndex);
+                for (int colIndex = 0; colIndex < row.size(); colIndex++) {
+                    String cellValue = row.get(colIndex);
+                    data[rowIndex][colIndex] = cellValue;
+                }
             }
-        }
-        
-        for (String colHeading : data[0]) {
-            colNameHash.put(colHeading, 0);
+
+            for (String colHeading : data[0]) {
+                colNameHash.put(colHeading, 0);
+            }
+        } catch (Exception e) {
+            data = new String[0][0];
+            logger.warn("Exception: " + e.getLocalizedMessage());
         }
         
         this.target = target;

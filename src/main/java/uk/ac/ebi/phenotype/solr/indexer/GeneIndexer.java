@@ -113,6 +113,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setMarkerSynonym(allele.getMarkerSynonym());
                 gene.setMarkerName(allele.getMarkerName());
                 gene.setHumanGeneSymbol(allele.getHumanGeneSymbol());
+                gene.setEnsemblGeneIds(allele.getEnsemblGeneIds());
                 gene.setLatestEsCellStatus(allele.getLatestEsCellStatus());
                 gene.setImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
                 gene.setImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
