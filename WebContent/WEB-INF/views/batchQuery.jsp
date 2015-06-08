@@ -82,7 +82,7 @@
             div#query {
             	font-size: 11px !important;
             }
-            p.idnote {
+            td.idnote {
             	font-size: 12px;
             	padding-left: 20px;
             	height: 40px;
@@ -167,7 +167,13 @@
             form#dnld button {
             	text-decoration: none;
             }
-            
+            table#dataInput td {
+            	text-align: left;
+            	vertical-align: middle;
+            }
+          	table#dataInput td.idnote {
+          		padding-left: 8px;
+          	} 
         </style>
         
         <script type='text/javascript'>
@@ -186,7 +192,7 @@
                 // reset to default when page loads
                 $('input#gene').prop("checked", true) // check datatyep ID as gene by default 
                 $('input#datatype').val("gene"); // default
-                $('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full GENE dataset");
+                $('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
                 freezeDefaultCheckboxes();
                 chkboxAllert();
                 var currDataType  = false;
@@ -198,13 +204,15 @@
                 		
                 		currDataType = $(this).attr('id');
                 		
+                		var currDataType2 = currDataType.toUpperCase().replace("_"," ");
+                		
                 		// assign to hidden field in fileupload section
                 		$('input#datatype').val(currDataType);
                 		
-                		$('p.idnote').text("For example: " + $(this).attr("value"));
+                		$('td.idnote').text($(this).attr("value"));
                 		//console.log($(this).attr('id'));
                 		var id = $(this).attr('id');
-                		$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full " + $(this).attr('id').toUpperCase() + " dataset");
+                		$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
                 		
                 		// load dataset fields for selected datatype Id
                 		$.ajax({
@@ -266,11 +274,11 @@
             	refreshResult(); // refresh first
             	
             	if ( $('textarea#pastedList').val() == ''){
-            		alert('Please submit at least one ID.');
+            		alert('Please submit at least one identifier (ID/marker symbol).');
             	}
             	else { 
             		var currDataType = $('input.bq:checked').attr('id');
-            		idList = parsePastedpastedList($('textarea#pastedList').val(), currDataType);
+            		idList = parsePastedList($('textarea#pastedList').val(), currDataType);
             		
             		if ( idList !== false ){
             			
@@ -303,7 +311,7 @@
              	$('input#dtype').val(currDataType);
              	
             	if ( $('input#fileupload').val() == '' ){
-            		alert("Please upload a file with a list of IDs");
+            		alert("Please upload a file with a list of identifiers");
             	}
             	else {
 	               	$('#bqResult').html('');
@@ -315,7 +323,7 @@
 	                      	var j = JSON.parse(jsonStr);
 
 	                      	if ( j.badIdList != ''){
-	                      		$('div#errBlock').html("UPLOAD ERROR: unprocessed ID(s): " + j.badIdList).show();
+	                      		$('div#errBlock').html("UPLOAD ERROR: unprocessed identifier(s): " + j.badIdList).show();
 	                      	}
 	                      		
 	                		var fllist = fetchSelectedFieldList();
@@ -340,7 +348,7 @@
             		refreshResult(); // refresh first 
             		
             		var fllist = fetchSelectedFieldList();
-                 	var currDataType = $('input.bq:checked').attr('id');
+                 	var currDataType = $('input.bq:checked').attr('id') == 'marker_symbol' ? 'gene' : $('input.bq:checked').attr('id');
                  	
                  	prepare_dataTable(fllist);
                  	
@@ -382,29 +390,37 @@
                 $('div#bqResult').append(dTable);
             }
             
-            function parsePastedpastedList(val, dataType){
+            function parsePastedList(val, dataType){
+            	val = val.trim();
             	var aVals = val.split(/\n|,|\t|\s+/);
             	var aVals2 = [];
             	for ( var i=0; i<aVals.length; i++){
-            		
+            		if ( aVals[i] == "" ){
+            			continue;
+            		}
             		var currId = aVals[i].toUpperCase().trim();
+            		var errMsg = "ERROR - " + currId + " is not an expected " + dataType + " identifier";
             		
             		if ( dataType == 'disease' ){
             			if ( ! (currId.indexOf('OMIM') == 0 ||  
             				 currId.indexOf('ORPHANET') == 0 || 
             				 currId.indexOf('DECIPHER') == 0) ){
             			
-                			alert("ERROR - " + currId + " is not a member of " + dataType + " datatype");
+                			alert(errMsg);
                 			return false;
                 		}
             		}
-            		else if ( dataType == 'gene' && currId.indexOf('MGI') != 0 ){
-            			alert("ERROR - " + currId + " is not a member of " + dataType + " datatype");
+            		else if ( dataType == 'gene' && currId.indexOf('MGI:') != 0 ){
+            			alert(errMsg);
             			return false;
             		}
-            		else if ( (dataType == 'mp' || dataType == 'hp') && currId.indexOf(dataType.toUpperCase()) !== 0 ){
+            		else if ( dataType == 'ensembl' && currId.indexOf('ENSMUSG') != 0 ){
+            			alert(errMsg);
+            			return false;
+            		}
+            		else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && currId.indexOf(dataType.toUpperCase()) !== 0 ){
             			
-                		alert("ERROR - " + currId + " is not a member of " + dataType + " datatype");
+                		alert(errMsg);
                 		return false;
             		}
             		
@@ -427,7 +443,8 @@
                     "searchHighlight": true,
                     "iDisplayLength": 50,
                     "oLanguage": {
-                        "sSearch": "Filter: "
+                        "sSearch": "Filter: ",
+                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes"
                     },
                    /*  "columnDefs": [                
                         { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
@@ -479,7 +496,7 @@
             	               	}).submit();
                     		}
                     		else if ( formId == 'pastedIds' ){
-                    			idList = parsePastedpastedList($('textarea#pastedList').val(), currDataType);
+                    			idList = parsePastedList($('textarea#pastedList').val(), currDataType);
                     			doExport(currDataType, fileType, fllist, idList);
                     		}
                     		else {
@@ -550,13 +567,18 @@
 							   	<div class='fl1'>
 							   		<h6 class='bq'>Datatype Input</h6>
 										<div id='query'>
-											<span class='cat'>ID:</span>
-										  	<input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
+											<table id='dataInput'><tr>
+											<td><span class='cat'>ID:</span></td>
+										  	<td><input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
+										  	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
-										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:1409 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="hp" value="HP:0000118" name="dataType" class='bq'>HP
-										  <!-- 	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene -->
-                							<p class='note idnote'>For example: MGI:106209</p> <!--  default -->
+										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:1409 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
+										  	<input type="radio" id="ma" value="MA:0000141" name="dataType" class='bq'>MA</td></tr>
+										  	<tr><td><span class='cat'>Symbol:</span></td>
+										  	<td><input type="radio" id="marker_symbol" value="Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>Marker Symbol</td>
+										  	<tr><td><span class='cat'>Example:</span></td><td class='note idnote'>MGI:106209</td></tr>
+										  	</table>
 										  	
 										  	<div id="accordion">
 											  <p class='header'>Paste in your list</p>
@@ -566,8 +588,8 @@
 											     	<textarea id='pastedList' rows="5" cols="50"></textarea> 
 											 		<input type="submit" id="pastedlist" name="" value="Submit" onclick="return submitPastedList()" />
 											 		<input type="reset" name="reset" value="Reset"><p>
-											 		<p class='notes'>Supports space, comma, tab or new line separated ID list</p>
-											     	<p class='notes'>Please do not submit a mix of ids from different datatypes</p>	
+											 		<p class='notes'>Supports space, comma, tab or new line separated identifier list</p>
+											     	<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>	
 											   	 </form>
 											    </p>
 											  </div>
@@ -580,8 +602,8 @@
 													  <input name="dataType" id="dtype" value="" type="hidden" /><br/>
 													  <input type="submit" id="upload" name="upload" value="Upload" onclick="return uploadJqueryForm()" />
 													  <input type="reset" name="reset" value="Reset"><p>
-													  <p class='notes'>Supports comma, tab or new line separated ID list</p>
-												      <p class='notes'>Please do not submit a mix of ids from different datatypes</p>  
+													  <p class='notes'>Supports comma, tab or new line separated identifier list</p>
+												      <p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>  
 												</form>
 												
 											  </div>

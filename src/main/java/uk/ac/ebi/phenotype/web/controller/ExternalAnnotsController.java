@@ -148,7 +148,7 @@ public class ExternalAnnotsController {
 				
 				String table = "<table class='tablesorter'>" + theadRow + caption + "<tbody>"+ StringUtils.join(trs, "") + "</tbody></table>";
 				
-				System.out.println("table ---- " + table);
+				//System.out.println("table ---- " + table);
 				tabDivs.add("<div id='" + tabId + "'>" + table + "</div>");
 			    
 			}

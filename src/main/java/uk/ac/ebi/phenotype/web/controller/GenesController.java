@@ -84,8 +84,10 @@ public class GenesController {
 
 	@Autowired
 	private DatasourceDAO datasourceDao;
+	
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
+	
 	@Autowired
 	private GenomicFeatureDAO genesDao;
 	
@@ -94,26 +96,30 @@ public class GenesController {
 	
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
+	
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
-
-	
 	
 	@Autowired
 	ObservationService observationService;
 
 	@Autowired
 	SolrIndex solrIndex;
-    @Autowired
+    
+	@Autowired
     SolrIndex2 solrIndex2;
+	
 	@Autowired
 	ImageService imageService;
+	
 	@Autowired
 	ExpressionService expressionService;
+	
 	@Autowired
 	private GeneService geneService;
 
 	@Autowired private StatisticalResultService statsResultsService;
+	
 	@Autowired
 	private PreQcService preqcService;
 	
