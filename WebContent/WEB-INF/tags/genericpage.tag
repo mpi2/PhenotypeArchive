@@ -198,7 +198,14 @@
                     <div class="region region-header">
 
                         <div id="tn">
-                            <ul>${usermenu}</ul>
+                            <div class="region region-usernavi">
+                                <div id="block-system-user-menu" class="block block-system block-menu">
+                                    <div class="content">
+                                        <ul class="menu">${usermenu}</ul>
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div id="logo">
