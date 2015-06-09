@@ -461,6 +461,9 @@
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
 
                     	$('div#sec2').show();
+                    
+                    	document.getElementById('sec2').scrollIntoView(true); // scrolls to results when datatable loads
+                    
                     	var endPoint = baseUrl + '/bqExport';	
                     	
                         $('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='POST' action='" + endPoint + "'>"
