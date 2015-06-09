@@ -1483,18 +1483,19 @@ public class FileExportController {
     	
         JSONObject json = solrIndex.getBqDataTableExportRows(solrCoreName, gridFields, idList);
         
-        List<String> dataRows = composeBatchQueryDataTableRows(json, solrCoreName, gridFields);
+        List<String> dataRows = composeBatchQueryDataTableRows(json, solrCoreName, gridFields, request);
         System.out.println("datarows: "+ dataRows);
         Workbook wb = null;
         String fileName = "batch_query_dataset";
         writeOutputFile(response, dataRows, fileType, fileName, wb);
     }
     
-    private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields) throws UnsupportedEncodingException {
+    private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields, HttpServletRequest request) throws UnsupportedEncodingException {
     	
     	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
     	//System.out.println("docs found: "+ docs.size());
-    	String baseUrl = config.get("baseUrl") + "/impcImages/images?";
+    	String baseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
+    	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	
     	List<String> rowData = new ArrayList();
       
@@ -1519,6 +1520,8 @@ public class FileExportController {
     				
     				String qryField = null;
     				String imgQryField = null;
+    				
+    				// some batchQuery dataType support images link
     				if ( solrCoreName.equals("gene") ){
     					qryField = "mgi_accession_id";
     					imgQryField = "gene_accession_id";
@@ -1532,7 +1535,7 @@ public class FileExportController {
 					
 					String params = "q=" + acc + " AND observation_type:image_record&fq=biological_sample_group:experimental";
 					params = URLEncoder.encode(params, "UTF-8");
-					String imgLink = baseUrl + params;
+					String imgLink = hostName + baseUrl + params;
 					
 					System.out.println("image link: "+ imgLink);
 					data.add(imgLink);
@@ -1553,7 +1556,7 @@ public class FileExportController {
     					int val = (int) doc.getInt(fieldName);
 						value = Integer.toString(val);
     				}
-    				System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
+    				//System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
     				data.add(value);
     			}  
     		}

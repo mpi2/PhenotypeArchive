@@ -444,7 +444,7 @@
                     "iDisplayLength": 50,
                     "oLanguage": {
                         "sSearch": "Filter: ",
-                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes"
+                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (10 records maximum, for complete dataset of your search, please use export buttons)"
                     },
                    /*  "columnDefs": [                
                         { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         

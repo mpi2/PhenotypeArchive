@@ -333,8 +333,9 @@ public class DataTableController {
 				
 				if ( fieldName.equals("images_link") ){
 					
-					String baseUrl = config.get("baseUrl") + "/impcImages/images?";
-					
+					String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+					String baseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
+
 					String qryField = null;
 					String imgQryField = null;
 					if ( solrCoreName.equals("gene") ){
@@ -352,7 +353,7 @@ public class DataTableController {
 						accStr = imgQryField + ":\"" + (String) acc + "\"";
 					}
 					
-					String imgLink = "<a target='_blank' href='" + baseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					String imgLink = "<a target='_blank' href='" + hostName + baseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
 					
 					rowData.add(imgLink);
 				}
