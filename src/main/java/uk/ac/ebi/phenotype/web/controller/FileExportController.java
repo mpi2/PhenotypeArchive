@@ -1542,23 +1542,19 @@ public class FileExportController {
     				data.add("");
     			}
     			else {
-    				try {
-    					String value = doc.getString(fieldName).toString();
-    					if ( value.startsWith("[") ){
-    						value = value.replaceAll("\\[|\\]|\"", "");
-    						value = value.replaceAll(",", "|");
-    					}
-   					
-    					//System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
-    					data.add(value);
-    				} 
-    				catch(Exception e){
-    					if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
-    						int val = (int) doc.getInt(fieldName);
-    						String value = Integer.toString(val);
-    						data.add(value);
-    					}
+    				String value = null;
+    				if ( doc.get(fieldName).getClass().toString().contains("JSONArray") ){
+    					value = StringUtils.join(doc.getJSONArray(fieldName), "|");
     				}
+    				else if ( doc.get(fieldName).getClass().toString().contains("String") ){
+    					value = doc.getString(fieldName);
+    				}
+    				else if ( doc.get(fieldName).getClass().toString().contains("Integer") ){
+    					int val = (int) doc.getInt(fieldName);
+						value = Integer.toString(val);
+    				}
+    				System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
+    				data.add(value);
     			}  
     		}
     		rowData.add(StringUtils.join(data, "\t"));
