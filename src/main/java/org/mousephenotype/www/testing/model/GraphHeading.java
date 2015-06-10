@@ -60,19 +60,22 @@ public class GraphHeading {
     private final Utilities impressUtils = new Utilities();
 
     // Heading variables
-    protected String title;
-    protected String alleleSymbol;
-    protected String geneticBackground;
-    protected String geneSymbol;
-    protected String metadataGroup;
-    protected String parameterName;
-    protected String parameterStableId;
-    protected String phenotypingCenter;
-    protected String pipelineName;
+    protected String title = "";
+    protected String alleleSymbol = "";
+    protected String geneticBackground = "";
+    protected String geneSymbol = "";
+    protected String metadataGroup = "";
+    protected String parameterName = "";
+    protected String parameterStableId = "";
+    protected String phenotypingCenter = "";
+    protected String pipelineName = "";
+    protected String procedureName = "";
+    protected String graphUrl = "";
+    protected String mutantKey = "";
+    protected String controlKey = "";
+    
     protected WebElement pipelineLinkElement;
-    protected String procedureName;
     protected WebElement sopLinkElement;
-    protected String graphUrl;
     protected ChartType chartType;
     
     // Database parameter variables
@@ -99,6 +102,7 @@ public class GraphHeading {
         this.chartType = chartType;
         
         parse(chartType);
+        setKeys();
     }
     
     /**
@@ -249,12 +253,28 @@ public class GraphHeading {
         return procedureName;
     }
 
+    public String getGraphUrl() {
+        return graphUrl;
+    }
+
+    public String getMutantKey() {
+        return mutantKey;
+    }
+
+    public String getControlKey() {
+        return controlKey;
+    }
+
+    public ChartType getChartType() {
+        return chartType;
+    }
+
     
     // PRIVATE METHODS
 
     
     /**
-     * Parse the headings.
+     * Parse the heading.
      */
     private void parse(ChartType chartType) throws GraphTestException {
         // Wait for all charts to load.
@@ -289,6 +309,66 @@ public class GraphHeading {
         // Set the graph type from the parameterDAO.
         if (parameterObject != null) {
             observationType = impressUtils.checkType(parameterObject);
+        }
+    }
+    
+    /**
+     * Set the mutant and control keys based on chart type.
+     * 
+     * @throws GraphTestException
+     */
+    private void setKeys() throws GraphTestException {
+                
+        switch (chartType) {
+            case CATEGORICAL_STACKED_COLUMN:
+                mutantKey = TestUtils.makeKey(alleleSymbol,      geneticBackground, geneSymbol,
+                                              metadataGroup,     parameterName,     parameterStableId,
+                                              phenotypingCenter, pipelineName);
+                
+                controlKey = TestUtils.makeKey(                   geneticBackground, 
+                                               metadataGroup,     parameterName,     parameterStableId,
+                                               phenotypingCenter);
+                break;
+                
+            case PIE:
+                break;
+                
+            case TIME_SERIES_LINE:
+            case TIME_SERIES_LINE_BODYWEIGHT:
+                mutantKey = TestUtils.makeKey(alleleSymbol,      geneticBackground, geneSymbol,
+                                              metadataGroup,     
+                                              phenotypingCenter, pipelineName);
+                
+                controlKey = TestUtils.makeKey(                   geneticBackground, 
+                                               metadataGroup,     
+                                               phenotypingCenter);
+                break;
+                
+            case UNIDIMENSIONAL_ABR_PLOT:
+                mutantKey = TestUtils.makeKey(alleleSymbol,      geneticBackground, geneSymbol,
+                                              metadataGroup,
+                                              phenotypingCenter, pipelineName,
+                                              procedureName);
+                
+                controlKey = TestUtils.makeKey(                   geneticBackground,
+                                               metadataGroup,
+                                               phenotypingCenter,
+                                               procedureName);
+                break;
+                
+            case UNIDIMENSIONAL_BOX_PLOT:
+            case UNIDIMENSIONAL_SCATTER_PLOT:
+                mutantKey = TestUtils.makeKey(alleleSymbol,      geneticBackground, geneSymbol,
+                                              metadataGroup,     parameterName,     parameterStableId,
+                                              phenotypingCenter, pipelineName);
+                
+                controlKey = TestUtils.makeKey(                   geneticBackground, 
+                                               metadataGroup,     parameterName,     parameterStableId,
+                                               phenotypingCenter);
+                break;
+                
+            default:
+                throw new GraphTestException("Unknown chart type " + chartType);
         }
     }
     

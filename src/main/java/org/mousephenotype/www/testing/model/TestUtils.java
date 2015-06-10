@@ -98,6 +98,28 @@ public class TestUtils {
     PreQcService preQcService;
     
     /**
+     * Defines the group: experimental or control.
+     */
+    public enum ExperimentGroup {
+        CONTROL("control")
+      , MUTANT("experimental");
+      
+      private final String name;
+      ExperimentGroup(String name) {
+          this.name = name;
+      }
+      
+      public String getName() {
+          return name;
+      }
+      
+      @Override
+      public String toString() {
+          return getName();
+      }
+    }
+    
+    /**
      * Defines the download types.
      */
     public enum DownloadType {
@@ -454,9 +476,33 @@ public class TestUtils {
         
         String[] data = set.toArray(new String[0]);
         for (int i = 0; i < set.size(); i++) {
-            System.out.println("[" + i + "]: " + data[i]);
+            System.out.println("[" + i + "]: " + data[i] + "\n");
         }
         System.out.println();
+    }
+    
+    /**
+     * Dump <code>set</code> as a string.
+     * 
+     * @param set the set to be dumped
+     * 
+     * @return the set, as a <code>String</code> with embedded newlines.
+     */
+    public static String dumpSet(Set<String> set) {
+        StringBuilder retVal = new StringBuilder();
+        if (set.size() <= 0)
+            return retVal.toString();
+        
+        String[] data = set.toArray(new String[0]);
+        for (Integer i = 0; i < set.size(); i++) {
+            retVal.append("[")
+                  .append(i.toString())
+                  .append("]: '")
+                  .append(data[i])
+                  .append("'\n");
+        }
+        
+        return retVal.toString();
     }
     
     /**
@@ -601,6 +647,29 @@ public class TestUtils {
     }
     
     /**
+     * Converts a <code>List&lt;List&lt;String&gt;&gt;&gt;</code> to a two-
+     * dimensional array of strings.
+     * 
+     * @param list the list to be converted
+     * 
+     * @return a <code>List&lt;List&lt;String&gt;&gt;&gt;</code> to a two-
+     * dimensional array of strings.
+     */
+    public static String[][] listToArray(List<List<String>> list) {
+        String[][] retVal = new String[list.size()][];
+        
+        for (int rowIndex = 0; rowIndex < list.size(); rowIndex++) {
+            List<String> row = list.get(rowIndex);
+            retVal[rowIndex] = new String[row.size()];
+            for (int colIndex = 0; colIndex < row.size(); colIndex++) {
+                retVal[rowIndex][colIndex] = row.get(colIndex);
+            }
+        }
+        
+        return retVal;
+    }
+    
+    /**
      * Given an initialized <code>WebDriver</code> instance and a selenium URL,
      * prints the test environment for the test associated with <code>driver<code>.
      * @param driver the initialized <code>WebDriver</code> instance
@@ -619,6 +688,60 @@ public class TestUtils {
         
         System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
         System.out.println("seleniumUrl: " + seleniumUrl);
+    }
+    
+    /**
+     * Given a variable list of strings, returns a single string with each
+     * original string separated by an underscore ("_"). Null strings are
+     * replaced with an empty string.
+     * 
+     * NOTE: values are trimmed and set to lowercase.
+     * 
+     * @param values the values used to create the resulting string
+     * 
+     * @return a single string with each
+     * original string separated by an underscore ("_"). Null strings are
+     * replaced with an empty string.
+     */
+    public static String makeKey(String... values) {
+        String retVal = "";
+        
+        for (String name : values) {
+            if ( ! retVal.isEmpty())
+                retVal += "_";
+            retVal += (name == null ? "" : name.trim().toLowerCase());
+        }
+        
+        return retVal;
+    }
+    
+    /**
+     * Given a list of ints describing 0-relative offsets into a full set of
+     * row values, returns a single string with each value separated by an
+     * underscore("_"). Null strings are replaced with an empty string.
+     * 
+     * NOTE: values are trimmed and set to lowercase.
+     * 
+     * @param columnIndexes The 0-relative column indexes for <code>columns
+     * </code>.
+     * 
+     * @param values the column data. Null strings are replaced with an empty\
+     *                string.
+     * 
+     * @return a single string with each input string separated by
+     * an underscore("_"). Null strings are replaced with an empty string.
+     * 
+     * @throws IndexOutOfBoundsException if columnIndexes is out of bounds.
+     */
+    public static String makeKey(int[] columnIndexes, List<String> values) throws IndexOutOfBoundsException {
+        String[] retVal = new String[columnIndexes.length];
+        
+        for (int i = 0; i < columnIndexes.length; i++) {
+            String s = values.get(columnIndexes[i]).trim().toLowerCase();
+            retVal[i] = (s == null ? "" : s);
+        }
+        
+        return makeKey(retVal);
     }
     
     /**
