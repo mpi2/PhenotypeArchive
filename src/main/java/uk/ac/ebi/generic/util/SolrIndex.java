@@ -173,7 +173,10 @@ public class SolrIndex {
 		
 		if ( solrCoreName.equals("phenodigm") ){
 			//server = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
-			server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+			//server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+		}
+		else if ( solrCoreName.equals("hp") ){
+			server = new HttpSolrServer(config.get("internalSolrUrl") + "/mp");
 		}
 		else if ( solrCoreName.equals("ensembl") ){
 			server = new HttpSolrServer(config.get("internalSolrUrl") + "/gene");

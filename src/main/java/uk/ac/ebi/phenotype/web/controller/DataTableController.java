@@ -116,13 +116,14 @@ public class DataTableController {
 
     	String content = null;
     	
-    	if ( solrCoreName.equals("hp") ){
+    	/*if ( solrCoreName.equals("hp") ){
     		// need to combine query results from phenodigm and mp cores
     		
     		// fetch all mp ids mapped to the hp ids requested
     		try {
-    			QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, "hp_id,hp_term,mp_id", "phenodigm");
-    			JSONObject j = prepareHpMpMapping(solrResponse);
+    			//QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, "hp_id,hp_term,mp_id", "phenodigm");
+    		
+    			//JSONObject j = prepareHpMpMapping(solrResponse);
 
         		String mpIdlist = j.get("idlist").toString();
         		QueryResponse solrResponse2 = solrIndex.getBatchQueryJson(mpIdlist, fllist, "mp");
@@ -133,8 +134,8 @@ public class DataTableController {
     		catch (Exception e){
     			System.out.println(e.getMessage());
     		}
-    	}
-    	else if ( solrCoreName.equals("ensembl") ){
+    	}*/
+    	if ( solrCoreName.equals("ensembl") ){
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
     		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, solrCoreName);
     	}
@@ -366,7 +367,9 @@ public class DataTableController {
 						//System.out.println("TEST CLASS: "+ docMap.get(fieldName).getClass());
 						try {
 							Collection<Object> vals =  docMap.get(fieldName);
-							value = StringUtils.join(vals, ", ");	
+							Set<Object> valSet = new HashSet<>(vals);
+							value = StringUtils.join(valSet, ", ");	
+							
 						} catch ( ClassCastException c) {
 							value = docMap.get(fieldName).toString();
 						}
