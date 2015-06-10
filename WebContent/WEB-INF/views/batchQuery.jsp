@@ -17,27 +17,13 @@
                 top: -70px;
                 right: 0px;
             }
-            div#alleleRef_filter {
-            	float: left;
-            	clear: right;
-            }
+           
             table.dataTable span.highlight {
                 background-color: yellow;
                 font-weight: bold;
                 color: black;
             }
-            table#alleleRef {
-            	clear: left;
-            }
-            table#alleleRef th:first-child, table#alleleRef th:nth-child(2) {
-                width: 150px !important;
-            }
-            table#alleleRef th:nth-child(3) {
-                width: 80px !important;
-            }
-            table#alleleRef td {
-                font-size: 14px !important;
-            }
+           
             .hideMe {
                 display: none;
             }
@@ -82,7 +68,7 @@
             div#query {
             	font-size: 11px !important;
             }
-            p.idnote {
+            td.idnote {
             	font-size: 12px;
             	padding-left: 20px;
             	height: 40px;
@@ -167,7 +153,54 @@
             form#dnld button {
             	text-decoration: none;
             }
-            
+            table#dataInput td {
+            	text-align: left;
+            	vertical-align: middle;
+            }
+          	table#dataInput td.idnote {
+          		padding-left: 8px;
+          	} 
+          	div.textright {
+          		padding: 5px 0;
+          	}
+          	div.qtipimpc {
+          		padding: 30px;
+          		background-color: white;
+          		border: 1px solid gray;
+          		/*height: 250px;
+          		overflow-x: hidden;*/
+          	}
+          	div.qtipimpc p {
+          		font-size: 12px;
+          		line-height: 20px;
+          	}
+          	div.tipSec {
+          		font-weight: bold;
+          		font-size: 14px;
+          		padding: 5px;
+          		background-color: #F2F2F2;
+          	}
+          	div#docTabs {
+        		border: none;
+        	}
+        	ul.ui-tabs-nav {
+        		border: none;
+        		border-bottom: 1px solid #666;
+        		background: none;
+        	}
+        	ul.ui-tabs-nav li:nth-child(1) {
+        		font-size: 14px;
+        	}
+        	ul.ui-tabs-nav li a {
+        		margin-bottom: -1px;
+        		border: 1px solid #666;
+        		font-size: 12px;
+        	}
+        	ul.ui-tabs-nav li a:hover {
+        		color: white;
+        		background-color: gray; 
+        	}
+          	
         </style>
         
         <script type='text/javascript'>
@@ -181,30 +214,89 @@
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
                 
+               	// initialze search example qTip with close button and proper positioning
+               	var bqDoc = '<h3 id="bqdoc">How to use batchQuery</h3>'
+               	
+               		+ '<div id="docTabs">'
+                	+ '<ul>'
+                  	+ '<li><a href="#tabs-1">Interface</a></li>'
+                  	+ '<li><a href="#tabs-2">Data fields</a></li>'
+                	+ '</ul>'
+                	+ '<div id="tabs-1">'
+                	+ '<p>Query keywords can be either datatype-specific ID or IMPC marker symbol.<p>'
+      				+ '<p>Simply click on one of the radio buttons on the left (the<b> Datatype Input panel</b>) to choose the datatype you want to search for.'
+      				+ '</p>'
+      				+ '<p>The data fields for the chosen datatype will be shown dynamically on the right (the <b>Customized Output panel</b>) and can be added/removed using checkboxes.'
+      				+ '<p>'
+      				+ '<p>The sample of results (<b>maximum of 10 records</b>) will be updated automatically after checking checkboxes.'
+      				+ '<p>'
+                	+ '</div>'
+                	+ '<div id="tabs-2">'
+                	+ '<p>The data fields in additional annotations of the customized output panel are based on their being annotated to a datatype of your search.</p>'
+      				+ '<p>For example, an MP term is annotated to an IMPC gene via phenotypic observations or experiments.</p>'
+      				+ '<p>A disease term (human disease) is annotated to an IMPC mouse phenotype via <a href="http://database.oxfordjournals.org/content/2013/bat025" target="_blank">Phenodigm</a>, which is a semantic approach to map between clinical features observed in humans and mouse phenotype annotations.</p>'
+      				+ '<p>An HP term is mapped to an MP term using similar Phenodigm semantic approach.</p>'  
+                	+ '</div>'
+                 	+ '</div>';
+               	
+                $("a#bqdoc").qtip({            	   
+                   	hide: false,
+        			content: {
+        				text: bqDoc,
+        				title: {'button': 'close'}
+        			},		 	
+       			 	style: {
+       			 		classes: 'qtipimpc',	 		
+       			        tip: {corner: 'center top'}
+       			    },
+       			    position: {my: 'left top',
+       			    		   adjust: {x: -350, y: 15}
+       			    },
+       			 	show: {
+       					event: 'click' //override the default mouseover
+       				},
+       				events: {
+       			        show: function(event, api) {
+       			        	$('div#docTabs').tabs();
+       			         	$('ul.ui-tabs-nav li a').click(function(){
+       	            	   		$('ul.ui-tabs-nav li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+       	            	   		$(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+       	               		});
+       	               
+       	               		$('ul.ui-tabs-nav li:nth-child(1) a').click();  // activate this by default
+       			        }
+       			    }
+                });
+                    
+                
+                
                 $( "#accordion" ).accordion();
                 
                 // reset to default when page loads
                 $('input#gene').prop("checked", true) // check datatyep ID as gene by default 
                 $('input#datatype').val("gene"); // default
-                $('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full GENE dataset");
+                $('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
                 freezeDefaultCheckboxes();
                 chkboxAllert();
                 var currDataType  = false;
                 
                 toggleAllFields();
                 
+                // fetch dynamic data fields as checkboxes
                 $('input.bq').click(function(){
                 	if ( $(this).is(':checked') ){
                 		
                 		currDataType = $(this).attr('id');
                 		
+                		var currDataType2 = currDataType.toUpperCase().replace("_"," ");
+                		
                 		// assign to hidden field in fileupload section
                 		$('input#datatype').val(currDataType);
                 		
-                		$('p.idnote').text("For example: " + $(this).attr("value"));
+                		$('td.idnote').text($(this).attr("value"));
                 		//console.log($(this).attr('id'));
                 		var id = $(this).attr('id');
-                		$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full " + $(this).attr('id').toUpperCase() + " dataset");
+                		$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
                 		
                 		// load dataset fields for selected datatype Id
                 		$.ajax({
@@ -266,11 +358,11 @@
             	refreshResult(); // refresh first
             	
             	if ( $('textarea#pastedList').val() == ''){
-            		alert('Please submit at least one ID.');
+            		alert('Please submit at least one identifier (ID/marker symbol).');
             	}
             	else { 
             		var currDataType = $('input.bq:checked').attr('id');
-            		idList = parsePastedpastedList($('textarea#pastedList').val(), currDataType);
+            		idList = parsePastedList($('textarea#pastedList').val(), currDataType);
             		
             		if ( idList !== false ){
             			
@@ -303,7 +395,7 @@
              	$('input#dtype').val(currDataType);
              	
             	if ( $('input#fileupload').val() == '' ){
-            		alert("Please upload a file with a list of IDs");
+            		alert("Please upload a file with a list of identifiers");
             	}
             	else {
 	               	$('#bqResult').html('');
@@ -315,7 +407,7 @@
 	                      	var j = JSON.parse(jsonStr);
 
 	                      	if ( j.badIdList != ''){
-	                      		$('div#errBlock').html("UPLOAD ERROR: unprocessed ID(s): " + j.badIdList).show();
+	                      		$('div#errBlock').html("UPLOAD ERROR: unprocessed identifier(s): " + j.badIdList).show();
 	                      	}
 	                      		
 	                		var fllist = fetchSelectedFieldList();
@@ -340,7 +432,7 @@
             		refreshResult(); // refresh first 
             		
             		var fllist = fetchSelectedFieldList();
-                 	var currDataType = $('input.bq:checked').attr('id');
+                 	var currDataType = $('input.bq:checked').attr('id') == 'marker_symbol' ? 'gene' : $('input.bq:checked').attr('id');
                  	
                  	prepare_dataTable(fllist);
                  	
@@ -382,29 +474,37 @@
                 $('div#bqResult').append(dTable);
             }
             
-            function parsePastedpastedList(val, dataType){
+            function parsePastedList(val, dataType){
+            	val = val.trim();
             	var aVals = val.split(/\n|,|\t|\s+/);
             	var aVals2 = [];
             	for ( var i=0; i<aVals.length; i++){
-            		
+            		if ( aVals[i] == "" ){
+            			continue;
+            		}
             		var currId = aVals[i].toUpperCase().trim();
+            		var errMsg = "ERROR - " + currId + " is not an expected " + dataType + " identifier";
             		
             		if ( dataType == 'disease' ){
             			if ( ! (currId.indexOf('OMIM') == 0 ||  
             				 currId.indexOf('ORPHANET') == 0 || 
             				 currId.indexOf('DECIPHER') == 0) ){
             			
-                			alert("ERROR - " + currId + " is not a member of " + dataType + " datatype");
+                			alert(errMsg);
                 			return false;
                 		}
             		}
-            		else if ( dataType == 'gene' && currId.indexOf('MGI') != 0 ){
-            			alert("ERROR - " + currId + " is not a member of " + dataType + " datatype");
+            		else if ( dataType == 'gene' && currId.indexOf('MGI:') != 0 ){
+            			alert(errMsg);
             			return false;
             		}
-            		else if ( (dataType == 'mp' || dataType == 'hp') && currId.indexOf(dataType.toUpperCase()) !== 0 ){
+            		else if ( dataType == 'ensembl' && currId.indexOf('ENSMUSG') != 0 ){
+            			alert(errMsg);
+            			return false;
+            		}
+            		else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && currId.indexOf(dataType.toUpperCase()) !== 0 ){
             			
-                		alert("ERROR - " + currId + " is not a member of " + dataType + " datatype");
+                		alert(errMsg);
                 		return false;
             		}
             		
@@ -427,7 +527,8 @@
                     "searchHighlight": true,
                     "iDisplayLength": 50,
                     "oLanguage": {
-                        "sSearch": "Filter: "
+                        "sSearch": "Filter: ",
+                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (10 records maximum, for complete dataset of your search, please use export buttons)"
                     },
                    /*  "columnDefs": [                
                         { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
@@ -444,6 +545,9 @@
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
 
                     	$('div#sec2').show();
+                    
+                    	document.getElementById('sec2').scrollIntoView(true); // scrolls to results when datatable loads
+                    
                     	var endPoint = baseUrl + '/bqExport';	
                     	
                         $('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='POST' action='" + endPoint + "'>"
@@ -479,7 +583,7 @@
             	               	}).submit();
                     		}
                     		else if ( formId == 'pastedIds' ){
-                    			idList = parsePastedpastedList($('textarea#pastedList').val(), currDataType);
+                    			idList = parsePastedList($('textarea#pastedList').val(), currDataType);
                     			doExport(currDataType, fileType, fllist, idList);
                     		}
                     		else {
@@ -497,7 +601,13 @@
                     "ajax": {
                         "url": baseUrl + "/dataTable_bq?",
                         "data": oConf,
-                        "type": "POST"
+                        "type": "POST",
+                       
+                        "error": function() {
+                            //window.alert('AJAX error trying to fetch your query');
+                            $('div.dataTables_processing').text("AJAX error trying to fetch your query");
+                            $('td.dataTables_empty').text("");
+                        }
                     }
                 });
             }
@@ -510,7 +620,7 @@
         		$("form#dnld input[name='idList']").val(idList);
         		
         		if ( isForm ) {
-        			$("form#dnld").submit();  // due to ajax, we need to specifically say submit();
+        			$("form#dnld").submit();
         		}
             }
             
@@ -535,8 +645,12 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">IMPC Dataset Batch Query</h1>	 
-				
+						<h1 class="title" id="top">IMPC Dataset Batch Query</h1>
+							 
+						<div class="textright">
+							<a id="bqdoc" class="">Help</a>						
+						</div>	
+						
 						<div class="section">
 							<!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
 							<div class='inner' id='srchBlock'>
@@ -550,13 +664,18 @@
 							   	<div class='fl1'>
 							   		<h6 class='bq'>Datatype Input</h6>
 										<div id='query'>
-											<span class='cat'>ID:</span>
-										  	<input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
+											<table id='dataInput'><tr>
+											<td><span class='cat'>ID:</span></td>
+										  	<td><input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
+										  	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
+										  	<input type="radio" id="hp" value="HP:0003119" name="dataType" class='bq'>HP
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:1409 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
-										  	<input type="radio" id="hp" value="HP:0000118" name="dataType" class='bq'>HP
-										  <!-- 	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene -->
-                							<p class='note idnote'>For example: MGI:106209</p> <!--  default -->
+										  	<input type="radio" id="ma" value="MA:0000141" name="dataType" class='bq'>MA</td></tr>
+										  	<tr><td><span class='cat'>Symbol:</span></td>
+										  	<td><input type="radio" id="marker_symbol" value="Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>Marker Symbol</td>
+										  	<tr><td><span class='cat'>Example:</span></td><td class='note idnote'>MGI:106209</td></tr>
+										  	</table>
 										  	
 										  	<div id="accordion">
 											  <p class='header'>Paste in your list</p>
@@ -566,8 +685,8 @@
 											     	<textarea id='pastedList' rows="5" cols="50"></textarea> 
 											 		<input type="submit" id="pastedlist" name="" value="Submit" onclick="return submitPastedList()" />
 											 		<input type="reset" name="reset" value="Reset"><p>
-											 		<p class='notes'>Supports space, comma, tab or new line separated ID list</p>
-											     	<p class='notes'>Please do not submit a mix of ids from different datatypes</p>	
+											 		<p class='notes'>Supports space, comma, tab or new line separated identifier list</p>
+											     	<p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>	
 											   	 </form>
 											    </p>
 											  </div>
@@ -580,8 +699,8 @@
 													  <input name="dataType" id="dtype" value="" type="hidden" /><br/>
 													  <input type="submit" id="upload" name="upload" value="Upload" onclick="return uploadJqueryForm()" />
 													  <input type="reset" name="reset" value="Reset"><p>
-													  <p class='notes'>Supports comma, tab or new line separated ID list</p>
-												      <p class='notes'>Please do not submit a mix of ids from different datatypes</p>  
+													  <p class='notes'>Supports comma, tab or new line separated identifier list</p>
+												      <p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>  
 												</form>
 												
 											  </div>

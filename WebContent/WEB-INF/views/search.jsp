@@ -483,7 +483,7 @@
        		});
        		
        	 	
-       		// make "search" menu point active (highlighted)
+       		// make "search" button on banner active (highlighted)
        		$('nav#mn ul.menu > li:first-child').addClass('active');
        		       		
        		<c:if test="${isLoggedIn}">       			

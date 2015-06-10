@@ -7,10 +7,12 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/phenotype2gwas">&nbsp;IMPC Phenotype to GWAS Disease Trait Mapping</a></jsp:attribute>
     <jsp:attribute name="header">
         
-        <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.csss">
+
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+
         <!--  <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />-->
         <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
-         <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.csss">
+         <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
         
         <style type="text/css">
         	div#mk {
@@ -28,20 +30,20 @@
         	div#tabs {
         		border: none;
         	}
-        	ul.tabs {
+        	ul.ui-tabs-nav {
         		border: none;
         		border-bottom: 1px solid #666;
         		background: none;
         	}
-        	ul.tabs li:nth-child(1) {
+        	ul.ui-tabs-nav li:nth-child(1) {
         		font-size: 14px;
         	}
-        	ul.tabs li a {
+        	ul.ui-tabs-nav li a {
         		margin-bottom: -1px;
         		border: 1px solid #666;
         		font-size: 12px;
         	}
-        	ul.tabs li a:hover {
+        	ul.ui-tabs-nav li a:hover {
         		color: white;
         		background-color: gray; 
         	}
@@ -157,7 +159,7 @@
                     		var fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
                     		$("form#dnld input[name='fileType']").val(fileType);
                     		
-                    		console.log($('form#dnld').serialize()); 
+                    		//console.log($('form#dnld').serialize()); 
                     		
                     		$("form#dnld").submit();
                    		});
@@ -168,12 +170,12 @@
                 
                $( "#tabs" ).tabs();
                
-               $('ul.tabs li a').click(function(){
-            	   $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+               $('ul.ui-tabs-nav li a').click(function(){
+            	   $('ul.ui-tabs-nav li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
             	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
                });
                
-               $('ul.tabs li:nth-child(2) a').click();  // activate this by default
+               $('ul.ui-tabs-nav li:nth-child(2) a').click();  // activate this by default
               
             });
             

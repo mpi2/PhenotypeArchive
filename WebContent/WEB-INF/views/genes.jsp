@@ -100,16 +100,125 @@
             <!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
 
             <!-- JavaScript Local Imports -->
+            <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
 
-
-            <script type="text/javascript">var gene_id = '${acc}';</script>
+<!-- from tab tutorial -->
+<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
+<%-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> --%>
+  <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
+  
+  
+            <script type="text/javascript">var gene_id = '${acc}';
+            
+            $(function() {
+            	console.log('calling tabs now');
+                $( "#tabs" ).tabs();
+                
+                $('ul.tabs li a').click(function(){
+             	   $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+             	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+                });
+                
+                $('ul.tabs li:nth-child(1) a').click();  // activate this by default
+              });
+            </script>
             <style>
                 #svgHolder div div {z-index:100;}
                 span.direct {color: #698B22;} 
-                span.indirect {color: #CD8500;}
+                span.indirect {color: #CD8500;}  
+                
+                /* copied from CKs gwas page */
+                div#mk {
+        		margin-bottom: 10px;
+        	}
+        	span#mkLeft {
+        		font-size: 20px;
+        	}
+        	span#mkLeft a {
+        		text-decoration: none;
+        	}
+        	span#mkRight {
+        		float: right;
+        	}
+        	div#tabs {
+        		border: none;
+        	}
+        	ul.tabs {
+        		border: none;
+        		border-bottom: 1px solid #666;
+        		background: none;
+        	}
+        	ul.tabs li:nth-child(1) {
+        		font-size: 14px;
+        	}
+        	ul.tabs li a {
+        		margin-bottom: -1px;
+        		border: 1px solid #666;
+        		font-size: 12px;
+        	}
+        	ul.tabs li a:hover {
+        		color: white;
+        		background-color: gray; 
+        	}
+        	div#tabs table {
+        		font-size: 14px;
+        		color: #666;
+        	}
+        	div.ui-tabs-panel {
+        		padding: 0 !important;
+        	}
+        	table.dataTable caption {
+        		font-weight: bold;
+        		padding: 3px 5px;
+        		background-color: #F2F2F2;
+        		border-radius: 5px;
+        	}
+        	table.dataTable td a {
+        		text-decoration: none;
+        		color: #0978a1;
+        	}
+        	.trtName {
+        		font-family: Arial !important;
+        		font-weight: bold !important;
+        		font-size: 16px !important;
+        		color: black;
+        	}
+        	span.direct {color: #698B22;} 
+            span.indirect {color: #CD8500;}
+            
+            div.dataTables_info {
+            	font-size: 14px;
+            	padding-bottom: 20px !important;
+            }
+            div.dataTables_filter {
+            	font-size: 14px;
+            }
+            table.dataTable span.highlight {
+                background-color: yellow;
+                font-weight: bold;
+                color: black;
+            }
+            div#toolBox {
+            	font-size: 12px;
+            }
+            div#tableTool {
+                position: relative;
+                top: -70px;
+                float: right;
+            }
+            form#dnld {
+            	padding: 5px;
+            	border-radius: 5px;
+			    background: #F2F2F2;
+            }
+            form#dnld button {
+            	text-decoration: none;
+            }
+                     
             </style>
 
             <c:if test="${phenotypeStarted}">
@@ -216,8 +325,6 @@
                                 </div>	
 
                             </div><!-- section end -->
-
-
 
                             <!--  Phenotype Associations Panel -->
                             <div class="section">
@@ -395,81 +502,75 @@
                                 </div>
                             </c:if>
 
+<div class="section">
+  <h2 class="title " id="impc-expression">Expression</h2>
+	<div class="inner" style="display: block;">
+		<c:if test="${not empty impcExpressionImageFacets}"> 
+		<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
+		<c:set var="noTissueIcon" scope="page" value="fa fa-circle-o"/>
+		<c:set var="noExpressionIcon" scope="page" value="fa fa-times"/>
+		<c:set var="ambiguousIcon" scope="page" value="fa fa-circle"/>
+		<c:set var="yesColor" scope="page" value="#0978a1"/>
+		<c:set var="noColor" scope="page" value="gray"/>
+		
+		<span title="Expression" class="${expressionIcon}" style="color:${yesColor}">&nbspExpression</span>&nbsp&nbsp
+		<span title="No Expression" class="${noExpressionIcon}" style="color:gray">&nbspNo Expression</span>&nbsp&nbsp
+		<span title="No Tissue Available" class="${noTissueIcon}" style="color:gray">&nbspNo Tissue Available</span>&nbsp&nbsp
+		<span title="Ambiguous" class="${ambiguousIcon}" style="color:gray">&nbspAmbiguous</span>&nbsp&nbsp
+		
  							<!-- section for expression data here -->
-							<c:if test="${not empty impcExpressionImageFacets}"> 
-                                <div class="section">
-                                    <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <div class="inner" style="display: block;">
-                                     <div class="accordion-body" style="display: block;">
-                                   <!--  model.addAttribute("impcExpressionImageFacets", fields.get(0).getValues());
-		model.addAttribute("impcExpressionFacetToDocs", facetToDocs); -->
-                                    <%-- <c:when test="${doc.parameter_name == 'LacZ Images Section' || doc.parameter_name =='LacZ Images Wholemount'}"> --%>
-										<a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
-										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
-                                           
-                                                <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
-                                                            <%-- <a href="${href}"> --%>
-                                                    <%-- ${entry.name} (${entry.count}) --%>
-                                                   <%--  <img  src="${impcMediaBaseUrl}/render_thumbnail/${impcExpressionFacetToDocs[entry.name][0].omero_id}/200" style="max-height: 200px;"> --%>
-                                                    <ul>
-                                                    <t:impcimgdisplay2 category="${entry.name}(${entry.count})" href="${href}" img="${impcExpressionFacetToDocs[entry.name][0]}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
-                                                    </ul>
-                                                    <!-- </a>&nbsp; -->
-                                                
-                                               
-                                        </c:forEach><!-- solrFacets end -->
-
-                                        
-                                    </div>
-                                </div>
-                                </div>
-                            </c:if> 
-                            
-                            <!-- section for expression data here -->
-							<c:if test="${not empty expressionAnatomyToRow}"> 
-                                <div class="section">
-                                    <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                                    <div class="inner" style="display: block;">
+ 							<div id="tabs">
+ 							<ul class='tabs'>
+							    <li><a href="#tabs-1">Expression Data Overview</a></li>
+							    <li><a href="#tabs-2">Expression Images View</a></li>
+							</ul>
+							
+							
+							<div id="tabs-1" style="height: 500px; overflow: auto;">
+                                
+                                    
+                                    <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    -->
                                      
                                      <table>
                                      <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th>Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
                                      		<tr><td><a href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalMaName}</a>
                                      				<c:if test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> <span title="IMPReSS Term differs from MA term">(${mapEntry.key})</span></c:if></td><td><span title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span></td>
-                                     			<td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:#0978a1"</c:if>>
+                                     			<td <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:${yesColor}"</c:if>>
                                      			<span title="Homozygote Images are
-                                     			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available">${mutantImagesAnatomyToRow[mapEntry.key].homImages}</span></td>
+                                     			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available"><c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">Yes</c:if><c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">No</c:if></span></td>
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
-                                     				<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-check" style="color:#0978a1"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
+                                     				<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
-                          							<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="fa fa-times" style="color:gray"></span>
+                          							<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
-                          							<i title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></i>
+                          							<i title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></i>
                           						</c:when>             			
                                      			
                                      			<c:otherwise>
-                                     				<span title="Ambiguous" class="fa fa-circle" style="color:gray"></span>
+                                     				<span title="Ambiguous" class="${ambiguousIcon}" style="color:${noColor}"></span>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${mapEntry.value.expression}">
-                                     				<span title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-check" style="color:#0978a1"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                     				<span title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
                           						<c:when test="${mapEntry.value.notExpressed}">
-                          							<span title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="fa fa-times" style="color:gray"></span>
+                          							<span title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${mapEntry.value.noTissueAvailable}">
-                          							<span title="No Tissue Available" class="fa fa-circle-o" style="color:gray"></span>
+                          							<span title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></span>
                           						</c:when>             			
                                      			
                                      			<c:otherwise>
-                                     				<span title="Ambiguous" class="fa fa-circle" style="color:gray"></span>
+                                     				<span title="Ambiguous" class="${ambiguousIcon}" style="color:${noColor}"></span>
                                      			</c:otherwise>
                                      		</c:choose>
                                      		</td>
@@ -492,11 +593,57 @@
                                      
                                      </table>
                                      
-                                     
-                                     
-                                	</div>
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                   
                                 </div>
-                            </c:if> 
+                               
+                            
+                            
+                            
+                            
+                            <!-- section for expression data here -->
+							
+							
+
+							<div id="tabs-2">
+                               
+                                     <!-- <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                      -->
+                                      <div class="accordion-body" style="display: block;">
+                                   
+										<a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
+										<c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
+                                           
+                                                <c:set var="href" scope="page" value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+                                                     <ul>
+                                                    <t:impcimgdisplay2 category="${entry.name}(${entry.count})" href="${href}" img="${impcExpressionFacetToDocs[entry.name][0]}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                    </ul>
+                                                    <!-- </a>&nbsp; -->
+                                                
+                                               
+                                        </c:forEach><!-- solrFacets end -->
+
+                                        
+                                    <!-- </div> -->
+                                
+                                     
+                            </div><!--  end of tabs-2 -->  
+                                	
+                                
+                      	</div><!-- end of tabs -->
+                      </c:if>
+              </div> 
+                      
+        </div><!-- end of inner ide is wrong when displayed in browser these divs are needed-->
+        </div><!--  end of section -->
+
                                     
 
                             <!-- nicolas accordion for images here -->
@@ -651,7 +798,8 @@
                         </div> <!--end of node wrapper should be after all secions  -->
                     </div>
                 </div>
-            </div>
+          </div>
+           
 
             <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
             <script type="text/javascript">
@@ -678,6 +826,7 @@
                             var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
                             $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
                         }
+                        
                     });
             </script>
         </jsp:body>

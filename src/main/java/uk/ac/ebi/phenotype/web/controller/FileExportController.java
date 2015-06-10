@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,6 +62,7 @@ import javax.sql.DataSource;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -121,6 +123,9 @@ public class FileExportController {
 
     @Autowired
 	private GwasDAO gwasDao;
+    
+    @Autowired
+	private GenomicFeatureDAO genesDao;
     
     /**
      * Return a TSV formatted response which contains all datapoints
@@ -1404,10 +1409,6 @@ public class FileExportController {
         HttpServletResponse response,
         Model model) throws Exception {
     	
-    	System.out.println("gwas export");
-    	System.out.println("trait: " + currentTraitName);
-    	System.out.println(request.toString());
-    	
     	List<String> dataRows = fetchImpc2GwasMappingData(request, mgiGeneSymbol, gridFields, currentTraitName);
     	Workbook wb = null;
         String fileName = "impc_to_Gwas_mapping_dataset";
@@ -1467,34 +1468,72 @@ public class FileExportController {
         Model model) throws Exception {
 
     	String dumpMode = "all";
-        
+    	
+    	if ( solrCoreName.equals("marker_symbol") ){
+    		solrCoreName = "gene";
+    		String[] marker_symbols = StringUtils.split(idList, ",");
+    		List<String> idlist2 = new ArrayList<>(); 
+    		for ( int i=0; i<marker_symbols.length; i++){
+    			String marker_symbol = marker_symbols[i].replaceAll("\"", "");
+    			GenomicFeature gene = genesDao.getGenomicFeatureBySymbolOrSynonym(marker_symbol);
+    			idlist2.add("\"" + gene.getId().getAccession() + "\"");
+    		}
+    		idList = StringUtils.join(idlist2,",");
+    	}
+    	
         JSONObject json = solrIndex.getBqDataTableExportRows(solrCoreName, gridFields, idList);
         
-        List<String> dataRows = composeBatchQueryDataTableRows(json, solrCoreName, gridFields);
+        List<String> dataRows = composeBatchQueryDataTableRows(json, solrCoreName, gridFields, request);
         System.out.println("datarows: "+ dataRows);
         Workbook wb = null;
         String fileName = "batch_query_dataset";
         writeOutputFile(response, dataRows, fileType, fileName, wb);
     }
     
-    private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields) {
+    private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields, HttpServletRequest request) throws UnsupportedEncodingException {
     	
     	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
     	System.out.println("docs found: "+ docs.size());
-    	//String baseUrl = (String) request.getAttribute("baseUrl");
-    	String baseUrl = config.get("solrUrl"); // external
     	
+    	String baseUrl = request.getAttribute("baseUrl").toString();
+    	String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
+    	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+    	
+    	if ( solrCoreName.equals("ensembl") ){solrCoreName = "gene";}
+    	
+    	Map<String, String> dataTypeId = new HashMap<>();
+		dataTypeId.put("gene", "mgi_accession_id");
+		dataTypeId.put("mp", "mp_id");
+		dataTypeId.put("ma", "ma_id");
+		dataTypeId.put("hp", "hp_id");
+		dataTypeId.put("disease", "disease_id");
+    	
+		Map<String, String> dataTypePath = new HashMap<>();
+		dataTypePath.put("gene", "genes");
+		dataTypePath.put("mp", "phenotypes");
+		dataTypePath.put("ma", "anatomy");
+		dataTypePath.put("hp", "");
+		dataTypePath.put("disease", "disease");
+		
     	List<String> rowData = new ArrayList();
       
     	// column names	
+    	//String idLinkColName = dataTypeId.get(solrCoreName) + "_link";
+    	String idLinkColName = "id_link";
+    	gridFields = idLinkColName + "," + gridFields; // xx_id_link column only for export, not dataTable
+    	
     	String[] cols = StringUtils.split(gridFields, ",");
-      
+    	
+    	// swap cols
+    	cols[0] = dataTypeId.get(solrCoreName);
+    	cols[1] = idLinkColName;
+    	
     	List<String> colStr = new ArrayList<>();
     	for ( int i=0; i<cols.length; i++ ){
     		colStr.add(cols[i]);
     	}
     	rowData.add(StringUtils.join(colStr, "\t"));
-      
+    	
     	for (int i = 0; i < docs.size(); i ++) {
     	  
     		List<String> data = new ArrayList();
@@ -1503,34 +1542,61 @@ public class FileExportController {
     		for ( int j=0; j<cols.length; j++ ){
     			String fieldName = cols[j];
     			
-    			if ( fieldName.equals("images_link") ){
-					String acc = doc.get("mgi_accession_id").toString();
-					String params = "q=gene_accession_id:\"" + acc + "\" AND observation_type:image_record&fq=biological_sample_group:experimental";
-					//String imgLink = baseUrl + "/impc_images/select?" + URLEncoder.encode(params);	
-					String imgLink = baseUrl + "/impc_images/select?" + params;
+    			if ( fieldName.equals("id_link") ){
+    				String id = doc.getString(dataTypeId.get(solrCoreName));
+					String link = null;
+					if ( dataTypePath.get(solrCoreName).isEmpty() ){
+						link = "";
+					}
+					else {
+						link = hostName + baseUrl + "/" + dataTypePath.get(solrCoreName) + "/" + id;
+					}
+					data.add(link);
+					
+    			}
+    			else if ( fieldName.equals("images_link") ){
+    				
+    				String qryField = null;
+    				String imgQryField = null;
+    				
+    				// some batchQuery dataType support images link
+    				if ( solrCoreName.equals("gene") ){
+    					qryField = "mgi_accession_id";
+    					imgQryField = "gene_accession_id";
+    				}
+    				else if ( solrCoreName.equals("ma") ){
+    					qryField = "ma_id";
+    					imgQryField = "ma_id";
+    				}
+    				
+					String acc = imgQryField + ":\"" + doc.get(qryField).toString() + "\"";
+					
+					String params = "q=" + acc + " AND observation_type:image_record&fq=biological_sample_group:experimental";
+					params = URLEncoder.encode(params, "UTF-8");
+					String imgLink = hostName + imgBaseUrl + params;
+					
+					//System.out.println("image link: "+ imgLink);
 					data.add(imgLink);
     			}
     			else if ( doc.get(fieldName) == null ){
+    				//System.out.println("*row " + i + ": field: " + j + " -- " + fieldName + " - " + doc.get(fieldName));
     				data.add("");
     			}
     			else {
-    				try {
-    					String value = doc.getString(fieldName).toString();
-    					if ( value.startsWith("[") ){
-    						value = value.replaceAll("\\[|\\]|\"", "");
-    						value = value.replaceAll(",", "|");
-    					}
-   					
-    					//System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
-    					data.add(value);
-    				} 
-    				catch(Exception e){
-    					if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
-    						int val = (int) doc.getInt(fieldName);
-    						String value = Integer.toString(val);
-    						data.add(value);
-    					}
+    				String value = null;
+    				if ( doc.get(fieldName).getClass().toString().contains("JSONArray") ){
+    					Set<String> valSet = new HashSet<>(doc.getJSONArray(fieldName));
+    					value = StringUtils.join(valSet, "|");
     				}
+    				else if ( doc.get(fieldName).getClass().toString().contains("String") ){
+    					value = doc.getString(fieldName);
+    				}
+    				else if ( doc.get(fieldName).getClass().toString().contains("Integer") ){
+    					int val = (int) doc.getInt(fieldName);
+						value = Integer.toString(val);
+    				}
+    				//System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
+    				data.add(value);
     			}  
     		}
     		rowData.add(StringUtils.join(data, "\t"));
@@ -1547,6 +1613,8 @@ private void writeOutputFile(HttpServletResponse response, List<String> dataRows
         
         try {
 
+        	System.out.println("File to export: "+ outfile);
+        	
             if (fileType.equals("tsv")) {
 
                 response.setContentType("text/tsv; charset=utf-8");
@@ -1563,7 +1631,6 @@ private void writeOutputFile(HttpServletResponse response, List<String> dataRows
                 	//System.out.println("line: " + line);
                     output.println(line);
                 }
-                System.out.println("File to export: "+ outfile);
 
                 output.flush();
                 output.close();
@@ -1571,19 +1638,20 @@ private void writeOutputFile(HttpServletResponse response, List<String> dataRows
 
                 response.setContentType("application/vnd.ms-excel");
                 response.setHeader("Content-disposition", "attachment;filename=" + outfile);
-
+                
                 String sheetName = fileName;
 
                 String[] titles = new String[0];
                 String[][] tableData = new String[0][0];
                 if ( ! dataRows.isEmpty()) {
-                    // Remove the title row (row 0) from the list and assign it to
-                    // the string array for the spreadsheet
-                    titles = dataRows.remove(0).split("\t");
+                    
+                   // titles = dataRows.remove(0).split("\t");
+                	titles = dataRows.get(0).split("\t");
                     tableData = Tools.composeXlsTableData(dataRows);
                 }
-
+               
                 wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
+               
                 ServletOutputStream output = response.getOutputStream();
                 try {
                     wb.write(output);
