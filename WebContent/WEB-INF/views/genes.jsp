@@ -533,7 +533,7 @@
                                     -->
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th>Images</th></tr>
+                                     <tr><th>Anatomy</th><th title="Number of heterozygous mutant specimens with data for the specified anatomy">#HET Specimens</th><th title="If there are images for homozygous specimens this value will be 'Yes'">HOM Images?</th><th title="Status of expression for Wild Type specimens from any colony with data for this anatomy">WT Expr</th><th title="">Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th title="An clickable image icon will show if images are available for mutant specimens">Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
                                      		<tr><td><a href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalMaName}</a>
                                      				<c:if test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> <span title="IMPReSS Term differs from MA term">(${mapEntry.key})</span></c:if></td><td><span title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span></td>
