@@ -7,10 +7,14 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/phenotype2gwas">&nbsp;IMPC Phenotype to GWAS Disease Trait Mapping</a></jsp:attribute>
     <jsp:attribute name="header">
         
+<<<<<<< HEAD
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+=======
         <%-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> --%>
+>>>>>>> branch 'master' of https://github.com/mpi2/PhenotypeArchive.git
         <!--  <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />-->
         <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
-         <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.csss">
+         <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
         
         <style type="text/css">
         	div#mk {
@@ -157,7 +161,7 @@
                     		var fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
                     		$("form#dnld input[name='fileType']").val(fileType);
                     		
-                    		console.log($('form#dnld').serialize()); 
+                    		//console.log($('form#dnld').serialize()); 
                     		
                     		$("form#dnld").submit();
                    		});

@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -33,12 +34,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.ReferenceDAO;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
@@ -47,8 +51,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -87,6 +93,9 @@ public class DataTableController {
     @Autowired
     private ReferenceDAO referenceDAO;
 
+    @Autowired
+	private GenomicFeatureDAO genesDao;
+    
     /**
      <p>
      * deals with batchQuery
@@ -98,17 +107,13 @@ public class DataTableController {
     
     @RequestMapping(value = "/dataTable_bq", method = RequestMethod.POST)
     public ResponseEntity<String> bqDataTableJson(
-    		@RequestParam(value = "idlist", required = true) String idlist,
-    		@RequestParam(value = "fllist", required = true) String fllist,
-    		@RequestParam(value = "corename", required = true) String solrCoreName,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Model model) throws IOException, URISyntaxException, SolrServerException {
+		@RequestParam(value = "idlist", required = true) String idlist,
+		@RequestParam(value = "fllist", required = true) String fllist,
+		@RequestParam(value = "corename", required = true) String solrCoreName,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Model model) throws IOException, URISyntaxException, SolrServerException {
 
-    	System.out.println("idlist: "+ idlist);
-    	System.out.println("fllist: "+ fllist);
-    	System.out.println("corename: "+ solrCoreName);
-    	
     	String content = null;
     	
     	if ( solrCoreName.equals("hp") ){
@@ -129,9 +134,29 @@ public class DataTableController {
     			System.out.println(e.getMessage());
     		}
     	}
+    	else if ( solrCoreName.equals("ensembl") ){
+    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, solrCoreName);
+    	}
+    	else if ( solrCoreName.equals("marker_symbol") ){
+    		solrCoreName = "gene";
+    		
+    		String[] marker_symbols = StringUtils.split(idlist, ",");
+    		List<String> idlist2 = new ArrayList<>(); 
+    		for ( int i=0; i<marker_symbols.length; i++){
+    			String marker_symbol = marker_symbols[i].replaceAll("\"", "");
+    			GenomicFeature gene = genesDao.getGenomicFeatureBySymbolOrSynonym(marker_symbol);
+    			idlist2.add("\"" + gene.getId().getAccession() + "\"");
+    		}
+    		
+    		idlist = StringUtils.join(idlist2,",");
+    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, solrCoreName);
+    		
+    	}
     	else {
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, solrCoreName);
     	}
     	
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
@@ -279,7 +304,7 @@ public class DataTableController {
     	return j;
     }
     
-    public String fetchBatchQueryDataTableJson(HttpServletRequest request, QueryResponse solrResponse, String fllist) {
+    public String fetchBatchQueryDataTableJson(HttpServletRequest request, QueryResponse solrResponse, String fllist, String solrCoreName) {
     	
     	String[] flList = StringUtils.split(fllist, ",");
     	
@@ -298,18 +323,38 @@ public class DataTableController {
 		
 			List<String> rowData = new ArrayList<String>();
 			
-			Map<String, Object> docMap = doc.getFieldValueMap();
+			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap();  // Note getFieldValueMap() returns only String
+			//System.out.println("DOCMAP: "+docMap.toString());
 			
 			//for (String fieldName : doc.getFieldNames()) {
 			for ( int k=0; k<flList.length; k++ ){
 				String fieldName = flList[k];
-				System.out.println(fieldName + " - value: " + docMap.get(fieldName));
+				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 				
 				if ( fieldName.equals("images_link") ){
-					//http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/impc_images/select?q=gene_accession_id:%22MGI:106209%22%20AND%20observation_type:image_record&fq=%28biological_sample_group:experimental%29
-					String baseUrl = config.get("solrUrl"); // external
-					String acc = docMap.get("mgi_accession_id").toString();
-					String imgLink = "<a target='_blank' href='" + baseUrl + "/impc_images/select?q=gene_accession_id:\"" + acc + "\" AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					
+					String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+					String baseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
+
+					String qryField = null;
+					String imgQryField = null;
+					if ( solrCoreName.equals("gene") ){
+						qryField = "mgi_accession_id";
+						imgQryField = "gene_accession_id";
+					}
+					else if (solrCoreName.equals("ma") ){
+						qryField = "ma_id";
+						imgQryField = "ma_id";
+					}
+					
+					Collection<Object> accs = docMap.get(qryField);
+					String accStr = null;
+					for( Object acc : accs ){
+						accStr = imgQryField + ":\"" + (String) acc + "\"";
+					}
+					
+					String imgLink = "<a target='_blank' href='" + hostName + baseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					
 					rowData.add(imgLink);
 				}
 				else if ( docMap.get(fieldName) == null ){
@@ -317,14 +362,27 @@ public class DataTableController {
 				}
 				else {
 					try {
-						String value = docMap.get(fieldName).toString();
+						String value = null;
+						//System.out.println("TEST CLASS: "+ docMap.get(fieldName).getClass());
+						try {
+							Collection<Object> vals =  docMap.get(fieldName);
+							value = StringUtils.join(vals, ", ");	
+						} catch ( ClassCastException c) {
+							value = docMap.get(fieldName).toString();
+						}
+						
 						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
 						rowData.add(value);
 					} catch(Exception e){
+						//e.printStackTrace();
 						if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
-							int val = (int) docMap.get(fieldName);
-							String value = Integer.toString(val);
-							rowData.add(value);
+							Collection<Object> vals = docMap.get(fieldName);
+							if ( vals.size() > 0 ){
+								Iterator it = vals.iterator();
+								String value = (String) it.next();
+								//String value = Integer.toString(val);
+								rowData.add(value);
+							}
 						}
 					}
 				}
@@ -333,7 +391,7 @@ public class DataTableController {
 			
 		}
 		 
-		//System.out.println(j.toString());
+		System.out.println(j.toString());
 		return j.toString();
     }
     

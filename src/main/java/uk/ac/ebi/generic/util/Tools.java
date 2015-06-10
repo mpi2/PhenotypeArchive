@@ -132,15 +132,15 @@ public class Tools {
 	}
 	
 	public static String[][] composeXlsTableData(List<String> rows) {
-        int rowNum = rows.size();// - 1; // omit title row
-        int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
+        int rowNum = rows.size();
+        int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0; // title row, tells how many columns
+       
         String[][] tableData = new String[rowNum][colNum];
 
-        // add one to omit title row
-        for (int i = 0; i < rowNum; i ++) {
-        	
+        for (int i = 1; i < rowNum; i ++) {  // starts from 1 to skip title row
             String[] colVals = rows.get(i).split("\t");
-            for (int j = 0; j < colVals.length; j ++) {
+            
+            for (int j = 0; j < colVals.length; j++) {
                 tableData[i][j] = colVals[j];
             }
         }
@@ -160,7 +160,7 @@ public class Tools {
 		// additional information
 		List<String> additionalInfos = new ArrayList<>();
 					
-		if ( corename.equals("gene") ){
+		if ( corename.equals("gene") || corename.equals("marker_symbol")){
 			
 			// gene attr fields
 			
@@ -171,7 +171,52 @@ public class Tools {
 			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_synonym");
 			mainAttrs.add("marker_type");
-		   
+		    
+			mainAttrs.add("latest_es_cell_status");
+			mainAttrs.add("latest_mouse_status");
+			mainAttrs.add("legacy_phenotype_status");
+			mainAttrs.add("latest_phenotype_status"); 
+			mainAttrs.add("latest_project_status"); 
+			mainAttrs.add("latest_production_centre"); 
+			mainAttrs.add("latest_phenotyping_centre"); 
+
+			// gene has QC: ie, a record in experiment core
+			additionalInfos.add("ensembl_gene_ids");
+			additionalInfos.add("hasQc");
+
+			// annotated mp term 
+			additionalInfos.add("p_value");
+			additionalInfos.add("mp_id");
+			additionalInfos.add("mp_term");
+			additionalInfos.add("mp_term_synonym");
+			additionalInfos.add("mp_term_definition");
+
+			// mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+
+			// disease fields 
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term");
+
+			// impc images link
+            additionalInfos.add("images_link");
+			
+			//GO stuff for gene : not shown for now
+		}
+		else if ( corename.equals("ensembl") ){
+			
+			// gene attr fields
+			
+			// these first 6 ones are checked by default
+			mainAttrs.add("ensembl_gene_id");
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+			mainAttrs.add("marker_name");
+			mainAttrs.add("marker_synonym");
+			mainAttrs.add("marker_type");
+		    
 			mainAttrs.add("latest_es_cell_status");
 			mainAttrs.add("latest_mouse_status");
 			mainAttrs.add("legacy_phenotype_status");
@@ -203,6 +248,7 @@ public class Tools {
 			
 			//GO stuff for gene : not shown for now
 		}
+		
 		else if ( corename.equals("disease") ) {
 			mainAttrs.add("disease_id"); 
 			mainAttrs.add("disease_term");
@@ -243,7 +289,19 @@ public class Tools {
 			additionalInfos.add("disease_id");
 			additionalInfos.add("disease_term"); 
 		}
-		
+		else if ( corename.equals("ma") ) {
+			mainAttrs.add("ma_id");
+			mainAttrs.add("ma_term");
+			mainAttrs.add("selected_top_level_ma_id");
+			mainAttrs.add("selected_top_level_ma_term");
+			
+			// gene core stuff 
+			additionalInfos.add("mgi_accession_id");	
+			additionalInfos.add("marker_symbol");
+			additionalInfos.add("human_gene_symbol");
+			// impc images link
+            additionalInfos.add("images_link");
+		}
 		else if ( corename.equals("hp") ) {
 		
 			mainAttrs.add("hp_id");
@@ -269,7 +327,7 @@ public class Tools {
 		}
 		
 		
-		String dataType = corename.toUpperCase();
+		String dataType = corename.toUpperCase().replaceAll("_"," ");
 		
 		htmlStr1 += "<div class='cat'>" + dataType + " attributes</div>";
 		for ( int i=0; i<mainAttrs.size(); i++ ){
