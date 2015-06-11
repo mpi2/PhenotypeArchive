@@ -21,7 +21,14 @@
 package org.mousephenotype.www.testing.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.mousephenotype.www.testing.exception.GraphTestException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 
 /**
@@ -29,9 +36,9 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
  * @author mrelac
  *
  * This class encapsulates the code and data necessary to validate a
- * unidimensional graph.
+ * unidimensional graph section.
  */
-public class GraphValidatorUnidimensional extends GraphValidator {
+public class GraphSectionUnidimensional extends GraphSection {
     
     // Download column offsets.
     public final int PIPELINE_NAME       =  0;
@@ -58,51 +65,56 @@ public class GraphValidatorUnidimensional extends GraphValidator {
     public final int METADATA_GROUP      = 21;
     public final int DATA_POINT          = 22;
     
-    public GraphValidatorUnidimensional() {
-        super();
+    /**
+     * Creates a new <code>GraphSectionUnitimensional</code> instance
+     * 
+     * @param driver <code>WebDriver</code> instance
+     * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
+     * @param graphUrl the graph url
+     * @param chartElement <code>WebElement</code> pointing to the HTML
+     *                     div.chart element of the unidimensional chart section.
+     * 
+     * @throws GraphTestException
+     */
+    public GraphSectionUnidimensional(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws GraphTestException {
+        super(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
     }
     
     @Override
     public PageStatus validate() throws GraphTestException {
-        PageStatus status = new PageStatus();
+        PageStatus status = super.validate();                                   // Validate common components.
         
-        status.add(super.validate());                                           // Validate common components.
-        
-        if (pageSection.getHeading().getObservationType() != ObservationType.unidimensional) {
-            status.addError("ERROR: Expected unidimensional graph but found " + pageSection.getHeading().getObservationType().name());
-        }
-        
-        // Verify title contains 'Allele'.
-        if ( ! pageSection.getHeading().title.startsWith("Allele -")) {
-            status.addError("ERROR: expected title to start with 'Allele -'. Title is '" + pageSection.getHeading().title + "'. URL: " + pageSection.graphUrl);
+        if (getHeading().getObservationType() != ObservationType.unidimensional) {
+            status.addError("ERROR: Expected unidimensional graph but found " + getHeading().getObservationType().name());
         }
         
         // Verify parameter name on graph matches that in the Parameter instance.
-        String parameterObjectName = pageSection.getHeading().parameterObject.getName().trim();
-        if (parameterObjectName.compareToIgnoreCase(pageSection.getHeading().parameterName) != 0) {
+        String parameterObjectName = getHeading().parameterObject.getName().trim();
+        if (parameterObjectName.compareToIgnoreCase(getHeading().parameterName) != 0) {
             status.addError("ERROR: parameter name mismatch. parameter on graph: '" 
-                    + pageSection.getHeading().parameterName
+                    + getHeading().parameterName
                     + "'. From parameterObject: " + parameterObjectName
-                    + ". URL: " + pageSection.graphUrl);
+                    + ". URL: " + graphUrl);
         }
         
         // Validate that the required HTML table 'globalTest' exists and is valid.
-        GraphGlobalTestTable globalTestTable = pageSection.getGlobalTestTable();
+        GraphGlobalTestTable globalTestTable = getGlobalTestTable();
         if (globalTestTable == null) {
-            status.addError("ERROR: unidimensional graph has no globalTest table. URL: " + pageSection.graphUrl);
+            status.addError("ERROR: unidimensional graph has no globalTest table. URL: " + graphUrl);
         } else {
             status.add(globalTestTable.validate());
         }
         
         // Validate that the required HTML table 'continuousTable' exists.
-        if (pageSection.getContinuousTable() == null) {
-            status.addError("ERROR: unidimensional graph has no continuousTable. URL: " + pageSection.graphUrl);
+        if (getContinuousTable() == null) {
+            status.addError("ERROR: unidimensional graph has no continuousTable. URL: " + graphUrl);
         }
         
         // Validate that there is a 'More statistics' link, click it and validate it.
-        GraphSection.MoreStatisticsLink moreStatisticsLink = pageSection.getMoreStatisticsLink();
+        GraphSection.MoreStatisticsLink moreStatisticsLink = getMoreStatisticsLink();
         if (moreStatisticsLink == null) {
-            status.addError("ERROR: unidimensional graph expected 'More statistics' link. URL: " + pageSection.graphUrl);
+            status.addError("ERROR: unidimensional graph expected 'More statistics' link. URL: " + graphUrl);
         } else {
             status.add(moreStatisticsLink.validate());
         }
@@ -131,76 +143,59 @@ public class GraphValidatorUnidimensional extends GraphValidator {
      */
      private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
+        GraphHeading heading = getHeading();
         
-        GraphHeading h = pageSection.getHeading();
+        // For all download types in the map, walk each download section, using
+        // the key defined by the group. When found, add the rows to a set.
+        Set<String> keySet = new HashSet();
         
-        for (TestUtils.DownloadType downloadType : pageSection.getDownloadDataSection().keySet()) {      // tsv / xls
-            String[][] downloadSection = pageSection.getDownloadDataSection().get(downloadType);
-            for (int i = 1; i < downloadSection.length; i++) {                  // Skip over first [heading] row by starting at 1.
-                String[] row = downloadSection[i];
-                String group = downloadSection[i][GROUP];
-                String file = row[ALLELE_SYMBOL].toLowerCase().trim();
-                String page = h.alleleSymbol.toLowerCase().trim();
-                if ((! group.equals("control")) && (! file.equals(page)))
-                    status.addError(downloadType + " allele symbol mismatch. Download: " + row[ALLELE_SYMBOL] + ". Page: " + h.alleleSymbol + ". URL: " + pageSection.graphUrl);
+        for (List<List<String>> block : downloadSection.dataBlockMap.values()) {
+            for (List<String> row : block) {
+                if (GraphPage.isHeading(row))                                   // Skip headings.
+                    continue;
                 
-                file = row[GENETIC_BACKGROUND].toLowerCase().trim();
-                page = h.geneticBackground.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " genetic background mismatch. Download: " + row[GENETIC_BACKGROUND] + ". Page: " + h.geneticBackground + ". URL: " + pageSection.graphUrl);
-                
-                file = row[GENE_SYMBOL].toLowerCase().trim();
-                page = h.geneSymbol.toLowerCase().trim();
-                if ((! group.equals("control")) && (! file.equals(page)))
-                    status.addError(downloadType + " gene symbol mismatch. Download: " + row[GENE_SYMBOL] + ". Page: " + h.geneSymbol + ". URL: " + pageSection.graphUrl);
-                
-                file = row[METADATA_GROUP].toLowerCase().trim();
-                page = h.metadataGroup.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " metadata group mismatch. Download: " + row[METADATA_GROUP] + ". Page: " + h.metadataGroup + ". URL: " + pageSection.graphUrl);
-                
-                file = row[PARAMETER_NAME].toLowerCase().trim();
-                page = h.parameterName.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " parameter name mismatch. Download: " + row[PARAMETER_NAME] + ". Page: " + h.parameterName + ". URL: " + pageSection.graphUrl);
-                
-                file = row[PARAMETER_STABLE_ID].toLowerCase().trim();
-                page = h.parameterStableId.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " parameter stable id mismatch. Download: " + row[PARAMETER_STABLE_ID] + ". Page: " + h.parameterStableId + ". URL: " + pageSection.graphUrl);
-                
-                file = row[PHENOTYPING_CENTER].toLowerCase().trim();
-                page = h.phenotypingCenter.toLowerCase().trim();
-                if ( ! file.equals(page))
-                    status.addError(downloadType + " phenotyping center mismatch. Download: " + row[PHENOTYPING_CENTER] + ". Page: " + h.phenotypingCenter + ". URL: " + pageSection.graphUrl);
-                
-                // If this is a control, don't check the pipeline name. It can be anything.
-                if ( ! row[GROUP].toLowerCase().equals("control")) {
-                    file = row[PIPELINE_NAME].toLowerCase().trim();
-                    page = h.pipelineName.toLowerCase().trim();
-                    if ( ! file.equals(page)) {
-                        status.addError(downloadType + " pipeline name mismatch. Download: " + row[PIPELINE_NAME] + ". Page: " + h.pipelineName + ". URL: " + pageSection.graphUrl);
-                    }
+                String group = row.get(GROUP);
+                switch (group) {
+                    case "control":
+                        keySet.add(TestUtils.makeKey(DownloadSection.DOWNLOAD_CONTROL_KEYS_UNIDIMENSIONAL_COLUMN_INDEXES, row));
+                        break;
+                        
+                    default:
+                        keySet.add(TestUtils.makeKey(DownloadSection.DOWNLOAD_MUTANT_KEYS_UNIDIMENSIONAL_COLUMN_INDEXES, row));
+                        break;
                 }
             }
             
-            status.add(validateDownloadCounts(downloadSection));
+            status.add(validateDownloadCounts(block));
         }
-
+        
+        // Remove the control and mutant keys from the set. If the set is empty,
+        // validation succeeds; otherwise, validation fails.
+        keySet.remove(heading.controlKey);
+        keySet.remove(heading.mutantKey);
+        
+        if (! keySet.isEmpty()) {
+            status.addError("Key mismatch. URL: " + graphUrl
+                          + "\ncontrolKey = " + heading.controlKey
+                          + "\nmutantKey  = " + heading.mutantKey
+                          + "\nset        = " + TestUtils.dumpSet(keySet));
+        }
+        
         return status;
     }
     
     /**
      * Validates download counts against unidimensional graph page totals.
      * 
-     * @param downloadData download data for one graph, including heading (as
-     * the first line)
+     * @param downloadDataBlock download data for one graph, including heading
+     * as the first line.
      * 
      * @return validation status
      * 
      */
-    private PageStatus validateDownloadCounts(String[][] downloadData) {
+    private PageStatus validateDownloadCounts(List<List<String>> downloadDataBlock) {
         PageStatus status = new PageStatus();
+        String[][] downloadData = TestUtils.listToArray(downloadDataBlock);
         
         // key = "Control" or "Experimental". value is zygosity hash map.
         HashMap<String, HashMap<String, HashMap<String, Integer>>> groupHash = new HashMap();

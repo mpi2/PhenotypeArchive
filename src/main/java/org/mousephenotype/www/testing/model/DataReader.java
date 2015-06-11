@@ -48,6 +48,8 @@ public abstract class DataReader {
      * @return  All rows of data from the stream created by 
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
+     * 
+     * @throws IOException
      */
     public String[][] getData() throws IOException {
         return getData(null);
@@ -59,6 +61,7 @@ public abstract class DataReader {
      * @return <code>maxRows</code> rows of data (including headings) from the stream created by 
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
+     * 
      * @throws IOException
      */
     public String[][] getData(Integer maxRows) throws IOException {

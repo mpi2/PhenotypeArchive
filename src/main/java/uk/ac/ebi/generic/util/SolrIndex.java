@@ -94,7 +94,9 @@ public class SolrIndex {
     	Map<String, String> map = new HashMap<>();
 		
 		map.put("gene", "mgi_accession_id");
+		map.put("ensembl", "ensembl_gene_id");
 		map.put("mp", "mp_id");
+		map.put("ma", "ma_id");
 		map.put("disease", "disease_id");
 		map.put("hp", "hp_id");
 		map.put("phenodigm", "hp_id");
@@ -171,7 +173,13 @@ public class SolrIndex {
 		
 		if ( solrCoreName.equals("phenodigm") ){
 			//server = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
-			server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+			//server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+		}
+		else if ( solrCoreName.equals("hp") ){
+			server = new HttpSolrServer(config.get("internalSolrUrl") + "/mp");
+		}
+		else if ( solrCoreName.equals("ensembl") ){
+			server = new HttpSolrServer(config.get("internalSolrUrl") + "/gene");
 		}
 		else {
 			server = new HttpSolrServer(config.get("internalSolrUrl") + "/" + solrCoreName);
@@ -250,6 +258,10 @@ public class SolrIndex {
 		if ( core.equals("hp") ){
 			qField = "hp_id";
 			core = "mp"; // use mp core to fetch for hp data
+		}
+		else if ( core.equals("ensembl") ){
+			qField = "ensembl_gene_id";
+			core = "gene"; // use gene core to fetch dataset via ensembl identifiers
 		}
 		
 		String internalSolrUrl = config.get("internalSolrUrl");
