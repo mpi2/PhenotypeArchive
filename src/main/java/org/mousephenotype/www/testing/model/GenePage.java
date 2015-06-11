@@ -205,6 +205,30 @@ public class GenePage {
             }
         }
         return urls;
+    }    
+    
+    /**
+     * Returns the production status order button elements (e.g. 'ES Cells', 
+     * 'Mice', etc.)
+     * 
+     * @return the production status order button elements (e.g. 'ES Cells', 
+     * 'Mice', etc.)
+     */
+    public List<WebElement> getProductionStatusOrderButtons() {
+        List<WebElement> retVal = new ArrayList();
+        
+        List<WebElement> elements = driver.findElements(By.xpath("//span[text()='Status']"));
+        if ( ! elements.isEmpty()) {
+            try {
+                elements = elements.get(0).findElements(By.xpath("..//*[@oldtitle]"));
+            } catch (Exception e) { }
+            for (WebElement element : elements) {
+                if (element.getTagName().equals("a"))
+                    retVal.add(element);
+            }
+        }
+        
+        return retVal;
     }
     
     /**

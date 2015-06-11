@@ -1088,6 +1088,31 @@ public class SearchPage {
     }
     
     /**
+     * Returns the production status order button elements (e.g. 'ES Cells', 
+     * 'Mice tm1.1', 'Mice tm1', etc.)
+     * 
+     * @param geneTrElement a valid gene element, derived from the selected tr
+     * row under the geneGrid table (a tr element pointing to the desired gene
+     * row)
+     * 
+     * @return the production status order button elements (e.g. 'ES Cells', 
+     * 'Mice tm1.1', 'Mice tm1', etc.)
+     */
+    public List<WebElement> getProductionStatusOrderButtons(WebElement geneTrElement) {
+        List<WebElement> retVal = new ArrayList();
+        
+        try {
+            List<WebElement> elements = geneTrElement.findElements(By.xpath(".//*[@oldtitle]"));
+            for (WebElement element : elements) {
+                if (element.getTagName().equals("a"))
+                    retVal.add(element);
+            }
+        } catch (Exception e) { }
+        
+        return retVal;
+    }
+    
+    /**
      * Return the number of entries currently showing in the 'entries' drop-down
      * box.
      *

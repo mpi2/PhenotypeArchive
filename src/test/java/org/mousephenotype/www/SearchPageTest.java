@@ -56,6 +56,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import org.apache.solr.client.solrj.SolrServerException;
 
 import static org.junit.Assert.*;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -797,6 +798,69 @@ if (core.equals(SearchPage.GENE_CORE)) {
         String searchString = "twist1";
         
         downloadTestEngine(testName, searchString, imageMap);
+    }
+    
+    // Tests search page with more than one Production Status [blue] order button.
+    // We'll use MGI:1353431 (gene Pcks1n), which has 2 Production Status buttons.
+    @Test
+//@Ignore
+    public void testOrderButtons() throws SolrServerException {
+        testCount++;
+        String testName = "testOrderButtons";
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        String message;
+        String target = "";
+        
+        System.out.println("\n\n----- " + testName + " -----");
+        
+        try {
+            target = baseUrl + "/search?q=MGI%3A1353431#fq=*:*&facet=gene";
+            logger.info("target: " + target);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
+            
+            // Use the first gene div element in the search results.
+            List<WebElement> geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
+            if (geneElements.isEmpty()) {
+                fail("Can't find first 'geneGrid' div element in gene search results list.");
+            }
+            
+            int buttonElementsSize = searchPage.getProductionStatusOrderButtons(geneElements.get(0)).size();
+            
+            if (buttonElementsSize != 2) {
+                status.addError("This test expects two order buttons. Number of buttons found: " + buttonElementsSize);
+            } else {
+                for (int i = 0; i < buttonElementsSize; i++) {
+                    geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
+                    WebElement geneElement = geneElements.get(0);
+                    List<WebElement> buttonElements = searchPage.getProductionStatusOrderButtons(geneElement);
+                    WebElement buttonElement = buttonElements.get(i);
+                    buttonElement.click();
+
+                    // Verify that we're in the order section.
+                    boolean expectedUrlEnding = driver.getCurrentUrl().endsWith("#order2");
+                    if ( ! expectedUrlEnding) {
+                        status.addError("Expected url to end in '#order2'. URL: " + driver.getCurrentUrl());
+                    }
+
+                    driver.navigate().back();
+                }
+            }
+            
+        } catch (Exception e) {
+            message = "ERROR: Failed to load search page URL: " + target;
+            System.out.println(message);
+            fail(message);
+            return;
+        }
+
+        if (status.hasErrors()) {
+            sumErrorList.add("error");
+        } else {
+            sumSuccessList.add("success");
+        }
+        
+        TestUtils.printEpilogue(testName, start, status, 1 - status.getErrorMessages().size(), 1, 1);
     }
     
     @Test
