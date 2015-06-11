@@ -462,7 +462,7 @@ CREATE TABLE biological_model (
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
 	KEY genetic_background_idx (genetic_background),
-	UNIQUE KEY idx_unique_biomodels (db_id, allelic_composition, genetic_background, zygosity)
+	UNIQUE KEY idx_unique_biomodels (db_id, allelic_composition(100), genetic_background(100), zygosity)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
