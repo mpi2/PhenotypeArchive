@@ -15,7 +15,6 @@
             
             <!-- JavaScript Local Imports -->
             <script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
-    				<script src="${baseUrl}/js/charts/parallel/parallelCoordinates.js"></script>
     				<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.js"></script>
 					  <script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.csv.js"></script>
 					  <script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
@@ -212,11 +211,6 @@
 		  });
 		  </script>
 		</div>
-
-		<div id="d3div"> </div>
-		<div id="d3svg"> </div>
-		<div id="bars"> </div>
-		<div id="scatterplot"> </div>
 
 	</div>
 	</div>
