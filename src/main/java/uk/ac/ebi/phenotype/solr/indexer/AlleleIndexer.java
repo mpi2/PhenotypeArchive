@@ -172,7 +172,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
-System.out.println("Started allele indexing....");
+
     	int start = 0;
         long rows = 0;
         long startTime = new Date().getTime();
@@ -931,10 +931,12 @@ System.out.println("Started allele indexing....");
         // Build the lookup string
         String lookup = buildIdQuery(alleles.keySet());
 
-        String query = "select s.acc as id, s.symbol as marker_synonym, gf.name as marker_name "
-                + "from synonym s, genomic_feature gf "
-                + "where s.acc=gf.acc "
-                + "and gf.acc IN (" + lookup + ")";
+        String query = "select gf.acc as id, s.symbol as marker_synonym, gf.name as marker_name "
+                + "from genomic_feature gf left join synonym s "
+                + "on gf.acc=s.acc "
+                + "where gf.acc IN (" + lookup + ")";
+        
+        //System.out.println("QRY: " + query);
         try {
             logger.debug("Starting marker synonym lookup");
             PreparedStatement ps = connection.prepareStatement(query);
@@ -945,6 +947,7 @@ System.out.println("Started allele indexing....");
                 if (allele.getMarkerSynonym() == null) {
                     allele.setMarkerSynonym(new ArrayList<String>());
                 }
+               
                 allele.getMarkerSynonym().add(rs.getString("marker_synonym"));
                 allele.setMarkerName(rs.getString("marker_name"));
             }

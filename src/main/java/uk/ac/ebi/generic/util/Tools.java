@@ -209,8 +209,8 @@ public class Tools {
 			// gene attr fields
 			
 			// these first 6 ones are checked by default
-			mainAttrs.add("ensembl_gene_id");
 			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("ensembl_gene_id");
 			mainAttrs.add("marker_symbol");
 			mainAttrs.add("human_gene_symbol");
 			mainAttrs.add("marker_name");
@@ -339,7 +339,8 @@ public class Tools {
 				checkedClass = "default";
 			}
 			
-			htmlStr1 += "<input type='checkbox' class=" + checkedClass + " name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + mainAttrs.get(i);
+			String friendlyFieldName = mainAttrs.get(i).replaceAll("_", " ");
+			htmlStr1 += "<input type='checkbox' class=" + checkedClass + " name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + friendlyFieldName;
 			if ( (i+1) % 3 == 0 ){
 				htmlStr1 += "<br>";
 			}
@@ -347,7 +348,8 @@ public class Tools {
 		
 		htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
 		for ( int i=0; i<additionalInfos.size(); i++ ){
-			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + additionalInfos.get(i);
+			String friendlyFieldName = additionalInfos.get(i).replaceAll("_", " ");
+			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + friendlyFieldName;
 			if ( (i+1) % 3 == 0 ){
 				htmlStr2 += "<br>";
 			}
