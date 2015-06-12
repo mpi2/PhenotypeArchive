@@ -87,10 +87,11 @@
 		    var axes = _(columns).without('name', 'group');
 		
 		    var foodgroups =
-		      [ "default gene group"];
+		      [ "Mutant", "WT"];
 		    
 		    var colors = {
-		      "default gene group" : '#1f77b4'
+				      "Mutant" : '#0978A1',
+					    "WT" : '#EF7B0B'
 		    }
 		    
 		    _(foodgroups).each(function(group) {

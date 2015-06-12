@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.phenotype.bean.ParallelCoordinatesBean;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
@@ -58,6 +57,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.ParallelCoordinatesDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
@@ -129,7 +129,7 @@ public class ObservationService extends BasicService {
     public String getMeansFor(String procedueStableId) 
     throws SolrServerException{
 
-    	HashMap<String, ParallelCoordinatesBean> beans = new HashMap<>();
+    	HashMap<String, ParallelCoordinatesDTO> beans = new HashMap<>();
     	// get parameterStableId facets for  procedueStableId
     	
     	SolrQuery query = new SolrQuery();
@@ -162,14 +162,14 @@ public class ObservationService extends BasicService {
         	Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
         	addMeans(solr.query(query), beans, p);
         	i++;
-//        	if (i>5){
-//        		break;
-//        	}
+        	if (i>5){
+        		break;
+        	}
     	}
 
 		String res = "[";
 		i = 0; 
-    	for (ParallelCoordinatesBean bean: beans.values()){
+    	for (ParallelCoordinatesDTO bean: beans.values()){
     		i++;
     		res += "{" + bean.toString() + "}";
     		if (i < beans.values().size()){
@@ -182,7 +182,7 @@ public class ObservationService extends BasicService {
     }
 	
     
-    private HashMap<String, ParallelCoordinatesBean> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesBean> beans, Parameter p) {
+    private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p) {
 
     	 List<Group> groups = response.getGroupResponse().getValues().get(0).getValues();
          for (Group gr : groups) {
@@ -193,7 +193,8 @@ public class ObservationService extends BasicService {
                  sum += new Double(doc.getFieldValue(ObservationDTO.DATA_POINT).toString());
              }
              String gene = gr.getGroupValue();
-             ParallelCoordinatesBean currentBean = beans.containsKey(gene)? beans.get(gene) : new ParallelCoordinatesBean(gene,  null); 
+             String group = (gene == null) ? "WT" : "Mutant";
+             ParallelCoordinatesDTO currentBean = beans.containsKey(gene)? beans.get(gene) : new ParallelCoordinatesDTO(gene,  null, group); 
              Double mean = sum/resDocs.size();
              currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, mean);
              beans.put(gene, currentBean);
