@@ -23,7 +23,7 @@
       container.select("svg").remove();
       
       var bounds = [ $(container[0]).width(), $(container[0]).height() ],
-          m = [30, 10, 10, 10],
+          m = [170, 10, 10, 10],
           w = bounds[0] - m[1] - m[3],
           h = bounds[1] - m[0] - m[2];
 
@@ -33,13 +33,12 @@
       var svg = container.append("svg:svg")
           .attr("width", w + m[1] + m[3])
           .attr("height", h + m[0] + m[2])
-        .append("svg:g")
+          .append("svg:g")
           .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
       // Extract the list of dimensions and create a scale for each.
       x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
         return d != "name" && d != "group" && d != "id" &&
-               d != "Eqid" && d != "Src" && d != "Datetime" && d != "Region" &&   // Earthquake csv
                (y[d] = d3.scale.linear()
             .domain(d3.extent(cars, function(p) { return +p[d]; }))
             .range([h, 0]));
@@ -48,17 +47,17 @@
       // Add grey background lines for context.
       background = svg.append("svg:g")
           .attr("class", "background")
-        .selectAll("path")
+          .selectAll("path")
           .data(cars)
-        .enter().append("svg:path")
+          .enter().append("svg:path")
           .attr("d", path);
 
       // Add blue foreground lines for focus.
       foreground = svg.append("svg:g")
           .attr("class", "foreground")
-        .selectAll("path")
+          .selectAll("path")
           .data(cars)
-        .enter().append("svg:path")
+          .enter().append("svg:path")
           .attr("d", path)
           .attr("style", function(d) {
             return "stroke:" + colors[d.group] + ";";
@@ -67,11 +66,11 @@
       // Add a group element for each dimension.
       var g = svg.selectAll(".dimension")
           .data(dimensions)
-        .enter().append("svg:g")
+          .enter().append("svg:g")
           .attr("class", "dimension")
           .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
           .call(d3.behavior.drag()
-            .on("dragstart", function(d) {
+          .on("dragstart", function(d) {
               dragging[d] = this.__origin__ = x(d);
               background.attr("visibility", "hidden");
             })
@@ -96,13 +95,16 @@
                   .attr("visibility", null);
             }));
 
+     
       // Add an axis and title.
       g.append("svg:g")
           .attr("class", "axis")
           .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
-        .append("svg:text")
-          .attr("text-anchor", "middle")
-          .attr("y", -9)
+          .append("svg:text")
+          .attr("text-anchor", "start")
+          .attr("y", -9).attr("transform", function(d) {
+              return "rotate(-90)" 
+          })
           .text(String);
 
       // Add and store a brush for each axis.

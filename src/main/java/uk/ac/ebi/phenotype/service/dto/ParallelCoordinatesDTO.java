@@ -17,6 +17,8 @@
 package uk.ac.ebi.phenotype.service.dto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.commons.lang.StringUtils;
 
 import net.sf.json.JSONArray;
@@ -27,19 +29,22 @@ public class ParallelCoordinatesDTO {
 
 	String geneSymbol;
 	String geneAccession;
-	ArrayList<MeanBean> means;
+	HashMap<String, MeanBean> means;
 	String group;
 	
-	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group){
+	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, ArrayList<String> allColumns){
 		this.geneAccession = geneAccession;
 		this.geneSymbol = geneSymbol;
 		this.group = group;
-		means = new ArrayList<>();
+		means = new HashMap<>();
+		for (String column: allColumns){
+			means.put(column, new MeanBean( null, null, column, null, null));
+		}
 	}
 	
 	public void addMean( String unit, String parameterStableId,
 	String parameterName, String parameterStableKey, Double mean){
-		means.add(new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
+		means.put(parameterName, new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
 	}
 	
 	public String toString(){
@@ -47,9 +52,10 @@ public class ParallelCoordinatesDTO {
 		res += "\"name\": \"" + geneSymbol + "\",";
 		res += "\"group\": \"" + group + "\",";
 		int i = 0; 
-		while (i < this.means.size()){
-			MeanBean mean = this.means.get(i++);
-			res += "\"" + mean.parameterName + "\": " + mean.mean;
+		for (MeanBean mean : this.means.values()){
+			res += "\"" + mean.parameterName + "\": ";
+			res += mean.mean;
+			i++;
 			if (i < this.means.size()){
 				res +=", ";
 			}
@@ -62,7 +68,7 @@ public class ParallelCoordinatesDTO {
 		JSONObject obj = new JSONObject();
 		obj.accumulate("name", this.geneSymbol);
 		obj.accumulate("group", "default gene group");
-		for (MeanBean mean: this.means){
+		for (MeanBean mean: this.means.values()){
 			obj.accumulate(mean.parameterName, mean.mean);
 		}
 		return obj;
