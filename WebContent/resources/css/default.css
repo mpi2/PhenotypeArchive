@@ -258,8 +258,24 @@ p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1p
 .reposition             { position: absolute; color: #666; margin-top: 2em; }
 .reposition .btn        { background: #0978a1; }
 .reposition .btn:hover  { background: #777; }
-#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
-#bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ width: 100%; }
+/*#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
+#bigsearchbox           { background: #0978a1; padding: 3px; width: 270px; position: absolute; top: 3px; right: -55%;
+							height: 27px; line-height: 0px;
+} /* for the search page */
+a#searchExample {
+	position: absolute;
+	top:7px;
+	right: -5%;
+	text-decoration: none;
+	border-radius: 5px;
+    border: 1px solid gray;
+    margin-left: 3px;
+    padding: 10px 4px 5px 3px;
+    width: 3px;
+    height: 3px; 
+}
+#bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ width: 259px; height: 13px !important; font-size: 14px; line-height: 20px; padding-left: 10px;}
+#bigsearchbox i#sicon { position: absolute; top: -4px;}
 
 /* Block IMPReSS */
 #block-block-3 .head    { background: url('../img/logo/impresslogo.png') center right no-repeat; padding-right: 0; margin-right: 1em; }
@@ -700,4 +716,7 @@ div.dataTables_info, div.dataTables_paginate {
     min-height: 150px;
     height: auto;
     /* background-color: #999; */
+}
+ul.menu li.first {
+	display: none;
 }
