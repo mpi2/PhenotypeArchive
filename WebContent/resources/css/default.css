@@ -259,7 +259,7 @@ p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1p
 .reposition .btn        { background: #0978a1; }
 .reposition .btn:hover  { background: #777; }
 /*#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
-#bigsearchbox           { background: #0978a1; padding: 3px; width: 286px; 
+#bigsearchbox           { background: #0978a1; padding: 3px; width: 286px; margin-top: 2px;
 							height: 27px; line-height: 0px; float: left;
 }
 nav#mn {width: 950px;}
