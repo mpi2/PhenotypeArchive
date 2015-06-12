@@ -186,8 +186,6 @@
         <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script> 
 
         <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
-
- 		<script type="text/javascript" src="${baseUrl}/js/genericSearch.jssss"></script>
  		
         <jsp:invoke fragment="header" />
 
