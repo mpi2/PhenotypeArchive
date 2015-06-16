@@ -11,15 +11,24 @@
         <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
         
         <style type="text/css">
+        	table.tools {
+        		border: 1px solid #F0F0F0;
+        		padding: 5px;
+        	} 
 			.toolName {
-				width: auto;
+				background: #F4F4F4;
 				padding: 5px;
 				color: gray;
-				border: 1px solid gray;
-				border-radius: 5px;
 			}
-			.toolLink {
-				margin-top: 5px;
+			.toolName a {
+				text-decoration: none;
+			}
+			.toolDesc {
+				background: #F2F2F2;
+				padding: 8px 10px;
+			}
+			img.toolImg {
+				width: 100px;
 			}
         </style>
         
@@ -56,10 +65,6 @@
 				<div class="content">
 					<div class="node node-gene">
 						<h1 class="title" id="top">IMPC Tools</h1>
-							 
-						<div class="textright">
-							<a id="bqdoc" class="">Help</a>						
-						</div>	
 						
 						<div class="section">
 							<!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
