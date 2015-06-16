@@ -638,6 +638,56 @@ public class GenePageTest {
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);
     }
     
+    // Tests gene page with more than one Production Status [blue] order button.
+    @Test
+//@Ignore
+    public void testOrderButtons() throws SolrServerException {
+        String testName = "testOrderButtons";
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        int targetCount = 1;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        
+        PageStatus status = new PageStatus();
+        String message;
+        Date start = new Date();
+        
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of 1 records.");
+        
+        String geneId = "MGI:1353431";
+        String target = baseUrl + "/genes/" + geneId;
+        System.out.println("URL: " + target);
+        GenePage genePage;
+        
+        try {
+            genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+        } catch (Exception e) {
+            message = "ERROR: Failed to load gene page URL: " + target;
+            System.out.println(message);
+            fail(message);
+            return;
+        }
+
+        List<WebElement> buttonElements = genePage.getProductionStatusOrderButtons();
+
+        if ( buttonElements.size() != 3) {
+            status.addError("This test expects three order buttons. Number of buttons found: " + buttonElements.size());
+        } else {
+            for (WebElement buttonElement : buttonElements) {
+                buttonElement.click();
+
+                // Verify that we're in the order section.
+                boolean expectedUrlEnding = driver.getCurrentUrl().endsWith("#order2");
+                if ( ! expectedUrlEnding) {
+                    status.addError("Expected url to end in '#order2'. URL: " + driver.getCurrentUrl());
+                }
+
+                driver.navigate().back();
+            }
+        }
+
+        TestUtils.printEpilogue(testName, start, status, 1, 1, 1);
+    }
+    
 
     // PRIVATE METHODS
     

@@ -1,24 +1,24 @@
-/**
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -39,26 +39,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
+import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.ParallelCoordinatesDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class ObservationService extends BasicService {
@@ -113,8 +124,98 @@ public class ObservationService extends BasicService {
                    	
     }
 
-    public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
+
+    public String getMeansFor(String procedueStableId, boolean requiredParametersOnly) 
+    throws SolrServerException{
+
+    	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
+    	// get parameterStableId facets for  procedueStableId
+    	
+    	SolrQuery query = new SolrQuery();
+    	query.setQuery("*:*");
+    	query.setFilterQueries(ObservationDTO.PROCEDURE_STABLE_ID + ":" + procedueStableId);
+    	query.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":unidimensional");
+    	query.setFacet(true);
+    	query.setFacetMinCount(1);
+    	query.setFacetLimit(100000);
+    	query.addFacetField(ObservationDTO.PARAMETER_STABLE_ID);
+    	query.addFacetField(ObservationDTO.PARAMETER_NAME);
+    
+    	
+    	ArrayList<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(ObservationDTO.PARAMETER_STABLE_ID).keySet());
+    	ArrayList<Parameter> parameterNames = new ArrayList<>();
+    	
+    	for (String parameterStableId: parameterStableIds){
+        	Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
+        	if (p.isRequiredFlag()){
+        		parameterNames.add(p);
+        	}
+    	}
+    	
+    	// query for each parameter
+
+    	int i = 0;
+    	for (Parameter p: parameterNames){
+    		query = new SolrQuery();
+        	query.setQuery("*:*");
+        	query.setFilterQueries(ObservationDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
+        	query.set("group", true);
+        	query.set("group.limit", 10000);
+        	query.set("group.field", ObservationDTO.GENE_SYMBOL);
+        	query.setFields(ObservationDTO.DATA_POINT);
+        	query.setRows(100000);
+    		
+        	System.out.println("-- Get means:  " + solr.getBaseURL() + "/select?" + query);
+        	
+        	addMeans(solr.query(query), row, p, parameterNames);
+        	i++;
+        	if (i>100){
+        		break;
+        	}
+    	}
+
+		String res = "[";
+		i = 0; 
+    	for (ParallelCoordinatesDTO bean: row.values()){
+    		i++;
+    		String currentRow = bean.toString(false);
+    		if (!currentRow.equals("")){
+	    		res += "{" + currentRow + "}";
+	    		if (i < row.values().size()){
+	    			res += ", ";
+	    		}
+    		}
+    	}
+    	res += "]";
+    	return "var foods = " + res.toString() + ";";
+    	
+    }
+	
+    
+    private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, ArrayList<Parameter> allParameterNames) {
+
+    	 List<Group> groups = response.getGroupResponse().getValues().get(0).getValues();
+         for (Group gr : groups) {
+             SolrDocumentList resDocs = gr.getResult();
+             Double sum = (double) 0; 
+             for (int i = 0; i < resDocs.getNumFound(); i ++) {
+                 SolrDocument doc = resDocs.get(i);
+                 sum += new Double(doc.getFieldValue(ObservationDTO.DATA_POINT).toString());
+             }
+             String gene = gr.getGroupValue();
+             String group = (gene == null) ? "WT" : "Mutant";
+             ParallelCoordinatesDTO currentBean = beans.containsKey(gene)? beans.get(gene) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames); 
+             Double mean = sum/resDocs.size();
+             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, mean);
+             beans.put(gene, currentBean);
+         }
+         return beans;
+	}
+
+
+	public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
+		
         List<String> genes = new ArrayList<>();
         SolrQuery q = new SolrQuery();
 

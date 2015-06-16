@@ -1,22 +1,18 @@
-/**
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
-/**
- * Copyright © 2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 
 package org.mousephenotype.www.testing.model;
 
@@ -205,6 +201,30 @@ public class GenePage {
             }
         }
         return urls;
+    }    
+    
+    /**
+     * Returns the production status order button elements (e.g. 'ES Cells', 
+     * 'Mice', etc.)
+     * 
+     * @return the production status order button elements (e.g. 'ES Cells', 
+     * 'Mice', etc.)
+     */
+    public List<WebElement> getProductionStatusOrderButtons() {
+        List<WebElement> retVal = new ArrayList();
+        
+        List<WebElement> elements = driver.findElements(By.xpath("//span[text()='Status']"));
+        if ( ! elements.isEmpty()) {
+            try {
+                elements = elements.get(0).findElements(By.xpath("..//*[@oldtitle]"));
+            } catch (Exception e) { }
+            for (WebElement element : elements) {
+                if (element.getTagName().equals("a"))
+                    retVal.add(element);
+            }
+        }
+        
+        return retVal;
     }
     
     /**
