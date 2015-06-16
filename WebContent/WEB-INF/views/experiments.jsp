@@ -121,6 +121,15 @@
 										<c:when test="${pValueItem.controlSex eq 'female'}">
 											<td>${pValueItem.femaleMutants}f</td>
 										</c:when>
+										<c:when test="${empty pValueItem.femaleMutants and empty pValueItem.maleMutants}">
+											<td> - </td>
+										</c:when>
+										<c:when test="${empty pValueItem.femaleMutants and not empty pValueItem.maleMutants}">
+											<td>${pValueItem.maleMutants}m</td>
+										</c:when>
+										<c:when test="${empty pValueItem.maleMutants and not empty pValueItem.femaleMutants}">
+											<td>${pValueItem.maleMutants}f</td>
+										</c:when>
 										<c:otherwise>
 											<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
 										</c:otherwise>

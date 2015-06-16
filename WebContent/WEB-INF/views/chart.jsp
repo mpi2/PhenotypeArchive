@@ -24,7 +24,16 @@
 	    Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	  	<c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
 	  </p> 
-						
+		
+		<p>
+			<c:if test="${metadata != null}">
+				Metadata Group - ${metadata}
+			</c:if>
+		</p>
+  		
+		
+		<br/> <br/>			
+			
 		<c:choose>
 				<c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
 						<jsp:include page="scatterStatsFrag.jsp"/>
