@@ -114,7 +114,7 @@
 		    
 		    // vertical full screen
 		    var parallel_height = $(window).height() - 64 - 12 - 120 - 320;
-		    if (parallel_height < 240) parallel_height = 240;  // min height
+		    if (parallel_height < 340) parallel_height = 340;  // min height
 		    $('#parallel').css({
 		        height: parallel_height + 'px',
 		        width: '100%'
