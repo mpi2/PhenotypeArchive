@@ -42,7 +42,9 @@ public interface BiologicalModelDAO extends HibernateDAO {
 	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource);
 	public LiveSample getLiveSampleBySampleIdAndOrganisationId(String sampleId, Integer organisationId);
 
-	
+
+
+	public BiologicalModel findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(Integer id, String allelicComposition, String geneticBackground, String zygosity);
 
 	public BiologicalModel getBiologicalModelById(int modelId);
 	public BiologicalSample getBiologicalSampleById(int sampleId);

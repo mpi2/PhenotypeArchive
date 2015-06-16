@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright 2015 EMBL - European Bioinformatics Institute
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -16,9 +16,9 @@
 package uk.ac.ebi.phenotype.dao;
 
 /**
- * 
+ *
  * Biological model manager implementation.
- * 
+ *
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  * @since May 2012
  */
@@ -31,6 +31,7 @@ import uk.ac.ebi.phenotype.pojo.*;
 import java.util.LinkedList;
 import java.util.List;
 
+
 public class BiologicalModelDAOImpl extends HibernateDAOImpl implements BiologicalModelDAO {
 
 	/**
@@ -40,95 +41,105 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 	public BiologicalModelDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-	
+
+
+	@Transactional(readOnly = true)
+	public BiologicalModel findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(Integer id, String allelicComposition, String geneticBackground, String zygosity) {
+		return (BiologicalModel) getCurrentSession()
+			.createQuery("from BiologicalModel m where m.datasource.id=? and m.allelicComposition=? and m.geneticBackground=? and m.zygosity=?")
+			.setInteger(0, id)
+			.setString(1, allelicComposition)
+			.setString(2, geneticBackground)
+			.setString(3, zygosity)
+			.uniqueResult();
+	}
+
+
 	@Transactional(readOnly = false)
 	public void saveBiologicalSample(BiologicalSample sample) {
 		getCurrentSession().saveOrUpdate(sample);
 	}
 
+
 	@Transactional(readOnly = false)
 	public void saveLiveSample(LiveSample sample) {
 		getCurrentSession().saveOrUpdate(sample);
 	}
-	
+
+
 	@Transactional(readOnly = false)
-	public int  deleteAllLiveSamplesByDatasource(Datasource datasource) {
-		Query query = getCurrentSession().getNamedQuery("deleteLiveSamples")
-				.setInteger("dbID", datasource.getId());
+	public int deleteAllLiveSamplesByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteLiveSamples").setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
+
 	@Transactional(readOnly = false)
-	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource) {
-		Query query = getCurrentSession().getNamedQuery("deleteLiveSamplesWithoutModels")
-				.setInteger("dbID", datasource.getId());
+	public int deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteLiveSamplesWithoutModels").setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
+
 	@Transactional(readOnly = false)
 	public int deleteAllBiologicalSamplesByDatasource(Datasource datasource) {
-		Query query = getCurrentSession().getNamedQuery("deleteBiologicalSamples")
-				.setInteger("dbID", datasource.getId());
+		Query query = getCurrentSession().getNamedQuery("deleteBiologicalSamples").setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
+
 	@Transactional(readOnly = true)
 	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId) {
 
 		return (List<BiologicalModel>) getCurrentSession().createQuery("select distinct m from BiologicalModel as m inner join m.datasource as d where d.id = ?").setInteger(0, databaseId).list();
-		
+
 	}
-	
+
+
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession) {
-		return getCurrentSession()
-			.createQuery("from BiologicalModel as m join m.genomicFeatures as gf where gf.id.accession = ?")
-			.setString(0, accession)
-			.list();
+		return getCurrentSession().createQuery("from BiologicalModel as m join m.genomicFeatures as gf where gf.id.accession = ?").setString(0, accession).list();
 	}
 
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")	
+	@SuppressWarnings("unchecked")
 	public List<LiveSample> getAllLiveSamplesByDatasourceId(int databaseId) {
 		return getCurrentSession().createQuery("from LiveSample as l inner join l.datasource as d where d.id = ?").setInteger(0, databaseId).list();
 	}
-	
+
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<LiveSample> getAllLiveSamples() {
 		List<LiveSample> liveSamples = new LinkedList<LiveSample>();
 		List<Object> l = getCurrentSession().createQuery("SELECT live FROM LiveSample AS live").list();
-		for (Object o: l) {
+		for (Object o : l) {
 			liveSamples.add((LiveSample) o);
 		}
 		return liveSamples;
 	}
 
+
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
-	public List<LiveSample> getAllLiveSampleByOrganisation(Organisation organisation){
+	public List<LiveSample> getAllLiveSampleByOrganisation(Organisation organisation) {
 		List<LiveSample> liveSamples = new LinkedList<LiveSample>();
-		List<Object> l = getCurrentSession().createQuery("SELECT live FROM LiveSample AS live INNER JOIN live.organisation AS o WHERE o.id = ?")
-				.setInteger(0, organisation.getId())
-				.list();
-		for (Object o: l) {
+		List<Object> l = getCurrentSession().createQuery("SELECT live FROM LiveSample AS live INNER JOIN live.organisation AS o WHERE o.id = ?").setInteger(0, organisation.getId()).list();
+		for (Object o : l) {
 			liveSamples.add((LiveSample) o);
 		}
 		return liveSamples;
 	}
+
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
 		List<LiveSample> liveSamples = new LinkedList<LiveSample>();
-		List<Object> l = getCurrentSession().createQuery("SELECT live FROM LiveSample AS live INNER JOIN live.datasource AS d INNER JOIN live.organisation AS o WHERE d.id = ? AND o.id = ?")
-				.setInteger(0, datasource.getId())
-				.setInteger(1, organisation.getId())
-				.list();
-		for (Object o: l) {
+		List<Object> l = getCurrentSession().createQuery("SELECT live FROM LiveSample AS live INNER JOIN live.datasource AS d INNER JOIN live.organisation AS o WHERE d.id = ? AND o.id = ?").setInteger(0, datasource.getId()).setInteger(1, organisation.getId()).list();
+		for (Object o : l) {
 			liveSamples.add((LiveSample) o);
 		}
 		return liveSamples;
@@ -138,11 +149,7 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 	@Transactional(readOnly = true)
 	public LiveSample getLiveSampleBySampleIdAndOrganisationId(String sampleId, Integer organisationId) {
 
-		return (LiveSample) getCurrentSession()
-			.createQuery("SELECT live FROM LiveSample AS live INNER JOIN live.organisation AS o WHERE live.stableId = ? AND o.id=?")
-			.setString(0, sampleId)
-			.setInteger(1, organisationId)
-			.uniqueResult();
+		return (LiveSample) getCurrentSession().createQuery("SELECT live FROM LiveSample AS live INNER JOIN live.organisation AS o WHERE live.stableId = ? AND o.id=?").setString(0, sampleId).setInteger(1, organisationId).uniqueResult();
 	}
 
 
@@ -151,40 +158,40 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		return (BiologicalModel) getCurrentSession().createQuery("from BiologicalModel as m where m.id = ?").setInteger(0, modelId).uniqueResult();
 	}
 
+
 	@Transactional(readOnly = true)
 	public BiologicalSample getBiologicalSampleById(int sampleId) {
 		return (BiologicalSample) getCurrentSession().createQuery("from BiologicalSample as s where s.id = ?").setInteger(0, sampleId).uniqueResult();
 	}
+
 
 	@Transactional(readOnly = false)
 	public void saveBiologicalModel(BiologicalModel model) {
 		getCurrentSession().saveOrUpdate(model);
 		getCurrentSession().flush();
 	}
-	
+
+
 	@Transactional(readOnly = false)
 	public int deleteAllBiologicalModelsByDatasource(Datasource datasource) {
 		// the following code is not efficient
 		//String hql = "delete BiologicalModel as ls where ls.datasource.id = :id";
 		//getCurrentSession().createQuery(hql).setInteger("id", datasource.getId()).executeUpdate();
-		
+
 		// delete associated gene first
-		Query query = getCurrentSession().getNamedQuery("deleteBiologicalModelGenomicFeatures")
-				.setInteger("dbID", datasource.getId());
+		Query query = getCurrentSession().getNamedQuery("deleteBiologicalModelGenomicFeatures").setInteger("dbID", datasource.getId());
 		query.executeUpdate();
-		
+
 		// needs to be replaced by native SQL queries
-		query = getCurrentSession().getNamedQuery("deleteBiologicalModels")
-				.setInteger("dbID", datasource.getId());
+		query = getCurrentSession().getNamedQuery("deleteBiologicalModels").setInteger("dbID", datasource.getId());
 		int count = query.executeUpdate();
 		return count;
 	}
 
+
 	@Transactional(readOnly = false)
 	public void deleteAllBiologicalModelsAndRelatedDataByDatasourceOrganisation(Datasource ds, Organisation o) {
-		Query query = getCurrentSession().getNamedQuery("deleteBiologicalModelAndRelatedData")
-				.setInteger("dbID", ds.getId())
-				.setInteger("orgID", o.getId());
+		Query query = getCurrentSession().getNamedQuery("deleteBiologicalModelAndRelatedData").setInteger("dbID", ds.getId()).setInteger("orgID", o.getId());
 		query.executeUpdate();
 		getCurrentSession().flush();
 	}
