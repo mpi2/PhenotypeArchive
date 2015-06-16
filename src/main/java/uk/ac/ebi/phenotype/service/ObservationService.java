@@ -204,6 +204,9 @@ public class ObservationService extends BasicService {
              }
              String gene = gr.getGroupValue();
              String group = (gene == null) ? "WT" : "Mutant";
+             if (gene == null){
+            	 gene = " control";
+             }
              ParallelCoordinatesDTO currentBean = beans.containsKey(gene)? beans.get(gene) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames); 
              Double mean = sum/resDocs.size();
              currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, mean);

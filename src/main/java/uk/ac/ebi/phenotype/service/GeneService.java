@@ -189,22 +189,25 @@ public class GeneService {
 		rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		HashSet<String> allGenes = new HashSet<String>();
+		
 		for (SolrDocument doc : res) {
 			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
 		}
+		
 		return allGenes;
 	}
 
 	// returns ready formatted icons
-	public Map<String, String> getProductionStatus(String geneId, HttpServletRequest request)
-			throws SolrServerException {
+	public Map<String, String> getProductionStatus(String geneId, HttpServletRequest request) 
+	throws SolrServerException{
 
+		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + geneId;
 		SolrQuery query = new SolrQuery();
 		query.setQuery("mgi_accession_id:\"" + geneId + "\"");
 		QueryResponse response = solr.query(query);
 		SolrDocument doc = response.getResults().get(0);
 
-		return getStatusFromDoc(doc, request);
+		return getStatusFromDoc(doc, request, geneUrl);
 
 	}
 
@@ -453,7 +456,7 @@ public class GeneService {
 	 * @param doc a SOLR Document
 	 * @return
 	 */
-	private Map<String, String> getStatusFromDoc(SolrDocument doc, HttpServletRequest request) {
+	private Map<String, String> getStatusFromDoc(SolrDocument doc, HttpServletRequest request, String geneLink) {
 		
 		String miceStatus = "";
 		String esCellStatusHTMLRepresentation = "";
@@ -482,7 +485,7 @@ public class GeneService {
 					if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
-							miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='#order2'><span>Mice<br>" + alleleType + "</span></a>";
+							miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + geneLink + "#order2'><span>Mice<br>" + alleleType + "</span></a>";
 						}
 						
 					} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
