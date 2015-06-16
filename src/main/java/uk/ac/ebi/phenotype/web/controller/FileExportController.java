@@ -1419,7 +1419,7 @@ public class FileExportController {
 		// GWAS Gene to IMPC gene mapping
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows(mgiGeneSymbol.toUpperCase());
 		
-		System.out.println("FileExportController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
+		//System.out.println("FileExportController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 
 		List<String> rowData = new ArrayList();
 		rowData.add(gridFields);
@@ -1446,6 +1446,7 @@ public class FileExportController {
 			data.add(gw.getUpstreamGene());
 			data.add(gw.getDownstreamGene());
 			data.add(gw.getPhenoMappingCategory());
+			data.add(gw.getSnpId());
 			
 			rowData.add(StringUtils.join(data, "\t"));
 		}

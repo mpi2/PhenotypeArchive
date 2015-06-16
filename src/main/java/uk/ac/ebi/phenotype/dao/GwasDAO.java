@@ -158,6 +158,7 @@ public class GwasDAO {
                 gwasMappingRow.setMpTermId(resultSet.getString("mp_term_id"));
                 gwasMappingRow.setMpTermName(resultSet.getString("mp_term_name"));
                 gwasMappingRow.setMouseGender(resultSet.getString("impc_mouse_gender"));
+                gwasMappingRow.setSnpId(resultSet.getString("snp_id"));
                 
                 results.add(gwasMappingRow);
             }

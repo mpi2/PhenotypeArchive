@@ -42,6 +42,7 @@ public class GwasDTO {
     private String mpTermId;
     private String mpTermName;
     private String mouseGender;
+    private String snpId;
 	public String getMgiGeneId() {
 		return mgiGeneId;
 	}
@@ -126,13 +127,20 @@ public class GwasDTO {
 	public void setMouseGender(String mouseGender) {
 		this.mouseGender = mouseGender;
 	}
+	public String getSnpId() {
+		return snpId;
+	}
+	public void setSnpId(String snpId) {
+		this.snpId = snpId;
+	}
 	@Override
 	public String toString() {
 		return String
-				.format("GwasDTO [mgiGeneId=%s, mgiGeneSymbol=%s, mgiAlleleId=%s, mgiAlleleName=%s, phenoMappingCategory=%s, diseaseTrait=%s, pvalue=%s, reportedGene=%s, mappedGene=%s, upstreamGene=%s, downstreamGene=%s, mpTermId=%s, mpTermName=%s, mouseGender=%s]",
+				.format("GwasDTO [mgiGeneId=%s, mgiGeneSymbol=%s, mgiAlleleId=%s, mgiAlleleName=%s, phenoMappingCategory=%s, diseaseTrait=%s, pvalue=%s, reportedGene=%s, mappedGene=%s, upstreamGene=%s, downstreamGene=%s, mpTermId=%s, mpTermName=%s, mouseGender=%s, snpId=%s]",
 						mgiGeneId, mgiGeneSymbol, mgiAlleleId, mgiAlleleName, phenoMappingCategory, diseaseTrait, pvalue, reportedGene, mappedGene,
-						upstreamGene, downstreamGene, mpTermId, mpTermName, mouseGender);
+						upstreamGene, downstreamGene, mpTermId, mpTermName, mouseGender, snpId);
 	}
+    
 	
     
     

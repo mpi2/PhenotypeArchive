@@ -111,7 +111,7 @@ public class ExternalAnnotsController {
 		String markerRow = "<div id='mk'><span id='mkLeft'>Marker symbol: <a href='" + geneLink + "'>" + mgiGeneSymbol + "</a></span><span id='mkRight' class='"+ mappingCat +"'>" + mappingCat + " phenotypic mapping</span></div>";
 		List<String> dataRow = new ArrayList<>();
 		
-		String theadRow = "<thead><tr><th>IMPC MP term</th><th>IMPC Mouse gender</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th></tr></thead>";
+		String theadRow = "<thead><tr><th>IMPC MP term</th><th>IMPC Mouse gender</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th><th>GWAS SNP id</th></tr></thead>";
 		
 		//System.out.println("marker row: " + markerRow);
 		List<String> trts = new ArrayList<>();
@@ -157,6 +157,8 @@ public class ExternalAnnotsController {
 					tds.add("<td>" + aGw.getMappedGene() + "</td>");
 					tds.add("<td>" + aGw.getUpstreamGene() + "</td>");
 					tds.add("<td>" + aGw.getDownstreamGene() + "</td>");
+					tds.add("<td>" + aGw.getSnpId() + "</td>");
+					
 					String td = StringUtils.join(tds, "");
 					trs.add("<tr>" + td + "</tr>");
 			    }	
