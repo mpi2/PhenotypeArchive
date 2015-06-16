@@ -213,7 +213,7 @@
             form#dnld {
             	padding: 5px;
             	border-radius: 5px;
-			    background: #F2F2F2;
+			    		background: #F2F2F2;
             }
             form#dnld button {
             	text-decoration: none;
