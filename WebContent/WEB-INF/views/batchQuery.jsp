@@ -212,7 +212,7 @@
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
                 
                 var baseUrl = "${baseUrl}";
-                var solrUrl = "${internalSolrUrl};"
+                var solrUrl = "${internalSolrUrl}";
                 
                	// initialze search example qTip with close button and proper positioning
                	var bqDoc = '<h3 id="bqdoc">How to use batchQuery</h3>'
@@ -602,9 +602,7 @@
                         "url": baseUrl + "/dataTable_bq?",
                         "data": oConf,
                         "type": "POST",
-                       
                         "error": function() {
-                            //window.alert('AJAX error trying to fetch your query');
                             $('div.dataTables_processing').text("AJAX error trying to fetch your query");
                             $('td.dataTables_empty').text("");
                         }
@@ -613,7 +611,6 @@
             }
             function doExport(currDataType, fileType, fllist, idList, isForm){
             	
-            	// not sure why w/0 submit() is working here?
             	$("form#dnld input[name='coreName']").val(currDataType);
         		$("form#dnld input[name='fileType']").val(fileType);
         		$("form#dnld input[name='gridFields']").val(fllist);

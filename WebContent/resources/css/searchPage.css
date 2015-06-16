@@ -9,9 +9,14 @@ ul.ui-autocomplete {
 ul.ui-autocomplete li a {
 	display: block;
 	text-decoration: none;
+	padding-left: 5px;
+}
+ul.ui-autocomplete li {
+	font-size: 14px !important;
 }
 ul.ui-autocomplete li a:hover {
 	background-color: #D4D4D4 !important;	
+	border-radius: 4px;
 }
 span#rmFilters {
 	color: #0978A1;
