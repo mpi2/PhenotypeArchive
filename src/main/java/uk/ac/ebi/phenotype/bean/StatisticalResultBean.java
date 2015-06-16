@@ -16,6 +16,8 @@
 package uk.ac.ebi.phenotype.bean;
 
 import uk.ac.ebi.phenotype.pojo.StatisticalSignificance;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+
 
 /**
  * Lightweight representation of a statistical object containing 3 attributes, 
@@ -67,9 +69,24 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.metadataGroup = metadataGroup;
 		
 	}
-	
-	
-	
+
+	public StatisticalResultBean(StatisticalResultDTO dto) {
+
+		this.pValue = dto.getpValue();
+		this.effectSize = dto.getEffectSize()!=null ? dto.getEffectSize() : 1;
+		this.status = dto.getStatus()!=null ? dto.getStatus() : "no status found";
+		this.statisticalMethod = dto.getStatisticalMethod();
+		this.controlSex = dto.getSex();
+		this.zygosity = dto.getZygosity();
+		this.maleControls = dto.getMaleControlCount();
+		this.maleMutants = dto.getMaleMutantCount();
+		this.femaleControls = dto.getFemaleControlCount();
+		this.femaleMutants = dto.getFemaleMutantCount();
+		this.metadataGroup = dto.getMetadataGroup();
+
+	}
+
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
