@@ -114,7 +114,6 @@
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
                 
                 var baseUrl = "${baseUrl}";
-                var solrUrl = "${internalSolrUrl};"
 
                 $("table.tablesorter").dataTable({
                 	 "bSort": true, // true is default 
@@ -132,7 +131,7 @@
                  		// download tool
                  		var mgiGeneSymbol = $('span#mkLeft a').text();
                  		var endPoint = baseUrl + "/impc2gwasExport?";
-                 		var gridFields = "Marker symbol\tMGI gene id\tMGI allele id\tMGI allele name\tIMPC Mouse gender\tIMPC MP term id\tIMPC MP term name\tGWAS trait\tGWAS p value\tGWAS Reported gene\tGWAS Mapped gene\tGWAS Upstream gene\tGWAS Downstream gene\tIMPC phenotypic mapping to GWAS";
+                 		var gridFields = "Marker symbol\tMGI gene id\tMGI allele id\tMGI allele name\tIMPC Mouse gender\tIMPC MP term id\tIMPC MP term name\tGWAS trait\tGWAS p value\tGWAS Reported gene\tGWAS Mapped gene\tGWAS Upstream gene\tGWAS Downstream gene\tIMPC phenotypic mapping to GWAS\tGWAS SNP id";
                  		var traitCheckBox = $("table.tablesorter").size() > 1 ? "Current trait only <input name='currentTraitName' value='' type='checkbox' />" : "";
                  		
                		  	$('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='GET' action='" + endPoint + "'>"

@@ -280,6 +280,7 @@ a#searchExample {
     height: 3px; 
     color: white;
 }
+div#footerline #bigsearchbox {display: none;}
 #bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ width: 259px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 10px;}
 #bigsearchbox i#sicon { position: absolute; top: -1px;}
 
@@ -723,6 +724,6 @@ div.dataTables_info, div.dataTables_paginate {
     height: auto;
     /* background-color: #999; */
 }
-ul.menu li.first {
-	display: none;
+ul.menu > li.first {
+	display: none; /* hides SEARCH menu point on the banner */
 }

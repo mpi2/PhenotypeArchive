@@ -132,6 +132,81 @@
                 span.indirect {color: #CD8500;}  
                 
                 /* copied from CKs gwas page */
+<<<<<<< HEAD
+        	
+	        	div#tabs {
+	        		border: none;
+	        	}
+	        	ul.tabs {
+	        		border: none;
+	        		border-bottom: 1px solid #666;
+	        		background: none;
+	        	}
+	        	ul.tabs li:nth-child(1) {
+	        		font-size: 14px;
+	        	}
+	        	ul.tabs li a {
+	        		margin-bottom: -1px;
+	        		border: 1px solid #666;
+	        		font-size: 12px;
+	        	}
+	        	ul.tabs li a:hover {
+	        		color: white;
+	        		background-color: gray; 
+	        	}
+	        	div#tabs table {
+	        		font-size: 14px;
+	        		color: #666;
+	        	}
+	        	div.ui-tabs-panel {
+	        		padding: 0 !important;
+	        	}
+	        	table.dataTable caption {
+	        		font-weight: bold;
+	        		padding: 3px 5px;
+	        		background-color: #F2F2F2;
+	        		border-radius: 5px;
+	        	}
+	        	table.dataTable td a {
+	        		text-decoration: none;
+	        		color: #0978a1;
+	        	}
+	        	.trtName {
+	        		font-family: Arial !important;
+	        		font-weight: bold !important;
+	        		font-size: 16px !important;
+	        		color: black;
+	        	}
+	        	
+	            div.dataTables_info {
+	            	font-size: 14px;
+	            	padding-bottom: 20px !important;
+	            }
+	            div.dataTables_filter {
+	            	font-size: 14px;
+	            }
+	            table.dataTable span.highlight {
+	                background-color: yellow;
+	                font-weight: bold;
+	                color: black;
+	            }
+	            div#toolBox {
+	            	font-size: 12px;
+	            }
+	            div#tableTool {
+	                position: relative;
+	                top: -70px;
+	                float: right;
+	            }
+	            form#dnld {
+	            	padding: 5px;
+	            	border-radius: 5px;
+				    background: #F2F2F2;
+	            }
+	            form#dnld button {
+	            	text-decoration: none;
+	            }
+=======
                 div#mk {
         		margin-bottom: 10px;
         	}
@@ -218,6 +293,7 @@
             form#dnld button {
             	text-decoration: none;
             }
+>>>>>>> branch 'master' of https://github.com/mpi2/PhenotypeArchive.git
                      
             </style>
 
@@ -592,25 +668,10 @@
                                      	</c:forEach>
                                      
                                      </table>
-                                     
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
                                    
                                 </div>
-                               
-                            
-                            
-                            
                             
                             <!-- section for expression data here -->
-							
-							
 
 							<div id="tabs-2">
                                
@@ -826,7 +887,6 @@
                             var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
                             $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
                         }
-                        
                     });
             </script>
         </jsp:body>
