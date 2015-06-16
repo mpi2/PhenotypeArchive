@@ -15,18 +15,6 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -41,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
@@ -54,13 +41,21 @@ import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -120,16 +115,20 @@ public class ExperimentsController {
 			HttpServletRequest request,
 			RedirectAttributes attributes) 
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-		
-		
+
+		long start = System.currentTimeMillis();
+
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
-		
+		System.out.println("Time to do alleleDao.getAlleleByAccession: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
+
 		if (allele == null) {
 			log.warn("Allele '" + alleleAccession + "' can't be found.");
 		}
 		
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
-		
+
+		System.out.println("Time to do pipelineDao.getPhenotypePipelineByStableId: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
+
 		List<Map<String,String>> mapList =  null;
 		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
 		
@@ -147,12 +146,16 @@ public class ExperimentsController {
 					procedureStableIds.add(procedure.getStableId());
 				}
 			}
-		}	
-		
+		}
+
+		System.out.println("Time to do pipelineDao.getProcedureByMatchingStableId and iterate: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
+
 		try {
 			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, procedureStableIds, resource);
+			System.out.println("Time to do observationService.getDistinctParameterListByPipelineAlleleCenter: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
 			// get all p-values for this allele/center/pipeline
 			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds, resource);
+			System.out.println("Time to do srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
@@ -163,14 +166,16 @@ public class ExperimentsController {
 				ColorCodingPalette.NB_COLOR_MAX, 
 				1, 
 				Constants.SIGNIFICANT_P_VALUE);
-		
+		System.out.println("Time to do colorCoding.generateColors: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
+
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(
 				allele, 
 				pvaluesMap,
 				Constants.SIGNIFICANT_P_VALUE,
 				pipeline,
 				phenotypingCenter);
-		
+		System.out.println("Time to do phenomeChartProvider.generatePvaluesOverviewChart: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
+
 		model.addAttribute("mapList", mapList);
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("palette", colorCoding.getPalette());
