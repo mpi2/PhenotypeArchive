@@ -46,7 +46,6 @@ public class GeneService {
 	private HttpSolrServer solr;
 
 	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
-	public static final String MOUSE_STATUS_TEMPLATE = "<span class='status %s' title='%s'><span>Mice<br>%s</span></span>";
 
 	public static final class GeneFieldValue {
 		public final static String CENTRE_WTSI = "WTSI";
@@ -218,6 +217,7 @@ public class GeneService {
 	 *         Registered) as appropriate for this gene
 	 */
 	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport, boolean legacyOnly) {
+		
 		String mgiId = doc.getString("mgi_accession_id");
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 
@@ -415,7 +415,7 @@ public class GeneService {
 				}
 				
 				if ( sh.containsKey("Mice Produced") ){
-					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order'>"
+					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
 						
@@ -482,21 +482,13 @@ public class GeneService {
 					if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
-							miceStatus += String.format(
-								MOUSE_STATUS_TEMPLATE,
-								"done",
-								StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE,
-								alleleType);
+							miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='#order2'><span>Mice<br>" + alleleType + "</span></a>";
 						}
 						
 					} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
-							miceStatus += String.format(
-								MOUSE_STATUS_TEMPLATE,
-								"inprogress",
-								StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_IN_PROGRESS,
-								alleleType);
+							miceStatus += "<span class='status inprogress' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_IN_PROGRESS + "'><span>Mice<br>" + alleleType + "</span></span>"; 
 						}
 					}
 				}
@@ -649,9 +641,9 @@ public class GeneService {
 							
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);						
-							miceStatus += "<span class='status done' oldtitle='" + mouseStatusStr + "' title=''>"
+							miceStatus += "<a class='status done' oldtitle='" + mouseStatusStr + "' title='' href='#order2'>"
 									+  "<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";
+									+  "</a>";
 							
 							exportMiceStatus.add(alleleType + " mice produced");
 						}

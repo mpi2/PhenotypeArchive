@@ -383,7 +383,32 @@
    				}
             });
        		
-       		
+	    	 $("span.direct").qtip({            	   
+                 content: "Phenotypic mappings have been accessed with manual curation. "
+                 	+ "A mapping was labelled as direct when mouse and human phenotypes are identical "
+                 	+ "or highly related (ie: bone mineral density in GWAS vs increased bone mineral content in IMPC)",
+                 	style: {
+     			 		classes: 'qtipimpc',			 		
+     			        tip: {corner: 'top center'}
+     			    },
+     			    position: {my: 'left top',
+     			    		   adjust: {x: -280, y: 0}
+     			    }
+      		});		 	
+              $("span.indirect").qtip({  	
+              	content: "Phenotypic mappings have been accessed with manual curation. "
+              	+ "A mapping was labelled as indirect when mouse and human phneotypes are more "
+              	+ "loosely linked although related (ie: digit length ratio in "
+              	+"GWAS vs abnormal digit morphology in IMPC)",
+              	style: {
+     			 		classes: 'qtipimpc',			 		
+     			        tip: {corner: 'top center'}
+     			    },
+     			    position: {my: 'left top',
+     			    		   adjust: {x: -280, y: 0}
+     			    }
+              });
+	    	
 		    var matchedFacet = false;
 			var facet2Fq = {
 				'gene' : '*:*',
