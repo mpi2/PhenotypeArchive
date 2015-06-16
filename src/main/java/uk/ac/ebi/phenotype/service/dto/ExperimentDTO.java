@@ -434,7 +434,6 @@ public class ExperimentDTO {
 	    		html += m + "\n";	
 	    	}
 	    	html += "'>" + metadataGroup + "</span>";
-	    	System.out.println("\n\n" + html);
     	}
     	return html;
     }
