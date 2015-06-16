@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -30,39 +31,56 @@ public class ParallelCoordinatesDTO {
 	String geneSymbol;
 	String geneAccession;
 	HashMap<String, MeanBean> means;
+	ArrayList<Parameter> allColumns;
 	String group;
 	
-	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, ArrayList<String> allColumns){
+	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, ArrayList<Parameter> allColumns){
 		this.geneAccession = geneAccession;
 		this.geneSymbol = geneSymbol;
 		this.group = group;
 		means = new HashMap<>();
-		for (String column: allColumns){
-			means.put(column, new MeanBean( null, null, column, null, null));
+		this.allColumns = allColumns;
+		for (Parameter column: allColumns){
+			means.put(column.getName(), new MeanBean( null, column.getStableId(), column.getName(), column.getStableKey(), null));
 		}
 	}
 	
 	public void addMean( String unit, String parameterStableId,
-	String parameterName, String parameterStableKey, Double mean){
+	String parameterName, Integer parameterStableKey, Double mean){
 		means.put(parameterName, new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
 	}
 	
-	public String toString(){
+	public String toString(boolean onlyComplete){
 		String res = "";
-		res += "\"name\": \"" + geneSymbol + "\",";
-		res += "\"group\": \"" + group + "\",";
-		int i = 0; 
-		for (MeanBean mean : this.means.values()){
-			res += "\"" + mean.parameterName + "\": ";
-			res += mean.mean;
-			i++;
-			if (i < this.means.size()){
-				res +=", ";
+		
+		if (onlyComplete && isComplete() || !onlyComplete){			
+			res += "\"name\": \"" + geneSymbol + "\",";
+			res += "\"group\": \"" + group + "\",";
+			int i = 0; 
+			for (MeanBean mean : this.means.values()){
+				res += "\"" + mean.parameterName + "\": ";
+				res += mean.mean;
+				i++;
+				if (i < this.means.size()){
+					res +=", ";
+				}
 			}
 		}
 		return res;
 	}
 	
+	public boolean isComplete(){
+		
+		boolean complete = true;
+		for (MeanBean row: means.values()){
+			if (row.mean == null){
+				complete = false;
+				System.out.println(this.geneSymbol + " not complete");
+				break;
+			}
+		}
+		return complete;
+	}	
 	
 	public JSONObject getJson(){
 		JSONObject obj = new JSONObject();
@@ -78,11 +96,11 @@ public class ParallelCoordinatesDTO {
 		String unit;
 		String parameterStableId;
 		String parameterName;
-		String parameterStableKey;
+		Integer parameterStableKey;
 		Double mean;
 		
 		public MeanBean(String unit, String parameterStableId,
-		String parameterName, String parameterStableKey, Double mean){
+		String parameterName, Integer parameterStableKey, Double mean){
 			this.unit = unit;
 			this.parameterName = parameterName;
 			this.parameterStableId = parameterStableId;

@@ -38,8 +38,8 @@
 
       // Extract the list of dimensions and create a scale for each.
       x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
-        return d != "name" && d != "group" && d != "id" &&
-               (y[d] = d3.scale.linear()
+        return d != "name" && d != "group" &&  d != "id" && 
+        	(y[d] = d3.scale.linear()
             .domain(d3.extent(cars, function(p) { return +p[d]; }))
             .range([h, 0]));
       }));
@@ -102,7 +102,7 @@
           .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
           .append("svg:text")
           .attr("text-anchor", "start")
-          .attr("y", -9).attr("transform", function(d) {
+          .attr("y", 0).attr("transform", function(d) {
               return "rotate(-90)" 
           })
           .text(String);
@@ -122,7 +122,15 @@
       
       // Returns the path for a given data point.
       function path(d) {
-        return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
+        //return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
+    	  
+    	  return line(dimensions.map(function(p) {
+    		    // check for undefined values
+    		    if (d[p] == null) {
+    		    //	return [x(p), null];
+    		    }
+    		    return [x(p), y[p](d[p])];
+    		  }));
       }
       
       // Handles a brush event, toggling the display of foreground lines.

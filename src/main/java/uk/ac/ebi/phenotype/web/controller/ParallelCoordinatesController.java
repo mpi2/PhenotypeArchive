@@ -39,7 +39,7 @@ public class ParallelCoordinatesController {
 	throws SolrServerException{
 		
 		model.addAttribute("procedure", "Clinical Blood Chemistry");
-		String data = os.getMeansFor("IMPC_CBC_*");
+		String data = os.getMeansFor("IMPC_CBC_*", true);
 		System.out.println(data);
 		model.addAttribute("dataJs", data + ";");
 		
