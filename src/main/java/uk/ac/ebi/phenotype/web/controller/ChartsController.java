@@ -224,6 +224,7 @@ public class ChartsController {
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
+        String metadata = null;
         String[] parameterUnits = parameter.checkParameterUnits();
         String xUnits = "";
         String yUnits = "";
@@ -310,11 +311,15 @@ public class ChartsController {
                 // if we don't already have the pipeline from the url params get it via the experiment returned
                 pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
             }
-
+            
+            if (experiment.getMetadataGroup() != null){
+            	metadata = experiment.getMetadataHtml();
+            }
+            
             String xAxisTitle = xUnits;
             BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
             setTitlesForGraph(model, expBiologicalModel);
-
+           
             try {
 				// if (chartType == null){
                 // chartType = GraphUtils.getDefaultChartType(parameter);
@@ -387,6 +392,7 @@ public class ChartsController {
             }
 
             model.addAttribute("pipeline", pipeline);
+            model.addAttribute("metadata", metadata);
             model.addAttribute("phenotypingCenter", phenotypingCenter);
             model.addAttribute("experimentNumber", experimentNumber);
             model.addAttribute("statsError", statsError);

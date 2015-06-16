@@ -426,13 +426,17 @@ public class ExperimentDTO {
         return metadata;
     }
     public String getMetadataHtml() {
+
     	String html = "";
-    	if (metadata != null){
+    	if (metadataGroup != null){
+    		html += "<span title='";
 	    	for (String m: metadata){
 	    		html += m + "\n";	
 	    	}
+	    	html += "'>" + metadataGroup + "</span>";
+	    	System.out.println("\n\n" + html);
     	}
-        return html;
+    	return html;
     }
 
     /**
