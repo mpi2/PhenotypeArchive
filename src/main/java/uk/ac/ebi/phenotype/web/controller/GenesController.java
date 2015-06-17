@@ -296,9 +296,6 @@ public class GenesController {
 			e.printStackTrace();
 		}
 		
-		
-		
-		
 		processPhenotypes(acc, model, "", request);
 
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
@@ -413,18 +410,6 @@ public class GenesController {
 		model.addAttribute("phenotypes", l);
 
 	}
-
-	private JSONObject checkGwasMapping(GenomicFeature gene){
-		
-		JSONObject gw = new JSONObject(); 
-		String markerSymbol = gene.getSymbol();
-		
-		
-		
-		
-		return gw;
-	}
-	
 	
 	private Map<String, List<Map<String, String>>> getProviders(List<Map<String, String>> constructs)
 	throws org.json.JSONException {
