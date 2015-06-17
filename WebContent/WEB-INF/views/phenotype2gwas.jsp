@@ -8,11 +8,11 @@
     <jsp:attribute name="header">
         
 
-        <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+        <!-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> -->
 
         <!--  <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />-->
-        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
-         <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
+        <link rel="stylesheet" href="${baseUrl}/css/searchPage.css" />
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css" />
         
         <style type="text/css">
         	div#mk {
@@ -174,8 +174,10 @@
             	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
                });
                
-               $('ul.ui-tabs-nav li:nth-child(2) a').click();  // activate this by default
-              
+               $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+               $('ul.tabs li a#ui-id-1').css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+              	// $('ul.tabs li:nth-child(2) a').click();  // activate this by default, doing this will conflict with aname scroll
+          
             });
             
         </script>
