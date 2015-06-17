@@ -15,20 +15,11 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service.dto;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.ControlStrategy;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.*;
+
+import java.sql.SQLException;
+import java.util.*;
 
 public class ExperimentDTO {
 
@@ -430,9 +421,13 @@ public class ExperimentDTO {
     	String html = "";
     	if (metadataGroup != null){
     		html += "<span title='";
-	    	for (String m: metadata){
-	    		html += m + "\n";	
-	    	}
+            if (metadata != null) {
+                for (String m: metadata){
+                    html += m + "\n";
+                }
+            } else {
+                html += "No metadata\n";
+            }
 	    	html += "'>" + metadataGroup + "</span>";
     	}
     	return html;
