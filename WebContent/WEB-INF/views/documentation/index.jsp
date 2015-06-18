@@ -31,10 +31,12 @@
 
                             <h1>IMPC data portal documentation</h1>
 
-                            <p>Explore how to retrieve mouse phenotype data</p>
 
-                            <h4>The IMPC portal offers a powerful search interface to query information on mouse
-                                production and mouse phenotyping.</h4>
+                            <h4>Explore how to retrieve mouse phenotype data</h4>
+
+                            <p>The IMPC portal offers a powerful search interface to query information on mouse
+                                production and mouse phenotyping.</p>
+
                             <ul>
                                 <li><a href="${drupalBaseUrl}/my-impc/documentation">See IMPC project documentation</a>
                                 </li>
@@ -60,6 +62,22 @@
                                 </li>
                             </ul>
 
+                            <h4>How to cite the IMPC resource / data</h4>
+
+                            <p>To reference the IMPC, please cite:</p>
+                            <blockquote>
+                                1: Koscielny G, et al. The International Mouse Phenotyping Consortium Web Portal, a
+                                unified point of access for knockout mice and related phenotyping data. Nucleic Acids
+                                Res. 2014 Jan. PubMed PMID: 24194600; PubMed Central PMCID: PMC3964955
+                            </blockquote>
+
+                            <p>
+                                In your work you should include the IMPC data release (e.g. Release : 3.1) you extracted
+                                data from, as this allows your future readers to find the data you used. The latest
+                                release can be found on the bottom right of every page in the footer.
+                            </p>
+
+
                             <h4>Release notes</h4>
                             <ul>
                                 <li><a href="release-notes.html">List of new features and changes to this data
@@ -69,9 +87,10 @@
 
                             <h4>Software</h4>
 
-                            <p>The open source software for this website and the statistical analisys is available under <a
-                                    href="https://raw.githubusercontent.com/mpi2/PhenotypeArchive/master/LICENSE">the
-                                Apache 2 license</a>.</p>
+                            <p>The open source software for this website and the statistical analisys is available under
+                                <a
+                                        href="https://raw.githubusercontent.com/mpi2/PhenotypeArchive/master/LICENSE">the
+                                    Apache 2 license</a>.</p>
                             <ul>
                                 <li><a href="https://github.com/mpi2/PhenotypeArchive">Core data archive web application
                                     software available here</a>
