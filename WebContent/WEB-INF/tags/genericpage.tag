@@ -127,27 +127,28 @@
         <link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
         <script>
-    var baseUrl = "${baseUrl}";
-    var solrUrl = '${solrUrl}';
-    var drupalBaseUrl = "${drupalBaseUrl}";
-    var mediaBaseUrl = "${mediaBaseUrl}";
-    console.log("mediaBaseUrl set="+mediaBaseUrl);
-    var pdfThumbnailUrl = "${pdfThumbnailUrl}";
-    console.log("pdfThumbnailUrl set="+pdfThumbnailUrl);
-
             <%--
             Some browsers do not provide a console object see:
             http://stackoverflow.com/questions/690251/what-happened-to-console-log-in-ie8
             http://digitalize.ca/2010/04/javascript-tip-save-me-from-console-log-errors/
             // In case we forget to take out console statements. IE fails otherwise
             --%>
-    try {
-        console.log(" ");
-    } catch (err) {
-        var console = {};
-        console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function () {
-        };
-    }
+            try {
+                console.log(" ");
+            } catch (err) {
+                var console = {};
+                console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function () {
+                };
+            }
+
+            var baseUrl = "${baseUrl}";
+            var solrUrl = '${solrUrl}';
+            var drupalBaseUrl = "${drupalBaseUrl}";
+            var mediaBaseUrl = "${mediaBaseUrl}";
+            console.log("mediaBaseUrl set="+mediaBaseUrl);
+            var pdfThumbnailUrl = "${pdfThumbnailUrl}";
+            console.log("pdfThumbnailUrl set="+pdfThumbnailUrl);
+
         </script>
 
         <%--
@@ -287,8 +288,7 @@
                                     <ul>
                                         <li><a href="${drupalBaseUrl}/data/release">Release: ${releaseVersion}</a></li>
                                         <li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">FTP</a></li>
-                                        <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
-                                        <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
+                                        <li><a href="${baseUrl}/documentation/index">Help/Documentation</a></li>
                                     </ul>
                                 </div>
 
