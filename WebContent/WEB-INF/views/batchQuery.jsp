@@ -6,9 +6,8 @@
     <jsp:attribute name="title">IMPC dataset batch query</jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/batchQuery">&nbsp;Batch query</a></jsp:attribute>
     <jsp:attribute name="header">
+    
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-        <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
         
         <style type="text/css">
 
@@ -267,15 +266,15 @@
        			        }
        			    }
                 });
-                    
-                
                 
                 $( "#accordion" ).accordion();
                 
                 // reset to default when page loads
                 $('input#gene').prop("checked", true) // check datatyep ID as gene by default 
                 $('input#datatype').val("gene"); // default
-                $('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
+                //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
+                
+                
                 freezeDefaultCheckboxes();
                 chkboxAllert();
                 var currDataType  = false;
@@ -296,8 +295,8 @@
                 		$('td.idnote').text($(this).attr("value"));
                 		//console.log($(this).attr('id'));
                 		var id = $(this).attr('id');
-                		$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
-                		
+                		//$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
+                		$('div#fullDump').html("Please refer to our FTP site");
                 		// load dataset fields for selected datatype Id
                 		$.ajax({
                         	url: baseUrl + '/batchquery2?core=' + currDataType,
@@ -444,7 +443,7 @@
                  	fetchBatchQueryDataTable(oConf);
                  }
                  else {
-                 	alert ("Please tick the checkbox to fetch the full datasete");
+                 	alert ("Please tick the checkbox to fetch the full dataset");
                  }
                  return false;
             }
@@ -483,7 +482,7 @@
             			continue;
             		}
             		var currId = aVals[i].toUpperCase().trim();
-            		var errMsg = "ERROR - " + currId + " is not an expected " + dataType + " identifier";
+            		var errMsg = "ERROR - " + currId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
             		
             		if ( dataType == 'disease' ){
             			if ( ! (currId.indexOf('OMIM') == 0 ||  
@@ -666,7 +665,7 @@
 										  	<td><input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
 										  	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
-										  	<input type="radio" id="hp" value="HP:0003119" name="dataType" class='bq'>HP
+										  	<input type="radio" id="hp" value="HP:0003119" name="dataType" class='bq'>HP<br>
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:1409 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="ma" value="MA:0000141" name="dataType" class='bq'>MA</td></tr>
 										  	<tr><td><span class='cat'>Symbol:</span></td>
@@ -704,7 +703,8 @@
 											  <p class='header'>Full dataset</p>
 											  <form>
 											  	<div id='fullDump'></div>
-											  	<input type="submit" id="fulldata" name="" value="Submit" onclick="return fetchFullDataset()" /><p>
+											  	Please use our <a href='ftp://ftp.ebi.ac.uk/pub/databases/impc/'>FTP</a> site for large dataset.
+											  	<!-- <input type="submit" id="fulldata" name="" value="Submit" onclick="return fetchFullDataset()" /><p> -->
 											  </form>
 											</div>
 										  	

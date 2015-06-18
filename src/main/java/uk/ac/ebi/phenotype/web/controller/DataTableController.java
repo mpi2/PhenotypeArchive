@@ -109,14 +109,14 @@ public class DataTableController {
     public ResponseEntity<String> bqDataTableJson(
 		@RequestParam(value = "idlist", required = true) String idlist,
 		@RequestParam(value = "fllist", required = true) String fllist,
-		@RequestParam(value = "corename", required = true) String solrCoreName,
+		@RequestParam(value = "corename", required = true) String dataTypeName,
         HttpServletRequest request,
         HttpServletResponse response,
         Model model) throws IOException, URISyntaxException, SolrServerException {
 
     	String content = null;
     	
-    	/*if ( solrCoreName.equals("hp") ){
+    	/*if ( dataTypeName.equals("hp") ){
     		// need to combine query results from phenodigm and mp cores
     		
     		// fetch all mp ids mapped to the hp ids requested
@@ -135,12 +135,12 @@ public class DataTableController {
     			System.out.println(e.getMessage());
     		}
     	}*/
-    	if ( solrCoreName.equals("ensembl") ){
-    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, solrCoreName);
+    	if ( dataTypeName.equals("ensembl") ){
+    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName);
     	}
-    	else if ( solrCoreName.equals("marker_symbol") ){
-    		solrCoreName = "gene";
+    	else if ( dataTypeName.equals("marker_symbol") ){
+    		dataTypeName = "gene";
     		
     		String[] marker_symbols = StringUtils.split(idlist, ",");
     		List<String> idlist2 = new ArrayList<>(); 
@@ -151,13 +151,12 @@ public class DataTableController {
     		}
     		
     		idlist = StringUtils.join(idlist2,",");
-    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, solrCoreName);
-    		
+    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName);
     	}
     	else {
-    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, solrCoreName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, solrCoreName);
+    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName);
     	}
     	
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
@@ -305,12 +304,30 @@ public class DataTableController {
     	return j;
     }
     
-    public String fetchBatchQueryDataTableJson(HttpServletRequest request, QueryResponse solrResponse, String fllist, String solrCoreName) {
+    public String fetchBatchQueryDataTableJson(HttpServletRequest request, QueryResponse solrResponse, String fllist, String dataTypeName) {
+    	
+    	System.out.println("**** fetchBatchQueryDataTableJson");
+    	String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+    	String baseUrl = request.getAttribute("baseUrl").toString();
     	
     	String[] flList = StringUtils.split(fllist, ",");
     	
     	SolrDocumentList results = solrResponse.getResults();
     	int totalDocs = results.size();
+    	
+    	Map<String, String> coreField = new HashMap<>();
+    	coreField.put("gene", "mgi_accession_id");
+    	coreField.put("marker_name", "mgi_accession_id");
+    	coreField.put("ensembl", "mgi_accession_id");
+    	coreField.put("mp", "mp_id");
+    	coreField.put("ma", "ma_id");
+    	coreField.put("disease", "disease_id");
+    	
+    	Map<String, String> path = new HashMap<>();
+    	path.put("gene", "genes");
+    	path.put("mp", "phenotypes");
+    	path.put("ma", "anatomy");
+    	path.put("disease", "disease");
     	
     	JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
@@ -334,16 +351,15 @@ public class DataTableController {
 				
 				if ( fieldName.equals("images_link") ){
 					
-					String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-					String baseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
+					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
 
 					String qryField = null;
 					String imgQryField = null;
-					if ( solrCoreName.equals("gene") ){
+					if ( dataTypeName.equals("gene") ){
 						qryField = "mgi_accession_id";
 						imgQryField = "gene_accession_id";
 					}
-					else if (solrCoreName.equals("ma") ){
+					else if (dataTypeName.equals("ma") ){
 						qryField = "ma_id";
 						imgQryField = "ma_id";
 					}
@@ -354,7 +370,7 @@ public class DataTableController {
 						accStr = imgQryField + ":\"" + (String) acc + "\"";
 					}
 					
-					String imgLink = "<a target='_blank' href='" + hostName + baseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					String imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
 					
 					rowData.add(imgLink);
 				}
@@ -370,6 +386,11 @@ public class DataTableController {
 							Set<Object> valSet = new HashSet<>(vals);
 							value = StringUtils.join(valSet, ", ");	
 							
+							if ( !dataTypeName.equals("hp") && coreField.get(dataTypeName).equals(fieldName) ){
+								String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
+								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + path.get(coreName) + "/" + value + "'>" + value + "</a>";
+								System.out.println("NOW: "+ value);
+							}
 						} catch ( ClassCastException c) {
 							value = docMap.get(fieldName).toString();
 						}

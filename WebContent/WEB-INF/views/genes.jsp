@@ -117,7 +117,7 @@
             $(function() {
             	console.log('calling tabs now');
             	
-                $( "#tabs" ).tabs({selected: 1});
+                $( "#tabs" ).tabs();
                 
                 $('ul.tabs li a').click(function(){
              	   $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
@@ -156,58 +156,10 @@
 	        		color: white;
 	        		background-color: gray; 
 	        	}
-	        	div#tabs table {
-	        		font-size: 14px;
-	        		color: #666;
-	        	}
 	        	div.ui-tabs-panel {
 	        		padding: 0 !important;
 	        	}
-	        	/*table.dataTable caption {
-	        		font-weight: bold;
-	        		padding: 3px 5px;
-	        		background-color: #F2F2F2;
-	        		border-radius: 5px;
-	        	}
-	        	table.dataTable td a {
-	        		text-decoration: none;
-	        		color: #0978a1;
-	        	}
-	        	.trtName {
-	        		font-family: Arial !important;
-	        		font-weight: bold !important;
-	        		font-size: 16px !important;
-	        		color: black;
-	        	}
 	        	
-	            div.dataTables_info {
-	            	font-size: 14px;
-	            	padding-bottom: 20px !important;
-	            }
-	            div.dataTables_filter {
-	            	font-size: 14px;
-	            }
-	            table.dataTable span.highlight {
-	                background-color: yellow;
-	                font-weight: bold;
-	                color: black;
-	            }
-	            div#toolBox {
-	            	font-size: 12px;
-	            }
-	            div#tableTool {
-	                position: relative;
-	                top: -70px;
-	                float: right;
-	            }
-	            form#dnld {
-	            	padding: 5px;
-	            	border-radius: 5px;
-				    background: #F2F2F2;
-	            }
-	            form#dnld button {
-	            	text-decoration: none;
-	            }*/
 
             </style>
 
@@ -764,7 +716,7 @@
 
                             <div class="section" id="order2">
                                 <h2 class="title documentation">Order Mouse and ES Cells
-                                    <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
+                                    <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a> 
                                 </h2>
                                 <div class="inner">
                                     <div id="allele2"></div>
