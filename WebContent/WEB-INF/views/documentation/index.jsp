@@ -36,7 +36,8 @@
                             <h4>The IMPC portal offers a powerful search interface to query information on mouse
                                 production and mouse phenotyping.</h4>
                             <ul>
-                                <li><a href="${drupalBaseUrl}/my-impc/documentation">See IMPC project documentation</a></li>
+                                <li><a href="${drupalBaseUrl}/my-impc/documentation">See IMPC project documentation</a>
+                                </li>
                                 <li><a href="search-help.html">How to find the data you want</a></li>
                             </ul>
 
@@ -61,7 +62,22 @@
 
                             <h4>Release notes</h4>
                             <ul>
-                                <li><a href="release-notes.html">List of new features and changes to this release</a>
+                                <li><a href="release-notes.html">List of new features and changes to this data
+                                    release</a>
+                                </li>
+                            </ul>
+
+                            <h4>Software</h4>
+
+                            <p>The open source software for this website and the statistical analisys is available under <a
+                                    href="https://raw.githubusercontent.com/mpi2/PhenotypeArchive/master/LICENSE">the
+                                Apache 2 license</a>.</p>
+                            <ul>
+                                <li><a href="https://github.com/mpi2/PhenotypeArchive">Core data archive web application
+                                    software available here</a>
+                                </li>
+                                <li><a href="https://github.com/mpi2/stats_working_group">PhenStat R package source code
+                                    available here</a>
                                 </li>
                             </ul>
 
