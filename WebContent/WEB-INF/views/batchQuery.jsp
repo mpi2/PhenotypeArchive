@@ -199,6 +199,10 @@
         		color: white;
         		background-color: gray; 
         	}
+        	a {
+        		color: #0978a1 !important;
+        		text-decoration: none;
+        	}
           	
         </style>
         
@@ -276,7 +280,7 @@
                 
                 
                 freezeDefaultCheckboxes();
-                chkboxAllert();
+                //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
                 var currDataType  = false;
                 
                 toggleAllFields();
@@ -305,7 +309,7 @@
                             	$('div#fieldList').html(htmlStr);
                             	freezeDefaultCheckboxes();
                             	toggleAllFields();
-                            	chkboxAllert();
+                            	//chkboxAllert();
                             },
                             error: function() {
                                 window.alert('AJAX error trying to register interest');
@@ -344,7 +348,7 @@
                 		$("div.fl2").find("input[type='checkbox']").prop('checked', true);
                 	}
                 	
-                	resubmit();
+                	//resubmit();
             	});
             }
             
@@ -703,7 +707,7 @@
 											  <p class='header'>Full dataset</p>
 											  <form>
 											  	<div id='fullDump'></div>
-											  	Please use our <a href='ftp://ftp.ebi.ac.uk/pub/databases/impc/'>FTP</a> site for large dataset.
+											  	Please use our <a href='ftp://ftp.ebi.ac.uk/pub/databases/impc/' target='_blank'>FTP</a> site for large dataset.
 											  	<!-- <input type="submit" id="fulldata" name="" value="Submit" onclick="return fetchFullDataset()" /><p> -->
 											  </form>
 											</div>
