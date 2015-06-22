@@ -351,6 +351,9 @@
                                             </c:forEach>
 
                                         </c:when>
+                                        <c:when test="${hasPreQcData}">
+                                            <!-- Only pre QC data available, suppress post QC phenotype summary -->
+                                        </c:when>
                                         <c:otherwise>
                                             <div class="alert alert-info">There are currently no IMPC phenotype associations for the gene ${gene.symbol} </div> <br/>
                                         </c:otherwise>
