@@ -66,18 +66,26 @@
             return "stroke:" + colors[d.group] + ";";
           });
       
-      var points = svg.selectAll(".point")
-	      .data(cars)
-	      .enter().append("svg:circle")
-	          .attr("cx", function (d,i) { 
-	        	  console.log("point pos: " + dimensions.map(function(p) { return x(p);})[i] + "   " + dimensions.map(function(p) { return y[p](d[p]); })[i]); 
-	        	  return dimensions.map(function(p) { return x(p);})[i];
-	          }) //x(d) not working, == position(d)
-	          .attr("cy", function (d,i) { 
-	        	  return dimensions.map(function(p) { return y[p](d[p]); })[i] ;
-	          })
-	          .attr("r", 2);
-      
+      var series = svg.selectAll(".series")
+      	.data(cars)
+      	.enter().append("svg:g")
+      	.attr("class", "series");
+
+      var point  = series.selectAll(".point")
+	  	.data(dimensions.map(function(p) {
+	  		return p;	  		
+    	 }))
+	  	.enter().append("svg:circle")
+	   	.attr("cx", function (d,i,j) { 
+	       	  console.log("Dimensions for " + d + " point pos: " + i + "  " + j + " + y= " + cars[j][d] + "  ==  " + y[d](cars[j][d]) + " x=" + x(i)); 
+		 	  return x(i);
+		}) 
+		.attr("cy", function (d,i,j) { 
+		  	  return y[d](cars[j][d]) ;
+		})
+		.attr("r", function (d,i,j) { 
+		  	  return getRadius(cars[j][d]) ;
+		});
       
       
       // Add a group element for each dimension.
@@ -179,6 +187,13 @@
       function transition(g) {
         return g.transition().duration(500);
       }
+      
+      function getRadius(y) {
+    	  if (y == null){
+    		  return 2;
+    	  }
+          return 0;
+        }
       
       self.highlight = function(i) {
         if (typeof i == "undefined") {
