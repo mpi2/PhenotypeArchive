@@ -172,7 +172,7 @@ table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
 div#tableTool {
 	font-size: 14px;
 	position: relative;
-	top: -120px;
+	top: -140px;
 	right: 0;	
 }
 div#saveTable {

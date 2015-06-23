@@ -60,22 +60,49 @@ public class ToolsController {
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl") .toString();
+		
 		List<String> toolBoxes = new ArrayList<>();
-		Map<String, String> tools = new HashMap<>(); 
-		tools.put("IMPC/IKMC publications", "alleleref");
+		
+		Map<String, String> toolSet = new HashMap<>(); 
+		toolSet.put("alleleref", "IMPC/IKMC publications browser");
+		toolSet.put("reports/gene2go", "GO annotations to phenotyped IMPC genes");
+		
+		Map<String, String> toolLabel = new HashMap<>(); 
+		toolLabel.put("alleleref", "IMPC/IKMC publications browser");
+		toolLabel.put("reports/gene2go", "GO annotations to phenotyped IMPC genes");
+		
+		Map<String, String> toolImg = new HashMap<>(); 
+		toolImg.put("alleleref", baseUrl + "/img/pubmed_logo.jpg");
+		toolImg.put("reports/gene2go", baseUrl + "/img/go_logo.png");
+		
+		Map<String, String> toolDesc = new HashMap<>();
+		toolDesc.put("alleleref", "This is a table of IMPC/IKMC related publications. "
+				+ "The interface contains a filter where users can type in keywords to search for related papers. "
+				+ "The keyword is searched against allele symbol, paper title, Journal title, date of publication and grant agency."
+				);
+		toolDesc.put("reports/gene2go", "This is a tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms "
+				+"(automated electronic, curated computational and experimental). "
+				+"It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. "
+				+"Users can also export the dataset as TSV or Excel format.");
 		
 		
-		Iterator it = tools.entrySet().iterator();
+		Iterator it = toolSet.entrySet().iterator();
 	    while (it.hasNext()) {
+	    	
 	        Map.Entry pair = (Map.Entry)it.next();
-	        System.out.println(pair.getKey() + " = " + pair.getValue());
-	        String toolName = (String) pair.getKey();
-	        String toolLink = (String) pair.getValue();
+	        String toolLink = (String) pair.getKey();
+	        String toolName = (String) pair.getValue();
 	        String toolAbout = "Info about this tool";
-	        toolBoxes.add("<span class='toolName'>"+toolName+"</span>");  
-	        String infoImgLink = "/sites/mousephenotype.org/files/images/IMPC%20magazine%20article%20image_Steve%20Brown_25_02_15.png";
-	        toolBoxes.add("<img src='>"+infoImgLink+"'></img>");  
-	        toolBoxes.add("<div class='toolLink'><a href='"+ hostName + baseUrl + "/" + toolLink+"'>References using IKMC and IMPC resources</a></div>");  
+
+	        String infoImgLink = toolImg.get(toolLink);
+	        
+	        String trs = "";
+	        trs += "<tr><td colspan=2 class='toolName'><a href='"+ hostName + baseUrl + "/" + toolLink+"'>"+toolName+"</a></td></tr>";
+	        trs += "<tr><td><img class='toolImg' src='"+infoImgLink+"'></img></td>";
+	       // trs += "<td><a href='"+ hostName + baseUrl + "/" + toolLink+"'>References using IKMC and IMPC resources</a></td></tr>";
+	        trs += "<td class='toolDesc'>" + toolDesc.get(toolLink) + "</td></tr>";
+	        
+	        toolBoxes.add("<table class='tools'>" + trs + "</table>");
 	        
 	        it.remove(); // avoids a ConcurrentModificationException
 	    }
