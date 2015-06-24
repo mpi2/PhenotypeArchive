@@ -94,6 +94,7 @@ public class ExperimentService {
         LOG.debug("metadataGroup parmeter is=" + metaDataGroup);
 
         List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterId, pipelineId, geneAccession, zygosities, phenotypingCenterId, strain, sex, metaDataGroup, alleleAccession);
+        System.out.println("observations is :" + observations);
         Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 
         for (ObservationDTO observation : observations) {
