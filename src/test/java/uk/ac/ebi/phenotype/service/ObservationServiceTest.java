@@ -143,6 +143,16 @@ public class ObservationServiceTest {
 			}
 		}
 
+		for (Map<String, String> result : dataMapList) {
+			if (result.get("procedure_group").equals("SLM_PBI")) {
+				for (String k : result.keySet()) {
+					System.out.println("k: " + k);
+					System.out.println("v: " + result.get(k));
+				}
+				break;
+			}
+		}
+
 	}
 
 
