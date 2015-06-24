@@ -25,7 +25,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
-import uk.ac.ebi.phenotype.service.dto.MaDTO;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
@@ -136,7 +135,7 @@ public class SolrUtils {
 
         int pos = 0;
         long total = Integer.MAX_VALUE;
-        SolrQuery query = new SolrQuery(MaDTO.MA_TERM + ":*");
+        SolrQuery query = new SolrQuery(SangerImageDTO.MA_TERM_ID + ":*");
         query.setRows(BATCH_SIZE);
         while (pos < total) {
             query.setStart(pos);
