@@ -44,6 +44,7 @@ import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
+import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -54,11 +55,15 @@ import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class ObservationService extends BasicService {
@@ -74,6 +79,7 @@ public class ObservationService extends BasicService {
 
         this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
     }
+
 
 
     public ObservationService(String solrUrl) {
@@ -1202,6 +1208,7 @@ public class ObservationService extends BasicService {
         }
         return res;
     }
+
 
 
     /**

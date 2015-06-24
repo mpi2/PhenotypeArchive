@@ -1,27 +1,31 @@
+
 /**
  * @author tudose
  */
 package uk.ac.ebi.phenotype.loader;
 
-import java.io.File;
-
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import uk.ac.ebi.phenotype.service.ObservationService;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 /**
@@ -30,52 +34,65 @@ import uk.ac.ebi.phenotype.service.ObservationService;
  */
 public class ParallelCoordinatesLoader {
 
-	private ObservationService os;
-	
     static final String CONTEXT_ARG = "context";
     private static final Logger logger = LoggerFactory.getLogger(ParallelCoordinatesLoader.class);
-	
 
-    public static void main(String[] args) 
+    @Autowired
+    private ObservationService os;
+
+
+    public static void main(String[] args)
     throws Exception {
 
-		ParallelCoordinatesLoader main = new ParallelCoordinatesLoader(args);		
-        main.getDataFor();
-		
-    }
-	
-    
-    public void getDataFor() 
-    throws SolrServerException{
-    	
-    	System.out.println("null " + (os == null));
-		String data = os.getMeansFor("IMPC_CBC_*", true);
-		System.out.println(data);
+        ParallelCoordinatesLoader loader = new ParallelCoordinatesLoader();
+        loader.initialise(args);
+        loader.getDataFor();
+       
     }
     
-    
-	public ParallelCoordinatesLoader(String[] args) 
-	throws Exception {
-		
 
-        ApplicationContext applicationContext;
+    public void getDataFor()
+    throws SolrServerException{
+       
+        String data = os.getMeansFor("IMPC_CBC_*", true);
+        File f = new File("WebContent/resources/js/data/IMPC_CBC.js");
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(f));
+			out.write(data);
+	        out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        System.out.println(data);
+        System.out.println(f.getAbsolutePath());
+    }
+
+
+    private void initialise(String[] args)
+    throws Exception {
+       
         OptionSet options = parseCommandLine(args);
-     
+
         if (options != null) {
-        	
-            applicationContext = loadApplicationContext((String) options.valuesOf(CONTEXT_ARG).get(0));
-            os = applicationContext.getBean(ObservationService.class);
-            
+
+            ApplicationContext applicationContext = loadApplicationContext((String) options.valuesOf(CONTEXT_ARG).get(0));
+
+            applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+            PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
+            DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
+            transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+            transactionManager.getTransaction(transactionAttribute);
+
         } else {
             throw new Exception("Failed to parse command-line options.");
         }
-		logger.info("Process finished.  Exiting.");
+        logger.info("Process finished.  Exiting.");
 
     }
-	
-	
-	protected static OptionSet parseCommandLine(String[] args) {
-		
+    
+    
+    private OptionSet parseCommandLine(String[] args) {
+       
         OptionParser parser = new OptionParser();
         OptionSet options = null;
 
@@ -100,10 +117,10 @@ public class ParallelCoordinatesLoader {
 
         return options;
     }
-	
+    
 
-    protected ApplicationContext loadApplicationContext(String context) {
-    	
+    private ApplicationContext loadApplicationContext(String context) {
+       
         ApplicationContext appContext;
 
         // Try context as a file resource.
@@ -117,9 +134,19 @@ public class ParallelCoordinatesLoader {
             logger.info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
         }
-            
+
         logger.info("Context loaded");
-        
+
         return appContext;
+    }
+
+
+    public ObservationService getOs() {
+        return os;
+    }
+
+
+    public void setOs(ObservationService os) {
+        this.os = os;
     }
 }
