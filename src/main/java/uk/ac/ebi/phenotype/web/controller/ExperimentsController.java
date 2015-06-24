@@ -35,19 +35,14 @@ import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.dao.AlleleDAO;
-import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -64,34 +59,19 @@ public class ExperimentsController {
 	private final Logger log = LoggerFactory.getLogger(ExperimentsController.class);
 	
 	@Autowired
-	private GenomicFeatureDAO genesDao;
-	
-	@Autowired
 	private AlleleDAO alleleDao;
 
 	@Autowired
 	private PhenotypePipelineDAO pipelineDao;
 	
 	@Autowired
-    private StatisticalResultDAO statisticalResultDAO;   
-	
-	@Autowired
 	SolrIndex solrIndex;
 
-	@Autowired
-	private GeneService geneService;
-	
 	@Autowired
 	private StatisticalResultService srService;
 
 	@Autowired
 	private ObservationService observationService;
-	
-	@Autowired
-	private PhenotypeSummaryDAO phenSummary;
-	
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
 	
 	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
@@ -126,6 +106,7 @@ public class ExperimentsController {
 		}
 		
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
+		System.out.println("Pipeline ("+pipelineStableId+") is : " + pipeline.getStableId());
 
 		System.out.println("Time to do pipelineDao.getPhenotypePipelineByStableId: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
 
