@@ -259,7 +259,7 @@ public class GenesController {
 		
 		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		if ( gwasMappings.size() > 0 ){
-			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
+			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getGwasPhenoMappingCategory());
 		}
 		
 		// code for assessing if the person is logged in and if so have they
