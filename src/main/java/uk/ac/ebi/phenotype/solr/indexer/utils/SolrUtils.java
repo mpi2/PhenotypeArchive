@@ -135,7 +135,7 @@ public class SolrUtils {
 
         int pos = 0;
         long total = Integer.MAX_VALUE;
-        SolrQuery query = new SolrQuery("maTermId:*");
+        SolrQuery query = new SolrQuery(SangerImageDTO.MA_TERM_ID + ":*");
         query.setRows(BATCH_SIZE);
         while (pos < total) {
             query.setStart(pos);
