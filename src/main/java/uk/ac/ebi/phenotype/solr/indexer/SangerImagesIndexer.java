@@ -320,7 +320,9 @@ public class SangerImagesIndexer extends AbstractIndexer {
                                 
                                 
                                 if (annotation.ma_id != null) {
-                                	annotationTermNames.add(uptoDateMaMap.get(annotation.annotationTermId));
+                                	System.out.println("ma id not null");
+                                	System.out.println("uptodatemap result="+uptoDateMaMap.get(annotation.ma_id));
+                                	annotationTermNames.add(uptoDateMaMap.get(annotation.ma_id));
                                     ma_ids.add(annotation.ma_id);
                                     ma_terms.add(annotation.ma_term);
 
@@ -419,8 +421,8 @@ public class SangerImagesIndexer extends AbstractIndexer {
                             o.setMaTopLevelTermIds(maTopLevelTermIds);
                             o.setMaTopLevelTerms(maTopLevelTerms);
                             o.setSelectedTopLevelMaTermSynonym(selected_top_level_ma_term_synonym);
-							// System.out.println("ma_ids=" + ma_ids);
-                            // System.out.println("ma_terms=" + ma_terms);
+							System.out.println("ma_ids=" + ma_ids);
+                            System.out.println("ma_terms=" + ma_terms);
                             o.setMaId(ma_ids);
                             o.setMaTerm(ma_terms);
                             o.setMaTermName(ma_terms);

@@ -543,13 +543,13 @@
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
-                                     				<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
+                                     				<span title="WT Expressed: ${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
-                          							<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
+                          							<span title="WT NOT expressed: ${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
-                          							<i title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></i>
+                          							<i title="WT No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></i>
                           						</c:when>             			
                                      			
                                      			<c:otherwise>
@@ -560,10 +560,10 @@
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${mapEntry.value.expression}">
-                                     				<span title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                     				<span title="Expressed: ${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
                           						<c:when test="${mapEntry.value.notExpressed}">
-                          							<span title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
+                          							<span title="Not Expressed: ${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${mapEntry.value.noTissueAvailable}">
                           							<span title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></span>

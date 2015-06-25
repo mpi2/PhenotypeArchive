@@ -172,7 +172,6 @@
         <field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="geneSynonyms"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="alleleName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="maTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="maTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="mpTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="mpTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -340,7 +339,7 @@
     <copyField source="geneName" dest="auto_suggest" />
     <copyField source="geneSynonyms" dest="auto_suggest" />
     <copyField source="subtype" dest="auto_suggest" />
-    <copyField source="maTermId" dest="auto_suggest" />
+    <copyField source="ma_id" dest="auto_suggest" />
     <copyField source="maTermName" dest="auto_suggest" />
     <copyField source="mpTermId" dest="auto_suggest" />
     <copyField source="mpTermName" dest="auto_suggest" />
@@ -353,7 +352,7 @@
     <copyField source="geneName" dest="text_search" />
     <copyField source="geneSynonyms" dest="text_search" />
     <copyField source="subtype" dest="text_search" />
-    <copyField source="maTermId" dest="text_search" />
+    <copyField source="ma_id" dest="text_search" />
     <copyField source="maTermName" dest="text_search" />
     <copyField source="mpTermId" dest="text_search" />
     <copyField source="mpTermName" dest="text_search" />
