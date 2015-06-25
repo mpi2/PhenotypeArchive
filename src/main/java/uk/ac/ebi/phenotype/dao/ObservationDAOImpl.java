@@ -1,23 +1,23 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.dao;
 
 /**
  * experimental observation manager implementation
- * 
+ *
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  * @since May 2012
  */
@@ -58,12 +58,12 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		try (PreparedStatement statement = getConnection().prepareStatement(query)){
 		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				
+
 				ids.add(resultSet.getInt("id"));
 			}
 		}
 
-		return ids; 			
+		return ids;
 	}
 
 	@Transactional(readOnly = true)
@@ -77,7 +77,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	public List<Parameter> getAllParametersWithObservations() {
 		return getCurrentSession().createQuery("select distinct param from Observation as o inner join o.parameter as param").list();
 	}
-	
+
 	@Transactional(readOnly = true)
 	public List<Integer> getAllParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException {
 	    List<Integer> parameterIds = new ArrayList<Integer>();
@@ -97,7 +97,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			}
 		}
 
-		return parameterIds; 	
+		return parameterIds;
 	}
 
 	@Transactional(readOnly = true)
@@ -120,10 +120,51 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			}
 		}
 
-		return parameterIds; 	
+		return parameterIds;
 	}
 
-	
+
+	public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SQLException {
+		Set<Map<String, String>> candidates = new HashSet<>();
+
+	String query = "SELECT bm.zygosity, bmstrain.strain_acc AS strain_accession_id, e.organisation_id AS phenotyping_center_id, pipeline_id, SUBSTRING_INDEX(e.procedure_stable_id, \"_\", 2) AS procedure_group, parameter_id, metadata_group, bma.allele_acc AS allele_accession_id, bmgf.gf_acc AS gene_accession_id " +
+		"FROM observation o " +
+		"INNER JOIN biological_sample bs ON (o.biological_sample_id=bs.id AND bs.sample_group='experimental') " +
+		"INNER JOIN biological_model_sample bms ON bms.biological_sample_id=o.biological_sample_id " +
+		"INNER JOIN biological_model bm ON bm.id = bms.biological_model_id " +
+		"INNER JOIN biological_model_allele bma ON bma.biological_model_id = bms.biological_model_id " +
+		"INNER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id = bms.biological_model_id " +
+		"INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id = bms.biological_model_id " +
+		"INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
+		"INNER JOIN experiment e ON e.id=eo.experiment_id " +
+		"WHERE o.observation_type='unidimensional' " ;
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)){
+
+			ResultSet resultSet = statement.executeQuery();
+
+			while (resultSet.next()) {
+
+				Map<String, String> candidate = new HashMap<>();
+				candidate.put("zygosity", resultSet.getString("zygosity"));
+				candidate.put("strain_accession_id", resultSet.getString("strain_accession_id"));
+				candidate.put("phenotyping_center_id", resultSet.getString("phenotyping_center_id"));
+				candidate.put("pipeline_id", resultSet.getString("pipeline_id"));
+				candidate.put("procedure_group", resultSet.getString("procedure_group"));
+				candidate.put("parameter_id", resultSet.getString("parameter_id"));
+				candidate.put("metadata_group", (resultSet.getString("metadata_group")==null) ? "" : resultSet.getString("metadata_group"));
+				candidate.put("allele_accession_id", resultSet.getString("allele_accession_id"));
+				candidate.put("gene_accession_id", resultSet.getString("gene_accession_id"));
+
+				candidates.add(candidate);
+			}
+		}
+
+		return new ArrayList<>(candidates);
+	}
+
+
+
 	@Transactional(readOnly = true)
 	public Observation getObservationById(Integer obsId) {
 		return (Observation) getCurrentSession().createQuery("select distinct o from Observation as o where o.id=?")
@@ -132,195 +173,6 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	}
 
 
-	public List<String> getAllStrainsByParameterIdOrganistion(Integer parameterId, Organisation organisation) throws SQLException {
-		List<String> strains = new ArrayList<String>();
-
-		String query = "SELECT DISTINCT strain_acc" 
-		+ " FROM observation obs"
-		+ " INNER JOIN biological_sample bs ON obs.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
-		+ " INNER JOIN biological_model_strain strain ON strain.biological_model_id=bm.id"
-		+ " WHERE parameter_id=?"
-		+ " AND bs.organisation_id=?";
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameterId);
-	        statement.setInt(2, organisation.getId());
-		    ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				strains.add(resultSet.getString("strain_acc"));
-			}
-		}
-
-		return strains;
-	}
-
-	public List<String> getAllStrainsByParameterOrganistion(Parameter parameter, Organisation organisation) throws SQLException {
-		List<String> strains = new ArrayList<String>();
-
-		String query = "SELECT DISTINCT strain_acc" 
-		+ " FROM observation obs"
-		+ " INNER JOIN biological_sample bs ON obs.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
-		+ " INNER JOIN biological_model_strain strain ON strain.biological_model_id=bm.id"
-		+ " WHERE parameter_id=?"
-		+ " AND bs.organisation_id=?";
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameter.getId());
-	        statement.setInt(2, organisation.getId());
-		    ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				strains.add(resultSet.getString("strain_acc"));
-			}
-		}
-
-		return strains;
-	}
-
-	public List<Integer> getAllObservationIdsByParameterGeneAccZygosityOrganisationStrainSex(Parameter parameter, String geneAcc, ZygosityType zygosity, Organisation organisation, String strain, SexType sex) throws SQLException {
-	    List<Integer> ids = new ArrayList<Integer>();
-
-		// Get all the experimental observation IDs
-		String query = "SELECT DISTINCT o.id"
-		+ " FROM observation o"
-		+ " INNER JOIN biological_sample bs ON o.biological_sample_id=bs.id"
-		+ " INNER JOIN live_sample ls ON ls.id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
-		+ " INNER JOIN biological_model_genomic_feature bmgf ON bm.id=bmgf.biological_model_id"
-		+ " INNER JOIN biological_model_strain strain on strain.biological_model_id=bm.id"
-		+ " WHERE o.parameter_id=?"
-		+ " AND o.missing!=1"
-		+ " AND bmgf.gf_acc=?"
-		+ " AND bs.organisation_id=?"
-		+ " AND ls.zygosity=?"
-		+ " AND ls.sex=?"
-		+ " AND strain.strain_acc=?"
-		+ " AND bs.sample_group='experimental'"
-		;
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameter.getId());
-	        statement.setString(2, geneAcc);
-	        statement.setInt(3, organisation.getId());
-	        statement.setString(4, zygosity.name());
-	        statement.setString(5, sex.name());
-	        statement.setString(6, strain);
-		    ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				ids.add(resultSet.getInt("id"));
-			}
-		}
-
-		// Add in the control observation IDs (do not take into account the zygosity of the control samples) 
-		query = "SELECT DISTINCT o.id"
-		+ " FROM observation o"
-		+ " INNER JOIN biological_sample bs ON o.biological_sample_id=bs.id"
-		+ " INNER JOIN live_sample ls ON ls.id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model_strain strain on strain.biological_model_id=bms.biological_model_id"
-		+ " INNER JOIN experiment_observation eo ON eo.observation_id=o.id"
-		+ " INNER JOIN experiment e ON e.id=eo.experiment_id"
-		+ " WHERE o.parameter_id=?"
-		+ " AND o.missing!=1"
-		+ " AND e.organisation_id=?"
-		+ " AND ls.sex=?"
-		+ " AND strain.strain_acc=?"
-		+ " AND bs.sample_group='control'"
-		;
-		
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameter.getId());
-	        statement.setInt(2, organisation.getId());
-	        statement.setString(3, sex.name());
-	        statement.setString(4, strain);
-		    ResultSet resultSet = statement.executeQuery();
-		    int count = 0;
-			while (resultSet.next()) {
-				ids.add(resultSet.getInt("id"));
-				count++;
-			}
-			// If there is no control data, don't save this as a population
-			if(count==0) ids.clear();
-		}
-
-		return ids; 	
-	}
-	
-	@Transactional(readOnly = true)
-	public List<String> getAllGeneAccessionIdsByParameterOrganisationStrainZygositySex(Parameter parameter, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException {
-	    List<String> genes = new ArrayList<String>();
-
-		String query = "SELECT DISTINCT bmgf.gf_acc"
-		+ " FROM observation o"
-		+ " INNER JOIN biological_sample bs ON o.biological_sample_id=bs.id"
-		+ " INNER JOIN live_sample ls ON ls.id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
-		+ " INNER JOIN biological_model_genomic_feature bmgf ON bm.id=bmgf.biological_model_id"
-		+ " INNER JOIN biological_model_strain strain on strain.biological_model_id=bm.id"
-		+ " WHERE o.parameter_id=?"
-		+ " AND bs.organisation_id=?"
-		+ " AND strain.strain_acc=?"
-		+ " AND ls.zygosity=?"
-		+ " AND ls.sex=?"
-		;
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameter.getId());
-	        statement.setInt(2, organisation.getId());
-	        statement.setString(3, strain);
-	        statement.setString(4, zygosity.name());
-	        statement.setString(5, sex.name());
-		    ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				genes.add(resultSet.getString("gf_acc"));
-			}
-		}
-
-		return genes; 	
-	}
-
-
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygositySex(Integer parameterId, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException {
-	    List<String> genes = new ArrayList<String>();
-
-		String query = "SELECT DISTINCT bmgf.gf_acc"
-		+ " FROM observation o"
-		+ " INNER JOIN biological_sample bs ON o.biological_sample_id=bs.id"
-		+ " INNER JOIN live_sample ls ON ls.id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
-		+ " INNER JOIN biological_model_genomic_feature bmgf ON bm.id=bmgf.biological_model_id"
-		+ " INNER JOIN biological_model_strain strain on strain.biological_model_id=bm.id"
-		+ " WHERE o.parameter_id=?"
-		+ " AND bs.organisation_id=?"
-		+ " AND strain.strain_acc=?"
-		+ " AND ls.zygosity=?"
-		+ " AND ls.sex=?"
-		;
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameterId);
-	        statement.setInt(2, organisation.getId());
-	        statement.setString(3, strain);
-	        statement.setString(4, zygosity.name());
-	        statement.setString(5, sex.name());
-
-	        ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				genes.add(resultSet.getString("gf_acc"));
-			}
-		}
-
-		return genes;		
-	}
-
-	
-	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Observation> getAllObservationsByParameter(Parameter parameter) {
@@ -328,7 +180,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			.setInteger(1, parameter.getId())
 			.list();
 	}
-	
+
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<ImageRecordObservation> getAllImageObservations() {
@@ -350,9 +202,9 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	@Transactional(readOnly = false)
 	public void saveExperiment(Experiment experiment) {
 		getCurrentSession().saveOrUpdate(experiment);
-		
+
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllExperimentsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteExperimentByOrganisationAndDatasource")
@@ -368,7 +220,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllCategoricalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllCategoricalObservationsByOrganisationAndDatasource")
@@ -376,7 +228,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllUnidimensionalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllUnidimensionalObservationsByOrganisationAndDatasource")
@@ -384,7 +236,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllMetadataObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllMetadataObservationsByOrganisationAndDatasource")
@@ -392,7 +244,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllExperimentsByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteExperimentByDatasource")
@@ -406,105 +258,105 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
-	
+
+
 	@Transactional(readOnly = false)
 	public int deleteAllTimeSeriesObservationsByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllTimeSeriesObservationsByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllCategoricalObservationsByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllCategoricalObservationsByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllUnidimensionalObservationsByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllUnidimensionalObservationsByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllMetadataObservationsByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllMetadataObservationsByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllMetadataObservationsWithoutExperimentByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllMetadataObservationsWithoutExperimentByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllTimeSeriesObservationsWithoutExperimentByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllTimeSeriesObservationsWithoutExperimentByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllCategoricalObservationsWithoutExperimentByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllCategoricalObservationsWithoutExperimentByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-	
+
 	@Transactional(readOnly = false)
 	public int deleteAllUnidimensionalObservationsWithoutExperimentByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllUnidimensionalObservationsWithoutExperimentByDatasource")
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
 	}
-		
+
 	@Transactional(readOnly = false)
 	public void saveObservation(Observation observation) {
 		getCurrentSession().saveOrUpdate(observation);
-		
+
 	}
-	
+
 	@Transactional(readOnly = false)
 	public Observation createSimpleObservation(
-			ObservationType observationType, 
-			String simpleValue, 
-			Parameter parameter, 
-			BiologicalSample sample, 
+			ObservationType observationType,
+			String simpleValue,
+			Parameter parameter,
+			BiologicalSample sample,
 			Datasource datasource,
 			Experiment experiment, String parameterStatus) {
 		return createObservation(observationType, simpleValue, null, null, parameter, sample, datasource, experiment, parameterStatus);
 	}
-	
+
 	@Transactional(readOnly = false)
 	public Observation createObservation(
-			ObservationType observationType, 
-			String firstDimensionValue, 
+			ObservationType observationType,
+			String firstDimensionValue,
 			String secondDimensionValue,
 			String secondDimensionUnit,
-			Parameter parameter, 
-			BiologicalSample sample, 
+			Parameter parameter,
+			BiologicalSample sample,
 			Datasource datasource,
 			Experiment experiment, String parameterStatus) {
-		
+
 		Observation obs = null;
 //		if (observationType == ObservationType.image_record) {
 //
 ////			logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
-//			
+//
 //			MediaObservation imgObservation = new MediaObservation();
-//			
+//
 ////			if (firstDimensionValue == null || firstDimensionValue.equals("null") || firstDimensionValue.equals("")) {
 ////				imgObservation.setMissingFlag(true);
 ////			} else {
 ////				imgObservation.setDataPoint(Float.parseFloat(firstDimensionValue));
 ////			}
-//			
+//
 //			Date dateOfExperiment = (experiment != null) ? experiment.getDateOfExperiment() : null;
 //			//imgObservation.setTimePoint(secondDimensionValue, dateOfExperiment, secondDimensionUnit);
 //			imgObservation.setDatasource(datasource);
@@ -514,20 +366,20 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 //			imgObservation.setType(observationType);
 //
 //			obs = imgObservation;
-//			
-//		} 
+//
+//		}
 		if (observationType == ObservationType.time_series) {
 
 //			logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
-			
+
 			TimeSeriesObservation seriesObservation = new TimeSeriesObservation();
-			
+
 			if (firstDimensionValue == null || firstDimensionValue.equals("null") || firstDimensionValue.equals("")) {
 				seriesObservation.setMissingFlag(true);
 			} else {
 				seriesObservation.setDataPoint(Float.parseFloat(firstDimensionValue));
 			}
-			
+
 			Date dateOfExperiment = (experiment != null) ? experiment.getDateOfExperiment() : null;
 			seriesObservation.setTimePoint(secondDimensionValue, dateOfExperiment, secondDimensionUnit);
 			seriesObservation.setDatasource(datasource);
@@ -538,9 +390,9 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			seriesObservation.setMissingFlag(false);
 
 			obs = seriesObservation;
-			
+
 		} else if (observationType == ObservationType.metadata) {
-			
+
 			logger.debug("Metadata: " + firstDimensionValue);
 			MetaDataObservation metaDataObservation = new MetaDataObservation();
 			metaDataObservation.setValue(firstDimensionValue);
@@ -553,13 +405,13 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			if (firstDimensionValue.equals("null")) {
 				metaDataObservation.setMissingFlag(true);
 			}
-			
-			obs = metaDataObservation;	
-			
+
+			obs = metaDataObservation;
+
 		} else if (observationType == ObservationType.categorical) {
-	
+
 			 /* Categorical information */
-			 
+
 			logger.debug("Categorical: " + firstDimensionValue);
 			CategoricalObservation categoricalObservation = new CategoricalObservation();
 			categoricalObservation.setCategory(firstDimensionValue);
@@ -572,16 +424,16 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			if (firstDimensionValue.equals("null")) {
 				categoricalObservation.setMissingFlag(true);
 			}
-			
+
 			obs = categoricalObservation;
 
 		} else if (observationType == ObservationType.unidimensional) {
 
-			 /* Unidimensional information */								 
+			 /* Unidimensional information */
 
 			logger.debug("Unidimensional :" + firstDimensionValue);
 			UnidimensionalObservation unidimensionalObservation = new UnidimensionalObservation();
-			
+
 			// parse the floating point value
 			try {
 				unidimensionalObservation.setDataPoint(Float.parseFloat(firstDimensionValue));
@@ -621,11 +473,11 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			obs = datetimeObservation;
 		} else if (observationType == ObservationType.text) {
 
-			 /* Unidimensional information */								 
+			 /* Unidimensional information */
 
 			logger.debug("Text :" + firstDimensionValue);
 			TextObservation textObservation = new TextObservation();
-		
+
 			textObservation.setText(firstDimensionValue);
 			textObservation.setDatasource(datasource);
 			textObservation.setExperiment(experiment);
@@ -636,7 +488,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			obs = textObservation;
 		}
 
-        obs.setParameterStableId(parameter.getStableId());        
+        obs.setParameterStableId(parameter.getStableId());
 
         // Add the status code to the observation if there is one
         if(parameterStatus!=null) {
@@ -650,34 +502,34 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
         }
 
 		return obs;
-		
+
 	}
 
 	@Transactional(readOnly = false)
 	public Observation createTimeSeriesObservationWithOriginalDate(
-			ObservationType observationType, 
-			String firstDimensionValue, 
+			ObservationType observationType,
+			String firstDimensionValue,
 			String secondDimensionValue,
 			String actualTimepoint,
 			String secondDimensionUnit,
-			Parameter parameter, 
-			BiologicalSample sample, 
+			Parameter parameter,
+			BiologicalSample sample,
 			Datasource datasource,
 			Experiment experiment, String parameterStatus) {
-		
+
 		//logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
-		
+
 		TimeSeriesObservation obs = new TimeSeriesObservation();
-		
+
 		if (firstDimensionValue == null || firstDimensionValue.equals("null") || firstDimensionValue.equals("")) {
 			obs.setMissingFlag(true);
 		} else {
 			obs.setDataPoint(Float.parseFloat(firstDimensionValue));
 		}
-		
+
 		Date actualTimePoint = (experiment != null) ? experiment.getDateOfExperiment() : null;
-		
-		// If the center supplied an actual date time, 
+
+		// If the center supplied an actual date time,
 		// use that as the time_point
 		if (actualTimepoint.contains("-")) {
 			DateFormat inputDateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -698,7 +550,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
 		// Add the status code to the observation if there is one
         if(parameterStatus!=null) {
-            
+
             Map<String, String> pStatMap = getParameterStatusAndMessage(parameterStatus);
 
             obs.setParameterStatus(pStatMap.get("status"));
@@ -715,14 +567,14 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	    Map<String, String> pStatusMap = new HashMap<>();
         pStatusMap.put("message", null);
         pStatusMap.put("status", parameterStatus);
-	    
+
        // Add the status code to the observation if there is one
         if(parameterStatus != null) {
 
             String code = parameterStatus;
 
             if(code.contains(":")) {
-    
+
                 String message = code.substring(code.indexOf(":")+1, code.length()).trim();
                 pStatusMap.put("message", message);
 
@@ -744,15 +596,15 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	        }
 
         }
-        
+
         return pStatusMap;
 	}
-        
+
 
     /**
      * Fetch count of records NOT missing but with not null/empty parameter_status or parameter_status_message.
      * @return count, interesting fields
-     * @throws SQLException 
+     * @throws SQLException
      */
     @Override
     @Transactional(readOnly = true)
@@ -797,7 +649,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
     /**
      * Fetch count of records missing that have a null/empty parameter_status.
      * @return count, interesting fields
-     * @throws SQLException 
+     * @throws SQLException
      */
     @Override
     @Transactional(readOnly = true)
@@ -841,7 +693,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
     /**
      * Fetch list of observation.parameter_status that is not in IMPC ontology_term.acc.
      * @return list of missing ontology_term.acc used by observation.parameter_status
-     * @throws SQLException 
+     * @throws SQLException
      */
     @Override
     @Transactional(readOnly = true)
@@ -877,5 +729,5 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
         return data;
     }
-    
+
 }

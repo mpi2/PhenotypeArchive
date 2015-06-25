@@ -10,28 +10,30 @@
 		</c:when>
 		
 	<c:otherwise>
-										
-		<c:if test="${fertilityDTO!=null}">
-	 		<h2 class="title" id="section-associations"> 
-				Allele -<t:formatAllele>${symbol}</t:formatAllele>
-				<span class="documentation" ><a href="" id='generalPanel' class="fa fa-question-circle pull-right"></a></span>	
-		</h2>
-	 	</c:if>
-	 									
-		<c:if test="${viabilityDTO!=null}">
-	 		<h1 class="title">${viabilityDTO.category}</h1>
-	 	</c:if>
-	 	
+											
 		<h2 class="title" id="section-associations"> 
 			Allele -<t:formatAllele>${symbol}</t:formatAllele>
 			<span class="documentation" ><a href="" id='generalPanel' class="fa fa-question-circle pull-right"></a></span>
 		</h2>
-		
+							
+		<c:if test="${viabilityDTO!=null}">
+	 		<h5>${viabilityDTO.category}</h5>
+	 	</c:if>
+	 	
 	  <p>Background	- <t:formatAllele>${geneticBackgroundString}</t:formatAllele>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	    Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	  	<c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipelineUrl}">${pipeline.name }</a></c:if>
 	  </p> 
-						
+		
+		<p>
+			<c:if test="${metadata != null}">
+				Metadata Group - ${metadata}
+			</c:if>
+		</p>
+  		
+		
+		<br/> <br/>			
+			
 		<c:choose>
 				<c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
 						<jsp:include page="scatterStatsFrag.jsp"/>

@@ -1,28 +1,23 @@
-/**
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
-/**
- * Copyright © 2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 
 package org.mousephenotype.www.testing.model;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Pattern;
 import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -50,8 +45,9 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
  *     'continuousTable')</li>
  * </ul>
  */
-public class GraphSection {
+public abstract class GraphSection {
     protected final WebElement chartElement;
+    protected DownloadSection downloadSection;
     protected final WebDriver driver;
     protected final String graphUrl;
     protected final PhenotypePipelineDAO phenotypePipelineDAO;
@@ -59,14 +55,13 @@ public class GraphSection {
     
     private GraphCatTable catTable = null;
     private GraphContinuousTable continuousTable;
-    private Map<TestUtils.DownloadType, String[][]> downloadDataSection = new HashMap();
     private GraphGlobalTestTable globalTestTable;
     private GraphHeading heading;
     private MoreStatisticsLink moreStatisticsLink;
-    private final ChartType chartType;
+    private ChartType chartType = null;
     
     /**
-     * Creates a new <code>GraphPage</code> instance
+     * Creates a new <code>GraphSection</code> instance
      * 
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
@@ -74,19 +69,29 @@ public class GraphSection {
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element
-     * @param chartType the chart type. Used to determine which validator to use.
      * 
      * @throws GraphTestException
      */
-    public GraphSection(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement, ChartType chartType) throws GraphTestException {
+    public GraphSection(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws GraphTestException {
         this.driver = driver;
         this.wait = wait;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.chartElement = chartElement;
-        this.chartType = chartType;
+        this.chartType = getChartType(chartElement);
 
         load();
+    }
+    
+    public PageStatus validate() throws GraphTestException {
+        PageStatus status = new PageStatus();
+        
+        // Verify title contains 'Allele'.
+        if ( ! getHeading().title.startsWith("Allele -")) {
+            status.addError("ERROR: expected title to start with 'Allele -'. Title is '" + getHeading().title + "'. URL: " + graphUrl);
+        }
+        
+        return status;
     }
     
     
@@ -109,12 +114,12 @@ public class GraphSection {
         return continuousTable;
     }
 
-    public Map<TestUtils.DownloadType, String[][]> getDownloadDataSection() {
-        return downloadDataSection;
+    public DownloadSection getDownloadSection() {
+        return downloadSection;
     }
 
-    public void setDownloadDataSection(Map<TestUtils.DownloadType, String[][]> downloadDataSection) {
-        this.downloadDataSection = downloadDataSection;
+    public void setDownloadSection(DownloadSection downloadSection) {
+        this.downloadSection = downloadSection;
     }
 
     public GraphGlobalTestTable getGlobalTestTable() {
@@ -134,6 +139,35 @@ public class GraphSection {
 
     
     /**
+     * Given a chart element, returns the ChartType.
+     * 
+     * @return the ChartType
+     * @param chartElement The chart <code>WebElement</code>.
+     * 
+     * @throws GraphTestException
+     */
+    public static ChartType getChartType(WebElement chartElement) throws GraphTestException {
+        ChartType chartTypeLocal = null;
+        String graphUrlTag = chartElement.getAttribute("graphurl");
+        String[] parts = graphUrlTag.split(Pattern.quote("&"));
+        String chartTypeValue = "";
+        
+        for (String part : parts) {
+            if (part.startsWith("chart_type")) {
+                chartTypeValue = part.replace("chart_type=", "");
+                chartTypeLocal = ChartType.valueOf(chartTypeValue);
+                break;
+            }
+        }
+        
+        if (chartTypeLocal == null) {
+            throw new GraphTestException("GraphSection.getChartType: Invalid chart type '" + chartTypeValue + "'.");
+        }
+        
+        return chartTypeLocal;
+    }
+    
+    /**
      * Load the section data.
      */
     private void load() throws GraphTestException {
@@ -151,6 +185,7 @@ public class GraphSection {
                 this.continuousTable = new GraphContinuousTable(elements.get(0));
             }
             
+            // Scrape this graph's data off the page.
             this.heading = new GraphHeading(wait, phenotypePipelineDAO, chartElement, graphUrl, chartType);
             
             elements = chartElement.findElements(By.xpath("./p/a/i[starts-with(@id, 'toggle_table_buttondivChart_')]"));

@@ -42,14 +42,7 @@ import org.mousephenotype.www.testing.exception.GraphTestException;
 import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
 import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.GraphPage;
-import org.mousephenotype.www.testing.model.GraphSection;
-import org.mousephenotype.www.testing.model.GraphValidator;
-import org.mousephenotype.www.testing.model.GraphValidatorABR;
-import org.mousephenotype.www.testing.model.GraphValidatorCategorical;
 import org.mousephenotype.www.testing.model.GraphValidatorPreqc;
-import org.mousephenotype.www.testing.model.GraphValidatorTimeSeries;
-import org.mousephenotype.www.testing.model.GraphValidatorUnidimensional;
-import org.mousephenotype.www.testing.model.GraphValidatorViability;
 import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.WebDriver;
@@ -165,19 +158,45 @@ public class GraphPageTest {
     // PRIVATE METHODS
     
     
-    private PageStatus graphValidator(String graphUrl, ChartType chartType, GraphValidator validator) throws GraphTestException {
-        PageStatus status = new PageStatus();
+    private void graphEngine(String testName, List<String> graphUrls) throws GraphTestException {
+        Date start = new Date();
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        PageStatus statuses = new PageStatus();
+        int successCount = 0;
         
-        GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl, chartType);
-        for (GraphSection pageSection : graphPage.getDownloadSections()) {
-            validator.setPageSection(pageSection);
-            status.add(validator.validate());
+        int targetCount = graphUrls.size();
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graph pages.");
+        
+        int i = 1;
+        for (String graphUrl : graphUrls) {
+            PageStatus status = new PageStatus();
+            
+            // Skip gene pages without graphs.
+            if (graphUrls.isEmpty())
+                continue;
+            
+            try {
+                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
+                status.add(graphPage.validate());
+                if ( ! status.hasErrors()) {
+                    successCount++;
+                }
+                statuses.add(status);
+
+            } catch (GraphTestException gte) {
+                statuses.addError(gte.getLocalizedMessage());
+            }
+            
+            if (i++ >= targetCount) {
+                break;
+            }
         }
         
-        return status;
+        TestUtils.printEpilogue(testName, start, statuses, successCount, targetCount, graphUrls.size());
+        System.out.println();
     }
     
-    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, ChartType chartType, GraphValidator validator) throws GraphTestException {
+    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, ChartType chartType) throws GraphTestException {
         String target;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -191,18 +210,25 @@ public class GraphPageTest {
         for (GraphTestDTO geneGraph : geneGraphs) {
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
             
-            // Skip gene pages without graphs.
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
             List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName());
+            
+            // Skip gene pages without graphs.
             if (graphUrls.isEmpty())
                 continue;
-            
-            PageStatus status = graphValidator(graphUrls.get(0), chartType, validator);
-            if ( ! status.hasErrors()) {
-                successCount++;
+            try {
+                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrls.get(0), baseUrl);
+                PageStatus status = graphPage.validate();
+                if ( ! status.hasErrors()) {
+                    successCount++;
+                }
+                statuses.add(status);
+                
+            } catch (Exception e) {
+                statuses.addError(e.getLocalizedMessage());
             }
-            statuses.add(status);
+            
             if (i++ >= targetCount) {
                 break;
             }
@@ -221,69 +247,22 @@ public class GraphPageTest {
 //@Ignore
     public void testKnownGraphs() throws GraphTestException {
         String testName = "testKnownGraphs";
-        Date start = new Date();
-        
-        GraphValidatorABR graphValidatorABR = new GraphValidatorABR();
-        GraphValidatorCategorical graphValidatorCategorical = new GraphValidatorCategorical();
-        GraphValidatorUnidimensional graphValidatorUnidimensional = new GraphValidatorUnidimensional();
-        GraphValidatorTimeSeries graphValidatorTimeSeries = new GraphValidatorTimeSeries();
-        PageStatus statuses = new PageStatus();
-        int successCount = 0;
-        
         List<String> graphUrls = Arrays.asList( new String[] {
-            "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1860086&allele_accession=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:107160&allele_accession=MGI:1857493&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2149209&allele_accession=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2146574&allele_accession=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1929878&allele_accession=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC Harwell"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:1862019&zygosity=heterozygote&parameter_stable_id=ESLIM_022_001_713&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"
-          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1915392&allele_accession=MGI:4436542&zygosity=heterozygote&parameter_stable_id=IMPC_OFD_017_001&pipeline_stable_id=IMPC_001&phenotyping_center=ICS"
-        });
-        List<GraphValidator> validators = Arrays.asList(new GraphValidator[] {
-            graphValidatorABR
-          , graphValidatorTimeSeries
-          , graphValidatorTimeSeries
-          , graphValidatorABR
-          , graphValidatorABR
-          , graphValidatorUnidimensional
-          , graphValidatorCategorical
-          , graphValidatorCategorical
-          , graphValidatorUnidimensional
-          , graphValidatorUnidimensional
-          , graphValidatorUnidimensional
-          , graphValidatorUnidimensional
+            "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"               // ABR
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2149209&allele_accession=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"              // ABR
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2146574&allele_accession=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // ABR
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1860086&allele_accession=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // Time Series
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:107160&allele_accession=MGI:1857493&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"                // Time Series
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1929878&allele_accession=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC Harwell"          // Unidimensional
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Categorical
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // Categorical
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // Unidimensional
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"            // Unidimensional
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:1923455&allele_accession_id=EUROALL:3&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_001&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"
+          , "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"
         });
         
-        List<ChartType> chartTypes = Arrays.asList(new ChartType[] {
-            ChartType.UNIDIMENSIONAL_ABR_PLOT
-          , ChartType.TIME_SERIES_LINE
-          , ChartType.TIME_SERIES_LINE
-          , ChartType.UNIDIMENSIONAL_ABR_PLOT
-          , ChartType.UNIDIMENSIONAL_ABR_PLOT
-          , ChartType.UNIDIMENSIONAL_BOX_PLOT
-          , ChartType.CATEGORICAL_STACKED_COLUMN
-          , ChartType.CATEGORICAL_STACKED_COLUMN
-          , ChartType.UNIDIMENSIONAL_BOX_PLOT
-          , ChartType.UNIDIMENSIONAL_BOX_PLOT
-          , ChartType.UNIDIMENSIONAL_BOX_PLOT       // Has 2 graphs with globalTest tables different from each other.
-          , ChartType.UNIDIMENSIONAL_BOX_PLOT
-        });
-        
-        for (int i = 0; i < graphUrls.size(); i++) {
-            PageStatus status = graphValidator(graphUrls.get(i), chartTypes.get(i), validators.get(i));
-            if ( ! status.hasErrors()) {
-                successCount++;
-            }
-            statuses.add(status);
-        }
-            
-        TestUtils.printEpilogue(testName, start, statuses, successCount, graphUrls.size(), graphUrls.size());
-        System.out.println();
+        graphEngine(testName, graphUrls);
     }
     
     @Test
@@ -324,7 +303,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.CATEGORICAL_STACKED_COLUMN, new GraphValidatorCategorical());
+        testEngine(testName, geneGraphs, ChartType.CATEGORICAL_STACKED_COLUMN);
     }
     
     @Test
@@ -334,7 +313,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_BOX_PLOT, new GraphValidatorUnidimensional());
+        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_BOX_PLOT);
     }
     
     @Test
@@ -344,7 +323,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_ABR_PLOT, new GraphValidatorABR());
+        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_ABR_PLOT);
     }
     
     @Test
@@ -354,7 +333,7 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PIE, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.PIE, new GraphValidatorViability());
+        testEngine(testName, geneGraphs, ChartType.PIE);
     }
     
     @Test
@@ -364,6 +343,6 @@ public class GraphPageTest {
         
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.TIME_SERIES_LINE, new GraphValidatorTimeSeries());
+        testEngine(testName, geneGraphs, ChartType.TIME_SERIES_LINE);
     }
 }

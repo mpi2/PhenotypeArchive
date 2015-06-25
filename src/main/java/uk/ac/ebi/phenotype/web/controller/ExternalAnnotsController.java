@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
@@ -96,7 +111,7 @@ public class ExternalAnnotsController {
 		String markerRow = "<div id='mk'><span id='mkLeft'>Marker symbol: <a href='" + geneLink + "'>" + mgiGeneSymbol + "</a></span><span id='mkRight' class='"+ mappingCat +"'>" + mappingCat + " phenotypic mapping</span></div>";
 		List<String> dataRow = new ArrayList<>();
 		
-		String theadRow = "<thead><tr><th>IMPC MP term</th><th>IMPC Mouse gender</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th></tr></thead>";
+		String theadRow = "<thead><tr><th>IMPC MP term</th><th>IMPC Mouse gender</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th><th>GWAS SNP id</th></tr></thead>";
 		
 		//System.out.println("marker row: " + markerRow);
 		List<String> trts = new ArrayList<>();
@@ -142,6 +157,8 @@ public class ExternalAnnotsController {
 					tds.add("<td>" + aGw.getMappedGene() + "</td>");
 					tds.add("<td>" + aGw.getUpstreamGene() + "</td>");
 					tds.add("<td>" + aGw.getDownstreamGene() + "</td>");
+					tds.add("<td>" + aGw.getSnpId() + "</td>");
+					
 					String td = StringUtils.join(tds, "");
 					trs.add("<tr>" + td + "</tr>");
 			    }	

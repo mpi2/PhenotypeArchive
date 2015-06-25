@@ -1,18 +1,18 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.dao;
 
 /**
@@ -22,20 +22,12 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
-import java.sql.ResultSet;
+import uk.ac.ebi.phenotype.pojo.*;
+
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
-import uk.ac.ebi.phenotype.pojo.BiologicalSample;
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.Experiment;
-import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
-import uk.ac.ebi.phenotype.pojo.Observation;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Organisation;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public interface ObservationDAO extends HibernateDAO {
 
@@ -99,20 +91,13 @@ public interface ObservationDAO extends HibernateDAO {
 	public List<Observation> getAllObservationsByParameter(Parameter parameter);
 	public List<ImageRecordObservation> getAllImageObservations();
 
-	public List<String> getAllGeneAccessionIdsByParameterOrganisationStrainZygositySex(Parameter parameter, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException;
-
-	public List<Integer> getAllObservationIdsByParameterGeneAccZygosityOrganisationStrainSex(Parameter parameter, String geneAcc, ZygosityType zygosity, Organisation organisation, String strain, SexType sex) throws SQLException;
-	
 	public Observation getObservationById(Integer obsId);
 
 	public List<Organisation> getAllOrganisationsWithObservations();
 	public List<Integer> getAllOrganisationIdsWithObservations() throws SQLException;
 
-	public List<String> getAllStrainsByParameterOrganistion(Parameter parameter, Organisation organisation) throws SQLException;
-	public List<String> getAllStrainsByParameterIdOrganistion(Integer parameterId, Organisation organisation) throws SQLException;
+	public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SQLException;
 
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygositySex(Integer parameterId, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException;
-	
     /**
      * Fetch count of records NOT missing but with not null/empty parameter_status or parameter_status_message.
      * @return count, interesting fields

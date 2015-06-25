@@ -1,18 +1,18 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
@@ -1419,7 +1419,7 @@ public class FileExportController {
 		// GWAS Gene to IMPC gene mapping
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows(mgiGeneSymbol.toUpperCase());
 		
-		System.out.println("FileExportController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
+		//System.out.println("FileExportController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 
 		List<String> rowData = new ArrayList();
 		rowData.add(gridFields);
@@ -1446,6 +1446,7 @@ public class FileExportController {
 			data.add(gw.getUpstreamGene());
 			data.add(gw.getDownstreamGene());
 			data.add(gw.getPhenoMappingCategory());
+			data.add(gw.getSnpId());
 			
 			rowData.add(StringUtils.join(data, "\t"));
 		}
@@ -1493,21 +1494,47 @@ public class FileExportController {
     private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields, HttpServletRequest request) throws UnsupportedEncodingException {
     	
     	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-    	//System.out.println("docs found: "+ docs.size());
-    	String baseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
+    	System.out.println("docs found: "+ docs.size());
+    	
+    	String baseUrl = request.getAttribute("baseUrl").toString();
+    	String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	
+    	if ( solrCoreName.equals("ensembl") ){solrCoreName = "gene";}
+    	
+    	Map<String, String> dataTypeId = new HashMap<>();
+		dataTypeId.put("gene", "mgi_accession_id");
+		dataTypeId.put("mp", "mp_id");
+		dataTypeId.put("ma", "ma_id");
+		dataTypeId.put("hp", "hp_id");
+		dataTypeId.put("disease", "disease_id");
+    	
+		Map<String, String> dataTypePath = new HashMap<>();
+		dataTypePath.put("gene", "genes");
+		dataTypePath.put("mp", "phenotypes");
+		dataTypePath.put("ma", "anatomy");
+		dataTypePath.put("hp", "");
+		dataTypePath.put("disease", "disease");
+		
     	List<String> rowData = new ArrayList();
       
     	// column names	
+    	//String idLinkColName = dataTypeId.get(solrCoreName) + "_link";
+    	String idLinkColName = "id_link";
+    	gridFields = idLinkColName + "," + gridFields; // xx_id_link column only for export, not dataTable
+    	
     	String[] cols = StringUtils.split(gridFields, ",");
-      
+    	
+    	// swap cols
+    	cols[0] = dataTypeId.get(solrCoreName);
+    	cols[1] = idLinkColName;
+    	
     	List<String> colStr = new ArrayList<>();
     	for ( int i=0; i<cols.length; i++ ){
     		colStr.add(cols[i]);
     	}
     	rowData.add(StringUtils.join(colStr, "\t"));
-      
+    	
     	for (int i = 0; i < docs.size(); i ++) {
     	  
     		List<String> data = new ArrayList();
@@ -1516,7 +1543,19 @@ public class FileExportController {
     		for ( int j=0; j<cols.length; j++ ){
     			String fieldName = cols[j];
     			
-    			if ( fieldName.equals("images_link") ){
+    			if ( fieldName.equals("id_link") ){
+    				String id = doc.getString(dataTypeId.get(solrCoreName));
+					String link = null;
+					if ( dataTypePath.get(solrCoreName).isEmpty() ){
+						link = "";
+					}
+					else {
+						link = hostName + baseUrl + "/" + dataTypePath.get(solrCoreName) + "/" + id;
+					}
+					data.add(link);
+					
+    			}
+    			else if ( fieldName.equals("images_link") ){
     				
     				String qryField = null;
     				String imgQryField = null;
@@ -1535,9 +1574,9 @@ public class FileExportController {
 					
 					String params = "q=" + acc + " AND observation_type:image_record&fq=biological_sample_group:experimental";
 					params = URLEncoder.encode(params, "UTF-8");
-					String imgLink = hostName + baseUrl + params;
+					String imgLink = hostName + imgBaseUrl + params;
 					
-					System.out.println("image link: "+ imgLink);
+					//System.out.println("image link: "+ imgLink);
 					data.add(imgLink);
     			}
     			else if ( doc.get(fieldName) == null ){
@@ -1547,7 +1586,8 @@ public class FileExportController {
     			else {
     				String value = null;
     				if ( doc.get(fieldName).getClass().toString().contains("JSONArray") ){
-    					value = StringUtils.join(doc.getJSONArray(fieldName), "|");
+    					Set<String> valSet = new HashSet<>(doc.getJSONArray(fieldName));
+    					value = StringUtils.join(valSet, "|");
     				}
     				else if ( doc.get(fieldName).getClass().toString().contains("String") ){
     					value = doc.getString(fieldName);

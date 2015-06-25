@@ -1,19 +1,25 @@
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.service.dto;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.ControlStrategy;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.*;
+
+import java.sql.SQLException;
+import java.util.*;
 
 public class ExperimentDTO {
 
@@ -411,13 +417,20 @@ public class ExperimentDTO {
         return metadata;
     }
     public String getMetadataHtml() {
+
     	String html = "";
-    	if (metadata != null){
-	    	for (String m: metadata){
-	    		html += m + "\n";	
-	    	}
+    	if (metadataGroup != null){
+    		html += "<span title='";
+            if (metadata != null) {
+                for (String m: metadata){
+                    html += m + "\n";
+                }
+            } else {
+                html += "No metadata\n";
+            }
+	    	html += "'>" + metadataGroup + "</span>";
     	}
-        return html;
+    	return html;
     }
 
     /**

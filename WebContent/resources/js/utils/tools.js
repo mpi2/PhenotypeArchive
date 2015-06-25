@@ -2055,7 +2055,7 @@
             "bProcessing": true,
             "bServerSide": true,
             //"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
-            "sDom": "<<'#exportSpinner'>l<'#tableTool'>r>tip",
+            "sDom": "<<'#exportSpinner'><'#tableTool'>r>tip",
             "sPaginationType": "bootstrap",
             "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 

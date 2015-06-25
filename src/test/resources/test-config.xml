@@ -29,7 +29,7 @@
         <property name="locations">
             <list>
                 <value>classpath:testConfig.properties</value>
-                <value>file:${user.home}/configfiles/devDatasourcesConfig.properties</value>
+                <value>file:${user.home}/configfiles/testDatasourcesConfig.properties</value>
             </list>
         </property>
     </bean>

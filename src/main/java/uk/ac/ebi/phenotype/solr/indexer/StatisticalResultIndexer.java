@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang.StringUtils;
@@ -486,30 +501,29 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setOrganisationId(r.getInt("organisation_id"));
         doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
 
+	    doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
+	    doc.setStatisticalMethod(r.getString("statistical_method"));
+	    doc.setMaleControlCount(r.getInt("male_controls"));
+	    doc.setFemaleControlCount(r.getInt("female_controls"));
+	    doc.setMaleMutantCount(r.getInt("male_mutants"));
+	    doc.setFemaleMutantCount(r.getInt("female_mutants"));
+	    doc.setColonyId(r.getString("colony_id"));
+	    doc.setStatus(r.getString("status"));
+
+	    // Always set a metadata group here to allow for simpler searching for
+	    // unique results and to maintain parity with the observation index
+	    // where "empty string" metadata group means no required metadata.
+	    if (StringUtils.isNotEmpty(r.getString("metadata_group"))) {
+		    doc.setMetadataGroup(r.getString("metadata_group"));
+	    } else {
+		    doc.setMetadataGroup("");
+	    }
+
 	    addImpressData(r, doc);
 
 	    // Biological details
 	    addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
-        // Data details
-
-        // Always set a metadata group here to allow for simpler searching for
-        // unique results and to maintain parity with the observation index
-        // where "empty string" metadata group means no required metadata.
-        if (StringUtils.isNotEmpty(r.getString("metadata_group"))) {
-            doc.setMetadataGroup(r.getString("metadata_group"));
-        } else {
-            doc.setMetadataGroup("");
-        }
-
-        doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
-        doc.setStatisticalMethod(r.getString("statistical_method"));
-        doc.setMaleControlCount(r.getInt("male_controls"));
-        doc.setFemaleControlCount(r.getInt("female_controls"));
-        doc.setMaleMutantCount(r.getInt("male_mutants"));
-        doc.setFemaleMutantCount(r.getInt("female_mutants"));
-        doc.setColonyId(r.getString("colony_id"));
-        doc.setStatus(r.getString("status"));
 
         // MP Terms
 		/*
@@ -533,11 +547,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setProjectId(r.getInt("project_id"));
         doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
+	    doc.setMutantBiologicalModelId(r.getInt("biological_model_id"));
         doc.setZygosity(r.getString("experimental_zygosity"));
         doc.setDependentVariable(r.getString("dependent_variable"));
         doc.setExternalDbId(r.getInt("external_db_id"));
         doc.setDbId(r.getInt("db_id"));
         doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
+
+	    doc.setStatisticalMethod("Supplied as data");
+	    doc.setMaleControlCount(0);
+	    doc.setFemaleControlCount(0);
+	    doc.setMaleMutantCount(r.getInt("male_mutants"));
+	    doc.setFemaleMutantCount(r.getInt("female_mutants"));
 	    doc.setColonyId(r.getString("colony_id"));
 	    doc.setStatus("Success");
 
@@ -554,7 +575,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	    addImpressData(r, doc);
 
 	    // Biological details
-        doc.setMutantBiologicalModelId(r.getInt("biological_model_id"));
 	    addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
         // MP Term details

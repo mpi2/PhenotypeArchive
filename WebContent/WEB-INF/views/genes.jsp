@@ -100,7 +100,7 @@
             <!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
 
             <!-- JavaScript Local Imports -->
-            <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+            <!--  <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> -->
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
@@ -116,6 +116,7 @@
             
             $(function() {
             	console.log('calling tabs now');
+            	
                 $( "#tabs" ).tabs();
                 
                 $('ul.tabs li a').click(function(){
@@ -123,7 +124,9 @@
              	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
                 });
                 
-                $('ul.tabs li:nth-child(1) a').click();  // activate this by default
+                $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+                $('ul.tabs li a#ui-id-1').css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+               // $('ul.tabs li:nth-child(1) a').click();  // activate this by default, doing this will conflict with aname scroll
               });
             </script>
             <style>
@@ -132,93 +135,32 @@
                 span.indirect {color: #CD8500;}  
                 
                 /* copied from CKs gwas page */
-                div#mk {
-        		margin-bottom: 10px;
-        	}
-        	span#mkLeft {
-        		font-size: 20px;
-        	}
-        	span#mkLeft a {
-        		text-decoration: none;
-        	}
-        	span#mkRight {
-        		float: right;
-        	}
-        	div#tabs {
-        		border: none;
-        	}
-        	ul.tabs {
-        		border: none;
-        		border-bottom: 1px solid #666;
-        		background: none;
-        	}
-        	ul.tabs li:nth-child(1) {
-        		font-size: 14px;
-        	}
-        	ul.tabs li a {
-        		margin-bottom: -1px;
-        		border: 1px solid #666;
-        		font-size: 12px;
-        	}
-        	ul.tabs li a:hover {
-        		color: white;
-        		background-color: gray; 
-        	}
-        	div#tabs table {
-        		font-size: 14px;
-        		color: #666;
-        	}
-        	div.ui-tabs-panel {
-        		padding: 0 !important;
-        	}
-        	table.dataTable caption {
-        		font-weight: bold;
-        		padding: 3px 5px;
-        		background-color: #F2F2F2;
-        		border-radius: 5px;
-        	}
-        	table.dataTable td a {
-        		text-decoration: none;
-        		color: #0978a1;
-        	}
-        	.trtName {
-        		font-family: Arial !important;
-        		font-weight: bold !important;
-        		font-size: 16px !important;
-        		color: black;
-        	}
-        	span.direct {color: #698B22;} 
-            span.indirect {color: #CD8500;}
-            
-            div.dataTables_info {
-            	font-size: 14px;
-            	padding-bottom: 20px !important;
-            }
-            div.dataTables_filter {
-            	font-size: 14px;
-            }
-            table.dataTable span.highlight {
-                background-color: yellow;
-                font-weight: bold;
-                color: black;
-            }
-            div#toolBox {
-            	font-size: 12px;
-            }
-            div#tableTool {
-                position: relative;
-                top: -70px;
-                float: right;
-            }
-            form#dnld {
-            	padding: 5px;
-            	border-radius: 5px;
-			    background: #F2F2F2;
-            }
-            form#dnld button {
-            	text-decoration: none;
-            }
-                     
+        	
+	        	div#tabs {
+	        		border: none;
+	        	}
+	        	ul.tabs {
+	        		border: none;
+	        		border-bottom: 1px solid #666;
+	        		background: none;
+	        	}
+	        	ul.tabs li:nth-child(1) {
+	        		font-size: 14px;
+	        	}
+	        	ul.tabs li a {
+	        		margin-bottom: -1px;
+	        		border: 1px solid #666;
+	        		font-size: 12px;
+	        	}
+	        	ul.tabs li a:hover {
+	        		color: white;
+	        		background-color: gray; 
+	        	}
+	        	div.ui-tabs-panel {
+	        		padding: 0 !important;
+	        	}
+	        	
+
             </style>
 
             <c:if test="${phenotypeStarted}">
@@ -409,6 +351,9 @@
                                             </c:forEach>
 
                                         </c:when>
+                                        <c:when test="${hasPreQcData}">
+                                            <!-- Only pre QC data available, suppress post QC phenotype summary -->
+                                        </c:when>
                                         <c:otherwise>
                                             <div class="alert alert-info">There are currently no IMPC phenotype associations for the gene ${gene.symbol} </div> <br/>
                                         </c:otherwise>
@@ -592,25 +537,10 @@
                                      	</c:forEach>
                                      
                                      </table>
-                                     
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
                                    
                                 </div>
-                               
-                            
-                            
-                            
                             
                             <!-- section for expression data here -->
-							
-							
 
 							<div id="tabs-2">
                                
@@ -789,7 +719,7 @@
 
                             <div class="section" id="order2">
                                 <h2 class="title documentation">Order Mouse and ES Cells
-                                    <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
+                                    <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a> 
                                 </h2>
                                 <div class="inner">
                                     <div id="allele2"></div>
@@ -826,7 +756,6 @@
                             var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
                             $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
                         }
-                        
                     });
             </script>
         </jsp:body>

@@ -1,18 +1,18 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang.StringUtils;
@@ -224,6 +224,7 @@ public class ChartsController {
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
+        String metadata = null;
         String[] parameterUnits = parameter.checkParameterUnits();
         String xUnits = "";
         String yUnits = "";
@@ -310,11 +311,15 @@ public class ChartsController {
                 // if we don't already have the pipeline from the url params get it via the experiment returned
                 pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
             }
-
+            
+            if (experiment.getMetadataGroup() != null){
+            	metadata = experiment.getMetadataHtml();
+            }
+            
             String xAxisTitle = xUnits;
             BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
             setTitlesForGraph(model, expBiologicalModel);
-
+           
             try {
 				// if (chartType == null){
                 // chartType = GraphUtils.getDefaultChartType(parameter);
@@ -387,6 +392,7 @@ public class ChartsController {
             }
 
             model.addAttribute("pipeline", pipeline);
+            model.addAttribute("metadata", metadata);
             model.addAttribute("phenotypingCenter", phenotypingCenter);
             model.addAttribute("experimentNumber", experimentNumber);
             model.addAttribute("statsError", statsError);

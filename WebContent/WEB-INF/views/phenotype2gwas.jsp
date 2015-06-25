@@ -7,14 +7,12 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/phenotype2gwas">&nbsp;IMPC Phenotype to GWAS Disease Trait Mapping</a></jsp:attribute>
     <jsp:attribute name="header">
         
-<<<<<<< HEAD
-        <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
-=======
-        <%-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> --%>
->>>>>>> branch 'master' of https://github.com/mpi2/PhenotypeArchive.git
+
+        <!-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> -->
+
         <!--  <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />-->
-        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
-         <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
+        <link rel="stylesheet" href="${baseUrl}/css/searchPage.css" />
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css" />
         
         <style type="text/css">
         	div#mk {
@@ -32,20 +30,20 @@
         	div#tabs {
         		border: none;
         	}
-        	ul.tabs {
+        	ul.ui-tabs-nav {
         		border: none;
         		border-bottom: 1px solid #666;
         		background: none;
         	}
-        	ul.tabs li:nth-child(1) {
+        	ul.ui-tabs-nav li:nth-child(1) {
         		font-size: 14px;
         	}
-        	ul.tabs li a {
+        	ul.ui-tabs-nav li a {
         		margin-bottom: -1px;
         		border: 1px solid #666;
         		font-size: 12px;
         	}
-        	ul.tabs li a:hover {
+        	ul.ui-tabs-nav li a:hover {
         		color: white;
         		background-color: gray; 
         	}
@@ -116,7 +114,6 @@
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
                 
                 var baseUrl = "${baseUrl}";
-                var solrUrl = "${internalSolrUrl};"
 
                 $("table.tablesorter").dataTable({
                 	 "bSort": true, // true is default 
@@ -134,7 +131,7 @@
                  		// download tool
                  		var mgiGeneSymbol = $('span#mkLeft a').text();
                  		var endPoint = baseUrl + "/impc2gwasExport?";
-                 		var gridFields = "Marker symbol\tMGI gene id\tMGI allele id\tMGI allele name\tIMPC Mouse gender\tIMPC MP term id\tIMPC MP term name\tGWAS trait\tGWAS p value\tGWAS Reported gene\tGWAS Mapped gene\tGWAS Upstream gene\tGWAS Downstream gene\tIMPC phenotypic mapping to GWAS";
+                 		var gridFields = "Marker symbol\tMGI gene id\tMGI allele id\tMGI allele name\tIMPC Mouse gender\tIMPC MP term id\tIMPC MP term name\tGWAS trait\tGWAS p value\tGWAS Reported gene\tGWAS Mapped gene\tGWAS Upstream gene\tGWAS Downstream gene\tIMPC phenotypic mapping to GWAS\tGWAS SNP id";
                  		var traitCheckBox = $("table.tablesorter").size() > 1 ? "Current trait only <input name='currentTraitName' value='' type='checkbox' />" : "";
                  		
                		  	$('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='GET' action='" + endPoint + "'>"
@@ -172,13 +169,15 @@
                 
                $( "#tabs" ).tabs();
                
-               $('ul.tabs li a').click(function(){
-            	   $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+               $('ul.ui-tabs-nav li a').click(function(){
+            	   $('ul.ui-tabs-nav li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
             	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
                });
                
-               $('ul.tabs li:nth-child(2) a').click();  // activate this by default
-              
+               $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+               $('ul.tabs li a#ui-id-1').css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+              	// $('ul.tabs li:nth-child(2) a').click();  // activate this by default, doing this will conflict with aname scroll
+          
             });
             
         </script>

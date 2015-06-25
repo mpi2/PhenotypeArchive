@@ -1,18 +1,18 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.generic.util;
 
 import java.net.URLDecoder;
@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
@@ -159,7 +160,17 @@ public class Tools {
 		List<String> mainAttrs = new ArrayList<>();
 		// additional information
 		List<String> additionalInfos = new ArrayList<>();
-					
+			
+		// first n fields checked by default
+		Map<String, Integer> defaultOffset = new HashMap<>();
+		defaultOffset.put("gene", 8);
+		defaultOffset.put("marker_symbol", 8);
+		defaultOffset.put("ensembl", 9);
+		defaultOffset.put("disease", 5);
+		defaultOffset.put("mp", 6);
+		defaultOffset.put("ma", 5);
+		defaultOffset.put("hp", 8);
+		
 		if ( corename.equals("gene") || corename.equals("marker_symbol")){
 			
 			// gene attr fields
@@ -171,11 +182,11 @@ public class Tools {
 			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_synonym");
 			mainAttrs.add("marker_type");
-		    
-			mainAttrs.add("latest_es_cell_status");
 			mainAttrs.add("latest_mouse_status");
+			mainAttrs.add("latest_phenotype_status");
+			
 			mainAttrs.add("legacy_phenotype_status");
-			mainAttrs.add("latest_phenotype_status"); 
+			mainAttrs.add("latest_es_cell_status");
 			mainAttrs.add("latest_project_status"); 
 			mainAttrs.add("latest_production_centre"); 
 			mainAttrs.add("latest_phenotyping_centre"); 
@@ -207,20 +218,18 @@ public class Tools {
 		else if ( corename.equals("ensembl") ){
 			
 			// gene attr fields
-			
-			// these first 6 ones are checked by default
-			mainAttrs.add("ensembl_gene_id");
 			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("ensembl_gene_id");
 			mainAttrs.add("marker_symbol");
 			mainAttrs.add("human_gene_symbol");
 			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_synonym");
 			mainAttrs.add("marker_type");
-		    
-			mainAttrs.add("latest_es_cell_status");
+			mainAttrs.add("latest_phenotype_status");
 			mainAttrs.add("latest_mouse_status");
+			
 			mainAttrs.add("legacy_phenotype_status");
-			mainAttrs.add("latest_phenotype_status"); 
+			mainAttrs.add("latest_es_cell_status");
 			mainAttrs.add("latest_project_status"); 
 			mainAttrs.add("latest_production_centre"); 
 			mainAttrs.add("latest_phenotyping_centre"); 
@@ -252,10 +261,9 @@ public class Tools {
 		else if ( corename.equals("disease") ) {
 			mainAttrs.add("disease_id"); 
 			mainAttrs.add("disease_term");
-			
-			additionalInfos.add("mgi_accession_id");	
-			additionalInfos.add("marker_symbol");
-			additionalInfos.add("human_gene_symbol");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("mgi_accession_id");	
+			mainAttrs.add("human_gene_symbol");
 
 			// annotated and inferred mp term
 			additionalInfos.add("p_value");
@@ -272,18 +280,18 @@ public class Tools {
 			mainAttrs.add("mp_id");
 			mainAttrs.add("mp_term");
 			mainAttrs.add("mp_definition");
-			mainAttrs.add("top_level_mp_id");
-			mainAttrs.add("top_level_mp_term");
+			
+			// gene core stuff 
+			mainAttrs.add("mgi_accession_id");	
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+						
+			additionalInfos.add("top_level_mp_id");
+			additionalInfos.add("top_level_mp_term");
 			
 			//  mp to hp mapping
 			additionalInfos.add("hp_id");
 			additionalInfos.add("hp_term");
-			
-			// gene core stuff 
-			additionalInfos.add("mgi_accession_id");	
-			additionalInfos.add("marker_symbol");
-			//additionalInfos.add("pheno_calls");
-			additionalInfos.add("human_gene_symbol");
 			
 			//disease core stuff
 			additionalInfos.add("disease_id");
@@ -292,13 +300,14 @@ public class Tools {
 		else if ( corename.equals("ma") ) {
 			mainAttrs.add("ma_id");
 			mainAttrs.add("ma_term");
-			mainAttrs.add("selected_top_level_ma_id");
-			mainAttrs.add("selected_top_level_ma_term");
 			
 			// gene core stuff 
-			additionalInfos.add("mgi_accession_id");	
-			additionalInfos.add("marker_symbol");
-			additionalInfos.add("human_gene_symbol");
+			mainAttrs.add("mgi_accession_id");	
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+			
+			additionalInfos.add("selected_top_level_ma_id");
+			additionalInfos.add("selected_top_level_ma_term");
 			// impc images link
             additionalInfos.add("images_link");
 		}
@@ -312,14 +321,13 @@ public class Tools {
 			mainAttrs.add("mp_term");
 			mainAttrs.add("mp_definition");
 			
+			// gene core stuff 
+			mainAttrs.add("mgi_accession_id");	
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+			
 			additionalInfos.add("top_level_mp_id");
 			additionalInfos.add("top_level_mp_term");
-			
-			// gene core stuff 
-			additionalInfos.add("mgi_accession_id");	
-			additionalInfos.add("marker_symbol");
-			//additionalInfos.add("pheno_calls");
-			additionalInfos.add("human_gene_symbol");
 			
 			//disease core stuff
 			additionalInfos.add("disease_id");
@@ -334,12 +342,13 @@ public class Tools {
 			String checked = ""; 
 			String checkedClass = "";
 			
-			if ( i < 6 ) {
+			if ( i < defaultOffset.get(corename) ) {
 				checked = "checked";
 				checkedClass = "default";
 			}
 			
-			htmlStr1 += "<input type='checkbox' class=" + checkedClass + " name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + mainAttrs.get(i);
+			String friendlyFieldName = mainAttrs.get(i).replaceAll("_", " ");
+			htmlStr1 += "<input type='checkbox' class=" + checkedClass + " name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + friendlyFieldName;
 			if ( (i+1) % 3 == 0 ){
 				htmlStr1 += "<br>";
 			}
@@ -347,7 +356,8 @@ public class Tools {
 		
 		htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
 		for ( int i=0; i<additionalInfos.size(); i++ ){
-			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + additionalInfos.get(i);
+			String friendlyFieldName = additionalInfos.get(i).replaceAll("_", " ");
+			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + friendlyFieldName;
 			if ( (i+1) % 3 == 0 ){
 				htmlStr2 += "<br>";
 			}

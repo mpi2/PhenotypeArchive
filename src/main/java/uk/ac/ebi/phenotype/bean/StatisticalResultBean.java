@@ -1,21 +1,23 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 package uk.ac.ebi.phenotype.bean;
 
 import uk.ac.ebi.phenotype.pojo.StatisticalSignificance;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+
 
 /**
  * Lightweight representation of a statistical object containing 3 attributes, 
@@ -30,10 +32,10 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	private String statisticalMethod;
 	private String controlSex; // if relevant
 	private String zygosity;
-	int maleControls; 
-	int maleMutants;
-	int femaleControls;
-	int femaleMutants;
+	Integer maleControls;
+	Integer maleMutants;
+	Integer femaleControls;
+	Integer femaleMutants;
 	String metadataGroup;
 	
 	private double colorIndex;
@@ -67,9 +69,24 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.metadataGroup = metadataGroup;
 		
 	}
-	
-	
-	
+
+	public StatisticalResultBean(StatisticalResultDTO dto) {
+
+		this.pValue = dto.getpValue();
+		this.effectSize = dto.getEffectSize()!=null ? dto.getEffectSize() : 1;
+		this.status = dto.getStatus()!=null ? dto.getStatus() : "no status found";
+		this.statisticalMethod = dto.getStatisticalMethod();
+		this.controlSex = dto.getSex();
+		this.zygosity = dto.getZygosity();
+		this.maleControls = dto.getMaleControlCount();
+		this.maleMutants = dto.getMaleMutantCount();
+		this.femaleControls = dto.getFemaleControlCount();
+		this.femaleMutants = dto.getFemaleMutantCount();
+		this.metadataGroup = dto.getMetadataGroup();
+
+	}
+
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -158,61 +175,46 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.zygosity = zygosity;
 	}
 
-	/**
-	 * @return the maleControls
-	 */
-	public int getMaleControls() {
+
+	public Integer getMaleControls() {
 		return maleControls;
 	}
 
-	/**
-	 * @param maleControls the maleControls to set
-	 */
-	public void setMaleControls(int maleControls) {
+
+	public void setMaleControls(Integer maleControls) {
 		this.maleControls = maleControls;
 	}
 
-	/**
-	 * @return the maleMutants
-	 */
-	public int getMaleMutants() {
+
+	public Integer getMaleMutants() {
 		return maleMutants;
 	}
 
-	/**
-	 * @param maleMutants the maleMutants to set
-	 */
-	public void setMaleMutants(int maleMutants) {
+
+	public void setMaleMutants(Integer maleMutants) {
 		this.maleMutants = maleMutants;
 	}
 
-	/**
-	 * @return the femaleControls
-	 */
-	public int getFemaleControls() {
+
+	public Integer getFemaleControls() {
 		return femaleControls;
 	}
 
-	/**
-	 * @param femaleControls the femaleControls to set
-	 */
-	public void setFemaleControls(int femaleControls) {
+
+	public void setFemaleControls(Integer femaleControls) {
 		this.femaleControls = femaleControls;
 	}
 
-	/**
-	 * @return the femaleMutants
-	 */
-	public int getFemaleMutants() {
+
+	public Integer getFemaleMutants() {
 		return femaleMutants;
 	}
 
-	/**
-	 * @param femaleMutants the femaleMutants to set
-	 */
-	public void setFemaleMutants(int femaleMutants) {
+
+	public void setFemaleMutants(Integer femaleMutants) {
 		this.femaleMutants = femaleMutants;
 	}
+
 
 	/**
 	 * @return the colorIndex

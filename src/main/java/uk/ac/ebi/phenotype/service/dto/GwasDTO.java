@@ -1,22 +1,18 @@
-/**
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
-/**
- * Copyright © 2015 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 
 package uk.ac.ebi.phenotype.service.dto;
 
@@ -46,6 +42,7 @@ public class GwasDTO {
     private String mpTermId;
     private String mpTermName;
     private String mouseGender;
+    private String snpId;
 	public String getMgiGeneId() {
 		return mgiGeneId;
 	}
@@ -130,13 +127,20 @@ public class GwasDTO {
 	public void setMouseGender(String mouseGender) {
 		this.mouseGender = mouseGender;
 	}
+	public String getSnpId() {
+		return snpId;
+	}
+	public void setSnpId(String snpId) {
+		this.snpId = snpId;
+	}
 	@Override
 	public String toString() {
 		return String
-				.format("GwasDTO [mgiGeneId=%s, mgiGeneSymbol=%s, mgiAlleleId=%s, mgiAlleleName=%s, phenoMappingCategory=%s, diseaseTrait=%s, pvalue=%s, reportedGene=%s, mappedGene=%s, upstreamGene=%s, downstreamGene=%s, mpTermId=%s, mpTermName=%s, mouseGender=%s]",
+				.format("GwasDTO [mgiGeneId=%s, mgiGeneSymbol=%s, mgiAlleleId=%s, mgiAlleleName=%s, phenoMappingCategory=%s, diseaseTrait=%s, pvalue=%s, reportedGene=%s, mappedGene=%s, upstreamGene=%s, downstreamGene=%s, mpTermId=%s, mpTermName=%s, mouseGender=%s, snpId=%s]",
 						mgiGeneId, mgiGeneSymbol, mgiAlleleId, mgiAlleleName, phenoMappingCategory, diseaseTrait, pvalue, reportedGene, mappedGene,
-						upstreamGene, downstreamGene, mpTermId, mpTermName, mouseGender);
+						upstreamGene, downstreamGene, mpTermId, mpTermName, mouseGender, snpId);
 	}
+    
 	
     
     
