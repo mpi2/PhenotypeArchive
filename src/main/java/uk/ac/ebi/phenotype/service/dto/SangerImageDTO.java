@@ -151,7 +151,7 @@ public class SangerImageDTO {
 	@Field("annotationTermName")
 	private List<String> annotationTermNames;
 
-	@Field("maTermId")
+	@Field("ma_id")
 	private List<String> maIds;
 
 	@Field("ma_term")

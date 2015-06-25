@@ -303,6 +303,7 @@ public class ImpcImagesController {
 		}
 		String qBaseStr = newQueryString;
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
+		newQueryString+="&sort=parameter_name asc";
 		QueryResponse imageResponse = imageService
 				.getResponseForSolrQuery(newQueryString);
 		if (imageResponse.getResults() != null) {

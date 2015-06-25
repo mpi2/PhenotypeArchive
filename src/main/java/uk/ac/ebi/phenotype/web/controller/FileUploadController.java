@@ -41,7 +41,6 @@ public class FileUploadController {
 	UploadedFile ufile;
 	
 	public FileUploadController(){
-		System.out.println("init RestController");
 		ufile = new UploadedFile();
 	}
  
