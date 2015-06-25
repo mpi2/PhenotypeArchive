@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.solr.indexer;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -30,9 +31,11 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 
 import java.io.File;
+import java.sql.SQLException;
 
 
 /**
@@ -54,7 +57,7 @@ public abstract class AbstractIndexer {
 
     protected abstract Logger getLogger();
 
-    public abstract void run() throws IndexerException;
+    public abstract void run() throws IndexerException, SQLException;
 
     public abstract void validateBuild() throws IndexerException;
 

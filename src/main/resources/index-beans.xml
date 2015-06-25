@@ -3,10 +3,12 @@
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns="http://www.springframework.org/schema/beans"
+       xmlns:jee="http://www.springframework.org/schema/jee"
        xsi:schemaLocation="
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
 		">
 
     <context:annotation-config />
@@ -24,12 +26,12 @@
         <property name="password" value="${komp2password}" />
     </bean>
     
-    <!-- <bean id="admintoolsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <bean id="admintoolsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
         <property name="url" value="${admintoolsurl}" />
         <property name="username" value="${admintoolsusername}" />
         <property name="password" value="${admintoolspassword}" />
-    </bean> -->
+    </bean>
     
     <bean id="ontodbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
@@ -71,7 +73,7 @@
 
     <!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
     <bean  class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
-
+	
     <!-- Spring annotated objects -->
     <bean id="sessionFactory"
           class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
@@ -177,11 +179,11 @@
 
     <!-- used for concurrently loading the autosuggest core -->
     <bean id="autosuggestIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/autosuggest"/>
+       	<constructor-arg index="0" value="${buildIndexesSolrUrl}/autosuggest"/>
         <constructor-arg index="1" value="1000"/> <!--Queue size-->
         <constructor-arg index="2" value="3"/> <!--Num threads-->
     </bean>
-
+ 
     <!-- used for concurrently loading the impc_images core -->
     <bean id="impcImagesIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
         <constructor-arg index="0" value="${buildIndexesSolrUrl}/impc_images"/>
@@ -200,8 +202,6 @@
         <constructor-arg index="1" value="50000"/> <!--Queue size-->
         <constructor-arg index="2" value="6"/> <!--Num threads-->
     </bean>
-
-
 
     <!-- Global configuration parameters -->
     <bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
@@ -244,8 +244,8 @@
     <bean id="geneIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GeneIndexer" />
     <bean id="diseaseIndexer" class="uk.ac.ebi.phenotype.solr.indexer.DiseaseIndexer" />
     <bean id="autosuggestIndexer" class="uk.ac.ebi.phenotype.solr.indexer.AutosuggestIndexer" />
-    
 
+	<bean id="gwasDao" class="uk.ac.ebi.phenotype.dao.GwasDAO" />
 </beans>
 
 

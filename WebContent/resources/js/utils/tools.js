@@ -2794,6 +2794,28 @@ $.fn.dataTableExt.oApi.fnSearchHighlighting = function(oSettings) {
     }
 };
 
+/* customized jquery tabs css and behavior */
+$.fn.customJqTabs = function(){
+		$('ul.ui-tabs-nav li a').click(function(){
+  		$('ul.ui-tabs-nav li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+  	   	$(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+  	   	$('ul.ui-tabs-nav li').mouseover(function(){
+  			$(this).find('a').css('color', 'black');
+  	   	}).mouseout(function(){
+  			$(this).find('a').css('color', '#666');
+  	   	})
+   	});
+     
+    $('ul.ui-tabs-nav li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
+    $('ul.ui-tabs-nav li a#ui-id-1').css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
+    $('ul.ui-tabs-nav li').mouseover(function(){
+			$(this).find('a').css('color', 'black');
+	   	}).mouseout(function(){
+			$(this).find('a').css('color', '#666');
+	   	})
+}
+
+
 
 /* API method to get paging information for style bootstrap */
 $.fn.dataTableExt.oApi.fnPagingInfo = function(oSettings) {

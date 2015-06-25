@@ -19,6 +19,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -1425,28 +1426,29 @@ public class FileExportController {
 		rowData.add(gridFields);
 		
 		for ( GwasDTO gw : gwasMappings ) {
-			String traitName = gw.getDiseaseTrait();
+			String traitName = gw.getGwasDiseaseTrait();
 			
 			if ( currentTraitName != null && ! traitName.equals(currentTraitName) ){
 				continue;
 			}
 			
 			List<String> data = new ArrayList();
-			data.add(gw.getMgiGeneSymbol());
-			data.add(gw.getMgiGeneId());
-			data.add(gw.getMgiAlleleId());
-			data.add(gw.getMgiAlleleName());
-			data.add(gw.getMouseGender());
-			data.add(gw.getMpTermId());
-			data.add(gw.getMpTermName());
+			data.add(gw.getGwasMgiGeneSymbol());
+			data.add(gw.getGwasMgiGeneId());
+			data.add(gw.getGwasMgiAlleleId());
+			data.add(gw.getGwasMgiAlleleName());
+			data.add(gw.getGwasMouseGender());
+			data.add(gw.getGwasMpTermId());
+			data.add(gw.getGwasMpTermName());
 			data.add(traitName);
-			data.add(Float.toString(gw.getPvalue()));
-			data.add(gw.getMappedGene());
-			data.add(gw.getReportedGene());
-			data.add(gw.getUpstreamGene());
-			data.add(gw.getDownstreamGene());
-			data.add(gw.getPhenoMappingCategory());
-			data.add(gw.getSnpId());
+			data.add(gw.getGwasSnpId());
+			data.add(Float.toString(gw.getGwasPvalue()));
+			data.add(gw.getGwasMappedGene());
+			data.add(gw.getGwasReportedGene());
+			data.add(gw.getGwasUpstreamGene());
+			data.add(gw.getGwasDownstreamGene());
+			data.add(gw.getGwasPhenoMappingCategory());
+			
 			
 			rowData.add(StringUtils.join(data, "\t"));
 		}
@@ -1460,7 +1462,7 @@ public class FileExportController {
          *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
          *  *******************************************************************/
         @RequestParam(value = "fileType", required = true) String fileType,
-        @RequestParam(value = "coreName", required = true) String solrCoreName,
+        @RequestParam(value = "coreName", required = true) String dataType,
         @RequestParam(value = "idList", required = true) String idList,
         @RequestParam(value = "gridFields", required = true) String gridFields,
         HttpSession session,
@@ -1470,8 +1472,8 @@ public class FileExportController {
 
     	String dumpMode = "all";
     	
-    	if ( solrCoreName.equals("marker_symbol") ){
-    		solrCoreName = "gene";
+    	if ( dataType.equals("marker_symbol") ){
+    		dataType = "gene";
     		String[] marker_symbols = StringUtils.split(idList, ",");
     		List<String> idlist2 = new ArrayList<>(); 
     		for ( int i=0; i<marker_symbols.length; i++){
@@ -1482,16 +1484,18 @@ public class FileExportController {
     		idList = StringUtils.join(idlist2,",");
     	}
     	
-        JSONObject json = solrIndex.getBqDataTableExportRows(solrCoreName, gridFields, idList);
+    	List<String> queryIds = Arrays.asList(idList.replaceAll("\"","").split(","));
+    	
+        JSONObject json = solrIndex.getBqDataTableExportRows(dataType, gridFields, idList);
         
-        List<String> dataRows = composeBatchQueryDataTableRows(json, solrCoreName, gridFields, request);
+        List<String> dataRows = composeBatchQueryDataTableRows(json, dataType, gridFields, request, queryIds);
         System.out.println("datarows: "+ dataRows);
         Workbook wb = null;
         String fileName = "batch_query_dataset";
         writeOutputFile(response, dataRows, fileType, fileName, wb);
     }
     
-    private List<String> composeBatchQueryDataTableRows(JSONObject json, String solrCoreName, String gridFields, HttpServletRequest request) throws UnsupportedEncodingException {
+    private List<String> composeBatchQueryDataTableRows(JSONObject json, String dataType, String gridFields, HttpServletRequest request, List<String> queryIds) throws UnsupportedEncodingException {
     	
     	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
     	System.out.println("docs found: "+ docs.size());
@@ -1500,7 +1504,7 @@ public class FileExportController {
     	String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	
-    	if ( solrCoreName.equals("ensembl") ){solrCoreName = "gene";}
+    	if ( dataType.equals("ensembl") ){dataType = "gene";}
     	
     	Map<String, String> dataTypeId = new HashMap<>();
 		dataTypeId.put("gene", "mgi_accession_id");
@@ -1519,14 +1523,16 @@ public class FileExportController {
     	List<String> rowData = new ArrayList();
       
     	// column names	
-    	//String idLinkColName = dataTypeId.get(solrCoreName) + "_link";
+    	//String idLinkColName = dataTypeId.get(dataType) + "_link";
     	String idLinkColName = "id_link";
     	gridFields = idLinkColName + "," + gridFields; // xx_id_link column only for export, not dataTable
     	
     	String[] cols = StringUtils.split(gridFields, ",");
     	
+    	List<String> foundIds = new ArrayList<>();
+    	
     	// swap cols
-    	cols[0] = dataTypeId.get(solrCoreName);
+    	cols[0] = dataTypeId.get(dataType);
     	cols[1] = idLinkColName;
     	
     	List<String> colStr = new ArrayList<>();
@@ -1544,16 +1550,18 @@ public class FileExportController {
     			String fieldName = cols[j];
     			
     			if ( fieldName.equals("id_link") ){
-    				String id = doc.getString(dataTypeId.get(solrCoreName));
-					String link = null;
-					if ( dataTypePath.get(solrCoreName).isEmpty() ){
+    				String id = doc.getString(dataTypeId.get(dataType));
+    				
+    				foundIds.add(id);
+					
+    				String link = null;
+					if ( dataTypePath.get(dataType).isEmpty() ){
 						link = "";
 					}
 					else {
-						link = hostName + baseUrl + "/" + dataTypePath.get(solrCoreName) + "/" + id;
+						link = hostName + baseUrl + "/" + dataTypePath.get(dataType) + "/" + id;
 					}
 					data.add(link);
-					
     			}
     			else if ( fieldName.equals("images_link") ){
     				
@@ -1561,11 +1569,11 @@ public class FileExportController {
     				String imgQryField = null;
     				
     				// some batchQuery dataType support images link
-    				if ( solrCoreName.equals("gene") ){
+    				if ( dataType.equals("gene") ){
     					qryField = "mgi_accession_id";
     					imgQryField = "gene_accession_id";
     				}
-    				else if ( solrCoreName.equals("ma") ){
+    				else if ( dataType.equals("ma") ){
     					qryField = "ma_id";
     					imgQryField = "ma_id";
     				}
@@ -1601,8 +1609,22 @@ public class FileExportController {
     			}  
     		}
     		rowData.add(StringUtils.join(data, "\t"));
-      }
-      return rowData;
+    	}
+    	
+    	// find the ids that are not found and displays them to users
+		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, foundIds);
+		System.out.println("non found ids: " + nonFoundIds);
+    	
+		for ( int i=0; i<nonFoundIds.size(); i++ ){
+			List<String> data = new ArrayList<String>();
+			for ( int l=0; l<colStr.size(); l++ ){
+				data.add( l==0 ? nonFoundIds.get(i).toString() : "info not available");
+			}
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		
+		
+    	return rowData;
     	
     }
     

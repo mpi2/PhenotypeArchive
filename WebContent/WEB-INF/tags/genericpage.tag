@@ -52,33 +52,15 @@
     		+				"<div class='ui-widget'>"
     		+					"<input id='s'>"
     		+ 					"<a><i class='fa fa-info searchExample'></i></a>"
-			//+ 					"<i class='fa fa-info searchExample'></i>"
-    		+					"<a href='"+baseUrl+"/batchQuery'><i class='fa fa-user batchQuery'></i></a>"
-    		//+					"<i class='fa fa-user batchQuery'></i>"
-    		//+					"<a id='batchQuery' href='"+baseUrl+"/batchQuery'><i class='fa fa-user batchQuery'></i></a>"
     		+				"</div>"
     		+			"</p>"									
     		+		"</div>"
     		+	"</div>"
     		+"</div>";
-	String genericSearchInputBox2 = 
-    	    "<div class='searchcontent'>"
-    		+	"<div id='bigsearchbox2' class='block'>"
-    		+		"<div class='content'>"								
-    		+			"<p><i id='sicon' class='fa fa-search'></i>"
-    		+				"<div class='ui-widget'>"
-    		+					"<input id='s2' placeholder='for comparison only, not functional'>"
-    		+ 					"<i class='fa fa-info searchExample2'></i>"
-       		+					"<i class='fa fa-user batchQuery2'></i>"
-    		+				"</div>"
-    		+			"</p>"									
-    		+		"</div>"
-    		+	"</div>"
-    		+"</div>";
-    jspContext.setAttribute("searchBox", genericSearchInputBox2);  		
-    String bannerMenu = menus[1] + genericSearchInputBox;
-    jspContext.setAttribute("menu", bannerMenu);
-    //jspContext.setAttribute("menu", menus[1]);
+	
+    jspContext.setAttribute("batchQry", "<a id='batchquery' href='"+baseUrl+"/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch query</span></a>");
+    jspContext.setAttribute("searchBox", genericSearchInputBox);  		
+    jspContext.setAttribute("menu", menus[1]);
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
@@ -259,7 +241,9 @@
                     <div class="breadcrumb">
                         <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
                         ${searchBox}
+                        <div id='batchQryLink'>${batchQry}</div>
                     </div>
+                    
                     <jsp:doBody />
                 </div>
                 <!-- /main -->
@@ -404,7 +388,7 @@
    				}
             });
 	    	
-	    	$("i.batchQuery").qtip({            	   
+	    	/* $("i.batchQuery").qtip({            	   
                 content: "Click to go to batch query page",
                 style: {
  			 		classes: 'qtipimpc',			 		
@@ -413,12 +397,11 @@
  			    position: {my: 'left top',
  			    		   adjust: {x: -125 , y: 0}
  			    }
-	    	});
+	    	}); */
 	    	
 	    	 $("span.direct").qtip({            	   
-                 content: "Phenotypic mappings have been accessed with manual curation. "
-                 	+ "A mapping was labelled as direct when mouse and human phenotypes are identical "
-                 	+ "or highly related (ie: bone mineral density in GWAS vs increased bone mineral content in IMPC)",
+                 content: "Matches GWAS traits - Phenotypes for this knockout strain are highly similar to human GWAS traits "
+                 + "associated with SNPs located in, or proximal to, orthologous genes. Mappings done by manual curation." ,
                  	style: {
      			 		classes: 'qtipimpc',			 		
      			        tip: {corner: 'top center'}
@@ -428,10 +411,8 @@
      			    }
       		});		 	
               $("span.indirect").qtip({  	
-              	content: "Phenotypic mappings have been accessed with manual curation. "
-              	+ "A mapping was labelled as indirect when mouse and human phneotypes are more "
-              	+ "loosely linked although related (ie: digit length ratio in "
-              	+"GWAS vs abnormal digit morphology in IMPC)",
+              	content: "Similar to GWAS traits - Phenotypes for this knockout strain have some overlap to human GWAS traits "
+              	+ "associated with SNPs  located in, or proximal to, orthologous genes. Mappings done by manual curation.", 
               	style: {
      			 		classes: 'qtipimpc',			 		
      			        tip: {corner: 'top center'}
@@ -478,6 +459,9 @@
 		       						
 		       						if ( key == 'docType' ){	
 		       							facet = docs[i][key].toString();
+		       							if ( facet == 'gwas' ){
+		       								continue; // main search ignores gwas stuff for now
+		       							}
 		       						}
 		       						else {	
 			       						

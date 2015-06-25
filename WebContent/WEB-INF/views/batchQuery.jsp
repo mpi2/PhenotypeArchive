@@ -217,6 +217,9 @@
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl}";
                 
+                $('div#batchQryLink').hide(); // hide batchquery link for batchquery page
+                
+                
                	// initialze search example qTip with close button and proper positioning
                	var bqDoc = '<h3 id="bqdoc">How to use batchQuery</h3>'
                	

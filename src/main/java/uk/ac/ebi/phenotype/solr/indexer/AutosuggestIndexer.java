@@ -30,13 +30,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import uk.ac.ebi.phenotype.dao.GwasDAO;
 import uk.ac.ebi.phenotype.service.dto.*;
 import uk.ac.ebi.phenotype.solr.indexer.beans.AutosuggestBean;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 
 import javax.annotation.Resource;
+
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 
@@ -64,6 +68,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
     @Qualifier("maIndexing")
     private SolrServer maCore;
 
+    @Autowired
+   	private GwasDAO gwasDao;
+    
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -102,6 +109,23 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> hpTermSet = new HashSet();
     Set<String> hpSynonymSet = new HashSet();
         
+    // impcGwas
+    // gene
+    Set<String> gwasMgiGeneIdSet = new HashSet();
+    Set<String> gwasMgiGeneSymbolSet = new HashSet();
+    
+    // mp
+    Set<String> gwasMpIdSet = new HashSet();
+    Set<String> gwasMpTermSet = new HashSet();
+    
+    // gwas
+    Set<String> gwasTraitSet = new HashSet();
+    Set<String> gwasSnipIdSet = new HashSet();
+    Set<String> gwasReportedGeneSymbolSet = new HashSet();
+    Set<String> gwasMappedGeneSymbolSet = new HashSet();
+    Set<String> gwasUpstreamGeneSymbolSet = new HashSet();
+    Set<String> gwasDownstreamGeneSymbolSet = new HashSet();
+    
     String mapKey;
 
     @Override
@@ -143,7 +167,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public void run() throws IndexerException, SQLException {
         try {
             initializeSolrCores();
 
@@ -154,11 +178,11 @@ public class AutosuggestIndexer extends AbstractIndexer {
             populateDiseaseAutosuggestTerms();
             populateMaAutosuggestTerms();
             populateHpAutosuggestTerms();
-
+            populateGwasAutosuggestTerms();
 
             // Final commit
             autosuggestCore.commit();
-
+            
             // FIXME
 //            logger.info("Added {} beans", results.size());
 
@@ -628,6 +652,122 @@ public class AutosuggestIndexer extends AbstractIndexer {
         }
     }
     
+    private void populateGwasAutosuggestTerms() throws SolrServerException, IOException, SQLException {
+
+        List<String> gwasFields = Arrays.asList(
+        		GwasDTO.GWAS_MGI_GENE_ID, 
+        		GwasDTO.GWAS_MGI_GENE_SYMBOL,
+        		GwasDTO.GWAS_MP_TERM_ID,
+        		GwasDTO.GWAS_MP_TERM_NAME,
+        		GwasDTO.GWAS_DISEASE_TRAIT,
+        		GwasDTO.GWAS_SNP_ID,
+        		GwasDTO.GWAS_REPORTED_GENE,
+        		GwasDTO.GWAS_MAPPED_GENE,
+        		GwasDTO.GWAS_UPSTREAM_GENE,
+        		GwasDTO.GWAS_DOWNSTREAM_GENE
+                );
+       
+        List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
+        
+        for (GwasDTO gw : gwasMappings) {
+            
+        	Set<AutosuggestBean> beans = new HashSet<>();
+            for (String field : gwasFields) {
+
+                AutosuggestBean a = new AutosuggestBean();
+                a.setDocType("gwas");
+
+                switch (field) {
+                	case GwasDTO.GWAS_MGI_GENE_ID:
+                		mapKey = gw.getGwasMgiGeneId();
+                		if (gwasMgiGeneIdSet.add(mapKey)) {
+	                        a.setGwasMgiGeneId(mapKey);
+	                        beans.add(a);
+	                    }
+	                    break;
+                    case GwasDTO.GWAS_MGI_GENE_SYMBOL:
+                        mapKey = gw.getGwasMgiGeneSymbol();
+                        if (gwasMgiGeneSymbolSet.add(mapKey)) {
+                            a.setGwasMgiGeneSymbol(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case GwasDTO.GWAS_MP_TERM_ID:
+                    	mapKey = gw.getGwasMpTermId();
+                        if (gwasMpIdSet.add(mapKey)) {
+                            a.setGwasMpTermId(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case GwasDTO.GWAS_MP_TERM_NAME:
+                    	mapKey = gw.getGwasMpTermName();
+                        if (gwasMpTermSet.add(mapKey)) {
+                            a.setGwasMpTermName(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case GwasDTO.GWAS_DISEASE_TRAIT:
+                        mapKey = gw.getGwasDiseaseTrait();
+                        if (gwasTraitSet.add(mapKey)) {
+                            a.setGwasDiseaseTrait(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case GwasDTO.GWAS_SNP_ID:
+                    	mapKey = gw.getGwasSnpId();
+                        if (gwasSnipIdSet.add(mapKey)) {
+                            a.setGwasSnpId(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case GwasDTO.GWAS_REPORTED_GENE:	
+                        if ( !gw.getGwasReportedGene().isEmpty()) {
+                        	mapKey = gw.getGwasReportedGene();
+                            if (gwasReportedGeneSymbolSet.add(mapKey)) {
+                            	a.setGwasReportedGene(mapKey);
+                                beans.add(a);
+                            }
+                        }
+                        break;
+                        
+                    case GwasDTO.GWAS_MAPPED_GENE:
+                    	if ( !gw.getGwasMappedGene().isEmpty()) {
+	                    	mapKey = gw.getGwasMappedGene();
+	                        if (gwasMappedGeneSymbolSet.add(mapKey)) {
+	                        	a.setGwasMappedGene(mapKey);
+	                            beans.add(a);
+	                        }
+                    	}
+                    	break;
+                       
+                    case GwasDTO.GWAS_DOWNSTREAM_GENE:
+                    	if ( !gw.getGwasDownstreamGene().isEmpty()) {
+	                    	mapKey = gw.getGwasDownstreamGene();
+	                        if (gwasDownstreamGeneSymbolSet.add(mapKey)) {
+	                        	a.setGwasDownstreamGene(mapKey);
+	                            beans.add(a);
+	                        }
+                    	}
+                    	break;
+                    case GwasDTO.GWAS_UPSTREAM_GENE:
+                    	if ( !gw.getGwasUpstreamGene().isEmpty()) {
+	                    	mapKey = gw.getGwasUpstreamGene();
+	                        if (gwasUpstreamGeneSymbolSet.add(mapKey)) {
+	                        	a.setGwasUpstreamGene(mapKey);
+	                            beans.add(a);
+	                        }
+                    	}
+                    	break;
+                }
+            }
+
+            if ( ! beans.isEmpty()) {
+                documentCount += beans.size();
+                autosuggestCore.addBeans(beans, 60000);
+            }
+        }
+    }
+    
     private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
@@ -692,7 +832,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
         }
     }
 
-    public static void main(String[] args) throws IndexerException {
+    public static void main(String[] args) throws IndexerException, SQLException {
 
         AutosuggestIndexer main = new AutosuggestIndexer();
         main.initialise(args);

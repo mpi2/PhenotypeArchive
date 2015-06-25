@@ -118,15 +118,17 @@
             	console.log('calling tabs now');
             	
                 $( "#tabs" ).tabs();
+                $.fn.customJqTabs();
                 
-                $('ul.tabs li a').click(function(){
+                /* $('ul.tabs li a').click(function(){
              	   $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
              	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
                 });
                 
                 $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
                 $('ul.tabs li a#ui-id-1').css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
-               // $('ul.tabs li:nth-child(1) a').click();  // activate this by default, doing this will conflict with aname scroll
+                */
+              
               });
             </script>
             <style>
