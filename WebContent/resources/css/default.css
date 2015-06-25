@@ -259,10 +259,7 @@ p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1p
 .reposition .btn        { background: #0978a1; }
 .reposition .btn:hover  { background: #777; }
 /*#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
-#bigsearchbox           { background: #0978a1; padding: 3px; width: 286px; margin-top: 2px;
-							height: 27px; line-height: 0px; float: left;
-}
-#bigsearchbox2           { background: #0978a1; padding: 3px; width: 420px; margin-top: -22px; margin-right: 50px;
+#bigsearchbox           { background: #0978a1; padding: 3px; padding-left: 2px; width: 420px; margin-top: -28px; margin-right: 50px;
 							height: 29px; line-height: 0px; float: right;
 }
 
@@ -272,61 +269,33 @@ div#block-menu-block-1  {
 }
 
  /* for the search page */
- i.batchQuery, i.searchExample {
- 	float: right;
-	text-decoration: none;
-	border-radius: 3px;
-    border: 1px solid white;
-    margin: 3px 4px 0 1px;
-    padding: 1px 2px 5px 3px;
-    width: 10px;
-    height: 12px; 
-    color: white;
-    text-align: center;
- }
- i.batchQuery {
- 	 width: 15px;
- }
- i.batchQuery2, i.searchExample2 {
- 	float: right;
-	text-decoration: none;
-	border-radius: 3px;
-    border: 1px solid white;
-    margin: 3px 4px 0 1px;
-    padding: 1px 2px 5px 3px;
-    width: 10px;
-    height: 12px; 
-    color: white;
-    text-align: center;
- }
- i.batchQuery2 {
- 	 width: 15px;
- }
- 
-a#searchExample, a#batchQuery {
+i.searchExample {
 	float: right;
 	text-decoration: none;
 	border-radius: 3px;
     border: 1px solid white;
-    margin: 5px 4px 0 1px;
-    padding: 10px 2px 5px 3px;
+    margin: 3px 5px 0 1px;
+    padding: 5px 2px 0px 3px;
     width: 10px;
-    height: 3px; 
+    height: 15px; 
     color: white;
     text-align: center;
 }
-a#batchQuery {
-	width: 15px;
-	padding: 8px 3px 8px 3px;
+a#batchquery {
+	float: right;
+	margin-top: -20px;
+	margin-right: 20px;
+	text-decoration: none;
+    color: #0978A1;
+}
+i.batchQuery {
+	padding-right: 5px;
 }
 
-
 div#footerline #bigsearchbox {display: none;}
-#bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ width: 220px; height: 12px !important; font-size: 14px; line-height: 20px; padding-left: 10px;}
-#bigsearchbox i#sicon { position: absolute; top: -1px;}
 
-#bigsearchbox2 input     { /*padding-left: 0; text-indent: 10px;*/ width: 331px; height: 23px !important; font-size: 14px; line-height: 20px; padding-left: 30px;}
-#bigsearchbox2 i#sicon { position: absolute; top: -1px;}
+#bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ width: 380px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 10px;}
+#bigsearchbox i#sicon { position: absolute; top: -6px;}
 
 
 /* Block IMPReSS */
@@ -769,6 +738,4 @@ div.dataTables_info, div.dataTables_paginate {
     height: auto;
     /* background-color: #999; */
 }
-ul.menu > li.first {
-	display: none; /* hides SEARCH menu point on the banner */
-}
+

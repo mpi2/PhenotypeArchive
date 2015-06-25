@@ -132,7 +132,22 @@
 	<field name="disease_term" type="string" indexed="true" stored="true" multiValued="false" />
 	<field name="disease_alts" type="string" indexed="true" stored="true" multiValued="false"/>
    
-
+	<!-- gwas annotations -->
+	<field name="gwas_mgi_gene_id" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_mgi_gene_symbol" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_mgi_allele_id" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_mgi_allele_name" type="string" indexed="true" stored="true" multiValued="false" />;
+	
+	<field name="gwas_mp_term_id" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_mp_term_name" type="string" indexed="true" stored="true" multiValued="false" />;
+	
+	<field name="gwas_disease_trait" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_reported_gene" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_mapped_gene" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_upstream_gene" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_downstream_gene" type="string" indexed="true" stored="true" multiValued="false" />;
+	<field name="gwas_snp_id" type="string" indexed="true" stored="true" multiValued="false" />;
+	
 	<!-- for copyfield -->
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	
@@ -188,6 +203,22 @@
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_term" dest="auto_suggest"/>
 	<copyField source="disease_alts" dest="auto_suggest"/>
+
+	<copyField source="gwas_mgi_gene_id" dest="auto_suggest"/>
+	<copyField source="gwas_mgi_gene_symbol" dest="auto_suggest"/>
+	<copyField source="gwas_mgi_allele_id" dest="auto_suggest"/>
+	<copyField source="gwas_mgi_allele_name" dest="auto_suggest"/>
+	
+	<copyField source="gwas_mp_term_id" dest="auto_suggest"/>
+	<copyField source="gwas_mp_term_name" dest="auto_suggest"/>
+	
+	<copyField source="gwas_disease_trait" dest="auto_suggest"/>
+	<copyField source="gwas_reported_gene" dest="auto_suggest"/>
+	<copyField source="gwas_mapped_gene" dest="auto_suggest"/>
+	<copyField source="gwas_upstream_gene" dest="auto_suggest"/>
+	<copyField source="gwas_downstream_gene" dest="auto_suggest"/>
+	<copyField source="gwas_snp_id" dest="auto_suggest"/>
+
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 

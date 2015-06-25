@@ -199,7 +199,7 @@
         		color: white;
         		background-color: gray; 
         	}
-        	a {
+        	a#ftp {
         		color: #0978a1 !important;
         		text-decoration: none;
         	}
@@ -216,6 +216,9 @@
                 
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl}";
+                
+                $('div#batchQryLink').hide(); // hide batchquery link for batchquery page
+                
                 
                	// initialze search example qTip with close button and proper positioning
                	var bqDoc = '<h3 id="bqdoc">How to use batchQuery</h3>'
@@ -707,7 +710,7 @@
 											  <p class='header'>Full dataset</p>
 											  <form>
 											  	<div id='fullDump'></div>
-											  	Please use our <a href='ftp://ftp.ebi.ac.uk/pub/databases/impc/' target='_blank'>FTP</a> site for large dataset.
+											  	Please use our <a id='ftp' href='ftp://ftp.ebi.ac.uk/pub/databases/impc/' target='_blank'>FTP</a> site for large dataset.
 											  	<!-- <input type="submit" id="fulldata" name="" value="Submit" onclick="return fetchFullDataset()" /><p> -->
 											  </form>
 											</div>

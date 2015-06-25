@@ -278,7 +278,7 @@ public class ExpressionService {
 	 *            Spring MVC model
 	 * @throws SolrServerException
 	 */
-	public void getExpressionDataForGene(String acc, Model model)
+	public Model getExpressionDataForGene(String acc, Model model)
 			throws SolrServerException {
 
 		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc,
@@ -343,6 +343,7 @@ public class ExpressionService {
 		model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
 		model.addAttribute("mutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
 		model.addAttribute("wtAnatomyToRow", wtAnatomyToRow);
+		return model;
 
 	}
 
@@ -502,6 +503,25 @@ public class ExpressionService {
 	 *
 	 */
 	public class ExpressionRowBean {
+		@Override
+		public String toString() {
+			return "ExpressionRowBean [anatomy=" + anatomy + ", abnormalMaId="
+					+ abnormalMaId + ", numberOfImages=" + numberOfImages
+					+ ", parameterStableId=" + parameterStableId
+					+ ", abnormalMaName=" + abnormalMaName + ", homImages="
+					+ homImages + ", wildTypeExpression=" + wildTypeExpression
+					+ ", expression=" + expression + ", notExpressed="
+					+ notExpressed + ", noTissueAvailable=" + noTissueAvailable
+					+ ", imagesAvailable=" + imagesAvailable
+					+ ", specimenExpressed=" + specimenExpressed
+					+ ", specimen=" + specimen + ", numberOfHetSpecimens="
+					+ numberOfHetSpecimens + ", specimenNotExpressed="
+					+ specimenNotExpressed + ", specimenNoTissueAvailable="
+					+ specimenNoTissueAvailable + "]";
+		}
+
+
+
 		String anatomy;
 		String abnormalMaId;
 		private int numberOfImages;
@@ -677,10 +697,17 @@ public class ExpressionService {
 		public Map<String, Specimen> getSpecimen() {
 			return this.specimen;
 		}
+		
+		
 
 	}
 
 	public class Specimen {
+
+		@Override
+		public String toString() {
+			return "Specimen [zyg=" + zyg + "]";
+		}
 
 		private String zyg;
 

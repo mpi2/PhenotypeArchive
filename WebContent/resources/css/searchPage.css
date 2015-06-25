@@ -323,3 +323,10 @@ div#goBlock table td {
   	align: center !important;
   	
 }
+#bigsearchbox { 
+	background: #0978a1; padding: 3px; padding-left: 2px; width: 650px; margin-top: -28px; margin-right: 50px;
+	height: 29px; line-height: 0px; float: right;
+}
+#bigsearchbox input { 
+	/*padding-left: 0; text-indent: 10px;*/ width: 610px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 10px;
+}

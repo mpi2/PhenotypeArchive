@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 public class Tools {
-	
+
 	// check a string contains only numbers
 	public static boolean isNumeric(String input) {
 		try {
@@ -368,4 +368,7 @@ public class Tools {
 		
 		return htmlStr1 + htmlStr2 + hrStr + checkAllBoxStr;
 	}
+	
+	
+	
 }

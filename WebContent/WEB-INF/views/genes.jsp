@@ -118,15 +118,17 @@
             	console.log('calling tabs now');
             	
                 $( "#tabs" ).tabs();
+                $.fn.customJqTabs();
                 
-                $('ul.tabs li a').click(function(){
+                /* $('ul.tabs li a').click(function(){
              	   $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
              	   $(this).css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
                 });
                 
                 $('ul.tabs li a').css({'border-bottom':'none', 'background-color':'#F4F4F4', 'border':'none'});
                 $('ul.tabs li a#ui-id-1').css({'border':'1px solid #666', 'border-bottom':'1px solid white', 'background-color':'white', 'color':'#666'});
-               // $('ul.tabs li:nth-child(1) a').click();  // activate this by default, doing this will conflict with aname scroll
+                */
+              
               });
             </script>
             <style>
@@ -478,7 +480,7 @@
                                     -->
                                      
                                      <table>
-                                     <tr><th>Anatomy</th><th>#HET Specimens</th><th>HOM Images?</th><th>WT Expr</th><th>Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th>Images</th></tr>
+                                     <tr><th>Anatomy</th><th title="Number of heterozygous mutant specimens with data for the specified anatomy">#HET Specimens</th><th title="If there are images for homozygous specimens this value will be 'Yes'">HOM Images?</th><th title="Status of expression for Wild Type specimens from any colony with data for this anatomy">WT Expr</th><th title="">Mutant Expr</th><%-- <th>Mutant specimens</th> --%><th title="An clickable image icon will show if images are available for mutant specimens">Images</th></tr>
                                      	<c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
                                      		<tr><td><a href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalMaName}</a>
                                      				<c:if test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> <span title="IMPReSS Term differs from MA term">(${mapEntry.key})</span></c:if></td><td><span title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span></td>
@@ -488,13 +490,13 @@
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
-                                     				<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
+                                     				<span title="WT Expressed: ${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                      			</c:when>
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
-                          							<span title="${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
+                          							<span title="WT NOT expressed: ${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
-                          							<i title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></i>
+                          							<i title="WT No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></i>
                           						</c:when>             			
                                      			
                                      			<c:otherwise>
@@ -505,10 +507,10 @@
                                      		<td>
                                      		<c:choose>
                                      			<c:when test="${mapEntry.value.expression}">
-                                     				<span title="${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                     				<span title="Expressed: ${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${expressionIcon}" style="color:${yesColor}"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                      			</c:when>
                           						<c:when test="${mapEntry.value.notExpressed}">
-                          							<span title="${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
+                          							<span title="Not Expressed: ${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens" class="${noExpressionIcon}" style="color:${noColor}"></span>
                           						</c:when> 
                           						<c:when test="${mapEntry.value.noTissueAvailable}">
                           							<span title="No Tissue Available" class="${noTissueIcon}" style="color:${noColor}"></span>
