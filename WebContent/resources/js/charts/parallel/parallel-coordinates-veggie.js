@@ -8,8 +8,10 @@
         dimensions,
         dragging = {},
         highlighted = null,
+        highlighted2 = null,
         container = d3.select("#parallel");
-
+    var text = null;
+  
     var line = d3.svg.line().interpolate('cardinal').tension(0.85),
         axis = d3.svg.axis().orient("left"),
         background,
@@ -66,27 +68,24 @@
             return "stroke:" + colors[d.group] + ";";
           });
       
-      var series = svg.selectAll(".series")
+      /*
+      // Add dots for null values
+      var series = svg.append("svg:g")
+      	.attr("class", "series")
+      	.selectAll(".serie")
       	.data(cars)
       	.enter().append("svg:g")
-      	.attr("class", "series");
-
+      	.attr("class", "serie");      
       var point  = series.selectAll(".point")
-	  	.data(dimensions.map(function(p) {
-	  		return p;	  		
-    	 }))
+	  	.data(dimensions.map(function(p) {return p;}))
 	  	.enter().append("svg:circle")
 	   	.attr("cx", function (d,i,j) { 
-	       	  console.log("Dimensions for " + d + " point pos: " + i + "  " + j + " + y= " + cars[j][d] + "  ==  " + y[d](cars[j][d]) + " x=" + x(i)); 
+	  //     	  console.log("Dimensions for " + d + " point pos: " + i + "  " + j + " + y= " + cars[j][d] + "  ==  " + y[d](cars[j][d]) + " x=" + x(i)); 
 		 	  return x(i);
 		}) 
-		.attr("cy", function (d,i,j) { 
-		  	  return y[d](cars[j][d]) ;
-		})
-		.attr("r", function (d,i,j) { 
-		  	  return getRadius(cars[j][d]) ;
-		});
-      
+		.attr("cy", function (d,i,j) { return y[d](cars[j][d]) ;})
+		.attr("r", function (d,i,j) { return getRadius(cars[j][d]) ; });
+      */
       
       // Add a group element for each dimension.
       var g = svg.selectAll(".dimension")
@@ -167,7 +166,7 @@
           return y[p].brush.extent();
         });
         
-        /** To be factored **/
+     
         var filter = {};
         _(actives).each(function(key, i) {
           filter[key] = {
@@ -176,7 +175,7 @@
           };
         });
         model.set({filter: filter});
-        /***/
+        
         foreground.style("display", function(d) {
           return actives.every(function(p, i) {
             return extents[i][0] <= d[p] && d[p] <= extents[i][1];
@@ -196,17 +195,32 @@
         }
       
       self.highlight = function(i) {
+    	  
         if (typeof i == "undefined") {
           d3.select("#parallel .foreground").style("opacity", function(d, j) {
             return "1";
           });
+          d3.select("#parallel .series").style("opacity", function(d, j) {
+              return "1";
+            });
           highlighted.remove();
+          highlighted2.remove();
+          text.remove();
         } else {
-          d3.select("#parallel .foreground").style("opacity", function(d, j) {
-            return "0.35";
-          });
+        	d3.select("#parallel .foreground").style("opacity", function(d, j) {
+                return "0.35";
+            });
+        	d3.select("#parallel .series").style("opacity", function(d, j) {
+                 return "0.45";
+        	});
           if (highlighted != null) {
-            highlighted.remove();
+              highlighted.remove();
+          }
+          if (highlighted2 != null){
+              highlighted2.remove();
+          }
+          if (text != null){
+              text.remove();
           }
           highlighted = svg.append("svg:g")
                    .attr("class", "highlight")
@@ -218,6 +232,39 @@
                 	   return "stroke:" + colors[d.group] + ";";
                    });
           
+          highlighted2 = svg.append("svg:g")
+          		.attr("class", "highlight2")
+          		.selectAll(".serie")
+	          	.data(dimensions)
+		  	  	.enter().append("svg:circle")
+	          	.filter(function(d) { return model.get('filtered')[i][d] == null;})
+		  	   	.attr("cx", function (d) { 
+		  	        return x(d);
+		  		}) 
+		  		.attr("cy", function (d) { 
+		  			return y[d](model.get('filtered')[i][d]) ;
+		  		})
+		  		.attr("r", 3)        
+	          	.attr("style", function(d) { return "stroke:" + colors[model.get('filtered')[i].group] + ";"; 	});
+               
+         text = svg.append("svg:g")
+    			.attr("class", "label")
+          		.selectAll("text")
+        		.data(dimensions)
+                .enter()
+                .append("text")
+                .filter(function(d) { return model.get('filtered')[i][d] == null;});
+        
+          var textLabels = text
+                 .attr("x", function(d) { return  x(d) + 5; })
+                 .attr("y", function(d) { return y[d](model.get('filtered')[i][d]) - 5; })
+                 .text( "No data")
+         //        .attr("font-family", "sans-serif")
+         //        .attr("font-size", "20px")
+         //        .attr("fill", "red")
+                 ;
+        
+          console.log(textLabels);
         }
       };
     };

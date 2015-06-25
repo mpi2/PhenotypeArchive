@@ -137,6 +137,7 @@
 		    
 		    highlighter.bind('change:selected', function() {
 		      var highlighted = this.get('selected');
+		      console.log("highlighted: " + highlighted);
 		      pc.highlight(highlighted);
 		    });
 		
