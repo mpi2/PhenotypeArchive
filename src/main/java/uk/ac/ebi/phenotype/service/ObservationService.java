@@ -15,9 +15,28 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -38,13 +57,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
-import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -52,18 +71,6 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ParallelCoordinatesDTO;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class ObservationService extends BasicService {
@@ -150,6 +157,7 @@ public class ObservationService extends BasicService {
     	// query for each parameter
 
     	int i = 0;
+
     	for (Parameter p: parameterNames){
     		query = new SolrQuery();
         	query.setQuery("*:*");
@@ -162,30 +170,77 @@ public class ObservationService extends BasicService {
 
         	System.out.println("-- Get means:  " + solr.getBaseURL() + "/select?" + query);
 
-        	addMeans(solr.query(query), row, p, parameterNames);
-        	i++;
-        	if (i>100){
-        		break;
-        	}
+        	row = addMeans(solr.query(query), row, p, parameterNames);
+        //	i++;
+        //	if (i>100){
+        //		break;
+        //	}
     	}
 
+    	row = addDefaultMean(row, parameterNames);
+    	
 		String res = "[";
+		String defaultMeans = "";
 		i = 0;
-    	for (ParallelCoordinatesDTO bean: row.values()){
-    		i++;
-    		String currentRow = bean.toString(false);
-    		if (!currentRow.equals("")){
-	    		res += "{" + currentRow + "}";
-	    		if (i < row.values().size()){
-	    			res += ", ";
+    	for (String key: row.keySet()){
+    		ParallelCoordinatesDTO bean = row.get(key);
+    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
+	    		i++;
+	    		String currentRow = bean.toString(false);
+	    		if (!currentRow.equals("")){
+		    		res += "{" + currentRow + "}";
+		    		if (i < row.values().size()){
+		    			res += ", ";
+		    		}
 	    		}
+    		}
+    		else {
+    			String currentRow = bean.toString(false);
+    			defaultMeans += "{" + currentRow + "}";
     		}
     	}
     	res += "]";
-    	return "var foods = " + res.toString() + ";";
+    	
+    	return "var foods = " + res.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
 
     }
 
+    
+    private HashMap<String, ParallelCoordinatesDTO> addDefaultMean(HashMap<String, ParallelCoordinatesDTO> beans, ArrayList<Parameter> allParameterNames) {
+
+    	ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
+        
+    	HashMap<String, ArrayList<Double>> defaultData = new HashMap(); // <parameter name, <mean values>>
+    	for (Parameter param : allParameterNames){
+    		defaultData.put(param.getName(), new ArrayList<Double>());
+    	}
+    	
+    	for (String key : beans.keySet()){
+    		ParallelCoordinatesDTO pc = beans.get(key);
+    		for ( String meanKey : pc.getMeans().keySet()){
+    			defaultData.get(meanKey).add(pc.getMeans().get(meanKey).getMean());
+    		}
+    	}
+    	
+    	for (String key : defaultData.keySet()){
+    		Double mean = new Double(0);
+    		int sum = 0;
+    		for (Double value : defaultData.get(key)){
+    			if (value != null){
+    				mean += value;
+    				sum ++;
+    		}
+    		}
+    		mean = mean / sum;
+            currentBean.addMean(null, null, key, null, mean);
+    	}
+    	
+        beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
+    	
+    	return beans;
+    	
+    }
+    	  
 
     private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, ArrayList<Parameter> allParameterNames) {
 
