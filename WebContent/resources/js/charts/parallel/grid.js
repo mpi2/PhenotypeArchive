@@ -17,8 +17,9 @@
 (function(undefined) {
 
   window.grid = Backbone.View.extend({
-
+	  
     initialize: function(options) {
+    	console.log ("Function is called");
       var self = this;
       for (var k in options) {
         this[k] = options[k];
@@ -28,8 +29,8 @@
         return {
           id: col,
           name: function() { if (self.alias) { return self.alias[col]; } else { return col; } }(), // how to do aliasing?
-          field: col,
-          width: function() { if (col == "name") { return 320; } else if (col == "group") { return 180; } else { return 80; }}()
+          field: function() { console.log ("Col: " + col); return col;}(),
+          width: function() { if (col == "name") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
         }
       });
       
@@ -103,6 +104,13 @@
       var self = this;
       var data = _(this.model.get('filtered')).map(function(obj) {
         obj.id = self.counter++;
+        console.log ("obj " + obj.name);
+        for (var k in obj){
+        	if (obj[k] == null){
+        		console.log(obj[k]);
+        		obj[k] = "NA";
+        	}
+        }
         return obj;
       });
       this.dataView.beginUpdate();

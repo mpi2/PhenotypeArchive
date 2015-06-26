@@ -140,7 +140,7 @@
       
       function position(d) {
         var v = dragging[d];
-        return v == null ? x(d) : v;
+        return v == null || v == "NA" ? x(d) : null;
       }
       
       // Returns the path for a given data point.
@@ -149,7 +149,7 @@
         //return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
     	return line(dimensions.map(function(p) {
     	    // check for undefined values
-    	    if (d[p] == null) {
+    	    if (d[p] == null || d[p] == "NA") {
     	    	return [x(p), y[p](defaults[p])];
     	    }
     	    else{
@@ -239,7 +239,7 @@
           		.selectAll(".serie")
 	          	.data(dimensions)
 		  	  	.enter().append("svg:circle")
-	          	.filter(function(d) { return model.get('filtered')[i][d] == null;})
+	          	.filter(function(d) { return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "NA";})
 		  	   	.attr("cx", function (d) { 
 		  	        return x(d);
 		  		}) 
@@ -256,7 +256,7 @@
         		.data(dimensions)
                 .enter()
                 .append("text")
-                .filter(function(d) { return model.get('filtered')[i][d] == null;});
+                .filter(function(d) { return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "NA";});
         
           var textLabels = text
                  .attr("x", function(d) { return  x(d) + 5; })
