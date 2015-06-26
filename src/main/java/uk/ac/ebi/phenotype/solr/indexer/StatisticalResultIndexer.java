@@ -61,7 +61,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("statisticalResultsIndexing")
     SolrServer statResultCore;
-    
+
     @Autowired
     MpOntologyService mpOntologyService;
 
@@ -98,7 +98,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         try {
 
             connection = komp2DataSource.getConnection();
-            
+
             logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
@@ -266,7 +266,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	            "INNER JOIN external_db db on db.id=sr.external_db_id " +
 	            "INNER JOIN project proj on proj.id=sr.project_id " +
 	            "INNER JOIN organisation org on org.id=sr.organisation_id " +
-	            "  INNER JOIN experiment exp on sr.colony_id=exp.colony_id AND sr.procedure_id=exp.procedure_id " +
+	            "INNER JOIN experiment exp on sr.colony_id=exp.colony_id AND sr.procedure_id=exp.procedure_id " +
 	            "WHERE parameter.stable_id LIKE '%FER%' OR parameter.stable_id LIKE '%VIA%'";
 
             try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -554,11 +554,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setDbId(r.getInt("db_id"));
         doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
 
-	    doc.setStatisticalMethod("Supplied as data");
+	    doc.setStatisticalMethod("Supplied");
 	    doc.setMaleControlCount(0);
 	    doc.setFemaleControlCount(0);
-	    doc.setMaleMutantCount(r.getInt("male_mutants"));
-	    doc.setFemaleMutantCount(r.getInt("female_mutants"));
+	    doc.setMaleMutantCount(0);
+	    doc.setFemaleMutantCount(0);
 	    doc.setColonyId(r.getString("colony_id"));
 	    doc.setStatus("Success");
 
