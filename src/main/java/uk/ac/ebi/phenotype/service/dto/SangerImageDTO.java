@@ -30,7 +30,7 @@ import java.util.List;
  * @author mrelac
  */
 public class SangerImageDTO {
-	public static final String MA_TERM_ID = "maTermId";
+	public static final String MA_TERM_ID = "ma_id";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM_ID = "selected_top_level_ma_term_id";
 
@@ -151,7 +151,7 @@ public class SangerImageDTO {
 	@Field("annotationTermName")
 	private List<String> annotationTermNames;
 
-	@Field("ma_id")
+	@Field(MA_TERM_ID)
 	private List<String> maIds;
 
 	@Field("ma_term")
@@ -588,7 +588,7 @@ public class SangerImageDTO {
 
 		this.legacyPhenotypeStatus = legacyPhenotypeStatus;
 	}
-	
+
 
 
 	public List<String> getLatestProductionCentre() {

@@ -3,7 +3,7 @@
 // Example for hover-over lines 
 // http://bl.ocks.org/mbostock/3709000
 
-	window.parallel = function(model, colors) {
+	window.parallel = function(model, colors, defaults) {
     var self = {},
         dimensions,
         dragging = {},
@@ -18,8 +18,8 @@
         foreground;
   
     var cars = model.get('data');
-    
-    self.update = function(data) {
+        
+    self.update = function(data, defaults) {
       cars = data;
     };
     
@@ -150,9 +150,11 @@
     	return line(dimensions.map(function(p) {
     	    // check for undefined values
     	    if (d[p] == null) {
-    	    //	return [x(p), null];
+    	    	return [x(p), y[p](defaults[p])];
     	    }
-    	   return [x(p), y[p](d[p])];
+    	    else{
+    	    	return [x(p), y[p](d[p])];
+    	    }
     	 }));
       }
       
@@ -242,7 +244,8 @@
 		  	        return x(d);
 		  		}) 
 		  		.attr("cy", function (d) { 
-		  			return y[d](model.get('filtered')[i][d]) ;
+		  			//return y[d](model.get('filtered')[i][d]) ;
+		  			return y[d](defaults[d]);
 		  		})
 		  		.attr("r", 3)        
 	          	.attr("style", function(d) { return "stroke:" + colors[model.get('filtered')[i].group] + ";"; 	});
@@ -257,14 +260,13 @@
         
           var textLabels = text
                  .attr("x", function(d) { return  x(d) + 5; })
-                 .attr("y", function(d) { return y[d](model.get('filtered')[i][d]) - 5; })
+                 .attr("y", function(d) { return y[d](defaults[d]) - 5; })
                  .text( "No data")
          //        .attr("font-family", "sans-serif")
          //        .attr("font-size", "20px")
          //        .attr("fill", "red")
                  ;
         
-          console.log(textLabels);
         }
       };
     };

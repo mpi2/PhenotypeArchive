@@ -28,6 +28,11 @@ import net.sf.json.JSONObject;
 
 public class ParallelCoordinatesDTO {
 
+	public static final String DEFAULT = "default value";
+	public static final String GROUP_WT = "WT";
+	public static final String GROUP_MUTANT = "Mutant";
+	
+
 	String geneSymbol;
 	String geneAccession;
 	HashMap<String, MeanBean> means;
@@ -92,7 +97,12 @@ public class ParallelCoordinatesDTO {
 		return obj;
 	}
 	
-	class MeanBean{
+	public HashMap<String, MeanBean> getMeans(){
+		return means;
+	}
+	
+	public class MeanBean{
+		
 		String unit;
 		String parameterStableId;
 		String parameterName;
@@ -106,6 +116,9 @@ public class ParallelCoordinatesDTO {
 			this.parameterStableId = parameterStableId;
 			this.parameterStableKey = parameterStableKey;
 			this.mean = mean;
+		}
+		public Double getMean(){
+			return mean;
 		}
 	}
 }

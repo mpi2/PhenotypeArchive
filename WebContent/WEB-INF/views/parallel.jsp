@@ -80,9 +80,9 @@
   	  $(function() {
 		    var dimensions = new Filter();
 		    var highlighter = new Selector();
-		
+
 		    dimensions.set({data: foods });
-		
+				
 		    var columns = _(foods[0]).keys();
 		    var axes = _(columns).without('name', 'group');
 		
@@ -98,7 +98,7 @@
 		      $('#legend').append("<div class='item'><div class='color' style='background: " + colors[group] + "';></div><div class='key'>" + group + "</div></div>");
 		    });
 		
-		    var pc = parallel(dimensions, colors);
+		    var pc = parallel(dimensions, colors, defaults);
 		    var pie = piegroups(foods, foodgroups, colors, 'group');
 		    var totals = pietotals(
 		      ['in', 'out'],
@@ -137,7 +137,6 @@
 		    
 		    highlighter.bind('change:selected', function() {
 		      var highlighted = this.get('selected');
-		      console.log("highlighted: " + highlighted);
 		      pc.highlight(highlighted);
 		    });
 		
