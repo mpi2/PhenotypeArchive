@@ -437,7 +437,8 @@
 	   		$( "input#s" ).autocomplete({
 	   			source: function( request, response ) {
 	   				$.ajax({
-	   					url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
+	   					//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
+	   					url: solrUrl + "/autosuggest/select?fq=!docType:gwas&wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
 	   					dataType: "jsonp",
 	   					'jsonp': 'json.wrf',
 	   					data: {
@@ -459,9 +460,6 @@
 		       						
 		       						if ( key == 'docType' ){	
 		       							facet = docs[i][key].toString();
-		       							if ( facet == 'gwas' ){
-		       								continue; // main search ignores gwas stuff for now
-		       							}
 		       						}
 		       						else {	
 			       						
