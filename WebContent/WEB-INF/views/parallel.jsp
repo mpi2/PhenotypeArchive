@@ -67,8 +67,8 @@
 			    <a href="#" id="remove_selected" class="button red filter_control">Remove</a>
 			    <a href="#" id="keep_selected" class="button green filter_control">Keep</a>
 			    <div id="pager" class="info"></div>
-			        <div id="legend">
-			    </div>
+			    <div class="clear" ></div>
+			    <div id="legend">  </div>
 			  </div>
 		  <div id="parallel"> </div>
 		  <div id="myGrid"></div>
@@ -78,20 +78,30 @@
 		  <script type="text/javascript">
 
   	  $(function() {
-		    var dimensions = new Filter();
+		    var dimensions = new Filter({defaultValues: defaults});
 		    var highlighter = new Selector();
 
 		    dimensions.set({data: foods });
+		    dimensions.set({'defaultValues': defaults });
 				
 		    var columns = _(foods[0]).keys();
 		    var axes = _(columns).without('name', 'group');
 		
 		    var foodgroups =
-		      [ "Mutant", "WT"];
+		      [ "WT", "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC"];
 		    
 		    var colors = {
-				      "Mutant" : '#0978A1',
-					    "WT" : '#EF7B0B'
+				//      "Mutant" : '#0978A1',
+					    "WT" : '#EF7B0B',
+					    "MRC Harwell" : 'rgb(119, 119, 119)',
+					    "TCP" : '#16532D',
+					    "WTSI" : '#602619',
+					    "JAX" : 'rgb(36, 139, 75)',
+					    "BCM" : 'rgb(191, 75, 50)',
+					    "UC Davis" : 'rgb(255, 201, 67)',
+					    "ICS" : 'rgb(191, 151, 50)',
+					    "NING" : 'rgb(247, 157, 70)',
+					    "RBRC" : '#0978A1'
 		    }
 		    
 		    _(foodgroups).each(function(group) {
@@ -124,7 +134,8 @@
 		    pc.render();
 		
 		    dimensions.bind('change:filtered', function() {
-		      var data = dimensions.get('data');
+			    var data = dimensions.get('data');
+			    var defaultValues = defaults;
 		      var filtered = dimensions.get('filtered');
 		      var data_size = _(data).size();
 		      var filtered_size = _(filtered).size();

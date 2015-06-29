@@ -1,0 +1,1003 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>IMPC Search | International Mouse Phenotyping Consortium</title>
+
+
+            <!--  NEW DESIGN CSS -->
+
+            <!-- css -->
+        <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="/data/css/vendor/jquery.ui/jquery.ui.core.css">
+        <link rel="stylesheet" href="/data/css/vendor/jquery.ui/jquery.ui.slider.css">
+        <link rel="stylesheet" href="/data/css/vendor/font-awesome/font-awesome.min.css">
+        <link rel="stylesheet" href="/data/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
+        <link rel="stylesheet" href="/data/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
+        <link rel="stylesheet" href="https://www.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.css">
+        <link rel="stylesheet" href="/data/js/vendor/DataTables-1.10.4/extensions/TableTools/css/dataTables.tableTools.min.css">
+
+
+        <link href="/data/css/default.css" rel="stylesheet" type="text/css" />
+        <link href="/data/css/wdm.css" rel="stylesheet" type="text/css" />
+
+        <!-- EBI CSS -->
+        <link href="/data/css/additionalStyling.css" rel="stylesheet" type="text/css" />
+
+        <script>
+    var baseUrl = "/data";
+    var solrUrl = 'https://www.ebi.ac.uk/mi/impc/solr';
+    var drupalBaseUrl = "https://www.mousephenotype.org";
+    var mediaBaseUrl = "https://www.mousephenotype.org/data/media";
+    console.log("mediaBaseUrl set="+mediaBaseUrl);
+    var pdfThumbnailUrl = "//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/119501";
+    console.log("pdfThumbnailUrl set="+pdfThumbnailUrl);
+
+            
+    try {
+        console.log(" ");
+    } catch (err) {
+        var console = {};
+        console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function () {
+        };
+    }
+        </script>
+
+        
+        
+            <script>
+                (function (i, s, o, g, r, a, m) {
+                    i['GoogleAnalyticsObject'] = r;
+                    i[r] = i[r] || function () {
+                        (i[r].q = i[r].q || []).push(arguments)
+                    }, i[r].l = 1 * new Date();
+                    a = s.createElement(o),
+                            m = s.getElementsByTagName(o)[0];
+                    a.async = 1;
+                    a.src = g;
+                    m.parentNode.insertBefore(a, m)
+                })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+                ga('create', 'UA-23433997-1', 'auto');
+                ga('send', 'pageview');
+            </script>
+        
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+                <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+                <style>
+                #logoImage {margin: 5px; padding:5px;}
+                .container .container .navbar .navbar-inner {width:100%}
+                img#logoImage{margin-right:10px;padding-right: 30px;}
+                </style>
+        <![endif]-->
+
+        <!-- NEW DESIGN JAVASCRIPT -->
+
+        <!-- javascript -->
+        <script type="text/javascript" src="/data/js/head.min.js?v=2.0.2"></script>
+        <!--We're calling these from Google as this will download from the closest geographic location which will speed page-loads for Aussies and Kiwis-->
+        <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="/data/js/vendor/DataTables-1.10.4/media/js/jquery.dataTables.min.js?v=2.0.2"></script>
+        <script type="text/javascript" src="/data/js/vendor/DataTables-1.10.4/extensions/TableTools/js/dataTables.tableTools.min.js?v=2.0.2"></script>
+        <script type="text/javascript" src="/data/js/vendor/jquery.jeditable.js?v=2.0.2"></script>
+
+
+        <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
+        <script type="text/javascript" src="/data/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=2.0.2"></script>
+        <script type="text/javascript" src="/data/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=2.0.2"></script>
+        <script type="text/javascript" src="/data/js/vendor/jquery/jquery.tablesorter.min.js?v=2.0.2"></script>
+        <script type='text/javascript' src='/data/js/charts/highcharts.js?v=2.0.2'></script>
+        <script type='text/javascript' src='/data/js/charts/highcharts-more.js?v=2.0.2'></script>
+        <script type='text/javascript' src='/data/js/charts/exporting.js?v=2.0.2'></script>
+        <script type='text/javascript' src="/data/js/general/toggle.js?v=2.0.2"></script> 
+
+        <script type="text/javascript" src="/data/js/default.js?v=2.0.2"></script>
+
+        <style>
+	
+	</style>
+	<link href="/data/css/searchPage.css" rel="stylesheet" type="text/css" />
+
+        
+        
+            
+                <link rel="canonical" href="http://www.mousephenotype.org/data/search" />
+            
+        
+
+    </head>
+
+
+    <body id="top" class="page-node searchpage one-sidebar sidebar-first small-header">
+    
+    
+	    <div id="feedback_simple">
+	        <a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href=""><img src="https://www.mousephenotype.org/sites/all/modules/feedback_simple/feedback_simple.gif" /></a>
+	    </div>
+    
+    
+    <div id="wrapper">
+        
+            
+
+                <header id="header">
+                    <div class="region region-header">
+
+                        <div id="tn">
+                            <ul><ul class="links"><li class="menu-3521 first"><a href="/user/login?destination=data/search" title="Login with your account" id="login">Login</a></li>
+<li class="menu-3523 last"><a href="/user/register?destination=data/search" title="Register for an account" id="register">Register</a></li>
+</ul></ul>
+                        </div>
+
+                        <div id="logo">
+                            <a href="https://www.mousephenotype.org/"><img src="/data/img/impc.png" alt="IMPC Logo" /></a>
+                            <div id="logoslogan">International Mouse Phenotyping Consortium</div>
+                        </div>
+
+                        <nav id="mn"><div id="block-menu-block-1" class="block block-menu-block">
+    
+  <div class="content"><div class="menu-block-wrapper menu-block-1 menu-name-main-menu parent-mlid-0 menu-level-1">
+  <ul class="menu"><li class="first leaf menu-mlid-3127"><a href="https://www.mousephenotype.org/data/search">Search</a></li>
+<li class="expanded menu-mlid-530"><a href="/goals-and-background">About IMPC</a><ul class="menu"><li class="first leaf menu-mlid-3125"><a href="/goals-and-background" title="">Goals and Background</a></li>
+<li class="leaf menu-mlid-537"><a href="/about-impc/impc-members">IMPC Members</a></li>
+<li class="leaf menu-mlid-3197"><a href="https://www.mousephenotype.org/sites/mousephenotype.org/files/IMPC%20Governance%20and%20Coordination%20v02%20October%202014.pdf">Governance Documentation</a></li>
+<li class="leaf has-children menu-mlid-3525"><a href="/about-impc/coordination">Coordination</a></li>
+<li class="leaf menu-mlid-3229"><a href="/about-impc/industry-sponsors">Industry Sponsors</a></li>
+<li class="leaf menu-mlid-546"><a href="/about-impc/impc-secretariat">Secretariat</a></li>
+<li class="leaf has-children menu-mlid-3223"><a href="/about-impc/publications">Additional Information</a></li>
+<li class="leaf menu-mlid-3983"><a href="/about-impc/arrive-guidelines">ARRIVE Guidelines</a></li>
+<li class="last leaf menu-mlid-3975"><a href="/about-ikmc">About IKMC</a></li>
+</ul></li>
+<li class="expanded menu-mlid-526"><a href="/news" title="">News &amp; Events</a><ul class="menu"><li class="first leaf menu-mlid-3185"><a href="/news-events/impc-lethal-lines">IMPC Lethal Lines</a></li>
+<li class="leaf menu-mlid-2102"><a href="/news-events/meetings">Meetings</a></li>
+<li class="leaf menu-mlid-4041"><a href="http://www.mousephenotype.org/data/alleleref">References using IKMC and IMPC Resources</a></li>
+<li class="last leaf menu-mlid-4043"><a href="/news-events/phone-conferences">Phone Conferences</a></li>
+</ul></li>
+<li class="leaf menu-mlid-559"><a href="/contact-us">Contact</a></li>
+<li class="last expanded menu-mlid-1220"><a href="/user?current=menudisplaycombinedrendered">My IMPC</a><ul class="menu"><li class="first leaf menu-mlid-1126"><a href="/forum" title="">IMPC Forum</a></li>
+<li class="leaf has-children menu-mlid-3133"><a href="/my-impc/documentation">Documentation</a></li>
+<li class="last leaf menu-mlid-4029"><a href="/my-impc/communications-materials">Communications Materials</a></li>
+</ul></li>
+</ul></div>
+<div class="clear"></div></div>  
+</div></nav>
+                        <div class="clear"></div>
+                    </div>
+                </header>
+
+                <div id="main">
+                    <div class="breadcrumb">
+                        <a href="https://www.mousephenotype.org">Home</a> &raquo; <a href="/data/search">Search</a>
+                    </div>
+                    		
+   
+		<div class="region region-sidebar-first">
+			<div id='facet' class='fblock block'>	
+				<div class="head">Filter your search</div>
+				<div class='content'>
+				    <div class="ffilter">
+						<ul id="facetFilter">
+							<li class="has-sub gene"><span class='fcap'>Gene</span></li>
+							<li class="has-sub mp"><span class='fcap'>Phenotype</span></li>
+							<li class="has-sub disease"><span class='fcap'>Disease</span></li>
+							<li class="has-sub ma"><span class='fcap'>Anatomy</span></li>
+							<li class="has-sub pipeline"><span class='fcap'>Pipeline</span></li>
+							<li class="has-sub impc_images"><span class='fcap'>IMPC Images</span></li>	
+							<li class="has-sub images"><span class='fcap'>Images</span></li>					
+						</ul>
+					
+						<div id="resetFilter"><span id='rmFilters'>Remove all facet filters</span></div>
+					</div>
+										
+					<p class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+					</p>
+										
+					<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div> 
+					<div class="flist">
+						<ul>
+							<li class="fmcat" id="gene">
+								<span class="flabel">Genes</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="mp">
+								<span class="flabel">Phenotypes</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="disease">
+								<span class="flabel">Diseases</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="ma">
+								<span class="flabel">Anatomy</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<!-- <li class="fmcat" id="pipeline">
+								<span class="flabel">Procedures</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							-->
+							<li class="fmcat" id="impc_images">
+								<span class="flabel">IMPC Images</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="images">
+								<span class="flabel">Images</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+						</ul>
+					</div>				
+				</div>
+			</div>	
+		</div>	
+				
+		<div class="region region-content">
+			<div class="block block-system">
+				<div class='content'>
+					<div class='searchcontent'>
+						<div id="bigsearchbox" class="block">
+							<div class="content">								
+								<p><i id="sicon" class="fa fa-search"></i>
+									<!-- <input id="s" type="text" value="" placeholder="Search">-->
+									<div class="ui-widget">
+										<input id="s">
+									</div>
+								</p>									
+							</div>
+						</div>
+					</div>
+					
+					<div class="textright">
+						<a id="searchExample" class="">View example search</a>						
+					</div>	
+					
+					<div class="clear"></div>
+					<!-- facet filter block -->								
+					<!-- container to display dataTable -->									
+					<div class="HomepageTable" id="mpi2-search"></div>				
+				</div>
+			</div>
+		</div>		       
+        
+        <compress:html enabled="true" compressJavaScript="true">	    
+			<script type='text/javascript' src='/data/js/searchAndFacet/searchAndFacetConfig.js?v=2.0.2'></script>
+			<script type='text/javascript' src='/data/js/searchAndFacet/geneFacetWidget.js?v=2.0.2'></script>
+			<script type='text/javascript' src='/data/js/searchAndFacet/mpFacetWidget.js?v=2.0.2'></script>
+			<script type='text/javascript' src='/data/js/searchAndFacet/maFacetWidget.js?v=2.0.2'></script>
+			<!--  <script type='text/javascript' src='/data/js/searchAndFacet/pipelineFacetWidget.js?v=2.0.2'></script> -->
+			<script type='text/javascript' src='/data/js/searchAndFacet/diseaseFacetWidget.js?v=2.0.2'></script>
+			<script type='text/javascript' src='/data/js/searchAndFacet/impc_imagesFacetWidget.js?v=2.0.2'></script>
+			<script type='text/javascript' src='/data/js/searchAndFacet/imagesFacetWidget.js?v=2.0.2'></script>
+			<script type='text/javascript' src='/data/js/searchAndFacet/search.js?v=2.0.2'></script> 
+	    </compress:html>        
+       
+         <script>        		
+       	$(document).ready(function(){
+       		'use strict';	
+       		
+       		// back button will not see this js
+       		MPI2.searchAndFacetConfig.update.widgetOpen = false;
+       		MPI2.searchAndFacetConfig.update.pageReload = true;
+       		
+       		$('span.facetCount').text(''); // default when page loads
+       		$('input#s').val('');  // clears input when pages loads
+       			
+       		// default search when search page loads
+       		if ( /search\/?$/.exec(location.href) ){
+       			//console.log('default search load')
+       			// do default gene search by * when search page loads	
+       			// handed over to no hash change code below
+       		
+       		} 
+       		else if ( window.location.search == '?q=' ){
+       		
+       			// catches user hitting ENTER on search input box of homepage
+       			document.location.href = baseUrl + '/search';		
+       		}
+       		else if ( location.href.indexOf('/search?q=') != -1 
+       				|| location.href.indexOf('/search#q=*:*') != -1 
+       				|| location.href.indexOf('/search#q=*') != -1 
+       				|| location.href.indexOf('/search#fq=') != -1 ){   	
+       			
+       			// load page based on url hash parameters	
+       			$('input#s').val(decodeURI($.fn.fetchQueryStr()));
+       			
+       			oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));	
+       			if (typeof oUrlParams.fq == 'undefined'){
+       				oUrlParams.noFq = true;
+       			}
+       		
+       			$.fn.fetchSolrFacetCount(oUrlParams);	
+       		}
+       		else {
+       			// do not understand the url, redirect to error page
+       			document.location.href = baseUrl + '/404.jsp';		
+       		}
+       		
+       		// search via ENTER
+       		$('input#s').keyup(function (e) {		
+       		    if (e.keyCode == 13) { // user hits enter
+       		    	$(".ui-menu-item").hide();
+       		    	//$('ul#ul-id-1').remove();
+       		    
+       		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
+       		    	var input = $('input#s').val().trim();
+       		    	
+       		    	//alert(input + ' ' + solrUrl)
+       		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
+       		    	
+       		    	var re = new RegExp("^'(.*)'$");
+       		    	input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
+       		    	
+       		    	// NOTE: solr special characters to escape
+       		    	// + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+       		    	
+       		    	input = encodeURIComponent(input);
+
+       		    	input = input.replace("%5B", "\\[");
+       				input = input.replace("%5D", "\\]");
+       				input = input.replace("%7B", "\\{");
+       				input = input.replace("%7D", "\\}");
+       				input = input.replace("%7C", "\\|");
+       				input = input.replace("%5C", "\\\\");
+       				input = input.replace("%3C", "\\<");
+       				input = input.replace("%3E", "\\>");
+       				input = input.replace("."  , "\\.");
+       				input = input.replace("("  , "\\(");
+       				input = input.replace(")"  , "\\)");
+       				input = input.replace("%2F", "\\/");
+       				input = input.replace("%60", "\\`");
+       				input = input.replace("~"  , "\\~"); 
+       				input = input.replace("%"  , "\\%");
+       				input = input.replace("!"  , "\\!");
+       				input = input.replace("%21", "\\!");
+       				
+       				if ( /^\\%22.+%22$/.test(input) ){	
+       					input = input.replace(/\\/g, ''); //remove starting \ before double quotes	
+       				}
+       				
+       				// no need to escape space - looks cleaner to the users 
+       				// and it is not essential to escape space
+       				input = input.replace(/\\?%20/g, ' ');
+       				
+       				var facet = MPI2.searchAndFacetConfig.matchedFacet;
+       				
+       				//console.log('matched facet: '+ facet)
+       		    	if (input == ''){
+       		    		
+       		    		// if there is no existing facet filter, reload with q
+       		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
+       		    			//baseUrl + '/search?q=' + input;
+       		    			document.location.href = baseUrl + '/search';
+       		    		}
+       		    		else {
+       		    			var q = encodeURI('*:*');	
+       		    			window.location.search = 'q=' + q;
+       		    		}
+       		    	}
+       		    	else if (! facet){
+       		    		
+       		    		//alert('2: ' + input)
+       		    		// user hits enter before autosuggest pops up	
+       		    		// ie, facet info is unknown
+       		    		
+       		    		if (input.match(/HP\\%3A\d+/)){
+       		    			// work out the mapped mp_id and fire off the query
+	       		    		_convertHp2MpAndSearch(input);
+       		    		} 
+       		    		else if ( input.match(/MP%3A\d+ - (.+)/) ){
+       		    			// hover over hp mp mapping but not selecting 
+       		    			// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
+       		    			var matched = input.match(/MP%3A\d+ - (.+)/); 
+       		    			var mpTerm = '"' + matched[1] + '"';
+       		    			var fqStr = $.fn.getCurrentFq('mp');
+       		    			document.location.href = baseUrl + '/search?q=mp_term:' + mpTerm + '#fq=' + fqStr + '&facet=mp'; 
+       		    		}
+       		    		else {
+	       		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
+	       		    			// if there is no existing facet filter, reload with q
+	       		    			document.location.href = baseUrl + '/search?q=' + input;
+	       		    		}
+	       		    		else {
+	       		    			// facet will be figured out by code
+	       		    			var fqStr = $.fn.getCurrentFq(facet);
+	           		    		document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
+	       		    		}
+       		    		}
+       		    	}
+       		    	else {	
+       		    		
+       		    		//alert('3: ' + facet)
+       		    		if (input.match(/HP\\%3A\d+/)){
+	       		    		// work out the mapped mp_id and fire off the query
+	       		    		_convertHp2MpAndSearch(input);
+       		    		} 
+       		    		else if ( facet == 'hp' ){
+       		    			_convertInputForSearch(input);
+       		    		}
+       		    		else {
+       		    			var fqStr = $.fn.getCurrentFq(facet);
+       		    			document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr + '&facet=' + facet;
+       		    		}
+       		    	}
+       		    }
+       		});
+       		
+       		function _convertHp2MpAndSearch(input){
+	    		
+	    		$.ajax({
+	       			url: "https://www.ebi.ac.uk/mi/impc/solr/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",				       			
+	       			dataType: "jsonp",
+	       			jsonp: 'json.wrf',
+	       			type: 'post',
+	    	    	async: false,
+	       			success: function( json ) {
+		    				input = json.response.docs[0].hpmp_id;
+		    				document.location.href = baseUrl + '/search?q=' + input + '#fq=top_level_mp_term:*&facet=mp';
+	       			}
+   				});
+       		}
+       		
+       		function _convertInputForSearch(input){
+       			$.ajax({
+	       			url: "https://www.ebi.ac.uk/mi/impc/solr/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",				       			
+	       			dataType: "jsonp",
+	       			jsonp: 'json.wrf',
+	       			type: 'post',
+	    	    	async: false,
+	       			success: function( json ) {
+	       				var doc = json.response.docs[0];
+	       				var facet, q;
+	       				
+	       				for( var field in doc ) {
+	       					if ( field != 'docType' ){
+	       						q = doc[field]; 
+	       					}
+	       				}
+		    			document.location.href = baseUrl + '/search?q=' + q;
+	       			}
+   				});
+       		}
+       		
+       		$('span#rmFilters').click(function(){
+       			
+       			if ( window.location.search != '' ){
+       				if ( MPI2.searchAndFacetConfig.update.notFound ){
+       					// no result, remove filter
+       					$.fn.resetUrlFqStr();
+       				}
+       				else {
+	       				// need to include search keyword in query when all filters are removed 
+	       				var foundCount = 0;
+	       				$('ul#facetFilter li.ftag a').each(function(){
+	    					$(this).click();
+	    				});	
+       				}
+       			}
+       			else {
+       				document.location.href = baseUrl + '/search';
+       			}
+       		});
+       		
+       		$('a#searchExample').mouseover(function(){
+       			// override default behavior from default.js - Nicolas	
+       			return false;
+       		})
+       		
+       		var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^70 selected_top_level_ma_term:*^60";
+       		
+       		// autosuggest 
+       		$(function() {
+	       		$( "input#s" ).autocomplete({
+	       			source: function( request, response ) {
+	       				
+	       				// when search string contains *, use auto_suggest only for qf (as string won't work)
+	       				// string is used for exact match
+	       				var qfStr = request.term.match(/\*/) ? 'auto_suggest' : 'string auto_suggest';
+	       				
+		       			$.ajax({
+		       				
+		       				// use double qf fields to deal with exact and partial string match
+			       			url: "https://www.ebi.ac.uk/mi/impc/solr/autosuggest/select?wt=json&qf=" + qfStr + "&defType=edismax" + solrBq,	
+			       			//url: "https://www.ebi.ac.uk/mi/impc/solr/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax",
+			       			dataType: "jsonp",
+			       			'jsonp': 'json.wrf',
+			       			data: {
+			       				q: request.term
+		       				},
+			       			success: function( data ) {
+
+			       				MPI2.searchAndFacetConfig.matchedFacet = false; // reset
+			       				var docs = data.response.docs;	
+			       				var aKV = [];
+			       				
+			       				for ( var i=0; i<docs.length; i++ ){
+			       					var facet;
+			       					for ( var key in docs[i] ){
+			       						if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
+			       							continue;
+			       						}
+			       						
+			       						if ( key == 'docType' ){	
+			       							facet = docs[i][key].toString();
+			       						}
+			       						else {	
+			       							var term = docs[i][key].toString();	
+			       							var termHl = term;
+			       							
+			       							// highlight multiple matches (partial matches) while users typing in search keyword(s)
+			       							// let jquery autocomplet UI handles the wildcard
+			       							//var termStr = $('input#s').val().trim(' ').split(' ').join('|').replace(/\*|"|'/g, ''); 
+			       							var termStr = $('input#s').val().trim(' ').split(' ').join('|')
+			       							.replace(/\*|"|'/g, '')
+			       							.replace(/\(/g,'\\(')
+			       							.replace(/\)/g,'\\)');
+			       							
+			       							var re = new RegExp("(" + termStr + ")", "gi") ;
+			       							termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
+			       							
+			       							if ( facet == 'hp' ){
+			       								termHl += " &raquo; <span class='hp2mp'>" + docs[i]['hpmp_id'].toString() + ' - ' + docs[i]['hpmp_term'].toString() + "</span>";		
+			       							}
+			       							aKV.push("<span class='" + facet + "'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
+			       							
+			       							/*if (i == 0){
+			       								// take the first found in autosuggest and open that facet
+			       								MPI2.searchAndFacetConfig.matchedFacet = facet;			       							
+			       							}*/
+			       						}
+			       					}
+			       				}
+			       				response( aKV );			       				
+			       			}
+		       			});
+	       			},
+	       			focus: function (event, ui) {
+	       		       this.value = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
+	       		       event.preventDefault(); // Prevent the default focus behavior.
+	       			},
+	       			minLength: 3,
+	       			select: function( event, ui ) {
+	       				// select by mouse / KB
+	       				//console.log(this.value + ' vs ' + ui.item.label);
+	       				var oriText = $(ui.item.label).text();
+	       				var facet = $(ui.item.label).attr('class') == 'hp' ? 'mp' : $(ui.item.label).attr('class');
+	       				
+	       				// handed over to hash change to fetch for results	
+	       				var q;
+	       				var fqStr = $.fn.getCurrentFq(facet);
+	       				//var hpParam = '';
+	       				
+	       				//var matched = this.value.match(/.+ Â» (MP:\d+) - .+/); 
+	       				var matched = this.value.match(/(.+)MP:\d+ - (.+)/); 
+	       				if ( matched ){
+	       					q = 'mp_term:"' + encodeURIComponent(matched[2]) + '"';
+	       					//hpParam = '&hpTerm="' + decodeURI(encodeURIComponent(matched[1]).replace('%20%C2%BB%20','')) + '"';
+	       				}
+	       				else {
+	       					q = '"' + encodeURIComponent(this.value) + '"';
+	       				}	
+	       				
+	       				document.location.href = baseUrl + '/search?q=' + q + '#fq=' + fqStr + '&facet=' + facet; 	
+	       				
+	       				// prevents escaped html tag displayed in input box
+	       				event.preventDefault(); return false; 
+	       				
+	       			},
+	       			open: function(event, ui) {
+	       				//fix jQuery UIs autocomplete width
+	       				$(this).autocomplete("widget").css({
+	       			    	"width": $(this).width() + "px"
+	       			    });
+	       			   				
+	       				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );	       				
+	       			},
+	       			close: function() {
+	       				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+	       			}
+	       		}).keyup(function (e) {
+	       			
+	       			// close dropdown list when hit enter
+	       			// this fixed problem of hit enter quickly before dropdown list appears 
+	       			// and then hit enter while wait a bit after dropdown list appears in a second seach -
+	       			// this causes dropdown list putshed up or down but not disappear
+     		        if(e.which === 13) {
+     		            $(".ui-menu-item").hide();
+     		    }})      		
+	       		.data("ui-autocomplete")._renderItem = function( ul, item) { // prevents HTML tags being escaped
+       				return $( "<li></li>" ) 
+     				  .data( "item.autocomplete", item )
+     				  .append( $( "<a></a>" ).html( item.label ) )
+     				  .appendTo( ul );
+     			}
+       		});
+       		
+       	 	
+       		// make "search" menu point active (highlighted)
+       		$('nav#mn ul.menu > li:first-child').addClass('active');
+       		       		
+       		;
+       		
+   			$.fn.qTip(
+   				{'pageName':'search'}		 					
+   			);  			 						
+   			
+   			// non hash tag keyword query
+   			;
+   					
+   			// hash tag query
+   			// catch back/forward buttons and hash change: loada dataTable based on url params
+   			$(window).bind("hashchange", function() {
+   				
+   				// for page feedback on search page that involves hashtag change
+   				$('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
+   				
+   				MPI2.searchAndFacetConfig.update.hashChange = true;
+   				//var hashStr = $.param.fragment();	 // not working with jQuery 10.0.1
+   				var hashStr = $(location).attr('hash');	
+   				//MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+   				
+   				//console.log('hash change URL: '+ '/search' + hashStr);
+   				var oUrlParams = _process_hash();
+   				//console.log(oUrlParams)
+   				
+   				/* deals with 3 events here:
+   				 	1. added/removed filter 
+   					2. back button
+   					*/
+   				if ( MPI2.searchAndFacetConfig.update.filterChange ){
+   					//console.log('added or removed a filter');
+    				MPI2.searchAndFacetConfig.update.filterChange = false;
+    				
+    				// MA,MP facet stays open when adding/removing filters
+    				$('li#mp.fmcat, li#ma.fmcat').each(function(){
+    					if (oUrlParams.facetName == $(this).attr('id')) {
+    						$(this).addClass('open');
+    					}
+    				});
+    				
+    				var sumCount = 0;	
+    				$('div.flist li.fmcat span.fcount').each(function(){
+    					sumCount += parseInt($(this).text());
+    				});
+    				
+    				// after adding/removing a filter, check if we got any result
+    				//console.log('check sumcoung: '+ sumCount);
+    				if ( sumCount == 0 ){
+    					
+    					if ( MPI2.searchAndFacetConfig.update.notFound ){
+    						
+    						// deals with facet filters having zero results	
+    						MPI2.searchAndFacetConfig.update.notFound = false;    						
+    						$.fn.fetchSolrFacetCount(oUrlParams);
+    						
+    						if ( MPI2.searchAndFacetConfig.update.lastFilterNotFound ){
+        						MPI2.searchAndFacetConfig.update.lastFilterNotFound = false;
+        						$.fn.loadDataTable(oUrlParams);
+    						}
+    					}
+    					else {
+    						$.fn.showNotFoundMsg();  
+    					}
+   					}
+    				else {
+    					$.fn.loadDataTable(oUrlParams);
+    				}
+    			}
+   				
+   				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
+   					//console.log('widget open');	
+   				
+   					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
+   					
+   					if ( MPI2.searchAndFacetConfig.update.rebuilt  ){
+   						// just reset flag, no need to load dataTable again (already done)
+   						MPI2.searchAndFacetConfig.update.rebuilt = false;
+   					}
+   					/* else if ( !MPI2.searchAndFacetConfig.update.mainFacetDone && oUrlParams.fq ){
+    					$.fn.loadDataTable(oUrlParams);
+    				} */
+    				else {
+    					$.fn.loadDataTable(oUrlParams);
+    				}
+   					
+   				} 
+   				else if ( MPI2.searchAndFacetConfig.update.pageReload == true ){
+					//console.log('reload with widget open true');
+					// eg. default search page loading 
+					if ( /search\/?$/.test(window.location.href) ){
+	    				// when the url become ..../search
+						document.location.href = baseUrl + '/search';
+	    			}
+					else {
+						//rebuildFilters(oUrlParams);
+						$.fn.rebuildFilters(oUrlParams);
+					}
+				} 
+   				else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
+    				//console.log('back button OR widget open event');
+    				
+    				MPI2.searchAndFacetConfig.update.rebuilt = false;  //reset
+    				
+    				if ( /search\/?$/.test(window.location.href) ){
+        				// when the url become ..../search
+    					document.location.href = baseUrl + '/search';
+        			}
+    				else if ( $(location).attr('hash').indexOf('facet=') == -1 ){
+    					// if facet on url is unknown, eg. users hit ENTER too fast. 
+    					// When this url is reached by back button, just replace it with
+    					// document.location.href = ...
+    					// caveat: back button clicks becomes a infinite loop
+    					
+    					// the new url will not work w/o reload, why?
+    					document.location.href = baseUrl + '/search'+ window.location.search + $(location).attr('hash');
+    					document.location.reload(true);
+    				}
+    				else {
+    					//rebuildFilters(oUrlParams); 
+    					$.fn.rebuildFilters(oUrlParams);
+    				}
+				}
+   				
+   			});		
+   			
+    		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
+    			//console.log('page reload: no hash change detected')
+				
+    			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
+    			//console.log(oUrlParams);
+    			
+    			if ( window.location.search != '' ){
+    				// qrep value of q
+    				oUrlParams.q = $.fn.fetchQueryStr();
+    			}
+    			
+    			//if ( $.isEmptyObject(oUrlParams || typeof oUrlParams.coreName != 'undefined' ) ){
+    			if ( $.isEmptyObject(oUrlParams) ){
+    				//console.log('search page default load: /search or /search?');
+    				$.fn.fetchSolrFacetCount(oUrlParams);	
+    			}
+    			else if ( MPI2.searchAndFacetConfig.update.mainFacetNone ){
+    				MPI2.searchAndFacetConfig.update.mainFacetDone = false;
+    				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = true;
+    				MPI2.searchAndFacetConfig.update.mainFacetNone = false;
+					$.fn.rebuildFilters(oUrlParams);
+    			}
+    			else {
+        			if ( MPI2.searchAndFacetConfig.update.mainFacetDone ){
+        				MPI2.searchAndFacetConfig.update.mainFacetDone = false;
+        				MPI2.searchAndFacetConfig.update.mainFacetDoneReset = true;
+        			}
+        			else {
+    					$.fn.rebuildFilters(oUrlParams);
+        			}   			
+    			}
+    		}
+    		
+    		function _process_hash(){
+    			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
+    			
+    			if ( window.location.search != '' && window.location.hash == '' ){
+    				// has q only, no hash string
+    				//console.log('has q')
+    				
+    			}
+    			
+    			else {
+    				
+					// img_ prefix is to for fields marker_type, procedure_id, top_level_mp_term and selected_top_level_ma_term
+	   				// from images core. This is shown on the url and used to rebuild facet filters 
+	   				// - ie, we can tell if a filter is for MP or images, eg
+	   				// when doing the query, strip it out
+	   				
+					if ( typeof oUrlParams.fq != 'undefined' ){
+						oUrlParams.oriFq = oUrlParams.fq;
+						oUrlParams.fq = oUrlParams.fq.replace(/img_|impcImg_/g,'');
+					}
+					
+	   				oUrlParams.widgetName = oUrlParams.coreName? oUrlParams.coreName : oUrlParams.facetName;	
+					oUrlParams.widgetName += 'Facet';
+					
+	   				oUrlParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
+    			}	
+    			return oUrlParams;
+   			}
+   							
+    		var exampleSearch = 
+					 '<h3 id="samplesrch">Example Searches</h3>'
+						+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
+						+ '	<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>'
+						+ '</p>'
+						+ '<h5>Gene query examples</h5>'
+						+ '<p>'
+						+ '<a href="/data/search?q=akt2#fq=*:*&facet=gene">Akt2</a>'
+						+ '- looking for a specific gene, Akt2'
+						+ '<br>'
+						+ '<a href="/data/search?q=*rik#fq=*:*&facet=gene">*rik</a>'
+						+ '- looking for all Riken genes'
+						+ '<br>'
+						+ '<a href="/data/search?q=hox*#fq=*:*&facet=gene">hox*</a>'
+						+ '- looking for all hox genes'
+						+ '</p>'
+						+ '<h5>Phenotype query examples</h5>'
+						+ '<p>'					
+						+ '<a href="/data/search?q=abnormal skin morphology#fq=top_level_mp_term:*&facet=mp">abnormal skin morphology</a>'
+						+ '- looking for a specific phenotype'
+						+ '<br>'
+						+ '<a href="/data/search?q=ear#fq=top_level_mp_term:*&facet=mp">ear</a>'
+						+ '- find all ear related phenotypes'
+						+ '</p>'
+						+ '<h5>Procedure query Example</h5>'
+						+ '<p>'
+						+ '<a href="/data/search?q=grip strength#fq=pipeline_stable_id:*&facet=pipeline">grip strength</a>'
+						+ '- looking for a specific procedure'
+						+ '</p>'
+						+ '<h5>Phrase query Example</h5>'
+						+ '<p>'
+						+ '<a href="/data/search?q=zinc finger protein#fq=*:*&facet=gene">zinc finger protein</a>'
+						+ '- looking for genes whose product is zinc finger protein'
+						+ '</p>'
+						+ '<h5>Phrase wildcard query Example</h5>'
+						+ '<p>'
+						+ '<a href="/data/search?q=abnormal phy*#fq=top_level_mp_term:*&facet=mp">abnormal phy*</a>'
+						+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
+						+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.<br>NOTE that leading wildcard, eg. *abnormal is not supported.'
+						+ '</p>';
+						
+					
+            // initialze search example qTip with close button and proper positioning
+            $("a#searchExample").qtip({            	   
+               	hide: true,
+    			content: {
+    				text: exampleSearch,
+    				title: {'button': 'close'}
+    			},		 	
+   			 	style: {
+   			 		classes: 'qtipimpc',			 		
+   			        tip: {corner: 'top center'}
+   			    },
+   			    position: {my: 'left top',
+   			    		   adjust: {x: -360, y: 0}
+   			    },
+   			 	show: {
+   					event: 'click' //override the default mouseover
+   				}
+            });
+                        
+            // Message to IE users
+            //$.fn.ieCheck();
+        });        
+        </script>
+			
+						
+    
+                </div>
+                <!-- /main -->
+
+                <footer id="footer">
+
+                    <div class="centercontent">
+                        <div class="region region-footer">
+                            <div id="block-block-7" class="block block-block">
+                                <div class="content">
+                                    <img src="/data/img/footerLogos.jpg" />
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="footerline">
+
+                        <div class="centercontent">
+
+                            <div id="footersitemap" class="twothird left">&nbsp;</div>
+                            <div class="onethird right">
+
+                                <div id="vnavi">
+                                    <ul>
+                                        <li><a href="https://www.mousephenotype.org/data/release">Release: 3.1</a></li>
+                                        <li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">FTP</a></li>
+                                        <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
+                                        <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="clear"></div>
+
+                                <p class="textright">&copy; 2015 IMPC &middot; International Mouse Phenotyping Consortium</p>
+
+                                <div class="clear"></div>
+
+                            </div>
+
+                            <div class="clear"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+                <li><a href="#top">Search</a></li>
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
+
+                </footer>
+
+            
+            
+        
+
+        <!-- <script type="text/javascript" src='/data/js/script.min.js?v=2.0.2' ></script>-->
+
+        <script type='text/javascript' src='/data/js/utils/tools.js?v=2.0.2'></script>                 
+        <script type='text/javascript' src='/data/js/general/ui.dropdownchecklist_modif.js?v=2.0.2'></script>     	    
+        <script type='text/javascript' src='/data/js/documentationConfig.js?v=2.0.2'></script>
+
+        <script type='text/javascript'>
+$(document).ready(function () {
+    // assign the url to feedback link dynamically
+    // this won't work with hashtag change which is taken care of in search.jsp
+    $('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
+});
+        </script>  
+
+    </div> <!-- wrapper -->
+</body>
+
+
+
+
