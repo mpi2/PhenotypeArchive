@@ -165,7 +165,8 @@ public class ObservationService extends BasicService {
         	query.set("group", true);
         	query.set("group.limit", 10000);
         	query.set("group.field", ObservationDTO.GENE_SYMBOL);
-        	query.setFields(ObservationDTO.DATA_POINT);
+        	query.addField(ObservationDTO.DATA_POINT);
+        	query.addField(ObservationDTO.PHENOTYPING_CENTER);
         	query.setRows(100000);
 
         	System.out.println("-- Get means:  " + solr.getBaseURL() + "/select?" + query);
@@ -190,13 +191,13 @@ public class ObservationService extends BasicService {
 	    		if (!currentRow.equals("")){
 		    		res += "{" + currentRow + "}";
 		    		if (i < row.values().size()){
-		    			res += ", ";
+		    			res += ", \n";
 		    		}
 	    		}
     		}
     		else {
     			String currentRow = bean.toString(false);
-    			defaultMeans += "{" + currentRow + "}";
+    			defaultMeans += "{" + currentRow + "}\n";
     		}
     	}
     	res += "]";
@@ -244,20 +245,35 @@ public class ObservationService extends BasicService {
 
     private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, ArrayList<Parameter> allParameterNames) {
 
-    	 List<Group> groups = response.getGroupResponse().getValues().get(0).getValues();
-         for (Group gr : groups) {
+    	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
+        
+    	 for (Group gr : solrGroups) {
              SolrDocumentList resDocs = gr.getResult();
-             Double sum = (double) 0;
+        	 HashMap<String, ArrayList<Double> >dataByGroup = new HashMap<>(); // <center, <values>> for each gene
              for (int i = 0; i < resDocs.getNumFound(); i ++) {
                  SolrDocument doc = resDocs.get(i);
-                 sum += new Double(doc.getFieldValue(ObservationDTO.DATA_POINT).toString());
+                 String center = doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString();
+                 if (!dataByGroup.containsKey(center)){
+                	 dataByGroup.put(center, new ArrayList<Double>());
+                 }
+                 dataByGroup.get(center).add(new Double(doc.getFieldValue(ObservationDTO.DATA_POINT).toString()));
              }
              String gene = gr.getGroupValue();
-             String group = (gene == null) ? "WT" : "Mutant";
-             ParallelCoordinatesDTO currentBean = beans.containsKey(gene)? beans.get(gene) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames);
-             Double mean = sum/resDocs.size();
-             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, mean);
-             beans.put(gene, currentBean);
+             for (String center : dataByGroup.keySet()){
+                 String group = (gene == null) ? "WT " : center;
+	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames);
+	             Double mean = new Double(0);
+		     	 int sum = 0;
+		     	 for (Double value : dataByGroup.get(center)){
+		     		 if (value != null){
+		     			mean += value;
+		     			sum ++;
+		     		 }
+		     	 }
+		     	 mean = mean / sum;
+	             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, mean);
+	             beans.put(gene + " " + group, currentBean);
+             }
          }
          return beans;
 	}
