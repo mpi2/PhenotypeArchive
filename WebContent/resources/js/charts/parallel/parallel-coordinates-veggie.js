@@ -258,14 +258,13 @@
                 .append("text")
                 .filter(function(d) { return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "NA";});
         
-          var textLabels = text
-                 .attr("x", function(d) { return  x(d) + 5; })
-                 .attr("y", function(d) { return y[d](defaults[d]) - 5; })
-                 .text( "No data")
+         text.attr("x", function(d) { return  x(d) + 5; })
+                .attr("y", function(d) { return y[d](defaults[d]) - 5; })
+                .text( "No data")
          //        .attr("font-family", "sans-serif")
          //        .attr("font-size", "20px")
          //        .attr("fill", "red")
-                 ;
+                ;
         
         }
       };

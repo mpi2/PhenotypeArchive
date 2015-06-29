@@ -191,7 +191,7 @@ public class ObservationService extends BasicService {
 	    		if (!currentRow.equals("")){
 		    		res += "{" + currentRow + "}";
 		    		if (i < row.values().size()){
-		    			res += ", \n";
+		    			res += ", ";
 		    		}
 	    		}
     		}

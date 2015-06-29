@@ -78,10 +78,11 @@
 		  <script type="text/javascript">
 
   	  $(function() {
-		    var dimensions = new Filter();
+		    var dimensions = new Filter({defaultValues: defaults});
 		    var highlighter = new Selector();
 
 		    dimensions.set({data: foods });
+		    dimensions.set({'defaultValues': defaults });
 				
 		    var columns = _(foods[0]).keys();
 		    var axes = _(columns).without('name', 'group');
@@ -133,7 +134,8 @@
 		    pc.render();
 		
 		    dimensions.bind('change:filtered', function() {
-		      var data = dimensions.get('data');
+			    var data = dimensions.get('data');
+			    var defaultValues = defaults;
 		      var filtered = dimensions.get('filtered');
 		      var data_size = _(data).size();
 		      var filtered_size = _(filtered).size();

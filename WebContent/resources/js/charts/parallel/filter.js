@@ -1,23 +1,26 @@
-//
-// Copyright 2011, Boundary
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
+// Modified file from Boundary
 
 (function(undefined) {
   window.Filter = Backbone.Model.extend({
+	  
     defaults: {
-      filter: {}
+        filter: {},
+        defaultValues: 	{}
     },
 
     initialize: function() {
@@ -37,14 +40,14 @@
         max: filter.max
       };
       this.set({filter: newFilter});
-      this.trigger('change:filter');  // why necessary?
+      this.trigger('change:filter');  
     },
 
     remove: function(key) {
       newFilter = this.get('filter');
       delete newFilter[key];
       this.set({filter: newFilter});
-      this.trigger('change:filter');  // why necessary?
+      this.trigger('change:filter');  
     },
 
     run: function() {
@@ -83,14 +86,20 @@
     
     clearFilter: function() {
       this.set({filter: {}});
-      this.trigger('change:filter');  // why necessary?
+      this.trigger('change:filter');  
     },
 
     check: function(d) {
-      var filter = this.get('filter')
+      var self = this;
+      var filter = this.get('filter');
       for (key in this.get('filter')) {
-        if ((d[key] < filter[key].min) || (d[key] > filter[key].max))
-          return false;
+    	  if (d[key] == null || d[key] == 'NA'){
+    		  if ((self.get('defaultValues'))[key] < filter[key].min || ((self.get('defaultValues'))[key] > filter[key].max)){
+    			  return false;
+  			  }
+    	  } else if ((d[key] < filter[key].min) || (d[key] > filter[key].max)){
+    		  return false;
+        }
       }
       return true;
     }
