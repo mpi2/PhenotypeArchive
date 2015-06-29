@@ -123,7 +123,7 @@
 
     <!-- used for concurrently loading the MA core -->
     <bean id="maIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-        <constructor-arg index="0" value="${buildIndexesSolrUrl}/ma"/>
+        <constructor-arg index="0" value="${buildIndexesSolrUrl}/ma"/> 
         <constructor-arg index="1" value="100000"/> <!--Queue size-->
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>

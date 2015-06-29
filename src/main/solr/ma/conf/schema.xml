@@ -236,7 +236,6 @@
         <field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="topLevel"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 
-
         <field name="allele_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="allele_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
@@ -255,6 +254,7 @@
         <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="parameter_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="true" />
 
+		<!-- ma-mp association. In MP core where an MA is inferred from an MP, index MP for this MA here -->
         <field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -311,6 +311,13 @@
     <copyField source="selected_top_level_ma_id" dest="auto_suggest" />
     <copyField source="selected_top_level_ma_term" dest="auto_suggest" />
     <copyField source="selected_top_level_ma_term_synonym" dest="auto_suggest" />
+    
+    <copyField source="mp_id" dest="auto_suggest" />
+    <copyField source="mp_term" dest="auto_suggest" />	    
+    <copyField source="mp_term_synonym" dest="auto_suggest" /> 
+    <copyField source="top_level_mp_id" dest="auto_suggest" />
+    <copyField source="top_level_mp_term" dest="auto_suggest" />	    
+    <copyField source="top_level_mp_term_synonym" dest="auto_suggest" /> 
 	
     <copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />	
 

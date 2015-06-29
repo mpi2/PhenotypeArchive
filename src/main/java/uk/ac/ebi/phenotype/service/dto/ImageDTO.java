@@ -51,7 +51,10 @@ public class ImageDTO extends ObservationDTO {
 	public static final String MARKER_SYMBOL = SangerImageDTO.MARKER_SYMBOL;	
 	public static final String MARKER_NAME = SangerImageDTO.MARKER_NAME;	
 	public static final String MARKER_SYNONYM = SangerImageDTO.MARKER_SYNONYM;	
-	public static final String MARKER_TYPE = SangerImageDTO.MARKER_TYPE;	
+	public static final String MARKER_TYPE = SangerImageDTO.MARKER_TYPE;		
+	public static final String GENE_ACCESSION_ID = ObservationDTO.GENE_ACCESSION_ID;	
+	
+
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 
@@ -132,7 +135,7 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> markerSynonym;
 	
 	@Field(MARKER_TYPE)
-	private String markerType;
+	private List<String> markerType;
 	
 	@Field(HUMAN_GENE_SYMBOL)
 	private List<String> humanGeneSymbol;
@@ -175,8 +178,7 @@ public class ImageDTO extends ObservationDTO {
 
 		return markerName;
 	}
-
-
+	
 	public void setMarkerName(List<String> markerName) {
 
 		this.markerName = markerName;
@@ -194,7 +196,18 @@ public class ImageDTO extends ObservationDTO {
 		this.markerSymbol = markerSymbol;
 	}
 
+	public List<String> getMarkerSynonym() {
 
+		return markerSynonym;
+	}
+
+
+	public void setMarkerSynonym(List<String> markerSynonym) {
+
+		this.markerSynonym = markerSynonym;
+	}
+	
+	
 	public void setSubtype(String subtype) {
 	
 		this.subtype = subtype;
@@ -299,7 +312,9 @@ public class ImageDTO extends ObservationDTO {
 		status.add(status1);
 		
 	}
-
+	public List<String> getStatus() {
+		return status;
+	}
 
 
 
@@ -312,7 +327,9 @@ public class ImageDTO extends ObservationDTO {
 		
 	}
 
-
+	public List<String> getImitsPhenotypeStarted() {
+		return imitsPhenotypeStarted;
+	}
 
 
 	public void addImitsPhenotypeComplete(String imitsPhenotypeComplete1) {
@@ -324,7 +341,9 @@ public class ImageDTO extends ObservationDTO {
 		
 	}
 
-
+	public List<String> getImitsPhenotypeComplete() {
+		return imitsPhenotypeComplete;
+	}
 
 
 	public void addImitsPhenotypeStatus(String imitsPhenotypeStatus1) {
@@ -336,6 +355,9 @@ public class ImageDTO extends ObservationDTO {
 		
 	}
 
+	public List<String> getImitsPhenotypeStatus() {
+		return imitsPhenotypeStatus;
+	}
 
 
 
@@ -358,7 +380,9 @@ public class ImageDTO extends ObservationDTO {
 		
 	}
 
-
+	public List<String> getLatestProductionCentre() {
+		return latestProductionCentre;
+	}
 
 
 	public void setLatestPhenotypingCentre(List<String> latestPhenotypingCentre) {
@@ -367,15 +391,19 @@ public class ImageDTO extends ObservationDTO {
 		
 	}
 
+	public List<String> getLatestPhenotypingCentre() {
+		return latestPhenotypingCentre;
+	}
 
 
 
 	public void setAlleleName(List<String> alleleName) {
-
 		this.alleleName=alleleName;
 	}
 
-
+	public List<String> getAlleleName() {
+		return alleleName;
+	}
 
 
 	public void addMarkerName(String markerName) {
@@ -401,13 +429,17 @@ public class ImageDTO extends ObservationDTO {
 
 
 
-	public void addMarkerType(String markerType) {
+	public void addMarkerType(List<String> markerType) {
 
 		this.markerType=markerType;
 		
 	}
 
+	public List<String> getMarkerType() {
 
+		return markerType;
+		
+	}
 
 
 	public void addHumanGeneSymbol(List<String> humanGeneSymbol) {
@@ -419,8 +451,9 @@ public class ImageDTO extends ObservationDTO {
 		
 	}
 
-
-
+	public List<String> getHumanGeneSymbol() {
+		return humanGeneSymbol;
+	}
 
 	public void addSymbol(String markerName) {
 
@@ -429,7 +462,7 @@ public class ImageDTO extends ObservationDTO {
 	}
 
 
-
+	
 
 
 	public void setLatestPhenotypeStatus(List<String> latestPhenotypeStatus) {
@@ -445,7 +478,11 @@ public class ImageDTO extends ObservationDTO {
 		this.latestPhenotypeStatus.add(latestPhenotypeStatus);
 		
 	}
-
+	public List<String> getLatestPhenotypeStatus() {
+		return latestPhenotypeStatus;
+	}
+	
+	
 
 	public String getSymbol() {
 		// TODO Auto-generated method stub

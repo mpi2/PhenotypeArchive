@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
@@ -33,6 +35,7 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -402,7 +405,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// // />
 				// // <field column="marker_type"
 				if (allele.getMarkerType() != null) {
-					img.addMarkerType(allele.getMarkerType());
+					List<String> markerTypes = new ArrayList<>();
+					markerTypes.add(allele.getMarkerType());
+					img.addMarkerType(markerTypes);
 
 				}
 
