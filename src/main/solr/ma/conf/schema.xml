@@ -319,6 +319,11 @@
     <copyField source="top_level_mp_term" dest="auto_suggest" />	    
     <copyField source="top_level_mp_term_synonym" dest="auto_suggest" /> 
 	
+	<copyField source="mgi_accession_id" dest="auto_suggest" /> 
+	<copyField source="marker_symbol" dest="auto_suggest" /> 
+	<copyField source="marker_name" dest="auto_suggest" />
+	<copyField source="marker_synonym" dest="auto_suggest" />
+	
     <copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />	
 
     <!--  qf bucket list -->
