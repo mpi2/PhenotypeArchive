@@ -53,8 +53,8 @@
 					  Opacity: <span id="opacity_level">20%</span>
 					</div>
 				  <div><a href="#" id="shadows" class="right toggle">Shadows</a></div>
-				  <div><a href="#" id="inverted" class="right toggle">Dark</a></div>
-				  <div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div>
+				  <!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
+				  <!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
 				  
 				</div>
 			
@@ -65,7 +65,7 @@
 			    <div id="pie" class="widget right">Group Breakdown<br/></div>
 			    <a href="#" id="export_selected" class="button green filter_control">Export</a>
 			    <a href="#" id="remove_selected" class="button red filter_control">Remove</a>
-			    <a href="#" id="keep_selected" class="button green filter_control">Keep</a>
+			    <!-- a href="#" id="keep_selected" class="button green filter_control">Keep</a-->
 			    <div id="pager" class="info"></div>
 			    <div class="clear" ></div>
 			    <div id="legend">  </div>
@@ -186,9 +186,16 @@
 		          }
 		        }).join(",");
 		      });
-		      var uriContent = "data:application/octet-stream," + encodeURIComponent(csv);
-		      var myWindow = window.open(uriContent, "Nutrient CSV");
+	/* 	      var uriContent = "data:application/octet-stream," + encodeURIComponent(csv);
+		      var myWindow = window.open(uriContent, "export.csv");
+		      console.log(uriContent + " ...")
 		      myWindow.focus();
+	 */	      
+		      
+		      var link = document.createElement('a');
+		      link.download = "parallel_coordinates_data.csv";
+		      link.href = "data:application/octet-stream," + encodeURIComponent(csv);
+		      link.click();
 		      return false;
 		    });
 		
