@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
