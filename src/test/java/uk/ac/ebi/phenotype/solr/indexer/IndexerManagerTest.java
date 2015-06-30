@@ -20,7 +20,10 @@
 
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.sql.SQLException;
+
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -29,12 +32,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.InvalidCoreNameException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.MissingRequiredArgumentException;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
@@ -989,10 +992,11 @@ public class IndexerManagerTest {
       * the nodeps option.
       * 
       * Expected results: The specified core to be built.
+     * @throws SQLException 
       */
 //@Ignore
      @Test
-     public void testInstanceBuildSingleCoreNodeps() {
+     public void testInstanceBuildSingleCoreNodeps() throws SQLException {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
@@ -1050,10 +1054,11 @@ public class IndexerManagerTest {
       * the nodeps option.
       * 
       * Expected results: All of the specified cores built.
+     * @throws SQLException 
       */
 //@Ignore
      @Test
-     public void testInstanceBuildMultipleCoresNodeps() {
+     public void testInstanceBuildMultipleCoresNodeps() throws SQLException {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
