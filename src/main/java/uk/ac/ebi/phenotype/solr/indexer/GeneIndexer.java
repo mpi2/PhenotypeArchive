@@ -122,13 +122,13 @@ public class GeneIndexer extends AbstractIndexer {
         long startTime = System.currentTimeMillis();
         try {
             logger.info("Starting Gene Indexer...");
-
+            
             initialiseSupportingBeans();
 
             int count = 0;
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
             logger.info("alleles size=" + alleles.size());
-
+            
             geneCore.deleteByQuery("*:*");
 
             for (AlleleDTO allele : alleles) {
@@ -316,10 +316,11 @@ public class GeneIndexer extends AbstractIndexer {
                             if (image.getMaTermSynonym() != null) {
                                 gene.getMaTermSynonym().addAll(image.getMaTermSynonym());
                             }
-
+                            
                             if (image.getSelectedTopLevelMaTermId() != null) {
                                 gene.setSelectedTopLevelMaId(image.getSelectedTopLevelMaTermId());
                             }
+                          
                             if (image.getSelectedTopLevelMaTerm() != null) {
                                 gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
                             }
@@ -342,9 +343,10 @@ public class GeneIndexer extends AbstractIndexer {
             				gene.setMaId(impcImage.getMaTermId());
             				gene.setMaTerm(impcImage.getMaTerm());
             				gene.setMaTermSynonym(impcImage.getMarkerSynonym());
-            				gene.setTopLevelMpId(impcImage.getTopLevelMaIds());
-            				gene.setTopLevelMpTerm(impcImage.getTopLeveMaTerm());
-            				gene.setTopLevelMpTermSynonym(impcImage.getTopLevelMaTermSynonym());
+            				//System.out.println("***selected top level ma id: "+ impcImage.getTopLevelMaIds());
+            				gene.setSelectedTopLevelMaId(impcImage.getTopLevelMaIds());
+            				gene.setSelectedTopLevelMaTerm(impcImage.getTopLeveMaTerm());
+            				gene.setSelectedTopLevelMaTermSynonym(impcImage.getTopLevelMaTermSynonym());
             			}
             			else {
             				
@@ -367,22 +369,22 @@ public class GeneIndexer extends AbstractIndexer {
                             	gene.setMaTermSynonym(new ArrayList(matermsyns));
                             }
                             Set<String> topmaids = new HashSet<>();
-                            if (gene.getTopLevelMpId()!=null){topmaids.addAll(gene.getTopLevelMpId()); }
+                            if (gene.getSelectedTopLevelMaId()!=null){topmaids.addAll(gene.getSelectedTopLevelMaId()); }
                             if (impcImage.getTopLevelMaIds()!=null){topmaids.addAll(impcImage.getTopLevelMaIds()); }
                             if (topmaids.size()>0) {
-                            	gene.setTopLevelMpId(new ArrayList(topmaids));
+                            	gene.setSelectedTopLevelMaId(new ArrayList(topmaids));
                             }
                             Set<String> topmaterms = new HashSet<>();
-                            if (gene.getTopLevelMpTerm()!=null){topmaterms.addAll(gene.getTopLevelMpTerm()); }
+                            if (gene.getSelectedTopLevelMaTerm()!=null){topmaterms.addAll(gene.getSelectedTopLevelMaTerm()); }
                             if (impcImage.getTopLeveMaTerm()!=null){topmaterms.addAll(impcImage.getTopLeveMaTerm()); }
                             if (topmaterms.size()>0) {
-                            	gene.setTopLevelMpTerm(new ArrayList(topmaterms));
+                            	gene.setSelectedTopLevelMaTerm(new ArrayList(topmaterms));
                             }
                             Set<String> topmatermsyns = new HashSet<>();
-                            if (gene.getTopLevelMpTermSynonym()!=null){topmatermsyns.addAll(gene.getTopLevelMpTermSynonym()); }
+                            if (gene.getSelectedTopLevelMaTermSynonym()!=null){topmatermsyns.addAll(gene.getSelectedTopLevelMaTermSynonym()); }
                             if (impcImage.getTopLevelMaTermSynonym()!=null){topmatermsyns.addAll(impcImage.getTopLevelMaTermSynonym()); }
                             if (topmatermsyns.size()>0) {
-                            	gene.setTopLevelMpTermSynonym(new ArrayList(topmatermsyns));
+                            	gene.setSelectedTopLevelMaTermSynonym(new ArrayList(topmatermsyns));
                             }
                             
             			}
@@ -627,6 +629,7 @@ public class GeneIndexer extends AbstractIndexer {
         	ImageDTO.MA_TERM,
         	ImageDTO.MA_TERM_SYNONYM,
         	ImageDTO.SELECTED_TOP_LEVEL_MA_ID,
+        	ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
         	ImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM,
     		
     		ImageDTO.PIPELINE_NAME,
