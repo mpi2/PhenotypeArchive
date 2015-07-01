@@ -520,11 +520,15 @@
         		return aVals2.join(",");
         	}
         	
+            function getUniqIdsStr(inputIdListStr) {
+            	var ids = inputIdListStr.split(",");
+            	return $.fn.getUnique(ids).join(",");
+            }
+            
             function fetchBatchQueryDataTable(oConf) {
-            	//console.log(oConf)
             	
-            	//console.log($.fn.getUnique(oConf.idlist));
-            	//oConf.idlist = $.fn.getUnique(oConf.idlist);
+            	// deals with duplicates
+            	oConf.idlist = getUniqIdsStr(oConf.idlist);
             	
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
@@ -620,6 +624,9 @@
                 });
             }
             function doExport(currDataType, fileType, fllist, idList, isForm){
+            	
+            	// deals with duplicates
+            	idList = getUniqIdsStr(idList);
             	
             	$("form#dnld input[name='coreName']").val(currDataType);
         		$("form#dnld input[name='fileType']").val(fileType);

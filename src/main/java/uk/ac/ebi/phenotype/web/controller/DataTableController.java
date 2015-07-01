@@ -46,6 +46,7 @@ import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 
 import javax.annotation.Resource;
@@ -119,26 +120,39 @@ public class DataTableController {
 
     	String content = null;
     	
-    	List<String> queryIds = Arrays.asList(idlist.replaceAll("\"","").split(","));
+    	//List<String> queryIds = Arrays.asList(idlist.replaceAll("\"","").split(","));
+    	List<String> queryIds = Arrays.asList(idlist.split(","));
     	
     	if ( dataTypeName.equals("ensembl") ){
+    		
+    		List<String> mgiIds = new ArrayList<>();
+    		for ( String ensemble_gene_id : queryIds ) {
+    			GeneDTO gene = geneService.getGeneByEnsemblId(ensemble_gene_id.replaceAll("\"",""));
+    			mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
+    		}
+    		
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, queryIds);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, mgiIds);
     	}
     	else if ( dataTypeName.equals("marker_symbol") ){
     		dataTypeName = "gene";
     		
     		String[] marker_symbols = StringUtils.split(idlist, ",");
+    		
+    		System.out.println("marker symbols: " + marker_symbols);
     		List<String> idlist2 = new ArrayList<>(); 
     		for ( int i=0; i<marker_symbols.length; i++){
     			String marker_symbol = marker_symbols[i].replaceAll("\"", "");
     			GenomicFeature gene = genesDao.getGenomicFeatureBySymbolOrSynonym(marker_symbol);
+    			
+    			System.out.println("chk: " + gene.getId().getAccession());
     			idlist2.add("\"" + gene.getId().getAccession() + "\"");
     		}
     		
     		idlist = StringUtils.join(idlist2,",");
+    		System.out.println("idlist: " + idlist);
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, queryIds);
+    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, idlist2);
     	}
     	else {
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
@@ -189,7 +203,7 @@ public class DataTableController {
     	
     	String[] flList = StringUtils.split(fllist, ",");
     	
-    	List<String> foundIds = new ArrayList<>();
+    	Set<String> foundIds = new HashSet<>();
     	
     	SolrDocumentList results = solrResponse.getResults();
     	int totalDocs = results.size();
@@ -274,11 +288,11 @@ public class DataTableController {
 							
 							if ( !dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
 								String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
-								foundIds.add(value);
+								foundIds.add("\"" + value + "\"");
 								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
 							}
 							else if ( dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
-								foundIds.add(value);
+								foundIds.add("\"" + value + "\"");
 							}
 						} catch ( ClassCastException c) {
 							value = docMap.get(fieldName).toString();
@@ -307,8 +321,9 @@ public class DataTableController {
 		}
 		
 		// find the ids that are not found and displays them to users
-		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, foundIds);
-		System.out.println("non found ids: " + nonFoundIds);
+		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
+		//System.out.println("Found ids: "+ new ArrayList(foundIds));
+		//System.out.println("non found ids: " + nonFoundIds);
 		
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> rowData = new ArrayList<String>();
@@ -318,7 +333,7 @@ public class DataTableController {
 			j.getJSONArray("aaData").add(rowData);
 		}
 		
-		System.out.println(j.toString());
+		//System.out.println(j.toString());
 		return j.toString();
     }
     
