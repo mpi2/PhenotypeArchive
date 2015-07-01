@@ -47,7 +47,7 @@ public class ParallelCoordinatesController {
 			model.addAttribute("procedure", "Clinical Blood Chemistry");
 		}
 		else {
-			String data = srs.getGenotypeEffectFor(procedureId + "*", true);
+			String data = srs.getGenotypeEffectFor(procedureId + "*", false);
 			model.addAttribute("dataJs", data + ";");
 		}
 //		String data = os.getMeansFor("IMPC_CBC_*", true);
