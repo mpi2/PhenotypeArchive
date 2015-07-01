@@ -129,7 +129,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     
 	}
 	
-	public String getGenotypeEffectFor(String procedueStableId, Boolean requiredParamsOnly) 
+	public String getGenotypeEffectFor(List<String> procedueStableId, Boolean requiredParamsOnly) 
 	throws SolrServerException{
 
     	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
@@ -137,7 +137,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
-    	query.setFilterQueries(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedueStableId);
+    	query.setFilterQueries(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedueStableId, "* OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + "*");
     	query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":unidimensional");
     	query.setFacet(true);
     	query.setFacetMinCount(1);
