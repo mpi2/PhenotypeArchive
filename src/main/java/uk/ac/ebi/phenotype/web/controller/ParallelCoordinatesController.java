@@ -24,21 +24,32 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
 @Controller
 public class ParallelCoordinatesController {
-	
+
 	@Autowired 
 	ObservationService os;
+	
+	@Autowired 
+	StatisticalResultService srs;
 
 	@RequestMapping(value="/parallel", method=RequestMethod.GET)
-	public String getGraph(Model model,	HttpServletRequest request,	RedirectAttributes attributes) 
+	public String getGraph(	@RequestParam(required = false, value = "procedure_id") String procedureId, Model model,	HttpServletRequest request,	RedirectAttributes attributes) 
 	throws SolrServerException{
 		
-		model.addAttribute("procedure", "Clinical Blood Chemistry");
+		if (procedureId == null){
+			model.addAttribute("procedure", "Clinical Blood Chemistry");
+		}
+		else {
+			String data = srs.getGenotypeEffectFor(procedureId + "*", true);
+			model.addAttribute("dataJs", data + ";");
+		}
 //		String data = os.getMeansFor("IMPC_CBC_*", true);
 //		System.out.println(data);
 //		model.addAttribute("dataJs", data + ";");
