@@ -521,6 +521,7 @@
         	}
         	
             function fetchBatchQueryDataTable(oConf) {
+            	oConf.idlist = $.fn.getUnique(oConf.idlist);
             	
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
