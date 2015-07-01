@@ -328,7 +328,7 @@ public class DataTableController {
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
-				rowData.add( l==0 ? nonFoundIds.get(i).toString() : "info not available");
+				rowData.add( l==0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : "info not available");
 			}
 			j.getJSONArray("aaData").add(rowData);
 		}
