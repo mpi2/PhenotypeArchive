@@ -73,7 +73,7 @@
 		  <div id="parallel"> </div>
 		  <div id="myGrid"></div>
 		  
-		  
+		  <c:if test="${dataJs != null }"><script type="text/javascript">${dataJs}</script></c:if>
 		  
 		  <script type="text/javascript">
 

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
 import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
@@ -41,6 +42,7 @@ import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.ParallelCoordinatesDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
@@ -73,7 +75,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     @Autowired
     ProjectDAO projectDAO;
     
-
+    @Autowired
+    PhenotypePipelineDAO parameterDAO;
+    
     private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
 
     Map<String, ArrayList<String>> maleParamToGene = null;
@@ -125,6 +129,144 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     
 	}
 	
+	public String getGenotypeEffectFor(String procedueStableId, Boolean requiredParamsOnly) 
+	throws SolrServerException{
+
+    	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
+    	// get parameterStableId facets for  procedueStableId
+
+    	SolrQuery query = new SolrQuery();
+    	query.setQuery("*:*");
+    	query.setFilterQueries(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedueStableId);
+    	query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":unidimensional");
+    	query.setFacet(true);
+    	query.setFacetMinCount(1);
+    	query.setFacetLimit(100000);
+    	query.addFacetField(StatisticalResultDTO.PARAMETER_STABLE_ID);
+    	query.addFacetField(StatisticalResultDTO.PARAMETER_NAME);
+
+
+    	ArrayList<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
+    	ArrayList<Parameter> parameterNames = new ArrayList<>();
+
+    	for (String parameterStableId: parameterStableIds){
+        	Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
+        	if (p.isRequiredFlag() || !requiredParamsOnly){
+        		parameterNames.add(p);
+        	}
+    	}
+
+    	// query for each parameter
+
+    	int i = 0;
+
+    	for (Parameter p: parameterNames){
+    		query = new SolrQuery();
+        	query.setQuery("*:*");
+        	query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
+        	query.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
+        	query.set("group", true);
+        	query.set("group.limit", 10000);
+        	query.set("group.field", StatisticalResultDTO.MARKER_SYMBOL);
+        	query.addField(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE);
+        	query.addField(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE);
+        	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
+        	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
+        	query.setRows(100000);
+
+        	System.out.println("-- Get means:  " + solr.getBaseURL() + "/select?" + query);
+
+        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameterNames);
+    	}
+
+    	row = addDefaultValues(row, parameterNames);
+    	
+		String res = "[";
+		String defaultMeans = "";
+		i = 0;
+    	for (String key: row.keySet()){
+    		ParallelCoordinatesDTO bean = row.get(key);
+    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
+	    		i++;
+	    		String currentRow = bean.toString(false);
+	    		if (!currentRow.equals("")){
+		    		res += "{" + currentRow + "}";
+		    		if (i < row.values().size()){
+		    			res += ", ";
+		    		}
+	    		}
+    		}
+    		else {
+    			String currentRow = bean.toString(false);
+    			defaultMeans += "{" + currentRow + "}\n";
+    		}
+    	}
+    	res += "]";
+    	
+    	return "var foods = " + res.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
+	}
+	
+	
+	private HashMap<String, ParallelCoordinatesDTO> addDefaultValues(HashMap<String, ParallelCoordinatesDTO> beans, ArrayList<Parameter> allParameterNames) {
+		
+		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
+	    	
+	    for (Parameter param : allParameterNames){
+	        currentBean.addMean(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), new Double(0.0));
+	    }
+	    
+	    beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
+	      
+	    return beans;
+	    	
+	}
+	    	  
+	
+    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, ArrayList<Parameter> allParameterNames) {
+
+    	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
+        
+    	 for (Group gr : solrGroups) {
+             SolrDocumentList resDocs = gr.getResult();
+        	 HashMap<String, Double>dataByGroup = new HashMap<>(); // <center, maxValue> for each gene
+             for (int i = 0; i < resDocs.getNumFound(); i ++) {
+                 SolrDocument doc = resDocs.get(i);
+                 String center = doc.getFieldValue(StatisticalResultDTO.PHENOTYPING_CENTER).toString();
+                 if (!dataByGroup.containsKey(center)){
+                	 dataByGroup.put(center, null);
+                 }
+                 if (doc.containsKey(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE)){
+                	 Double val = new Double(doc.getFieldValue(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE).toString());
+                	 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
+                		 dataByGroup.put(center, val);
+                	 }
+                 } else {
+                	 if (doc.containsKey(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE)){
+	                	 Double val = new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString());
+	                	 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
+	                		 dataByGroup.put(center, val);
+	                	 }
+	                 }
+                	 if (doc.containsKey(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE)){
+	                	 Double val = new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString());
+	                	 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
+	                		 dataByGroup.put(center, val);
+	                	 }
+	                 }
+                 }
+             }
+             
+             String gene = gr.getGroupValue();
+             for (String center : dataByGroup.keySet()){
+                 String group = (gene == null) ? "WT " : center;
+	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames);
+	             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, dataByGroup.get(center));
+	             beans.put(gene + " " + group, currentBean);
+             }
+         }
+         return beans;
+	}
+
 
 	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample, String[] center, String[] sex)
 	throws SolrServerException {
