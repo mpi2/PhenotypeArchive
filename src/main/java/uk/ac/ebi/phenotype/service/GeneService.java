@@ -812,6 +812,19 @@ public class GeneService {
 		return null;
 	}
 	
+	public GeneDTO getGeneByEnsemblId(String ensemble_gene_id) throws SolrServerException {
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(GeneDTO.ENSEMBL_GENE_ID + ":\"" + ensemble_gene_id + "\"")
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.ENSEMBL_GENE_ID, GeneDTO.MARKER_SYMBOL);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		if (rsp.getResults().getNumFound() > 0) {
+			return rsp.getBeans(GeneDTO.class).get(0);
+		}
+		return null;
+	}
+	
+	
 	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL + ":\"" + symbol + "\"")
