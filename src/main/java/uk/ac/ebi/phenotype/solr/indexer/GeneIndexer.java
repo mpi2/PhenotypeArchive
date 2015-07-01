@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.solr.indexer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+
+import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.dto.*;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
@@ -30,6 +33,7 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -50,6 +54,10 @@ public class GeneIndexer extends AbstractIndexer {
     DataSource komp2DataSource;
 
     @Autowired
+	@Qualifier("observationIndexing")
+	private SolrServer observationService;
+    
+    @Autowired
     @Qualifier("alleleIndexing")
     SolrServer alleleCore;
 
@@ -65,8 +73,13 @@ public class GeneIndexer extends AbstractIndexer {
     @Qualifier("sangerImagesIndexing")
     SolrServer imagesCore;
 
+    @Autowired
+	@Qualifier("impcImagesIndexing")
+	SolrServer impcImagesCore;
+    
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
+    private Map<String, List<ImageDTO>> impcImages = new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
 
     public GeneIndexer() {
@@ -104,7 +117,7 @@ public class GeneIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public void run() throws IndexerException, SQLException {
 
         long startTime = System.currentTimeMillis();
         try {
@@ -318,6 +331,123 @@ public class GeneIndexer extends AbstractIndexer {
                     }
                 }
 
+                // impcImages associated with genes, MAs, pipelines/procedures/parameters
+                if ( impcImages.containsKey(allele.getMgiAccessionId()) ){
+                	//if ( impcImage.getGeneAccession() != null && ! impcImage.getGeneAccession().equals(ma.getMgiAccessionId()) ){
+            		List<ImageDTO> impcImagesList = impcImages.get(allele.getMgiAccessionId());	
+                	for( ImageDTO impcImage : impcImagesList ){
+                		
+                		// MAs
+            			if (gene.getMaId() == null){
+            				gene.setMaId(impcImage.getMaTermId());
+            				gene.setMaTerm(impcImage.getMaTerm());
+            				gene.setMaTermSynonym(impcImage.getMarkerSynonym());
+            				gene.setTopLevelMpId(impcImage.getTopLevelMaIds());
+            				gene.setTopLevelMpTerm(impcImage.getTopLeveMaTerm());
+            				gene.setTopLevelMpTermSynonym(impcImage.getTopLevelMaTermSynonym());
+            			}
+            			else {
+            				
+            				Set<String> maids = new HashSet<>();
+                            if (gene.getMaId()!=null){maids.addAll(gene.getMaId()); }
+                            if (impcImage.getMaTermId()!=null){maids.addAll(impcImage.getMaTermId()); }
+                            if (maids.size()>0) {
+                            	gene.setMaId(new ArrayList(maids));
+                            }
+                            Set<String> materms = new HashSet<>();
+                            if (gene.getMaTerm()!=null){materms.addAll(gene.getMaTerm()); }
+                            if (impcImage.getMaTerm()!=null){materms.addAll(impcImage.getMaTerm()); }
+                            if (materms.size()>0) {
+                            	gene.setMaTerm(new ArrayList(materms));
+                            }
+                            Set<String> matermsyns = new HashSet<>();
+                            if (gene.getMaTermSynonym()!=null){matermsyns.addAll(gene.getMaTermSynonym()); }
+                            if (impcImage.getMaTermSynonym()!=null){matermsyns.addAll(impcImage.getMaTermSynonym()); }
+                            if (matermsyns.size()>0) {
+                            	gene.setMaTermSynonym(new ArrayList(matermsyns));
+                            }
+                            Set<String> topmaids = new HashSet<>();
+                            if (gene.getTopLevelMpId()!=null){topmaids.addAll(gene.getTopLevelMpId()); }
+                            if (impcImage.getTopLevelMaIds()!=null){topmaids.addAll(impcImage.getTopLevelMaIds()); }
+                            if (topmaids.size()>0) {
+                            	gene.setTopLevelMpId(new ArrayList(topmaids));
+                            }
+                            Set<String> topmaterms = new HashSet<>();
+                            if (gene.getTopLevelMpTerm()!=null){topmaterms.addAll(gene.getTopLevelMpTerm()); }
+                            if (impcImage.getTopLeveMaTerm()!=null){topmaterms.addAll(impcImage.getTopLeveMaTerm()); }
+                            if (topmaterms.size()>0) {
+                            	gene.setTopLevelMpTerm(new ArrayList(topmaterms));
+                            }
+                            Set<String> topmatermsyns = new HashSet<>();
+                            if (gene.getTopLevelMpTermSynonym()!=null){topmatermsyns.addAll(gene.getTopLevelMpTermSynonym()); }
+                            if (impcImage.getTopLevelMaTermSynonym()!=null){topmatermsyns.addAll(impcImage.getTopLevelMaTermSynonym()); }
+                            if (topmatermsyns.size()>0) {
+                            	gene.setTopLevelMpTermSynonym(new ArrayList(topmatermsyns));
+                            }
+                            
+            			}
+            			
+            			// pipeline
+            			if ( gene.getPipelineStableId() == null ){
+            				gene.setPipelineStableId(Arrays.asList(impcImage.getPipelineStableId()));
+            				gene.setPipelineName(Arrays.asList(impcImage.getPipelineName()));
+            			}
+            			else {
+            				Set<String> pipenames = new HashSet<>();
+                            if (gene.getPipelineName()!=null){pipenames.addAll(gene.getPipelineName()); }
+                            if (impcImage.getPipelineName()!=null){pipenames.add(impcImage.getPipelineName()); }
+                            if (pipenames.size()>0) {
+                            	gene.setTopLevelMpTermSynonym(new ArrayList(pipenames));
+                            }
+                            Set<String> pipesid = new HashSet<>();
+                            if (gene.getPipelineStableId()!=null){pipesid.addAll(gene.getPipelineStableId()); }
+                            if (impcImage.getPipelineStableId()!=null){pipesid.add(impcImage.getPipelineStableId()); }
+                            if (pipesid.size()>0) {
+                            	gene.setPipelineStableId(new ArrayList(pipesid));
+                            }
+            			}
+            			// procedure
+            			if (  gene.getProcedureStableId() == null ){
+            				gene.setProcedureStableId(Arrays.asList(impcImage.getProcedureStableId()));
+            				gene.setProcedureName(Arrays.asList(impcImage.getProcedureName()));
+            			}
+            			else {
+            				Set<String> procnames = new HashSet<>();
+                            if (gene.getProcedureName() !=null){procnames.addAll(gene.getProcedureName()); }
+                            if (impcImage.getProcedureName()!=null){procnames.add(impcImage.getProcedureName()); }
+                            if (procnames.size()>0) {
+                            	gene.setProcedureName(new ArrayList(procnames));
+                            }
+                            Set<String> procsids = new HashSet<>();
+                            if (gene.getProcedureStableId() !=null){procsids.addAll(gene.getProcedureStableId()); }
+                            if (impcImage.getProcedureStableId()!=null){procsids.add(impcImage.getProcedureStableId()); }
+                            if (procsids.size()>0) {
+                            	gene.setProcedureStableId(new ArrayList(procsids));
+                            }
+            			}
+            			
+            			// parameter
+            			if (  gene.getParameterStableId() == null ){
+            				gene.setParameterStableId(Arrays.asList(impcImage.getParameterStableId()));
+            				gene.setParameterStableId(Arrays.asList(impcImage.getParameterStableId()));
+            			}
+            			else {
+            				Set<String> paramnames = new HashSet<>();
+                            if (gene.getParameterName() !=null){paramnames.addAll(gene.getParameterName()); }
+                            if (impcImage.getParameterName()!=null){paramnames.add(impcImage.getParameterName()); }
+                            if (paramnames.size()>0) {
+                            	gene.setParameterName(new ArrayList(paramnames));
+                            }
+                            Set<String> paramsids = new HashSet<>();
+                            if (gene.getParameterStableId() !=null){paramsids.addAll(gene.getParameterStableId()); }
+                            if (impcImage.getParameterStableId()!=null){paramsids.add(impcImage.getParameterStableId()); }
+                            if (paramsids.size()>0) {
+                            	gene.setParameterStableId(new ArrayList(paramsids));
+                            }
+            			}
+                	}	
+                }
+                
                 // Add all ontology information directly associated from MP to this gene
                 if (StringUtils.isNotEmpty(allele.getMgiAccessionId())) {
 
@@ -474,10 +604,11 @@ public class GeneIndexer extends AbstractIndexer {
     }
 
 	// PRIVATE METHODS
-    private void initialiseSupportingBeans() throws IndexerException {
+    private void initialiseSupportingBeans() throws IndexerException, SolrServerException, IOException, SQLException {
 
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
+        impcImages = populateImpcImages();
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
     }
@@ -487,6 +618,50 @@ public class GeneIndexer extends AbstractIndexer {
         return SolrUtils.populateMgiAccessionToMp(mpCore);
     }
 
+    private Map<String, List<ImageDTO>> populateImpcImages() throws SolrServerException, IOException, SQLException {
+
+    	List<String> impcImagesFields = Arrays.asList(
+    		ImageDTO.GENE_ACCESSION_ID, 
+    		
+    		ImageDTO.MA_ID,	
+        	ImageDTO.MA_TERM,
+        	ImageDTO.MA_TERM_SYNONYM,
+        	ImageDTO.SELECTED_TOP_LEVEL_MA_ID,
+        	ImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM,
+    		
+    		ImageDTO.PIPELINE_NAME,
+    		ImageDTO.PIPELINE_STABLE_ID,
+    		ImageDTO.PROCEDURE_NAME,
+    		ImageDTO.PROCEDURE_STABLE_ID,
+    		ImageDTO.PARAMETER_NAME,
+    		ImageDTO.PARAMETER_STABLE_ID
+        );
+
+        SolrQuery impcImgesQuery = new SolrQuery()
+            .setQuery("*:*")
+            .setFields(StringUtils.join(impcImagesFields, ","))
+            .setRows(Integer.MAX_VALUE);
+        
+        List<ImageDTO> impcImagesList = impcImagesCore.query(impcImgesQuery).getBeans(ImageDTO.class);
+        
+        for (ImageDTO impcImage : impcImagesList) {
+        	String geneAccId = impcImage. getGeneAccession();
+        	if ( geneAccId == null ){
+        		continue;
+        	}
+        	
+        	if ( !impcImages.containsKey(geneAccId) ){
+        		impcImages.put(geneAccId, new ArrayList<ImageDTO>());
+        	}
+        	impcImages.get(geneAccId).add(impcImage);
+        	
+        	
+        }
+        logger.info("Finished populating impcImages using mgi_accession_id as key");
+    	
+        return impcImages;
+    }
+    
     private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {
 
         logger.info("populating PCS pipeline info");
@@ -532,7 +707,7 @@ public class GeneIndexer extends AbstractIndexer {
 
     }
 
-    public static void main(String[] args) throws IndexerException {
+    public static void main(String[] args) throws IndexerException, SQLException {
 
         GeneIndexer indexer = new GeneIndexer();
         indexer.initialise(args);
