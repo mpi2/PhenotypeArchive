@@ -9,6 +9,7 @@ $(document).ready(function(){
 	
     //function to fire off a refresh of a table and it's dropdown filters
 
+	removeFilterSelects();
 	var selectedFilters = "";
 	var dropdownsList = new Array();
     initGenePhenotypesTable();
@@ -127,29 +128,30 @@ $(document).ready(function(){
             }); 
 	}
         
-        function buildExportUrl(conf, fileType) {
-            if (fileType === undefined)
-                fileType = '';
-            var url = baseUrl + '/export';	 
-            var sInputs = '';
-            for ( var k in conf ){
-                if (k === "params"){
-                        sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
-                    }
-                else {
-                       sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
-                }
-            }
-            sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-            var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");
-            var exportUrl = url + '?' + $(form).serialize();
-            
-            var retVal = new Object();
-            retVal.url = url;
-            retVal.form = form;
-            retVal.exportUrl = exportUrl;
-            return retVal;
+    function buildExportUrl(conf, fileType) {
+        if (fileType === undefined){
+            fileType = '';
         }
+        var url = baseUrl + '/export';	 
+        var sInputs = '';
+        for ( var k in conf ){
+            if (k === "params"){
+                    sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
+                }
+            else {
+                   sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+            }
+        }
+        sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
+        var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");
+        var exportUrl = url + '?' + $(form).serialize();
+           
+        var retVal = new Object();
+        retVal.url = url;
+        retVal.form = form;
+        retVal.exportUrl = exportUrl;
+        return retVal;
+    }
 
 	function _doDataExport(url, form){
 		$(form).appendTo('body').submit();
@@ -177,12 +179,10 @@ $(document).ready(function(){
 	createDropdown(allDropdowns[1], "Source: All", allDropdowns);
 
 	function createDropdown(multipleSel, emptyText,  allDd){
-		console.log("called createDropdown "+ multipleSel);
+		console.log("called createDropdown "+ multipleSel.size());
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");
-//				console.log("justChecked="+justChecked);
-//				console.log("checked="+ checkbox.val());
 				var values = [];
 				for(var  i=0; i < selector.options.length; i++ ) {
 					if (selector.options[i].selected && (selector.options[i].value != "")) {
@@ -197,7 +197,6 @@ $(document).ready(function(){
 					values.splice(index, 1);
 				}  
 				
-				console.log("values="+values );
 				// add current one and create drop down object 
 				dd1 = new Object();
 				dd1.name = multipleSel.attr('id'); 
@@ -240,14 +239,18 @@ $(document).ready(function(){
 	                });
 		        }
 		        switch(countOfSelected) {
-		           case 0: return emptyText;
-		           case 1: return selectedOptions.text();
-		           case options.size(): return emptyText;
-		           default: return text;
+		           case 0: console.log("Switch 0"); return emptyText;
+		           case 1: console.log("Switch 1"); return selectedOptions.text();
+		           case options.size(): console.log("Switch n"); return emptyText;
+		           default: console.log("Switch default"); return text;
 		        }
 			}
 		} );
-	}
+	}	
+	
+	function removeFilterSelects(){ // Remove selected options when going back to the page
+		$("option:selected").removeAttr("selected");
+	};
 	
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
 	var previousParams = $("#filterParams").html();
@@ -312,3 +315,7 @@ jQuery.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
           var y = parseFloat(b);
           return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
         };
+        
+        
+        
+        
