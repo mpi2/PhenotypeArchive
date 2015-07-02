@@ -119,7 +119,7 @@ public class GeneDTO {
 	public static final String ANNOTATED_HIGHER_LEVEL_MP_TERM_NAME = "annotatedHigherLevelMpTermName";
 	public static final String TEXT = "text";
 	public static final String AUTO_SUGGEST = "auto_suggest";
-	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
+	
 	public static final String MGI_PREDICTED_KNOWN_GENE="mgi_predicted_known_gene";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS="impc_novel_predicted_in_locus";
 
@@ -153,11 +153,43 @@ public class GeneDTO {
 	private List<Boolean>impcNovelPredictedInLocus;
 	
 	
-	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_ID)
+//	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_ID)
+//	private List<String> selectedTopLevelMaId;
+//	
+//	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
+//	private List<String>selectedTopLevelMaTermSynonym;
+//	
+//	public List<String> getSelectedTopLevelMaTermSynonym() {
+//	
+//		return selectedTopLevelMaTermSynonym;
+//	}
+//
+//	public void setSelectedTopLevelMaTermSynonym(List<String> selectedTopLevelMaTermSynonym) {
+//	
+//		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
+//	}
+//
+//	public List<String> getSelectedTopLevelMaId() {
+//	
+//		return selectedTopLevelMaId;
+//	}
+//
+//	public void setSelectedTopLevelMaId(List<String> selectedTopLevelMaId) {
+//	
+//		this.selectedTopLevelMaId = selectedTopLevelMaId;
+//	}
+
+	
+	@Field(ImageDTO.SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> selectedTopLevelMaId;
 	
-	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
+	@Field(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM)
+	private List<String> selectedTopLevelMaTerm;
+	
+	@Field(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String>selectedTopLevelMaTermSynonym;
+	
+	
 	
 	public List<String> getSelectedTopLevelMaTermSynonym() {
 	
@@ -179,6 +211,8 @@ public class GeneDTO {
 		this.selectedTopLevelMaId = selectedTopLevelMaId;
 	}
 
+	
+	
 	public List<Boolean> getImpcNovelPredictedInLocus() {
 	
 		return impcNovelPredictedInLocus;
@@ -480,8 +514,8 @@ public class GeneDTO {
 	@Field(AUTO_SUGGEST)
 	List<String> autoSuggest;
 
-	@Field(SELECTED_TOP_LEVEL_MA_TERM)
-	List<String> selectedTopLevelMaTerm;
+	//@Field(SELECTED_TOP_LEVEL_MA_TERM)
+	//List<String> selectedTopLevelMaTerm;
 
 	@Field(GO_TERM_ID)
 	private List<String> goTermIds = new ArrayList<>();
