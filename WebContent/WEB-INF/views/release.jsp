@@ -103,11 +103,10 @@
 						<div id="phenotypesDiv">
 							<div class="container span12">
 
-								<h3>Data release 3.1</h3>
+                                    <h3>Data release 3.2</h3>
 
-								<p>Data release 3.1 is a minor release to exclude "no data" categories when calculating significance of categorical results.
-									This release also includes 147 more <a href="${baseUrl}/secondaryproject/3i">3I</a> lines with 257,008 more data points and removes legacy data for colony HEPD0522_7_H06_10308
-									at the request of the production center.</p>
+                                    <p>Data release 3.2 is a minor release to include more <a href="${baseUrl}/secondaryproject/3i">3I</a> lines.
+                                        This release brings the number of 3I datapoints to 1,118,939.</p>
 
 							</div>
 							<div class="clear"></div>
