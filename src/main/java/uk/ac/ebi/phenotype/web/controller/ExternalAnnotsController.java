@@ -115,9 +115,8 @@ public class ExternalAnnotsController {
 	    	value = "NOS1AP";
 		}
 	    
-		System.out.println(field + " -- " +value);
-		
-		String htmlStr = fetchGwasMappingTable(request, field, value);
+		String mode = "tool";
+		String htmlStr = fetchGwasMappingTable(request, field, value, mode);
 		model.addAttribute("mapping", htmlStr);
 		
 		return "gwaslookup";
@@ -134,11 +133,12 @@ public class ExternalAnnotsController {
 			Model model) throws IOException, URISyntaxException, SQLException  {
 		
 		
-		System.out.println("GOT symbol: " + mgiGeneSymbol);
+		//System.out.println("GOT symbol: " + mgiGeneSymbol);
 		
 		String htmlStr = null;
 		if ( ! mgiGeneSymbol.isEmpty() ){
-			htmlStr = fetchGwasMappingTable(request, "mgi_gene_symbol", mgiGeneSymbol);
+			String mode = "nontool";
+			htmlStr = fetchGwasMappingTable(request, "mgi_gene_symbol", mgiGeneSymbol, mode);
 		}
 		
 		model.addAttribute("mapping", htmlStr);
@@ -146,7 +146,7 @@ public class ExternalAnnotsController {
 		return "phenotype2gwas";
 	}
 	
-	private String fetchGwasMappingTable(HttpServletRequest request, String field, String value) throws SQLException{
+	private String fetchGwasMappingTable(HttpServletRequest request, String field, String value, String mode) throws SQLException{
 		
 	// GWAS Gene to IMPC gene mapping
 		
@@ -169,6 +169,7 @@ public class ExternalAnnotsController {
 		
 		for ( GwasDTO gw : gwasMappings ) {
 			String traitName = gw.getGwasDiseaseTrait();
+			
 			traits.add(traitName);
 			if ( ! traitGwasMappings.containsKey(traitName) ){
 				traitGwasMappings.put(traitName, new ArrayList<GwasDTO>());
@@ -176,20 +177,27 @@ public class ExternalAnnotsController {
 			traitGwasMappings.get(traitName).add(gw);
 		}
 		
+		
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String geneLink = baseUrl + "/genes/" + mgiGeneId;
 		String markerRow = "<div id='mk'><span id='mkLeft'>Marker symbol: <a href='" + geneLink + "'>" + mgiGeneSymbol + "</a></span><span id='mkRight' class='"+ mappingCat +"'>" + mappingCat + " phenotypic mapping</span></div>";
 		List<String> dataRow = new ArrayList<>();
 		
-		String theadRow = "<thead><tr><th class='impcData'>IMPC MP term</th><th class='impcData'>IMPC Mouse gender</th><th>GWAS SNP id</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th></tr></thead>";
-		
+		String theadRow = null;
+		if ( mode.equals("tool") ){
+			theadRow = "<thead><tr><th class='impcData'>Marker symbol</th><th class='impcData'>Phenotypic mapping</th><th class='impcData'>IMPC MP term</th><th class='impcData'>IMPC Mouse gender</th><th>GWAS SNP id</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th></tr></thead>";
+		}
+		else {
+			theadRow = "<thead><tr><th class='impcData'>IMPC MP term</th><th class='impcData'>IMPC Mouse gender</th><th>GWAS SNP id</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th></tr></thead>";
+			
+		}
 		//System.out.println("marker row: " + markerRow);
 		List<String> trts = new ArrayList<>();
 		trts.add("<li class='trtName'>GWAS disease traits:&nbsp;&nbsp;</li>");
 		
 		int counter = 0;
 		for ( String traitName : traits ){
-			System.out.println(traitName + " has got " + traitGwasMappings.get(traitName).size() + " gwas mappings");
+			//System.out.println(traitName + " has got " + traitGwasMappings.get(traitName).size() + " gwas mappings");
 			counter++;
 			String tabId = mgiGeneSymbol + "_" + counter; 
 			
@@ -219,7 +227,10 @@ public class ExternalAnnotsController {
 			    for ( GwasDTO aGw : aGws ) {
 			    	List<String> tds = new ArrayList<>();
 			    	String mgiBaseLink = baseUrl + "/phenotypes/";
-			    	
+			    	if ( mode.equals("tool") ){
+			    		tds.add("<td class='impcData'>" + aGw.getGwasMgiGeneSymbol() + "</td>");
+			    		tds.add("<td class='impcData'>" + aGw.getGwasPhenoMappingCategory() + "</td>");
+			    	}
 					tds.add("<td class='impcData'><a href='" + mgiBaseLink + aGw.getGwasMpTermId() + "'>" + aGw.getGwasMpTermName() + "</a></td>");
 					tds.add("<td class='impcData'>" + aGw.getGwasMouseGender() + "</td>");
 					tds.add("<td>" + aGw.getGwasSnpId() + "</td>");
@@ -245,11 +256,19 @@ public class ExternalAnnotsController {
 		
 		if (traits.size() > 1){
 			String traitTabs = "<ul class='tabs'>" + StringUtils.join(trts, "") + "</ul>";
+			
+			if ( mode.equals("tool") ){
+				return "<div id='tabs'>" + traitTabs + StringUtils.join(dataRow, "") + "</div>";
+			}
 			return markerRow + "<div id='tabs'>" + traitTabs + StringUtils.join(dataRow, "") + "</div>";
 		}
 		else {
 			Iterator ti = traits.iterator();
 			String traitName = "<div class='trtName'>GWAS disease trait:&nbsp;&nbsp;" + ti.next().toString() + "</div>";
+			
+			if ( mode.equals("tool") ){
+				return traitName + StringUtils.join(dataRow, "");
+			}
 			return markerRow + traitName + StringUtils.join(dataRow, "");
 		}
 	}
