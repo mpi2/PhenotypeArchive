@@ -57,8 +57,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 			String zygosity,
 			int maleControls, int maleMutants,
 			int femaleControls, int femaleMutants,
-			String metadataGroup, String parameterStableId,
-			String parameterName) {
+			String metadataGroup) {
 		
 		super();
 		this.pValue = pValue;
@@ -72,8 +71,6 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.femaleControls = femaleControls;
 		this.femaleMutants = femaleMutants;
 		this.metadataGroup = metadataGroup;
-		this.parameterStableId = parameterStableId;
-		this.parameterName = parameterName;
 		
 	}
 
