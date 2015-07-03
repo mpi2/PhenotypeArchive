@@ -5,31 +5,24 @@
 
 <!-- PieChart here -->
 <c:if test="${viabilityDTO!=null}">
-
-                     	
-            		<div id="totalChart" class="onethirdForPie ">
-								</div>
-   								<script type="text/javascript">
+	
+	<div id="totalChart" class="onethirdForPie ">	</div>
+	<script type="text/javascript">
 		${viabilityDTO.totalChart}
 	</script>
-								
 
-	
 
-            		<div id="maleChart" class="onethirdForPie ">
-								</div>
-   								<script type="text/javascript">
+  <div id="maleChart" class="onethirdForPie "></div>          		
+  <script type="text/javascript">
 		${viabilityDTO.maleChart}
 	</script>
-								
 	
-	
-	
-            		<div id="femaleChart" class="onethirdForPie ">
-								</div>
-   								<script type="text/javascript">
+									
+  <div id="femaleChart" class="onethirdForPie "></div>  
+  <script type="text/javascript">
 		${viabilityDTO.femaleChart}
 	</script>
+	
 	
 	<table>
 	<tr><th></th><th>WT</th><th>Hom</th><th>Het</th><th>Total</th></tr>
