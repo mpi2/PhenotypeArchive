@@ -995,7 +995,7 @@ public class ObservationService extends BasicService {
      * specific procedures is passed).
      *
      * @param alleleAccession an allele accession
-     * @return list of triplets
+     * @return list of tripels
      * @throws SolrServerException
      */
     public List<Map<String, String>> getDistinctParameterListByPipelineAlleleCenter(String pipelineStableId, String alleleAccession, String phenotypingCenter, List<String> procedureFilters, ArrayList<String> resource)

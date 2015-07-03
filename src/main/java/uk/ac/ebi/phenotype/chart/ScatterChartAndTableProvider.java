@@ -73,7 +73,7 @@ public class ScatterChartAndTableProvider {
 			+ "         zoomType: 'xy'"
 	
 			+ "     },"
-			+ "   title: {  text: 'Scatterplot by Date' },"
+			+ "   title: {  text: 'Scatterplot of the data' },"
 			+ "     xAxis: {"
 			+ "         type: 'datetime',"
 			+ "       labels: { "

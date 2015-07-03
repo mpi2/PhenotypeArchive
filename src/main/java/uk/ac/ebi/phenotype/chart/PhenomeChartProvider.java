@@ -584,8 +584,7 @@ public class PhenomeChartProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String generatePvaluesOverviewChart(	Allele allele,	Map<String, List<StatisticalResultBean>> statisticalResults, double minimalPvalue,
-		Pipeline pipeline,	String phenotypingCenter)
+	public String generatePvaluesOverviewChart(	Allele allele,	Map<String, List<StatisticalResultBean>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter, String pipelineStableId)
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
@@ -599,7 +598,7 @@ public class PhenomeChartProvider {
 
 			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">parameter: {point.name}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">procedure: {series.name}</td></tr>");
-			pointFormat.append("<tr><td style=\"padding:0\">sex: {point.controlSex}</td></tr>");
+		//	pointFormat.append("<tr><td style=\"padding:0\">sex: {point.controlSex}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">zygosity: {point.zygosity}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">mutants: {point.femaleMutants}f:{point.maleMutants}m</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">metadata_group: {point.metadataGroup}</td></tr>");
@@ -610,58 +609,55 @@ public class PhenomeChartProvider {
 			// Start from the pipeline so that there is no need to keep this
 			// information from the caller side
 			// get All procedures and generate a Map Parameter => Procedure
-			Map<Parameter, Procedure> parametersToProcedure = new HashMap<Parameter, Procedure>();
-			Map<String, Parameter> parametersMap = new HashMap<String, Parameter>();
-			
-			for (Procedure procedure : pipeline.getProcedures()) {
+						
+			for (String procedure : parametersByProcedure.keySet()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
 				JSONArray dataArray = new JSONArray();
 
 				scatterJsonObject.put("type", "scatter");
-				scatterJsonObject.put("name", procedure.getName());
-
+				scatterJsonObject.put("name", procedure);
 				// create a series here
-				for (Parameter parameter : procedure.getParameters()) {
-
-					if (statisticalResults.containsKey(parameter.getStableId())) {
-
-						int resultIndex = 0;
-						for (StatisticalResultBean statsResult : statisticalResults.get(parameter.getStableId())) {
-
-							if (statsResult.getIsSuccessful() && resultIndex == 0) {
-
-								// create the point first
-								JSONObject dataPoint = new JSONObject();
-								dataPoint.put("name", parameter.getName());
-								dataPoint.put("parameter_stable_id", parameter.getStableId());
-								dataPoint.put("parameter_name", parameter.getName());
-								dataPoint.put("pipeline_stable_id", pipeline.getStableId());
-								dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
-								dataPoint.put("alleleAccession", allele.getId().getAccession());
-								dataPoint.put("phenotyping_center", phenotypingCenter);
-								dataPoint.put("y", index);
-								dataPoint.put("x", statsResult.getLogValue());
-								dataPoint.put("pValue", statsResult.getpValue());
-								dataPoint.put("effectSize", statsResult.getEffectSize());
-								dataPoint.put("sex", statsResult.getControlSex());
-								dataPoint.put("zygosity", statsResult.getZygosity());
-								// maybe change for the complete object here
-								dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
-								dataPoint.put("maleMutants", statsResult.getMaleMutants());
-								dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
 								
-								if (!categories.contains(parameter.getName())) {
-									categories.add(parameter.getName());
-									dataArray.put(dataPoint);
-									resultIndex++;
-										index++;
-								}
-								 
+				for (String parameterStableId : parametersByProcedure.get(procedure)) {
+											
+					if (statisticalResults.containsKey(parameterStableId)) {
+									
+						int resultIndex = 0;
+						long tempTime = System.currentTimeMillis();						
+						StatisticalResultBean statsResult = statisticalResults.get(parameterStableId).get(0);							
+													
+						// smallest p-value sis the first (solr docs are sorted)
+						if (statsResult.getIsSuccessful() && resultIndex == 0) { 
+
+							// create the point first
+							JSONObject dataPoint = new JSONObject();
+							dataPoint.put("name", statsResult.getParameterName());
+							dataPoint.put("parameter_stable_id", parameterStableId);
+							dataPoint.put("parameter_name", statsResult.getParameterName());
+							dataPoint.put("pipeline_stable_id", pipelineStableId);
+							dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
+							dataPoint.put("alleleAccession", allele.getId().getAccession());
+							dataPoint.put("phenotyping_center", phenotypingCenter);
+							dataPoint.put("y", index);
+							dataPoint.put("x", statsResult.getLogValue());
+							dataPoint.put("pValue", statsResult.getpValue());
+							dataPoint.put("effectSize", statsResult.getEffectSize());
+							dataPoint.put("sex", statsResult.getControlSex());
+							dataPoint.put("zygosity", statsResult.getZygosity());
+							// maybe change for the complete object here
+							dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
+							dataPoint.put("maleMutants", statsResult.getMaleMutants());
+							dataPoint.put("metadataGroup", statsResult.getMetadataGroup());								
+							
+							if (!categories.contains(statsResult.getParameterName())) {
+								categories.add(statsResult.getParameterName());
+								dataArray.put(dataPoint);
+								resultIndex++;
+								index++;
 							}
 						}
-					}
-
+					}					
 				}
 
 				if (dataArray.length() > 0) {
@@ -669,7 +665,6 @@ public class PhenomeChartProvider {
 					series.put(scatterJsonObject);
 				}
 			}
-
 			chartString = createPvaluesOverviewChart( allele.getId().getAccession(), minimalPvalue, pointFormat.toString(),	series,	new JSONArray(categories));
 
 		} catch (JSONException e) {

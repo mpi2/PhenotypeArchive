@@ -299,7 +299,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
 			+ "<br/>LQ - 1.5 * IQR: ' + this.point.low"
 			+ "; } } }    ,"
-			+ " title: {  text: 'Boxplot', useHTML:true } , "
+			+ " title: {  text: 'Boxplot of the data', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " legend: { enabled: false }, "
 			+ " xAxis: { categories:  " + categories + ","
