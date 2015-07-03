@@ -1418,7 +1418,7 @@ public class FileExportController {
     
     private List<String> fetchImpc2GwasMappingData(HttpServletRequest request, String mgiGeneSymbol, String gridFields, String currentTraitName) throws SQLException{
 		// GWAS Gene to IMPC gene mapping
-		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows(mgiGeneSymbol.toUpperCase());
+		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", mgiGeneSymbol.toUpperCase());
 		
 		//System.out.println("FileExportController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 

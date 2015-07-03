@@ -78,9 +78,12 @@ public class AlleleIndexer extends AbstractIndexer {
     // Map gene MGI ID to human symbols
     private static Map<String, Set<String>> humanSymbolLookup = new HashMap<>();
 
-    // Map gene MGI ID to disease bean
-    private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
+    // Map gene MGI ID to disease bean: "associated by gene orthology"
+    private static Map<String, List<DiseaseBean>> diseaseAssociatedByGeneOrthologyLookup = new HashMap<>();
 
+ // Map disease ID to disease bean: "predicted by phenotypic similarity"
+    private static Map<String, List<DiseaseBean>> diseasePredictedByPhenotypicSimilarity = new HashMap<>();
+    
     // Set of MGI IDs that have legacy projects
     private static Map<String, Integer> legacyProjectLookup = new HashMap<>();
 
@@ -195,9 +198,11 @@ public class AlleleIndexer extends AbstractIndexer {
             populateHumanSymbolLookup();
             logger.info("Populated human symbol lookup, {} records", humanSymbolLookup.size());
 
-            populateDiseaseLookup();
-            logger.info("Populated disease lookup, {} records", diseaseLookup.size());
-
+            populatediseaseLookup(); 
+            // this does both diseaseAssociatedByGeneOrthologyLookup and diseasePredictedByPhenotypicSimilarity
+            logger.info("Populated disease lookup for {}, {} records", diseaseAssociatedByGeneOrthologyLookup.size(), "disease associated by gene orthology");
+            logger.info("Populated disease lookup for {}, {} records", diseasePredictedByPhenotypicSimilarity.size(), "disease predicted by phenotypic similarity");
+            
             populateLegacyLookup();
             logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
 
@@ -825,7 +830,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
     }
 
-    private void populateDiseaseLookup() throws SolrServerException {
+    private void populatediseaseLookup() throws SolrServerException {
 
         int docsRetrieved = 0;
         int numDocs = getDiseaseDocCount();
@@ -860,15 +865,21 @@ public class AlleleIndexer extends AbstractIndexer {
             QueryResponse response = phenodigmCore.query(query);
             List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
             for (DiseaseBean disease : diseases) {
-                if ( ! diseaseLookup.containsKey(disease.getMgiAccessionId())) {
-                    diseaseLookup.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
+                if ( ! diseaseAssociatedByGeneOrthologyLookup.containsKey(disease.getMgiAccessionId())) {
+                    diseaseAssociatedByGeneOrthologyLookup.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
                 }
-                diseaseLookup.get(disease.getMgiAccessionId()).add(disease);
+                diseaseAssociatedByGeneOrthologyLookup.get(disease.getMgiAccessionId()).add(disease);
+                
+                //diseasePredictedByPhenotypicSimilarity
+                if ( ! diseasePredictedByPhenotypicSimilarity.containsKey(disease.getDiseaseId())) {
+                	diseasePredictedByPhenotypicSimilarity.put(disease.getDiseaseId(), new ArrayList<DiseaseBean>());
+                }
+                diseasePredictedByPhenotypicSimilarity.get(disease.getDiseaseId()).add(disease);
             }
 
             docsRetrieved += PHENODIGM_BATCH_SIZE;
-            logger.info("Processed {} documents from phenodigm. {} genes in the index", docsRetrieved, diseaseLookup.size());
-
+            logger.info("Processed {} documents from phenodigm for {}. {} genes in the index", docsRetrieved, diseaseAssociatedByGeneOrthologyLookup.size(), "disease associated by gene orthology");
+            logger.info("Processed {} documents from phenodigm for {}. {} genes in the index", docsRetrieved, diseasePredictedByPhenotypicSimilarity.size(), "disease predicted by phenotypic similarity");
         }
     }
 
@@ -1038,11 +1049,11 @@ public class AlleleIndexer extends AbstractIndexer {
 
             AlleleDTO dto = alleles.get(id);
 
-            if ( ! diseaseLookup.containsKey(id)) {
+            if ( ! diseaseAssociatedByGeneOrthologyLookup.containsKey(id)) {
                 continue;
             }
-
-            for (DiseaseBean db : diseaseLookup.get(id)) {
+            // gene to disease mapping by gene orthology
+            for (DiseaseBean db : diseaseAssociatedByGeneOrthologyLookup.get(id)) {
                 dto.getDiseaseId().add(db.getDiseaseId());
                 dto.getDiseaseSource().add(db.getDiseaseSource());
                 dto.getDiseaseTerm().add(db.getDiseaseTerm());
@@ -1060,8 +1071,29 @@ public class AlleleIndexer extends AbstractIndexer {
                 dto.getImpcPredictedKnownGene().add(db.isImpcPredictedKnownGene());
                 dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
                 dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
+                
+                // gene to disease mapping by phenotypic similarity
+               /* if ( diseasePredictedByPhenotypicSimilarity.containsKey(db.getDiseaseId())) {
+                
+                	for (DiseaseBean dbSim : diseasePredictedByPhenotypicSimilarity.get(db.getDiseaseId())) {
+                    dto.getDiseaseId().add(dbSim.getDiseaseId());
+                    
+                    dto.getDiseaseTerm().add(dbSim.getDiseaseTerm());
+                    if (dbSim.getDiseaseAlts() != null) {
+                        dto.getDiseaseAlts().addAll(dbSim.getDiseaseAlts());
+                    }
+                    
+                    dto.getHumanCurated().add(dbSim.isHumanCurated());
+                    dto.getMouseCurated().add(dbSim.isMouseCurated());
+                    dto.getMgiPredicted().add(dbSim.isMgiPredicted());
+                    dto.getImpcPredicted().add(dbSim.isImpcPredicted());
+                    dto.getMgiPredictedKnownGene().add(dbSim.isMgiPredictedKnownGene());
+                    dto.getImpcPredictedKnownGene().add(dbSim.isImpcPredictedKnownGene());
+                    dto.getMgiNovelPredictedInLocus().add(dbSim.isMgiNovelPredictedInLocus());
+                    dto.getImpcNovelPredictedInLocus().add(dbSim.isImpcNovelPredictedInLocus());
+                }*/
+                
             }
-
         }
         logger.debug("Finished disease data lookup");
     }

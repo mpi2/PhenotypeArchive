@@ -22,7 +22,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
@@ -42,6 +44,9 @@ public class GwasDAO {
     //@Qualifier("admintoolsDataSourceLocal")
     private DataSource admintoolsDataSource;
 
+    @Resource(name = "globalConfiguration")
+	private Map<String, String> config;
+    
     public GwasDAO() {
         
     }
@@ -74,9 +79,10 @@ public class GwasDAO {
      * @throws SQLException
      */
     public List<GwasDTO> getGwasMappingRows() throws SQLException {
-        return getGwasMappingRows("");
+        return getGwasMappingRows("", "");
     }
 
+    
     /**
      * Fetch the GWAS Mapping rows, optionally filtered with mgi_gene_symbol.
      *
@@ -87,7 +93,7 @@ public class GwasDAO {
      *
      * @throws SQLException
      */
-    public List<GwasDTO> getGwasMappingRows(String mgiGeneSymbol) throws SQLException {
+    public List<GwasDTO> getGwasMappingRows(String field, String value) throws SQLException {
     	
     	Connection connection = admintoolsDataSource.getConnection();
     	// need to set max length for group_concat() otherwise some values would get chopped off !!
@@ -96,47 +102,62 @@ public class GwasDAO {
     	//PreparedStatement pst = connection.prepareStatement(gcsql);
     	//pst.executeQuery();
     	
-        String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
-       
         String whereClause = null;
         String query = null;
         
-        if ( ! mgiGeneSymbol.isEmpty() ) {
-        	query = "SELECT * FROM impc2gwas WHERE mgi_gene_symbol = ?";
+        if ( field.equals("keyword") ){
+        	whereClause = 
+                  "  WHERE mgi_gene_id          LIKE ?\n"
+                + "  OR mgi_gene_symbol         LIKE ?\n"
+                + "  OR mgi_allele_id         	LIKE ?\n"
+                + "  OR mgi_allele_name        	LIKE ?\n"
+                + "  OR pheno_mapping_category 	LIKE ?\n"
+                + "  OR gwas_disease_trait      LIKE ?\n"
+                + "  OR gwas_p_value	        LIKE ?\n"
+                + "  OR gwas_reported_gene      LIKE ?\n"
+                + "  OR gwas_mapped_gene        LIKE ?\n"
+                + "  OR gwas_upstream_gene      LIKE ?\n"
+                + "  OR gwas_downstream_gene    LIKE ?\n"
+                + "  OR mp_term_id              LIKE ?\n"
+                + "  OR mp_term_name            LIKE ?\n"
+                + "  OR impc_mouse_gender       LIKE ?\n"
+                + "  OR gwas_snp_id             LIKE ?\n";
+        	
+        	query = "SELECT * FROM impc2gwas" + whereClause;
+        }
+        else if ( ! value.isEmpty() ) {
+        	query = "SELECT * FROM impc2gwas WHERE " + field + " = ?";
         }
         else {
         	query = "SELECT * FROM impc2gwas";
         }
         
-        
-//        if ( ! filter.isEmpty()) {
-//        	whereClause = 
-//                  "  WHERE mgi_gene_id          LIKE ?\n"
-//                + "  OR mgi_symbol              LIKE ?\n"
-//                + "  OR mgi_allele_id           LIKE ?\n"
-//                + "  OR in_gwas                 LIKE ?\n"
-//                + "  OR pheno_mapping_category  LIKE ?\n"
-//                + "  OR gwas_disease_trait      LIKE ?\n"
-//                + "  OR gwas_reported_gene      LIKE ?\n"
-//                + "  OR gwas_mapped_gene        LIKE ?\n"
-//                + "  OR gwas_upstream_gene      LIKE ?)\n"
-//                + "  OR gwas_downstream_gene    LIKE ?\n"
-//                + "  OR mp_term_id              LIKE ?\n"
-//                + "  OR mp_term_name            LIKE ?)\n"
-//                + "  OR impc_mouse_gender       LIKE ?)\n";
-//        	
-//        	query = "SELECT * FROM impc2gwas" + filter;
-//        }
-
-        
-        //System.out.println("gwas mapping query: " + query);
+        System.out.println("gwas mapping query: " + query);
         
         List<GwasDTO> results = new ArrayList<>();
         
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            if ( ! mgiGeneSymbol.isEmpty()) {
+        	if ( field.equals("keyword") ){
+        		value = "%" + value + "%";
+        		ps.setString(1, value);
+        		ps.setString(2, value);
+        		ps.setString(3, value);
+        		ps.setString(4, value);
+        		ps.setString(5, value);
+        		ps.setString(6, value);
+        		ps.setFloat(7, Float.valueOf("-1"));  // simply set to something that does not exist, we don't need this field
+        		ps.setString(8, value);
+        		ps.setString(9, value);
+        		ps.setString(10, value);
+        		ps.setString(11, value);
+        		ps.setString(12, value);
+        		ps.setString(13, value);
+        		ps.setString(14, value);
+        		ps.setString(15, value);
+        	}
+        	else if ( ! value.isEmpty()) {
                 // Replace parameter holder ? with the value.
-            	ps.setString(1, mgiGeneSymbol);
+            	ps.setString(1, value);
             }
         
             ResultSet resultSet = ps.executeQuery();
@@ -158,7 +179,7 @@ public class GwasDAO {
                 gwasMappingRow.setGwasMpTermId(resultSet.getString("mp_term_id"));
                 gwasMappingRow.setGwasMpTermName(resultSet.getString("mp_term_name"));
                 gwasMappingRow.setGwasMouseGender(resultSet.getString("impc_mouse_gender"));
-                gwasMappingRow.setGwasSnpId(resultSet.getString("snp_id"));
+                gwasMappingRow.setGwasSnpId(resultSet.getString("gwas_snp_id"));
                 
                 results.add(gwasMappingRow);
             }

@@ -169,6 +169,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     @Override
     public void run() throws IndexerException, SQLException {
         try {
+        	System.out.println("Started autosuggestIndexer");
             initializeSolrCores();
 
             autosuggestCore.deleteByQuery("*:*");
@@ -182,7 +183,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
             // Final commit
             autosuggestCore.commit();
-            
+            System.out.println("Finished autosuggestIndexer");
             // FIXME
 //            logger.info("Added {} beans", results.size());
 
