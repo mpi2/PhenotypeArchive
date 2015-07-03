@@ -8,6 +8,7 @@ $(document).ready(function(){
 	});
 
     initPhenoDataTable();
+	removeFilterSelects();
 	
 	function initPhenoDataTable(){
             var aDataTblCols = [0,1,2,3,4,5,6,7,8];
@@ -36,6 +37,10 @@ $(document).ready(function(){
                 "sPaginationType": "bootstrap"
             });
         }
+	
+	function removeFilterSelects(){ // Remove selected options when going back to the page
+		$("option:selected").removeAttr("selected");
+	};
 	
 	// AJAX calls for the overview charts
 	$('.oChart').each(function(i, obj) {
