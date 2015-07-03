@@ -68,12 +68,66 @@ public class ExternalAnnotsController {
 	private DataSource admintoolsDataSource;
 	
 	
+	/**
+	 * redirect calls to the base url to the gwaslookup page
+	 * 
+	 * @return
+	 */
+	/*@RequestMapping("/gwaslookup")
+	public String rootForward() {
+		return "redirect:/gwaslookup?mgi_gene_symbol=NOS1AP";
+	}*/
+	
+	
 	@RequestMapping(value = "/gwaslookup", method = RequestMethod.GET)
 	public String getImpcPhenotype2GwasDiseaseTraitMapping2 (
-			@RequestParam(value = "symbol", required = false) String mgiGeneSymbol, 
-			@RequestParam(value = "mgi_accession_id", required = false) String mgiAccessionId, 
-			@RequestParam(value = "mp_term_name", required = false) String mpTermName, 
-			@RequestParam(value = "gwas_trait", required = false) String gwasTrait, 
+
+		@RequestParam(value = "keyword", required = false) String keyword,
+		@RequestParam(value = "mgi_gene_id", required = false) String mgi_gene_id,
+		@RequestParam(value = "mgi_gene_symbol", required = false) String mgi_gene_symbol,
+		@RequestParam(value = "gwas_disease_trait", required = false) String gwas_disease_trait,
+		@RequestParam(value = "gwas_p_value", required = false) String gwas_p_value,
+		@RequestParam(value = "gwas_reported_gene", required = false) String gwas_reported_gene,
+		@RequestParam(value = "gwas_mapped_gene", required = false) String gwas_mapped_gene,
+		@RequestParam(value = "gwas_upstream_gene", required = false) String gwas_upstream_gene,
+		@RequestParam(value = "gwas_downstream_gene", required = false) String gwas_downstream_gene,
+		@RequestParam(value = "gwas_snp_id", required = false) String gwas_snp_id,
+		@RequestParam(value = "mp_term_id", required = false) String mp_term_id,
+		@RequestParam(value = "mp_term_name", required = false) String mp_term_name,
+		
+		HttpServletRequest request,
+		HttpServletResponse response,
+		Model model) throws IOException, URISyntaxException, SQLException  {
+		
+		String field = null;
+		String value = null;
+		Enumeration e = request.getParameterNames();
+		
+		int paramCount = 0;
+		while (e.hasMoreElements()){
+			field = e.nextElement().toString();
+			value = request.getParameter(field);
+			paramCount++;
+		}
+		
+		if ( paramCount == 0 ){
+			field = "mgi_gene_symbol";
+	    	value = "NOS1AP";
+		}
+	    
+		System.out.println(field + " -- " +value);
+		
+		String htmlStr = fetchGwasMappingTable(request, field, value);
+		model.addAttribute("mapping", htmlStr);
+		
+		return "gwaslookup";
+	}
+	
+	
+	
+	@RequestMapping(value = "/phenotype2gwas", method = RequestMethod.GET)
+	public String getImpcPhenotype2GwasDiseaseTraitMapping (
+			@RequestParam(value = "mgi_gene_symbol", required = false) String mgiGeneSymbol, 
 			
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -82,36 +136,31 @@ public class ExternalAnnotsController {
 		
 		System.out.println("GOT symbol: " + mgiGeneSymbol);
 		
-		//String htmlStr = fetchGwasMappingTable(request, mgiGeneSymbol);
-		model.addAttribute("mapping", "test");
+		String htmlStr = null;
+		if ( ! mgiGeneSymbol.isEmpty() ){
+			htmlStr = fetchGwasMappingTable(request, "mgi_gene_symbol", mgiGeneSymbol);
+		}
 		
-		return "gwaslookup";
-	}
-	
-	@RequestMapping(value = "/phenotype2gwas", method = RequestMethod.GET)
-	public String getImpcPhenotype2GwasDiseaseTraitMapping (
-			@RequestParam(value = "symbol", required = false) String mgiGeneSymbol, 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException, SQLException  {
-		
-		
-		System.out.println("GOT symbol: " + mgiGeneSymbol);
-		
-		String htmlStr = fetchGwasMappingTable(request, mgiGeneSymbol);
 		model.addAttribute("mapping", htmlStr);
 		
 		return "phenotype2gwas";
 	}
 	
-	private String fetchGwasMappingTable(HttpServletRequest request, String mgiGeneSymbol) throws SQLException{
-		// GWAS Gene to IMPC gene mapping
-		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows(mgiGeneSymbol.toUpperCase());
+	private String fetchGwasMappingTable(HttpServletRequest request, String field, String value) throws SQLException{
+		
+	// GWAS Gene to IMPC gene mapping
+		
+		List<GwasDTO> gwasMappings = null;
+		if ( field.equals("mgi_gene_symbol") ){
+			value = value.toUpperCase();
+		}
+		gwasMappings = gwasDao.getGwasMappingRows(field, value);
 		
 		System.out.println("ExternalAnnotsController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		
 		GwasDTO gm1 = gwasMappings.get(0);
 		String mgiGeneId = gm1.getGwasMgiGeneId();
+		String mgiGeneSymbol = gm1.getGwasMgiGeneSymbol();
 		String mappingCat = gm1.getGwasPhenoMappingCategory();
 		
 		Set<String> traits = new HashSet<>();

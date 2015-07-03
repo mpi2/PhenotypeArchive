@@ -249,7 +249,7 @@
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
                                    				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a href="${baseUrl}/phenotype2gwas?symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
                                    				
                                				</p>
                                			</c:if>
@@ -257,7 +257,7 @@
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
                                    				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a href="${baseUrl}/phenotype2gwas?symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
                                				</p>
                                			</c:if>
                                    		

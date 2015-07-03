@@ -255,7 +255,7 @@ public class GenesController {
 		}
 
 		// GWAS Gene to IMPC gene mapping
-		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows(gene.getSymbol().toUpperCase());
+		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getSymbol().toUpperCase());
 		
 		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		if ( gwasMappings.size() > 0 ){

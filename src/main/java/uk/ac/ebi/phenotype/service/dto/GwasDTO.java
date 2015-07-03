@@ -30,7 +30,7 @@ import org.apache.solr.client.solrj.beans.Field;
  * 
  */
 public class GwasDTO {
-	
+	/*
 	public static final String GWAS_MGI_GENE_ID = "gwasMgiGeneId";
 	public static final String GWAS_MGI_GENE_SYMBOL = "gwasMgiGeneSymbol";
 	public static final String GWAS_MGI_ALLELE_ID = "gwasMgiAlleleId";
@@ -48,7 +48,26 @@ public class GwasDTO {
 	public static final String GWAS_UPSTREAM_GENE = "gwasUpstreamGene";
 	public static final String GWAS_DOWNSTREAM_GENE = "gwasDownstreamGene";
 	public static final String GWAS_SNP_ID = "gwasSnpId";
-    
+    */
+	
+	public static final String GWAS_MGI_GENE_ID = "gwas_mgi_gene_id";
+	public static final String GWAS_MGI_GENE_SYMBOL = "gwas_mgi_gene_symbol";
+	public static final String GWAS_MGI_ALLELE_ID = "gwas_mgi_allele_id";
+	public static final String GWAS_MGI_ALLELE_NAME = "gwas_mgi_allele_name";
+	public static final String GWAS_PHENO_MAPPING_CATEGORY = "pheno_mapping_category";
+	
+	public static final String GWAS_MP_TERM_ID = "gwas_mp_term_id";
+	public static final String GWAS_MP_TERM_NAME = "gwas_mp_term_name";
+	public static final String GWAS_MOUSE_GENDER = "impc_mouse_gender";
+	
+	public static final String GWAS_PVALUE = "gwas_pvalue";
+	public static final String GWAS_DISEASE_TRAIT = "gwas_disease_trait";
+	public static final String GWAS_REPORTED_GENE = "gwas_reported_gene";
+	public static final String GWAS_MAPPED_GENE = "gwas_mapped_gene";
+	public static final String GWAS_UPSTREAM_GENE = "gwas_upstream_gene";
+	public static final String GWAS_DOWNSTREAM_GENE = "gwas_downstream_gene";
+	public static final String GWAS_SNP_ID = "gwas_snp_id";
+	
 	@Field(GWAS_MGI_GENE_ID)
 	private String gwasMgiGeneId;
 
