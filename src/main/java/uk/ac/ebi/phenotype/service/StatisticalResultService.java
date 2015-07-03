@@ -123,8 +123,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     		long count = facet.getCount();
     		res.put(value,count);
     	}
-    		
-    	System.out.println("Done in " + (System.currentTimeMillis() - time));
     	return res;
     
 	}
@@ -500,7 +498,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 			res.put(pivot.getValue().toString(), new ArrayList<String>(colonies));
 		}
 		
-		System.out.println("Done in " + (System.currentTimeMillis() - time));
 		return res;
 	}
    
@@ -539,7 +536,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
 		}
 		
-		System.out.println("Done in " + (System.currentTimeMillis() - time));
 		return res;
 	}
     
@@ -698,6 +694,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	         .addField(StatisticalResultDTO.FEMALE_CONTROL_COUNT)
 	         .addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT)
 	         .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+	         .addField(StatisticalResultDTO.PARAMETER_NAME)
+	         .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+	         .addField(StatisticalResultDTO.PROCEDURE_NAME)
 	         .addField(StatisticalResultDTO.METADATA_GROUP)
 	         .setRows(Integer.MAX_VALUE)
 	         .addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
@@ -713,56 +712,17 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resource, " OR ") + ")");
 		}
 
-	    long start = System.currentTimeMillis();
 	    List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
-	    System.out.println("Solr query is: " + solr.getBaseURL() + "/select?" + query.toString());
-	    System.out.println("Time to do solr query: " + new Long(System.currentTimeMillis() - start));
-
-	    start = System.currentTimeMillis();
+	    
 	    for (StatisticalResultDTO statResult : solrResults) {
 
 		    if ( ! results.containsKey(statResult.getParameterStableId())) {
 			    results.put(statResult.getParameterStableId(), new ArrayList<StatisticalResultBean>());
 		    }
 
-		    results.get(statResult.getParameterStableId()).add(new StatisticalResultBean(statResult));
-
+	   	    results.get(statResult.getParameterStableId()).add(new StatisticalResultBean(statResult));
 	    }
-	    System.out.println("Time to iterate results: " + new Long(System.currentTimeMillis() - start));
-
-	    //		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\" AND "
-	    //    			+ StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND "
-	    //				+ StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
-
-//	    for (SolrDocument doc : solr.query(query).getResults()){
-//			String parameterStableId = doc.getFieldValue(StatisticalResultDTO.PARAMETER_STABLE_ID).toString();
-//			List<StatisticalResultBean> lb = null;
-//
-//			if (results.containsKey(parameterStableId)) {
-//				lb = results.get(parameterStableId);
-//			} else {
-//				lb = new ArrayList<StatisticalResultBean>();
-//				results.put(parameterStableId, lb);
-//			}
-//
-//			Double effectSize = doc.containsKey(StatisticalResultDTO.EFFECT_SIZE) ? Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.EFFECT_SIZE).toString()) : 1000000000;
-//			String status = doc.containsKey(StatisticalResultDTO.STATUS) ? doc.getFieldValue(StatisticalResultDTO.STATUS).toString() : "no status found";
-//
-//			lb.add(new StatisticalResultBean(
-//						Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()),
-//						effectSize,
-//						status,
-//						doc.getFieldValue(StatisticalResultDTO.STATISTICAL_METHOD).toString(),
-//						"don't know",
-//						doc.getFieldValue(StatisticalResultDTO.ZYGOSITY).toString(),
-//						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()),
-//						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()),
-//						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()),
-//						Integer.parseInt(doc.getFieldValue(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()),
-//						doc.getFieldValue(StatisticalResultDTO.METADATA_GROUP).toString()
-//				 ));
-//		}
-		
+	    
 		return results;
 		
     }
@@ -1023,6 +983,45 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
   
     
+    public Map<String, List<String>> getParametersToProcedureMap(String resourceName, String phenotypingCenter, String pipelineSrableId) 
+    throws SolrServerException{
+
+        Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+        
+    	SolrQuery q = new SolrQuery().setQuery("*:*");
+        q.add("fl", StatisticalResultDTO.PARAMETER_NAME + "," + StatisticalResultDTO.PARAMETER_STABLE_ID);
+    	
+        if (resourceName != null){
+        	q.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"");
+        }
+        if (phenotypingCenter != null){
+        	q.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+        }
+        if (pipelineSrableId != null){
+        	q.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":\"" + pipelineSrableId + "\"");
+        }     
+		Long time = System.currentTimeMillis();
+		String pivotFacet =  StatisticalResultDTO.PROCEDURE_NAME  + "," + StatisticalResultDTO.PARAMETER_STABLE_ID;
+		q.set("facet.pivot", pivotFacet);
+		q.setFacet(true);
+		q.setRows(1);
+		q.set("facet.limit", -1); 
+
+		System.out.println("Solr url for getParametersToProcedureMap " + solr.getBaseURL() + "/select?" + q);
+		QueryResponse response = solr.query(q);
+		
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			ArrayList<String> lst = new ArrayList<>();
+			for (PivotField gene : pivot.getPivot()){
+				lst.add(gene.getValue().toString());
+			}
+			res.put(pivot.getValue().toString(), new ArrayList<String>(lst));
+		}
+		
+		return res;
+    }
+    
+        
     public List<BasicBean> getProceduresForDataSource(String resourceName){
     	
     	List<BasicBean> res = new ArrayList();
@@ -1132,7 +1131,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 			res.put(pivot.getValue().toString(), new ArrayList<String>(genes));
 		}
 		
-		System.out.println("Done in " + (System.currentTimeMillis() - time));
 		return res;
 	}
 
@@ -1160,7 +1158,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 			femaleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
 		}
 
-		System.out.println("Done in " + (System.currentTimeMillis() - time));
 	}
 
 	private void fillMaps() {

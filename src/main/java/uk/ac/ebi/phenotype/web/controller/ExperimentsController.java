@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
@@ -44,6 +45,7 @@ import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -96,21 +98,13 @@ public class ExperimentsController {
 			RedirectAttributes attributes) 
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 
-		long start = System.currentTimeMillis();
-
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
-		System.out.println("Time to do alleleDao.getAlleleByAccession: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
 
 		if (allele == null) {
 			log.warn("Allele '" + alleleAccession + "' can't be found.");
 		}
 		
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
-		System.out.println("Pipeline ("+pipelineStableId+") is : " + pipeline.getStableId());
-
-		System.out.println("Time to do pipelineDao.getPhenotypePipelineByStableId: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
-
-		List<Map<String,String>> mapList =  null;
 		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
 		
 		// check whether there is a procedure id, and if so if it's truncated or not
@@ -128,39 +122,22 @@ public class ExperimentsController {
 				}
 			}
 		}
-
-		System.out.println("Time to do pipelineDao.getProcedureByMatchingStableId and iterate: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
-
 		try {
-			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, procedureStableIds, resource);
-			System.out.println("Time to do observationService.getDistinctParameterListByPipelineAlleleCenter: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
 			// get all p-values for this allele/center/pipeline
 			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds, resource);
-			System.out.println("Time to do srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
+			ColorCodingPalette colorCoding = new ColorCodingPalette();
+			colorCoding.generateColors(	pvaluesMap,	ColorCodingPalette.NB_COLOR_MAX, 1,	Constants.SIGNIFICANT_P_VALUE);
+			Map<String, List<String>> parametersByProcedure = srService.getParametersToProcedureMap(null, phenotypingCenter, pipeline.getStableId());
+			String chart = phenomeChartProvider.generatePvaluesOverviewChart(allele, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, parametersByProcedure, phenotypingCenter, pipeline.getStableId());
+			
+			model.addAttribute("palette", colorCoding.getPalette());
+			model.addAttribute("chart", chart);
+		
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-		
-		ColorCodingPalette colorCoding = new ColorCodingPalette();
-		colorCoding.generateColors(
-				pvaluesMap, 
-				ColorCodingPalette.NB_COLOR_MAX, 
-				1, 
-				Constants.SIGNIFICANT_P_VALUE);
-		System.out.println("Time to do colorCoding.generateColors: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
-
-		String chart = phenomeChartProvider.generatePvaluesOverviewChart(
-				allele, 
-				pvaluesMap,
-				Constants.SIGNIFICANT_P_VALUE,
-				pipeline,
-				phenotypingCenter);
-		System.out.println("Time to do phenomeChartProvider.generatePvaluesOverviewChart: " + new Long(System.currentTimeMillis() - start)); start =System.currentTimeMillis();
-
-		model.addAttribute("mapList", mapList);
+	
 		model.addAttribute("pvaluesMap", pvaluesMap);
-		model.addAttribute("palette", colorCoding.getPalette());
-		model.addAttribute("chart", chart);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("pipeline", pipeline);

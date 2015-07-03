@@ -75,11 +75,8 @@
 								<br/><br/>			
 								
 								<c:set var="count" value="0" scope="page" />
-								<c:forEach var="dataMap" items="${mapList}" varStatus="status">
-									<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
-									<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
-									<c:set var="count" value="${count + fn:length(stableIdpValuesMap)}" scope="page"/>
-								</c:forEach>
+							
+								
 								<p class="resultCount">
 								Total number of results: ${count}
 								</p>
@@ -103,59 +100,57 @@
 											<th class="headerSort">Graph</th>
 										</tr>
 									</thead>
+									
 									<tbody>
-										<c:forEach var="dataMap" items="${mapList}" varStatus="status">
-											<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
+										<c:forEach var="stableId" items="${pvaluesMap.keySet()}" varStatus="status">
 											<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
 											<c:forEach var="pValueItem" items="${stableIdpValuesMap}">
-												<c:if test="${pValueItem.zygosity == dataMap['zygosity']}">
-												<tr>
-												<td>${dataMap["procedure_name"]}</td>
-												<td>${dataMap["parameter_name"]}</td>
-												<td>${dataMap["zygosity"]}</td>
-										<!-- nb of mutants -->
-										<c:choose>
-										<c:when test="${pValueItem.controlSex eq 'male'}">
-											<td>${pValueItem.maleMutants}m</td>
-										</c:when>
-										<c:when test="${pValueItem.controlSex eq 'female'}">
-											<td>${pValueItem.femaleMutants}f</td>
-										</c:when>
-										<c:when test="${empty pValueItem.femaleMutants and empty pValueItem.maleMutants}">
-											<td> - </td>
-										</c:when>
-										<c:when test="${empty pValueItem.femaleMutants and not empty pValueItem.maleMutants}">
-											<td>${pValueItem.maleMutants}m</td>
-										</c:when>
-										<c:when test="${empty pValueItem.maleMutants and not empty pValueItem.femaleMutants}">
-											<td>${pValueItem.maleMutants}f</td>
-										</c:when>
-										<c:otherwise>
-											<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
-										</c:otherwise>
-										</c:choose>
-										<!-- Statistical Method -->
-												<td>${pValueItem.statisticalMethod}</td>
-										<!-- pValue -->
-										<c:choose>
-										<c:when test="${ ! empty pValueItem && pValueItem.isSuccessful }">
-											<c:set var="paletteIndex" value="${pValueItem.colorIndex}"/>
-											<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
-											<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
-											<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
-											<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-												${pValueItem.pValue}
-											</td>
-										</c:when>
-										<c:otherwise><td>${pValueItem.pValue}</td></c:otherwise>
-										</c:choose>
-										<td>${pValueItem.status}</td>
-										<td style="text-align:center">
-										<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
-										<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
-										</td>
-										</tr>
-										</c:if>
+													<tr>
+													<td>${pValueItem.getProcedureName()}</td>
+													<td>${pValueItem.getParameterName()}</td>
+													<td>${pValueItem["zygosity"]}</td>
+													<!-- nb of mutants -->
+													<c:choose>
+														<c:when test="${pValueItem.controlSex eq 'male'}">
+															<td>${pValueItem.maleMutants}m</td>
+														</c:when>
+														<c:when test="${pValueItem.controlSex eq 'female'}">
+															<td>${pValueItem.femaleMutants}f</td>
+														</c:when>
+														<c:when test="${empty pValueItem.femaleMutants and empty pValueItem.maleMutants}">
+															<td> - </td>
+														</c:when>
+														<c:when test="${empty pValueItem.femaleMutants and not empty pValueItem.maleMutants}">
+															<td>${pValueItem.maleMutants}m</td>
+														</c:when>
+														<c:when test="${empty pValueItem.maleMutants and not empty pValueItem.femaleMutants}">
+															<td>${pValueItem.maleMutants}f</td>
+														</c:when>
+														<c:otherwise>
+															<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
+														</c:otherwise>
+													</c:choose>
+													<!-- Statistical Method -->
+															<td>${pValueItem.statisticalMethod}</td>
+													<!-- pValue -->
+													<c:choose>
+														<c:when test="${ ! empty pValueItem && pValueItem.isSuccessful }">
+															<c:set var="paletteIndex" value="${pValueItem.colorIndex}"/>
+															<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
+															<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
+															<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
+															<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
+																${pValueItem.pValue}
+															</td>
+														</c:when>
+														<c:otherwise><td>${pValueItem.pValue}</td></c:otherwise>
+													</c:choose>
+													<td>${pValueItem.status}</td>
+													<td style="text-align:center">
+													<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
+													<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
+													</td>
+													</tr>
 										</c:forEach>
 										</c:forEach>
 									</tbody>
