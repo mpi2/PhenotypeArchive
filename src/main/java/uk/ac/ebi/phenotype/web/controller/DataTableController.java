@@ -21,6 +21,7 @@ import net.sf.json.JSONSerializer;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -48,6 +49,10 @@ import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
+import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
+import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
+import uk.ac.sanger.phenodigm2.web.AssociationSummary;
+import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -100,6 +105,10 @@ public class DataTableController {
     @Autowired
 	private GenomicFeatureDAO genesDao;
     
+    @Autowired
+	private PhenoDigmWebDao phenoDigmDao;
+	private final double rawScoreCutoff = 1.97;
+    
     /**
      <p>
      * deals with batchQuery
@@ -114,19 +123,20 @@ public class DataTableController {
 		@RequestParam(value = "idlist", required = true) String idlist,
 		@RequestParam(value = "fllist", required = true) String fllist,
 		@RequestParam(value = "corename", required = true) String dataTypeName,
+
         HttpServletRequest request,
         HttpServletResponse response,
         Model model) throws IOException, URISyntaxException, SolrServerException {
 
     	String content = null;
     	
-    	//List<String> queryIds = Arrays.asList(idlist.replaceAll("\"","").split(","));
     	List<String> queryIds = Arrays.asList(idlist.split(","));
     	
     	if ( dataTypeName.equals("ensembl") ){
     		
     		List<String> mgiIds = new ArrayList<>();
     		for ( String ensemble_gene_id : queryIds ) {
+    			
     			GeneDTO gene = geneService.getGeneByEnsemblId(ensemble_gene_id.replaceAll("\"",""));
     			mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
     		}
@@ -145,12 +155,12 @@ public class DataTableController {
     			String marker_symbol = marker_symbols[i].replaceAll("\"", "");
     			GenomicFeature gene = genesDao.getGenomicFeatureBySymbolOrSynonym(marker_symbol);
     			
-    			System.out.println("chk: " + gene.getId().getAccession());
+    			//System.out.println("chk: " + gene.getId().getAccession());
     			idlist2.add("\"" + gene.getId().getAccession() + "\"");
     		}
     		
     		idlist = StringUtils.join(idlist2,",");
-    		System.out.println("idlist: " + idlist);
+    		//System.out.println("idlist: " + idlist);
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
     		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, idlist2);
     	}
@@ -201,6 +211,8 @@ public class DataTableController {
     	String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	String baseUrl = request.getAttribute("baseUrl").toString();
     	
+    	String NA = "info not available";
+    	
     	String[] flList = StringUtils.split(fllist, ",");
     	
     	Set<String> foundIds = new HashSet<>();
@@ -235,11 +247,52 @@ public class DataTableController {
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
 		
+			System.out.println("doc: " + doc);
+			
 			List<String> rowData = new ArrayList<String>();
 			
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap();  // Note getFieldValueMap() returns only String
 			//System.out.println("DOCMAP: "+docMap.toString());
 			
+			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
+			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
+			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
+			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
+			
+			if ( docMap.get("mgi_accession_id") != null && !( dataTypeName.equals("ma") || dataTypeName.equals("disease") ) ) {
+				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
+				
+				for( Object acc : mgiGeneAccs ){
+					String mgi_gene_id = (String) acc;
+					System.out.println("mgi_gene_id: "+ mgi_gene_id);
+					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
+					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
+					try {
+						//log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+						//log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+					} catch (RuntimeException e) {
+						log.error(ExceptionUtils.getFullStackTrace(e));
+						//log.error("Error retrieving disease data for {}", geneIdentifier);
+					}
+	
+					// add the known association summaries to a dedicated list for the top
+					// panel
+					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
+						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
+						if (associationSummary.isAssociatedInHuman()) {
+							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().toString());
+							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().getDatabaseAcc());
+							//System.out.println("DISEASE TERM: " + diseaseAssociationSummary.getDiseaseTerm());
+							orthologousDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
+							orthologousDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
+						} else {
+							phenotypicDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
+							phenotypicDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
+						}
+					}
+				}
+			}
 			fieldCount = 0; // reset
 			
 			//for (String fieldName : doc.getFieldNames()) {
@@ -275,7 +328,23 @@ public class DataTableController {
 				}
 				else if ( docMap.get(fieldName) == null ){
 					fieldCount++;
-					rowData.add("");
+					
+					String vals = NA;
+					if ( fieldName.equals("disease_id_by_gene_orthology") ){
+						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, ", ");
+					}
+					else if ( fieldName.equals("disease_term_by_gene_orthology") ){
+						vals = orthologousDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseTermAssociations, ", ");
+					}
+					else if ( fieldName.equals("disease_id_by_phenotypic_similarity") ){
+						vals = phenotypicDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseIdAssociations, ", ");
+					}
+					else if ( fieldName.equals("disease_term_by_phenotypic_similarity") ){
+						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseTermAssociations, ", ");
+					}
+					
+					rowData.add(vals);
+					
 				}
 				else {
 					try {
@@ -328,7 +397,7 @@ public class DataTableController {
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
-				rowData.add( l==0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : "info not available");
+				rowData.add( l==0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : NA);
 			}
 			j.getJSONArray("aaData").add(rowData);
 		}

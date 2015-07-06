@@ -583,14 +583,16 @@
                     		var fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
                     		
                     		var formId = $('div#accordion').find('form:visible').attr('id');   
+                    		var isForm = false;
                     		
                     		if ( formId == 'ajaxForm' ){ 
+                    			isForm = true;
                     			$("#ajaxForm").ajaxForm({
                     				url: baseUrl + '/batchQuery?dataType=' + currDataType,
             	                	success:function(jsonStr) { 
             	                		var j = JSON.parse(jsonStr);
             	                		idList = j.goodIdList;
-            	                		doExport(currDataType, fileType, fllist, idList, true );
+            	                		doExport(currDataType, fileType, fllist, idList, isForm);
             	                 	},
             	                 	dataType:"text",
             	                 	type: 'POST',
@@ -598,11 +600,11 @@
                     		}
                     		else if ( formId == 'pastedIds' ){
                     			idList = parsePastedList($('textarea#pastedList').val(), currDataType);
-                    			doExport(currDataType, fileType, fllist, idList);
+                    			doExport(currDataType, fileType, fllist, idList, isForm);
                     		}
                     		else {
                     			idList = '*';
-                    			doExport(currDataType, fileType, fllist, idList);
+                    			doExport(currDataType, fileType, fllist, idList, isForm);
                     		}
                     		
                     		if (formId == 'ajaxForm' ){
@@ -623,7 +625,8 @@
                     }
                 });
             }
-            function doExport(currDataType, fileType, fllist, idList, isForm){
+            function doExport(currDataType, fileType, fllist, idList, isForm, phenoSimilarity_id, phenoSimilarity_term,
+    				wantHumanCurated_id, wantHumanCurated_term){
             	
             	// deals with duplicates
             	idList = getUniqIdsStr(idList);

@@ -207,9 +207,12 @@ public class Tools {
 			additionalInfos.add("hp_term");
 
 			// disease fields 
-			additionalInfos.add("disease_id");
-			additionalInfos.add("disease_term");
+			additionalInfos.add("disease_id_by_gene_orthology");
+			additionalInfos.add("disease_term_by_gene_orthology");
+			additionalInfos.add("disease_id_by_phenotypic_similarity");
+			additionalInfos.add("disease_term_by_phenotypic_similarity");
 
+			
 			// impc images link
             additionalInfos.add("images_link");
 			
@@ -249,8 +252,10 @@ public class Tools {
 			additionalInfos.add("hp_term");
 
 			// disease fields 
-			additionalInfos.add("disease_id");
-			additionalInfos.add("disease_term");
+			additionalInfos.add("disease_id_by_gene_orthology");
+			additionalInfos.add("disease_term_by_gene_orthology");
+			additionalInfos.add("disease_id_by_phenotypic_similarity");
+			additionalInfos.add("disease_term_by_phenotypic_similarity");
 
 			// impc images link
             additionalInfos.add("images_link");
@@ -294,8 +299,10 @@ public class Tools {
 			additionalInfos.add("hp_term");
 			
 			//disease core stuff
-			additionalInfos.add("disease_id");
-			additionalInfos.add("disease_term"); 
+			additionalInfos.add("disease_id_by_gene_orthology");
+			additionalInfos.add("disease_term_by_gene_orthology");
+			additionalInfos.add("disease_id_by_phenotypic_similarity");
+			additionalInfos.add("disease_term_by_phenotypic_similarity");
 		}
 		else if ( corename.equals("ma") ) {
 			mainAttrs.add("ma_id");
@@ -330,8 +337,10 @@ public class Tools {
 			additionalInfos.add("top_level_mp_term");
 			
 			//disease core stuff
-			additionalInfos.add("disease_id");
-			additionalInfos.add("disease_term"); 
+			additionalInfos.add("disease_id_by_gene_orthology");
+			additionalInfos.add("disease_term_by_gene_orthology");
+			additionalInfos.add("disease_id_by_phenotypic_similarity");
+			additionalInfos.add("disease_term_by_phenotypic_similarity");
 		}
 		
 		
@@ -356,9 +365,14 @@ public class Tools {
 		
 		htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
 		for ( int i=0; i<additionalInfos.size(); i++ ){
-			String friendlyFieldName = additionalInfos.get(i).replaceAll("_", " ");
-			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + friendlyFieldName;
-			if ( (i+1) % 3 == 0 ){
+			String fieldVal = additionalInfos.get(i);
+			String friendlyFieldName = fieldVal.replaceAll("_", " ");
+			if ( fieldVal.startsWith("disease") ){
+				friendlyFieldName += "<br>";
+			}
+			
+			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + fieldVal + "'>" + friendlyFieldName;
+			if ( (i+1) % 3 == 0 && ! htmlStr2.endsWith("<br>")){
 				htmlStr2 += "<br>";
 			}
 		}

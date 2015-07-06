@@ -21,6 +21,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -53,6 +54,10 @@ import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypePageTableRow;
+import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
+import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
+import uk.ac.sanger.phenodigm2.web.AssociationSummary;
+import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -127,6 +132,10 @@ public class FileExportController {
     
     @Autowired
 	private GenomicFeatureDAO genesDao;
+    
+    @Autowired
+	private PhenoDigmWebDao phenoDigmDao;
+	private final double rawScoreCutoff = 1.97;
     
     /**
      * Return a TSV formatted response which contains all datapoints
@@ -1465,6 +1474,7 @@ public class FileExportController {
         @RequestParam(value = "coreName", required = true) String dataType,
         @RequestParam(value = "idList", required = true) String idList,
         @RequestParam(value = "gridFields", required = true) String gridFields,
+
         HttpSession session,
         HttpServletRequest request,
         HttpServletResponse response,
@@ -1503,6 +1513,7 @@ public class FileExportController {
     	String baseUrl = request.getAttribute("baseUrl").toString();
     	String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
     	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+    	String NA = "info not available";
     	
     	if ( dataType.equals("ensembl") ){dataType = "gene";}
     	
@@ -1546,6 +1557,49 @@ public class FileExportController {
     		List<String> data = new ArrayList();
     		JSONObject doc = docs.getJSONObject(i);
           
+			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
+			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
+			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
+			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
+			
+			List<String> mgiGeneIds = new ArrayList<>();
+			if ( doc.getString("mgi_accession_id") != null ){
+				mgiGeneIds.add(doc.getString("mgi_accession_id"));
+			}
+			else if ( doc.getJSONArray("mgi_accession_id") != null ){
+				mgiGeneIds.addAll(doc.getJSONArray("mgi_accession_id"));
+			}
+			
+			
+			if ( mgiGeneIds.size() > 0 && !( dataType.equals("ma") || dataType.equals("disease") ) ) {
+				
+				for( String acc : mgiGeneIds ){
+					String mgi_gene_id = (String) acc;
+					//System.out.println("mgi_gene_id: "+ mgi_gene_id);
+					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
+					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
+					try {
+						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+					} catch (RuntimeException e) {
+						log.error(ExceptionUtils.getFullStackTrace(e));
+					}
+	
+					// add the known association summaries to a dedicated list for the top
+					// panel
+					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
+						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
+						if (associationSummary.isAssociatedInHuman()) {
+							orthologousDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
+							orthologousDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
+						} else {
+							phenotypicDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
+							phenotypicDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
+						}
+					}
+				}
+			}
+    		
+    		
     		for ( int j=0; j<cols.length; j++ ){
     			String fieldName = cols[j];
     			
@@ -1589,7 +1643,22 @@ public class FileExportController {
     			}
     			else if ( doc.get(fieldName) == null ){
     				//System.out.println("*row " + i + ": field: " + j + " -- " + fieldName + " - " + doc.get(fieldName));
-    				data.add("");
+    				
+    				String vals = NA;
+					if ( fieldName.equals("disease_id_by_gene_orthology") ){
+						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, "|");
+					}
+					else if ( fieldName.equals("disease_term_by_gene_orthology") ){
+						vals = orthologousDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseTermAssociations, "|");
+					}
+					else if ( fieldName.equals("disease_id_by_phenotypic_similarity") ){
+						vals = phenotypicDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseIdAssociations, "|");
+					}
+					else if ( fieldName.equals("disease_term_by_phenotypic_similarity") ){
+						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseTermAssociations, "|");
+					}
+					
+					data.add(vals);
     			}
     			else {
     				String value = null;
@@ -1613,12 +1682,12 @@ public class FileExportController {
     	
     	// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, foundIds);
-		System.out.println("non found ids: " + nonFoundIds);
+		//System.out.println("non found ids: " + nonFoundIds);
     	
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> data = new ArrayList<String>();
 			for ( int l=0; l<colStr.size(); l++ ){
-				data.add( l==0 ? nonFoundIds.get(i).toString() : "info not available");
+				data.add( l==0 ? nonFoundIds.get(i).toString() : NA);
 			}
 			rowData.add(StringUtils.join(data, "\t"));
 		}
