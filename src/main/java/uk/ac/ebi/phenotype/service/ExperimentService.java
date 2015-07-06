@@ -179,9 +179,7 @@ public class ExperimentService {
                 ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
 
                 List<? extends StatisticalResult> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenotypingCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
-                System.out.println("results="+results);
                 experiment.setResults(results);
-
             }
 
             if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
@@ -540,7 +538,8 @@ public class ExperimentService {
      * @throws URISyntaxException
      * @throws SpecificExperimentException
      */
-    public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
+    public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) 
+    throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
 
     	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
@@ -570,14 +569,19 @@ public class ExperimentService {
         if (experimentList.size() > 1) {
             throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
+                
         return experimentList.get(0);
     }
 
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) throws SolrServerException {
+    
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
+    throws SolrServerException {
         return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
     }
 
-    public String getCategoryLabels(int parameterId, String category) throws SQLException {
+    
+    public String getCategoryLabels(int parameterId, String category) 
+    throws SQLException {
         return parameterDAO.getCategoryDescription(parameterId, category);
     }
 

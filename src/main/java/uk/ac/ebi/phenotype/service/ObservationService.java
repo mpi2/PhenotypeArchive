@@ -888,6 +888,8 @@ public class ObservationService extends BasicService {
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
 
+        System.out.println("Solr URL for getExperimentObservationsBy " + solr.getBaseURL() + "/select?" + query);
+        
         return resultsDTO;
     }
 

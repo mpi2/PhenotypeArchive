@@ -50,7 +50,6 @@ public class GraphUtils {
 	List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
 	throws SolrServerException {
 
-		System.out.println("Starting with :: " + alleleAccession );
 		// each url should be unique and so we use a set
 		Set<String> urls = new LinkedHashSet<String>();
 		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameter.getStableId(), pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
