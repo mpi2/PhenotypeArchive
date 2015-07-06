@@ -124,7 +124,7 @@ public class ScatterChartAndTableProvider {
 			+ "      }, "
 			+ "     series: " +
 			series.toString()
-			+ "    }); "
+			+ "    }); console.log('HERE');"
 			+ "	}); ";
 				
 		return chartString;
@@ -138,7 +138,7 @@ public class ScatterChartAndTableProvider {
 		// maybe need to put these into method that can be called as repeating
 		// this - so needs refactoring though there are minor differences?
 		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
-		
+				
 		for (SexType sex : experiment.getSexes()) {
 			
 			List<DiscreteTimePoint> controlDataPoints = new ArrayList<>();
@@ -221,7 +221,7 @@ public class ScatterChartAndTableProvider {
 				series.put(expZyg);
 			}
 		}
-
+		
 		ScatterChartAndData scatterChartAndData = new ScatterChartAndData();
 		String chartString = createScatter(experiment, yMin, yMax, experimentNumber, parameter, series);
 		scatterChartAndData.setChart(chartString);

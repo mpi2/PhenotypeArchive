@@ -147,7 +147,7 @@
 													</c:choose>
 													<td>${pValueItem.status}</td>
 													<td style="text-align:center">
-													<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
+													<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${phenotyping_center}'>
 													<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 													</td>
 													</tr>
