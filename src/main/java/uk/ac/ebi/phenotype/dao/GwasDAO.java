@@ -105,9 +105,12 @@ public class GwasDAO {
         String whereClause = null;
         String query = null;
         
+        // only want gwas mapping that are either direct or indirect
+        // the ones without mappings are from GWAS catalog and 
+        // are not of interest here
         if ( field.equals("keyword") ){
         	whereClause = 
-                  "  WHERE mgi_gene_id          LIKE ?\n"
+                  "  WHERE (mgi_gene_id          LIKE ?\n"
                 + "  OR mgi_gene_symbol         LIKE ?\n"
                 + "  OR mgi_allele_id         	LIKE ?\n"
                 + "  OR mgi_allele_name        	LIKE ?\n"
@@ -121,18 +124,19 @@ public class GwasDAO {
                 + "  OR mp_term_id              LIKE ?\n"
                 + "  OR mp_term_name            LIKE ?\n"
                 + "  OR impc_mouse_gender       LIKE ?\n"
-                + "  OR gwas_snp_id             LIKE ?\n";
+                + "  OR gwas_snp_id             LIKE ?\n)"
+                + "  AND pheno_mapping_category != 'no mapping'";
         	
         	query = "SELECT * FROM impc2gwas" + whereClause;
         }
         else if ( ! value.isEmpty() ) {
-        	query = "SELECT * FROM impc2gwas WHERE " + field + " = ?";
+        	query = "SELECT * FROM impc2gwas WHERE " + field + " = ? AND pheno_mapping_category != 'no mapping'";
         }
         else {
-        	query = "SELECT * FROM impc2gwas";
+        	query = "SELECT * FROM impc2gwas WHERE pheno_mapping_category != 'no mapping'";
         }
         
-        System.out.println("gwas mapping query: " + query);
+        //System.out.println("gwas mapping query: " + query);
         
         List<GwasDTO> results = new ArrayList<>();
         
