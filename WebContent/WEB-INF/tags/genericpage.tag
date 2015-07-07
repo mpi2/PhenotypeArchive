@@ -200,7 +200,6 @@
 								    $('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
 							  </script>
 							  
-       					<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script> 
                 <header id="header">
                     <div class="region region-header">
 
@@ -315,7 +314,11 @@
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>                 
         <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
         <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
-
+   			<c:choose>
+            <c:when test="${param['bare'] == null}">
+        				<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script> 
+            </c:when>
+	      </c:choose>
 
     </div> <!-- wrapper -->
 </body>
