@@ -163,6 +163,7 @@
             	// for Gene main facet on default search page
             	facetUrls["gene2"] = _composeFacetUpdateParamStr(q, facet, fqStr, facetFields[facet]);
             }
+            
         }
 
         //console.log(facetUrls);
@@ -542,7 +543,7 @@
         var paramStr = 'qf=auto_suggest&defType=edismax&wt=json'
                 + '&fq=' + fqStr + fecetFieldsStr
                 + '&q=' + q;
-
+       
         return paramStr;
     }
 
@@ -1981,7 +1982,7 @@
             oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
         }
         if (oUrlParams.widgetName == 'mpFacet') {
-            oUrlParams.params += '&sort:gene_count desc';
+            oUrlParams.params += '&sort=pheno_calls desc';
         }
 
         if (facetDivId == 'imagesFacet' || facetDivId == 'impc_imagesFacet') {
