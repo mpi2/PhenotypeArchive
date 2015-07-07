@@ -828,7 +828,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if(result.getWeightEffectStderrEstimate()!= null) r.setWeightStandardErrorEstimate(new Double(result.getWeightEffectStderrEstimate()));
         if(result.getZygosity()!= null) r.setZygosityType(ZygosityType.valueOf(result.getZygosity()));
         if(result.getMpTermId()!= null){
-        	System.out.println("setting mptermId="+result.getMpTermId());
         	r.setMpTermId(result.getMpTermId());
         }
         if(result.getMpTermName()!= null) r.setMpTermName(result.getMpTermName());
