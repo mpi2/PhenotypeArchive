@@ -243,7 +243,7 @@
     										</div>
     										
                         <div id='batchQryLink'>
-                        	<a id='batchquery' href='"+baseUrl+"/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch query</span></a>
+                        	<a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch query</span></a>
                         </div>
                         
                     </div>
