@@ -19,11 +19,21 @@ package uk.ac.ebi.phenotype.solr.indexer.beans;
  * Class to act as Map value DTO for impress data
  */
 public class ImpressBean {
+	
 	public Integer id;
 	public String stableKey;
 	public String stableId;
 	public String name;
 
+	
+	public ImpressBean(Integer id, String stableKey, String stableId, String name){
+		
+		this.id = id;
+		this.stableId = stableId;
+		this.stableKey = stableKey;
+		this.name = name;
+		
+	}
 
 	public Integer getId() {
 

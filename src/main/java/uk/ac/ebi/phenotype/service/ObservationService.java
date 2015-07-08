@@ -66,10 +66,14 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.ProcedurePojo;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ParallelCoordinatesDTO;
+import uk.ac.ebi.phenotype.service.dto.PipelineDTO;
+import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
+import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 @Service
@@ -1724,5 +1728,53 @@ public class ObservationService extends BasicService {
 
         return retVal;
     }
+    
 
+    /**
+     * @author tudose
+     * @date 2015/07/08
+     * @param alleleAccession
+     * @param phenotypingCenter
+     * @param resource
+     * @return List of pipelines with data for the given parameters.
+     * @throws SolrServerException 
+     */    
+    public List<ImpressBean> getPipelines(String alleleAccession, String phenotypingCenter, List<String> resource) 
+    throws SolrServerException{
+    	
+    	List<ImpressBean> pipelines = new ArrayList<>();
+		
+    	SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
+			.addField(ObservationDTO.PIPELINE_ID)
+			.addField(ObservationDTO.PIPELINE_NAME)
+			.addField(ObservationDTO.PIPELINE_STABLE_ID);
+    	if (phenotypingCenter != null){
+			query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+    	}
+    	if ( resource != null){
+    		query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":\"" + StringUtils.join(resource, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"");
+    	}
+    	
+		query.set("group", true);
+		query.set("group.field", ObservationDTO.PIPELINE_STABLE_ID);
+		query.setRows(10000);
+		query.set("group.limit", 1);
+
+		System.out.println("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
+		
+		QueryResponse response = solr.query(query);
+		
+		for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+
+			SolrDocument doc = group.getResult().get(0);
+			ImpressBean pipeline = new ImpressBean(null, doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_STABLE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_NAME).toString());
+			pipelines.add(pipeline);
+			
+		}
+
+		return pipelines;
+    }
+    
 }
