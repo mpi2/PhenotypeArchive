@@ -812,19 +812,45 @@ public class GeneService {
 		return null;
 	}
 	
-	public GeneDTO getGeneByEnsemblId(String ensemble_gene_id) throws SolrServerException {
+	public List<GeneDTO> getGeneByEnsemblId(List<String> ensembleGeneList) throws SolrServerException {
+		List<GeneDTO> genes = new ArrayList<>();
+		String ensemble_gene_ids_str = StringUtils.join(ensembleGeneList, ",");  // ["bla1","bla2"]
+		
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(GeneDTO.ENSEMBL_GENE_ID + ":\"" + ensemble_gene_id + "\"")
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.ENSEMBL_GENE_ID, GeneDTO.MARKER_SYMBOL);
-
-		QueryResponse rsp = solr.query(solrQuery);
+			.setQuery(GeneDTO.ENSEMBL_GENE_ID + ":(" + ensemble_gene_ids_str + ")")
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.ENSEMBL_GENE_ID, GeneDTO.MARKER_SYMBOL)
+			.setRows(ensembleGeneList.size());
+		
+		//System.out.println(solrQuery);
+		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
+		
 		if (rsp.getResults().getNumFound() > 0) {
-			return rsp.getBeans(GeneDTO.class).get(0);
+			//return rsp.getBeans(GeneDTO.class).get(0);
+			genes = rsp.getBeans(GeneDTO.class);
+			//System.out.println("GOT " + genes.size()+ " genes----");
 		}
-		return null;
+		
+		return genes;
 	}
 	
-	
+	// supports multiple symbols or synonyms
+	public List<GeneDTO> getGeneByGeneSymbolsOrGeneSynonyms(List<String> symbols) throws SolrServerException {
+		List<GeneDTO> genes = new ArrayList<>();
+		
+		String symbolsStr = StringUtils.join(symbols, ",");  // ["bla1","bla2"]
+		
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(GeneDTO.MARKER_SYMBOL + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM + ":(" + symbolsStr + ")")
+			.setRows(symbols.size())
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
+
+		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
+		if (rsp.getResults().getNumFound() > 0) {
+			genes = rsp.getBeans(GeneDTO.class);
+		}
+		return genes;
+	}
+		
 	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL + ":\"" + symbol + "\"")
@@ -837,6 +863,9 @@ public class GeneService {
 		}
 		return null;
 	}
+	
+	
+	
 	
 	/**
 	 * 

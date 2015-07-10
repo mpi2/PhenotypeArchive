@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,6 +49,7 @@ import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.GwasDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
@@ -1471,8 +1474,8 @@ public class FileExportController {
          *  Please keep in mind that /export is used for ALL exports on the website so be cautious about required parameters  
          *  *******************************************************************/
         @RequestParam(value = "fileType", required = true) String fileType,
-        @RequestParam(value = "coreName", required = true) String dataType,
-        @RequestParam(value = "idList", required = true) String idList,
+        @RequestParam(value = "coreName", required = true) String dataTypeName,
+        @RequestParam(value = "idList", required = true) String idlist,
         @RequestParam(value = "gridFields", required = true) String gridFields,
 
         HttpSession session,
@@ -1482,40 +1485,95 @@ public class FileExportController {
 
     	String dumpMode = "all";
     	
-    	if ( dataType.equals("marker_symbol") ){
-    		dataType = "gene";
-    		String[] marker_symbols = StringUtils.split(idList, ",");
-    		List<String> idlist2 = new ArrayList<>(); 
-    		for ( int i=0; i<marker_symbols.length; i++){
-    			String marker_symbol = marker_symbols[i].replaceAll("\"", "");
-    			GenomicFeature gene = genesDao.getGenomicFeatureBySymbolOrSynonym(marker_symbol);
-    			idlist2.add("\"" + gene.getId().getAccession() + "\"");
-    		}
-    		idList = StringUtils.join(idlist2,",");
-    	}
+    	List<String> queryIds = Arrays.asList(idlist.split(","));
+    	Long time = System.currentTimeMillis();
     	
-    	List<String> queryIds = Arrays.asList(idList.replaceAll("\"","").split(","));
+    	List<String> mgiIds = new ArrayList<>();
+    	List<GeneDTO> genes = new ArrayList<>();
+		List<QueryResponse> solrResponses = new ArrayList<>();
+		
+		if ( dataTypeName.equals("marker_symbol") ){
+			dataTypeName = "gene";
+		}
+		
+		List<String> batchIdList = new ArrayList<>();
+		String batchIdListStr = null;
+		
+		int counter = 0;
     	
-        JSONObject json = solrIndex.getBqDataTableExportRows(dataType, gridFields, idList);
-        
-        List<String> dataRows = composeBatchQueryDataTableRows(json, dataType, gridFields, request, queryIds);
-        System.out.println("datarows: "+ dataRows);
+		for ( String id : queryIds ) {
+			counter++;
+			
+			// do the batch size
+			if ( counter % 500 == 0){
+				batchIdList.add(id);
+				
+				if ( dataTypeName.equals("ensembl") ){
+					// batch converting ensembl gene id to mgi gene id
+					genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
+				}
+				else if ( dataTypeName.equals("marker_symbol") ){
+					// batch converting marker symbol to mgi gene id
+					genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
+				}
+				
+				// batch solr query
+				batchIdListStr = StringUtils.join(batchIdList, ",");
+				//System.out.println(batchIdListStr);
+				solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
+				
+				batchIdList = new ArrayList<>();
+			}
+			else {
+				batchIdList.add(id);
+			}
+		}
+		
+		if ( batchIdList.size() > 0 ){
+			// do the rest 
+			if ( dataTypeName.equals("ensembl") ){
+				// batch converting ensembl gene id to mgi gene id
+				genes.addAll(geneService.getGeneByEnsemblId(batchIdList));	
+			}
+			else if ( dataTypeName.equals("marker_symbol") ){
+				// batch converting marker symbol to mgi gene id
+				genes = geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList); // ["bla1","bla2"]
+			}
+			
+			// batch solr query
+			batchIdListStr = StringUtils.join(batchIdList, ",");
+			solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
+		}
+		
+		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request, queryIds);
+		//System.out.println("datarows: "+ dataRows);
         Workbook wb = null;
         String fileName = "batch_query_dataset";
         writeOutputFile(response, dataRows, fileType, fileName, wb);
     }
     
-    private List<String> composeBatchQueryDataTableRows(JSONObject json, String dataType, String gridFields, HttpServletRequest request, List<String> queryIds) throws UnsupportedEncodingException {
+    private List<String> composeBatchQueryDataTableRows(List<QueryResponse> solrResponses, String dataTypeName, String gridFields, HttpServletRequest request, List<String> queryIds) throws UnsupportedEncodingException {
     	
-    	JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-    	System.out.println("docs found: "+ docs.size());
+    	Set<String> foundIds = new HashSet<>();
     	
+    	System.out.println("responses: " + solrResponses.size());
+    	
+    	SolrDocumentList results = new SolrDocumentList();
+    	
+    	for ( QueryResponse solrResponse : solrResponses ){
+    		results.addAll(solrResponse.getResults());
+    	}
+    	
+    	int totalDocs = results.size();
+    	System.out.println("docs found: "+ totalDocs);
+
+    	String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	String baseUrl = request.getAttribute("baseUrl").toString();
-    	String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
-    	hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	String NA = "info not available";
+    	String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
+    	String oriDataTypeNAme = dataTypeName;
     	
-    	if ( dataType.equals("ensembl") ){dataType = "gene";}
+    	if ( dataTypeName.equals("ensembl") ){dataTypeName = "gene";}
     	
     	Map<String, String> dataTypeId = new HashMap<>();
 		dataTypeId.put("gene", "mgi_accession_id");
@@ -1530,9 +1588,9 @@ public class FileExportController {
 		dataTypePath.put("ma", "anatomy");
 		dataTypePath.put("hp", "");
 		dataTypePath.put("disease", "disease");
-		
-    	List<String> rowData = new ArrayList();
       
+		List<String> rowData = new ArrayList();
+		
     	// column names	
     	//String idLinkColName = dataTypeId.get(dataType) + "_link";
     	String idLinkColName = "id_link";
@@ -1540,10 +1598,10 @@ public class FileExportController {
     	
     	String[] cols = StringUtils.split(gridFields, ",");
     	
-    	List<String> foundIds = new ArrayList<>();
+    //	List<String> foundIds = new ArrayList<>();
     	
     	// swap cols
-    	cols[0] = dataTypeId.get(dataType);
+    	cols[0] = dataTypeId.get(dataTypeName);
     	cols[1] = idLinkColName;
     	
     	List<String> colStr = new ArrayList<>();
@@ -1551,37 +1609,37 @@ public class FileExportController {
     		colStr.add(cols[i]);
     	}
     	rowData.add(StringUtils.join(colStr, "\t"));
+
+    	System.out.println("grid fields: " + colStr);
     	
-    	for (int i = 0; i < docs.size(); i ++) {
-    	  
-    		List<String> data = new ArrayList();
-    		JSONObject doc = docs.getJSONObject(i);
-          
+    	for (int i = 0; i < results.size(); ++i) {
+			SolrDocument doc = results.get(i);
+			
+			//System.out.println("Working on document " + i);
+			
+			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap();  // Note getFieldValueMap() returns only String
+			//System.out.println("DOCMAP: "+docMap.toString());
+			
 			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
 			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
 			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
 			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
 			
-			List<String> mgiGeneIds = new ArrayList<>();
-			if ( doc.getString("mgi_accession_id") != null ){
-				mgiGeneIds.add(doc.getString("mgi_accession_id"));
-			}
-			else if ( doc.getJSONArray("mgi_accession_id") != null ){
-				mgiGeneIds.addAll(doc.getJSONArray("mgi_accession_id"));
-			}
-			
-			
-			if ( mgiGeneIds.size() > 0 && !( dataType.equals("ma") || dataType.equals("disease") ) ) {
+			if ( docMap.get("mgi_accession_id") != null && !( dataTypeName.equals("ma") || dataTypeName.equals("disease") ) ) {
+				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
 				
-				for( String acc : mgiGeneIds ){
+				for( Object acc : mgiGeneAccs ){
 					String mgi_gene_id = (String) acc;
 					//System.out.println("mgi_gene_id: "+ mgi_gene_id);
 					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
 					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
 					try {
+						//log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
 						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+						//log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
 					} catch (RuntimeException e) {
 						log.error(ExceptionUtils.getFullStackTrace(e));
+						//log.error("Error retrieving disease data for {}", geneIdentifier);
 					}
 	
 					// add the known association summaries to a dedicated list for the top
@@ -1589,6 +1647,9 @@ public class FileExportController {
 					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
 						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
 						if (associationSummary.isAssociatedInHuman()) {
+							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().toString());
+							//System.out.println("DISEASE ID: " + diseaseAssociationSummary.getDiseaseIdentifier().getDatabaseAcc());
+							//System.out.println("DISEASE TERM: " + diseaseAssociationSummary.getDiseaseTerm());
 							orthologousDiseaseIdAssociations.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
 							orthologousDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
 						} else {
@@ -1598,106 +1659,153 @@ public class FileExportController {
 					}
 				}
 			}
-    		
-    		
-    		for ( int j=0; j<cols.length; j++ ){
-    			String fieldName = cols[j];
-    			
-    			if ( fieldName.equals("id_link") ){
-    				String id = doc.getString(dataTypeId.get(dataType));
-    				
-    				foundIds.add(id);
+			
+			List<String> data = new ArrayList();
+			
+			//for (String fieldName : doc.getFieldNames()) {
+			for ( int k=0; k<cols.length; k++ ){
+				String fieldName = cols[k];
+				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
+				
+				if ( fieldName.equals("id_link") ){
 					
+					Collection<Object> accs = docMap.get(dataTypeId.get(dataTypeName));
+					String accStr = null;
+					for( Object acc : accs ){
+						accStr = (String) acc;
+					}
+    				//System.out.println("idlink id: " + accStr);
+    				
+    				if ( !oriDataTypeNAme.equals("ensembl") ){
+    					foundIds.add("\"" + accStr + "\"");
+    				}
+    				
     				String link = null;
-					if ( dataTypePath.get(dataType).isEmpty() ){
+					if ( dataTypePath.get(dataTypeName).isEmpty() ){
 						link = "";
 					}
 					else {
-						link = hostName + baseUrl + "/" + dataTypePath.get(dataType) + "/" + id;
+						link = hostName + baseUrl + "/" + dataTypePath.get(dataTypeName) + "/" + accStr;
 					}
+					//System.out.println("idlink: " + link);
 					data.add(link);
     			}
     			else if ( fieldName.equals("images_link") ){
-    				
-    				String qryField = null;
-    				String imgQryField = null;
-    				
-    				// some batchQuery dataType support images link
-    				if ( dataType.equals("gene") ){
-    					qryField = "mgi_accession_id";
-    					imgQryField = "gene_accession_id";
-    				}
-    				else if ( dataType.equals("ma") ){
-    					qryField = "ma_id";
-    					imgQryField = "ma_id";
-    				}
-    				
-					String acc = imgQryField + ":\"" + doc.get(qryField).toString() + "\"";
 					
-					String params = "q=" + acc + " AND observation_type:image_record&fq=biological_sample_group:experimental";
-					params = URLEncoder.encode(params, "UTF-8");
-					String imgLink = hostName + imgBaseUrl + params;
+					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
+
+					String qryField = null;
+					String imgQryField = null;
+					if ( dataTypeName.equals("gene") ){
+						qryField = "mgi_accession_id";
+						imgQryField = "gene_accession_id";
+					}
+					else if (dataTypeName.equals("ma") ){
+						qryField = "ma_id";
+						imgQryField = "ma_id";
+					}
 					
-					//System.out.println("image link: "+ imgLink);
+					Collection<Object> accs = docMap.get(qryField);
+					String accStr = null;
+					for( Object acc : accs ){
+						accStr = imgQryField + ":\"" + (String) acc + "\"";
+					}
+					
+					String imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					
 					data.add(imgLink);
-    			}
-    			else if ( doc.get(fieldName) == null ){
-    				//System.out.println("*row " + i + ": field: " + j + " -- " + fieldName + " - " + doc.get(fieldName));
-    				
-    				String vals = NA;
+				}
+				else if ( docMap.get(fieldName) == null ){
+					
+					String vals = NA;
 					if ( fieldName.equals("disease_id_by_gene_orthology") ){
-						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, "|");
+						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, ", ");
 					}
 					else if ( fieldName.equals("disease_term_by_gene_orthology") ){
-						vals = orthologousDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseTermAssociations, "|");
+						vals = orthologousDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseTermAssociations, ", ");
 					}
 					else if ( fieldName.equals("disease_id_by_phenotypic_similarity") ){
-						vals = phenotypicDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseIdAssociations, "|");
+						vals = phenotypicDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseIdAssociations, ", ");
 					}
 					else if ( fieldName.equals("disease_term_by_phenotypic_similarity") ){
-						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseTermAssociations, "|");
+						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseTermAssociations, ", ");
 					}
 					
 					data.add(vals);
-    			}
-    			else {
-    				String value = null;
-    				if ( doc.get(fieldName).getClass().toString().contains("JSONArray") ){
-    					Set<String> valSet = new HashSet<>(doc.getJSONArray(fieldName));
-    					value = StringUtils.join(valSet, "|");
-    				}
-    				else if ( doc.get(fieldName).getClass().toString().contains("String") ){
-    					value = doc.getString(fieldName);
-    				}
-    				else if ( doc.get(fieldName).getClass().toString().contains("Integer") ){
-    					int val = (int) doc.getInt(fieldName);
-						value = Integer.toString(val);
-    				}
-    				//System.out.println("row " + i + ": field: " + j + " -- " + fieldName + " - " + value);
-    				data.add(value);
-    			}  
-    		}
-    		rowData.add(StringUtils.join(data, "\t"));
-    	}
-    	
-    	// find the ids that are not found and displays them to users
-		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, foundIds);
-		//System.out.println("non found ids: " + nonFoundIds);
-    	
-		for ( int i=0; i<nonFoundIds.size(); i++ ){
-			List<String> data = new ArrayList<String>();
-			for ( int l=0; l<colStr.size(); l++ ){
-				data.add( l==0 ? nonFoundIds.get(i).toString() : NA);
+					
+				}
+				else {
+					try {
+						String value = null;
+						//System.out.println("TEST CLASS: "+ docMap.get(fieldName).getClass());
+						try {
+							Collection<Object> vals =  docMap.get(fieldName);
+							Set<Object> valSet = new HashSet<>(vals);
+							
+							if (oriDataTypeNAme.equals("ensembl") && fieldName.equals("ensembl_gene_id") ){
+								for ( Object val : valSet){
+									foundIds.add("\"" + val + "\"");
+								}
+							}
+							else if ( dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
+								for ( Object val : valSet){
+									foundIds.add("\"" + val + "\"");
+								}
+							}
+							value = StringUtils.join(valSet, "|");	
+							/*
+							if ( !dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
+								String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
+								foundIds.add("\"" + value + "\"");
+								
+								System.out.println("fieldname: " + fieldName + " datatype: " + dataTypeName);
+								//value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
+							}
+							else if ( dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
+								foundIds.add("\"" + value + "\"");
+							}*/
+						} catch ( ClassCastException c) {
+							value = docMap.get(fieldName).toString();
+						}
+						
+						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
+						
+						data.add(value);
+					} catch(Exception e){
+						//e.printStackTrace();
+						if ( e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String") ){
+							Collection<Object> vals = docMap.get(fieldName);
+							if ( vals.size() > 0 ){
+								Iterator it = vals.iterator();
+								String value = (String) it.next();
+								//String value = Integer.toString(val);
+								data.add(value);
+							}
+						}
+					}
+				}
 			}
+			//System.out.println("DATA: "+ StringUtils.join(data, "\t") );
 			rowData.add(StringUtils.join(data, "\t"));
 		}
 		
+		// find the ids that are not found and displays them to users
+		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
+		//System.out.println("Query ids: "+ queryIds);
+		//System.out.println("Found ids: "+ new ArrayList(foundIds));
+		System.out.println("non found ids: " + nonFoundIds.size());
 		
-    	return rowData;
-    	
+		for ( int i=0; i<nonFoundIds.size(); i++ ){
+			List<String> data = new ArrayList<String>();
+			for ( int l=0; l<cols.length; l++ ){
+				data.add( l==0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : NA);
+			}
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		return rowData;
     }
-    
-private void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName, Workbook wb){
+
+    private void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName, Workbook wb){
     	
     	response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");

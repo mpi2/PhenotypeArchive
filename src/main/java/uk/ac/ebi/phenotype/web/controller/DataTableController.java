@@ -131,45 +131,207 @@ public class DataTableController {
     	String content = null;
     	
     	List<String> queryIds = Arrays.asList(idlist.split(","));
+    	Long time = System.currentTimeMillis();
     	
+    	List<String> mgiIds = new ArrayList<>();
+    	List<GeneDTO> genes = new ArrayList<>();
+		List<QueryResponse> solrResponses = new ArrayList<>();
+		
+		if ( dataTypeName.equals("marker_symbol") ){
+			dataTypeName = "gene";
+		}
+		
+		List<String> batchIdList = new ArrayList<>();
+		String batchIdListStr = null;
+		
+		int counter = 0;
+		
+		System.out.println("id length: "+ queryIds.size());
+		// will show only 10 records to the users to show how the data look like
+		for ( String id : queryIds ) {
+			counter++;
+			
+			// do the batch size
+			if ( counter < 11 ){
+				batchIdList.add(id);
+			}
+		}	
+		queryIds = batchIdList;
+		
+		if ( dataTypeName.equals("ensembl") ){
+			// batch converting ensembl gene id to mgi gene id
+			genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
+		}
+		else if ( dataTypeName.equals("marker_symbol") ){
+			// batch converting marker symbol to mgi gene id
+			genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
+		}
+		
+		//System.out.println("GOT " + genes.size() + " genes");
+		
+		// batch solr query
+		batchIdListStr = StringUtils.join(batchIdList, ",");
+		//System.out.println("idstr: "+ batchIdListStr);
+		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
+				
+		
+		
+		
+//		// do the rest 
+//		if ( dataTypeName.equals("ensembl") ){
+//			// batch converting ensembl gene id to mgi gene id
+//			genes.addAll(geneService.getGeneByEnsemblId(batchIdList));	
+//		}
+//		else if ( dataTypeName.equals("marker_symbol") ){
+//			// batch converting marker symbol to mgi gene id
+//			genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
+//		}
+//		
+//		// batch solr query
+//		batchIdListStr = StringUtils.join(batchIdList, ",");
+//		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
+		
+		for ( GeneDTO gene : genes  ){
+			if ( gene.getMgiAccessionId() != null ){
+				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
+			}	
+		}
+		
+		if ( genes.size() == 0 ){
+			mgiIds = queryIds;
+		}
+		
+		System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id took: " + (System.currentTimeMillis() - time));
+		
+		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, dataTypeName, mgiIds);
+		
+		
+		/////---------
+		/*
     	if ( dataTypeName.equals("ensembl") ){
     		
-    		List<String> mgiIds = new ArrayList<>();
+    		List<String> ensGList = new ArrayList<>();
+    		String ensemble_gene_ids_str = null;
+    		
+    		// batch converting ensembl gene id to mgi gene id
+    		int counter = 0;
     		for ( String ensemble_gene_id : queryIds ) {
+    			counter++;
     			
-    			GeneDTO gene = geneService.getGeneByEnsemblId(ensemble_gene_id.replaceAll("\"",""));
-    			mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
+    			if ( counter % 500 == 0){
+    				ensGList.add(ensemble_gene_id);
+    				
+    				//genes.addAll(geneService.getGeneByEnsemblId(batchSize, ensemble_gene_ids_str));
+    				genes.addAll(geneService.getGeneByEnsemblId(ensGList)); // ["bla1","bla2"]
+    				
+    				//System.out.println("GOT " + genes.size() + " genes");
+    				
+    				//QueryResponse solrResponse = solrIndex.getBatchQueryJson(ensemble_gene_ids_str, fllist, dataTypeName);
+    				// batch solr query
+    				ensemble_gene_ids_str = StringUtils.join(ensGList, ",");
+    				solrResponses.add(solrIndex.getBatchQueryJson(ensemble_gene_ids_str, fllist, dataTypeName));
+    				
+    				ensGList = new ArrayList<>();
+    				
+    			}
+    			else {
+    				ensGList.add(ensemble_gene_id);
+    			}
     		}
     		
-    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, mgiIds);
+    		//System.out.println("REST: "+ ensGList.size());
+    		genes.addAll(geneService.getGeneByEnsemblId(ensGList));	
+    		ensemble_gene_ids_str = StringUtils.join(ensGList, ",");
+    		solrResponses.add(solrIndex.getBatchQueryJson(ensemble_gene_ids_str, fllist, dataTypeName));
+    		
+			for ( GeneDTO gene : genes  ){
+				if ( gene.getMgiAccessionId() != null ){
+					mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
+				}	
+			}
+    		
+    		System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id took: " + (System.currentTimeMillis() - time));
+    		time = System.currentTimeMillis();
+    		
+    		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, dataTypeName, mgiIds);
     	}
     	else if ( dataTypeName.equals("marker_symbol") ){
+    		
     		dataTypeName = "gene";
     		
-    		String[] marker_symbols = StringUtils.split(idlist, ",");
+    		List<String> markerList = new ArrayList<>();
+    		String markerListStr = null;
     		
-    		System.out.println("marker symbols: " + marker_symbols);
-    		List<String> idlist2 = new ArrayList<>(); 
-    		for ( int i=0; i<marker_symbols.length; i++){
-    			String marker_symbol = marker_symbols[i].replaceAll("\"", "");
-    			GenomicFeature gene = genesDao.getGenomicFeatureBySymbolOrSynonym(marker_symbol);
+    		// batch converting ensembl gene id to mgi gene id
+    		int counter = 0;
+    		for ( String symbol : queryIds ) {
+    			counter++;
     			
-    			//System.out.println("chk: " + gene.getId().getAccession());
-    			idlist2.add("\"" + gene.getId().getAccession() + "\"");
+    			if ( counter % 500 == 0){
+    				markerList.add(symbol);
+    				
+    				//genes.addAll(geneService.getGeneByEnsemblId(batchSize, ensemble_gene_ids_str));
+    				genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(markerList)); // ["bla1","bla2"]
+    				
+    				//System.out.println("GOT " + genes.size() + " genes");
+    				
+    				// batch solr query
+    				markerListStr = StringUtils.join(markerList, ",");
+    				solrResponses.add(solrIndex.getBatchQueryJson(markerListStr, fllist, dataTypeName));
+    				
+    				markerList = new ArrayList<>();
+    				
+    			}
+    			else {
+    				markerList.add(symbol);
+    			}
     		}
     		
-    		idlist = StringUtils.join(idlist2,",");
-    		//System.out.println("idlist: " + idlist);
-    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
-    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, idlist2);
+    		//System.out.println("REST: "+ ensGList.size());
+    		genes.addAll(geneService.getGeneByEnsemblId(markerList));	
+    		markerListStr = StringUtils.join(markerList, ",");
+    		solrResponses.add(solrIndex.getBatchQueryJson(markerListStr, fllist, dataTypeName));
+    		
+    		for ( GeneDTO gene : genes  ){
+				if ( gene.getMgiAccessionId() != null ){
+					mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
+				}	
+			}
+    		
+    		System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id took: " + (System.currentTimeMillis() - time));
+    		
+    		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, dataTypeName, mgiIds);
+    		
+    		//String[] marker_symbols = StringUtils.split(idlist, ",");
+//    		System.out.println("marker symbols: " + marker_symbols);
+//    		List<String> idlist2 = new ArrayList<>(); 
+//    		for ( int i=0; i<marker_symbols.length; i++){
+//    			
+//    			
+//    			
+//    			String marker_symbol = marker_symbols[i].replaceAll("\"", "");
+//    			genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(idlist);
+//    			
+//    			//System.out.println("chk: " + gene.getId().getAccession());
+//    			idlist2.add("\"" + gene.getId().getAccession() + "\"");
+//    		}
+//    		
+//    		idlist = StringUtils.join(idlist2,",");
+//    		//System.out.println("idlist: " + idlist);
+//    		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
+//    		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, idlist2);
     	}
     	else {
+    		
+    		
+    		
+    		
     		QueryResponse solrResponse = solrIndex.getBatchQueryJson(idlist, fllist, dataTypeName);
     		content = fetchBatchQueryDataTableJson(request, solrResponse, fllist, dataTypeName, queryIds);
     	}
-    	
+    	*/
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+    	
     }
 		
     private JSONObject prepareHpMpMapping(QueryResponse solrResponse) {
@@ -206,7 +368,7 @@ public class DataTableController {
     	return j;
     }
     
-    public String fetchBatchQueryDataTableJson(HttpServletRequest request, QueryResponse solrResponse, String fllist, String dataTypeName, List<String> queryIds ) {
+    public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) {
     	
     	String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	String baseUrl = request.getAttribute("baseUrl").toString();
@@ -217,7 +379,14 @@ public class DataTableController {
     	
     	Set<String> foundIds = new HashSet<>();
     	
-    	SolrDocumentList results = solrResponse.getResults();
+    	System.out.println("responses: " + solrResponses.size());
+    	
+    	SolrDocumentList results = new SolrDocumentList();
+    	
+    	for ( QueryResponse solrResponse : solrResponses ){
+    		results.addAll(solrResponse.getResults());
+    	}
+    	
     	int totalDocs = results.size();
     	
     	Map<String, String> dataTypeId = new HashMap<>();
@@ -247,7 +416,7 @@ public class DataTableController {
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
 		
-			System.out.println("doc: " + doc);
+			//System.out.println("doc: " + doc);
 			
 			List<String> rowData = new ArrayList<String>();
 			
@@ -264,7 +433,7 @@ public class DataTableController {
 				
 				for( Object acc : mgiGeneAccs ){
 					String mgi_gene_id = (String) acc;
-					System.out.println("mgi_gene_id: "+ mgi_gene_id);
+					//System.out.println("mgi_gene_id: "+ mgi_gene_id);
 					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
 					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
 					try {

@@ -187,11 +187,10 @@ public class SolrIndex {
 		else {
 			server = new HttpSolrServer(config.get("internalSolrUrl") + "/" + solrCoreName);
 		}
-		System.out.println("solrurl: " + server);
+		//System.out.println("solrurl: " + server);
 		
-		String[] idList = StringUtils.split(idlist);
-		String querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
-		System.out.println("queryStr: " + querystr);
+		String querystr = qField + ":(" + idlist + ")";
+		//System.out.println("queryStr: " + querystr);
 		
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
@@ -201,13 +200,16 @@ public class SolrIndex {
 		}
 		
 		query.setStart(0);
-		query.setRows(10);  // default
+		
+		List<String> idList = Arrays.asList(StringUtils.split(idlist, ","));
+		//System.out.println("rows: "+ idList.size());
+		query.setRows(idList.size());  // dynamic
 		
 		// retrieves wanted fields
 		query.setFields(fllist);
 
 		QueryResponse response = server.query(query, METHOD.POST);
-		System.out.println("response: "+ response);
+		//System.out.println("response: "+ response);
 		
 		return response;
 	}
