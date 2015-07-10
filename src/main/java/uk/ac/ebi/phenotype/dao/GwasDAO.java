@@ -52,8 +52,9 @@ public class GwasDAO {
     }
 
     /**
-     * 
-     * 
+     * Fetch all gwas mapping rows filtered by mgi gene sysmbol.
+     *
+     * @return all gwas mapping rows filtered by mgi gene symbol
      * @throws SQLException 
      */
     public List<GwasDTO> getGwasMappingByGeneSymbol(List<GwasDTO> gwasMappings, String mgiGeneSymbol) throws SQLException {
@@ -71,6 +72,114 @@ public class GwasDAO {
         return null;
     }
 
+    /**
+     * Fetch all overview gwas mapping rows filtered by query.
+     * The columns are mgi gene symbol, IMPC MP term, GWAS trait
+     * @return all overview gwas mapping rows filtered by query
+     * 
+     * @throws SQLException 
+     */
+    public List<GwasDTO> getGwasMappingOverviewByQueryStr(String field, String value) throws SQLException {
+    	
+    	Connection connection = admintoolsDataSource.getConnection();
+    	// need to set max length for group_concat() otherwise some values would get chopped off !!
+
+    	String gcsql = "SET SESSION GROUP_CONCAT_MAX_LEN = 100000000";
+    	PreparedStatement pst = connection.prepareStatement(gcsql);
+    	pst.executeQuery();
+    	
+    	String whereClause = null;
+        String query = null;
+        String selectClause = "SELECT GROUP_CONCAT(distinct mgi_gene_symbol) AS mgi_gene_symbol, "
+        		+ "GROUP_CONCAT(distinct mgi_gene_id) AS mgi_gene_id, "
+        		+ "GROUP_CONCAT(distinct mp_term_name) AS mp_term_name, "
+        		+ "GROUP_CONCAT(distinct gwas_disease_trait) AS gwas_disease_trait "
+        		+ "FROM impc2gwas ";
+        String groupBy = " GROUP BY gwas_disease_trait, mp_term_name";
+        
+    	if ( field.equals("keyword") ){
+        	whereClause = 
+                  "  WHERE (mgi_gene_id         LIKE ?\n"
+                + "  OR mgi_gene_symbol         LIKE ?\n"
+                + "  OR mgi_allele_id         	LIKE ?\n"
+                + "  OR mgi_allele_name        	LIKE ?\n"
+                + "  OR pheno_mapping_category 	LIKE ?\n"
+                + "  OR gwas_disease_trait      LIKE ?\n"
+                + "  OR gwas_p_value	        LIKE ?\n"
+                + "  OR gwas_reported_gene      LIKE ?\n"
+                + "  OR gwas_mapped_gene        LIKE ?\n"
+                + "  OR gwas_upstream_gene      LIKE ?\n"
+                + "  OR gwas_downstream_gene    LIKE ?\n"
+                + "  OR mp_term_id              LIKE ?\n"
+                + "  OR mp_term_name            LIKE ?\n"
+                + "  OR impc_mouse_gender       LIKE ?\n"
+                + "  OR gwas_snp_id             LIKE ?\n)"
+                + "  AND pheno_mapping_category != 'no mapping'";
+        	
+        	query = selectClause + whereClause + groupBy;
+        }
+        else if ( ! value.isEmpty() ) {
+        	query = selectClause + " WHERE " + field + " = ? AND pheno_mapping_category != 'no mapping'" + groupBy;
+        }
+        else {
+        	query = selectClause + " WHERE pheno_mapping_category != 'no mapping'" + groupBy;
+        }
+        
+        System.out.println("gwas mapping query: " + query);
+    	
+        List<GwasDTO> results = new ArrayList<>();
+        
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        	if ( field.equals("keyword") ){
+        		value = "%" + value + "%";
+        		ps.setString(1, value);
+        		ps.setString(2, value);
+        		ps.setString(3, value);
+        		ps.setString(4, value);
+        		ps.setString(5, value);
+        		ps.setString(6, value);
+        		ps.setFloat(7, Float.valueOf("-1"));  // simply set to something that does not exist, we don't need this field
+        		ps.setString(8, value);
+        		ps.setString(9, value);
+        		ps.setString(10, value);
+        		ps.setString(11, value);
+        		ps.setString(12, value);
+        		ps.setString(13, value);
+        		ps.setString(14, value);
+        		ps.setString(15, value);
+        	}
+        	else if ( ! value.isEmpty()) {
+                // Replace parameter holder ? with the value.
+            	ps.setString(1, value);
+            }
+        
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+               
+                GwasDTO gwasMappingRow = new GwasDTO();
+                
+                gwasMappingRow.setGwasMgiGeneId(resultSet.getString("mgi_gene_id"));
+                gwasMappingRow.setGwasMgiGeneSymbol(resultSet.getString("mgi_gene_symbol"));
+                gwasMappingRow.setGwasDiseaseTrait(resultSet.getString("gwas_disease_trait"));
+                gwasMappingRow.setGwasMpTermName(resultSet.getString("mp_term_name"));
+                
+                results.add(gwasMappingRow);
+            }
+            resultSet.close();
+            ps.close();
+            connection.close();
+            
+        } catch (Exception e) {
+            log.error("Fetch IMPC GWAS mapping data failed: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        
+        return results;
+        
+    }
+
+    
+    
     /**
      * Fetch all gwas mapping rows.
      *

@@ -20,7 +20,7 @@
         	a i.gwasSearchExample {
         		margin-left: 15px;
         	}
-        	div#pm {
+        	div#overviewTable {
         		margin-top: 50px;
         	}
             
@@ -140,7 +140,7 @@
 		 				  .appendTo( ul );
 		        };
 	                
-                function fetch_gwas(query) {
+                function fetch_gwas_ori(query) {
                 	
                 	var parts = query.split(" : ");
                 	var re = new RegExp(' ', 'g');	
@@ -148,7 +148,7 @@
                 	var value = parts[1];
                 	
                 	field = field.replace('impc_', '');
-                	console.log(value == undefined);
+                	
                 	if ( value == undefined ){
                 		value = field;
                 		field = 'keyword';
@@ -156,10 +156,137 @@
                 	
                 	//console.log(baseUrl + "/gwaslookup?" + field + "="+ value);
                 	document.location.href = baseUrl + "/gwaslookup?" + field + "="+ value;
+                	
                 } 
                 
-               	$( "#tabs" ).tabs();
-               	$.fn.customJqTabs();
+				function fetch_gwas(query) {
+                	
+                	var parts = query.split(" : ");
+                	var field = null;
+                	var value = null;
+                	
+                	if ( parts.length == 1 ) {
+                		// user hits enter w/o choosing from dropdown list
+                		field = 'keyword';
+                		value = parts[0];
+					}
+					else {
+						var re = new RegExp(' ', 'g');	
+	                	field = parts[0].replace(re, '_');
+	                	value = parts[1];
+	                	
+	                	field = field.replace('impc_', '');
+					}
+                	//alert(field + ' --- ' + value)
+					
+                	var cols = ['Marker symbol', 'IMPC MP term', 'GWAS disease trait', ''];
+                	var tableId = 'gwas';
+					var dTableSkeleton = _refreshTable(cols, tableId);
+					$('div#overviewTable').append(dTableSkeleton);
+                	
+	       	      	var dTable = $('table#gwas').dataTable({
+	       	            "bSort": true,
+	       	            "bProcessing": true,
+	       	            "bServerSide": true,
+	       	            //"sDom": "<lr><'#caption'>tip",
+	       	         	"sDom": "<<'#exportSpinner'>l<'#tableTool'>r><'#caption'>tip",
+	       	            "sPaginationType": "bootstrap",
+	       	         	"oLanguage": {
+	       	          		"sLengthMenu": 'Show <select>'+
+		       	            '<option value="10">10</option>'+
+		       	            '<option value="30">30</option>'+
+		       	            '<option value="50">50</option>'+
+		       	            '</select> genes',
+		       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes"
+	       	        	},
+	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
+	       	            	
+	       	            	// dumper tool here
+	       	            	
+	       	            	var dTable = $(this).DataTable();
+	       	            	$(this).find('tr td:nth-child(4)').css('cursor','pointer');
+	       	            	
+	       	            	$(this).find('tr td:nth-child(4)').click(function(){
+	       	            		
+	       	            		var oTr = $(this).parent();
+	       	            		var oRow = dTable.row(oTr);
+	       	            		
+	       	            	 	if (oRow.child.isShown()) {
+	       	            	 		oRow.child.hide();
+	       	            	 		oTr.find('td > i.fa').removeClass('fa-minus-square');
+	       	            	 	}
+	       	            	 	else {
+	       	            	 		console.log(oTr);
+	       	            	 		fetchDetailedGwasData(dTable, oTr, oRow, field, value);
+	       	            		}
+	       	            	});
+							
+	       	            	
+	       	            },
+	       	         	"ajax": {
+	                        "url": baseUrl + "/gwaslookup?" + field + '=' + value,
+	                       // "data": {field : value},
+	                        "type": "POST",
+	                        "error": function() {
+	                            $('div.dataTables_processing').text("AJAX error trying to fetch your query");
+	                        }
+	                    }
+	       	        });
+                	
+                } 
+				function _refreshTable(cols, tableId){
+					
+					$('div#overviewTable').html('');
+					
+					var th;
+					for( var i=0; i<cols.length; i++){
+						th += '<th>' + cols[i] + '</th>';
+					}
+					
+					var tableHeader = "<thead>" + th + "</thead>";
+	            	var tableColNum = cols.length;
+	            	
+	                var dTable = $.fn.fetchEmptyTable(tableHeader, tableColNum, tableId);
+	                
+	                return dTable;
+     			}
+              
+				function fetchDetailedGwasData(dTable, oTr, oRow, field, value) {
+	       		 	
+   	        		var mgi_gene_symbol = oTr.find('td:nth-child(1)').text();
+   	        		var mp_term_name = oTr.find('td:nth-child(2)').text();
+   	        		var gwas_disease_trait = oTr.find('td:nth-child(3)').text();
+   	        		
+   	        		/*var rowId = oTr.find('td:nth-child(4) i').attr('id');
+   	        		
+   	        		var cols = ['MGI allele','IMPC mouse gender', 'Phenomapping category', 'GWAS SNP id', 'GWAS p value', 'GWAS reported gene', 'GWAS mapped gene', 'GWAS upstream gene', 'GWAS downstream gene'];
+                	var tableId = 'gwas' + rowId;
+					var dTableSkeleton = _refreshTable(cols, tableId);
+					$('div#overviewTable').append(dTableSkeleton);
+   	        		*/
+   	        		
+					$.ajax({
+		                'url': baseUrl + '/gwaslookup',
+		                'data': field=value + '&mgi_gene_symbol=' + mgi_gene_symbol + '&mp_term_name=' + mp_term_name + '&gwas_disease_trait=' + gwas_disease_trait,
+		                'dataType': 'jsonp',
+		                "type": "POST",
+		                'jsonp': 'json.wrf',
+		                'success': function (detailedTable) {
+		                	
+	       	        	 	var table = $("<table class='goTerm'></table>");
+	       	        	 	//table.append('<thead><th>Uniprot protein</th><th>GO id</th><th>GO name</th><th>GO evidence</th><th>GO domain</th>');
+	       	        	 	//table.append(trs);
+							
+							//add the response html to the target row
+	       	        		oRow.child(detailedTable).show();
+	       	        		oTr.find('td > i.fa').addClass('fa-minus-square');
+	       	    		},
+	       	    		'error': function(jqXHR, textStatus, errorThrown) {
+	       		    		oRow.child('Error fetching data ...').show();
+	       		    	}	
+					});
+   	        		
+	       		}
                	
 			});
          
@@ -189,10 +316,10 @@
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>
-								<span class='ginput'></span>Search mappings:&nbsp;&nbsp;<input type='text' value='' id ='gwasInput' class='gwaslookup'><a><i class='fa fa-info gwasSearchExample'></i></a>
+								<span class='ginput'></span>Search by gene, SNP id, GWAS trait, and IMPC phenotype:<br><input type='text' value='' id ='gwasInput' class='gwaslookup'><a><i class='fa fa-info gwasSearchExample'></i></a>
 							
                                 <!-- container to display dataTable -->									
-                                <div class="gwasTable" id="pm">${mapping}</div>
+                                <div id="overviewTable"></div>
                             </div>
                         </div>
                     </div>				
