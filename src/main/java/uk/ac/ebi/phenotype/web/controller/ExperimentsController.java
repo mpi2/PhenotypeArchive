@@ -41,8 +41,10 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
+import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -51,6 +53,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +74,9 @@ public class ExperimentsController {
 
 	@Autowired
 	private StatisticalResultService srService;
+	
+	@Autowired
+	private ImpressService impressService;
 
 	@Autowired
 	private ObservationService observationService;
@@ -89,28 +95,34 @@ public class ExperimentsController {
 	@RequestMapping("/experiments/alleles/{alleleAccession}")
 	public String genes(
 			@PathVariable String alleleAccession,
-			@RequestParam(required = true, value = "phenotyping_center") String phenotypingCenter,
-			@RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
+			@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
+			@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
 			@RequestParam(required = false, value = "procedure_stable_id") String procedureStableId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) 
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
+		List<ImpressBean> pipelines = new ArrayList<>();
+		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
+		List<String> procedureStableIds = null;
+		List<String> truncatedStableIds = null;
 
 		if (allele == null) {
 			log.warn("Allele '" + alleleAccession + "' can't be found.");
 		}
-		
-		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
-		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
-		
+				
+		if (pipelineStableId == null){
+			pipelines = observationService.getPipelines(alleleAccession, phenotypingCenter, resource);
+		} else {
+			pipelines = new ArrayList<>();
+			pipelines.add(impressService.getPipeline(pipelineStableId));
+		}
+				
 		// check whether there is a procedure id, and if so if it's truncated or not
 		// The reason is a procedure can have multiple versions.
-		List<String> procedureStableIds = null;
-		List<String> truncatedStableIds = null;
 		if (procedureStableId != null) {
 			List<Procedure> procedures = pipelineDao.getProcedureByMatchingStableId(procedureStableId);
 			truncatedStableIds = new ArrayList();
@@ -122,13 +134,27 @@ public class ExperimentsController {
 				}
 			}
 		}
+		
 		try {
 			// get all p-values for this allele/center/pipeline
-			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds, resource);
+			pvaluesMap = new HashMap<String, List<StatisticalResultBean>>();
+			Map<String, List<String>> parametersByProcedure = new HashMap<>();
+			
+			for (ImpressBean pipeline : pipelines){
+				pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession, phenotypingCenter, pipeline.getStableId(), truncatedStableIds, resource));
+				if (resource != null){
+					for (String res : resource){
+						parametersByProcedure.putAll(srService.getParametersToProcedureMap(res, phenotypingCenter, pipeline.getStableId()));
+					}
+				} else {
+					parametersByProcedure.putAll(srService.getParametersToProcedureMap(null, phenotypingCenter, pipeline.getStableId()));
+				}
+			}	
+			
 			ColorCodingPalette colorCoding = new ColorCodingPalette();
 			colorCoding.generateColors(	pvaluesMap,	ColorCodingPalette.NB_COLOR_MAX, 1,	Constants.SIGNIFICANT_P_VALUE);
-			Map<String, List<String>> parametersByProcedure = srService.getParametersToProcedureMap(null, phenotypingCenter, pipeline.getStableId());
-			String chart = phenomeChartProvider.generatePvaluesOverviewChart(allele, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, parametersByProcedure, phenotypingCenter, pipeline.getStableId());
+			
+			String chart = phenomeChartProvider.generatePvaluesOverviewChart(allele, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, parametersByProcedure, phenotypingCenter);
 			
 			model.addAttribute("palette", colorCoding.getPalette());
 			model.addAttribute("chart", chart);
@@ -140,7 +166,6 @@ public class ExperimentsController {
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
-		model.addAttribute("pipeline", pipeline);
 		model.addAttribute("request", request);
 		
 		return "experiments";

@@ -126,7 +126,8 @@ public class PhenomeChartProvider {
 		+ "                     href : base_url + '/charts?accession=' + event.point.geneAccession + "
 		+ "'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
 		+ "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotyping_center + "
-		+ "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', \n"
+	//	+ "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '\n"
+		+ "'&bare=true', "
 		+ "                     title : event.point.geneAccession \n"
 		+ "                  } \n"
 		+ "                  ], \n"
@@ -149,9 +150,7 @@ public class PhenomeChartProvider {
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
-		
-		
-		
+			
 		return chartString;
 	}
 
@@ -584,7 +583,7 @@ public class PhenomeChartProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String generatePvaluesOverviewChart(	Allele allele,	Map<String, List<StatisticalResultBean>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter, String pipelineStableId)
+	public String generatePvaluesOverviewChart(	Allele allele,	Map<String, List<StatisticalResultBean>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter)
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
@@ -635,7 +634,7 @@ public class PhenomeChartProvider {
 							dataPoint.put("name", statsResult.getParameterName());
 							dataPoint.put("parameter_stable_id", parameterStableId);
 							dataPoint.put("parameter_name", statsResult.getParameterName());
-							dataPoint.put("pipeline_stable_id", pipelineStableId);
+							//dataPoint.put("pipeline_stable_id", pipelineStableId);
 							dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
 							dataPoint.put("alleleAccession", allele.getId().getAccession());
 							dataPoint.put("phenotyping_center", phenotypingCenter);

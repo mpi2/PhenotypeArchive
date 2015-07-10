@@ -59,7 +59,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top"><t:formatAllele>${allele.symbol}</t:formatAllele> - ${phenotyping_center} - ${pipeline.name}&nbsp;&nbsp; </h1>
+						<h1 class="title" id="top"><t:formatAllele>${allele.symbol}</t:formatAllele> - ${phenotyping_center} </h1>
 
 							<!--  Phenotype Associations Panel -->
 							<div class="section">
