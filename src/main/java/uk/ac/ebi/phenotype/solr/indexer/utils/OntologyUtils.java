@@ -137,12 +137,7 @@ public class OntologyUtils {
         ResultSet resultSet = p.executeQuery();
 
         while (resultSet.next()) {
-            ImpressBean b = new ImpressBean();
-
-            b.id = resultSet.getInt("id");
-            b.stableKey = resultSet.getString("stable_key");
-            b.stableId = resultSet.getString("stable_id");
-            b.name = resultSet.getString("name");
+            ImpressBean b = new ImpressBean( resultSet.getInt("id"), resultSet.getString("stable_key"), resultSet.getString("stable_id"), resultSet.getString("name"));
 
             impressMap.put(resultSet.getInt("id"), b);
         }
