@@ -23,7 +23,10 @@
         	div#overviewTable {
         		margin-top: 50px;
         	}
-            
+        	table.detailed tr.odd td {
+        		background-color: #F2F2F2;
+        	}
+        	
         </style>
         
         <script type='text/javascript'>
@@ -39,6 +42,14 @@
 
                 //console.log('solrurl: ' + solrUrl);
                 //console.log('baseurl: ' + baseUrl);
+                
+	
+                // clean existing input box
+                $( "input#gwasInput" ).val("");
+                
+                // default load
+                fetch_gwas("impc_mgi_gene_symbol : Nos1ap"); 
+                
                 // IMPC GWAS mapping data autosuggest
                 // generic search input autocomplete javascript
 				var solrBq = "&bq=gwas_mgi_gene_symbol:*^100 gwas_disease_trait:*^90 gwas_mp_term_id:*^80 gwas_mp_term_name:*^80";
@@ -154,7 +165,7 @@
                 		field = 'keyword';
                 	}
                 	
-                	//console.log(baseUrl + "/gwaslookup?" + field + "="+ value);
+                	console.log(baseUrl + "/gwaslookup?" + field + "="+ value);
                 	document.location.href = baseUrl + "/gwaslookup?" + field + "="+ value;
                 	
                 } 
@@ -216,7 +227,6 @@
 	       	            	 		oTr.find('td > i.fa').removeClass('fa-minus-square');
 	       	            	 	}
 	       	            	 	else {
-	       	            	 		console.log(oTr);
 	       	            	 		fetchDetailedGwasData(dTable, oTr, oRow, field, value);
 	       	            		}
 	       	            	});
@@ -225,7 +235,7 @@
 	       	            },
 	       	         	"ajax": {
 	                        "url": baseUrl + "/gwaslookup?" + field + '=' + value,
-	                       // "data": {field : value},
+	                       // "data": {field : value}, not working
 	                        "type": "POST",
 	                        "error": function() {
 	                            $('div.dataTables_processing').text("AJAX error trying to fetch your query");
@@ -257,26 +267,13 @@
    	        		var mp_term_name = oTr.find('td:nth-child(2)').text();
    	        		var gwas_disease_trait = oTr.find('td:nth-child(3)').text();
    	        		
-   	        		/*var rowId = oTr.find('td:nth-child(4) i').attr('id');
-   	        		
-   	        		var cols = ['MGI allele','IMPC mouse gender', 'Phenomapping category', 'GWAS SNP id', 'GWAS p value', 'GWAS reported gene', 'GWAS mapped gene', 'GWAS upstream gene', 'GWAS downstream gene'];
-                	var tableId = 'gwas' + rowId;
-					var dTableSkeleton = _refreshTable(cols, tableId);
-					$('div#overviewTable').append(dTableSkeleton);
-   	        		*/
-   	        		
 					$.ajax({
-		                'url': baseUrl + '/gwaslookup',
-		                'data': field=value + '&mgi_gene_symbol=' + mgi_gene_symbol + '&mp_term_name=' + mp_term_name + '&gwas_disease_trait=' + gwas_disease_trait,
-		                'dataType': 'jsonp',
+		                'url': baseUrl + '/gwaslookup?mgi_gene_symbol=' + mgi_gene_symbol + '&mp_term_name=' + mp_term_name + '&gwas_disease_trait=' + gwas_disease_trait,
 		                "type": "POST",
-		                'jsonp': 'json.wrf',
+		                'dataType': 'html',
 		                'success': function (detailedTable) {
-		                	
-	       	        	 	var table = $("<table class='goTerm'></table>");
-	       	        	 	//table.append('<thead><th>Uniprot protein</th><th>GO id</th><th>GO name</th><th>GO evidence</th><th>GO domain</th>');
-	       	        	 	//table.append(trs);
-							
+	       	        	 	//console.log(detailedTable)
+	       	        	 	
 							//add the response html to the target row
 	       	        		oRow.child(detailedTable).show();
 	       	        		oTr.find('td > i.fa').addClass('fa-minus-square');

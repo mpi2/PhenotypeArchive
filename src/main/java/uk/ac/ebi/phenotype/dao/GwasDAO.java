@@ -48,7 +48,6 @@ public class GwasDAO {
 	private Map<String, String> config;
     
     public GwasDAO() {
-        
     }
 
     /**
@@ -72,6 +71,47 @@ public class GwasDAO {
         return null;
     }
 
+    
+    public List<GwasDTO> getGwasMappingDetailRows(String sql) throws SQLException {
+    	Connection connection = admintoolsDataSource.getConnection();
+    	// need to set max length for group_concat() otherwise some values would get chopped off !!
+    	String query = "SELECT * FROM impc2gwas WHERE pheno_mapping_category != 'no mapping' AND " + sql;
+    	System.out.println("gwas mapping detail rows query: " + query);
+     	
+         List<GwasDTO> results = new ArrayList<>();
+         
+         try (PreparedStatement ps = connection.prepareStatement(query)) {
+        	 
+        	 ResultSet resultSet = ps.executeQuery();
+             while (resultSet.next()) {
+                
+                 GwasDTO gwasMappingRow = new GwasDTO();
+                 
+                 gwasMappingRow.setGwasMgiAlleleName(resultSet.getString("mgi_allele_name"));
+                 gwasMappingRow.setGwasMgiAlleleId(resultSet.getString("mgi_allele_id"));
+                 gwasMappingRow.setGwasMouseGender(resultSet.getString("impc_mouse_gender"));
+                 gwasMappingRow.setGwasPhenoMappingCategory(resultSet.getString("pheno_mapping_category"));
+                 gwasMappingRow.setGwasSnpId(resultSet.getString("gwas_snp_id"));
+                 gwasMappingRow.setGwasPvalue(resultSet.getFloat("gwas_p_value"));
+                 gwasMappingRow.setGwasReportedGene(resultSet.getString("gwas_reported_gene"));
+                 gwasMappingRow.setGwasMappedGene(resultSet.getString("gwas_mapped_gene"));
+                 gwasMappingRow.setGwasUpstreamGene(resultSet.getString("gwas_upstream_gene"));
+                 gwasMappingRow.setGwasDownstreamGene(resultSet.getString("gwas_downstream_gene"));
+                 
+                 results.add(gwasMappingRow);
+             }
+             resultSet.close();
+             ps.close();
+             connection.close();
+             
+         } catch (Exception e) {
+             log.error("Fetch IMPC GWAS mapping data failed: " + e.getLocalizedMessage());
+             e.printStackTrace();
+         }
+         
+         return results;
+ 
+    }
     /**
      * Fetch all overview gwas mapping rows filtered by query.
      * The columns are mgi gene symbol, IMPC MP term, GWAS trait
