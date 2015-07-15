@@ -1,4 +1,7 @@
 $(document).ready(function () {
+	
+	var baseUrl = "${baseUrl}";
+	var solrUrl = "${solrUrl}";
 		    var exampleSearch = 
 				 '<h3 id="samplesrch">Example Searches</h3>'
 					+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
